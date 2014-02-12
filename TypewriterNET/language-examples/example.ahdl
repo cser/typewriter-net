@@ -1,0 +1,36 @@
+% a simple AHDL up counter, released to public domain 13 November 2006 %
+% [block quotations achieved with percent sign] %
+% like c, ahdl functions must be prototyped %
+
+% PROTOTYPE:
+ FUNCTION COUNTER (CLK)
+        RETURNS (CNTOUT[7..0]); %
+
+% function declaration, where inputs, outputs, and
+bidirectional pins are declared %
+% also like c, square brakets indicate an array %
+
+SUBDESIGN COUNTER
+(
+        CLK             :INPUT;
+        CNTOUT[7..0]    :OUTPUT;
+)
+
+% variables can be anything from flip-flops (as in this case),
+tri-state buffers, state machines, to user defined functions %
+
+VARIABLE
+        TIMER[7..0]: DFF;
+
+% as with all hardware description languages, think of this
+ less as an algorithm and more as wiring nodes together %
+
+BEGIN
+        DEFAULTS
+
+                TIMER[].prn = VCC; %  this takes care of d-ff resets %
+                TIMER[].clrn = VCC;
+        END DEFAULTS;
+
+        TIMER[].d = TIMER[].q + H"1";
+END;

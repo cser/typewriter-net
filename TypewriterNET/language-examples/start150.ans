@@ -1,0 +1,28 @@
+*ABBR,RESUM_DB,        ! Delete the resume button in the default toolbar
+*ABBR,REFRESH ,/replot ! program the Refresh button to do /REPLOT command
+*ABBR,PL_ELEM ,eplot   ! program the PL_ELEM button to do EPLOT command
+*ABBR,PL_NODE ,nplot   ! program the PL_NODE button to do NPLOT command
+*ABBR,PL_KPTS ,kplot   ! program the PL_KPTS button to do KPLOT command
+*ABBR,PL_LINE ,lplot   ! program the PL_LINE button to do LPLOT command
+*ABBR,PL_AREA ,aplot   ! program the PL_AREA button to do APLOT command
+*ABBR,PL_VOLU ,vplot   ! program the PL_VOLU button to do VPLOT command
+*ABBR,PL_MULTI ,gplot   ! program the PL_MULTI button to do GPLOT command
+*ABBR,NNUM_ON ,/pnum,node,1  ! Toggle node numbering ON for plots
+*ABBR,NNUM_OFF,/pnum,node,0  ! Toggle node numbering OFF for plots
+*ABBR,KNUM_ON ,/pnum,kp,1    ! Toggle keypoint numbering ON for plots
+*ABBR,KNUM_OFF,/pnum,kp,0    ! Toggle keypoint numbering OFF for plots
+*ABBR,LNUM_ON ,/pnum,line,1  ! Toggle line numbering ON for plots
+*ABBR,LNUM_OFF,/pnum,line,0  ! Toggle line numbering OFF for plots
+*ABBR,ANUM_ON ,/pnum,area,1  ! Toggle area numbering ON for plots
+*ABBR,ANUM_OFF,/pnum,area,0  ! Toggle area numbering OFF for plots
+*ABBR,EDGE_DEF ,/EDGE,1,0    ! Toggle the edge display key to default
+*ABBR,EDGE_ALT ,/EDGE,1,1    ! Toggle the edge display key to alternate
+*ABBR,LEGEND,/PLOPT,INFO,1   ! place the ANSYS legend on the right side
+*ABBR,NUMB_OFF ,/NUM,1    ! Toggle the numbering key to OFF
+*ABBR,NUMB_ON  ,/NUM,0    ! Toggle the numbering key to ON (default)
+*ABBR,VW321,/view,1,3,2,1 ! create a custom view vector
+*ABBR,RESUM_DB,RESUME     ! create the RESUM_DB button far away from the SAVE
+*ABBR,HC_TIFF,/UI,copy,save,tiff,graph,color,reverse,portrait,yes,
+*ABBR,HC_PNG,/UI,copy,save,png,graph,color,reverse,portrait,yes,
+ ! /CMAP,'greyscale2012','cmap','P:\'      ! (OPTIONAL) read color map
+  ! *************  ! the HC_* buttons save the graphics as a TIF or PNG file

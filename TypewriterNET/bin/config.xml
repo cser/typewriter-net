@@ -1,0 +1,25 @@
+<config>
+	<item name="wordWrap" value="true"/>
+	<item name="showLineNumbers" value="true"/>
+	<item name="showLineBreaks" value="false"/>
+	<item name="highlightCurrentLine" value="true"/>
+	<item name="tabSize" value="4"/>
+	<item name="lineBreak" value="\r\n"/>
+	<item name="maxTabsCount" value="20"/>
+	<item name="fontSize" value="10.25"/>
+	<item name="fontFamily" value="Courier New"/>
+	<item name="scheme" value="npp"/>
+	<item name="scrollingIndent" value="2"/>
+	<item name="showColorAtCursor" value="true"/>
+	<item name="rememberOpenedFiles" value="true"/>
+	
+	<altChars
+		source="1234567890-=\qwertyuiop[]"
+		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>
+	<altChars
+		source="asdl;'zcnm,/!$+QWERTYUIOPASDL:&quot;"
+		result="áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°¨"/>
+	<altChars
+		source="ZCN&lt;"
+		result="Æ¢ÑÇ"/>
+</config>

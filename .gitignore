@@ -1,0 +1,7 @@
+MulticaretEditor/bin
+MulticaretEditorTests/bin
+ResourceBuilder/bin
+TypewriterNET/bin/*.exe
+TypewriterNET/bin/*.dll
+TypewriterNET/bin/*.pdb
+TypewriterNET/*.exe

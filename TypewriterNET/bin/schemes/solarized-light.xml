@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scheme>
+	<color name="bg" value="base3"/>
+	<color name="fg" value="base00"/>
+	<color name="lineBg" value="base2"/>
+	<color name="lineNumberBg" value="base2"/>
+	<color name="lineNumberFg" value="base1"/>
+	<color name="selectionBrush" value="base03"/>
+	<color name="selectionPen" value="#052831"/>
+	<color name="mainCaret" value="#000000"/>
+	<color name="caret" value="#808080"/>
+	<color name="tabsBg" value="#C0C0C0"/>
+	<color name="tabsFg" value="#000000"/>
+	
+	<style name="dsNormal" color="base01"/>
+	<style name="dsNormal2" color="base01" italic="true"/>
+	<style name="dsComment" color="base1"/>
+	<style name="dsOperator" color="base01" bold="true"/>
+	
+	<style name="dsOthers2" color="base01"/>
+	
+	<style name="dsDocTag" color="base01" bold="true"/>
+	<style name="dsDocWord" color="base01"/>
+	<style name="dsDocCustomTag" color="base1" bold="true"/>
+	<style name="dsDocInner" color="base1" italic="true"/>
+</scheme>

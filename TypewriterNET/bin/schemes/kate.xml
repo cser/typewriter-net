@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scheme>
+	<color name="bg" value="#FFFFFF"/>
+	<color name="fg" value="#1F1C1B"/>
+	<color name="lineBg" value="#F8F7F6"/>
+	<color name="lineNumberBg" value="#E4E4E4"/>
+	<color name="lineNumberFg" value="#808080"/>
+	<color name="selectionBrush" value="#94CAEF"/>
+	<color name="selectionPen" value="#FFFFFF"/>
+	<color name="mainCaret" value="#1F1C1B"/>
+	<color name="caret" value="#808080"/>
+	<color name="tabsBg" value="#F5F5F5"/>
+	<color name="tabsFg" value="#000000"/>
+	
+	<width name="mainCaret" value="2"/>
+	<width name="caret" value="2"/>
+	
+	<style name="dsNormal" color="#1F1C1B"/>
+	<style name="dsKeyword" color="#1F1C1B" bold="true"/>
+	<style name="dsDataType" color="#0057AE"/>
+	<style name="dsDecVal" color="#B08000"/>
+	<style name="dsBaseN" color="#B08000"/>
+	<style name="dsFloat" color="#B08000"/>
+	<style name="dsChar" color="#924C9D"/>
+	<style name="dsString" color="#BF0303"/>
+	<style name="dsComment" color="#898887"/>
+	<style name="dsOthers" color="#006E28"/>
+	<style name="dsAlert" color="#BF0303" bold="true"/>
+	<style name="dsFunction" color="#644A9B"/>
+	<style name="dsRegionMarker" color="#0057AE"/>
+	<style name="dsError" color="#BF0303" underline="true"/>
+	
+	<style name="dsOperator" color="#1F1C1B" bold="true"/>
+	<style name="dsConstructor" color="#ca60ca" bold="true"/>
+	<style name="dsNormal2" color="1F1C1B" italic="true"/>
+	<style name="dsKeyword2" color="#1F1C1B" bold="true"/>
+	<style name="dsString2" color="#BF0303"/>
+	<style name="dsOthers2" color="#006E28"/>
+	
+	<style name="dsDocHtml1" color="#000000" bold="true"/>
+	<style name="dsDocHtml2" color="#006E28"/>
+	<style name="dsDocHtml3" color="#0057AE"/>
+	<style name="dsDocEntities" color="#4086C0" bold="true" italic="true"/>
+	<style name="dsDocTag" color="#ca60ca" bold="true"/>
+	<style name="dsDocWord" color="#0095ff" bold="true"/>
+	<style name="dsDocDescription"  color="#ff0000" />
+	<style name="dsDocCustomTag" color="#458C61" bold="true"/>
+	<style name="dsDocAlertTag1" color="#e85848" bold="true"/>
+	<style name="dsDocAlertTag2" color="#ca9219" bold="true"/>
+	<style name="dsDocAlertTag3" color="#81ca2d" bold="true"/>
+	<style name="dsDocAlert1" color="#e85848"/>
+    <style name="dsDocAlert2" color="#ca9219"/>
+    <style name="dsDocAlert3" color="#81ca2d"/>
+	<style name="dsDocInner" color="#00A000" italic="true"/>
+</scheme>

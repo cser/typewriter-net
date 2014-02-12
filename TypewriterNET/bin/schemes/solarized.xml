@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scheme>
+	<defColor name="base00" value="#657B83"/>
+	<defColor name="base01" value="#586E75"/>
+	<defColor name="base02" value="#073642"/>
+	<defColor name="base03" value="#002B36"/>
+	<defColor name="base0" value="#839496"/>
+	<defColor name="base1" value="#93A1A1"/>
+	<defColor name="base2" value="#EEE8D5"/>
+	<defColor name="base3" value="#FDF6E3"/>
+	<defColor name="yellow" value="#B58900"/>
+	<defColor name="orange" value="#CB4B16"/>
+	<defColor name="red" value="#DC322F"/>
+	<defColor name="magenta" value="#D33682"/>
+	<defColor name="violet" value="#6C71C4"/>
+	<defColor name="blue" value="#268BD2"/>
+	<defColor name="cyan" value="#2AA198"/>
+	<defColor name="green" value="#859900"/>
+	
+	<style name="dsKeyword" color="green"/>
+	<style name="dsDataType" color="yellow"/>
+	<style name="dsDecVal" color="magenta"/>
+	<style name="dsBaseN" color="magenta"/>
+	<style name="dsFloat" color="magenta"/>
+	<style name="dsChar" color="red"/>
+	<style name="dsString" color="cyan"/>
+	<style name="dsOthers" color="violet"/>
+	<style name="dsAlert" color="red" bold="true"/>
+	<style name="dsFunction" color="blue"/>
+	<style name="dsRegionMarker" color="#804000"/>
+	<style name="dsError" color="red" underline="true"/>
+	
+	<style name="dsConstructor" color="orange"/>	
+	<style name="dsKeyword2" color="blue"/>
+	<style name="dsString2" color="cyan"/>
+	
+	<style name="dsDocDescription"  color="violet" />
+	<style name="dsDocAlertTag1" color="red" bold="true"/>
+	<style name="dsDocAlertTag2" color="orange" bold="true"/>
+	<style name="dsDocAlertTag3" color="green" bold="true"/>
+	<style name="dsDocAlert1" color="red"/>
+    <style name="dsDocAlert2" color="orange"/>
+    <style name="dsDocAlert3" color="green"/>
+    <style name="dsDocHtml1" color="cyan"/>
+	<style name="dsDocHtml2" color="cyan" italic="true"/>
+	<style name="dsDocHtml3" color="cyan" bold="true"/>
+	<style name="dsDocEntities" color="cyan" bold="true" italic="true"/>
+	
+	<!-- dark -->
+	
+	<color name="bg" value="base03"/>
+	<color name="fg" value="base00"/>
+	<color name="lineBg" value="base02"/>
+	<color name="lineNumberBg" value="#073642"/>
+	<color name="lineNumberFg" value="#586E75"/>
+	<color name="selectionBrush" value="base3"/>
+	<color name="selectionPen" value="#071E26"/>
+	<color name="mainCaret" value="#657B83"/>
+	<color name="caret" value="#305050"/>
+	<color name="tabsBg" value="#021318"/>
+	<color name="tabsFg" value="#657B83"/>
+	
+	<style name="dsNormal" color="base1"/>
+	<style name="dsNormal2" color="base1" italic="true"/>
+	<style name="dsComment" color="base00"/>
+	<style name="dsOperator" color="base1" bold="true"/>
+	
+	<style name="dsOthers2" color="base1"/>
+	
+	<style name="dsDocTag" color="base1" bold="true"/>
+	<style name="dsDocWord" color="base1"/>
+	<style name="dsDocCustomTag" color="base00" bold="true"/>
+	<style name="dsDocInner" color="base00" italic="true"/>
+</scheme>

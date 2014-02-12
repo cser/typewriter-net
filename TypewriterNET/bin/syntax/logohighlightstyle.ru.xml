@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language>
+<!-- Logo syntax highlightning v0.2 by Cies Breijs -->
+<language name="ru" version="0.2" kateversion="2.1" section="Logo" extensions="*.logo;*.lgo;*.LOGO;*.Logo" mimetype="text/x-logosrc;text/x-logo;application/x-logo" priority="9" casesensitive="0">
+
+
+<highlighting>
+  <list name="metafunctions">
+	<item> выучи </item> 
+  </list>
+
+  <list name="statements">
+	<item> запусти </item> 
+	<item> очисти </item> 
+	<item> очс </item> 
+	<item> иди </item> 
+	<item> иди_гор </item> 
+	<item> иг </item> 
+	<item> иди_верт </item> 
+	<item> ив </item> 
+	<item> вперёд </item> 
+	<item> вп </item> 
+	<item> назад </item> 
+	<item> нд </item> 
+	<item> направление </item> 
+	<item> нпр </item> 
+	<item> налево </item> 
+	<item> лв </item> 
+	<item> направо </item> 
+	<item> пр </item> 
+	<item> центр </item> 
+	<item> нов_ширина_пера </item> 
+	<item> ншп </item> 
+	<item> перо_подними </item> 
+	<item> пп </item> 
+	<item> перо_опусти </item> 
+	<item> по </item> 
+	<item> нов_цвет_пера </item> 
+	<item> нцп </item> 
+	<item> нов_цвет_холста </item> 
+	<item> нцх </item> 
+	<item> нов_размер_холста </item> 
+	<item> нрх </item> 
+	<item> покажи </item> 
+	<item> пж </item> 
+	<item> спрячь </item> 
+	<item> сч </item> 
+	<item> нажми </item> 
+	<item> нж </item> 
+	<item> измени </item> 
+	<item> из </item> 
+	<item> сообщение </item> 
+	<item> окно_вопроса </item> 
+	<item> напиши </item> 
+	<item> нов_шрифт </item> 
+	<item> нов_размер_шрифта </item> 
+	<item> случайное </item> 
+	<item> обёртка_вкл </item> 
+	<item> обёртка_выкл </item> 
+	<item> сброс </item> 
+  </list>
+
+  <list name="controllers">
+	<item> пока </item> 
+	<item> для_каждого </item> 
+	<item> в </item> 
+	<item> для </item> 
+	<item> до </item> 
+	<item> делай </item> 
+	<item> повтори </item> 
+	<item> пвт </item> 
+	<item> если </item> 
+	<item> иначе </item> 
+	<item> верни </item> 
+	<item> прекрати </item> 
+	<item> жди </item> 
+  </list>
+
+  <list name="boolops">
+	<item> и </item> 
+	<item> или </item> 
+	<item> не </item> 
+  </list>
+ 
+  <contexts>
+    <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+      
+      <keyword attribute="MetaFunctions" String="metafunctions" context="#stay"/>
+      <keyword attribute="Statements" String="statements" context="#stay"/>
+      <keyword attribute="Execution Controllers" String="controllers" context="#stay"/>
+      <keyword attribute="Boolean Operators" String="boolops" context="#stay"/>
+     
+      <RegExpr attribute="Expressers" String="([!=&gt;&lt;][=]|[&gt;&lt;])" context="#stay"/>
+      <RegExpr attribute="Normal" String="[a-zA-Z_][a-zA-Z_0-9]+" context="#stay"/>
+      <RegExpr attribute="Number" String="([0-9]+\.[0-9]*|\.[0-9]+)?|[0-9]*" context="#stay"/>
+      <RegExpr attribute="Comment" String="#.*$" context="#stay"/>
+      <RegExpr attribute="Operator" String="[+*/\(\)-]" context="#stay"/>
+      <RegExpr attribute="Scopes" String="[\[\]]" context="#stay"/>
+      <DetectChar attribute="String" char="&quot;" context="String"/>
+    </context>
+
+    <context name="String" attribute="String" lineEndContext="#stay">
+      <HlCStringChar attribute="String" context="#stay"/>
+      <RegExpr attribute="Operator" String="%[a-zA-Z]" context="#stay"/>
+      <DetectChar attribute="String" char="&quot;" context="#pop"/>
+    </context>
+
+  </contexts>
+    
+  <itemDatas>
+    <itemData name="Normal Text" defStyleNum="dsNormal"/>
+    <itemData name="Normal" defStyleNum="dsNormal"/>
+    <itemData name="MetaFunctions" defStyleNum="dsKeyword" color="#00bb00" selColor="#ffffff" bold="1" italic="0"/>
+    <itemData name="Statements" defStyleNum="dsKeyword" color="#006600" selColor="#ffffff" bold="0" italic="0"/>
+    <itemData name="Execution Controllers" defStyleNum="dsKeyword" color="#006600" selColor="#ffffff" bold="1" italic="0"/>
+    <itemData name="Expressers" defStyleNum="dsKeyword" color="#1e99cc" selColor="#ffffff" bold="1" italic="0"/>
+    <itemData name="Boolean Operators" defStyleNum="dsKeyword" color="#9922cc" selColor="#ffffff" bold="1" italic="0"/>
+    <itemData name="Scopes" defStyleNum="dsKeyword" color="#00bb00" selColor="#ffffff" bold="1" italic="0"/>
+    <itemData name="Number" defStyleNum="dsFloat" color="#0000ff" selColor="#00eeff" bold="0" italic="0"/>
+    <itemData name="Comment" defStyleNum="dsComment" color="#999922" selColor="#888888" bold="0" italic="0"/>
+    <itemData name="String" defStyleNum="dsString" color="#800000" selColor="#ffffff" bold="0" italic="0"/>
+    <itemData name="Raw String" defStyleNum="dsString" color="#800000" selColor="#ffffff" bold="0" italic="0"/>
+    <itemData name="Operator" defStyleNum="dsOthers" color="#888888" selColor="#ffffff" bold="0" italic="0"/>
+  </itemDatas>
+</highlighting>
+   
+   
+<general>
+
+  <folding indentationsensitive="0" />
+  
+  <comments>
+    <comment name="singleLine" start="#" />
+  </comments>
+  
+  <keywords casesensitive="0" />
+
+</general>
+
+
+</language>
