@@ -6,8 +6,16 @@ namespace TypewriterNET
 {
 	public struct AppPath
 	{
+		public const string Syntax = "syntax";
+		public const string Schemes = "schemes";
+
 		public static readonly string appDataDir = Path.GetDirectoryName(Application.CommonAppDataPath);
 		public static readonly string startupDir = Application.StartupPath;
+
+		public static readonly AppPath syntaxDir = new AppPath(Path.Combine(appDataDir, Syntax));
+		public static readonly AppPath schemesDir = new AppPath(Path.Combine(appDataDir, Schemes));
+		public static readonly AppPath configPath = new AppPath("config.xml");
+		public static readonly string configTemplatePath = new AppPath("config-template.xml").startupPath;
 
 		public readonly string local;
 		public readonly string appDataPath;

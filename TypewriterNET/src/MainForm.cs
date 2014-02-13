@@ -92,7 +92,7 @@ namespace TypewriterNET
 	    private void OnLoad(object sender, EventArgs e)
 	    {
 	    	config = new Config();
-			syntaxFilesScanner = new SyntaxFilesScanner(new string[]{ Path.Combine(AppPath.appDataDir, "syntax"), Path.Combine(AppPath.startupDir, "syntax") });
+			syntaxFilesScanner = new SyntaxFilesScanner(new string[]{ Path.Combine(AppPath.appDataDir, AppPath.Syntax), Path.Combine(AppPath.startupDir, AppPath.Syntax) });
 			syntaxFilesScanner.Rescan();
 	    	highlightingSet.UpdateParameters(syntaxFilesScanner);
 	        ReloadConfig();
@@ -146,6 +146,7 @@ namespace TypewriterNET
 	        keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, AddAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, AddAction("Prefere&nces\\Edit current scheme", DoOpenCurrentScheme, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F2, null, AddAction("Prefere&nces\\Open current scheme all files", DoOpenCurrentScheme, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, AddAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.None, null, AddAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 	        
 	        keyMap.AddItem(new KeyItem(Keys.F1, null, AddAction("&?\\About", DoAbout, null, false)));
@@ -200,13 +201,9 @@ namespace TypewriterNET
 	        }
 	    }
 
-		private readonly AppPath configPath = new AppPath("config.xml");
-		private readonly string configTemplatePath = new AppPath("config-template.xml").startupPath;
-		private readonly AppPath syntaxDir = new AppPath("syntax");
-	    
 	    private AppPath GetSchemePath(string schemeName)
 	    {
-			return new AppPath(Path.Combine("schemes", schemeName + ".xml"));
+			return new AppPath(Path.Combine(AppPath.Schemes, schemeName + ".xml"));
 	    }
 	    
 	    private List<AppPath> GetSchemePaths(Config config)
@@ -234,7 +231,7 @@ namespace TypewriterNET
 	    	config.Reset();
 	    	
 	    	StringBuilder errors = new StringBuilder();
-			foreach (string pathI in configPath.paths)
+			foreach (string pathI in AppPath.configPath.paths)
 			{
 				XmlDocument configXml = context.LoadXmlIgnoreMissing(pathI, errors);
 				if (configXml != null)
@@ -494,18 +491,26 @@ namespace TypewriterNET
 	    	info.Controller.InitText(text);
 	    	return true;
 	    }
+
+		private void CreateAppDataFolders()
+		{
+			if (!Directory.Exists(AppPath.syntaxDir.appDataPath))
+				Directory.CreateDirectory(AppPath.syntaxDir.appDataPath);
+			if (!Directory.Exists(AppPath.schemesDir.appDataPath))
+				Directory.CreateDirectory(AppPath.schemesDir.appDataPath);
+		}
 	    
 	    private bool DoOpenUserConfig(Controller controller)
 	    {
-			if (!File.Exists(configPath.appDataPath))
-				File.Copy(configTemplatePath, configPath.appDataPath);
-			LoadFile(configPath.appDataPath);
+			if (!File.Exists(AppPath.configPath.appDataPath))
+				File.Copy(AppPath.configTemplatePath, AppPath.configPath.appDataPath);
+			LoadFile(AppPath.configPath.appDataPath);
 	    	return true;
 	    }
 
 	    private bool DoOpenBaseConfig(Controller controller)
 	    {
-			LoadFile(configPath.startupPath);
+			LoadFile(AppPath.configPath.startupPath);
 	    	return true;
 	    }
 	    
@@ -518,8 +523,7 @@ namespace TypewriterNET
 				if (!File.Exists(last.appDataPath) && File.Exists(last.startupPath))
 				{
 					string dir = Path.GetDirectoryName(last.appDataPath);
-					if (!Directory.Exists(dir))
-						Directory.CreateDirectory(dir);
+					CreateAppDataFolders();
 					File.Copy(last.startupPath, last.appDataPath);
 				}
 				LoadFile(last.appDataPath);
@@ -542,8 +546,9 @@ namespace TypewriterNET
 
 	    private bool DoNewSyntax(Controller controller)
 	    {
-	    	string templatePath = Path.Combine(syntaxDir.startupPath, "syntax.template");
-	    	string filePath = Path.Combine(syntaxDir.appDataPath, "new-syntax.xml");
+			CreateAppDataFolders();
+	    	string templatePath = Path.Combine(AppPath.syntaxDir.startupPath, "syntax.template");
+	    	string filePath = Path.Combine(AppPath.syntaxDir.appDataPath, "new-syntax.xml");
 	    	TabInfo info = OpenTab(templatePath, Path.GetFileName(templatePath));
 	    	LoadFile(info);
 	    	info.SetFile(filePath, Path.GetFileName(filePath));
@@ -551,6 +556,15 @@ namespace TypewriterNET
 	    	UpdateHighlighter(info);
 	    	return true;
 	    }
+
+		private bool DoOpenAppDataFolder(Controller controller)
+		{
+			CreateAppDataFolders();
+			System.Diagnostics.Process process = new System.Diagnostics.Process();
+			process.StartInfo.FileName = AppPath.appDataDir;
+			process.Start();
+			return true;
+		}
 	    
 	    private bool DoShowHideConsole(Controller controller)
 	    {
@@ -644,7 +658,7 @@ namespace TypewriterNET
 	    	info.needSaveAs = false;
 	    	tabBar.Invalidate();
 	    	
-	    	if (configPath.HasPath(info.FullPath))
+	    	if (AppPath.configPath.HasPath(info.FullPath))
 	    	{
 	    		ReloadConfig();
 	    	}
