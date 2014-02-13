@@ -20,7 +20,7 @@ Editor uses Kate highlighting files (because there are already 200 languages for
 Building
 --------
 
-[preview_1]([[https://github.com/cser/typewriter-net/tree/master/TypewriterNET/previews/preview_1.png]] "Typewriter.NET")
+[preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/preview_1.png)
 
 Requires NET Framework 2.0 and NSIS(for installer building)
 
