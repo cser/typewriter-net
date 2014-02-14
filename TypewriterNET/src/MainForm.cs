@@ -819,9 +819,20 @@ namespace TypewriterNET
 				string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
 				if (files != null)
 				{
-					foreach (string file in files)
+					foreach (string fileI in files)
 					{
-						LoadFile(file);
+						FileAttributes attributes = File.GetAttributes(fileI);
+						if ((attributes & FileAttributes.Directory) > 0)
+						{
+							foreach (string fileJ in Directory.GetFiles(fileI, "*.*", SearchOption.AllDirectories))
+							{
+								LoadFile(fileJ);
+							}
+						}
+						else
+						{
+							LoadFile(fileI);
+						}
 					}
 				}
 			}
