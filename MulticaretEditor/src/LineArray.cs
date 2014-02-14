@@ -470,8 +470,13 @@ namespace MulticaretEditor
 			Place place = PlaceOf(position, out blockI, out blockIChar);
 			return new PlaceIterator(blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
 		}
-		
+
 		public int IndexOf(string text, int startIndex)
+		{
+			return IndexOf(text, startIndex, charsCount - startIndex);
+		}
+		
+		public int IndexOf(string text, int startIndex, int length)
 		{
 			Place place = PlaceOf(startIndex);
 			int linesCount = LinesCount;
@@ -532,6 +537,23 @@ namespace MulticaretEditor
 		
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();
+
+		public bool IntersectSelections(int anchor, int caret)
+		{
+			int left = Math.Min(anchor, caret);
+			int right = Math.Max(anchor, caret);
+			for (int i = 0, count = selections.Count; i < count; i++)
+			{
+				Selection selection = selections[i];
+				int selectionLeft = selection.Left;
+				int selectionRight = selection.Right;
+				if (selectionLeft == selectionRight && selectionLeft >= left && selectionLeft <= right ||
+					left == right && left >= selectionLeft && left <= selectionRight ||
+					selectionRight > left && selectionLeft < right)
+					return true;
+			}
+			return false;
+		}
 		
 		public Selection LastSelection { get { return selections[selections.Count - 1]; } }
 		
@@ -541,10 +563,10 @@ namespace MulticaretEditor
 		
 		public void JoinSelections()
 		{
-			if (this.selections.Count == 0)
+			if (selections.Count == 0)
 				return;
 			
-			selectionsBuffer.Resize(this.selections.Count);
+			selectionsBuffer.Resize(selections.Count);
 			
 			for (int i = 0; i < selections.Count; i++)
 			{

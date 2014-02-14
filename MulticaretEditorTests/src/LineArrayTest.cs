@@ -972,5 +972,55 @@ namespace UnitTests
 			}
 			Assert.AreEqual(expected, got.ToString(), "\"" + line.Text + "\"");
 		}
+
+		[Test]
+		public void IntersectsWithSelections_OneSelection()
+		{
+			Init();
+
+			lines.selections[0].anchor = 1;
+			lines.selections[0].caret = 1;
+			Assert.AreEqual(false, lines.IntersectSelections(2, 3));
+			Assert.AreEqual(false, lines.IntersectSelections(0, 0));
+			Assert.AreEqual(true, lines.IntersectSelections(0, 1));
+			Assert.AreEqual(true, lines.IntersectSelections(1, 2));
+
+			lines.selections[0].anchor = 5;
+			lines.selections[0].caret = 7;
+			Assert.AreEqual(false, lines.IntersectSelections(2, 5));
+			Assert.AreEqual(false, lines.IntersectSelections(7, 8));
+			Assert.AreEqual(true, lines.IntersectSelections(5, 5));
+			Assert.AreEqual(true, lines.IntersectSelections(4, 6));
+			Assert.AreEqual(true, lines.IntersectSelections(6, 7));
+			Assert.AreEqual(true, lines.IntersectSelections(6, 8));
+		}
+		
+		[Test]
+		public void IntersectsWithSelections_SeveralSelections()
+		{
+			Init();
+
+			lines.selections[0].anchor = 1;
+			lines.selections[0].caret = 2;
+			lines.selections.Add(new Selection());
+			lines.selections[1].anchor = 4;
+			lines.selections[1].caret = 8;
+
+			Assert.AreEqual(false, lines.IntersectSelections(0, 0));
+			Assert.AreEqual(false, lines.IntersectSelections(3, 3));
+			Assert.AreEqual(false, lines.IntersectSelections(9, 9));
+			Assert.AreEqual(false, lines.IntersectSelections(8, 10));
+			Assert.AreEqual(false, lines.IntersectSelections(0, 1));
+			Assert.AreEqual(false, lines.IntersectSelections(2, 4));
+			Assert.AreEqual(true, lines.IntersectSelections(1, 1));
+			Assert.AreEqual(true, lines.IntersectSelections(2, 2));
+			Assert.AreEqual(true, lines.IntersectSelections(4, 4));
+			Assert.AreEqual(true, lines.IntersectSelections(8, 8));
+			Assert.AreEqual(true, lines.IntersectSelections(0, 2));
+			Assert.AreEqual(true, lines.IntersectSelections(1, 2));
+			Assert.AreEqual(true, lines.IntersectSelections(3, 5));
+			Assert.AreEqual(true, lines.IntersectSelections(5, 6));
+			Assert.AreEqual(true, lines.IntersectSelections(7, 11));
+		}
 	}
 }

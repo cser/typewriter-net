@@ -662,6 +662,17 @@ namespace MulticaretEditor
 				Selection lastSelection = lines.LastSelection;
 				string text = lines.GetText(lastSelection.Left, lastSelection.Count);
 				int position = lines.IndexOf(text, lastSelection.Right);
+				if (position == -1)
+					position = lines.IndexOf(text, 0);
+				while (true)
+				{
+					if (position == -1 || !lines.IntersectSelections(position, position + text.Length))
+						break;
+					int newPosition = lines.IndexOf(text, position + text.Length);
+					if (newPosition == position)
+						break;
+					position = newPosition;
+				}
 				if (position != -1)
 				{
 					Selection selection = new Selection();

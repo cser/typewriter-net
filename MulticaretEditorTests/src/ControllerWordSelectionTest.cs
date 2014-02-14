@@ -182,5 +182,71 @@ namespace UnitTests
 			controller.MoveUp(false);
 			AssertSelection().Both(2, 0).Next().Both(7, 1).NoNext();
 		}
+
+		[Test]
+		public void SelectNextText_ByCircle()
+		{
+			Init();
+			lines.SetText("Du\nDu hast\nDu hast mich\nDu hast mich gefragt");
+			controller.PutCursor(new Pos(3, 2), false);
+			controller.PutCursor(new Pos(7, 2), true);
+			AssertSelection().Anchor(3, 2).Caret(7, 2).NoNext();
+
+			controller.SelectNextText();
+			AssertSelection().Anchor(3, 2).Caret(7, 2).Next().Anchor(3, 3).Caret(7, 3).NoNext();
+
+			controller.SelectNextText();
+			AssertSelection().Anchor(3, 2).Caret(7, 2).Next().Anchor(3, 3).Caret(7, 3).Next().Anchor(3, 1).Caret(7, 1).NoNext();
+		}
+
+		[Test]
+		public void SelectNextText_ByCircle_NoSecondRound()
+		{
+			SelectNextText_ByCircle();
+
+			controller.SelectNextText();
+			AssertSelection().Anchor(3, 2).Caret(7, 2).Next().Anchor(3, 3).Caret(7, 3).Next().Anchor(3, 1).Caret(7, 1).NoNext();
+			controller.SelectNextText();
+			AssertSelection().Anchor(3, 2).Caret(7, 2).Next().Anchor(3, 3).Caret(7, 3).Next().Anchor(3, 1).Caret(7, 1).NoNext();
+		}
+
+		[Test]
+		public void SelectNextText_BetweenSelections()
+		{
+			Init();
+			//                   [  ]        [  ]  [  ]              [  ]
+			lines.SetText("text\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext");
+			controller.PutCursor(new Pos(0, 1), false);
+			controller.PutCursor(new Pos(4, 1), true);
+			controller.PutNewCursor(new Pos(0, 3));
+			controller.PutCursor(new Pos(4, 3), true);
+			controller.PutNewCursor(new Pos(0, 4));
+			controller.PutCursor(new Pos(4, 4), true);
+			controller.PutNewCursor(new Pos(0, 7));
+			controller.PutCursor(new Pos(4, 7), true);
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).NoNext();
+
+			controller.SelectNextText();
+			controller.SelectNextText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).Next()
+				.Anchor(0, 8).Caret(4, 8).Next().Anchor(0, 9).Caret(4, 9).NoNext();
+
+			controller.SelectNextText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).Next()
+				.Anchor(0, 8).Caret(4, 8).Next().Anchor(0, 9).Caret(4, 9).Next()
+				.Anchor(0, 0).Caret(4, 0).NoNext();
+
+			controller.SelectNextText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).Next()
+				.Anchor(0, 8).Caret(4, 8).Next().Anchor(0, 9).Caret(4, 9).Next()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(0, 2).Caret(4, 2).NoNext();
+			controller.SelectNextText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).Next()
+				.Anchor(0, 8).Caret(4, 8).Next().Anchor(0, 9).Caret(4, 9).Next()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(0, 2).Caret(4, 2).Next()
+				.Anchor(0, 5).Caret(4, 5).NoNext();
+		}
 	}
 }
