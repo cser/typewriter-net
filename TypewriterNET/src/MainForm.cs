@@ -645,6 +645,8 @@ namespace TypewriterNET
 				context.ShowEditorConsole();
 	    	}
 	    	info.Controller.InitText(text);
+			int caret = fileQualitiesStorage.GetCursor(info.FullPath);
+			info.Controller.PutCursor(info.Controller.Lines.PlaceOf(caret), false);
 	    	info.fileInfo = new FileInfo(info.FullPath);
 	    	info.lastWriteTimeUtc = info.fileInfo.LastWriteTimeUtc;
 	    }
@@ -725,12 +727,10 @@ namespace TypewriterNET
 	    			{
 	    				case DialogResult.Yes:
 	    					TrySaveFile(info);
-	    					info.Controller.history.ChangedChange -= OnChangedChange;
-			    			fileList.Remove(info);
+							DestroyTab(info);
 	    					return true;
 	    				case DialogResult.No:
-	    					info.Controller.history.ChangedChange -= OnChangedChange;
-			    			fileList.Remove(info);
+							DestroyTab(info);
 	    					return true;
 	    				case DialogResult.Cancel:
 	    					return false;
@@ -738,13 +738,19 @@ namespace TypewriterNET
 	    		}
 	    		else
 	    		{
-	    			info.Controller.history.ChangedChange -= OnChangedChange;
-			    	fileList.Remove(info);
+					DestroyTab(info);
 			    	return true;
 	    		}
 	    	}
 	    	return false;
 	    }
+
+		private void DestroyTab(TabInfo info)
+		{
+			info.Controller.history.ChangedChange -= OnChangedChange;
+			fileQualitiesStorage.SetCursor(info.FullPath, info.Controller.Lines.LastSelection.caret);
+			fileList.Remove(info);
+		}
 	    
 	    private void TrySaveFile(TabInfo info)
 	    {
@@ -877,6 +883,8 @@ namespace TypewriterNET
 	    {
 	    	return Path.Combine(Path.GetTempPath(), "typewriter-state.bin");
 	    }
+
+		private FileQualitiesStorage fileQualitiesStorage = new FileQualitiesStorage();
 	    
 	    private void LoadState()
 	    {
@@ -897,6 +905,7 @@ namespace TypewriterNET
 		    			LoadFile(fullPath);
 		    	}
 	    	}
+			fileQualitiesStorage.Unserialize(state["fileQualitiesStorage"]);
 	    }
 	    
 	    private void SaveState()
@@ -925,6 +934,7 @@ namespace TypewriterNET
 		    		openedTabs.Add(SValue.NewHash().With("fullPath", SValue.NewString(tabInfoI.FullPath)));
 		    	}
 	    	}
+			state["fileQualitiesStorage"] = fileQualitiesStorage.Serialize();
 	    	
 	    	File.WriteAllBytes(GetStatePath(), SValue.Serialize(state));
 	    }

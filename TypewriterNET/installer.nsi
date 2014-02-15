@@ -1,22 +1,9 @@
 # Based on http://nsis.sourceforge.net/A_simple_installer_with_start_menu_shortcut_and_uninstaller
 
-# This installs two files, app.exe and logo.ico, creates a start menu shortcut, builds an uninstaller, and
-# adds uninstall information to the registry for Add/Remove Programs
- 
-# To get started, put this script into a folder with the two files (app.exe, logo.ico, and license.rtf -
-# You'll have to create these yourself) and run makensis on it
- 
-# If you change the names "app.exe", "logo.ico", or "license.rtf" you should do a search and replace - they
-# show up in a few places.
-# All the other settings can be tweaked by editing the !defines at the top of this script
 !define APPNAME "Typewriter.NET"
-!define DESCRIPTION "Plain text editor on .NET platrom"
+!define DESCRIPTION "Plain text editor"
 # These three must be integers
-!define VERSIONMAJOR 1
-!define VERSIONMINOR 1
-!define VERSIONBUILD 1
-# These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
-# It is possible to use "mailto:" links in here to open the email client
+!define VERSION 0
 # This is the size (in kB) of all the files copied into "Program Files"
 !define INSTALLSIZE 5000
  
@@ -60,7 +47,6 @@ section "install"
 	file "TypewriterNET.ico"
 	file /r "bin\schemes"
 	file /r "bin\syntax"
-	# Add any other files for the install directory (license files, app data, etc) here
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
 	writeUninstaller "$INSTDIR\uninstall.exe"
@@ -76,9 +62,7 @@ section "install"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$\"$INSTDIR\TypewriterNET.ico$\""
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayVersion" "$\"${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}$\""
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "VersionMajor" ${VERSIONMAJOR}
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "VersionMinor" ${VERSIONMINOR}
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayVersion" "${VERSION}"
 	# There is no option for modifying or repairing the install
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoRepair" 1

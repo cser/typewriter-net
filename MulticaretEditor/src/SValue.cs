@@ -8,8 +8,20 @@ namespace MulticaretEditor
 {
 	public struct SValue
 	{
-		public class SList : List<SValue> {}
-		public class SHash : Dictionary<string, SValue> {}
+		public class SList : List<SValue>
+		{
+			public SList()
+			{
+			}
+
+			public SList(IEnumerable<SValue> collection) : base(collection)
+			{
+			}
+		}
+
+		public class SHash : Dictionary<string, SValue>
+		{
+		}
 		
 		public const byte TypeNone = 0;
 		public const byte TypeList = 1;
@@ -26,6 +38,11 @@ namespace MulticaretEditor
 		public static SValue NewList()
 		{
 			return new SValue(TypeList, new SList());
+		}
+
+		public static SValue NewList(IEnumerable<SValue> collection)
+		{
+			return new SValue(TypeList, new SList(collection));
 		}
 		
 		public static SValue NewHash()
@@ -79,6 +96,9 @@ namespace MulticaretEditor
 		public bool IsNone { get { return type == TypeNone; } }
 		public bool IsFloat { get { return type == TypeFloat; } }
 		public bool IsLong { get { return type == TypeLong; } }
+
+		public bool IsList { get { return type == TypeList; } }
+		public bool IsHash { get { return type == TypeHash; } }
 		
 		public string String { get { return (value as string) ?? ""; } }
 		public int Int { get { return value is int ? (int)value : 0; } }
