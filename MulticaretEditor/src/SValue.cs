@@ -8,7 +8,7 @@ namespace MulticaretEditor
 {
 	public struct SValue
 	{
-		public class SList : List<SValue>
+		public class SList : List<SValue>, IRList<SValue>
 		{
 			public SList()
 			{
@@ -138,7 +138,7 @@ namespace MulticaretEditor
 		}
 		
 		private static SList emptyList = new SList();
-		public IEnumerable<SValue> List { get { return (value as IEnumerable<SValue>) ?? emptyList; } }
+		public IRList<SValue> List { get { return (value as SList) ?? emptyList; } }
 		
 		public SValue this[string key]
 		{

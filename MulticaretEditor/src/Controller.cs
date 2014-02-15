@@ -696,5 +696,15 @@ namespace MulticaretEditor
 		{
 			lines.scroller.Scroll(x, y);
 		}
+
+		public void NeedScrollToCaret()
+		{
+			lines.scroller.needScrollToCaret = true;
+		}
+
+		public Place SoftNormalizedPlaceOf(int index)
+		{
+			return lines.SoftNormalizedPlaceOf(index);
+		}
 	}
 }

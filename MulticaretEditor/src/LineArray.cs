@@ -414,7 +414,7 @@ namespace MulticaretEditor
 			blockI = blocksCount - 1;
 			return new Place(block.array[block.count - 1].chars.Count, block.offset + block.count - 1);
 		}
-		
+
 		public Place PlaceOf(int index)
 		{
 			int blockI;
@@ -434,6 +434,11 @@ namespace MulticaretEditor
 				iLine = LinesCount - 1;
 			}
 			return new Place(this[iLine].IndexOfPos(pos.ix), iLine);
+		}
+
+		public Place SoftNormalizedPlaceOf(int index)
+		{
+			return Normalize(PlaceOf(Math.Max(0, Math.Min(charsCount, index))));
 		}
 		
 		public Place Normalize(Place place)

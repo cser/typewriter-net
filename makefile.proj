@@ -61,5 +61,6 @@ This file was writen for launching with MSBuild
 	</Target>
 	<Target Name="installer" DependsOnTargets="build-tw">
 		<Exec Command="makensis TypewriterNET\installer.nsi"/>
+		<Exec Command="TypewriterNET\typewriter-net-installer.exe"/>
 	</Target>
 </Project>

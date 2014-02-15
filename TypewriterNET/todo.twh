@@ -30,8 +30,6 @@ add some shotcats from http://www.docme.ru/doc/112523/goryachie-klavishi-sublime
 optimize long lines showing (on binary or html from sites it slowdown)
 fix random-like selections appearance on file opening
 search by Ctr-F in editor console
-try optimize cursor position saving, save selected tab
-move to saved cursor of opened file
 
 # Requirements
 

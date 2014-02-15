@@ -647,7 +647,8 @@ namespace TypewriterNET
 	    	}
 	    	info.Controller.InitText(text);
 			int caret = fileQualitiesStorage.GetCursor(info.FullPath);
-			info.Controller.PutCursor(info.Controller.Lines.PlaceOf(caret), false);
+			info.Controller.PutCursor(info.Controller.SoftNormalizedPlaceOf(caret), false);
+			info.Controller.NeedScrollToCaret();
 	    	info.fileInfo = new FileInfo(info.FullPath);
 	    	info.lastWriteTimeUtc = info.fileInfo.LastWriteTimeUtc;
 	    }
@@ -911,6 +912,9 @@ namespace TypewriterNET
 		    		if (fullPath != "" && File.Exists(fullPath))
 		    			LoadFile(fullPath);
 		    	}
+				TabInfo selectedTab = fileList.GetByFullPath(state["selectedTab"]["fullPath"].String);
+				if (selectedTab != null)
+					fileList.Selected = selectedTab;
 	    	}
 	    }
 	    
@@ -937,7 +941,10 @@ namespace TypewriterNET
 		    	SValue openedTabs = state.SetNewList("openedTabs");
 		    	foreach (TabInfo tabInfoI in fileList)
 		    	{
-		    		openedTabs.Add(SValue.NewHash().With("fullPath", SValue.NewString(tabInfoI.FullPath)));
+					SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(tabInfoI.FullPath));
+		    		openedTabs.Add(valueI);
+					if (tabInfoI == fileList.Selected)
+						state["selectedTab"] = valueI;
 		    	}
 	    	}
 	    	foreach (TabInfo info in new List<TabInfo>(fileList))
