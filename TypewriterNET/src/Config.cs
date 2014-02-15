@@ -82,7 +82,16 @@ namespace TypewriterNET
 		
 		public void Parse(XmlDocument document, StringBuilder errors)
 		{
-			XmlNode root = document.FirstChild;
+			XmlNode root = null;
+			foreach (XmlNode node in document.ChildNodes)
+			{
+				if (node is XmlElement && node.Name == "config")
+				{
+					root = node;
+					break;
+				}
+
+			}
 			if (root != null)
 			{
 				foreach (XmlNode node in root.ChildNodes)

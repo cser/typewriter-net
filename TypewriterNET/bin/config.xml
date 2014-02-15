@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This is base config -->
 <config>
 	<item name="wordWrap" value="true"/>
 	<item name="showLineNumbers" value="true"/>
@@ -13,7 +15,7 @@
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
 	
-	<altChars
+	<altChars 
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>
 	<altChars
