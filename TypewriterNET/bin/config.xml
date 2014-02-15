@@ -14,6 +14,7 @@
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
+	<item name="maxFileQualitiesCount" value="200"/>
 	
 	<altChars 
 		source="1234567890-=\qwertyuiop[]"

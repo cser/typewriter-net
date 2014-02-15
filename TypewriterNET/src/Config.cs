@@ -60,6 +60,9 @@ namespace TypewriterNET
 		
 		private bool rememberOpenedFiles;
 		public bool RememberOpenedFiles { get { return rememberOpenedFiles; } }
+
+		private int maxFileQualitiesCount;
+		public int MaxFileQualitiesCount { get { return maxFileQualitiesCount; } }
 		
 		public void Reset()
 		{
@@ -159,6 +162,10 @@ namespace TypewriterNET
 										break;
 									case "rememberOpenedFiles":
 										rememberOpenedFiles = value == "true";
+										break;
+									case "maxFileQualitiesCount":
+										if (TryParseInt(name, value, ref maxFileQualitiesCount, errors))
+											ClampInt(name, ref maxFileQualitiesCount, 1, int.MaxValue, errors);
 										break;
 									default:
 										errors.AppendLine("Unknown name=" + name);

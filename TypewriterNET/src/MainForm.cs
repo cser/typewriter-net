@@ -259,6 +259,7 @@ namespace TypewriterNET
 			tabBar.SetFont(config.FontFamily, config.FontSize);
 			
 			consoleListController.UpdateParameters(config);
+			fileQualitiesStorage.MaxCount = config.MaxFileQualitiesCount;
 			
 			RemoveSuperfluousTabs();
 			ReloadScheme();
@@ -748,8 +749,13 @@ namespace TypewriterNET
 		private void DestroyTab(TabInfo info)
 		{
 			info.Controller.history.ChangedChange -= OnChangedChange;
-			fileQualitiesStorage.SetCursor(info.FullPath, info.Controller.Lines.LastSelection.caret);
+			StorageQualities(info);
 			fileList.Remove(info);
+		}
+
+		private void StorageQualities(TabInfo info)
+		{
+			fileQualitiesStorage.SetCursor(info.FullPath, info.Controller.Lines.LastSelection.caret);
 		}
 	    
 	    private void TrySaveFile(TabInfo info)
@@ -896,6 +902,7 @@ namespace TypewriterNET
 	    	Size = new Size(state["width"].GetInt(700), state["height"].GetInt(480));
 	    	Location = new Point(state["x"].Int, state["y"].Int);
 	    	WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
+			fileQualitiesStorage.Unserialize(state["fileQualitiesStorage"]);
 	    	if (config.RememberOpenedFiles)
 	    	{
 		    	foreach (SValue valueI in state["openedTabs"].List)
@@ -905,7 +912,6 @@ namespace TypewriterNET
 		    			LoadFile(fullPath);
 		    	}
 	    	}
-			fileQualitiesStorage.Unserialize(state["fileQualitiesStorage"]);
 	    }
 	    
 	    private void SaveState()
@@ -934,6 +940,10 @@ namespace TypewriterNET
 		    		openedTabs.Add(SValue.NewHash().With("fullPath", SValue.NewString(tabInfoI.FullPath)));
 		    	}
 	    	}
+	    	foreach (TabInfo info in new List<TabInfo>(fileList))
+			{
+				StorageQualities(info);
+			}
 			state["fileQualitiesStorage"] = fileQualitiesStorage.Serialize();
 	    	
 	    	File.WriteAllBytes(GetStatePath(), SValue.Serialize(state));
