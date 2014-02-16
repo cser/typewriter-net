@@ -646,7 +646,7 @@ namespace TypewriterNET
 				context.ShowEditorConsole();
 	    	}
 	    	info.Controller.InitText(text);
-			int caret = fileQualitiesStorage.GetCursor(info.FullPath);
+			int caret = fileQualitiesStorage.Get(info.FullPath)["cursor"].Int;
 			info.Controller.PutCursor(info.Controller.SoftNormalizedPlaceOf(caret), false);
 			info.Controller.NeedScrollToCaret();
 	    	info.fileInfo = new FileInfo(info.FullPath);
@@ -756,7 +756,7 @@ namespace TypewriterNET
 
 		private void StorageQualities(TabInfo info)
 		{
-			fileQualitiesStorage.SetCursor(info.FullPath, info.Controller.Lines.LastSelection.caret);
+			fileQualitiesStorage.Set(info.FullPath).With("cursor", SValue.NewInt(info.Controller.Lines.LastSelection.caret));
 		}
 	    
 	    private void TrySaveFile(TabInfo info)

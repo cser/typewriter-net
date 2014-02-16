@@ -31,7 +31,6 @@ To build and install:
 3. Execute **MSBuild** in repository folder:
 	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe</code><br/>
 	(Of cause, you can add **MSBuild** to PATH too)
-4. Run TypewriterNET\typewriter-net-installer.exe
 
 To build and run without installation:
 

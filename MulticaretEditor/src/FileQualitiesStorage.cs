@@ -27,10 +27,10 @@ namespace MulticaretEditor
 			set { maxCount = Math.Max(0, Math.Min(int.MaxValue - maxCount, value)); }
 		}
 
-		public void SetCursor(string path, int position)
+		public SValue Set(string path)
 		{
 			if (string.IsNullOrEmpty(path))
-				return;
+				return SValue.None;
 			int hash = path.GetHashCode();
 			SValue qualities;
 			bool exists = qualitiesOf.TryGetValue(hash, out qualities);
@@ -39,25 +39,23 @@ namespace MulticaretEditor
 			if (!exists || !qualities.IsHash)
 			{
 				qualities = SValue.NewHash();
-				qualities["path"] = SValue.NewInt(hash);
+				qualities["#"] = SValue.NewInt(hash);
 				qualitiesOf[hash] = qualities;
 			}
 			list.Add(qualities);
-			qualities["cursor"] = SValue.NewInt(position);
 			if (list.Count > maxCount + gap)
-			{
 				Normalize();
-			}
+			return qualities;
 		}
 
-		public int GetCursor(string path)
+		public SValue Get(string path)
 		{
 			if (string.IsNullOrEmpty(path))
-				return 0;
+				return SValue.None;
 			int hash = path.GetHashCode();
 			SValue qualities;
 			qualitiesOf.TryGetValue(hash, out qualities);
-			return qualities["cursor"].Int;
+			return qualities;
 		}
 
 		private void Normalize()
@@ -66,7 +64,7 @@ namespace MulticaretEditor
 			{
 				for (int i = 0, count = list.Count - maxCount; i < count; i++)
 				{
-					qualitiesOf.Remove(list[i]["path"].Int);
+					qualitiesOf.Remove(list[i]["#"].Int);
 				}
 				list.RemoveRange(0, list.Count - maxCount);
 			}
@@ -87,7 +85,7 @@ namespace MulticaretEditor
 			for (int i = valueList.Count; i-- > 0;)
 			{
 				SValue qualities = valueList[i];
-				int hash = qualities["path"].Int;
+				int hash = qualities["#"].Int;
 				if (!qualitiesOf.ContainsKey(hash))
 				{
 					list.Add(qualities);

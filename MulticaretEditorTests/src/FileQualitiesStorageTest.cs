@@ -28,13 +28,14 @@ namespace UnitTests
 
 		private FileQualitiesStorageTest SetCursor(string path, int position)
 		{
-			storage.SetCursor(path, position);
+			SValue value = storage.Set(path);
+			value["cursor"] = SValue.NewInt(position);
 			return this;
 		}
 
 		private FileQualitiesStorageTest AssertCursor(string path, int expectedPosition)
 		{
-			int actualCursor = storage.GetCursor(path);
+			int actualCursor = storage.Get(path)["cursor"].Int;
 			Assert.AreEqual(expectedPosition, actualCursor, "Expected position[" + path + "]: " + expectedPosition + ", got: " + actualCursor);
 			return this;
 		}
