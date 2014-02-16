@@ -6,25 +6,27 @@ namespace MulticaretEditor
 {
 	public class FileQualitiesStorage
 	{
-		private readonly int gap;
+		private const string HashField = "#";
 
-		public FileQualitiesStorage() : this(50)
+		public FileQualitiesStorage()
 		{
-		}
-
-		public FileQualitiesStorage(int gap)
-		{
-			this.gap = gap;
+			MaxCount = 200;
 		}
 
 		protected List<SValue> list = new List<SValue>();
-		protected Dictionary<int, SValue> qualitiesOf = new Dictionary<int, SValue>();
+		protected Dictionary<int, int> indexOf = new Dictionary<int, int>();
+
+		private int gap;
 
 		private int maxCount = 200;
 		public int MaxCount
 		{
 			get { return maxCount; }
-			set { maxCount = Math.Max(0, Math.Min(int.MaxValue - maxCount, value)); }
+			set
+			{
+				maxCount = Math.Max(0, Math.Min(int.MaxValue / 3, value));
+				gap = maxCount;
+			}
 		}
 
 		public SValue Set(string path)
@@ -32,16 +34,20 @@ namespace MulticaretEditor
 			if (string.IsNullOrEmpty(path))
 				return SValue.None;
 			int hash = path.GetHashCode();
-			SValue qualities;
-			bool exists = qualitiesOf.TryGetValue(hash, out qualities);
+			int index;
+			SValue qualities = SValue.None;
+			bool exists = indexOf.TryGetValue(hash, out index);
 			if (exists)
-				list.Remove(qualities);
-			if (!exists || !qualities.IsHash)
+			{
+				qualities = list[index];
+				list[index] = SValue.None;
+			}
+			if (!qualities.IsHash)
 			{
 				qualities = SValue.NewHash();
-				qualities["#"] = SValue.NewInt(hash);
-				qualitiesOf[hash] = qualities;
+				qualities[HashField] = SValue.NewInt(hash);
 			}
+			indexOf[hash] = list.Count;
 			list.Add(qualities);
 			if (list.Count > maxCount + gap)
 				Normalize();
@@ -53,20 +59,29 @@ namespace MulticaretEditor
 			if (string.IsNullOrEmpty(path))
 				return SValue.None;
 			int hash = path.GetHashCode();
-			SValue qualities;
-			qualitiesOf.TryGetValue(hash, out qualities);
-			return qualities;
+			int index;
+			return indexOf.TryGetValue(hash, out index) ? list[index] : SValue.None;
 		}
 
 		private void Normalize()
 		{
-			if (list.Count > maxCount)
+			indexOf.Clear();
+			int compactedI = 0;
+			for (int i = 0, count = list.Count; i < count; i++)
 			{
-				for (int i = 0, count = list.Count - maxCount; i < count; i++)
+				SValue valueI = list[i];
+				if (!valueI.IsNone)
+					list[compactedI++] = valueI;
+			}
+			list.RemoveRange(compactedI, list.Count - compactedI);
+			int delta = list.Count - maxCount;
+			if (delta > 0)
+			{
+				list.RemoveRange(0, delta);
+				for (int i = 0, count = list.Count; i < count; i++)
 				{
-					qualitiesOf.Remove(list[i]["#"].Int);
+					indexOf[list[i][HashField].Int] = i;
 				}
-				list.RemoveRange(0, list.Count - maxCount);
 			}
 		}
 
@@ -79,23 +94,26 @@ namespace MulticaretEditor
 		public void Unserialize(SValue value)
 		{
 			list.Clear();
-			qualitiesOf.Clear();
+			indexOf.Clear();
 			IRList<SValue> valueList = value.List;
-			int count = 0;
-			for (int i = valueList.Count; i-- > 0;)
+			for (int i = valueList.Count, count = 0; i-- > 0;)
 			{
-				SValue qualities = valueList[i];
-				int hash = qualities["#"].Int;
-				if (!qualitiesOf.ContainsKey(hash))
+				SValue valueI = valueList[i];
+				int hash = valueI[HashField].Int;
+				if (!indexOf.ContainsKey(hash))
 				{
-					list.Add(qualities);
-					qualitiesOf[hash] = qualities;
+					indexOf[hash] = -1;
+					list.Add(valueI);
 					count++;
 					if (count >= maxCount)
 						break;
 				}
 			}
 			list.Reverse();
+			for (int i = 0, count = list.Count; i < count; i++)
+			{
+				indexOf[list[i][HashField].Int] = i;
+			}
 		}
 	}
 }
