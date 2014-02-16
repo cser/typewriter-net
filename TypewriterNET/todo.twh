@@ -9,7 +9,6 @@
 	fix highlighting of `apache`!! some keywords is not highlighting
 	check parsing of line endings
 	optimize keywords detecting
-removing secondary selections with last selection remaining
 one cursor moving mode
 append npp colorscheme/*Check PHP/Python*/
 selection word matching highlighting[important]
@@ -30,6 +29,7 @@ add some shotcats from http://www.docme.ru/doc/112523/goryachie-klavishi-sublime
 optimize long lines showing (on binary or html from sites it slowdown)
 fix random-like selections appearance on file opening
 search by Ctr-F in editor console
+fix console resizing bug
 
 # Requirements
 

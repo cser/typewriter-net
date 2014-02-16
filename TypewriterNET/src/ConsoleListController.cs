@@ -32,14 +32,23 @@ namespace TypewriterNET
 			textBox.WordWrap = true;
 			table.Controls.Add(textBox, 0, 3);
 			
-			list.SelectedChange += OnConsoleSelected;
-			tabBar.TabDoubleClick += OnConsoleDoubleClick;
-			tabBar.CloseClick += OnConsoleCloseClick;
+			list.SelectedChange += OnSelectedChange;
+
+			tabBar.TabDoubleClick += OnTabBarDoubleClick;
+			tabBar.CloseClick += OnTabBarCloseClick;
+			tabBar.MouseDown += OnTabBarMouseDown;
+			tabBar.MouseUp += OnTabBarMouseUp;
 			
 			actions = new List<KeyAction>();
 			
 			textBox.parentKeyMaps.Add(mainContext.keyMap);
 			textBox.parentKeyMaps.Add(mainContext.doNothingKeyMap);
+		}
+
+		public int AreaHeight
+		{
+			get { return textBox.Height; }
+			set { textBox.Height = Math.Max(0, value); }
 		}
 		
 		private KeyAction AddAction(string name, Getter<Controller, bool> doOnDown, Setter<Controller, bool> doOnModeChange, bool needScroll)
@@ -123,21 +132,39 @@ namespace TypewriterNET
 			return list.Contains(info);
 		}
 		
-		private void OnConsoleSelected()
+		private void OnSelectedChange()
 	    {
 			textBox.Controller = list.Selected != null ? list.Selected.Controller : null;
 			if (textBox.Controller == null)
 				Hide();
 	    }
 		
-		private void OnConsoleDoubleClick(ConsoleInfo info)
+		private void OnTabBarDoubleClick(ConsoleInfo info)
 		{
 			list.Remove(info);
 		}
 		
-		private void OnConsoleCloseClick()
+		private void OnTabBarCloseClick()
 		{
 			list.Remove(list.Selected);
+		}
+
+		private int resizeStartY;
+
+		private void OnTabBarMouseDown(object sender, MouseEventArgs e)
+		{
+			resizeStartY = e.Y;
+			tabBar.MouseMove += OnTabBarMouseMove;
+		}
+
+		private void OnTabBarMouseUp(object sender, MouseEventArgs e)
+		{
+			tabBar.MouseMove -= OnTabBarMouseMove;
+		}
+
+		private void OnTabBarMouseMove(object sender, MouseEventArgs e)
+		{
+			AreaHeight += resizeStartY - e.Y;
 		}
 	}
 }

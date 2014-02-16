@@ -904,6 +904,7 @@ namespace TypewriterNET
 	    	Size = new Size(state["width"].GetInt(700), state["height"].GetInt(480));
 	    	Location = new Point(state["x"].Int, state["y"].Int);
 	    	WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
+			consoleListController.AreaHeight = state["consoleAreaHeight"].GetInt(100);
 			fileQualitiesStorage.Unserialize(state["fileQualitiesStorage"]);
 	    	if (config.RememberOpenedFiles)
 	    	{
@@ -937,6 +938,7 @@ namespace TypewriterNET
 	    		state["y"] = SValue.NewInt(Location.Y);
 	    	}
 	    	state["maximized"] = SValue.NewBool(WindowState == FormWindowState.Maximized);
+			state["consoleAreaHeight"] = SValue.NewInt(consoleListController.AreaHeight);
 	    	if (config.RememberOpenedFiles)
 	    	{
 		    	SValue openedTabs = state.SetNewList("openedTabs");
