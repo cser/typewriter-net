@@ -9,13 +9,33 @@ namespace TypewriterNET
 		public const string Syntax = "syntax";
 		public const string Schemes = "schemes";
 
-		public static readonly string appDataDir = Path.GetDirectoryName(Application.CommonAppDataPath);
-		public static readonly string startupDir = Application.StartupPath;
+		private static string startupDir;
+		public static string StartupDir { get { return startupDir; } }
 
-		public static readonly AppPath syntaxDir = new AppPath(Path.Combine(appDataDir, Syntax));
-		public static readonly AppPath schemesDir = new AppPath(Path.Combine(appDataDir, Schemes));
-		public static readonly AppPath configPath = new AppPath("config.xml");
-		public static readonly string configTemplatePath = new AppPath("config-template.xml").startupPath;
+		private static string appDataDir;
+		public static string AppDataDir { get { return appDataDir; } }
+
+		private static AppPath syntaxDir;
+		public static AppPath SyntaxDir { get { return syntaxDir; } }
+
+		private static AppPath schemesDir;
+		public static AppPath SchemesDir { get { return schemesDir; } }
+
+		private static AppPath configPath;
+		public static AppPath ConfigPath { get { return configPath; } }
+
+		private static string configTemplatePath;
+		public static string ConfigTemplatePath { get { return configTemplatePath; } }
+
+		public static void Init(string startupDir, string appDataDir)
+		{
+			AppPath.startupDir = startupDir;
+			AppPath.appDataDir = appDataDir;
+			AppPath.syntaxDir = new AppPath(Path.Combine(appDataDir, Syntax));
+			AppPath.schemesDir = new AppPath(Path.Combine(appDataDir, Schemes));
+			AppPath.configPath = new AppPath("config.xml");
+			AppPath.configTemplatePath = new AppPath("config-template.xml").startupPath;
+		}
 
 		public readonly string local;
 		public readonly string appDataPath;
