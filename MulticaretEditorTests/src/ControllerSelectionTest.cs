@@ -363,5 +363,24 @@ namespace UnitTests
 			controller.MoveDown(false);
 			AssertSelection().Both(1, 2).NoNext();
 		}
+
+		[Test]
+		public void ClearFirstMinorSelections()
+		{
+			Init();
+			
+			lines.SetText("line0\nline1\nline2\nline3");
+			lines.wwValidator.Validate(10);
+			controller.PutCursor(new Place(1, 1), false);
+			controller.PutCursor(new Place(4, 1), true);
+			controller.PutNewCursor(new Place(1, 2));
+			controller.PutCursor(new Place(4, 2), true);
+			controller.PutNewCursor(new Place(1, 3));
+			controller.PutCursor(new Place(4, 3), true);
+			AssertSelection().Anchor(1, 1).Caret(4, 1).Next().Anchor(1, 2).Caret(4, 2).Next().Anchor(1, 3).Caret(4, 3).NoNext();
+
+			controller.ClearFirstMinorSelections();
+			AssertSelection().Anchor(1, 3).Caret(4, 3).NoNext();
+		}
 	}
 }

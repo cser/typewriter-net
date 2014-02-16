@@ -409,6 +409,16 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
+
+		public bool ClearFirstMinorSelections()
+		{
+			if (lines.selections.Count > 1)
+			{
+				lines.selections.RemoveRange(0, lines.selections.Count - 1);
+				return true;
+			}
+			return false;
+		}
 		
 		public void SelectAll()
 		{

@@ -95,6 +95,7 @@ namespace MulticaretEditor.KeyMapping
 			AddItem(new KeyItem(Keys.V | Keys.Control, null, KeyAction.Paste));
 			AddItem(new KeyItem(Keys.X | Keys.Control, null, KeyAction.Cut));
 			AddItem(new KeyItem(Keys.Escape, null, KeyAction.ClearMinorSelections));
+			AddItem(new KeyItem(Keys.Shift | Keys.Escape, null, KeyAction.ClearFirstMinorSelections));
 			AddItem(new KeyItem(Keys.Delete, null, KeyAction.Delete));
 			
 			AddItem(new KeyItem(Keys.Left, null, KeyAction.Left));

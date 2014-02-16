@@ -197,10 +197,16 @@ namespace MulticaretEditor.KeyMapping
 			return true;
 		}
 		
-		public static readonly KeyAction ClearMinorSelections = Add("&Edit\\Selection\\Clear mino selections", DoClearMinorSelections, null, true);
+		public static readonly KeyAction ClearMinorSelections = Add("&Edit\\Selection\\Clear minor selections", DoClearMinorSelections, null, true);
 		private static bool DoClearMinorSelections(Controller controller)
 		{
 			return controller.ClearMinorSelections();
+		}
+
+		public static readonly KeyAction ClearFirstMinorSelections = Add("&Edit\\Selection\\Clear first minor selections", DoClearFirstMinorSelections, null, true);
+		private static bool DoClearFirstMinorSelections(Controller controller)
+		{
+			return controller.ClearFirstMinorSelections();
 		}
 		
 		public static readonly KeyAction SelectNextText = Add("&Edit\\Selection\\Select next text", DoSelectNextText, null, true);
