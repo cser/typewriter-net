@@ -91,7 +91,7 @@ namespace TypewriterNET
 	    
 	    private void OnLoad(object sender, EventArgs e)
 	    {
-			string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TypewriterNET");
+			string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
 			if (!Directory.Exists(appDataPath))
 				Directory.CreateDirectory(appDataPath);
 			AppPath.Init(Application.StartupPath, appDataPath);
@@ -661,7 +661,15 @@ namespace TypewriterNET
 	    
 	    public void SaveFile(TabInfo info)
 	    {
-	    	File.WriteAllText(info.FullPath, info.Controller.Lines.GetText());
+			try
+			{
+				File.WriteAllText(info.FullPath, info.Controller.Lines.GetText());
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
 	    	info.Controller.history.MarkAsSaved();
 	    	info.fileInfo = new FileInfo(info.FullPath);
 	    	info.lastWriteTimeUtc = info.fileInfo.LastWriteTimeUtc;
