@@ -31,6 +31,7 @@ fix random-like selections appearance on file opening
 search by Ctr-F in editor console
 fix console resizing bug
 check access denied on file saving
+key combination is writing now if it action missing, need to prevent this behaviour
 
 # Requirements
 
