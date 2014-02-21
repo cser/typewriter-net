@@ -13,10 +13,11 @@ using System.Xml;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
+using TypewriterNET.Frames;
 
 namespace TypewriterNET
 {
-	public class MainForm : Form
+	public class MainForm : Form, SearchableFrame
 	{
 		private TableLayoutPanel table;
 	    private MulticaretTextBox textBox;
@@ -88,6 +89,18 @@ namespace TypewriterNET
 	        
 			Load += OnLoad;
 	    }
+
+		public MulticaretTextBox TextBox { get { return textBox; } }
+
+		public void AddSearchPanel(Control control)
+		{
+	        table.Controls.Add(control, 0, 3);
+		}
+
+		public void RemoveSearchPanel(Control control)
+		{
+	        table.Controls.Remove(control);
+		}
 	    
 	    private void OnLoad(object sender, EventArgs e)
 	    {
@@ -157,7 +170,6 @@ namespace TypewriterNET
 	        
 	        keyMap.AddItem(new KeyItem(Keys.F1, null, AddAction("&?\\About", DoAbout, null, false)));
 	        
-	        keyMap.AddItem(new KeyItem(Keys.Escape, null, AddAction("&View\\Close search", DoCloseSearch, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Escape, null, AddAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
 	        
 	        mainMenu = new MainMenu();
@@ -865,35 +877,12 @@ namespace TypewriterNET
 			}
         }
 		
-		//-----------------------------------------------------
-	    // Search
-	    //-----------------------------------------------------
-	    
-	    private SearchPanel searchPanel;
+	    private SearchFrame searchFrame = new SearchFrame();
 	    
 	    private bool DoFind(Controller controller)
 	    {
-	    	if (searchPanel == null)
-	    	{
-	    		searchPanel = new SearchPanel(context);
-	    		table.Controls.Add(searchPanel, 0, 2);
-	    	}
-	    	searchPanel.Focus();
+			searchFrame.AddTo(this);
 	    	return true;
-	    }
-	    
-	    private bool DoCloseSearch(Controller controller)
-	    {
-	    	if (searchPanel != null)
-	    	{
-	    		searchPanel.DoOnClose();
-	    		table.Controls.Remove(searchPanel);
-	    		searchPanel.Dispose();
-	    		searchPanel = null;
-	    		textBox.Focus();
-	    		return true;
-	    	}
-	    	return false;
 	    }
 	    
 	    //----------------------------

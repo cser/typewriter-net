@@ -20,8 +20,6 @@ namespace TypewriterNET
 		public KeyMap keyMap;
 		public KeyMap doNothingKeyMap;
 		
-		public string searchOldText = "";
-		
 		public XmlDocument LoadXml(string file, StringBuilder errors)
 	    {
 	    	if (!File.Exists(file))
