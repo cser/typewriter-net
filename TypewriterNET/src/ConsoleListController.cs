@@ -41,8 +41,8 @@ namespace TypewriterNET
 			
 			actions = new List<KeyAction>();
 			
-			textBox.parentKeyMaps.Add(mainContext.keyMap);
-			textBox.parentKeyMaps.Add(mainContext.doNothingKeyMap);
+			textBox.KeyMap.AddAfter(mainContext.keyMap);
+			textBox.KeyMap.AddAfter(mainContext.doNothingKeyMap);
 		}
 
 		public int AreaHeight

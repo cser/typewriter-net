@@ -136,8 +136,8 @@ namespace TypewriterNET
 	    	KeyMap keyMap = new KeyMap();
 	    	KeyMap doNothingKeyMap = new KeyMap();
 	    	context.keyMap = keyMap;
-	    	textBox.parentKeyMaps.Add(keyMap);
-	    	textBox.parentKeyMaps.Add(doNothingKeyMap);
+	    	textBox.KeyMap.AddAfter(keyMap);
+	    	textBox.KeyMap.AddAfter(doNothingKeyMap);
 	    	
 	    	actions = new List<KeyAction>();
 	    	
@@ -175,8 +175,8 @@ namespace TypewriterNET
 	        mainMenu = new MainMenu();
 	    	Menu = mainMenu;
 	        Dictionary<KeyAction, List<KeyItem>> keysByAction = new Dictionary<KeyAction, List<KeyItem>>();
-			List<KeyItem> keyItems = new List<KeyItem>(textBox.KeyMap.items);
-			foreach (KeyMap keyMapI in textBox.parentKeyMaps)
+			List<KeyItem> keyItems = new List<KeyItem>();
+			foreach (KeyMap keyMapI in textBox.KeyMap.ToList())
 			{
 				keyItems.AddRange(keyMapI.items);
 			}
@@ -272,7 +272,7 @@ namespace TypewriterNET
 			textBox.FontSize = config.FontSize;
 			textBox.ScrollingIndent = config.ScrollingIndent;
 			textBox.ShowColorAtCursor = config.ShowColorAtCursor;
-			textBox.KeyMap.SetAltChars(config.AltCharsSource, config.AltCharsResult);
+			textBox.KeyMap.main.SetAltChars(config.AltCharsSource, config.AltCharsResult);
 			
 			tabBar.SetFont(config.FontFamily, config.FontSize);
 			

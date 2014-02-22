@@ -21,7 +21,7 @@ namespace TypewriterNET.Frames
 			parent.AddSearchPanel(panel);
 			panel.Focus();
 
-	        parent.TextBox.KeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close search", DoCloseSearch, null, false)));
+	        parent.TextBox.KeyMap.main.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close search", DoCloseSearch, null, false)));
 		}
 
 	    public bool DoCloseSearch(Controller controller)

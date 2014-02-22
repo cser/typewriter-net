@@ -39,9 +39,8 @@ namespace TypewriterNET.Frames
     		textBox.Controller.Lines.LastSelection.caret = textBox.Controller.Lines.charsCount;
     		Controls.Add(textBox);
     		
-    		textBox.KeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Search next", DoSearchNext, null, false)), true);
-    		//textBox.parentKeyMaps.Add(context.keyMap);
-    		//textBox.parentKeyMaps.Add(context.doNothingKeyMap);
+    		textBox.KeyMap.main.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Search next", DoSearchNext, null, false)), true);
+    		textBox.KeyMap.after.Add(frame.TextBox.KeyMap);
     		
     		ResumeLayout();
 		}
