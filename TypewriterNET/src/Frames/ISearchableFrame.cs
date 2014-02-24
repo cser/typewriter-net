@@ -5,7 +5,7 @@ using MulticaretEditor;
 
 namespace TypewriterNET.Frames
 {
-	public interface SearchableFrame
+	public interface ISearchableFrame
 	{
 		MulticaretTextBox TextBox { get; }
 

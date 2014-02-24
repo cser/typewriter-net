@@ -8,7 +8,9 @@ namespace TypewriterNET.Frames
 {
 	public class SearchFrame
 	{
-		private SearchableFrame parent;
+		private ISearchableFrame parent;
+		public ISearchableFrame Parent { get { return parent; } }
+
 		private SearchPanel panel;
 
 		private bool opened;
@@ -25,7 +27,7 @@ namespace TypewriterNET.Frames
 	        keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close search", DoCloseSearch, null, false)));
 		}
 
-		public void AddTo(SearchableFrame parent)
+		public void AddTo(ISearchableFrame parent)
 		{
 			if (opened)
 				Remove();
@@ -34,7 +36,7 @@ namespace TypewriterNET.Frames
 			this.parent = parent;
 			panel = new SearchPanel(this);
 			parent.AddSearchPanel(panel);
-			parent.TextBox.KeyMap.AddAfter(keyMap);
+			parent.TextBox.KeyMap.AddAfter(keyMap, 1);
 			panel.Focus();
 		}
 

@@ -4,19 +4,23 @@ using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
+using TypewriterNET.Frames;
 
 namespace TypewriterNET
 {
-	public class ConsoleListController
+	public class ConsoleListController : ISearchableFrame
 	{
 		private SwitchList<ConsoleInfo> list;
 	    private TabBar<ConsoleInfo> tabBar;
 	    private MulticaretTextBox textBox;
 	    
 	    private List<KeyAction> actions;
+		private TableLayoutPanel table;
 	    
 		public ConsoleListController(TableLayoutPanel table, MainContext mainContext)
 		{
+			this.table = table;
+
 			list = new SwitchList<ConsoleInfo>();
 			tabBar = new TabBar<ConsoleInfo>(list, ConsoleInfo.StringOf);
 			tabBar.Margin = new Padding();
@@ -43,6 +47,18 @@ namespace TypewriterNET
 			
 			textBox.KeyMap.AddAfter(mainContext.keyMap);
 			textBox.KeyMap.AddAfter(mainContext.doNothingKeyMap);
+		}
+
+		public MulticaretTextBox TextBox { get { return textBox; } }
+
+		public void AddSearchPanel(Control control)
+		{
+	        table.Controls.Add(control, 0, 6);
+		}
+
+		public void RemoveSearchPanel(Control control)
+		{
+	        table.Controls.Remove(control);
 		}
 
 		public int AreaHeight

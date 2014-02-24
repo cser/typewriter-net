@@ -17,14 +17,13 @@ using TypewriterNET.Frames;
 
 namespace TypewriterNET
 {
-	public class MainForm : Form, SearchableFrame
+	public class MainForm : Form, ISearchableFrame
 	{
 		private TableLayoutPanel table;
 	    private MulticaretTextBox textBox;
-	    private MainMenu mainMenu;
+	    private MainFormMenu mainMenu = new MainFormMenu();
 	    private TabInfoList fileList;
 	    private TabBar<TabInfo> tabBar;
-	    private List<KeyAction> actions;
 	    private MainContext context;
 	    private ConsoleListController consoleListController;
 	    private Config config;
@@ -94,7 +93,7 @@ namespace TypewriterNET
 
 		public void AddSearchPanel(Control control)
 		{
-	        table.Controls.Add(control, 0, 3);
+	        table.Controls.Add(control, 0, 2);
 		}
 
 		public void RemoveSearchPanel(Control control)
@@ -139,84 +138,34 @@ namespace TypewriterNET
 	    	textBox.KeyMap.AddAfter(keyMap);
 	    	textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 	    	
-	    	actions = new List<KeyAction>();
-	    	
 	    	doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 	    	doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
 	        
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, AddAction("&File\\New", DoNew, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, AddAction("&File\\Open", DoOpen, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, AddAction("&File\\Save", DoSave, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null, AddAction("&File\\Save As", DoSaveAs, null, false)));
-	        AddAction("&File\\-", null, null, false);
-	        keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, AddAction("&File\\Exit", DoExit, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null, new KeyAction("&File\\Save As", DoSaveAs, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 	        
-	        foreach (KeyAction action in KeyAction.Actions)
-	        {
-	        	actions.Add(action);
-	        }
-	       	
-	        keyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, AddAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, AddAction("&View\\Close tab", DoCloseTab, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, AddAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, AddAction("F&ind\\Find...", DoFind, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 	        
-	        keyMap.AddItem(new KeyItem(Keys.F2, null, AddAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, AddAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, AddAction("Prefere&nces\\Edit current scheme", DoOpenCurrentScheme, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F2, null, AddAction("Prefere&nces\\Open current scheme all files", DoOpenCurrentScheme, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, AddAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
-	        keyMap.AddItem(new KeyItem(Keys.None, null, AddAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoOpenCurrentScheme, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open current scheme all files", DoOpenCurrentScheme, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 	        
-	        keyMap.AddItem(new KeyItem(Keys.F1, null, AddAction("&?\\About", DoAbout, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\About", DoAbout, null, false)));
 	        
-	        keyMap.AddItem(new KeyItem(Keys.Escape, null, AddAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
 	        
-	        mainMenu = new MainMenu();
-	    	Menu = mainMenu;
-	        Dictionary<KeyAction, List<KeyItem>> keysByAction = new Dictionary<KeyAction, List<KeyItem>>();
-			List<KeyItem> keyItems = new List<KeyItem>();
-			foreach (KeyMap keyMapI in textBox.KeyMap.ToList())
-			{
-				keyItems.AddRange(keyMapI.items);
-			}
-	        foreach (KeyItem keyItem in keyItems)
-	        {
-	        	List<KeyItem> list;
-	        	keysByAction.TryGetValue(keyItem.action, out list);
-	        	if (list == null)
-	        	{
-	        		list = new List<KeyItem>();
-	        		keysByAction[keyItem.action] = list;
-	        	}
-	        	list.Add(keyItem);
-	        }
-	        Dictionary<string, Menu> itemByPath = new Dictionary<string, Menu>();
-	        KeysConverter keysConverter = new KeysConverter();
-	        foreach (KeyAction action in actions)
-	        {
-	        	string name = GetMenuItemName(action.name);
-	        	List<KeyItem> keys;
-	        	keysByAction.TryGetValue(action, out keys);
-	        	if (keys != null && keys.Count > 0)
-	        	{
-	        		name += "\t";
-	        		bool first = true;
-	        		foreach (KeyItem keyItem in keys)
-	        		{
-	        			if (!first)
-	        				name += "/";
-	        			first = false;
-	        			if (action.doOnModeChange != null)
-	        				name += "[";
-	        			name += keysConverter.ConvertToString(keyItem.keys);
-	        			if (action.doOnModeChange != null)
-	        				name += "]";
-	        		}
-	        	}
-	        	MenuItem item = new MenuItem(name, new MenuItemActionDelegate(action, fileList).OnClick);
-	        	GetMenuItemParent(action.name, itemByPath).MenuItems.Add(item);
-	        }
+			mainMenu.SetItems(textBox.KeyMap, fileList);
+			Menu = mainMenu;
 	    }
 
 	    private AppPath GetSchemePath(string schemeName)
@@ -357,44 +306,6 @@ namespace TypewriterNET
 	    	
 	    	activationInProcess = false;
 	    }
-	    
-	    private Menu GetMenuItemParent(string path, Dictionary<string, Menu> itemByPath)
-	    {
-	    	string parentPath = GetMenuItemParentPath(path);
-	    	if (string.IsNullOrEmpty(parentPath))
-	    		return mainMenu;
-	    	Menu parent;
-	    	itemByPath.TryGetValue(parentPath, out parent);
-	    	if (parent != null)
-	    		return parent;
-    		MenuItem item = new MenuItem(GetMenuItemName(parentPath));
-    		itemByPath[parentPath] = item;
-    		GetMenuItemParent(parentPath, itemByPath).MenuItems.Add(item);
-    		return item;
-	    }
-	    
-	    private static string GetMenuItemName(string path)
-	    {
-	    	int index = path.LastIndexOf("\\");
-	    	if (index == -1)
-	    		return path;
-	    	return path.Substring(index + 1);
-	    }
-	    
-	    private static string GetMenuItemParentPath(string path)
-	    {
-	    	int index = path.LastIndexOf("\\");
-	    	if (index == -1)
-	    		return "";
-	    	return path.Substring(0, index);
-	    }
-	    
-	    private KeyAction AddAction(string name, Getter<Controller, bool> doOnDown, Setter<Controller, bool> doOnModeChange, bool needScroll)
-		{
-			KeyAction action = new KeyAction(name, doOnDown, doOnModeChange, needScroll);
-			actions.Add(action);
-			return action;
-		}
 	    
 	    private void OnFormClosing(object sender, FormClosingEventArgs e)
 	    {
@@ -816,31 +727,6 @@ namespace TypewriterNET
 	    	}
 	    }
 	    
-	    public class MenuItemActionDelegate
-	    {
-	    	private KeyAction action;
-	    	private SwitchList<TabInfo> fileList;
-	    	
-	    	public MenuItemActionDelegate(KeyAction action, SwitchList<TabInfo> fileList)
-	    	{
-	    		this.action = action;
-	    		this.fileList = fileList;
-	    	}
-	    	
-	    	public void OnClick(object sender, EventArgs e)
-	    	{
-	    		TabInfo info = fileList.Selected;
-	    		if (info != null)
-	    		{
-	    			if (action.doOnModeChange != null)
-	    				action.doOnModeChange(info.Controller, true);
-	    			action.doOnDown(info.Controller);
-	    			if (action.doOnModeChange != null)
-	    				action.doOnModeChange(info.Controller, false);
-	    		}
-	    	}
-	    }
-	    
 	    //-----------------------------------------------------
 	    // Drag & Drop
 	    //-----------------------------------------------------
@@ -881,10 +767,14 @@ namespace TypewriterNET
 	    
 	    private bool DoFind(Controller controller)
 	    {
-			if (!searchFrame.Opened)
-				searchFrame.AddTo(this);
+			ISearchableFrame parent = this;
+			if (consoleListController.TextBox.Focused)
+				parent = consoleListController;
+			if (!searchFrame.Opened || searchFrame.Parent != parent)
+				searchFrame.AddTo(parent);
 			else
 				searchFrame.Remove();
+			mainMenu.SetItems(textBox.KeyMap, fileList);
 	    	return true;
 	    }
 	    
