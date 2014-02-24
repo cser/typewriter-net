@@ -137,7 +137,7 @@ namespace TypewriterNET
 	    	KeyMap doNothingKeyMap = new KeyMap();
 	    	context.keyMap = keyMap;
 	    	textBox.KeyMap.AddAfter(keyMap);
-	    	textBox.KeyMap.AddAfter(doNothingKeyMap);
+	    	textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 	    	
 	    	actions = new List<KeyAction>();
 	    	
@@ -881,7 +881,10 @@ namespace TypewriterNET
 	    
 	    private bool DoFind(Controller controller)
 	    {
-			searchFrame.AddTo(this);
+			if (!searchFrame.Opened)
+				searchFrame.AddTo(this);
+			else
+				searchFrame.Remove();
 	    	return true;
 	    }
 	    

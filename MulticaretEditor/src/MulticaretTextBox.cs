@@ -24,7 +24,7 @@ namespace MulticaretEditor
 		private Timer keyTimer;
 		private Timer highlightingTimer;
 		private bool isCursorTick = true;
-		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault());
+		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
 
