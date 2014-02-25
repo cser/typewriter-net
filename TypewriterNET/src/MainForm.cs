@@ -17,14 +17,13 @@ using TypewriterNET.Frames;
 
 namespace TypewriterNET
 {
-	public class MainForm : Form, ISearchableFrame
+	public class MainForm : Form, ISearchableFrame, IMainContext
 	{
 		private TableLayoutPanel table;
 	    private MulticaretTextBox textBox;
-	    private MainFormMenu mainMenu = new MainFormMenu();
+	    private MainFormMenu mainMenu;
 	    private TabInfoList fileList;
 	    private TabBar<TabInfo> tabBar;
-	    private MainContext context;
 	    private ConsoleListController consoleListController;
 	    private Config config;
 	    private EditorHighlighterSet highlightingSet;
@@ -47,8 +46,6 @@ namespace TypewriterNET
 	        
 	        SuspendLayout();
 	        
-	        context = new MainContext();
-	    	
 	    	table = new TableLayoutPanel();
 	    	table.Dock = DockStyle.Fill;
 	    	table.BorderStyle = BorderStyle.None;
@@ -73,21 +70,29 @@ namespace TypewriterNET
 			textBox.AllowDrop = true;
 			textBox.DragEnter += OnDragEnter;
 			textBox.DragDrop += OnDragDrop;
+			textBox.GotFocus += OnGotFocus;
 	        table.Controls.Add(textBox, 0, 1);
+
+			searchFrame = new SearchFrame(this);
+			mainMenu = new MainFormMenu(fileList);
+			Menu = mainMenu;
 	        
 	        BuildMenu();
+			SetMenuItems(textBox.KeyMap);
 	        
-	        consoleListController = new ConsoleListController(table, context);
-	        context.consoleListController = consoleListController;
-	        context.textBox = textBox;
-	        highlightingSet = new EditorHighlighterSet(context);
+	        consoleListController = new ConsoleListController(table, this);
+	        highlightingSet = new EditorHighlighterSet(this);
 	        
 	        ResumeLayout(false);
 	        PerformLayout();
-
 	        
 			Load += OnLoad;
 	    }
+
+		private void OnGotFocus(object sender, EventArgs e)
+		{
+			SetMenuItems(textBox.KeyMap);
+		}
 
 		public MulticaretTextBox TextBox { get { return textBox; } }
 
@@ -100,6 +105,65 @@ namespace TypewriterNET
 		{
 	        table.Controls.Remove(control);
 		}
+
+		//----------------------------------------------------------------------
+		// IMainContext
+		//----------------------------------------------------------------------
+
+		public void SetMenuItems(KeyMapNode node)
+		{
+			SuspendLayout();
+			mainMenu.SetItems(node);
+			ResumeLayout();
+		}
+
+		public XmlDocument LoadXml(string file, StringBuilder errors)
+	    {
+	    	if (!File.Exists(file))
+	    	{
+	    		errors.AppendLine("Missing file: " + file);
+	    		return null;
+	    	}
+			return PrivateLoadXml(file, errors);
+	    }
+
+		public XmlDocument LoadXmlIgnoreMissing(string file, StringBuilder errors)
+		{
+			if (!File.Exists(file))
+	    		return null;
+			return PrivateLoadXml(file, errors);
+		}
+
+		private XmlDocument PrivateLoadXml(string file, StringBuilder errors)
+		{
+	    	try
+	    	{
+	    		XmlDocument xml = new XmlDocument();
+	    		xml.Load(file);
+	    		return xml;
+	    	}
+	    	catch (Exception e)
+	    	{
+	    		errors.AppendLine("Error: " + e.Message);
+	    		return null;
+	    	}
+		}
+		
+		public void ShowEditorConsole()
+	    {
+	    	consoleListController.Show(SetFocusToTextBox);
+	    	consoleListController.AddConsole(EditorConsole.Instance);
+	    	consoleListController.SelectedConsole = EditorConsole.Instance;
+	    }
+		
+		public void SetFocusToTextBox()
+	    {
+	    	textBox.Focus();
+	    }
+
+		//----------------------------------------------------------------------
+		//
+		//----------------------------------------------------------------------
 	    
 	    private void OnLoad(object sender, EventArgs e)
 	    {
@@ -134,7 +198,6 @@ namespace TypewriterNET
 	    {
 	    	KeyMap keyMap = new KeyMap();
 	    	KeyMap doNothingKeyMap = new KeyMap();
-	    	context.keyMap = keyMap;
 	    	textBox.KeyMap.AddAfter(keyMap);
 	    	textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 	    	
@@ -163,9 +226,6 @@ namespace TypewriterNET
 	        keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\About", DoAbout, null, false)));
 	        
 	        keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
-	        
-			mainMenu.SetItems(textBox.KeyMap, fileList);
-			Menu = mainMenu;
 	    }
 
 	    private AppPath GetSchemePath(string schemeName)
@@ -200,7 +260,7 @@ namespace TypewriterNET
 	    	StringBuilder errors = new StringBuilder();
 			foreach (string pathI in AppPath.ConfigPath.paths)
 			{
-				XmlDocument configXml = context.LoadXmlIgnoreMissing(pathI, errors);
+				XmlDocument configXml = LoadXmlIgnoreMissing(pathI, errors);
 				if (configXml != null)
 					config.Parse(configXml, errors);
 			}
@@ -208,7 +268,7 @@ namespace TypewriterNET
 			{
 				EditorConsole.Instance.WriteLine("-- Reload config errors:", Ds.Comment);
 				EditorConsole.Instance.Write(errors.ToString());
-				context.ShowEditorConsole();
+				ShowEditorConsole();
 			}
 			
 			textBox.WordWrap = config.WordWrap;
@@ -265,7 +325,7 @@ namespace TypewriterNET
 	    	StringBuilder errors = new StringBuilder();
 	    	foreach (AppPath schemePath in GetSchemePaths(config))
 	    	{
-	    		XmlDocument xml = context.LoadXml(schemePath.GetExisted(), errors);
+	    		XmlDocument xml = LoadXml(schemePath.GetExisted(), errors);
 	    		if (xml != null)
 	    			xmls.Add(xml);
 	    	}
@@ -274,7 +334,7 @@ namespace TypewriterNET
 			{
 				EditorConsole.Instance.WriteLine("-- Scheme loading errors:", Ds.Comment);
 				EditorConsole.Instance.Write(errors.ToString());
-				context.ShowEditorConsole();
+				ShowEditorConsole();
 			}
 			
 			textBox.Scheme = scheme;
@@ -513,7 +573,7 @@ namespace TypewriterNET
 	    	}
 	    	else
 	    	{
-	    		consoleListController.Show(context.SetFocusToTextBox);
+	    		consoleListController.Show(SetFocusToTextBox);
     			consoleListController.AddConsole(EditorConsole.Instance);
     			consoleListController.SelectedConsole = EditorConsole.Instance;
 	    	}
@@ -560,7 +620,7 @@ namespace TypewriterNET
 	    	{
 	    		EditorConsole.Instance.Write("Missing file: ", Ds.Keyword);
 	    		EditorConsole.Instance.WriteLine(info.FullPath, Ds.Normal);
-				context.ShowEditorConsole();
+				ShowEditorConsole();
 				return;
 	    	}
 	    	string text = "";
@@ -572,7 +632,7 @@ namespace TypewriterNET
 	    	{
 				EditorConsole.Instance.WriteLine("-- File loading errors:", Ds.Comment);
 				EditorConsole.Instance.WriteLine(e.Message + "\n" + e.StackTrace);
-				context.ShowEditorConsole();
+				ShowEditorConsole();
 	    	}
 	    	info.Controller.InitText(text);
 			int caret = fileQualitiesStorage.Get(info.FullPath)["cursor"].Int;
@@ -763,7 +823,7 @@ namespace TypewriterNET
 			}
         }
 		
-	    private SearchFrame searchFrame = new SearchFrame();
+	    private SearchFrame searchFrame;
 	    
 	    private bool DoFind(Controller controller)
 	    {
@@ -774,7 +834,6 @@ namespace TypewriterNET
 				searchFrame.AddTo(parent);
 			else
 				searchFrame.Remove();
-			mainMenu.SetItems(textBox.KeyMap, fileList);
 	    	return true;
 	    }
 	    

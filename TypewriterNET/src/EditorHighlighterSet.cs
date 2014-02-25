@@ -10,10 +10,10 @@ namespace TypewriterNET
 {
 	public class EditorHighlighterSet : HighlighterSet
 	{
-		private MainContext context;
+		private IMainContext context;
 		private SyntaxFilesScanner config;
 		
-		public EditorHighlighterSet(MainContext context)
+		public EditorHighlighterSet(IMainContext context)
 		{
 			this.context = context;
 		}

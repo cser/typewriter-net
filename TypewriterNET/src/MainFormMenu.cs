@@ -8,11 +8,14 @@ namespace TypewriterNET
 {
 	public class MainFormMenu : MainMenu
 	{
-		public MainFormMenu()
+		private TabInfoList fileList;
+
+		public MainFormMenu(TabInfoList fileList)
 		{
+			this.fileList = fileList;
 		}
 
-		public void SetItems(KeyMapNode node, TabInfoList fileList)
+		public void SetItems(KeyMapNode node)
 		{
 			MenuItems.Clear();
 	    	List<KeyAction> actions = new List<KeyAction>();

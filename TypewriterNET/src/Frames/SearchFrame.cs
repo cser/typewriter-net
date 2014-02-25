@@ -19,10 +19,14 @@ namespace TypewriterNET.Frames
 		public MulticaretTextBox TextBox { get { return parent.TextBox; } }
 		public string searchOldText = "";
 		
+		private IMainContext context;
+		public IMainContext Context { get { return context; } }
+
 		private KeyMap keyMap;
 
-		public SearchFrame()
+		public SearchFrame(IMainContext context)
 		{
+			this.context = context;
 			keyMap = new KeyMap();
 	        keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close search", DoCloseSearch, null, false)));
 		}

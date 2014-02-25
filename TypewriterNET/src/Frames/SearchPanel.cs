@@ -40,7 +40,9 @@ namespace TypewriterNET.Frames
     		Controls.Add(textBox);
     		
     		textBox.KeyMap.main.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Search next", DoSearchNext, null, false)), true);
-    		textBox.KeyMap.after.Add(frame.TextBox.KeyMap);
+    		textBox.KeyMap.AddAfter(frame.TextBox.KeyMap);
+
+			textBox.GotFocus += OnGotFocus;
     		
     		ResumeLayout();
 		}
@@ -69,5 +71,10 @@ namespace TypewriterNET.Frames
 	    	}
 	    	return true;
 	    }
+
+		private void OnGotFocus(object sender, EventArgs e)
+		{
+			frame.Context.SetMenuItems(textBox.KeyMap);
+		}
 	}
 }

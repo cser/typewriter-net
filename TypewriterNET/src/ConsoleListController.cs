@@ -16,10 +16,12 @@ namespace TypewriterNET
 	    
 	    private List<KeyAction> actions;
 		private TableLayoutPanel table;
+		private IMainContext context;
 	    
-		public ConsoleListController(TableLayoutPanel table, MainContext mainContext)
+		public ConsoleListController(TableLayoutPanel table, IMainContext context)
 		{
 			this.table = table;
+			this.context = context;
 
 			list = new SwitchList<ConsoleInfo>();
 			tabBar = new TabBar<ConsoleInfo>(list, ConsoleInfo.StringOf);
@@ -45,8 +47,8 @@ namespace TypewriterNET
 			
 			actions = new List<KeyAction>();
 			
-			textBox.KeyMap.AddAfter(mainContext.keyMap);
-			textBox.KeyMap.AddAfter(mainContext.doNothingKeyMap);
+			textBox.KeyMap.AddAfter(context.TextBox.KeyMap);
+			textBox.GotFocus += OnGotFocus;
 		}
 
 		public MulticaretTextBox TextBox { get { return textBox; } }
@@ -181,6 +183,11 @@ namespace TypewriterNET
 		private void OnTabBarMouseMove(object sender, MouseEventArgs e)
 		{
 			AreaHeight += resizeStartY - e.Y;
+		}
+
+		private void OnGotFocus(object sender, EventArgs e)
+		{
+			context.SetMenuItems(textBox.KeyMap);
 		}
 	}
 }
