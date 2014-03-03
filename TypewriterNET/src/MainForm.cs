@@ -214,6 +214,7 @@ namespace TypewriterNET
 	        keyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
+	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 	        keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 	        
 	        keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
@@ -836,7 +837,22 @@ namespace TypewriterNET
 				searchFrame.Remove();
 	    	return true;
 	    }
-	    
+
+		private bool DoChangeFocus(Controller controller)
+		{
+			if (!textBox.Focused)
+			{
+				textBox.Focus();
+				return true;
+			}
+			else if (consoleListController.Visible && !consoleListController.TextBox.Focused)
+			{
+				consoleListController.TextBox.Focus();
+				return true;
+			}
+			return false;
+		}
+
 	    //----------------------------
 	    // State
 	    //----------------------------
