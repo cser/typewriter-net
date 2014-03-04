@@ -29,6 +29,7 @@ namespace TypewriterNET
 	    private EditorHighlighterSet highlightingSet;
 	    private string[] args;
 		private SyntaxFilesScanner syntaxFilesScanner;
+		private BarHeader consoleBar;
 	
 	    public MainForm(string[] args)
 	    {
@@ -72,6 +73,12 @@ namespace TypewriterNET
 			textBox.DragDrop += OnDragDrop;
 			textBox.GotFocus += OnGotFocus;
 	        table.Controls.Add(textBox, 0, 1);
+
+			consoleBar = new BarHeader();
+			consoleBar.Margin = new Padding();
+			consoleBar.Dock = DockStyle.Bottom;
+			consoleBar.Text = "Some console";
+			table.Controls.Add(consoleBar, 0, 2);
 
 			searchFrame = new SearchFrame(this);
 			mainMenu = new MainFormMenu(fileList);
@@ -285,6 +292,7 @@ namespace TypewriterNET
 			textBox.KeyMap.main.SetAltChars(config.AltCharsSource, config.AltCharsResult);
 			
 			tabBar.SetFont(config.FontFamily, config.FontSize);
+			consoleBar.SetFont(config.FontFamily, config.FontSize);
 			
 			consoleListController.UpdateParameters(config);
 			fileQualitiesStorage.MaxCount = config.MaxFileQualitiesCount;
@@ -340,6 +348,7 @@ namespace TypewriterNET
 			
 			textBox.Scheme = scheme;
 			tabBar.Scheme = scheme;
+			consoleBar.Scheme = scheme;
 			consoleListController.UpdateScheme(scheme);
 	    }
 	    
