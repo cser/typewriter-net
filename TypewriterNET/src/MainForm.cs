@@ -29,7 +29,7 @@ namespace TypewriterNET
 	    private EditorHighlighterSet highlightingSet;
 	    private string[] args;
 		private SyntaxFilesScanner syntaxFilesScanner;
-		private BarHeader consoleBar;
+		private TabBar<string> consoleBar;
 	
 	    public MainForm(string[] args)
 	    {
@@ -74,10 +74,16 @@ namespace TypewriterNET
 			textBox.GotFocus += OnGotFocus;
 	        table.Controls.Add(textBox, 0, 1);
 
-			consoleBar = new BarHeader();
+			consoleBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
 			consoleBar.Margin = new Padding();
 			consoleBar.Dock = DockStyle.Bottom;
 			consoleBar.Text = "Some console";
+			consoleBar.List.Add("Editor console");
+			consoleBar.List.Add("Console 1");
+			consoleBar.List.Add("Console 2");
+			consoleBar.List.Add("Console 3");
+			consoleBar.List.Add("Console 4");
+			consoleBar.List.Add("Console 5");
 			table.Controls.Add(consoleBar, 0, 2);
 
 			searchFrame = new SearchFrame(this);

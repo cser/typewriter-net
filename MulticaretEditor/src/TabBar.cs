@@ -15,6 +15,11 @@ namespace MulticaretEditor
 {
 	public class TabBar<T> : Control
 	{
+		public static string DefaultStringOf(T value)
+		{
+			return value + "";
+		}
+
 		public event Setter CloseClick;
 		public event Setter<T> TabDoubleClick;
 		
@@ -22,7 +27,7 @@ namespace MulticaretEditor
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly SwitchList<T> list;
 		private readonly StringOfDelegate<T> stringOf;
-		
+
 		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf)
 		{
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -46,6 +51,22 @@ namespace MulticaretEditor
 		{
 			needScrollToSelected = true;
 			Invalidate();
+		}
+
+		public SwitchList<T> List { get { return list; } }
+
+		private string text;
+		public override string Text
+		{
+			get { return text; }
+			set
+			{
+				if (text != value)
+				{
+					text = value;
+					Invalidate();
+				}
+			}
 		}
 
 		private Font font;
@@ -99,6 +120,7 @@ namespace MulticaretEditor
 		private Rectangle closeRect;
 		private Rectangle? leftRect;
 		private Rectangle? rightRect;
+		private int leftIndent;
 		private int rightIndent;
 		private int offsetIndex;
 		private bool needScrollToSelected;
@@ -136,17 +158,30 @@ namespace MulticaretEditor
 			
 			g.FillRectangle(scheme.tabsBgBrush, 0, 0, width - rightIndent, charHeight - 1);
 			g.DrawLine(scheme.lineNumberFgPen, 0, charHeight - 1, width, charHeight - 1);
+
+			leftIndent = charWidth;
+			if (text != null)
+			{
+				for (int j = 0; j < text.Length; j++)
+				{
+					g.DrawString(
+						text[j] + "", font, scheme.fgBrush,
+						10 - charWidth / 3 + j * charWidth, 0, stringFormat);
+				}
+				leftIndent += (charWidth + 1) * text.Length;
+			}
+
 			rects.Clear();
 			for (int i = 0; i < list.Count; i++)
 			{
 				T value = list[i];
-				string text = stringOf(value);
-				Rectangle rect = new Rectangle(x - indent, 0, text.Length * charWidth + indent * 2, charHeight);
-				x += (text.Length + 1) * charWidth;
+				string tabText = stringOf(value);
+				Rectangle rect = new Rectangle(x - indent, 0, tabText.Length * charWidth + indent * 2, charHeight);
+				x += (tabText.Length + 1) * charWidth;
 				rects.Add(rect);
 			}
 			rightIndent = charHeight;
-			if (x > width - rightIndent)
+			if (x > width - leftIndent - rightIndent)
 			{
 				rightIndent += charWidth * 4;
 				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 2, charHeight);
@@ -174,10 +209,10 @@ namespace MulticaretEditor
 			}
 			
 			int offsetX = GetOffsetX(offsetIndex);
-			for (int i = Math.Max(0, offsetIndex - 1); i < list.Count; i++)
+			for (int i = Math.Max(0, offsetIndex); i < list.Count; i++)
 			{
 				T value = list[i];
-				string text = stringOf(value);
+				string tabText = stringOf(value);
 				bool selected = object.Equals(list.Selected, value);
 				Rectangle rect = rects.buffer[i];
 				rect.X += offsetX;
@@ -194,10 +229,10 @@ namespace MulticaretEditor
 					g.FillRectangle(scheme.lineNumberBackground, rect);
 					g.DrawRectangle(scheme.lineNumberFgPen, rect.X, rect.Y, rect.Width, rect.Height - 1);
 				}
-				for (int j = 0; j < text.Length; j++)
+				for (int j = 0; j < tabText.Length; j++)
 				{
 					g.DrawString(
-						text[j] + "", font, selected ? scheme.fgBrush : scheme.lineNumberForeground,
+						tabText[j] + "", font, selected ? scheme.fgBrush : scheme.lineNumberForeground,
 						rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
 				}
 				rects.Add(rect);
@@ -290,7 +325,7 @@ namespace MulticaretEditor
 		
 		private int GetOffsetX(int index)
 		{
-			return (index >= 0 && index < rects.count ? -rects.buffer[index].X : 0) + charWidth;
+			return (index >= 0 && index < rects.count ? -rects.buffer[index].X : 0) + leftIndent;
 		}
 		
 		private int arrowTickDelta;
