@@ -34,6 +34,12 @@ public class Frame : Control
 		tabBar.MouseUp += OnTabBarMouseUp;
 	}
 
+	public string Title
+	{
+		get { return tabBar.Text; }
+		set { tabBar.Text = value; }
+	}
+
 	private Nest nest;
 	public Nest Nest { get { return nest; } }
 
@@ -49,16 +55,22 @@ public class Frame : Control
 		textBox.Size = new Size(Width, Height - 20);
 	}
 
-	private Point startPoint;
-	private Size startSize;
+	private int startY;
+	private int startSizeY;
+	private int startHeight;
 
 	private void OnTabBarMouseDown(object sender, MouseEventArgs e)
 	{
 		if (nest == null)
 			return;
-		startPoint = new Point(e.X, e.Y);
-		startSize = nest.FrameSize;
-		tabBar.MouseMove += OnTabBarMouseMove;
+		Nest target = FindHeightTarget();
+		if (target != null)
+		{
+			startY = Control.MousePosition.Y;
+			startSizeY = target.size;
+			startHeight = target.frame.Height;
+			tabBar.MouseMove += OnTabBarMouseMove;
+		}
 	}
 
 	private void OnTabBarMouseUp(object sender, MouseEventArgs e)
@@ -70,15 +82,30 @@ public class Frame : Control
 	{
 		if (nest == null)
 			return;
-		int leftK = nest.left ? -1 : 1;
-		if (nest.hDivided)
-			nest.size = nest.size * (Width + leftK * (startPoint.X - e.X)) / Width;
-		else
-			nest.size = nest.size * (Height + leftK * (startPoint.Y - e.Y)) / Height;
-		if (nest.size < 1)
-			nest.size = 1;
-		else if (nest.isPercents && nest.size > 99)
-			nest.size = 99;
-		nest.MainForm.DoResize();
+		Nest target = FindHeightTarget();
+		if (target != null)
+		{
+			int k = target.left ? -1 : 1;
+			target.size = startSizeY * (startHeight + k * (startY - Control.MousePosition.Y)) / startHeight;
+			if (target.size < 1)
+				target.size = 1;
+			else if (target.isPercents && target.size > 99)
+				target.size = 99;
+			target.MainForm.DoResize();
+		}
+	}
+
+	private Nest FindHeightTarget()
+	{
+		if (nest == null)
+			return null;
+		if (!nest.hDivided && !nest.left)
+			return nest;
+		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
+		{
+			if (!nestI.hDivided && nestI.left)
+				return nestI;
+		}
+		return null;
 	}
 }

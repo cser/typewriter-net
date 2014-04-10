@@ -60,6 +60,7 @@ public class MainForm : Form
 		AddFrame(new Frame("bottom"), false, false, 30);
 		AddFrame(new Frame("bottom"), false, false, 30);
 		AddFrame(new Frame("bottom"), true, false, 50);
+		AddFrame(new Frame("top"), false, true, 50);
 		ValidateSettings(true);
 	}
 
@@ -96,7 +97,7 @@ public class MainForm : Form
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		UpdateNestMinSize(_nest);
+		UpdateNest(_nest);
 		Size size = ClientSize;
 		if (_nest != null)
 		{
@@ -108,14 +109,18 @@ public class MainForm : Form
 		ResizeNest(_nest, 0, 0, size.Width, size.Height);
 	}
 
-	private void UpdateNestMinSize(Nest nest)
+	private void UpdateNest(Nest nest)
 	{
 		if (nest == null)
 			return;
+		nest.frame.Title = nest.size + "/" + "(" + nest.frame.Width + ", " + nest.frame.Height + ")/(" + nest.minSize.Width + ", " + nest.minSize.Height + ")/(" +
+			nest.FullWidth + ", " + nest.FullHeight + ")";
+		Size minSize = settings.frameMinSize.Value;
+		nest.selfMinSize = minSize;
 		if (nest.child != null)
 		{
-			UpdateNestMinSize(nest.child);
-			Size minSize = settings.frameMinSize.Value;
+			nest.child.parent = nest;
+			UpdateNest(nest.child);
 			nest.minSize = nest.hDivided ?
 				new Size(minSize.Width + nest.child.minSize.Width, Math.Max(minSize.Height, nest.child.minSize.Height)) :
 				new Size(Math.Max(minSize.Width, nest.child.minSize.Width), minSize.Height + nest.child.minSize.Height);
@@ -130,6 +135,8 @@ public class MainForm : Form
 	{
 		if (nest == null)
 			return;
+		nest.FullWidth = width;
+		nest.FullHeight = height;
 		if (nest.child != null)
 		{
 			if (nest.hDivided)
@@ -152,7 +159,9 @@ public class MainForm : Form
 			else
 			{
 				int size = nest.GetSize(height);
-				if (height - size < nest.child.minSize.Height)
+				if (size < nest.selfMinSize.Height)
+					size = nest.selfMinSize.Height;
+				else if (height - size < nest.child.minSize.Height)
 					size = height - nest.child.minSize.Height;
 				nest.SetFrameSize(new Size(width, size));
 				if (nest.left)

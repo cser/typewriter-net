@@ -6,12 +6,16 @@ public class Nest
 	public readonly Frame frame;
 	public readonly Nest child;
 
+	public Nest parent;
 	public bool hDivided;
 	public bool left;
 
 	public bool isPercents = true;
 	public int size = 50;
 	public Size minSize;
+	public Size selfMinSize;
+	public int FullWidth;
+	public int FullHeight;
 
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
@@ -25,22 +29,7 @@ public class Nest
 
 	public int GetSize(int nestSize)
 	{
-		int result = isPercents ? nestSize * size / 100 : nestSize;
-		if (result > nestSize)
-		{
-			result = nestSize;
-		}
-		else if (hDivided)
-		{
-			if (result < minSize.Width)
-				result = minSize.Width;
-		}
-		else
-		{
-			if (result < minSize.Height)
-				result = minSize.Height;
-		}
-		return result;
+		return isPercents ? nestSize * size / 100 : nestSize;
 	}
 
 	public void SetFrameSize(Size size)
