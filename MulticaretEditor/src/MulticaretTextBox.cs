@@ -350,7 +350,6 @@ namespace MulticaretEditor
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
 			int clientHeight = lines.scroller.textAreaHeight;
-			int clientSizeX = (clientWidth - leftIndent) / charWidth - 1;
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
 			

@@ -113,8 +113,6 @@ public class MainForm : Form
 	{
 		if (nest == null)
 			return;
-		nest.frame.Title = nest.size + "/" + "(" + nest.frame.Width + ", " + nest.frame.Height + ")/(" + nest.minSize.Width + ", " + nest.minSize.Height + ")/(" +
-			nest.FullWidth + ", " + nest.FullHeight + ")";
 		Size minSize = settings.frameMinSize.Value;
 		nest.selfMinSize = minSize;
 		if (nest.child != null)
@@ -142,7 +140,9 @@ public class MainForm : Form
 			if (nest.hDivided)
 			{
 				int size = nest.GetSize(width);
-				if (width - size < nest.child.minSize.Width)
+				if (size < nest.selfMinSize.Width)
+					size = nest.selfMinSize.Width;
+				else if (width - size < nest.child.minSize.Width)
 					size = width - nest.child.minSize.Width;
 				nest.SetFrameSize(new Size(size, height));
 				if (nest.left)

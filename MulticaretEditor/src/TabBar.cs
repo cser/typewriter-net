@@ -248,7 +248,7 @@ namespace MulticaretEditor
 				g.DrawString("<", font, scheme.tabsFgBrush, leftRect.Value.X - charWidth / 3 + charWidth / 2, -1, stringFormat);
 			if (rightRect != null)
 				g.DrawString(">", font, scheme.tabsFgBrush, rightRect.Value.X - charWidth / 3 + charWidth / 2, -1, stringFormat);
-			
+
 			base.OnPaint(e);
 		}
 		

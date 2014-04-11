@@ -15,23 +15,30 @@ using MulticaretEditor;
 public class Frame : Control
 {
 	private TabBar<string> tabBar;
+	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
 	public Frame(string name)
 	{
 		Name = name;
 		TabStop = false;
+
 		SwitchList<string> list = new SwitchList<string>();
+		list.Add("File");
 		tabBar = new TabBar<string>(list, TabBar<string>.DefaultStringOf);
 		tabBar.Text = name;
 		Controls.Add(tabBar);
 
+		splitLine = new SplitLine();
+		Controls.Add(splitLine);
+
 		textBox = new MulticaretTextBox();
-		textBox.Location = new Point(0, 20);
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		tabBar.MouseUp += OnTabBarMouseUp;
+		splitLine.MouseDown += OnSplitLineMouseDown;
+		splitLine.MouseUp += OnSplitLineMouseUp;
 	}
 
 	public string Title
@@ -51,9 +58,76 @@ public class Frame : Control
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		tabBar.Size = new Size(Width, 20);
-		textBox.Size = new Size(Width, Height - 20);
+		int tabBarHeight = tabBar.Height;
+		tabBar.Size = new Size(Width, tabBarHeight);
+		splitLine.Location = new Point(Width - 10, tabBarHeight);
+		splitLine.Size = new Size(10, Height - tabBarHeight);
+		textBox.Location = new Point(0, tabBarHeight);
+		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
+
+	//--------------------------------------------------------------------------
+	// Resizing X
+	//--------------------------------------------------------------------------
+
+	private int startX;
+	private int startSizeX;
+	private int startWidth;
+
+	private void OnSplitLineMouseDown(object sender, MouseEventArgs e)
+	{
+		if (nest == null)
+			return;
+		Nest target = FindWidthTarget();
+		if (target != null)
+		{
+			startX = Control.MousePosition.X;
+			startSizeX = target.size;
+			startWidth = target.frameSize.Width;
+			splitLine.MouseMove += OnSplitLineMouseMove;
+		}
+	}
+
+	private void OnSplitLineMouseUp(object sender, MouseEventArgs e)
+	{
+		splitLine.MouseMove -= OnSplitLineMouseMove;
+	}
+
+	private void OnSplitLineMouseMove(object sender, MouseEventArgs e)
+	{
+		if (nest == null)
+			return;
+		Nest target = FindWidthTarget();
+		if (target != null)
+		{
+			int k = target.left ? -1 : 1;
+			target.frameSize.Width = startWidth + k * (startX - Control.MousePosition.X);
+			target.size = target.isPercents ? 100 * target.frameSize.Width / target.FullWidth : target.frameSize.Width;
+			if (target.size < 0)
+				target.size = 0;
+			else if (target.isPercents && target.size > 100)
+				target.size = 100;
+			target.MainForm.DoResize();
+		}
+	}
+
+	private Nest FindWidthTarget()
+	{
+		if (nest == null)
+			return null;
+		if (nest.hDivided && nest.left)
+			return nest;
+		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
+		{
+			if (nestI.hDivided && !nestI.left)
+				return nestI;
+		}
+		return null;
+	}
+
+	//--------------------------------------------------------------------------
+	// Resizing Y
+	//--------------------------------------------------------------------------
 
 	private int startY;
 	private int startSizeY;
@@ -109,4 +183,8 @@ public class Frame : Control
 		}
 		return null;
 	}
+
+	//--------------------------------------------------------------------------
+	//
+	//--------------------------------------------------------------------------
 }
