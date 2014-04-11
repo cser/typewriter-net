@@ -54,13 +54,13 @@ public class MainForm : Form
 
 	private void OnLoad(object sender, EventArgs e)
 	{
-		AddFrame(new Frame("main"), true, false, 50);
-		AddFrame(new Frame("left"), true, true, 50);
-		AddFrame(new Frame("left"), true, true, 50);
-		AddFrame(new Frame("bottom"), false, false, 30);
-		AddFrame(new Frame("bottom"), false, false, 30);
-		AddFrame(new Frame("bottom"), true, false, 50);
-		AddFrame(new Frame("top"), false, true, 50);
+		AddFrame(new Frame("main"), true, false, true, 50);
+		AddFrame(new Frame("left"), true, true, true, 50);
+		AddFrame(new Frame("left"), true, true, true, 50);
+		AddFrame(new Frame("bottom"), false, false, true, 30);
+		AddFrame(new Frame("bottom"), false, false, true, 30);
+		AddFrame(new Frame("bottom"), true, false, true, 50);
+		AddFrame(new Frame("top"), false, true, false, 50);
 		ValidateSettings(true);
 	}
 
@@ -83,12 +83,12 @@ public class MainForm : Form
 
 	private Nest _nest;
 
-	private void AddFrame(Frame frame, bool hDivided, bool left, int percents)
+	private void AddFrame(Frame frame, bool hDivided, bool left, bool isPercents, int percents)
 	{
 		_nest = new Nest(frame, _nest);
 		_nest.hDivided = hDivided;
 		_nest.left = left;
-		_nest.isPercents = true;
+		_nest.isPercents = isPercents;
 		_nest.size = percents;
 		_nest.Init(this);
 		Controls.Add(frame);

@@ -29,7 +29,7 @@ public class Nest
 
 	public int GetSize(int nestSize)
 	{
-		return isPercents ? nestSize * size / 100 : nestSize;
+		return isPercents ? nestSize * size / 100 : size;
 	}
 
 	public void SetFrameSize(Size size)

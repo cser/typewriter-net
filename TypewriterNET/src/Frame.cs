@@ -68,7 +68,7 @@ public class Frame : Control
 		{
 			startY = Control.MousePosition.Y;
 			startSizeY = target.size;
-			startHeight = target.frame.Height;
+			startHeight = target.frameSize.Height;
 			tabBar.MouseMove += OnTabBarMouseMove;
 		}
 	}
@@ -86,11 +86,12 @@ public class Frame : Control
 		if (target != null)
 		{
 			int k = target.left ? -1 : 1;
-			target.size = startSizeY * (startHeight + k * (startY - Control.MousePosition.Y)) / startHeight;
-			if (target.size < 1)
-				target.size = 1;
-			else if (target.isPercents && target.size > 99)
-				target.size = 99;
+			target.frameSize.Height = startHeight + k * (startY - Control.MousePosition.Y);
+			target.size = target.isPercents ? 100 * target.frameSize.Height / target.FullHeight : target.frameSize.Height;
+			if (target.size < 0)
+				target.size = 0;
+			else if (target.isPercents && target.size > 100)
+				target.size = 100;
 			target.MainForm.DoResize();
 		}
 	}
