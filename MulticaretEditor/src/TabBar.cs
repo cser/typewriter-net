@@ -189,7 +189,7 @@ namespace MulticaretEditor
 			rightIndent = charHeight;
 			if (x > width - leftIndent - rightIndent)
 			{
-				rightIndent += charWidth * 3;
+				rightIndent += charHeight * 3 / 2;
 				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 3 / 2, charHeight);
 				rightRect = new Rectangle(width - rightIndent + charWidth * 3 / 2, 0, charWidth * 3 / 2, charHeight);
 				ScrollToSelectedIfNeed();
@@ -247,10 +247,10 @@ namespace MulticaretEditor
 			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
 			g.DrawLine(scheme.lineNumberFgPen, width - rightIndent, charHeight - 1, width, charHeight - 1);
 			
-			int closeWidth = charWidth * 7 / 3;
+			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
 			{
-				int tx = closeRect.X + closeWidth / 2;
+				int tx = closeRect.X + closeRect.Width / 2;
 				int ty = charHeight / 2;
 				int td = charHeight / 5;
 				g.DrawLine(tabsFgPen, tx - td, ty - td, tx + td, ty + td);
@@ -261,7 +261,7 @@ namespace MulticaretEditor
 			
 			if (leftRect != null)
 			{
-				int tx = leftRect.Value.X + charWidth * 3 / 4;
+				int tx = leftRect.Value.X + leftRect.Value.Width / 2;
 				int ty = charHeight / 2;
 				int td = charHeight / 6;
 				tempPoints[0] = new Point(tx - td, ty);
@@ -271,7 +271,7 @@ namespace MulticaretEditor
 			}
 			if (rightRect != null)
 			{
-				int tx = rightRect.Value.X + charWidth * 3 / 4;
+				int tx = rightRect.Value.X + rightRect.Value.Width / 2;
 				int ty = charHeight / 2;
 				int td = charHeight / 6;
 				tempPoints[0] = new Point(tx + td, ty);

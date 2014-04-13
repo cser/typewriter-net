@@ -12,20 +12,17 @@ using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
-public class Frame : AFrame
+public class FindDialog : ADialog
 {
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public Frame(string name)
+	public FindDialog(string name)
 	{
 		Name = name;
 
-		SwitchList<string> list = new SwitchList<string>();
-		list.Add("File 1");
-		list.Add("File 2");
-		tabBar = new TabBar<string>(list, TabBar<string>.DefaultStringOf);
+		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
 		tabBar.Text = name;
 		Controls.Add(tabBar);
 
@@ -33,14 +30,17 @@ public class Frame : AFrame
 		Controls.Add(splitLine);
 
 		textBox = new MulticaretTextBox();
+		textBox.ShowLineNumbers = false;
+		textBox.HighlightCurrentLine = false;
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
-		InitResizing(tabBar, splitLine);
 		tabBar.MouseDown += OnTabBarMouseDown;
+		InitResizing(tabBar, splitLine);
+		Height = MinSize.Height;
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
 
 	private void OnTabBarMouseDown(object sender, EventArgs e)
 	{
@@ -50,12 +50,6 @@ public class Frame : AFrame
 	private void OnTextBoxFocusedChange()
 	{
 		tabBar.Selected = textBox.Focused;
-	}
-
-	public string Title
-	{
-		get { return tabBar.Text; }
-		set { tabBar.Text = value; }
 	}
 
 	override protected void OnResize(EventArgs e)

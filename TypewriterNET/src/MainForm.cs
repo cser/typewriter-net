@@ -61,6 +61,28 @@ public class MainForm : Form
 		AddFrame(new Frame("bottom"), false, false, true, 30);
 		AddFrame(new Frame("bottom"), true, false, true, 50);
 		AddFrame(new Frame("top"), false, true, false, 50);
+
+		{
+			FindDialog dialog = new FindDialog("Find");
+			_nest = new Nest(dialog, _nest);
+			_nest.hDivided = false;
+			_nest.left = false;
+			_nest.isPercents = false;
+			_nest.size = dialog.Height;
+			_nest.Init(this);
+			Controls.Add(dialog);
+		}
+		{
+			ReplaceDialog dialog = new ReplaceDialog("Replace");
+			_nest = new Nest(dialog, _nest);
+			_nest.hDivided = false;
+			_nest.left = false;
+			_nest.isPercents = false;
+			_nest.size = dialog.Height;
+			_nest.Init(this);
+			Controls.Add(dialog);
+		}
+
 		ValidateSettings(true);
 	}
 
@@ -100,7 +122,7 @@ public class MainForm : Form
 		Size size = ClientSize;
 		if (_nest != null)
 		{
-			_nest.Update(settings.frameMinSize.Value);
+			_nest.Update();
 			_nest.Resize(0, 0, size.Width, size.Height);
 		}
 	}

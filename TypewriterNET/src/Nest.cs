@@ -4,7 +4,7 @@ using System;
 
 public class Nest
 {
-	public readonly Frame frame;
+	public readonly AFrame frame;
 	public readonly Nest child;
 
 	public Nest parent;
@@ -21,7 +21,7 @@ public class Nest
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
 
-	public Nest(Frame frame, Nest child)
+	public Nest(AFrame frame, Nest child)
 	{
 		this.frame = frame;
 		this.child = child;
@@ -47,20 +47,20 @@ public class Nest
 		this.mainForm = mainForm;
 	}
 
-	public void Update(Size commonMinSize)
+	public void Update()
 	{
-		selfMinSize = commonMinSize;
+		selfMinSize = frame.MinSize;
 		if (child != null)
 		{
 			child.parent = this;
-			child.Update(commonMinSize);
+			child.Update();
 			minSize = hDivided ?
 				new Size(selfMinSize.Width + child.minSize.Width, Math.Max(selfMinSize.Height, child.minSize.Height)) :
 				new Size(Math.Max(selfMinSize.Width, child.minSize.Width), selfMinSize.Height + child.minSize.Height);
 		}
 		else
 		{
-			minSize = commonMinSize;
+			minSize = selfMinSize;
 		}
 	}
 
