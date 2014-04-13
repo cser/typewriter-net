@@ -27,6 +27,7 @@ namespace MulticaretEditor
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly SwitchList<T> list;
 		private readonly StringOfDelegate<T> stringOf;
+		private readonly Point[] tempPoints;
 
 		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf)
 		{
@@ -40,6 +41,7 @@ namespace MulticaretEditor
 			TabStop = false;
 			list.SelectedChange += OnSelectedChange;
 			
+			tempPoints = new Point[3];
 			SetFont(FontFamily.GenericMonospace, 10.25f);
 			
 			arrowTimer = new Timer();
@@ -156,7 +158,11 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth / 2;
 			
-			g.FillRectangle(scheme.tabsBgBrush, 0, 0, width - rightIndent, charHeight - 1);
+			Brush bgBrush = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
+			Brush tabsFgBrush = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
+			Pen tabsFgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
+
+			g.FillRectangle(bgBrush, 0, 0, width - rightIndent, charHeight - 1);
 			g.DrawLine(scheme.lineNumberFgPen, 0, charHeight - 1, width, charHeight - 1);
 
 			leftIndent = charWidth;
@@ -165,7 +171,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < text.Length; j++)
 				{
 					g.DrawString(
-						text[j] + "", font, scheme.fgBrush,
+						text[j] + "", font, tabsFgBrush,
 						10 - charWidth / 3 + j * charWidth, 0, stringFormat);
 				}
 				leftIndent += (charWidth + 1) * text.Length;
@@ -183,9 +189,9 @@ namespace MulticaretEditor
 			rightIndent = charHeight;
 			if (x > width - leftIndent - rightIndent)
 			{
-				rightIndent += charWidth * 4;
-				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 2, charHeight);
-				rightRect = new Rectangle(width - rightIndent + charWidth * 2, 0, charWidth * 2, charHeight);
+				rightIndent += charWidth * 3;
+				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 3 / 2, charHeight);
+				rightRect = new Rectangle(width - rightIndent + charWidth * 3 / 2, 0, charWidth * 3 / 2, charHeight);
 				ScrollToSelectedIfNeed();
 				if (offsetIndex < 0)
 					offsetIndex = 0;
@@ -238,16 +244,41 @@ namespace MulticaretEditor
 				rects.Add(rect);
 			}
 			
-			g.FillRectangle(scheme.tabsBgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
+			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
 			g.DrawLine(scheme.lineNumberFgPen, width - rightIndent, charHeight - 1, width, charHeight - 1);
 			
-			closeRect = new Rectangle(width - charHeight, 0, charHeight, charHeight);
-			g.DrawString("Х", font, scheme.tabsFgBrush, closeRect.X - charWidth / 3 + charWidth / 2, -1, stringFormat);
+			int closeWidth = charWidth * 7 / 3;
+			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
+			{
+				int tx = closeRect.X + closeWidth / 2;
+				int ty = charHeight / 2;
+				int td = charHeight / 5;
+				g.DrawLine(tabsFgPen, tx - td, ty - td, tx + td, ty + td);
+				g.DrawLine(tabsFgPen, tx + td, ty - td, tx - td, ty + td);
+				g.DrawLine(tabsFgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
+				g.DrawLine(tabsFgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
+			}
 			
 			if (leftRect != null)
-				g.DrawString("<", font, scheme.tabsFgBrush, leftRect.Value.X - charWidth / 3 + charWidth / 2, -1, stringFormat);
+			{
+				int tx = leftRect.Value.X + charWidth * 3 / 4;
+				int ty = charHeight / 2;
+				int td = charHeight / 6;
+				tempPoints[0] = new Point(tx - td, ty);
+				tempPoints[1] = new Point(tx + td, ty - td * 2);
+				tempPoints[2] = new Point(tx + td, ty + td * 2);
+				g.FillPolygon(tabsFgBrush, tempPoints);
+			}
 			if (rightRect != null)
-				g.DrawString(">", font, scheme.tabsFgBrush, rightRect.Value.X - charWidth / 3 + charWidth / 2, -1, stringFormat);
+			{
+				int tx = rightRect.Value.X + charWidth * 3 / 4;
+				int ty = charHeight / 2;
+				int td = charHeight / 6;
+				tempPoints[0] = new Point(tx + td, ty);
+				tempPoints[1] = new Point(tx - td, ty - td * 2);
+				tempPoints[2] = new Point(tx - td, ty + td * 2);
+				g.FillPolygon(tabsFgBrush, tempPoints);
+			}
 
 			base.OnPaint(e);
 		}
@@ -334,6 +365,20 @@ namespace MulticaretEditor
 		{
 			offsetIndex += arrowTickDelta;
 			Invalidate();
+		}
+
+		private bool _selected;
+		public bool Selected
+		{
+			get { return _selected; }
+			set
+			{
+				if (_selected != value)
+				{
+					_selected = value;
+					Invalidate();
+				}
+			}
 		}
 	}
 }

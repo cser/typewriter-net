@@ -15,6 +15,8 @@ namespace MulticaretEditor
 {
 	public class MulticaretTextBox : Control
 	{
+		public event Setter FocusedChange;
+
 		private LineArray lines;
 		private Controller controller;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
@@ -332,6 +334,15 @@ namespace MulticaretEditor
 		{
 			UnblinkCursor();
 			base.OnGotFocus(e);
+			if (FocusedChange != null)
+				FocusedChange();
+		}
+
+		protected override void OnLostFocus(EventArgs e)
+		{
+			base.OnLostFocus(e);
+			if (FocusedChange != null)
+				FocusedChange();
 		}
 		
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();

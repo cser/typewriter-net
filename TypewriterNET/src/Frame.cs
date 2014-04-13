@@ -24,7 +24,8 @@ public class Frame : Control
 		TabStop = false;
 
 		SwitchList<string> list = new SwitchList<string>();
-		list.Add("File");
+		list.Add("File 1");
+		list.Add("File 2");
 		tabBar = new TabBar<string>(list, TabBar<string>.DefaultStringOf);
 		tabBar.Text = name;
 		Controls.Add(tabBar);
@@ -33,12 +34,18 @@ public class Frame : Control
 		Controls.Add(splitLine);
 
 		textBox = new MulticaretTextBox();
+		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		tabBar.MouseUp += OnTabBarMouseUp;
 		splitLine.MouseDown += OnSplitLineMouseDown;
 		splitLine.MouseUp += OnSplitLineMouseUp;
+	}
+
+	private void OnTextBoxFocusedChange()
+	{
+		tabBar.Selected = textBox.Focused;
 	}
 
 	public string Title
@@ -135,6 +142,7 @@ public class Frame : Control
 
 	private void OnTabBarMouseDown(object sender, MouseEventArgs e)
 	{
+		textBox.Focus();
 		if (nest == null)
 			return;
 		Nest target = FindHeightTarget();

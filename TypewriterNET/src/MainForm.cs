@@ -97,89 +97,11 @@ public class MainForm : Form
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		UpdateNest(_nest);
 		Size size = ClientSize;
 		if (_nest != null)
 		{
-			if (size.Width < _nest.minSize.Width)
-				size.Width = _nest.minSize.Width;
-			if (size.Height < _nest.minSize.Height)
-				size.Height = _nest.minSize.Height;
-		}
-		ResizeNest(_nest, 0, 0, size.Width, size.Height);
-	}
-
-	private void UpdateNest(Nest nest)
-	{
-		if (nest == null)
-			return;
-		Size minSize = settings.frameMinSize.Value;
-		nest.selfMinSize = minSize;
-		if (nest.child != null)
-		{
-			nest.child.parent = nest;
-			UpdateNest(nest.child);
-			nest.minSize = nest.hDivided ?
-				new Size(minSize.Width + nest.child.minSize.Width, Math.Max(minSize.Height, nest.child.minSize.Height)) :
-				new Size(Math.Max(minSize.Width, nest.child.minSize.Width), minSize.Height + nest.child.minSize.Height);
-		}
-		else
-		{
-			nest.minSize = settings.frameMinSize.Value;
-		}
-	}
-
-	private void ResizeNest(Nest nest, int x, int y, int width, int height)
-	{
-		if (nest == null)
-			return;
-		nest.FullWidth = width;
-		nest.FullHeight = height;
-		if (nest.child != null)
-		{
-			if (nest.hDivided)
-			{
-				int size = nest.GetSize(width);
-				if (size < nest.selfMinSize.Width)
-					size = nest.selfMinSize.Width;
-				else if (width - size < nest.child.minSize.Width)
-					size = width - nest.child.minSize.Width;
-				nest.SetFrameSize(new Size(size, height));
-				if (nest.left)
-				{
-					nest.frame.Location = new Point(x, y);
-					ResizeNest(nest.child, x + size, y, width - size, height);
-				}
-				else
-				{
-					nest.frame.Location = new Point(x + (width - size), y);
-					ResizeNest(nest.child, x, y, width - size, height);
-				}
-			}
-			else
-			{
-				int size = nest.GetSize(height);
-				if (size < nest.selfMinSize.Height)
-					size = nest.selfMinSize.Height;
-				else if (height - size < nest.child.minSize.Height)
-					size = height - nest.child.minSize.Height;
-				nest.SetFrameSize(new Size(width, size));
-				if (nest.left)
-				{
-					nest.frame.Location = new Point(x, y);
-					ResizeNest(nest.child, x, y + size, width, height - size);
-				}
-				else
-				{
-					nest.frame.Location = new Point(x, y + (height - size));
-					ResizeNest(nest.child, x, y, width, height - size);
-				}
-			}
-		}
-		else
-		{
-			nest.frame.Location = new Point(x, y);
-			nest.SetFrameSize(new Size(width, height));
+			_nest.Update(settings.frameMinSize.Value);
+			_nest.Resize(0, 0, size.Width, size.Height);
 		}
 	}
 }
