@@ -104,7 +104,7 @@ namespace TypewriterNET
 
 		private void OnGotFocus(object sender, EventArgs e)
 		{
-			SetMenuItems(textBox.KeyMap);
+			mainMenu.node = textBox.KeyMap;
 		}
 
 		public MulticaretTextBox TextBox { get { return textBox; } }
@@ -126,7 +126,7 @@ namespace TypewriterNET
 		public void SetMenuItems(KeyMapNode node)
 		{
 			SuspendLayout();
-			mainMenu.SetItems(node);
+			mainMenu.node = node;
 			ResumeLayout();
 		}
 

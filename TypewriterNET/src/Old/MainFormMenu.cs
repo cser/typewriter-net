@@ -9,15 +9,62 @@ namespace TypewriterNET
 	public class MainFormMenu : MainMenu
 	{
 		private TabInfoList fileList;
+		private List<string> names;
+
+		public KeyMapNode node;
 
 		public MainFormMenu(TabInfoList fileList)
 		{
 			this.fileList = fileList;
+
+			names = new List<string>();
+			names.Add("&File");
+			names.Add("&Edit");
+			names.Add("F&ind");
+			names.Add("&View");
+			names.Add("Prefere&nces");
+			names.Add("&?");
+
+			foreach (string name in names)
+			{
+				MenuItems.Add(new DynamicMenuItem(this, name, false));
+			}
+			MenuItems.Add(new DynamicMenuItem(this, "&Other", true));
 		}
 
-		public void SetItems(KeyMapNode node)
+		public class DynamicMenuItem : MenuItem
 		{
-			MenuItems.Clear();
+			private MainFormMenu menu;
+			private string name;
+			private bool isOther;
+
+			public DynamicMenuItem(MainFormMenu menu, string name, bool isOther) : base(name)
+			{
+				this.name = name;
+				this.menu = menu;
+				this.isOther = isOther;
+
+				MenuItems.Add(new MenuItem(" "));
+				Popup += OnPopup;
+			}
+
+			private void OnPopup(object sender, EventArgs e)
+			{
+				MenuItems.Clear();
+				menu.BuildItems(this, name, isOther);
+				if (isOther && MenuItems.Count == 0)
+				{
+					MenuItem item = new MenuItem("[Empty]");
+					item.Enabled = false;
+					MenuItems.Add(item);
+				}
+			}
+		}
+
+		private void BuildItems(MenuItem root, string rootName, bool isOther)
+		{
+			if (node == null)
+				return;
 	    	List<KeyAction> actions = new List<KeyAction>();
 	    	Dictionary<KeyAction, bool> actionSet = new Dictionary<KeyAction, bool>();
 	        Dictionary<KeyAction, List<KeyItem>> keysByAction = new Dictionary<KeyAction, List<KeyItem>>();
@@ -49,7 +96,7 @@ namespace TypewriterNET
 	        KeysConverter keysConverter = new KeysConverter();
 	        foreach (KeyAction action in actions)
 	        {
-	        	string name = GetMenuItemName(action.name);
+	        	string itemName = GetMenuItemName(action.name);
 	        	List<KeyItem> keys;
 	        	keysByAction.TryGetValue(action, out keys);
 	        	if (keys != null)
@@ -59,32 +106,52 @@ namespace TypewriterNET
 	        		{
 						if (keyItem.keys == Keys.None)
 							continue;
-						name += first ? "\t" : "/";
+						itemName += first ? "\t" : "/";
 	        			first = false;
 	        			if (action.doOnModeChange != null)
-	        				name += "[";
-	        			name += keysConverter.ConvertToString(keyItem.keys);
+	        				itemName += "[";
+	        			itemName += keysConverter.ConvertToString(keyItem.keys);
 	        			if (action.doOnModeChange != null)
-	        				name += "]";
+	        				itemName += "]";
 	        		}
 	        	}
-	        	MenuItem item = new MenuItem(name, new MenuItemActionDelegate(action, fileList).OnClick);
-	        	GetMenuItemParent(action.name, itemByPath).MenuItems.Add(item);
+				bool filtered;
+				if (isOther)
+				{
+					filtered = true;
+					foreach (string name in names)
+					{
+						if (action.name.StartsWith(name + "\\"))
+						{
+							filtered = false;
+							break;
+						}
+					}
+				}
+				else
+				{
+					filtered = action.name.StartsWith(rootName + "\\");
+				}
+				if (filtered)
+				{
+					MenuItem item = new MenuItem(itemName, new MenuItemActionDelegate(action, fileList).OnClick);
+					GetMenuItemParent(root, rootName, action.name, itemByPath).MenuItems.Add(item);
+				}
 	        }
 		}
 
-	    private Menu GetMenuItemParent(string path, Dictionary<string, Menu> itemByPath)
+	    private Menu GetMenuItemParent(MenuItem root, string rootName, string path, Dictionary<string, Menu> itemByPath)
 	    {
 	    	string parentPath = GetMenuItemParentPath(path);
-	    	if (string.IsNullOrEmpty(parentPath))
-	    		return this;
+	    	if (parentPath == rootName || string.IsNullOrEmpty(parentPath))
+	    		return root;
 	    	Menu parent;
 	    	itemByPath.TryGetValue(parentPath, out parent);
 	    	if (parent != null)
 	    		return parent;
     		MenuItem item = new MenuItem(GetMenuItemName(parentPath));
     		itemByPath[parentPath] = item;
-    		GetMenuItemParent(parentPath, itemByPath).MenuItems.Add(item);
+    		GetMenuItemParent(root, rootName, parentPath, itemByPath).MenuItems.Add(item);
     		return item;
 	    }
 
