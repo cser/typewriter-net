@@ -10,7 +10,7 @@ namespace TypewriterNET
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new OldMainForm(args));
+			Application.Run(new MainForm(args));
 		}
 	}
 }

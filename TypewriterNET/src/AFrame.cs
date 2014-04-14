@@ -41,6 +41,7 @@ public class AFrame : Control
 	}
 
 	virtual public Size MinSize { get { return new Size(100, 100); } }
+	virtual public Frame AsFrame { get { return null; } }
 
 	//--------------------------------------------------------------------------
 	// Resizing X
@@ -91,7 +92,7 @@ public class AFrame : Control
 	{
 		if (nest == null)
 			return null;
-		if (nest.hDivided && nest.left)
+		if (nest.child != null && nest.hDivided && nest.left)
 			return nest;
 		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
 		{
@@ -113,7 +114,7 @@ public class AFrame : Control
 	{
 		if (nest == null)
 			return;
-		Nest target = FindHeightTarget();
+		Nest target = FindHeightTarget(nest);
 		if (target != null)
 		{
 			startY = Control.MousePosition.Y;
@@ -132,7 +133,7 @@ public class AFrame : Control
 	{
 		if (nest == null)
 			return;
-		Nest target = FindHeightTarget();
+		Nest target = FindHeightTarget(nest);
 		if (target != null)
 		{
 			int k = target.left ? -1 : 1;
@@ -146,11 +147,11 @@ public class AFrame : Control
 		}
 	}
 
-	private Nest FindHeightTarget()
+	private Nest FindHeightTarget(Nest nest)
 	{
 		if (nest == null)
 			return null;
-		if (!nest.hDivided && !nest.left)
+		if (nest.child != null && !nest.hDivided && !nest.left)
 			return nest;
 		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
 		{

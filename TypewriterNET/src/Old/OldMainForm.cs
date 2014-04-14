@@ -21,7 +21,7 @@ namespace TypewriterNET
 	{
 		private TableLayoutPanel table;
 	    private MulticaretTextBox textBox;
-	    private MainFormMenu mainMenu;
+	    private OldMainFormMenu mainMenu;
 	    private TabInfoList fileList;
 	    private TabBar<TabInfo> tabBar;
 	    private ConsoleListController consoleListController;
@@ -87,7 +87,7 @@ namespace TypewriterNET
 			table.Controls.Add(consoleBar, 0, 2);
 
 			searchFrame = new SearchFrame(this);
-			mainMenu = new MainFormMenu(fileList);
+			mainMenu = new OldMainFormMenu(fileList);
 			Menu = mainMenu;
 	        
 	        BuildMenu();

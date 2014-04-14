@@ -6,11 +6,8 @@ public class Settings
 {
 	public event Setter Changed;
 
-	public readonly Field<Size> frameMinSize;
-
 	public Settings()
 	{
-		frameMinSize = new Field<Size>(new Size(50, 20), DispatchChange);
 	}
 
 	private void DispatchChange()

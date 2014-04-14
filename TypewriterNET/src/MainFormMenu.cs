@@ -8,14 +8,14 @@ namespace TypewriterNET
 {
 	public class MainFormMenu : MainMenu
 	{
-		private TabInfoList fileList;
+		private MainForm mainForm;
 		private List<string> names;
 
 		public KeyMapNode node;
 
-		public MainFormMenu(TabInfoList fileList)
+		public MainFormMenu(MainForm mainForm)
 		{
-			this.fileList = fileList;
+			this.mainForm = mainForm;
 
 			names = new List<string>();
 			names.Add("&File");
@@ -134,7 +134,7 @@ namespace TypewriterNET
 				}
 				if (filtered)
 				{
-					MenuItem item = new MenuItem(itemName, new MenuItemActionDelegate(action, fileList).OnClick);
+					MenuItem item = new MenuItem(itemName, new MenuItemActionDelegate(mainForm, action).OnClick);
 					GetMenuItemParent(root, rootName, action.name, itemByPath).MenuItems.Add(item);
 				}
 	        }
@@ -173,18 +173,18 @@ namespace TypewriterNET
 
 	    public class MenuItemActionDelegate
 	    {
+			private MainForm mainForm;
 	    	private KeyAction action;
-	    	private SwitchList<TabInfo> fileList;
 	    	
-	    	public MenuItemActionDelegate(KeyAction action, SwitchList<TabInfo> fileList)
+	    	public MenuItemActionDelegate(MainForm mainForm, KeyAction action)
 	    	{
+				this.mainForm = mainForm;
 	    		this.action = action;
-	    		this.fileList = fileList;
 	    	}
 	    	
 	    	public void OnClick(object sender, EventArgs e)
 	    	{
-	    		TabInfo info = fileList.Selected;
+	    		Buffer info = mainForm.GetSelectedBuffer();
 	    		if (info != null)
 	    		{
 	    			if (action.doOnModeChange != null)
