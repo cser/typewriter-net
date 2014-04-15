@@ -63,7 +63,13 @@ public class Frame : AFrame
 	override public Frame AsFrame { get { return this; } }
 
 	public Buffer SelectedBuffer { get { return list.Selected; } }
-	public bool Selected { get { return textBox.Focused; } }
+
+	override public bool Focused { get { return textBox.Focused; } }
+
+	override public void Focus()
+	{
+		textBox.Focus();
+	}
 
 	private void OnTabBarMouseDown(object sender, EventArgs e)
 	{

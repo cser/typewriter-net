@@ -124,4 +124,44 @@ public class Nest
 			SetFrameSize(new Size(width, height));
 		}
 	}
+
+	public static Frame GetFocusedFrame(Nest nest)
+	{
+		for (Nest nestI = nest; nestI != null; nestI = nestI.child)
+		{
+			if (nestI.frame.AsFrame != null && nestI.frame.AsFrame.Focused)
+				return nestI.frame.AsFrame;
+		}
+		return null;
+	}
+
+	public static Buffer GetSelectedBuffer(Nest nest)
+	{
+		Frame frame = Nest.GetFocusedFrame(nest);
+		return frame != null ? frame.SelectedBuffer : null;
+	}
+
+	public static Frame GetFirstFrame(Nest nest)
+	{
+		for (Nest nestI = nest; nestI != null; nestI = nestI.child)
+		{
+			if (nestI.frame.AsFrame != null)
+				return nestI.frame.AsFrame;
+		}
+		return null;
+	}
+
+	public static Frame GetNextFrame(Frame frame)
+	{
+		Nest nest = frame != null ? frame.Nest : null;
+		if (nest != null)
+		{
+			for (Nest nestI = nest.child; nestI != null; nestI = nestI.child)
+			{
+				if (nestI.frame.AsFrame != null)
+					return nestI.frame.AsFrame;
+			}
+		}
+		return null;
+	}
 }

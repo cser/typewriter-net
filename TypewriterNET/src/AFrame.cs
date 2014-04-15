@@ -43,6 +43,12 @@ public class AFrame : Control
 	virtual public Size MinSize { get { return new Size(100, 100); } }
 	virtual public Frame AsFrame { get { return null; } }
 
+	new virtual public bool Focused { get { return false; } }
+
+	new virtual public void Focus()
+	{
+	}
+
 	//--------------------------------------------------------------------------
 	// Resizing X
 	//--------------------------------------------------------------------------

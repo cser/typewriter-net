@@ -75,28 +75,29 @@ public class MainForm : Form
 	{
 		{
 			FindDialog dialog = new FindDialog("Find");
-			_nest = new Nest(dialog, _nest);
-			_nest.hDivided = false;
-			_nest.left = false;
-			_nest.isPercents = false;
-			_nest.size = dialog.Height;
-			_nest.Init(this);
+			nests = new Nest(dialog, nests);
+			nests.hDivided = false;
+			nests.left = false;
+			nests.isPercents = false;
+			nests.size = dialog.Height;
+			nests.Init(this);
 			Controls.Add(dialog);
 		}
 		{
 			ReplaceDialog dialog = new ReplaceDialog("Replace");
-			_nest = new Nest(dialog, _nest);
-			_nest.hDivided = false;
-			_nest.left = false;
-			_nest.isPercents = false;
-			_nest.size = dialog.Height;
-			_nest.Init(this);
+			nests = new Nest(dialog, nests);
+			nests.hDivided = false;
+			nests.left = false;
+			nests.isPercents = false;
+			nests.size = dialog.Height;
+			nests.Init(this);
 			Controls.Add(dialog);
 		}
 		BuildMenu();
 		menu.node = new KeyMapNode(keyMap, 0);
 		AddBuffer("main", new Buffer("aaaa", "aaaa"));
 		AddBuffer("main", new Buffer("bbbb", "bbbb"));
+		AddBuffer("left", new Buffer("bbbb", "bbbb"));
 		ValidateSettings(true);
 	}
 
@@ -112,16 +113,17 @@ public class MainForm : Form
 		OnResize(null);
 	}
 
-	private Nest _nest;
+	private Nest nests;
+	public Nest Nests { get { return nests; } }
 
 	private void AddFrame(Frame frame, bool hDivided, bool left, bool isPercents, int percents)
 	{
-		_nest = new Nest(frame, _nest);
-		_nest.hDivided = hDivided;
-		_nest.left = left;
-		_nest.isPercents = isPercents;
-		_nest.size = percents;
-		_nest.Init(this);
+		nests = new Nest(frame, nests);
+		nests.hDivided = hDivided;
+		nests.left = left;
+		nests.isPercents = isPercents;
+		nests.size = percents;
+		nests.Init(this);
 		Controls.Add(frame);
 	}
 
@@ -129,10 +131,10 @@ public class MainForm : Form
 	{
 		base.OnResize(e);
 		Size size = ClientSize;
-		if (_nest != null)
+		if (nests != null)
 		{
-			_nest.Update();
-			_nest.Resize(0, 0, size.Width, size.Height);
+			nests.Update();
+			nests.Resize(0, 0, size.Width, size.Height);
 		}
 	}
 
@@ -157,7 +159,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
@@ -182,25 +184,15 @@ public class MainForm : Form
 		return true;
 	}
 
-	public Buffer GetSelectedBuffer()
-	{
-		for (Nest nestI = _nest; nestI != null; nestI = nestI.child)
-		{
-			if (nestI.frame.AsFrame != null && nestI.frame.AsFrame.Selected)
-				return nestI.frame.AsFrame.SelectedBuffer;
-		}
-		return null;
-	}
-
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(GetSelectedBuffer());
+		TrySaveFile(Nest.GetSelectedBuffer(nests));
 		return true;
 	}
 
 	private bool DoSaveAs(Controller controller)
 	{
-		Buffer buffer = GetSelectedBuffer();
+		Buffer buffer = Nest.GetSelectedBuffer(nests);
 		if (buffer != null)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
@@ -290,6 +282,12 @@ public class MainForm : Form
 
 	private bool DoChangeFocus(Controller controller)
 	{
+		Frame selectedFrame = Nest.GetFocusedFrame(nests);
+		Frame frame = Nest.GetNextFrame(selectedFrame);
+		if (frame == null)
+			frame = Nest.GetFirstFrame(nests);
+		if (frame != null)
+			frame.Focus();
 		return true;
 	}
 
