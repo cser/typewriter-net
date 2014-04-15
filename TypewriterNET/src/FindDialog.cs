@@ -18,7 +18,7 @@ public class FindDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public FindDialog(string name)
+	public FindDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
 		Name = name;
 
@@ -32,6 +32,8 @@ public class FindDialog : ADialog
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
+		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
@@ -50,6 +52,8 @@ public class FindDialog : ADialog
 	private void OnTextBoxFocusedChange()
 	{
 		tabBar.Selected = textBox.Focused;
+		if (textBox.Focused)
+			Nest.MainForm.MenuNode = textBox.KeyMap;
 	}
 
 	override protected void OnResize(EventArgs e)

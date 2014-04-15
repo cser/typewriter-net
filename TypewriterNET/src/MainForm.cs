@@ -56,49 +56,55 @@ public class MainForm : Form
 		ValidateSettings(false);
 	}
 
-	private Dictionary<string, Frame> _frames = new Dictionary<string, Frame>();
+	private Dictionary<string, Frame> frames = new Dictionary<string, Frame>();
 
 	private void AddBuffer(string frameName, Buffer buffer)
 	{
 		Frame frame;
-		_frames.TryGetValue(frameName, out frame);
+		frames.TryGetValue(frameName, out frame);
 		if (frame == null)
 		{
 			frame = new Frame("", keyMap, doNothingKeyMap);
-			_frames[frameName] = frame;
-			AddFrame(frame, false, true, true, 100);
+			frames[frameName] = frame;
+			AddFrame(frame, false, true, true, 50);
 		}
 		frame.AddBuffer(buffer);
 	}
 
 	private void OnLoad(object sender, EventArgs e)
 	{
-		{
-			FindDialog dialog = new FindDialog("Find");
-			nests = new Nest(dialog, nests);
-			nests.hDivided = false;
-			nests.left = false;
-			nests.isPercents = false;
-			nests.size = dialog.Height;
-			nests.Init(this);
-			Controls.Add(dialog);
-		}
-		{
-			ReplaceDialog dialog = new ReplaceDialog("Replace");
-			nests = new Nest(dialog, nests);
-			nests.hDivided = false;
-			nests.left = false;
-			nests.isPercents = false;
-			nests.size = dialog.Height;
-			nests.Init(this);
-			Controls.Add(dialog);
-		}
 		BuildMenu();
-		menu.node = new KeyMapNode(keyMap, 0);
+		{
+			FindDialog dialog = new FindDialog("Find", keyMap, doNothingKeyMap);
+			nests = new Nest(dialog, nests);
+			nests.hDivided = false;
+			nests.left = false;
+			nests.isPercents = false;
+			nests.size = dialog.Height;
+			nests.Init(this);
+			Controls.Add(dialog);
+		}
+		{
+			ReplaceDialog dialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
+			nests = new Nest(dialog, nests);
+			nests.hDivided = false;
+			nests.left = false;
+			nests.isPercents = false;
+			nests.size = dialog.Height;
+			nests.Init(this);
+			Controls.Add(dialog);
+		}
 		AddBuffer("main", new Buffer("aaaa", "aaaa"));
 		AddBuffer("main", new Buffer("bbbb", "bbbb"));
 		AddBuffer("left", new Buffer("bbbb", "bbbb"));
 		ValidateSettings(true);
+		MenuNode = new KeyMapNode(keyMap, 0);
+	}
+
+	public KeyMapNode MenuNode
+	{
+		get { return menu.node; }
+		set { menu.node = value; }
 	}
 
 	private void ValidateSettings(bool forced)
@@ -156,7 +162,6 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
-		keyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
@@ -259,15 +264,6 @@ public class MainForm : Form
 	private bool DoExit(Controller controller)
 	{
 		return true;
-	}
-
-	private bool DoTabDown(Controller controller)
-	{
-		return true;
-	}
-
-	private void DoTabModeChange(Controller controller, bool mode)
-	{
 	}
 
 	private bool DoCloseTab(Controller controller)

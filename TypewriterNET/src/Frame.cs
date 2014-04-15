@@ -48,8 +48,12 @@ public class Frame : AFrame
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
+		KeyMap frameKeyMap = new KeyMap();
+		frameKeyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
+
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(frameKeyMap);
 		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.Controller = GetEmptyController();
@@ -57,6 +61,20 @@ public class Frame : AFrame
 
 		InitResizing(tabBar, splitLine);
 		tabBar.MouseDown += OnTabBarMouseDown;
+	}
+
+	private bool DoTabDown(Controller controller)
+	{
+		list.Down();
+		return true;
+	}
+	
+	private void DoTabModeChange(Controller controller, bool mode)
+	{
+		if (mode)
+			list.ModeOn();
+		else
+			list.ModeOff();
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height); } }
@@ -79,6 +97,7 @@ public class Frame : AFrame
 	private void OnTextBoxFocusedChange()
 	{
 		tabBar.Selected = textBox.Focused;
+		Nest.MainForm.MenuNode = textBox.KeyMap;
 	}
 
 	public string Title

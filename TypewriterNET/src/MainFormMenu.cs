@@ -18,18 +18,20 @@ namespace TypewriterNET
 			this.mainForm = mainForm;
 
 			names = new List<string>();
-			names.Add("&File");
-			names.Add("&Edit");
-			names.Add("F&ind");
-			names.Add("&View");
-			names.Add("Prefere&nces");
-			names.Add("&?");
+			AddRootItem("&File", false);
+			AddRootItem("&Edit", false);
+			AddRootItem("F&ind", false);
+			AddRootItem("&View", false);
+			AddRootItem("Prefere&nces", false);
+			AddRootItem("&Other", true);
+			AddRootItem("&?", false);
+		}
 
-			foreach (string name in names)
-			{
-				MenuItems.Add(new DynamicMenuItem(this, name, false));
-			}
-			MenuItems.Add(new DynamicMenuItem(this, "&Other", true));
+		private void AddRootItem(string name, bool isOther)
+		{
+			if (!isOther)
+				names.Add(name);
+			MenuItems.Add(new DynamicMenuItem(this, name, isOther));
 		}
 
 		public class DynamicMenuItem : MenuItem
@@ -52,7 +54,7 @@ namespace TypewriterNET
 			{
 				MenuItems.Clear();
 				menu.BuildItems(this, name, isOther);
-				if (isOther && MenuItems.Count == 0)
+				if (MenuItems.Count == 0)
 				{
 					MenuItem item = new MenuItem("[Empty]");
 					item.Enabled = false;

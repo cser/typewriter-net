@@ -19,7 +19,7 @@ public class ReplaceDialog : ADialog
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
 
-	public ReplaceDialog(string name)
+	public ReplaceDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
 		Name = name;
 
@@ -33,6 +33,8 @@ public class ReplaceDialog : ADialog
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
+		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
@@ -57,6 +59,8 @@ public class ReplaceDialog : ADialog
 	private void OnTextBoxFocusedChange()
 	{
 		tabBar.Selected = textBox.Focused;
+		if (textBox.Focused)
+			Nest.MainForm.MenuNode = textBox.KeyMap;
 	}
 
 	override protected void OnResize(EventArgs e)
