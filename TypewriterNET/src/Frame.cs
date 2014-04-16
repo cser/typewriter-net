@@ -50,6 +50,7 @@ public class Frame : AFrame
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(keyMap);
@@ -75,6 +76,12 @@ public class Frame : AFrame
 			list.ModeOn();
 		else
 			list.ModeOff();
+	}
+
+	private bool DoCloseTab(Controller controller)
+	{
+		RemoveBuffer(list.Selected);
+		return true;
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height); } }

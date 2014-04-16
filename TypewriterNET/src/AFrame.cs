@@ -98,9 +98,9 @@ public class AFrame : Control
 	{
 		if (nest == null)
 			return null;
-		if (nest.child != null && nest.hDivided && nest.left)
+		if (nest.Child != null && nest.hDivided && nest.left)
 			return nest;
-		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
+		for (Nest nestI = nest.Parent; nestI != null; nestI = nestI.Parent)
 		{
 			if (nestI.hDivided && !nestI.left)
 				return nestI;
@@ -157,9 +157,9 @@ public class AFrame : Control
 	{
 		if (nest == null)
 			return null;
-		if (nest.child != null && !nest.hDivided && !nest.left)
+		if (nest.Child != null && !nest.hDivided && !nest.left)
 			return nest;
-		for (Nest nestI = nest.parent; nestI != null; nestI = nestI.parent)
+		for (Nest nestI = nest.Parent; nestI != null; nestI = nestI.Parent)
 		{
 			if (!nestI.hDivided && nestI.left)
 				return nestI;

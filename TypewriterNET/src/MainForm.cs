@@ -74,26 +74,6 @@ public class MainForm : Form
 	private void OnLoad(object sender, EventArgs e)
 	{
 		BuildMenu();
-		{
-			FindDialog dialog = new FindDialog("Find", keyMap, doNothingKeyMap);
-			nests = new Nest(dialog, nests);
-			nests.hDivided = false;
-			nests.left = false;
-			nests.isPercents = false;
-			nests.size = dialog.Height;
-			nests.Init(this);
-			Controls.Add(dialog);
-		}
-		{
-			ReplaceDialog dialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
-			nests = new Nest(dialog, nests);
-			nests.hDivided = false;
-			nests.left = false;
-			nests.isPercents = false;
-			nests.size = dialog.Height;
-			nests.Init(this);
-			Controls.Add(dialog);
-		}
 		AddBuffer("main", new Buffer("aaaa", "aaaa"));
 		AddBuffer("main", new Buffer("bbbb", "bbbb"));
 		AddBuffer("left", new Buffer("bbbb", "bbbb"));
@@ -119,17 +99,17 @@ public class MainForm : Form
 		OnResize(null);
 	}
 
-	private Nest nests;
-	public Nest Nests { get { return nests; } }
+	public readonly NestList nests = new NestList();
 
 	private void AddFrame(Frame frame, bool hDivided, bool left, bool isPercents, int percents)
 	{
-		nests = new Nest(frame, nests);
-		nests.hDivided = hDivided;
-		nests.left = left;
-		nests.isPercents = isPercents;
-		nests.size = percents;
-		nests.Init(this);
+		Nest nest = new Nest(frame);
+		nest.hDivided = hDivided;
+		nest.left = left;
+		nest.isPercents = isPercents;
+		nest.size = percents;
+		nest.Init(this);
+		nests.AddToHead(nest);
 		Controls.Add(frame);
 	}
 
@@ -137,10 +117,10 @@ public class MainForm : Form
 	{
 		base.OnResize(e);
 		Size size = ClientSize;
-		if (nests != null)
+		if (nests.Head != null)
 		{
-			nests.Update();
-			nests.Resize(0, 0, size.Width, size.Height);
+			nests.Head.Update();
+			nests.Head.Resize(0, 0, size.Width, size.Height);
 		}
 	}
 
@@ -162,10 +142,10 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
@@ -191,13 +171,13 @@ public class MainForm : Form
 
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(Nest.GetSelectedBuffer(nests));
+		TrySaveFile(Nest.GetSelectedBuffer(nests.Head));
 		return true;
 	}
 
 	private bool DoSaveAs(Controller controller)
 	{
-		Buffer buffer = Nest.GetSelectedBuffer(nests);
+		Buffer buffer = Nest.GetSelectedBuffer(nests.Head);
 		if (buffer != null)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
@@ -266,11 +246,6 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoCloseTab(Controller controller)
-	{
-		return true;
-	}
-
 	private bool DoShowHideConsole(Controller controller)
 	{
 		return true;
@@ -278,17 +253,52 @@ public class MainForm : Form
 
 	private bool DoChangeFocus(Controller controller)
 	{
-		Frame selectedFrame = Nest.GetFocusedFrame(nests);
+		Frame selectedFrame = Nest.GetFocusedFrame(nests.Head);
 		Frame frame = Nest.GetNextFrame(selectedFrame);
 		if (frame == null)
-			frame = Nest.GetFirstFrame(nests);
+			frame = Nest.GetFirstFrame(nests.Head);
 		if (frame != null)
 			frame.Focus();
 		return true;
 	}
 
+	private FindDialog findDialog;
+
 	private bool DoFind(Controller controller)
 	{
+		if (findDialog == null)
+		{
+			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
+			Nest nest = new Nest(findDialog);
+			nest.hDivided = false;
+			nest.left = false;
+			nest.isPercents = false;
+			nest.size = findDialog.Height;
+			nest.Init(this);
+			nests.AddToHead(nest);
+			Controls.Add(findDialog);
+		}
+		else
+		{
+			nests.Remove(findDialog.Nest);
+			findDialog = null;
+		}
+		OnResize(null);
+		return true;
+	}
+
+	private bool DoReplace(Controller controller)
+	{
+		ReplaceDialog dialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
+		Nest nest = new Nest(dialog);
+		nest.hDivided = false;
+		nest.left = false;
+		nest.isPercents = false;
+		nest.size = dialog.Height;
+		nest.Init(this);
+		nests.AddToHead(nest);
+		Controls.Add(dialog);
+		OnResize(null);
 		return true;
 	}
 

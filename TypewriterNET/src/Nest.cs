@@ -2,12 +2,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System;
 
-public class Nest
+public class Nest : NestBase
 {
 	public readonly AFrame frame;
-	public readonly Nest child;
-
-	public Nest parent;
+	public Nest Child { get { return child; } }
+	public Nest Parent { get { return parent; } }
 	public bool hDivided;
 	public bool left;
 
@@ -21,10 +20,9 @@ public class Nest
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
 
-	public Nest(AFrame frame, Nest child)
+	public Nest(AFrame frame)
 	{
 		this.frame = frame;
-		this.child = child;
 		frame.SetNest(this);
 	}
 
@@ -52,7 +50,6 @@ public class Nest
 		selfMinSize = frame.MinSize;
 		if (child != null)
 		{
-			child.parent = this;
 			child.Update();
 			minSize = hDivided ?
 				new Size(selfMinSize.Width + child.minSize.Width, Math.Max(selfMinSize.Height, child.minSize.Height)) :
