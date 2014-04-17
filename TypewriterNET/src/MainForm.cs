@@ -23,9 +23,13 @@ public class MainForm : Form
 	private readonly Settings settings;
 	private readonly MainFormMenu menu;
 
+	public readonly FrameList frames;
+
 	public MainForm(string[] args)
 	{
 		this.args = args;
+
+		frames = new FrameList(this);
 
 		ResourceManager manager = new ResourceManager("TypewriterNET", typeof(Program).Assembly);
 		Icon = (Icon)manager.GetObject("icon");
@@ -56,16 +60,16 @@ public class MainForm : Form
 		ValidateSettings(false);
 	}
 
-	private Dictionary<string, Frame> frames = new Dictionary<string, Frame>();
+	private Dictionary<string, Frame> frameById = new Dictionary<string, Frame>();
 
 	private void AddBuffer(string frameName, Buffer buffer)
 	{
 		Frame frame;
-		frames.TryGetValue(frameName, out frame);
+		frameById.TryGetValue(frameName, out frame);
 		if (frame == null)
 		{
 			frame = new Frame("", keyMap, doNothingKeyMap);
-			frames[frameName] = frame;
+			frameById[frameName] = frame;
 			AddFrame(frame, false, true, true, 50);
 		}
 		frame.AddBuffer(buffer);
@@ -99,29 +103,20 @@ public class MainForm : Form
 		OnResize(null);
 	}
 
-	public readonly NestList nests = new NestList();
-
 	private void AddFrame(Frame frame, bool hDivided, bool left, bool isPercents, int percents)
 	{
-		Nest nest = new Nest(frame);
+		Nest nest = frames.AddParentNode();
+		nest.AFrame = frame;
 		nest.hDivided = hDivided;
 		nest.left = left;
 		nest.isPercents = isPercents;
 		nest.size = percents;
-		nest.Init(this);
-		nests.AddToHead(nest);
-		Controls.Add(frame);
 	}
 
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		Size size = ClientSize;
-		if (nests.Head != null)
-		{
-			nests.Head.Update();
-			nests.Head.Resize(0, 0, size.Width, size.Height);
-		}
+		frames.Resize(0, 0, ClientSize);
 	}
 
 	private KeyMap keyMap;
@@ -171,13 +166,13 @@ public class MainForm : Form
 
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(Nest.GetSelectedBuffer(nests.Head));
+		TrySaveFile(frames.GetSelectedBuffer());
 		return true;
 	}
 
 	private bool DoSaveAs(Controller controller)
 	{
-		Buffer buffer = Nest.GetSelectedBuffer(nests.Head);
+		Buffer buffer = frames.GetSelectedBuffer();
 		if (buffer != null)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
@@ -253,34 +248,32 @@ public class MainForm : Form
 
 	private bool DoChangeFocus(Controller controller)
 	{
-		Frame selectedFrame = Nest.GetFocusedFrame(nests.Head);
-		Frame frame = Nest.GetNextFrame(selectedFrame);
+		Frame frame = frames.GetChildFrame(frames.GetFocusedFrame());
 		if (frame == null)
-			frame = Nest.GetFirstFrame(nests.Head);
+			frame = frames.GetFirstFrame();
 		if (frame != null)
 			frame.Focus();
 		return true;
 	}
 
 	private FindDialog findDialog;
+	private ReplaceDialog replaceDialog;
 
 	private bool DoFind(Controller controller)
 	{
 		if (findDialog == null)
 		{
 			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
-			Nest nest = new Nest(findDialog);
+			Nest nest = frames.AddParentNode();
+			nest.AFrame = findDialog;
 			nest.hDivided = false;
 			nest.left = false;
 			nest.isPercents = false;
 			nest.size = findDialog.Height;
-			nest.Init(this);
-			nests.AddToHead(nest);
-			Controls.Add(findDialog);
 		}
 		else
 		{
-			nests.Remove(findDialog.Nest);
+			frames.Remove(findDialog.Nest);
 			findDialog = null;
 		}
 		OnResize(null);
@@ -289,15 +282,21 @@ public class MainForm : Form
 
 	private bool DoReplace(Controller controller)
 	{
-		ReplaceDialog dialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
-		Nest nest = new Nest(dialog);
-		nest.hDivided = false;
-		nest.left = false;
-		nest.isPercents = false;
-		nest.size = dialog.Height;
-		nest.Init(this);
-		nests.AddToHead(nest);
-		Controls.Add(dialog);
+		if (replaceDialog == null)
+		{
+			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
+			Nest nest = frames.AddParentNode();
+			nest.AFrame = replaceDialog;
+			nest.hDivided = false;
+			nest.left = false;
+			nest.isPercents = false;
+			nest.size = replaceDialog.Height;
+		}
+		else
+		{
+			frames.Remove(replaceDialog.Nest);
+			replaceDialog = null;
+		}
 		OnResize(null);
 		return true;
 	}

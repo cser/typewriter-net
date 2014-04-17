@@ -186,7 +186,7 @@ namespace TypewriterNET
 	    	
 	    	public void OnClick(object sender, EventArgs e)
 	    	{
-	    		Buffer info = Nest.GetSelectedBuffer(mainForm.nests.Head);
+	    		Buffer info = mainForm.frames.GetSelectedBuffer();
 	    		if (info != null)
 	    		{
 	    			if (action.doOnModeChange != null)

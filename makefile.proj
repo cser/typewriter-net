@@ -12,14 +12,15 @@ This file was writen for launching with MSBuild
 			LangVersion="Default"
 			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll" />
 	</Target>
-	<Target Name="tests" DependsOnTargets="me">
+	<Target Name="tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\" />
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin" />
+		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin" />
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
-			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll"
+			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll; TypewriterNET\bin\TypewriterNET.exe"
 			TargetType="library"
 			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll" />
-		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\MulticaretEditorTests.dll" />
+		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll" />
 	</Target>
 	<Target Name="resources">
 		<MakeDir Directories="ResourceBuilder\bin\" />

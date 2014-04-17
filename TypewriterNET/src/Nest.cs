@@ -4,14 +4,15 @@ using System;
 
 public class Nest : NestBase
 {
-	public readonly AFrame frame;
 	public Nest Child { get { return child; } }
 	public Nest Parent { get { return parent; } }
+	public NestList Owner { get { return owner; } }
+
 	public bool hDivided;
 	public bool left;
-
 	public bool isPercents = true;
 	public int size = 50;
+
 	public Size minSize;
 	public Size selfMinSize;
 	public int FullWidth;
@@ -20,10 +21,57 @@ public class Nest : NestBase
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
 
-	public Nest(AFrame frame)
+	private readonly MainForm mainForm;
+	public MainForm MainForm { get { return mainForm; } }
+
+	public Nest(MainForm mainForm)
 	{
-		this.frame = frame;
-		frame.SetNest(this);
+		this.mainForm = mainForm;
+	}
+
+	private AFrame frame;
+	public AFrame AFrame
+	{
+		get { return frame; }
+		set
+		{
+			if (frame != value)
+			{
+				if (frame != null)
+				{
+					frame.SetNest(null);
+					if (frame.Parent == mainForm)
+						mainForm.Controls.Remove(frame);
+				}
+				frame = value;
+				if (frame != null)
+				{
+					frame.SetNest(this);
+					if (owner != null && frame.Parent != mainForm)
+						mainForm.Controls.Add(frame);
+				}
+			}
+		}
+	}
+
+	override protected void DoOnOwnerChange()
+	{
+		if (frame != null)
+		{
+			if (owner != null)
+			{
+				mainForm.Controls.Add(frame);
+			}
+			else if (frame.Parent == mainForm)
+			{
+				mainForm.Controls.Remove(frame);
+			}
+		}
+	}
+
+	public Frame Frame
+	{
+		get { return frame as Frame; }
 	}
 
 	public int GetSize(int nestSize)
@@ -35,14 +83,6 @@ public class Nest : NestBase
 	{
 		this.frameSize = size;
 		frame.Size = size;
-	}
-
-	private MainForm mainForm;
-	public MainForm MainForm { get { return mainForm; } }
-
-	public void Init(MainForm mainForm)
-	{
-		this.mainForm = mainForm;
 	}
 
 	public void Update()
@@ -120,45 +160,5 @@ public class Nest : NestBase
 			frame.Location = new Point(x, y);
 			SetFrameSize(new Size(width, height));
 		}
-	}
-
-	public static Frame GetFocusedFrame(Nest nest)
-	{
-		for (Nest nestI = nest; nestI != null; nestI = nestI.child)
-		{
-			if (nestI.frame.AsFrame != null && nestI.frame.AsFrame.Focused)
-				return nestI.frame.AsFrame;
-		}
-		return null;
-	}
-
-	public static Buffer GetSelectedBuffer(Nest nest)
-	{
-		Frame frame = Nest.GetFocusedFrame(nest);
-		return frame != null ? frame.SelectedBuffer : null;
-	}
-
-	public static Frame GetFirstFrame(Nest nest)
-	{
-		for (Nest nestI = nest; nestI != null; nestI = nestI.child)
-		{
-			if (nestI.frame.AsFrame != null)
-				return nestI.frame.AsFrame;
-		}
-		return null;
-	}
-
-	public static Frame GetNextFrame(Frame frame)
-	{
-		Nest nest = frame != null ? frame.Nest : null;
-		if (nest != null)
-		{
-			for (Nest nestI = nest.child; nestI != null; nestI = nestI.child)
-			{
-				if (nestI.frame.AsFrame != null)
-					return nestI.frame.AsFrame;
-			}
-		}
-		return null;
 	}
 }

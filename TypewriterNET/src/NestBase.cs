@@ -2,6 +2,7 @@ public class NestBase
 {
 	protected Nest child;
 	protected Nest parent;
+	protected NestList owner;
 
 	protected static Nest GetChild(Nest nest)
 	{
@@ -21,5 +22,18 @@ public class NestBase
 	protected static void SetParent(Nest nest, Nest parent)
 	{
 		nest.parent = parent;
+	}
+
+	protected static void SetOwner(Nest nest, NestList owner)
+	{
+		if (nest.owner != owner)
+		{
+			nest.owner = owner;
+			nest.DoOnOwnerChange();
+		}
+	}
+
+	virtual protected void DoOnOwnerChange()
+	{
 	}
 }
