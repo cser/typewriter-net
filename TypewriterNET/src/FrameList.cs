@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 
 public class FrameList
@@ -58,7 +59,7 @@ public class FrameList
 		Nest nest = frame != null ? frame.Nest : null;
 		if (nest != null)
 		{
-			for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
+			for (Nest nestI = nest.Child; nestI != null; nestI = nestI.Child)
 			{
 				if (nestI.Frame != null)
 					return nestI.Frame;

@@ -87,7 +87,7 @@ public class Nest : NestBase
 
 	public void Update()
 	{
-		selfMinSize = frame.MinSize;
+		selfMinSize = frame != null ? frame.MinSize : new Size();
 		if (child != null)
 		{
 			child.Update();
@@ -107,13 +107,26 @@ public class Nest : NestBase
 			width = minSize.Width;
 		if (height < minSize.Height)
 			height = minSize.Height;
-		PrivateResize(x, y, width, height);
+		Nest nest = GetFilledNest(this);
+		if (nest != null)
+			nest.PrivateResize(x, y, width, height);
+	}
+
+	private Nest GetFilledNest(Nest nest)
+	{
+		for (Nest nestI = nest; nestI != null; nestI = nestI.Child)
+		{
+			if (nestI.AFrame != null)
+				return nestI;
+		}
+		return null;
 	}
 
 	private void PrivateResize(int x, int y, int width, int height)
 	{
 		FullWidth = width;
 		FullHeight = height;
+		Nest child = GetFilledNest(this.child);
 		if (child != null)
 		{
 			if (hDivided)

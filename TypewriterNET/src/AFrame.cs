@@ -32,7 +32,7 @@ public class AFrame : Control
 		right.MouseUp += OnSplitLineMouseUp;
 	}
 
-	protected Nest nest;
+	private Nest nest;
 	public Nest Nest { get { return nest; } }
 
 	public void SetNest(Nest nest)

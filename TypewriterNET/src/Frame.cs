@@ -103,8 +103,11 @@ public class Frame : AFrame
 
 	private void OnTextBoxFocusedChange()
 	{
-		tabBar.Selected = textBox.Focused;
-		Nest.MainForm.MenuNode = textBox.KeyMap;
+		if (Nest != null)
+		{
+			tabBar.Selected = textBox.Focused;
+			Nest.MainForm.MenuNode = textBox.KeyMap;
+		}
 	}
 
 	public string Title
@@ -132,8 +135,13 @@ public class Frame : AFrame
 
 	public void RemoveBuffer(Buffer buffer)
 	{
-		buffer.Controller.history.ChangedChange -= OnChangedChange;
-		list.Remove(buffer);
+		if (buffer != null)
+		{
+			buffer.Controller.history.ChangedChange -= OnChangedChange;
+			list.Remove(buffer);
+			if (list.Count == 0)
+				Close();
+		}
 	}
 
 	private void OnChangedChange()
@@ -150,10 +158,21 @@ public class Frame : AFrame
 	private void OnCloseClick()
 	{
 		RemoveBuffer(list.Selected);
+		if (list.Count == 0)
+			Close();
 	}
 
 	private void OnTabDoubleClick(Buffer buffer)
 	{
 		RemoveBuffer(buffer);
+	}
+
+	private void Close()
+	{
+		if (Nest == null)
+			return;
+		MainForm mainForm = Nest.MainForm;
+		Nest.AFrame = null;
+		mainForm.DoResize();
 	}
 }

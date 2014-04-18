@@ -60,27 +60,25 @@ public class MainForm : Form
 		ValidateSettings(false);
 	}
 
-	private Dictionary<string, Frame> frameById = new Dictionary<string, Frame>();
-
-	private void AddBuffer(string frameName, Buffer buffer)
-	{
-		Frame frame;
-		frameById.TryGetValue(frameName, out frame);
-		if (frame == null)
-		{
-			frame = new Frame("", keyMap, doNothingKeyMap);
-			frameById[frameName] = frame;
-			AddFrame(frame, false, true, true, 50);
-		}
-		frame.AddBuffer(buffer);
-	}
+	private Nest mainNest;
+	private Nest consoleNest;
+	private Nest leftNest;
 
 	private void OnLoad(object sender, EventArgs e)
 	{
 		BuildMenu();
-		AddBuffer("main", new Buffer("aaaa", "aaaa"));
-		AddBuffer("main", new Buffer("bbbb", "bbbb"));
-		AddBuffer("left", new Buffer("bbbb", "bbbb"));
+
+		mainNest = AddNest(false, true, true, 70);
+		consoleNest = AddNest(false, false, true, 20);
+		leftNest = AddNest(true, true, true, 20);
+
+		mainNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		consoleNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+
+		Buffer buffer = new Buffer("File", "FullFilePath");
+		mainNest.Frame.AddBuffer(buffer);
+
 		ValidateSettings(true);
 		MenuNode = new KeyMapNode(keyMap, 0);
 	}
@@ -103,14 +101,14 @@ public class MainForm : Form
 		OnResize(null);
 	}
 
-	private void AddFrame(Frame frame, bool hDivided, bool left, bool isPercents, int percents)
+	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
 	{
 		Nest nest = frames.AddParentNode();
-		nest.AFrame = frame;
 		nest.hDivided = hDivided;
 		nest.left = left;
 		nest.isPercents = isPercents;
 		nest.size = percents;
+		return nest;
 	}
 
 	override protected void OnResize(EventArgs e)
