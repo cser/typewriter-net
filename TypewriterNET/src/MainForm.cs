@@ -76,17 +76,21 @@ public class MainForm : Form
 		consoleNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 
-		Buffer buffer = new Buffer("File", "FullFilePath");
-		mainNest.Frame.AddBuffer(buffer);
+		mainNest.Frame.AddBuffer(NewFileBuffer());
 
 		ValidateSettings(true);
-		MenuNode = new KeyMapNode(keyMap, 0);
+		SetFocus(null, new KeyMapNode(keyMap, 0));
 	}
 
-	public KeyMapNode MenuNode
+	public KeyMapNode MenuNode { get { return menu.node; } }
+
+	private MulticaretTextBox focusedTextBox;
+	public Controller FocusedController { get { return focusedTextBox != null ? focusedTextBox.Controller : null; } }
+
+	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node)
 	{
-		get { return menu.node; }
-		set { menu.node = value; }
+		focusedTextBox = textBox;
+		menu.node = node;
 	}
 
 	private void ValidateSettings(bool forced)
@@ -154,23 +158,60 @@ public class MainForm : Form
 
 	private bool DoNew(Controller controller)
 	{
+		mainNest.Frame.AddBuffer(NewFileBuffer());
 		return true;
 	}
 
 	private bool DoOpen(Controller controller)
 	{
+		OpenFileDialog dialog = new OpenFileDialog();
+		if (dialog.ShowDialog() == DialogResult.OK)
+			LoadFile(dialog.FileName);
 		return true;
 	}
 
+	public void LoadFile(string file)
+	{
+		string fullPath = Path.GetFullPath(file);
+		Buffer buffer = NewFileBuffer();
+		mainNest.Frame.AddBuffer(buffer);
+		buffer.SetFile(fullPath, Path.GetFileName(file));
+
+		if (!File.Exists(buffer.FullPath))
+		{
+			//EditorConsole.Instance.Write("Missing file: ", Ds.Keyword);
+			//EditorConsole.Instance.WriteLine(buffer.FullPath, Ds.Normal);
+			//ShowEditorConsole();
+			return;
+		}
+		string text = "";
+		try
+		{
+			text = File.ReadAllText(buffer.FullPath);
+		}
+		catch (IOException/* e*/)
+		{
+			//EditorConsole.Instance.WriteLine("-- File loading errors:", Ds.Comment);
+			//EditorConsole.Instance.WriteLine(e.Message + "\n" + e.StackTrace);
+			//ShowEditorConsole();
+		}
+		buffer.Controller.InitText(text);
+		//int caret = fileQualitiesStorage.Get(buffer.FullPath)["cursor"].Int;
+		//buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
+		buffer.Controller.NeedScrollToCaret();
+		buffer.fileInfo = new FileInfo(buffer.FullPath);
+		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
+	}
+	
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(frames.GetSelectedBuffer());
+		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File));
 		return true;
 	}
 
 	private bool DoSaveAs(Controller controller)
 	{
-		Buffer buffer = frames.GetSelectedBuffer();
+		Buffer buffer = frames.GetSelectedBuffer(BufferTag.File);
 		if (buffer != null)
 		{
 			SaveFileDialog dialog = new SaveFileDialog();
@@ -268,6 +309,7 @@ public class MainForm : Form
 			nest.left = false;
 			nest.isPercents = false;
 			nest.size = findDialog.Height;
+			findDialog.Focus();
 		}
 		else
 		{
@@ -332,5 +374,40 @@ public class MainForm : Form
 	private bool DoCloseEditorConsole(Controller controller)
 	{
 		return true;
+	}
+
+	private Buffer NewFileBuffer()
+	{
+		Buffer buffer = new Buffer(null, "Untitled.txt");
+		buffer.tags = BufferTag.File;
+		buffer.needSaveAs = true;
+		buffer.onRemove = OnFileBufferRemove;
+		return buffer;
+	}
+
+	private bool OnFileBufferRemove(Buffer buffer)
+	{
+		if (buffer != null)
+		{
+			if (buffer.Changed)
+			{
+				DialogResult result = MessageBox.Show("Do you want to save the current changes in\n" + buffer.Name + "?", Name, MessageBoxButtons.YesNoCancel);
+				switch (result)
+				{
+					case DialogResult.Yes:
+						TrySaveFile(buffer);
+						return true;
+					case DialogResult.No:
+						return true;
+					case DialogResult.Cancel:
+						return false;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

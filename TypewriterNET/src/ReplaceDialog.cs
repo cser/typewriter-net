@@ -60,7 +60,7 @@ public class ReplaceDialog : ADialog
 	{
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
-			Nest.MainForm.MenuNode = textBox.KeyMap;
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
 	}
 
 	override protected void OnResize(EventArgs e)

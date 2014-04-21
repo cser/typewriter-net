@@ -38,10 +38,19 @@ public class FrameList
 		return null;
 	}
 
-	public Buffer GetSelectedBuffer()
+	public Buffer GetSelectedBuffer(BufferTag tags)
 	{
 		Frame frame = GetFocusedFrame();
-		return frame != null ? frame.SelectedBuffer : null;
+		if (frame != null)
+		{
+			for (Nest nestI = frame.Nest; nestI != null; nestI = nestI.Child)
+			{
+				if (nestI.Frame != null && nestI.Frame.SelectedBuffer != null &&
+					((nestI.Frame.SelectedBuffer.tags & tags) != 0 || tags == BufferTag.None))
+					return nestI.Frame.SelectedBuffer;
+			}
+		}
+		return null;
 	}
 
 	public Frame GetFirstFrame()

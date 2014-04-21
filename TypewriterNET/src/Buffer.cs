@@ -12,6 +12,8 @@ public class Buffer
 	
 	private Controller controller;
 	public Controller Controller { get { return controller; } }
+
+	public bool Changed { get { return controller.history.Changed; } }
 	
 	private string fullPath;
 	public string FullPath { get { return fullPath; } }
@@ -25,14 +27,14 @@ public class Buffer
 		this.name = name;
 	}
 	
-	public bool first;
 	public bool needSaveAs;
 	public FileInfo fileInfo;
 	public DateTime lastWriteTimeUtc;
-	public string Tag;
-	
-	public static string StringOf(Buffer info)
+	public BufferTag tags = BufferTag.None;
+	public Getter<Buffer, bool> onRemove;
+
+	public static string StringOf(Buffer buffer)
 	{
-		return info.Name + (info.Controller.history.Changed ? "*" : "");
+		return buffer.Name + (buffer.Changed ? "*" : "");
 	}
 }

@@ -186,15 +186,12 @@ namespace TypewriterNET
 	    	
 	    	public void OnClick(object sender, EventArgs e)
 	    	{
-	    		Buffer info = mainForm.frames.GetSelectedBuffer();
-	    		if (info != null)
-	    		{
-	    			if (action.doOnModeChange != null)
-	    				action.doOnModeChange(info.Controller, true);
-	    			action.doOnDown(info.Controller);
-	    			if (action.doOnModeChange != null)
-	    				action.doOnModeChange(info.Controller, false);
-	    		}
+	    		Controller controller = mainForm.FocusedController;
+				if (action.doOnModeChange != null)
+					action.doOnModeChange(controller, true);
+				action.doOnDown(controller);
+				if (action.doOnModeChange != null)
+					action.doOnModeChange(controller, false);
 	    	}
 	    }
 	}

@@ -44,6 +44,11 @@ public class FindDialog : ADialog
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
 
+	override public void Focus()
+	{
+		textBox.Focus();
+	}
+
 	private void OnTabBarMouseDown(object sender, EventArgs e)
 	{
 		textBox.Focus();
@@ -53,7 +58,7 @@ public class FindDialog : ADialog
 	{
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
-			Nest.MainForm.MenuNode = textBox.KeyMap;
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
 	}
 
 	override protected void OnResize(EventArgs e)

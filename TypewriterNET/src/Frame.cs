@@ -106,7 +106,7 @@ public class Frame : AFrame
 		if (Nest != null)
 		{
 			tabBar.Selected = textBox.Focused;
-			Nest.MainForm.MenuNode = textBox.KeyMap;
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
 		}
 	}
 
@@ -135,13 +135,14 @@ public class Frame : AFrame
 
 	public void RemoveBuffer(Buffer buffer)
 	{
-		if (buffer != null)
-		{
-			buffer.Controller.history.ChangedChange -= OnChangedChange;
-			list.Remove(buffer);
-			if (list.Count == 0)
-				Close();
-		}
+		if (buffer == null)
+			return;
+		if (buffer.onRemove != null && !buffer.onRemove(buffer))
+			return;
+		buffer.Controller.history.ChangedChange -= OnChangedChange;
+		list.Remove(buffer);
+		if (list.Count == 0)
+			Close();
 	}
 
 	private void OnChangedChange()
