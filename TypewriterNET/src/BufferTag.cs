@@ -5,5 +5,6 @@ public enum BufferTag
 {
 	None = 0x00,
 	File = 0x01,
-	Console = 0x02
+	Console = 0x02,
+	Other = 0x04
 }

@@ -97,12 +97,12 @@ public class MainForm : Form
 	{
 		bool needResize = forced;
 		if (needResize)
-			OnResize(null);
+			DoResize();
 	}
 
 	public void DoResize()
 	{
-		OnResize(null);
+		frames.Resize(0, 0, ClientSize);
 	}
 
 	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
@@ -118,7 +118,7 @@ public class MainForm : Form
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		frames.Resize(0, 0, ClientSize);
+		DoResize();
 	}
 
 	private KeyMap keyMap;
@@ -174,14 +174,14 @@ public class MainForm : Form
 	{
 		string fullPath = Path.GetFullPath(file);
 		Buffer buffer = NewFileBuffer();
-		mainNest.Frame.AddBuffer(buffer);
+		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, Path.GetFileName(file));
 
 		if (!File.Exists(buffer.FullPath))
 		{
-			//EditorConsole.Instance.Write("Missing file: ", Ds.Keyword);
-			//EditorConsole.Instance.WriteLine(buffer.FullPath, Ds.Normal);
-			//ShowEditorConsole();
+			Log.Write("Missing file: ", Ds.Keyword);
+			Log.WriteLine(buffer.FullPath, Ds.Normal);
+			ShowBuffer(consoleNest, Log);
 			return;
 		}
 		string text = "";
@@ -189,11 +189,11 @@ public class MainForm : Form
 		{
 			text = File.ReadAllText(buffer.FullPath);
 		}
-		catch (IOException/* e*/)
+		catch (IOException e)
 		{
-			//EditorConsole.Instance.WriteLine("-- File loading errors:", Ds.Comment);
-			//EditorConsole.Instance.WriteLine(e.Message + "\n" + e.StackTrace);
-			//ShowEditorConsole();
+			Log.WriteLine("-- File loading errors:", Ds.Comment);
+			Log.WriteLine(e.Message + "\n" + e.StackTrace);
+			ShowBuffer(consoleNest, Log);
 		}
 		buffer.Controller.InitText(text);
 		//int caret = fileQualitiesStorage.Get(buffer.FullPath)["cursor"].Int;
@@ -277,11 +277,17 @@ public class MainForm : Form
 
 	private bool DoExit(Controller controller)
 	{
+		Close();
 		return true;
 	}
 
 	private bool DoShowHideConsole(Controller controller)
 	{
+		Frame frame = frames.GetFrameOf(Log);
+		if (frame != null)
+			frame.RemoveBuffer(Log);
+		else
+			ShowBuffer(consoleNest, Log);
 		return true;
 	}
 
@@ -366,14 +372,41 @@ public class MainForm : Form
 		return true;
 	}
 
+	private Buffer _helpBuffer;
+
 	private bool DoAbout(Controller controller)
 	{
+		if (_helpBuffer == null)
+		{
+			string text = "# About\n" +
+				"\n" +
+				Application.ProductName + "\n" +
+				"Build " + Application.ProductVersion;
+			_helpBuffer = new Buffer(null, "About.twh");
+			_helpBuffer.tags = BufferTag.Other;
+			_helpBuffer.onRemove = OnHelpBufferRemove;
+			_helpBuffer.Controller.isReadonly = true;
+			_helpBuffer.Controller.InitText(text);
+		}
+		ShowBuffer(mainNest, _helpBuffer);
+		return true;
+	}
+
+	private bool OnHelpBufferRemove(Buffer buffer)
+	{
+		_helpBuffer = null;
 		return true;
 	}
 
 	private bool DoCloseEditorConsole(Controller controller)
 	{
-		return true;
+		Frame frame = frames.GetFrameOf(Log);
+		if (frame != null)
+		{
+			frame.RemoveBuffer(Log);
+			return true;
+		}
+		return false;
 	}
 
 	private Buffer NewFileBuffer()
@@ -383,6 +416,36 @@ public class MainForm : Form
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
 		return buffer;
+	}
+
+	private Buffer _log;
+	public Buffer Log
+	{
+		get
+		{
+			if (_log == null)
+			{
+				_log = new Buffer(null, "Log");
+				_log.tags = BufferTag.Console;
+				_log.needSaveAs = false;
+				_log.Controller.isReadonly = true;
+				_log.onAdd = OnLogAdd;
+			}
+			return _log;
+		}
+	}
+
+	private void OnLogAdd(Buffer buffer, Frame frame)
+	{
+		frame.Focus();
+	}
+
+	public void ShowBuffer(Nest nest, Buffer buffer)
+	{
+		if (nest.Frame == null)
+			nest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		nest.Frame.AddBuffer(buffer);
+		DoResize();
 	}
 
 	private bool OnFileBufferRemove(Buffer buffer)

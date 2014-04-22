@@ -38,6 +38,16 @@ public class FrameList
 		return null;
 	}
 
+	public Frame GetFrameOf(Buffer buffer)
+	{
+		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
+		{
+			if (nestI.Frame != null && nestI.Frame.ContainsBuffer(buffer))
+				return nestI.Frame;
+		}
+		return null;
+	}
+
 	public Buffer GetSelectedBuffer(BufferTag tags)
 	{
 		Frame frame = GetFocusedFrame();

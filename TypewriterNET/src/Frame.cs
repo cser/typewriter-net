@@ -127,10 +127,24 @@ public class Frame : AFrame
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
+	public bool ContainsBuffer(Buffer buffer)
+	{
+		return list.Contains(buffer);
+	}
+
 	public void AddBuffer(Buffer buffer)
 	{
-		list.Add(buffer);
-		buffer.Controller.history.ChangedChange += OnChangedChange;
+		if (!list.Contains(buffer))
+		{
+			buffer.Controller.history.ChangedChange += OnChangedChange;
+			list.Add(buffer);
+			if (buffer.onAdd != null)
+				buffer.onAdd(buffer, this);
+		}
+		else
+		{
+			list.Add(buffer);
+		}
 	}
 
 	public void RemoveBuffer(Buffer buffer)
