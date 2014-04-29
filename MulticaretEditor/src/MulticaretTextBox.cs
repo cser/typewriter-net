@@ -203,7 +203,7 @@ namespace MulticaretEditor
 		{
 			fontFamily = family;
 			fontSize = emSize;
-			
+
 			fonts[TextStyle.NoneMask] = new Font(family, emSize);
 			
 			fonts[TextStyle.ItalicMask] = new Font(family, emSize, FontStyle.Italic);

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace TypewriterNET
 {
-	public struct AppPath
+	public struct OldAppPath
 	{
 		public const string Syntax = "syntax";
 		public const string Schemes = "schemes";
@@ -15,26 +15,26 @@ namespace TypewriterNET
 		private static string appDataDir;
 		public static string AppDataDir { get { return appDataDir; } }
 
-		private static AppPath syntaxDir;
-		public static AppPath SyntaxDir { get { return syntaxDir; } }
+		private static OldAppPath syntaxDir;
+		public static OldAppPath SyntaxDir { get { return syntaxDir; } }
 
-		private static AppPath schemesDir;
-		public static AppPath SchemesDir { get { return schemesDir; } }
+		private static OldAppPath schemesDir;
+		public static OldAppPath SchemesDir { get { return schemesDir; } }
 
-		private static AppPath configPath;
-		public static AppPath ConfigPath { get { return configPath; } }
+		private static OldAppPath configPath;
+		public static OldAppPath ConfigPath { get { return configPath; } }
 
 		private static string configTemplatePath;
 		public static string ConfigTemplatePath { get { return configTemplatePath; } }
 
 		public static void Init(string startupDir, string appDataDir)
 		{
-			AppPath.startupDir = startupDir;
-			AppPath.appDataDir = appDataDir;
-			AppPath.syntaxDir = new AppPath(Path.Combine(appDataDir, Syntax));
-			AppPath.schemesDir = new AppPath(Path.Combine(appDataDir, Schemes));
-			AppPath.configPath = new AppPath("config.xml");
-			AppPath.configTemplatePath = new AppPath("config-template.xml").startupPath;
+			OldAppPath.startupDir = startupDir;
+			OldAppPath.appDataDir = appDataDir;
+			OldAppPath.syntaxDir = new OldAppPath(Path.Combine(appDataDir, Syntax));
+			OldAppPath.schemesDir = new OldAppPath(Path.Combine(appDataDir, Schemes));
+			OldAppPath.configPath = new OldAppPath("config.xml");
+			OldAppPath.configTemplatePath = new OldAppPath("config-template.xml").startupPath;
 		}
 
 		public readonly string local;
@@ -42,7 +42,7 @@ namespace TypewriterNET
 		public readonly string startupPath;
 		public readonly string[] paths;
 
-		public AppPath(string local)
+		public OldAppPath(string local)
 		{
 			this.local = local;
 			appDataPath = Path.Combine(appDataDir, local);

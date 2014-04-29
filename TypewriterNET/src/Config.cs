@@ -69,7 +69,7 @@ namespace TypewriterNET
 			wordWrap = false;
 			showLineNumbers = true;
 			showLineBreaks = false;
-			highlightCurrentLine = false;
+			highlightCurrentLine = true;
 			showColorAtCursor = false;
 			rememberOpenedFiles = true;
 			lineBreak = "\r\n";

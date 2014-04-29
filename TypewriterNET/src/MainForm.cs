@@ -19,7 +19,6 @@ using TypewriterNET.Frames;
 public class MainForm : Form
 {
 	private readonly string[] args;
-	private readonly Timer settingsTimer;
 	private readonly Settings settings;
 	private readonly MainFormMenu menu;
 
@@ -39,33 +38,27 @@ public class MainForm : Form
 		menu = new MainFormMenu(this);
 		Menu = menu;
 
-		settingsTimer = new Timer();
-		settingsTimer.Interval = 10;
-		settingsTimer.Tick += OnSettingsTimer;
-
-		settings = new Settings();
-		settings.Changed += OnSettingsChanged;
+		settings = new Settings(ApplySettings);
 
 		Load += OnLoad;
-	}
-
-	private void OnSettingsChanged()
-	{
-		settingsTimer.Start();
-	}
-
-	private void OnSettingsTimer(object sender, EventArgs e)
-	{
-		settingsTimer.Stop();
-		ValidateSettings(false);
 	}
 
 	private Nest mainNest;
 	private Nest consoleNest;
 	private Nest leftNest;
+	private XmlLoader xmlLoader;
+	private FileDragger fileDragger;
+
+	private Log log;
+	public Log Log { get { return log; } }
 
 	private void OnLoad(object sender, EventArgs e)
 	{
+		string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
+		if (!Directory.Exists(appDataPath))
+			Directory.CreateDirectory(appDataPath);
+		AppPath.Init(Application.StartupPath, appDataPath);
+
 		BuildMenu();
 
 		mainNest = AddNest(false, true, true, 70);
@@ -73,13 +66,19 @@ public class MainForm : Form
 		leftNest = AddNest(true, true, true, 20);
 
 		mainNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
-		consoleNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		//consoleNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 
 		mainNest.Frame.AddBuffer(NewFileBuffer());
 
-		ValidateSettings(true);
+		log = new Log(this, consoleNest);
+		xmlLoader = new XmlLoader(this);
+
 		SetFocus(null, new KeyMapNode(keyMap, 0));
+
+		ApplySettings();
+		ReloadConfig();
+		fileDragger = new FileDragger(this);
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -93,11 +92,10 @@ public class MainForm : Form
 		menu.node = node;
 	}
 
-	private void ValidateSettings(bool forced)
+	private void ApplySettings()
 	{
-		bool needResize = forced;
-		if (needResize)
-			DoResize();
+		frames.UpdateSettings(settings);
+		DoResize();
 	}
 
 	public void DoResize()
@@ -139,7 +137,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Show/hide editor console", DoShowHideConsole, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close editor console", DoOpenCloseEditorConsole, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
@@ -181,7 +179,7 @@ public class MainForm : Form
 		{
 			Log.Write("Missing file: ", Ds.Keyword);
 			Log.WriteLine(buffer.FullPath, Ds.Normal);
-			ShowBuffer(consoleNest, Log);
+			Log.Open();
 			return;
 		}
 		string text = "";
@@ -193,7 +191,7 @@ public class MainForm : Form
 		{
 			Log.WriteLine("-- File loading errors:", Ds.Comment);
 			Log.WriteLine(e.Message + "\n" + e.StackTrace);
-			ShowBuffer(consoleNest, Log);
+			Log.Open();
 		}
 		buffer.Controller.InitText(text);
 		//int caret = fileQualitiesStorage.Get(buffer.FullPath)["cursor"].Int;
@@ -281,13 +279,12 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoShowHideConsole(Controller controller)
+	private bool DoOpenCloseEditorConsole(Controller controller)
 	{
-		Frame frame = frames.GetFrameOf(Log);
-		if (frame != null)
-			frame.RemoveBuffer(Log);
+		if (Log.Opened)
+			Log.Close();
 		else
-			ShowBuffer(consoleNest, Log);
+			Log.Open();
 		return true;
 	}
 
@@ -364,6 +361,9 @@ public class MainForm : Form
 
 	private bool DoOpenAppDataFolder(Controller controller)
 	{
+		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		process.StartInfo.FileName = AppPath.AppDataDir;
+		process.Start();
 		return true;
 	}
 
@@ -400,10 +400,9 @@ public class MainForm : Form
 
 	private bool DoCloseEditorConsole(Controller controller)
 	{
-		Frame frame = frames.GetFrameOf(Log);
-		if (frame != null)
+		if (Log.Opened)
 		{
-			frame.RemoveBuffer(Log);
+			Log.Close();
 			return true;
 		}
 		return false;
@@ -416,28 +415,6 @@ public class MainForm : Form
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
 		return buffer;
-	}
-
-	private Buffer _log;
-	public Buffer Log
-	{
-		get
-		{
-			if (_log == null)
-			{
-				_log = new Buffer(null, "Log");
-				_log.tags = BufferTag.Console;
-				_log.needSaveAs = false;
-				_log.Controller.isReadonly = true;
-				_log.onAdd = OnLogAdd;
-			}
-			return _log;
-		}
-	}
-
-	private void OnLogAdd(Buffer buffer, Frame frame)
-	{
-		frame.Focus();
 	}
 
 	public void ShowBuffer(Nest nest, Buffer buffer)
@@ -472,5 +449,52 @@ public class MainForm : Form
 			}
 		}
 		return false;
+	}
+
+	private Config config = new Config();
+
+	private void ReloadConfig()
+	{
+		config.Reset();
+		
+		StringBuilder errors = new StringBuilder();
+		if (!File.Exists(AppPath.ConfigPath))
+		{
+			if (!File.Exists(AppPath.ConfigTemplatePath))
+			{
+				Log.WriteLine("Warning: Missing config", Ds.String);
+				Log.Open();
+			}
+			File.Copy(AppPath.ConfigTemplatePath, AppPath.ConfigPath);
+			Log.WriteLine("Config was created: " + AppPath.ConfigPath, Ds.Comment);
+		}
+		XmlDocument xml = xmlLoader.Load(AppPath.ConfigPath, false);
+		if (xml != null)
+		{
+			StringBuilder builder = new StringBuilder();
+			config.Parse(xml, builder);
+			if (builder.Length > 0)
+			{
+				Log.WriteLine(builder.ToString());
+				Log.Open();
+			}
+			StringWriter sw = new StringWriter();
+			XmlTextWriter writer = new XmlTextWriter(sw);
+			xml.WriteTo(writer);
+		}
+		settings.WordWrap = config.WordWrap;
+		settings.ShowLineNumbers = config.ShowLineNumbers;
+		settings.ShowLineBreaks = config.ShowLineBreaks;
+		settings.HighlightCurrentLine = config.HighlightCurrentLine;
+		settings.TabSize = config.TabSize;
+		settings.LineBreak = config.LineBreak;
+		settings.FontFamily = config.FontFamily;
+		settings.FontSize = config.FontSize;
+		settings.ScrollingIndent = config.ScrollingIndent;
+		settings.ShowColorAtCursor = config.ShowColorAtCursor;
+		settings.AltCharsSource = config.AltCharsSource;
+		settings.AltCharsResult = config.AltCharsResult;
+		settings.MaxFileQualitiesCount = config.MaxFileQualitiesCount;
+		settings.DispatchChange();
 	}
 }

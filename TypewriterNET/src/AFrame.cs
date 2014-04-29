@@ -49,6 +49,10 @@ public class AFrame : Control
 	{
 	}
 
+	virtual public void UpdateSettings(Settings settings)
+	{
+	}
+
 	//--------------------------------------------------------------------------
 	// Resizing X
 	//--------------------------------------------------------------------------

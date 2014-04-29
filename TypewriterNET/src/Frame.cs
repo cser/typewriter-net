@@ -127,6 +127,23 @@ public class Frame : AFrame
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
+	override public void UpdateSettings(Settings settings)
+	{
+		textBox.WordWrap = settings.WordWrap;
+		textBox.ShowLineNumbers = settings.ShowLineNumbers;
+		textBox.ShowLineBreaks = settings.ShowLineBreaks;
+		textBox.HighlightCurrentLine = settings.HighlightCurrentLine;
+		textBox.TabSize = settings.TabSize;
+		textBox.LineBreak = settings.LineBreak;
+		textBox.FontFamily = settings.FontFamily;
+		textBox.FontSize = settings.FontSize;
+		textBox.ScrollingIndent = settings.ScrollingIndent;
+		textBox.ShowColorAtCursor = settings.ShowColorAtCursor;
+		textBox.KeyMap.main.SetAltChars(settings.AltCharsSource, settings.AltCharsResult);
+		
+		tabBar.SetFont(settings.FontFamily, settings.FontSize);
+	}
+
 	public bool ContainsBuffer(Buffer buffer)
 	{
 		return list.Contains(buffer);
