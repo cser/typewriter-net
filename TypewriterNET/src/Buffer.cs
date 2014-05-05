@@ -10,6 +10,14 @@ public class Buffer
 		SetFile(fullPath, name);
 		controller = new Controller(new LineArray());
 	}
+
+	private Frame frame;
+	public Frame Frame { get { return frame; } }
+
+	public void SetFrame(Frame frame)
+	{
+		this.frame = frame;
+	}
 	
 	private Controller controller;
 	public Controller Controller { get { return controller; } }
@@ -33,7 +41,7 @@ public class Buffer
 	public DateTime lastWriteTimeUtc;
 	public BufferTag tags = BufferTag.None;
 	public Getter<Buffer, bool> onRemove;
-	public Setter<Buffer, Frame> onAdd;
+	public Setter<Buffer> onAdd;
 
 	public static string StringOf(Buffer buffer)
 	{

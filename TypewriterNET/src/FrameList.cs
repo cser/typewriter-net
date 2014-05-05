@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 public class FrameList
 {
@@ -56,7 +57,7 @@ public class FrameList
 			for (Nest nestI = frame.Nest; nestI != null; nestI = nestI.Child)
 			{
 				if (nestI.Frame != null && nestI.Frame.SelectedBuffer != null &&
-					((nestI.Frame.SelectedBuffer.tags & tags) != 0 || tags == BufferTag.None))
+					(nestI.Frame.SelectedBuffer.tags & tags) == tags)
 					return nestI.Frame.SelectedBuffer;
 			}
 		}
@@ -98,6 +99,23 @@ public class FrameList
 		{
 			if (nestI.AFrame != null)
 				nestI.AFrame.UpdateSettings(settings);
+		}
+	}
+
+	public IEnumerable<Buffer> GetBuffers(BufferTag tags)
+	{
+		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
+		{
+			if (nestI.Frame != null)
+			{
+				int count = nestI.Frame.BuffersCount;
+				for (int i = 0; i < count; i++)
+				{
+					Buffer buffer = nestI.Frame[i];
+					if ((buffer.tags & tags) == tags)
+						yield return buffer;
+				}
+			}
 		}
 	}
 }

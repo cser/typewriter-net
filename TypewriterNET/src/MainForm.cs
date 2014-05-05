@@ -48,6 +48,10 @@ public class MainForm : Form
 	private Nest leftNest;
 	private XmlLoader xmlLoader;
 	private FileDragger fileDragger;
+	private TempSettings tempSettings;
+
+	private Frame mainFrame;
+	public Frame MainFrame { get { return mainFrame; } }
 
 	private Log log;
 	public Log Log { get { return log; } }
@@ -62,11 +66,12 @@ public class MainForm : Form
 		BuildMenu();
 
 		mainNest = AddNest(false, true, true, 70);
+		mainFrame = new Frame("", keyMap, doNothingKeyMap);
+		mainNest.AFrame = mainFrame;
+
 		consoleNest = AddNest(false, false, true, 20);
 		leftNest = AddNest(true, true, true, 20);
 
-		mainNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
-		//consoleNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 
 		mainNest.Frame.AddBuffer(NewFileBuffer());
@@ -79,6 +84,27 @@ public class MainForm : Form
 		ApplySettings();
 		ReloadConfig();
 		fileDragger = new FileDragger(this);
+
+		tempSettings = new TempSettings(this, settings);
+		tempSettings.Load();
+		if (args.Length == 1)
+		{
+			LoadFile(args[0]);
+		}
+		FormClosing += OnFormClosing;
+	}
+
+	private void OnFormClosing(object sender, FormClosingEventArgs e)
+	{
+		tempSettings.Save();
+		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
+		{
+			if (buffer.onRemove != null && !buffer.onRemove(buffer))
+			{
+				e.Cancel = true;
+				break;
+			}
+		}
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -495,6 +521,7 @@ public class MainForm : Form
 		settings.AltCharsSource = config.AltCharsSource;
 		settings.AltCharsResult = config.AltCharsResult;
 		settings.MaxFileQualitiesCount = config.MaxFileQualitiesCount;
+		settings.RememberOpenedFiles = config.RememberOpenedFiles;
 		settings.DispatchChange();
 	}
 }

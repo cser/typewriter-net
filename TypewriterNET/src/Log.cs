@@ -19,9 +19,9 @@ public class Log
 		buffer.onAdd = OnLogAdd;
 	}
 
-	private void OnLogAdd(Buffer buffer, Frame frame)
+	private void OnLogAdd(Buffer buffer)
 	{
-		frame.Focus();
+		buffer.Frame.Focus();
 	}
 
 	public void Open()

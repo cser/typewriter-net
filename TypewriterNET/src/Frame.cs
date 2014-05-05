@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.InteropServices;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Design;
@@ -12,7 +12,7 @@ using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
-public class Frame : AFrame
+public class Frame : AFrame, IEnumerable<Buffer>
 {
 	private static Controller _emptyController;
 
@@ -87,7 +87,15 @@ public class Frame : AFrame
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height); } }
 	override public Frame AsFrame { get { return this; } }
 
-	public Buffer SelectedBuffer { get { return list.Selected; } }
+	public Buffer SelectedBuffer
+	{
+		get { return list.Selected; }
+		set
+		{
+			if (value.Frame == this)
+				list.Selected = value;
+		}
+	}
 
 	override public bool Focused { get { return textBox.Focused; } }
 
@@ -151,12 +159,15 @@ public class Frame : AFrame
 
 	public void AddBuffer(Buffer buffer)
 	{
-		if (!list.Contains(buffer))
+		if (buffer.Frame != this)
 		{
+			if (buffer.Frame != null)
+				buffer.Frame.RemoveBuffer(buffer);
+			buffer.SetFrame(this);
 			buffer.Controller.history.ChangedChange += OnChangedChange;
 			list.Add(buffer);
 			if (buffer.onAdd != null)
-				buffer.onAdd(buffer, this);
+				buffer.onAdd(buffer);
 		}
 		else
 		{
@@ -171,6 +182,7 @@ public class Frame : AFrame
 		if (buffer.onRemove != null && !buffer.onRemove(buffer))
 			return;
 		buffer.Controller.history.ChangedChange -= OnChangedChange;
+		buffer.SetFrame(null);
 		list.Remove(buffer);
 		if (list.Count == 0)
 			Close();
@@ -206,5 +218,32 @@ public class Frame : AFrame
 		MainForm mainForm = Nest.MainForm;
 		Nest.AFrame = null;
 		mainForm.DoResize();
+	}
+
+	public int BuffersCount { get { return list.Count; } }
+
+	public Buffer this[int index]
+	{
+		get { return list[index]; }
+	}
+
+	public IEnumerator<Buffer> GetEnumerator()
+	{
+		return list.GetEnumerator();
+	}
+	
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return list.GetEnumerator();
+	}
+
+	public Buffer GetByFullPath(BufferTag tags, string fullPath)
+	{
+		foreach (Buffer buffer in list)
+		{
+			if (buffer.FullPath == fullPath && (buffer.tags & tags) == tags)
+				return buffer;
+		}
+		return null;
 	}
 }
