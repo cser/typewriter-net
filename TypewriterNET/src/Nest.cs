@@ -24,9 +24,13 @@ public class Nest : NestBase
 	private readonly MainForm mainForm;
 	public MainForm MainForm { get { return mainForm; } }
 
-	public Nest(MainForm mainForm)
+	private readonly bool removeOnEmpty;
+	public bool RemoveOnEmpty { get { return removeOnEmpty; } }
+
+	public Nest(MainForm mainForm, bool removeOnEmpty)
 	{
 		this.mainForm = mainForm;
+		this.removeOnEmpty = removeOnEmpty;
 	}
 
 	private AFrame frame;
@@ -42,6 +46,8 @@ public class Nest : NestBase
 					frame.SetNest(null);
 					if (frame.Parent == mainForm)
 						mainForm.Controls.Remove(frame);
+					if (value == null && removeOnEmpty && owner != null)
+						owner.Remove(this);
 				}
 				frame = value;
 				if (frame != null)
@@ -50,6 +56,8 @@ public class Nest : NestBase
 					if (owner != null && frame.Parent != mainForm)
 						mainForm.Controls.Add(frame);
 				}
+				if (owner != null)
+					owner.needResize = true;
 			}
 		}
 	}

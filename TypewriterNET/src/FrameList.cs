@@ -13,6 +13,12 @@ public class FrameList
 		list = new NestList();
 	}
 
+	public bool NeedResize
+	{
+		get { return list.needResize; }
+		set { list.needResize = value; }
+	}
+
 	public void Resize(int x, int y, Size size)
 	{
 		if (list.Head != null)
@@ -22,9 +28,9 @@ public class FrameList
 		}
 	}
 
-	public Nest AddParentNode()
+	public Nest AddParentNode(bool removeOnEmpty)
 	{
-		Nest nest = new Nest(mainForm);
+		Nest nest = new Nest(mainForm, removeOnEmpty);
 		list.AddParent(nest);
 		return nest;
 	}
@@ -34,16 +40,6 @@ public class FrameList
 		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
 		{
 			if (nestI.Frame != null && nestI.Frame.Focused)
-				return nestI.Frame;
-		}
-		return null;
-	}
-
-	public Frame GetFrameOf(Buffer buffer)
-	{
-		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
-		{
-			if (nestI.Frame != null && nestI.Frame.ContainsBuffer(buffer))
 				return nestI.Frame;
 		}
 		return null;

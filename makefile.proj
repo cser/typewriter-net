@@ -35,7 +35,7 @@ This file was writen for launching with MSBuild
 	<Target Name="build-tw" DependsOnTargets="me; resources">
 		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe resources.xml" />
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin" />
-		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Old\*.cs;"
+		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Dialogs\*.cs; TypewriterNET\src\Old\*.cs;"
 			References="TypewriterNET\bin\MulticaretEditor.dll"
 			Resources="TypewriterNET\TypewriterNET.resources"
 			TargetType="exe"

@@ -31,17 +31,15 @@ public class Log
 
 	public void Close()
 	{
-		Frame frame = mainForm.frames.GetFrameOf(buffer);
-		if (frame != null)
-			frame.RemoveBuffer(buffer);
+		if (buffer.Frame != null)
+			buffer.Frame.RemoveBuffer(buffer);
 	}
 
 	public bool Opened
 	{
 		get
 		{
-			Frame frame = mainForm.frames.GetFrameOf(buffer);
-			return frame != null;
+			return buffer.Frame != null;
 		}
 	}
 

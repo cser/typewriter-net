@@ -9,6 +9,8 @@ public class NestList : NestBase
 	private Nest head;
 	public Nest Head { get { return head; } }
 
+	public bool needResize;
+
 	public void AddParent(Nest nest)
 	{
 		if (nest.Owner != null)

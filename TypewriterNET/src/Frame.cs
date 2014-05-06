@@ -135,7 +135,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
-	override public void UpdateSettings(Settings settings)
+	override protected void DoUpdateSettings(Settings settings)
 	{
 		textBox.WordWrap = settings.WordWrap;
 		textBox.ShowLineNumbers = settings.ShowLineNumbers;

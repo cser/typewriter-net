@@ -21,6 +21,7 @@ public class MainForm : Form
 	private readonly string[] args;
 	private readonly Settings settings;
 	private readonly MainFormMenu menu;
+	private readonly Timer validationTimer;
 
 	public readonly FrameList frames;
 
@@ -41,6 +42,20 @@ public class MainForm : Form
 		settings = new Settings(ApplySettings);
 
 		Load += OnLoad;
+
+		validationTimer = new Timer();
+		validationTimer.Interval = 20;
+		validationTimer.Tick += OnValidationTimerTick;
+		validationTimer.Start();
+	}
+
+	private void OnValidationTimerTick(object sender, EventArgs e)
+	{
+		if (frames.NeedResize)
+		{
+			frames.NeedResize = false;
+			DoResize();
+		}
 	}
 
 	private Nest mainNest;
@@ -121,7 +136,6 @@ public class MainForm : Form
 	private void ApplySettings()
 	{
 		frames.UpdateSettings(settings);
-		DoResize();
 	}
 
 	public void DoResize()
@@ -131,7 +145,7 @@ public class MainForm : Form
 
 	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
 	{
-		Nest nest = frames.AddParentNode();
+		Nest nest = frames.AddParentNode(false);
 		nest.hDivided = hDivided;
 		nest.left = left;
 		nest.isPercents = isPercents;
@@ -178,6 +192,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\About", DoAbout, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.X, null, new KeyAction("&View\\Input command", DoInputCommand, null, false)));
 	}
 
 	private bool DoNew(Controller controller)
@@ -330,7 +345,7 @@ public class MainForm : Form
 		if (findDialog == null)
 		{
 			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
-			Nest nest = frames.AddParentNode();
+			Nest nest = frames.AddParentNode(false);
 			nest.AFrame = findDialog;
 			nest.hDivided = false;
 			nest.left = false;
@@ -352,19 +367,13 @@ public class MainForm : Form
 		if (replaceDialog == null)
 		{
 			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
-			Nest nest = frames.AddParentNode();
+			Nest nest = frames.AddParentNode(false);
 			nest.AFrame = replaceDialog;
 			nest.hDivided = false;
 			nest.left = false;
 			nest.isPercents = false;
 			nest.size = replaceDialog.Height;
 		}
-		else
-		{
-			frames.Remove(replaceDialog.Nest);
-			replaceDialog = null;
-		}
-		OnResize(null);
 		return true;
 	}
 
@@ -432,6 +441,30 @@ public class MainForm : Form
 		return false;
 	}
 
+	private CommandDialog commandDialog;
+
+	private bool DoInputCommand(Controller controller)
+	{
+		if (commandDialog == null)
+		{
+			commandDialog = new CommandDialog("Command", keyMap, doNothingKeyMap);
+			Nest nest = frames.AddParentNode(false);
+			nest.AFrame = commandDialog;
+			nest.hDivided = false;
+			nest.left = false;
+			nest.isPercents = false;
+			nest.size = commandDialog.Height;
+			commandDialog.Focus();
+		}
+		else
+		{
+			frames.Remove(commandDialog.Nest);
+			findDialog = null;
+		}
+		OnResize(null);
+		return true;
+	}
+
 	private Buffer NewFileBuffer()
 	{
 		Buffer buffer = new Buffer(null, "Untitled.txt");
@@ -446,7 +479,6 @@ public class MainForm : Form
 		if (nest.Frame == null)
 			nest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		nest.Frame.AddBuffer(buffer);
-		DoResize();
 	}
 
 	private bool OnFileBufferRemove(Buffer buffer)

@@ -49,8 +49,20 @@ public class AFrame : Control
 	{
 	}
 
-	virtual public void UpdateSettings(Settings settings)
+	public void UpdateSettings(Settings settings)
 	{
+		DoUpdateSettings(settings);
+		SetNeedResize();
+	}
+
+	virtual protected void DoUpdateSettings(Settings settings)
+	{
+	}
+
+	protected void SetNeedResize()
+	{
+		if (nest != null && nest.Owner != null)
+			nest.Owner.needResize = true;
 	}
 
 	//--------------------------------------------------------------------------
