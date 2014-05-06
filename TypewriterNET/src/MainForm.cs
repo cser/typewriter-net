@@ -220,11 +220,9 @@ public class MainForm : Form
 			Log.Open();
 		}
 		buffer.Controller.InitText(text);
-		//int caret = fileQualitiesStorage.Get(buffer.FullPath)["cursor"].Int;
-		//buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
-		buffer.Controller.NeedScrollToCaret();
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
+		tempSettings.ApplyQualities(buffer);
 	}
 	
 	private bool DoSave(Controller controller)

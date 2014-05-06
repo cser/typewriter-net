@@ -52,6 +52,13 @@ public class TempSettings
 		storage.Set(buffer.FullPath).With("cursor", SValue.NewInt(buffer.Controller.Lines.LastSelection.caret));
 	}
 
+	public void ApplyQualities(Buffer buffer)
+	{
+		int caret = storage.Get(buffer.FullPath)["cursor"].Int;
+		buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
+		buffer.Controller.NeedScrollToCaret();
+	}
+
 	public void Save()
 	{
 		SValue state = SValue.NewHash();
