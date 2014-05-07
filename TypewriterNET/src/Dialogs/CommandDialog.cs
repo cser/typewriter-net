@@ -79,13 +79,13 @@ public class CommandDialog : ADialog
 
 	private bool DoCancelCommand(Controller controller)
 	{
-		Nest.AFrame = null;
+		DispatchNeedClose();
 		return true;
 	}
 
 	private bool DoRunCommand(Controller controller)
 	{
-		Nest.AFrame = null;
+		DispatchNeedClose();
 		return true;
 	}
 }

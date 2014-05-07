@@ -28,9 +28,9 @@ public class FrameList
 		}
 	}
 
-	public Nest AddParentNode(bool removeOnEmpty)
+	public Nest AddParentNode()
 	{
-		Nest nest = new Nest(mainForm, removeOnEmpty);
+		Nest nest = new Nest(mainForm);
 		list.AddParent(nest);
 		return nest;
 	}

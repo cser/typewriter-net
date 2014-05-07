@@ -23,6 +23,7 @@ public class NestList : NestBase
 				SetParent(head, nest);
 			head = nest;
 			SetOwner(nest, this);
+			needResize = true;
 		}
 	}
 
@@ -47,6 +48,7 @@ public class NestList : NestBase
 			SetParent(nest, null);
 			SetChild(nest, null);
 			SetOwner(nest, null);
+			needResize = true;
 		}
 	}
 }

@@ -64,6 +64,7 @@ public class MainForm : Form
 	private XmlLoader xmlLoader;
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	private DialogManager dialogs;
 
 	private Frame mainFrame;
 	public Frame MainFrame { get { return mainFrame; } }
@@ -102,6 +103,7 @@ public class MainForm : Form
 
 		tempSettings = new TempSettings(this, settings);
 		tempSettings.Load();
+
 		if (args.Length == 1)
 		{
 			LoadFile(args[0]);
@@ -145,7 +147,7 @@ public class MainForm : Form
 
 	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
 	{
-		Nest nest = frames.AddParentNode(false);
+		Nest nest = frames.AddParentNode();
 		nest.hDivided = hDivided;
 		nest.left = left;
 		nest.isPercents = isPercents;
@@ -166,6 +168,7 @@ public class MainForm : Form
 	{
 		keyMap = new KeyMap();
 		doNothingKeyMap = new KeyMap();
+		dialogs = new DialogManager(this, keyMap, doNothingKeyMap);
 		
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
@@ -179,8 +182,6 @@ public class MainForm : Form
 		
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close editor console", DoOpenCloseEditorConsole, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
@@ -192,7 +193,6 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\About", DoAbout, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.X, null, new KeyAction("&View\\Input command", DoInputCommand, null, false)));
 	}
 
 	private bool DoNew(Controller controller)
@@ -337,46 +337,6 @@ public class MainForm : Form
 		return true;
 	}
 
-	private FindDialog findDialog;
-	private ReplaceDialog replaceDialog;
-
-	private bool DoFind(Controller controller)
-	{
-		if (findDialog == null)
-		{
-			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
-			Nest nest = frames.AddParentNode(false);
-			nest.AFrame = findDialog;
-			nest.hDivided = false;
-			nest.left = false;
-			nest.isPercents = false;
-			nest.size = findDialog.Height;
-			findDialog.Focus();
-		}
-		else
-		{
-			frames.Remove(findDialog.Nest);
-			findDialog = null;
-		}
-		OnResize(null);
-		return true;
-	}
-
-	private bool DoReplace(Controller controller)
-	{
-		if (replaceDialog == null)
-		{
-			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
-			Nest nest = frames.AddParentNode(false);
-			nest.AFrame = replaceDialog;
-			nest.hDivided = false;
-			nest.left = false;
-			nest.isPercents = false;
-			nest.size = replaceDialog.Height;
-		}
-		return true;
-	}
-
 	private bool DoOpenUserConfig(Controller controller)
 	{
 		return true;
@@ -439,30 +399,6 @@ public class MainForm : Form
 			return true;
 		}
 		return false;
-	}
-
-	private CommandDialog commandDialog;
-
-	private bool DoInputCommand(Controller controller)
-	{
-		if (commandDialog == null)
-		{
-			commandDialog = new CommandDialog("Command", keyMap, doNothingKeyMap);
-			Nest nest = frames.AddParentNode(false);
-			nest.AFrame = commandDialog;
-			nest.hDivided = false;
-			nest.left = false;
-			nest.isPercents = false;
-			nest.size = commandDialog.Height;
-			commandDialog.Focus();
-		}
-		else
-		{
-			frames.Remove(commandDialog.Nest);
-			findDialog = null;
-		}
-		OnResize(null);
-		return true;
 	}
 
 	private Buffer NewFileBuffer()

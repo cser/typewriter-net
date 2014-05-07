@@ -17,4 +17,12 @@ public class ADialog : AFrame
 	public ADialog()
 	{
 	}
+
+	public event Setter NeedClose;
+
+	public void DispatchNeedClose()
+	{
+		if (NeedClose != null)
+			NeedClose();
+	}
 }
