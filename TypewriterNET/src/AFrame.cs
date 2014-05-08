@@ -40,6 +40,8 @@ public class AFrame : Control
 		this.nest = nest;
 	}
 
+	public MainForm MainForm { get { return nest != null ? nest.MainForm : null; } }
+
 	virtual public Size MinSize { get { return new Size(100, 100); } }
 	virtual public Frame AsFrame { get { return null; } }
 

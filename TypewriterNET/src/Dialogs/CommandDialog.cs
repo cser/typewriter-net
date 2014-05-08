@@ -86,6 +86,7 @@ public class CommandDialog : ADialog
 	private bool DoRunCommand(Controller controller)
 	{
 		DispatchNeedClose();
+		MainForm.commander.Execute(textBox.Text);
 		return true;
 	}
 }

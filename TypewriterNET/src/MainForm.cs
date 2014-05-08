@@ -24,6 +24,7 @@ public class MainForm : Form
 	private readonly Timer validationTimer;
 
 	public readonly FrameList frames;
+	public readonly Commander commander;
 
 	public MainForm(string[] args)
 	{
@@ -40,6 +41,7 @@ public class MainForm : Form
 		Menu = menu;
 
 		settings = new Settings(ApplySettings);
+		commander = new Commander();
 
 		Load += OnLoad;
 
@@ -80,6 +82,8 @@ public class MainForm : Form
 		AppPath.Init(Application.StartupPath, appDataPath);
 
 		BuildMenu();
+
+		commander.Init(this);
 
 		mainNest = AddNest(false, true, true, 70);
 		mainFrame = new Frame("", keyMap, doNothingKeyMap);
@@ -190,7 +194,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 		
-		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\About", DoAbout, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
 	}
@@ -365,9 +369,15 @@ public class MainForm : Form
 		return true;
 	}
 
+	private bool DoHelp(Controller controller)
+	{
+		ProcessHelp();
+		return true;
+	}
+
 	private Buffer _helpBuffer;
 
-	private bool DoAbout(Controller controller)
+	public void ProcessHelp()
 	{
 		if (_helpBuffer == null)
 		{
@@ -382,7 +392,6 @@ public class MainForm : Form
 			_helpBuffer.Controller.InitText(text);
 		}
 		ShowBuffer(mainNest, _helpBuffer);
-		return true;
 	}
 
 	private bool OnHelpBufferRemove(Buffer buffer)
