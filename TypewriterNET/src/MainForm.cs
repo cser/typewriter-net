@@ -379,19 +379,26 @@ public class MainForm : Form
 
 	public void ProcessHelp()
 	{
-		if (_helpBuffer == null)
+		if (_helpBuffer == null || _helpBuffer.Frame == null)
 		{
 			string text = "# About\n" +
 				"\n" +
 				Application.ProductName + "\n" +
-				"Build " + Application.ProductVersion;
+				"Build " + Application.ProductVersion + "\n" +
+				"\n" +
+				commander.GetHelpText();
 			_helpBuffer = new Buffer(null, "About.twh");
 			_helpBuffer.tags = BufferTag.Other;
 			_helpBuffer.onRemove = OnHelpBufferRemove;
 			_helpBuffer.Controller.isReadonly = true;
 			_helpBuffer.Controller.InitText(text);
+			ShowBuffer(mainNest, _helpBuffer);
 		}
-		ShowBuffer(mainNest, _helpBuffer);
+		else
+		{
+			_helpBuffer.Frame.RemoveBuffer(_helpBuffer);
+			_helpBuffer = null;
+		}
 	}
 
 	private bool OnHelpBufferRemove(Buffer buffer)
