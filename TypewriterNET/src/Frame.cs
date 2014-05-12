@@ -141,7 +141,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		textBox.ShowLineNumbers = settings.ShowLineNumbers;
 		textBox.ShowLineBreaks = settings.ShowLineBreaks;
 		textBox.HighlightCurrentLine = settings.HighlightCurrentLine;
-		textBox.TabSize = settings.TabSize;
+		textBox.TabSize = settings.tabSize.Value;
 		textBox.LineBreak = settings.LineBreak;
 		textBox.FontFamily = settings.FontFamily;
 		textBox.FontSize = settings.FontSize;

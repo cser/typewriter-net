@@ -83,7 +83,7 @@ public class MainForm : Form
 
 		BuildMenu();
 
-		commander.Init(this);
+		commander.Init(this, settings);
 
 		mainNest = AddNest(false, true, true, 70);
 		mainFrame = new Frame("", keyMap, doNothingKeyMap);
@@ -494,7 +494,7 @@ public class MainForm : Form
 		settings.ShowLineNumbers = config.ShowLineNumbers;
 		settings.ShowLineBreaks = config.ShowLineBreaks;
 		settings.HighlightCurrentLine = config.HighlightCurrentLine;
-		settings.TabSize = config.TabSize;
+		settings.tabSize.Value = config.TabSize;
 		settings.LineBreak = config.LineBreak;
 		settings.FontFamily = config.FontFamily;
 		settings.FontSize = config.FontSize;

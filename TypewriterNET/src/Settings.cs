@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using MulticaretEditor;
 
@@ -39,17 +40,12 @@ public class Settings
 		set { lineBreak = value; }
 	}
 	
-	private int tabSize;
-	public int TabSize
-	{
-		get { return tabSize > 0 && tabSize < 128 ? tabSize : 4; }
-		set { tabSize = value; }
-	}
+	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
 	
 	private int maxTabsCount;
 	public int MaxTabsCount
 	{
-		get { return maxTabsCount > 0 ? tabSize : int.MaxValue; }
+		get { return maxTabsCount > 0 ? maxTabsCount : int.MaxValue; }
 		set { maxTabsCount = value; }
 	}
 	
@@ -121,11 +117,31 @@ public class Settings
 	public Settings(Setter onChange)
 	{
 		this.onChange = onChange;
+		Add(tabSize);
 	}
 
 	public void DispatchChange()
 	{
 		if (onChange != null)
 			onChange();
+	}
+
+	private Dictionary<string, Properties.Property> propertyByName = new Dictionary<string, Properties.Property>();
+
+	private void Add(Properties.Property property)
+	{
+		propertyByName[property.name] = property;
+	}
+
+	private Properties.Property emptyProperty = new Properties.Property("");
+
+	public Properties.Property this[string name]
+	{
+		get
+		{
+			Properties.Property property;
+			propertyByName.TryGetValue(name, out property);
+			return property ?? emptyProperty;
+		}
 	}
 }

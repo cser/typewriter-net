@@ -44,6 +44,7 @@ public class Commander
 	}
 
 	private MainForm mainForm;
+	private Settings settings;
 
 	private readonly List<Command> commands = new List<Command>();
 
@@ -109,9 +110,10 @@ public class Commander
 		return builder.ToString();
 	}
 
-	public void Init(MainForm mainForm)
+	public void Init(MainForm mainForm, Settings settings)
 	{
 		this.mainForm = mainForm;
+		this.settings = settings;
 		commands.Add(new Command("help", "Open tab with help text", DoHelp, Args()));
 		commands.Add(new Command("set", "Change parameter", DoSet, Args(
 			new Arg("name", "parameter name in settings", true),
@@ -125,5 +127,10 @@ public class Commander
 
 	private void DoSet(List<string> args)
 	{
+		if (args.Count == 2)
+		{
+			settings[args[0]].Text = args[1];
+			settings.DispatchChange();
+		}
 	}
 }
