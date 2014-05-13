@@ -137,19 +137,19 @@ public class Frame : AFrame, IEnumerable<Buffer>
 
 	override protected void DoUpdateSettings(Settings settings)
 	{
-		textBox.WordWrap = settings.WordWrap;
-		textBox.ShowLineNumbers = settings.ShowLineNumbers;
-		textBox.ShowLineBreaks = settings.ShowLineBreaks;
-		textBox.HighlightCurrentLine = settings.HighlightCurrentLine;
+		textBox.WordWrap = settings.wordWrap.Value;
+		textBox.ShowLineNumbers = settings.showLineNumbers.Value;
+		textBox.ShowLineBreaks = settings.showLineBreaks.Value;
+		textBox.HighlightCurrentLine = settings.highlightCurrentLine.Value;
 		textBox.TabSize = settings.tabSize.Value;
-		textBox.LineBreak = settings.LineBreak;
-		textBox.FontFamily = settings.FontFamily;
-		textBox.FontSize = settings.FontSize;
-		textBox.ScrollingIndent = settings.ScrollingIndent;
-		textBox.ShowColorAtCursor = settings.ShowColorAtCursor;
-		textBox.KeyMap.main.SetAltChars(settings.AltCharsSource, settings.AltCharsResult);
+		textBox.LineBreak = settings.lineBreak.Value;
+		textBox.FontFamily = settings.fontFamily.Value;
+		textBox.FontSize = settings.fontSize.Value;
+		textBox.ScrollingIndent = settings.scrollingIndent.Value;
+		textBox.ShowColorAtCursor = settings.showColorAtCursor.Value;
+		textBox.KeyMap.main.SetAltChars(settings.altCharsSource.Value, settings.altCharsResult.Value);
 		
-		tabBar.SetFont(settings.FontFamily, settings.FontSize);
+		tabBar.SetFont(settings.fontFamily.Value, settings.fontSize.Value);
 	}
 
 	public bool ContainsBuffer(Buffer buffer)

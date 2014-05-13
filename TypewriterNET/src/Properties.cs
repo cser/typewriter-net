@@ -1,7 +1,14 @@
 using System;
+using System.Drawing;
+using System.Drawing.Text;
 
 public class Properties
 {
+	public static void AddHeadTo(TextTable table)
+	{
+		table.Add("Name").Add("Type").Add("Default value");
+	}
+
 	public class Property
 	{
 		public readonly string name;
@@ -14,18 +21,28 @@ public class Properties
 		virtual public Float AsFloat { get { return null; } }
 		virtual public Int AsInt { get { return null; } }
 		virtual public String AsString { get { return null; } }
+		virtual public Bool AsBool { get { return null; } }
+		virtual public Font AsFont { get { return null; } }
 
 		virtual public string Text
 		{
 			get { return null; }
 			set { ; }
 		}
+
+		virtual public void GetHelpText(TextTable table)
+		{
+			table.Add(name);
+		}
 	}
 
 	public class Float : Property
 	{
+		private float defaultValue;
+
 		public Float(string name, float value) : base(name)
 		{
+			defaultValue = value;
 			this.value = value;
 		}
 
@@ -53,12 +70,20 @@ public class Properties
 			get { return value + ""; }
 			set { this.value = float.Parse(value); }
 		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("float").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+		}
 	}
 
 	public class Int : Property
 	{
+		private int defaultValue;
+
 		public Int(string name, int value) : base(name)
 		{
+			defaultValue = value;
 			this.value = value;
 		}
 
@@ -86,12 +111,20 @@ public class Properties
 			get { return value + ""; }
 			set { this.value = int.Parse(value); }
 		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("int").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+		}
 	}
 
 	public class String : Property
 	{
+		private string defaultValue;
+
 		public String(string name, string value) : base(name)
 		{
+			defaultValue = value;
 			this.value = value;
 		}
 
@@ -108,6 +141,102 @@ public class Properties
 		{
 			get { return value; }
 			set { this.value = value; }
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("string").Add(ReplaceLineBreaks(defaultValue));
+		}
+
+		private string ReplaceLineBreaks(string value)
+		{
+			value = value.Replace("\n", "\\n");
+			value = value.Replace("\r", "\\r");
+			return value;
+		}
+	}
+
+	public class Bool : Property
+	{
+		private bool defaultValue;
+
+		public Bool(string name, bool value) : base(name)
+		{
+			defaultValue = value;
+			this.value = value;
+		}
+
+		override public Bool AsBool { get { return this; } }
+
+		private bool value;
+		public bool Value
+		{
+			get { return value; }
+			set { this.value = value; }
+		}
+
+		override public string Text
+		{
+			get { return value + ""; }
+			set { this.value = bool.Parse(value); }
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("bool").Add(defaultValue + "");
+		}
+	}
+
+	public class Font : Property
+	{
+		private FontFamily defaultValue;
+
+		public Font(string name, FontFamily value) : base(name)
+		{
+			defaultValue = value;
+			this.value = value;
+		}
+
+		override public Font AsFont { get { return this; } }
+
+		private FontFamily value;
+		public FontFamily Value
+		{
+			get { return value; }
+			set { this.value = value; }
+		}
+
+		override public string Text
+		{
+			get { return value + ""; }
+			set
+			{
+				if (IsFamilyInstalled(value))
+					this.value = new FontFamily(value);
+				else
+					this.value = defaultValue;
+			}
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("font").Add(StringOf(defaultValue)).Add(StringOf(value));
+		}
+
+		private string StringOf(FontFamily fontFamily)
+		{
+			return "\"" + (fontFamily != null ? fontFamily.Name : "") + "\"";
+		}
+
+		private bool IsFamilyInstalled(string fontFamily)
+		{
+			InstalledFontCollection installed = new InstalledFontCollection();
+			foreach (FontFamily familyI in installed.Families)
+			{
+				if (familyI.Name == fontFamily)
+					return true;
+			}
+			return false;
 		}
 	}
 }

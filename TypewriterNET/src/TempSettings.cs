@@ -33,7 +33,7 @@ public class TempSettings
 		mainForm.Location = new Point(state["x"].Int, state["y"].Int);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
 		storage.Unserialize(state["storage"]);
-		if (settings.RememberOpenedFiles)
+		if (settings.rememberOpenedFiles.Value)
 		{
 			foreach (SValue valueI in state["openedTabs"].List)
 			{
@@ -77,7 +77,7 @@ public class TempSettings
 			state["y"] = SValue.NewInt(mainForm.Location.Y);
 		}
 		state["maximized"] = SValue.NewBool(mainForm.WindowState == FormWindowState.Maximized);
-		if (settings.RememberOpenedFiles)
+		if (settings.rememberOpenedFiles.Value)
 		{
 			SValue openedTabs = state.SetNewList("openedTabs");
 			foreach (Buffer buffer in mainForm.MainFrame)

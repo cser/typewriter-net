@@ -115,6 +115,7 @@ public class Commander
 		this.mainForm = mainForm;
 		this.settings = settings;
 		commands.Add(new Command("help", "Open tab with help text", DoHelp, Args()));
+		commands.Add(new Command("exit", "Close window", DoExit, Args()));
 		commands.Add(new Command("set", "Change parameter", DoSet, Args(
 			new Arg("name", "parameter name in settings", true),
 			new Arg("value", "default value is true", false))));
@@ -123,6 +124,11 @@ public class Commander
 	private void DoHelp(List<string> args)
 	{
 		mainForm.ProcessHelp();
+	}
+
+	private void DoExit(List<string> args)
+	{
+		mainForm.Close();
 	}
 
 	private void DoSet(List<string> args)

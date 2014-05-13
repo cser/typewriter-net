@@ -1,123 +1,49 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 using MulticaretEditor;
 
 public class Settings
 {
-	private bool wordWrap;
-	public bool WordWrap
-	{
-		get { return wordWrap; }
-		set { wordWrap = value; }
-	}
-	
-	private bool showLineNumbers = true;
-	public bool ShowLineNumbers
-	{
-		get { return showLineNumbers; }
-		set { showLineNumbers = value; }
-	}
-	
-	private bool showLineBreaks;
-	public bool ShowLineBreaks
-	{
-		get { return showLineBreaks; }
-		set { showLineBreaks = value; }
-	}
-	
-	private bool highlightCurrentLine = true;
-	public bool HighlightCurrentLine
-	{
-		get { return highlightCurrentLine; }
-		set { highlightCurrentLine = value; }
-	}
-	
-	private string lineBreak;
-	public string LineBreak
-	{
-		get { return lineBreak == "\n" || lineBreak == "\r" ? lineBreak : "\r\n"; }
-		set { lineBreak = value; }
-	}
-	
+	public readonly Properties.Bool wordWrap = new Properties.Bool("wordWrap", false);
+	public readonly Properties.Bool showLineNumbers = new Properties.Bool("showLineNumbers", true);
+	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
+	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
+	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
-	
-	private int maxTabsCount;
-	public int MaxTabsCount
-	{
-		get { return maxTabsCount > 0 ? maxTabsCount : int.MaxValue; }
-		set { maxTabsCount = value; }
-	}
-	
-	private float fontSize;
-	public float FontSize
-	{
-		get { return fontSize > 0 ? fontSize : 10.25f; }
-		set { fontSize = value; }
-	}
-	
-	private FontFamily fontFamily;
-	public FontFamily FontFamily
-	{
-		get { return fontFamily != null ? fontFamily : FontFamily.GenericMonospace; }
-		set { fontFamily = value; }
-	}
-	
-	private string scheme;
-	public string Scheme
-	{
-		get { return scheme; }
-		set { scheme = value; }
-	}
-	
-	private int scrollingIndent;
-	public int ScrollingIndent
-	{
-		get { return scrollingIndent; }
-		set { scrollingIndent = value; }
-	}
-	
-	private string altCharsSource;
-	public string AltCharsSource
-	{
-		get { return altCharsSource; }
-		set { altCharsSource = value; }
-	}
-	
-	private string altCharsResult;
-	public string AltCharsResult
-	{
-		get { return altCharsResult; }
-		set { altCharsResult = value; }
-	}
-	
-	private bool showColorAtCursor;
-	public bool ShowColorAtCursor
-	{
-		get { return showColorAtCursor; }
-		set { showColorAtCursor = value; }
-	}
-	
-	private bool rememberOpenedFiles;
-	public bool RememberOpenedFiles
-	{
-		get { return rememberOpenedFiles; }
-		set { rememberOpenedFiles = value; }
-	}
-
-	private int maxFileQualitiesCount;
-	public int MaxFileQualitiesCount
-	{
-		get { return maxFileQualitiesCount; }
-		set { maxFileQualitiesCount = value; }
-	}
+	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 100).SetMinMax(1, int.MaxValue);
+	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, float.MaxValue);
+	public readonly Properties.Font fontFamily = new Properties.Font("fontFamily", FontFamily.GenericMonospace);
+	public readonly Properties.String scheme = new Properties.String("scheme", "");
+	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
+	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "");
+	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "");
+	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
+	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
+	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
 
 	private Setter onChange;
 
 	public Settings(Setter onChange)
 	{
 		this.onChange = onChange;
+		Add(wordWrap);
+		Add(showLineNumbers);
+		Add(showLineBreaks);
+		Add(highlightCurrentLine);
+		Add(lineBreak);
 		Add(tabSize);
+		Add(maxTabsCount);
+		Add(fontSize);
+		Add(fontFamily);
+		Add(scheme);
+		Add(scrollingIndent);
+		Add(altCharsSource);
+		Add(altCharsResult);
+		Add(showColorAtCursor);
+		Add(rememberOpenedFiles);
+		Add(maxFileQualitiesCount);
 	}
 
 	public void DispatchChange()
@@ -128,9 +54,12 @@ public class Settings
 
 	private Dictionary<string, Properties.Property> propertyByName = new Dictionary<string, Properties.Property>();
 
+	private RWList<Properties.Property> properties = new RWList<Properties.Property>();
+
 	private void Add(Properties.Property property)
 	{
 		propertyByName[property.name] = property;
+		properties.Add(property);
 	}
 
 	private Properties.Property emptyProperty = new Properties.Property("");
@@ -143,5 +72,25 @@ public class Settings
 			propertyByName.TryGetValue(name, out property);
 			return property ?? emptyProperty;
 		}
+	}
+
+	public string GetHelpText()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.AppendLine("# Settings properties");
+		builder.AppendLine();
+		TextTable table = new TextTable().SetMaxColWidth(30);
+		Properties.AddHeadTo(table);
+		table.AddLine();
+		bool first = true;
+		foreach (Properties.Property property in properties)
+		{
+			if (!first)
+				table.NewRow();
+			first = false;
+			property.GetHelpText(table);
+		}
+		builder.Append(table);
+		return builder.ToString();
 	}
 }

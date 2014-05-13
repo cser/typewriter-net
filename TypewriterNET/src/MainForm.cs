@@ -386,8 +386,9 @@ public class MainForm : Form
 				Application.ProductName + "\n" +
 				"Build " + Application.ProductVersion + "\n" +
 				"\n" +
-				commander.GetHelpText();
-			_helpBuffer = new Buffer(null, "About.twh");
+				commander.GetHelpText() + "\n" +
+				settings.GetHelpText();
+			_helpBuffer = new Buffer(null, "Help.twh");
 			_helpBuffer.tags = BufferTag.Other;
 			_helpBuffer.onRemove = OnHelpBufferRemove;
 			_helpBuffer.Controller.isReadonly = true;
@@ -490,20 +491,20 @@ public class MainForm : Form
 			XmlTextWriter writer = new XmlTextWriter(sw);
 			xml.WriteTo(writer);
 		}
-		settings.WordWrap = config.WordWrap;
-		settings.ShowLineNumbers = config.ShowLineNumbers;
-		settings.ShowLineBreaks = config.ShowLineBreaks;
-		settings.HighlightCurrentLine = config.HighlightCurrentLine;
+		settings.wordWrap.Value = config.WordWrap;
+		settings.showLineNumbers.Value = config.ShowLineNumbers;
+		settings.showLineBreaks.Value = config.ShowLineBreaks;
+		settings.highlightCurrentLine.Value = config.HighlightCurrentLine;
 		settings.tabSize.Value = config.TabSize;
-		settings.LineBreak = config.LineBreak;
-		settings.FontFamily = config.FontFamily;
-		settings.FontSize = config.FontSize;
-		settings.ScrollingIndent = config.ScrollingIndent;
-		settings.ShowColorAtCursor = config.ShowColorAtCursor;
-		settings.AltCharsSource = config.AltCharsSource;
-		settings.AltCharsResult = config.AltCharsResult;
-		settings.MaxFileQualitiesCount = config.MaxFileQualitiesCount;
-		settings.RememberOpenedFiles = config.RememberOpenedFiles;
+		settings.lineBreak.Value = config.LineBreak;
+		settings.fontFamily.Value = config.FontFamily;
+		settings.fontSize.Value = config.FontSize;
+		settings.scrollingIndent.Value = config.ScrollingIndent;
+		settings.showColorAtCursor.Value = config.ShowColorAtCursor;
+		settings.altCharsSource.Value = config.AltCharsSource;
+		settings.altCharsResult.Value = config.AltCharsResult;
+		settings.maxFileQualitiesCount.Value = config.MaxFileQualitiesCount;
+		settings.rememberOpenedFiles.Value = config.RememberOpenedFiles;
 		settings.DispatchChange();
 	}
 }
