@@ -66,7 +66,9 @@ public class MainForm : Form
 	private XmlLoader xmlLoader;
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	
 	private DialogManager dialogs;
+	public DialogManager Dialogs { get { return dialogs; } }
 
 	private Frame mainFrame;
 	public Frame MainFrame { get { return mainFrame; } }

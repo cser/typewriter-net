@@ -34,6 +34,34 @@ public class DialogManager
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 	}
 
+	private InfoDialog infoDialog;
+
+	public void ShowInfo(string name, string text)
+	{
+		if (infoDialog == null)
+		{
+			infoDialog = new InfoDialog("Command", keyMap, doNothingKeyMap);
+			AddBottomNest(infoDialog);
+			infoDialog.NeedClose += OnInfoNeedClose;
+		}
+		infoDialog.Name = name;
+		infoDialog.InitText(text);
+	}
+
+	public void HideInfo()
+	{
+		OnInfoNeedClose();
+	}
+
+	private void OnInfoNeedClose()
+	{
+		if (infoDialog != null)
+		{
+			frames.Remove(infoDialog.Nest);
+			infoDialog = null;
+		}
+	}
+
 	private void AddBottomNest(ADialog dialog)
 	{
 		Nest nest = frames.AddParentNode();
@@ -47,10 +75,11 @@ public class DialogManager
 
 	private CommandDialog commandDialog;
 
-	public bool DoInputCommand(Controller controller)
+	private bool DoInputCommand(Controller controller)
 	{
 		if (commandDialog == null)
 		{
+			HideInfo();
 			commandDialog = new CommandDialog("Command", keyMap, doNothingKeyMap);
 			AddBottomNest(commandDialog);
 			commandDialog.NeedClose += OnCommandNeedClose;
@@ -74,6 +103,7 @@ public class DialogManager
 	{
 		if (findDialog == null)
 		{
+			HideInfo();
 			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
 			AddBottomNest(findDialog);
 			findDialog.NeedClose += OnFindNeedClose;
@@ -98,6 +128,7 @@ public class DialogManager
 	{
 		if (replaceDialog == null)
 		{
+			HideInfo();
 			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
 			AddBottomNest(findDialog);
 			replaceDialog.NeedClose += OnReplaceClose;

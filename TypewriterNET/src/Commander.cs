@@ -66,8 +66,7 @@ public class Commander
 		}
 		else
 		{
-			mainForm.Log.WriteLine("Error: Unknown command \"" + name + "\"");
-			mainForm.Log.Open();
+			mainForm.Dialogs.ShowInfo("Error", "Unknown command \"" + name + "\"");
 		}
 	}
 
@@ -91,6 +90,7 @@ public class Commander
 		commands.Add(new Command("help", "", "Open tab with help text", DoHelp));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("set", "name value", "Change parameter", DoSet));
+		commands.Add(new Command("get", "name", "Show parameter", DoGet));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
 		commands.Add(new Command("lclose", "", "Close editor log", DoCloseLog));
@@ -112,12 +112,23 @@ public class Commander
 		string name = FirstWord(args, out value);
 		if (settings[name] == null)
 		{
-			mainForm.Log.WriteLine("Error: Missing property \"" + name + "\"");
-			mainForm.Log.Open();
+			mainForm.Dialogs.ShowInfo("Error", "Missing property \"" + name + "\"");
 			return;
 		}
 		settings[name].Text = value;
 		settings.DispatchChange();
+	}
+
+	private void DoGet(string args)
+	{
+		string value;
+		string name = FirstWord(args, out value);
+		if (settings[name] == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "Missing property \"" + name + "\"");
+			return;
+		}
+		mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
 	}
 
 	private void DoClearLog(string args)

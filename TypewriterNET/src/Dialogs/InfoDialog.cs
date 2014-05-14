@@ -12,26 +12,25 @@ using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
-public class CommandDialog : ADialog
+public class InfoDialog : ADialog
 {
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public CommandDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public InfoDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
-		Name = name;
-
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = name;
 		Controls.Add(tabBar);
+
+		Name = name;
 
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel command", DoCancelCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Run command", DoRunCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close info", DoClose, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Close info", DoClose, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
@@ -40,11 +39,18 @@ public class CommandDialog : ADialog
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
+		textBox.Controller.isReadonly = true;
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	new public string Name
+	{
+		get { return tabBar.Text; }
+		set { tabBar.Text = value; }
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
@@ -84,16 +90,14 @@ public class CommandDialog : ADialog
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
-	private bool DoCancelCommand(Controller controller)
+	private bool DoClose(Controller controller)
 	{
 		DispatchNeedClose();
 		return true;
 	}
 
-	private bool DoRunCommand(Controller controller)
+	public void InitText(string text)
 	{
-		DispatchNeedClose();
-		MainForm.commander.Execute(textBox.Text);
-		return true;
+		textBox.Controller.InitText(text);
 	}
 }

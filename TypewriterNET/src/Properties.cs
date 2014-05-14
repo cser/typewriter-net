@@ -208,7 +208,7 @@ public class Properties
 
 		override public string Text
 		{
-			get { return value + ""; }
+			get { return StringOf(value); }
 			set
 			{
 				if (IsFamilyInstalled(value))
