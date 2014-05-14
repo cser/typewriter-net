@@ -5,41 +5,19 @@ using MulticaretEditor;
 
 public class Commander
 {
-	public class Arg
-	{
-		public readonly string name;
-		public readonly string desc;
-		public readonly bool needed;
-
-		public Arg(string name, string desc, bool needed)
-		{
-			this.name = name;
-			this.desc = desc;
-			this.needed = needed;
-		}
-	}
-
 	public class Command
 	{
 		public readonly string name;
+		public readonly string argNames;
 		public readonly string desc;
-		public readonly Setter<List<string>> execute;
-		public readonly List<Arg> args;
-		public readonly int neededArgsCount;
+		public readonly Setter<string> execute;
 
-		public Command(string name, string desc, Setter<List<string>> execute, List<Arg> args)
+		public Command(string name, string argNames, string desc, Setter<string> execute)
 		{
 			this.name = name;
+			this.argNames = argNames;
 			this.desc = desc;
 			this.execute = execute;
-			this.args = args;
-			int count = 0;
-			for (int i = 0; i < args.Count; i++)
-			{
-				if (args[i].needed)
-					count++;
-			}
-			neededArgsCount = count;
 		}
 	}
 
@@ -48,17 +26,35 @@ public class Commander
 
 	private readonly List<Command> commands = new List<Command>();
 
+	private string FirstWord(string text, out string tail)
+	{
+		string first;
+		int index = text.IndexOf(' ');
+		if (index != -1)
+		{
+			first = text.Substring(0, index);
+			tail = text.Substring(index + 1);
+		}
+		else
+		{
+			first = text;
+			tail = "";
+		}
+		return first;
+	}
+
 	public void Execute(string text)
 	{
-		string[] texts = text.Trim().Split(' ');
-		string name = texts[0];
-		int argsCount = texts.Length - 1;
-		if (string.IsNullOrEmpty(name))
+		if (text == null)
+			return;
+		string args;
+		string name = FirstWord(text, out args);
+		if (name == "")
 			return;
 		Command command = null;
 		foreach (Command commandI in commands)
 		{
-			if (commandI.name == name && commandI.neededArgsCount <= argsCount)
+			if (commandI.name == name)
 			{
 				command = commandI;
 				break;
@@ -66,15 +62,13 @@ public class Commander
 		}
 		if (command != null)
 		{
-			List<string> args = new List<string>(texts);
-			args.RemoveAt(0);
 			command.execute(args);
 		}
-	}
-
-	private List<Arg> Args(params Arg[] args)
-	{
-		return new List<Arg>(args);
+		else
+		{
+			mainForm.Log.WriteLine("Error: Unknown command \"" + name + "\"");
+			mainForm.Log.Open();
+		}
 	}
 
 	public string GetHelpText()
@@ -84,28 +78,8 @@ public class Commander
 		builder.AppendLine();
 		foreach (Command command in commands)
 		{
-			builder.Append(command.name);
-			foreach (Arg arg in command.args)
-			{
-				if (arg.needed)
-					builder.Append(" " + arg.name);
-				else
-					builder.Append(" [" + arg.name + "]");
-			}
-			builder.AppendLine();
-			if (!string.IsNullOrEmpty(command.desc))
-				builder.AppendLine(command.desc);
-			foreach (Arg arg in command.args)
-			{
-				if (!string.IsNullOrEmpty(arg.desc))
-				{
-					if (arg.needed)
-						builder.AppendLine("    " + arg.name + " - " + arg.desc);
-					else
-						builder.AppendLine("    [" + arg.name + " - " + arg.desc + "]");
-				}
-			}
-			builder.AppendLine();
+			builder.Append(command.name + (!string.IsNullOrEmpty(command.desc) ? " " + command.argNames : "") + "\n" +
+				(!string.IsNullOrEmpty(command.desc) ? "  " + command.desc.Replace("\n", "\n  ") + "\n" : "") + "\n");
 		}
 		return builder.ToString();
 	}
@@ -114,29 +88,50 @@ public class Commander
 	{
 		this.mainForm = mainForm;
 		this.settings = settings;
-		commands.Add(new Command("help", "Open tab with help text", DoHelp, Args()));
-		commands.Add(new Command("exit", "Close window", DoExit, Args()));
-		commands.Add(new Command("set", "Change parameter", DoSet, Args(
-			new Arg("name", "parameter name in settings", true),
-			new Arg("value", "default value is true", false))));
+		commands.Add(new Command("help", "", "Open tab with help text", DoHelp));
+		commands.Add(new Command("exit", "", "Close window", DoExit));
+		commands.Add(new Command("set", "name value", "Change parameter", DoSet));
+		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
+		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
+		commands.Add(new Command("lclose", "", "Close editor log", DoCloseLog));
 	}
 
-	private void DoHelp(List<string> args)
+	private void DoHelp(string args)
 	{
 		mainForm.ProcessHelp();
 	}
 
-	private void DoExit(List<string> args)
+	private void DoExit(string args)
 	{
 		mainForm.Close();
 	}
 
-	private void DoSet(List<string> args)
+	private void DoSet(string args)
 	{
-		if (args.Count == 2)
+		string value;
+		string name = FirstWord(args, out value);
+		if (settings[name] == null)
 		{
-			settings[args[0]].Text = args[1];
-			settings.DispatchChange();
+			mainForm.Log.WriteLine("Error: Missing property \"" + name + "\"");
+			mainForm.Log.Open();
+			return;
 		}
+		settings[name].Text = value;
+		settings.DispatchChange();
+	}
+
+	private void DoClearLog(string args)
+	{
+		mainForm.Log.Clear();
+	}
+
+	private void DoOpenLog(string args)
+	{
+		mainForm.Log.Open();
+	}
+
+	private void DoCloseLog(string args)
+	{
+		mainForm.Log.Close();
 	}
 }

@@ -76,4 +76,9 @@ public class Buffer
 	{
 		Write(text + "\n", ds);
 	}
+
+	public void InitText(string text)
+	{
+		controller.InitText(text);
+	}
 }

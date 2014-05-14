@@ -302,18 +302,6 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
-		//tabBar.Invalidate();
-		
-		/*if (AppPath.ConfigPath.HasPath(buffer.FullPath))
-		{
-			ReloadConfig();
-		}
-		else if (GetActiveSchemePaths(config).IndexOf(buffer.FullPath) != -1)
-		{
-			ReloadScheme();
-		}
-		
-		UpdateHighlighter(buffer);*/
 	}
 
 	private bool DoExit(Controller controller)
@@ -497,7 +485,7 @@ public class MainForm : Form
 		settings.highlightCurrentLine.Value = config.HighlightCurrentLine;
 		settings.tabSize.Value = config.TabSize;
 		settings.lineBreak.Value = config.LineBreak;
-		settings.fontFamily.Value = config.FontFamily;
+		settings.font.Value = config.FontFamily;
 		settings.fontSize.Value = config.FontSize;
 		settings.scrollingIndent.Value = config.ScrollingIndent;
 		settings.showColorAtCursor.Value = config.ShowColorAtCursor;

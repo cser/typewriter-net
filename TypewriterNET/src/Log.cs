@@ -62,4 +62,9 @@ public class Log
 	{
 		buffer.WriteLine(text, ds);
 	}
+
+	public void Clear()
+	{
+		buffer.InitText("");
+	}
 }

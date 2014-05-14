@@ -14,7 +14,7 @@ public class Settings
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 100).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, float.MaxValue);
-	public readonly Properties.Font fontFamily = new Properties.Font("fontFamily", FontFamily.GenericMonospace);
+	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
 	public readonly Properties.String scheme = new Properties.String("scheme", "");
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
 	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "");
@@ -36,7 +36,7 @@ public class Settings
 		Add(tabSize);
 		Add(maxTabsCount);
 		Add(fontSize);
-		Add(fontFamily);
+		Add(font);
 		Add(scheme);
 		Add(scrollingIndent);
 		Add(altCharsSource);
@@ -62,15 +62,13 @@ public class Settings
 		properties.Add(property);
 	}
 
-	private Properties.Property emptyProperty = new Properties.Property("");
-
 	public Properties.Property this[string name]
 	{
 		get
 		{
 			Properties.Property property;
 			propertyByName.TryGetValue(name, out property);
-			return property ?? emptyProperty;
+			return property;
 		}
 	}
 

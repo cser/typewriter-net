@@ -143,13 +143,13 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		textBox.HighlightCurrentLine = settings.highlightCurrentLine.Value;
 		textBox.TabSize = settings.tabSize.Value;
 		textBox.LineBreak = settings.lineBreak.Value;
-		textBox.FontFamily = settings.fontFamily.Value;
+		textBox.FontFamily = settings.font.Value;
 		textBox.FontSize = settings.fontSize.Value;
 		textBox.ScrollingIndent = settings.scrollingIndent.Value;
 		textBox.ShowColorAtCursor = settings.showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(settings.altCharsSource.Value, settings.altCharsResult.Value);
 		
-		tabBar.SetFont(settings.fontFamily.Value, settings.fontSize.Value);
+		tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 	}
 
 	public bool ContainsBuffer(Buffer buffer)
