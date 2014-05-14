@@ -45,7 +45,7 @@ public class Commander
 
 	public void Execute(string text)
 	{
-		if (text == null)
+		if (string.IsNullOrEmpty(text))
 			return;
 		string args;
 		string name = FirstWord(text, out args);
@@ -64,9 +64,23 @@ public class Commander
 		{
 			command.execute(args);
 		}
+		else if (settings[name] != null)
+		{
+			if (args != "")
+			{
+				string errors = settings[name].SetText(args);
+				settings.DispatchChange();
+				if (!string.IsNullOrEmpty(errors))
+					mainForm.Dialogs.ShowInfo("Error assign of \"" + name + "\"", errors);
+			}
+			else
+			{
+				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
+			}
+		}
 		else
 		{
-			mainForm.Dialogs.ShowInfo("Error", "Unknown command \"" + name + "\"");
+			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
 		}
 	}
 
@@ -89,11 +103,10 @@ public class Commander
 		this.settings = settings;
 		commands.Add(new Command("help", "", "Open tab with help text", DoHelp));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
-		commands.Add(new Command("set", "name value", "Change parameter", DoSet));
-		commands.Add(new Command("get", "name", "Show parameter", DoGet));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
 		commands.Add(new Command("lclose", "", "Close editor log", DoCloseLog));
+		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
 	}
 
 	private void DoHelp(string args)
@@ -104,31 +117,6 @@ public class Commander
 	private void DoExit(string args)
 	{
 		mainForm.Close();
-	}
-
-	private void DoSet(string args)
-	{
-		string value;
-		string name = FirstWord(args, out value);
-		if (settings[name] == null)
-		{
-			mainForm.Dialogs.ShowInfo("Error", "Missing property \"" + name + "\"");
-			return;
-		}
-		settings[name].Text = value;
-		settings.DispatchChange();
-	}
-
-	private void DoGet(string args)
-	{
-		string value;
-		string name = FirstWord(args, out value);
-		if (settings[name] == null)
-		{
-			mainForm.Dialogs.ShowInfo("Error", "Missing property \"" + name + "\"");
-			return;
-		}
-		mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
 	}
 
 	private void DoClearLog(string args)
@@ -144,5 +132,18 @@ public class Commander
 	private void DoCloseLog(string args)
 	{
 		mainForm.Log.Close();
+	}
+
+	private void DoResetProperty(string args)
+	{
+		if (settings[args] != null)
+		{
+			settings[args].Reset();
+			settings.DispatchChange();
+		}
+		else
+		{
+			mainForm.Dialogs.ShowInfo("Error", "Unknown property \"" + args + "\"");
+		}
 	}
 }

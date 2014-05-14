@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Text;
+using System.Globalization;
 
 public class Properties
 {
@@ -24,15 +25,19 @@ public class Properties
 		virtual public Bool AsBool { get { return null; } }
 		virtual public Font AsFont { get { return null; } }
 
-		virtual public string Text
+		virtual public string Text { get { return ""; } }
+		virtual public string SetText(string value)
 		{
-			get { return null; }
-			set { ; }
+			return null;
 		}
 
 		virtual public void GetHelpText(TextTable table)
 		{
 			table.Add(name);
+		}
+
+		virtual public void Reset()
+		{
 		}
 	}
 
@@ -65,15 +70,27 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text
+		override public string Text { get { return value + ""; } }
+
+		override public string SetText(string value)
 		{
-			get { return value + ""; }
-			set { this.value = float.Parse(value); }
+			float temp;
+			if (float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp))
+			{
+				Value = temp;
+				return null;
+			}
+			return "Can't parse \"" + value + "\"";
 		}
 
 		override public void GetHelpText(TextTable table)
 		{
 			table.Add(name).Add("float").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
 		}
 	}
 
@@ -106,15 +123,27 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text
+		override public string Text { get { return value + ""; } }
+
+		override public string SetText(string value)
 		{
-			get { return value + ""; }
-			set { this.value = int.Parse(value); }
+			int temp;
+			if (int.TryParse(value, out temp))
+			{
+				Value = temp;
+				return null;
+			}
+			return "Can't parse \"" + value + "\"";
 		}
 
 		override public void GetHelpText(TextTable table)
 		{
 			table.Add(name).Add("int").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
 		}
 	}
 
@@ -139,10 +168,12 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text
+		override public string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
+
+		override public string SetText(string value)
 		{
-			get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; }
-			set { this.value = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + ""; }
+			Value = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + "";
+			return null;
 		}
 
 		override public void GetHelpText(TextTable table)
@@ -155,6 +186,11 @@ public class Properties
 			value = value.Replace("\n", "\\n");
 			value = value.Replace("\r", "\\r");
 			return value;
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
 		}
 	}
 
@@ -177,15 +213,22 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text
+		override public string Text { get { return value ? "true" : "false"; } }
+
+		override public string SetText(string value)
 		{
-			get { return value ? "true" : "false"; }
-			set { this.value = value != null && (value == "1" || value.ToLowerInvariant() == "true"); }
+			Value = value != null && (value == "1" || value.ToLowerInvariant() == "true");
+			return null;
 		}
 
 		override public void GetHelpText(TextTable table)
 		{
 			table.Add(name).Add("bool").Add(defaultValue + "");
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
 		}
 	}
 
@@ -208,16 +251,17 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text
+		override public string Text { get { return StringOf(value); } }
+
+		override public string SetText(string value)
 		{
-			get { return StringOf(value); }
-			set
+			if (!IsFamilyInstalled(value))
 			{
-				if (IsFamilyInstalled(value))
-					this.value = new FontFamily(value);
-				else
-					this.value = defaultValue;
+				Value = defaultValue;
+				return "Font \"" + value + "\" is not installed";
 			}
+			Value = new FontFamily(value);
+			return null;
 		}
 
 		override public void GetHelpText(TextTable table)
@@ -239,6 +283,11 @@ public class Properties
 					return true;
 			}
 			return false;
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
 		}
 	}
 }
