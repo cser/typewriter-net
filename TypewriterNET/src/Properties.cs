@@ -121,11 +121,13 @@ public class Properties
 	public class String : Property
 	{
 		private string defaultValue;
+		private bool convertEscape;
 
-		public String(string name, string value) : base(name)
+		public String(string name, string value, bool convertEscape) : base(name)
 		{
 			defaultValue = value;
-			this.value = value;
+			this.value = value ?? "";
+			this.convertEscape = convertEscape;
 		}
 
 		override public String AsString { get { return this; } }
@@ -139,8 +141,8 @@ public class Properties
 
 		override public string Text
 		{
-			get { return value; }
-			set { this.value = value; }
+			get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; }
+			set { this.value = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + ""; }
 		}
 
 		override public void GetHelpText(TextTable table)
@@ -177,8 +179,8 @@ public class Properties
 
 		override public string Text
 		{
-			get { return value + ""; }
-			set { this.value = bool.Parse(value); }
+			get { return value ? "true" : "false"; }
+			set { this.value = value != null && (value == "1" || value.ToLowerInvariant() == "true"); }
 		}
 
 		override public void GetHelpText(TextTable table)
