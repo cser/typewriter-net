@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Globalization;
+using System.Text;
 
 public class Properties
 {
@@ -63,6 +64,14 @@ public class Properties
 			return this;
 		}
 
+		private int precision = -1;
+
+		public Float SetPrecision(int precision)
+		{
+			this.precision = precision;
+			return this;
+		}
+
 		private float value;
 		public float Value
 		{
@@ -70,7 +79,7 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text { get { return value + ""; } }
+		override public string Text { get { return StringOf(value); } }
 
 		override public string SetText(string value)
 		{
@@ -85,12 +94,26 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("float").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+			table.Add(name).Add("float").Add(StringOf(defaultValue)).Add("min = " + StringOf(min) + ", max = " + StringOf(max));
 		}
 
 		override public void Reset()
 		{
 			value = defaultValue;
+		}
+
+		private string StringOf(float value)
+		{
+			//return precision != -1 ? value.ToString("F" + precision, CultureInfo.InvariantCulture) : value.ToString(CultureInfo.InvariantCulture);
+			string text = value.ToString(CultureInfo.InvariantCulture);
+			if (precision == -1)
+				return text;
+			int index = text.IndexOf('.');
+			if (index == -1)
+				return text;
+			if (text.Length - index > precision)
+				return value.ToString("F" + precision, CultureInfo.InvariantCulture);
+			return text;
 		}
 	}
 
@@ -168,11 +191,35 @@ public class Properties
 			set { this.value = value; }
 		}
 
+		private string[] variants;
+
+		public String SetVariants(params string[] variants)
+		{
+			this.variants = variants;
+			return this;
+		}
+
 		override public string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
 
 		override public string SetText(string value)
 		{
-			Value = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + "";
+			string newValue = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + "";
+			if (variants != null && variants.Length > 0 && Array.IndexOf(variants, newValue) == -1)
+			{
+				StringBuilder builder = new StringBuilder();
+				builder.Append("\"" + newValue + "\" missing in [");
+				bool first = true;
+				for (int i = 0; i < variants.Length; i++)
+				{
+					if (!first)
+						builder.Append(", ");
+					first = false;
+					builder.Append("\"" + variants[i].Replace("\r", "\\r").Replace("\n", "\\n") + "\"");
+				}
+				builder.Append("]");
+				return builder.ToString();
+			}
+			this.value = newValue;
 			return null;
 		}
 

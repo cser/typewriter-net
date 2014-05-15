@@ -140,6 +140,7 @@ public class Commander
 		{
 			settings[args].Reset();
 			settings.DispatchChange();
+			mainForm.Dialogs.ShowInfo("Value of \"" + args + "\"", settings[args].Text);
 		}
 		else
 		{
