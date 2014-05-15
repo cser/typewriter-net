@@ -104,7 +104,6 @@ public class Properties
 
 		private string StringOf(float value)
 		{
-			//return precision != -1 ? value.ToString("F" + precision, CultureInfo.InvariantCulture) : value.ToString(CultureInfo.InvariantCulture);
 			string text = value.ToString(CultureInfo.InvariantCulture);
 			if (precision == -1)
 				return text;

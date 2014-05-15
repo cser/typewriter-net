@@ -8,7 +8,7 @@
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>
 	<item name="fontSize" value="10.25"/>
-	<item name="fontFamily" value="Courier New"/>
+	<item name="font" value="Courier New"/>
 	<item name="scheme" value="npp"/>
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>

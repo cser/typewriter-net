@@ -136,7 +136,12 @@ public class Commander
 
 	private void DoResetProperty(string args)
 	{
-		if (settings[args] != null)
+		if (args == "")
+		{
+			settings.Reset();
+			settings.DispatchChange();
+		}
+		else if (settings[args] != null)
 		{
 			settings[args].Reset();
 			settings.DispatchChange();

@@ -20,6 +20,8 @@ public class MainForm : Form
 {
 	private readonly string[] args;
 	private readonly Settings settings;
+	private readonly ConfigParser configParser;
+
 	private readonly MainFormMenu menu;
 	private readonly Timer validationTimer;
 
@@ -41,6 +43,7 @@ public class MainForm : Form
 		Menu = menu;
 
 		settings = new Settings(ApplySettings);
+		configParser = new ConfigParser(settings);
 		commander = new Commander();
 
 		Load += OnLoad;
@@ -450,11 +453,9 @@ public class MainForm : Form
 		return false;
 	}
 
-	private Config config = new Config();
-
 	private void ReloadConfig()
 	{
-		config.Reset();
+		configParser.Reset();
 		
 		StringBuilder errors = new StringBuilder();
 		if (!File.Exists(AppPath.ConfigPath))
@@ -471,7 +472,7 @@ public class MainForm : Form
 		if (xml != null)
 		{
 			StringBuilder builder = new StringBuilder();
-			config.Parse(xml, builder);
+			configParser.Parse(xml, builder);
 			if (builder.Length > 0)
 			{
 				Log.WriteLine(builder.ToString());
@@ -481,20 +482,6 @@ public class MainForm : Form
 			XmlTextWriter writer = new XmlTextWriter(sw);
 			xml.WriteTo(writer);
 		}
-		settings.wordWrap.Value = config.WordWrap;
-		settings.showLineNumbers.Value = config.ShowLineNumbers;
-		settings.showLineBreaks.Value = config.ShowLineBreaks;
-		settings.highlightCurrentLine.Value = config.HighlightCurrentLine;
-		settings.tabSize.Value = config.TabSize;
-		settings.lineBreak.Value = config.LineBreak;
-		settings.font.Value = config.FontFamily;
-		settings.fontSize.Value = config.FontSize;
-		settings.scrollingIndent.Value = config.ScrollingIndent;
-		settings.showColorAtCursor.Value = config.ShowColorAtCursor;
-		settings.altCharsSource.Value = config.AltCharsSource;
-		settings.altCharsResult.Value = config.AltCharsResult;
-		settings.maxFileQualitiesCount.Value = config.MaxFileQualitiesCount;
-		settings.rememberOpenedFiles.Value = config.RememberOpenedFiles;
 		settings.DispatchChange();
 	}
 }
