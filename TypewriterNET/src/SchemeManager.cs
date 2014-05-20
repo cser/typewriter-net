@@ -7,14 +7,12 @@ using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 
 public class SchemeManager
-{
-	private MainForm mainForm;
-	private Settings settings;
+{	
+	private XmlLoader xmlLoader;
 
-	public SchemeManager(MainForm mainForm, Settings settings)
+	public SchemeManager(XmlLoader xmlLoader)
 	{
-		this.mainForm = mainForm;
-		this.settings = settings;
+		this.xmlLoader = xmlLoader;
 	}
 
 	private AppPath GetSchemePath(string schemeName)
@@ -22,12 +20,12 @@ public class SchemeManager
 		return new AppPath(Path.Combine(AppPath.Schemes, schemeName + ".xml"));
 	}
 	
-	private List<AppPath> GetSchemePaths()
+	private List<AppPath> GetSchemePaths(string schemeName)
 	{
 		List<AppPath> paths = new List<AppPath>();
-		foreach (string schemeName in ParseSchemeName(settings.scheme.Value))
+		foreach (string schemeNameI in ParseSchemeName(schemeName))
 		{
-			paths.Add(GetSchemePath(schemeName));
+			paths.Add(GetSchemePath(schemeNameI));
 		}
 		return paths;
 	}
@@ -53,19 +51,17 @@ public class SchemeManager
 		return list;
 	}
 	    
-	public void Reload()
+	public Scheme LoadScheme(string schemeName)
 	{
 		Scheme scheme = new Scheme();
 		List<XmlDocument> xmls = new List<XmlDocument>();
-		foreach (AppPath schemePath in GetSchemePaths())
+		foreach (AppPath schemePath in GetSchemePaths(schemeName))
 		{
-			XmlDocument xml = mainForm.XmlLoader.Load(schemePath.GetExisted(), true);
+			XmlDocument xml = xmlLoader.Load(schemePath.GetExisted(), true);
 			if (xml != null)
 				xmls.Add(xml);
 		}
 		scheme.ParseXml(xmls);
-
-		settings.ParsedScheme = scheme;
-		settings.DispatchParsedSchemeChange();
+		return scheme;
 	}
 }

@@ -25,12 +25,10 @@ public class Settings
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
 
 	private Setter onChange;
-	private Setter onParsedSchemeChange;
 
-	public Settings(Setter onChange, Setter onParsedSchemeChange)
+	public Settings(Setter onChange)
 	{
 		this.onChange = onChange;
-		this.onParsedSchemeChange = onParsedSchemeChange;
 		Add(wordWrap);
 		Add(showLineNumbers);
 		Add(showLineBreaks);
@@ -108,11 +106,5 @@ public class Settings
 	{
 		get { return parsedScheme; }
 		set { parsedScheme = value; }
-	}
-
-	public void DispatchParsedSchemeChange()
-	{
-		if (onParsedSchemeChange != null)
-			onParsedSchemeChange();
 	}
 }

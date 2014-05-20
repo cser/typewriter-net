@@ -135,9 +135,9 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
-	override protected void DoUpdateSettings(Settings settings, FrameUpdateType type)
+	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
 	{
-		if (type == FrameUpdateType.Common)
+		if (phase == UpdatePhase.Raw)
 		{
 			textBox.WordWrap = settings.wordWrap.Value;
 			textBox.ShowLineNumbers = settings.showLineNumbers.Value;
@@ -153,7 +153,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 			
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
-		else if (type == FrameUpdateType.Scheme)
+		else if (phase == UpdatePhase.Parsed)
 		{
 			tabBar.Scheme = settings.ParsedScheme;
 		}

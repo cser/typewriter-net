@@ -45,7 +45,7 @@ public class MainForm : Form
 		menu = new MainFormMenu(this);
 		Menu = menu;
 
-		settings = new Settings(ApplySettings, OnSchemeChange);
+		settings = new Settings(ApplySettings);
 		configParser = new ConfigParser(settings);
 		commander = new Commander();
 
@@ -106,7 +106,7 @@ public class MainForm : Form
 		log = new Log(this, consoleNest);
 		xmlLoader = new XmlLoader(this);
 
-		schemeManager = new SchemeManager(this, settings);
+		schemeManager = new SchemeManager(xmlLoader);
 
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
@@ -161,18 +161,14 @@ public class MainForm : Form
 
 	private void ApplySettings()
 	{
-		frames.UpdateSettings(settings, FrameUpdateType.Common);
-		schemeManager.Reload();
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
+		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
+		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 	}
 
 	public void DoResize()
 	{
 		frames.Resize(0, 0, ClientSize);
-	}
-
-	private void OnSchemeChange()
-	{
-		frames.UpdateSettings(settings, FrameUpdateType.Scheme);
 	}
 
 	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
