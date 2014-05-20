@@ -51,13 +51,13 @@ public class AFrame : Control
 	{
 	}
 
-	public void UpdateSettings(Settings settings)
+	public void UpdateSettings(Settings settings, FrameUpdateType type)
 	{
-		DoUpdateSettings(settings);
+		DoUpdateSettings(settings, type);
 		SetNeedResize();
 	}
 
-	virtual protected void DoUpdateSettings(Settings settings)
+	virtual protected void DoUpdateSettings(Settings settings, FrameUpdateType type)
 	{
 	}
 

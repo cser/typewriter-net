@@ -89,12 +89,12 @@ public class FrameList
 		list.Remove(nest);
 	}
 
-	public void UpdateSettings(Settings settings)
+	public void UpdateSettings(Settings settings, FrameUpdateType type)
 	{
 		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
 		{
 			if (nestI.AFrame != null)
-				nestI.AFrame.UpdateSettings(settings);
+				nestI.AFrame.UpdateSettings(settings, type);
 		}
 	}
 

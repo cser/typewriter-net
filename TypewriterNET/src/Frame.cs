@@ -135,21 +135,28 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
-	override protected void DoUpdateSettings(Settings settings)
+	override protected void DoUpdateSettings(Settings settings, FrameUpdateType type)
 	{
-		textBox.WordWrap = settings.wordWrap.Value;
-		textBox.ShowLineNumbers = settings.showLineNumbers.Value;
-		textBox.ShowLineBreaks = settings.showLineBreaks.Value;
-		textBox.HighlightCurrentLine = settings.highlightCurrentLine.Value;
-		textBox.TabSize = settings.tabSize.Value;
-		textBox.LineBreak = settings.lineBreak.Value;
-		textBox.FontFamily = settings.font.Value;
-		textBox.FontSize = settings.fontSize.Value;
-		textBox.ScrollingIndent = settings.scrollingIndent.Value;
-		textBox.ShowColorAtCursor = settings.showColorAtCursor.Value;
-		textBox.KeyMap.main.SetAltChars(settings.altCharsSource.Value, settings.altCharsResult.Value);
-		
-		tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+		if (type == FrameUpdateType.Common)
+		{
+			textBox.WordWrap = settings.wordWrap.Value;
+			textBox.ShowLineNumbers = settings.showLineNumbers.Value;
+			textBox.ShowLineBreaks = settings.showLineBreaks.Value;
+			textBox.HighlightCurrentLine = settings.highlightCurrentLine.Value;
+			textBox.TabSize = settings.tabSize.Value;
+			textBox.LineBreak = settings.lineBreak.Value;
+			textBox.FontFamily = settings.font.Value;
+			textBox.FontSize = settings.fontSize.Value;
+			textBox.ScrollingIndent = settings.scrollingIndent.Value;
+			textBox.ShowColorAtCursor = settings.showColorAtCursor.Value;
+			textBox.KeyMap.main.SetAltChars(settings.altCharsSource.Value, settings.altCharsResult.Value);
+			
+			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+		}
+		else if (type == FrameUpdateType.Scheme)
+		{
+			tabBar.Scheme = settings.ParsedScheme;
+		}
 	}
 
 	public bool ContainsBuffer(Buffer buffer)
@@ -197,6 +204,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	{
 		Buffer buffer = list.Selected;
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
+		Nest.MainForm.UpdateHighlighter(textBox, buffer != null ? buffer.Name : null);
 	}
 
 	private void OnCloseClick()

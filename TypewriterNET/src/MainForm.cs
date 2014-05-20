@@ -28,6 +28,9 @@ public class MainForm : Form
 	public readonly FrameList frames;
 	public readonly Commander commander;
 
+	private ConcreteHighlighterSet highlightingSet;
+	private SyntaxFilesScanner syntaxFilesScanner;
+
 	public MainForm(string[] args)
 	{
 		this.args = args;
@@ -42,7 +45,7 @@ public class MainForm : Form
 		menu = new MainFormMenu(this);
 		Menu = menu;
 
-		settings = new Settings(ApplySettings);
+		settings = new Settings(ApplySettings, OnSchemeChange);
 		configParser = new ConfigParser(settings);
 		commander = new Commander();
 
@@ -66,9 +69,12 @@ public class MainForm : Form
 	private Nest mainNest;
 	private Nest consoleNest;
 	private Nest leftNest;
-	private XmlLoader xmlLoader;
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	private SchemeManager schemeManager;
+
+	private XmlLoader xmlLoader;
+	public XmlLoader XmlLoader { get { return xmlLoader; } }
 	
 	private DialogManager dialogs;
 	public DialogManager Dialogs { get { return dialogs; } }
@@ -97,12 +103,21 @@ public class MainForm : Form
 		consoleNest = AddNest(false, false, true, 20);
 		leftNest = AddNest(true, true, true, 20);
 
-		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
-
-		mainNest.Frame.AddBuffer(NewFileBuffer());
-
 		log = new Log(this, consoleNest);
 		xmlLoader = new XmlLoader(this);
+
+		schemeManager = new SchemeManager(this, settings);
+
+		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
+			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
+			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
+		syntaxFilesScanner.Rescan();
+
+		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
+		highlightingSet.UpdateParameters(syntaxFilesScanner);
+
+		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		mainNest.Frame.AddBuffer(NewFileBuffer());
 
 		SetFocus(null, new KeyMapNode(keyMap, 0));
 
@@ -146,12 +161,18 @@ public class MainForm : Form
 
 	private void ApplySettings()
 	{
-		frames.UpdateSettings(settings);
+		frames.UpdateSettings(settings, FrameUpdateType.Common);
+		schemeManager.Reload();
 	}
 
 	public void DoResize()
 	{
 		frames.Resize(0, 0, ClientSize);
+	}
+
+	private void OnSchemeChange()
+	{
+		frames.UpdateSettings(settings, FrameUpdateType.Scheme);
 	}
 
 	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
@@ -483,5 +504,18 @@ public class MainForm : Form
 			xml.WriteTo(writer);
 		}
 		settings.DispatchChange();
+	}
+
+	public void UpdateHighlighter(MulticaretTextBox textBox, string fileName)
+	{
+		if (fileName == null)
+		{
+			textBox.Highlighter = null;
+			return;
+		}
+		string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
+		string extension = fileName.ToLowerInvariant();
+		Console.WriteLine("fileName=" + fileName + ", extension=" + extension + ", syntax=" + (syntax != null ? highlightingSet.GetHighlighter(syntax) : null));
+		textBox.Highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
 	}
 }

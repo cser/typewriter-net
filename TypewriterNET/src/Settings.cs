@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using MulticaretEditor;
+using MulticaretEditor.Highlighting;
 
 public class Settings
 {
@@ -24,10 +25,12 @@ public class Settings
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
 
 	private Setter onChange;
+	private Setter onParsedSchemeChange;
 
-	public Settings(Setter onChange)
+	public Settings(Setter onChange, Setter onParsedSchemeChange)
 	{
 		this.onChange = onChange;
+		this.onParsedSchemeChange = onParsedSchemeChange;
 		Add(wordWrap);
 		Add(showLineNumbers);
 		Add(showLineBreaks);
@@ -98,5 +101,18 @@ public class Settings
 		{
 			property.Reset();
 		}
+	}
+
+	private Scheme parsedScheme;
+	public Scheme ParsedScheme
+	{
+		get { return parsedScheme; }
+		set { parsedScheme = value; }
+	}
+
+	public void DispatchParsedSchemeChange()
+	{
+		if (onParsedSchemeChange != null)
+			onParsedSchemeChange();
 	}
 }
