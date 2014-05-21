@@ -155,6 +155,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
+			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 		}
 	}
@@ -175,6 +176,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 			list.Add(buffer);
 			if (buffer.onAdd != null)
 				buffer.onAdd(buffer);
+			Nest.MainForm.UpdateHighlighter(textBox, buffer != null ? buffer.Name : null);
 		}
 		else
 		{

@@ -161,8 +161,9 @@ public class MainForm : Form
 
 	private void ApplySettings()
 	{
-		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
+		BackColor = settings.ParsedScheme.bgColor;
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 	}
 
@@ -440,7 +441,11 @@ public class MainForm : Form
 	public void ShowBuffer(Nest nest, Buffer buffer)
 	{
 		if (nest.Frame == null)
+		{
 			nest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+			nest.AFrame.UpdateSettings(settings, UpdatePhase.Raw);
+			nest.AFrame.UpdateSettings(settings, UpdatePhase.Parsed);
+		}
 		nest.Frame.AddBuffer(buffer);
 	}
 

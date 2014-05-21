@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using MulticaretEditor;
+using MulticaretEditor.Highlighting;
 
 public class Commander
 {
@@ -107,6 +108,7 @@ public class Commander
 		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
 		commands.Add(new Command("lclose", "", "Close editor log", DoCloseLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
+		commands.Add(new Command("test", "text", "Reset property", DoTest));
 	}
 
 	private void DoHelp(string args)
@@ -151,5 +153,12 @@ public class Commander
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Unknown property \"" + args + "\"");
 		}
+	}
+
+	private void DoTest(string args)
+	{
+		mainForm.Log.Write("test: ", Ds.Keyword);
+		mainForm.Log.WriteLine(args, Ds.String);
+		mainForm.Log.Open();
 	}
 }
