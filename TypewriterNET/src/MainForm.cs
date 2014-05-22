@@ -107,14 +107,14 @@ public class MainForm : Form
 		xmlLoader = new XmlLoader(this);
 
 		schemeManager = new SchemeManager(xmlLoader);
-
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
-		syntaxFilesScanner.Rescan();
-
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
+
+		syntaxFilesScanner.Rescan();
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
+		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
 		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		mainNest.Frame.AddBuffer(NewFileBuffer());
@@ -242,6 +242,8 @@ public class MainForm : Form
 		Buffer buffer = NewFileBuffer();
 		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, Path.GetFileName(file));
+		if (buffer.Frame != null)
+			buffer.Frame.UpdateHighlighter();
 
 		if (!File.Exists(buffer.FullPath))
 		{
@@ -516,7 +518,6 @@ public class MainForm : Form
 		}
 		string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
 		string extension = fileName.ToLowerInvariant();
-		Console.WriteLine("fileName=" + fileName + ", extension=" + extension + ", syntax=" + (syntax != null ? highlightingSet.GetHighlighter(syntax) : null));
 		textBox.Highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
 	}
 }

@@ -158,6 +158,10 @@ public class Frame : AFrame, IEnumerable<Buffer>
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 		}
+		else if (phase == UpdatePhase.HighlighterChange)
+		{
+			UpdateHighlighter();
+		}
 	}
 
 	public bool ContainsBuffer(Buffer buffer)
@@ -176,7 +180,6 @@ public class Frame : AFrame, IEnumerable<Buffer>
 			list.Add(buffer);
 			if (buffer.onAdd != null)
 				buffer.onAdd(buffer);
-			Nest.MainForm.UpdateHighlighter(textBox, buffer != null ? buffer.Name : null);
 		}
 		else
 		{
@@ -206,7 +209,12 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	{
 		Buffer buffer = list.Selected;
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
-		Nest.MainForm.UpdateHighlighter(textBox, buffer != null ? buffer.Name : null);
+		UpdateHighlighter();
+	}
+
+	public void UpdateHighlighter()
+	{
+		Nest.MainForm.UpdateHighlighter(textBox, list.Selected != null ? list.Selected.Name : null);
 	}
 
 	private void OnCloseClick()

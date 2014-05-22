@@ -1,5 +1,6 @@
 public enum UpdatePhase
 {
 	Raw,
-	Parsed
+	Parsed,
+	HighlighterChange
 }
