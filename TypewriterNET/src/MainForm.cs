@@ -212,8 +212,7 @@ public class MainForm : Form
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoOpenCurrentScheme, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open current scheme all files", DoOpenCurrentScheme, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 		
@@ -266,6 +265,7 @@ public class MainForm : Form
 		buffer.Controller.InitText(text);
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
+		buffer.needSaveAs = false;
 		tempSettings.ApplyQualities(buffer);
 	}
 	
@@ -327,6 +327,14 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
+		if (buffer.FullPath == AppPath.ConfigPath)
+		{
+			ReloadConfig();
+		}
+		else if (schemeManager.IsActiveSchemePath(settings.scheme.Value, buffer.FullPath))
+		{
+			ApplySettings();
+		}
 	}
 
 	private bool DoExit(Controller controller)
@@ -356,6 +364,7 @@ public class MainForm : Form
 
 	private bool DoOpenUserConfig(Controller controller)
 	{
+		LoadFile(AppPath.ConfigPath);
 		return true;
 	}
 
@@ -364,8 +373,18 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoOpenCurrentScheme(Controller controller)
+	private bool DoEditCurrentScheme(Controller controller)
 	{
+		List<AppPath> paths = schemeManager.GetSchemePaths(settings.scheme.Value);
+		if (paths.Count > 0)
+		{
+			foreach (AppPath path in paths)
+			{
+				if (!File.Exists(path.appDataPath))
+					File.Copy(path.startupPath, path.appDataPath);
+				LoadFile(path.appDataPath);
+			}
+		}
 		return true;
 	}
 

@@ -21,7 +21,7 @@ public class SchemeManager
 		return new AppPath(Path.Combine(AppPath.Schemes, schemeName + ".xml"));
 	}
 	
-	private List<AppPath> GetSchemePaths(string schemeName)
+	public List<AppPath> GetSchemePaths(string schemeName)
 	{
 		List<AppPath> paths = new List<AppPath>();
 		foreach (string schemeNameI in ParseSchemeName(schemeName))
@@ -29,6 +29,19 @@ public class SchemeManager
 			paths.Add(GetSchemePath(schemeNameI));
 		}
 		return paths;
+	}
+
+	public bool IsActiveSchemePath(string schemeName, string fullPath)
+	{
+		foreach (string schemeNameI in ParseSchemeName(schemeName))
+		{
+			AppPath path = GetSchemePath(schemeNameI);
+			if (path.appDataPath == fullPath)
+				return true;
+			if (path.startupPath == fullPath && !File.Exists(path.appDataPath))
+				return true;
+		}
+		return false;
 	}
 
 	private static List<string> ParseSchemeName(string schemeName)
