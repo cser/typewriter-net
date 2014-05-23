@@ -13,8 +13,6 @@ using System.Xml;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
-using TypewriterNET;
-using TypewriterNET.Frames;
 
 public class MainForm : Form
 {
