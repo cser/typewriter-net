@@ -60,7 +60,7 @@ public class ReplaceDialog : ADialog
 	{
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
-			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 	}
 
 	override protected void OnResize(EventArgs e)

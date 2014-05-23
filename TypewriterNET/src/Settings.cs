@@ -107,4 +107,34 @@ public class Settings
 		get { return parsedScheme; }
 		set { parsedScheme = value; }
 	}
+
+	public void ApplyParameters(MulticaretTextBox textBox)
+	{
+		textBox.WordWrap = wordWrap.Value;
+		textBox.ShowLineNumbers = showLineNumbers.Value;
+		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
+		textBox.TabSize = tabSize.Value;
+		textBox.LineBreak = lineBreak.Value;
+		textBox.FontFamily = font.Value;
+		textBox.FontSize = fontSize.Value;
+		textBox.ScrollingIndent = scrollingIndent.Value;
+		textBox.ShowColorAtCursor = showColorAtCursor.Value;
+		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+	}
+
+	public void ApplySimpleParameters(MulticaretTextBox textBox)
+	{
+		textBox.WordWrap = wordWrap.Value;
+		textBox.ShowLineNumbers = false;
+		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.HighlightCurrentLine = false;
+		textBox.TabSize = tabSize.Value;
+		textBox.LineBreak = lineBreak.Value;
+		textBox.FontFamily = font.Value;
+		textBox.FontSize = fontSize.Value;
+		textBox.ScrollingIndent = scrollingIndent.Value;
+		textBox.ShowColorAtCursor = showColorAtCursor.Value;
+		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+	}
 }

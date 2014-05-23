@@ -30,12 +30,10 @@ public class CommandDialog : ADialog
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel command", DoCancelCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel command", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Run command", DoRunCommand, null, false)));
 
 		textBox = new MulticaretTextBox();
-		textBox.ShowLineNumbers = false;
-		textBox.HighlightCurrentLine = false;
 		textBox.KeyMap.AddAfter(keyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
@@ -63,7 +61,7 @@ public class CommandDialog : ADialog
 	{
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
-			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 		if (!textBox.Focused)
 			DoOnLostFocus();
 	}
@@ -84,7 +82,21 @@ public class CommandDialog : ADialog
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
-	private bool DoCancelCommand(Controller controller)
+	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
+	{
+		if (phase == UpdatePhase.Raw)
+		{
+			settings.ApplySimpleParameters(textBox);
+			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+		}
+		else if (phase == UpdatePhase.Parsed)
+		{
+			textBox.Scheme = settings.ParsedScheme;
+			tabBar.Scheme = settings.ParsedScheme;
+		}
+	}
+
+	private bool DoCancel(Controller controller)
 	{
 		DispatchNeedClose();
 		return true;

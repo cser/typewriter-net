@@ -22,10 +22,12 @@ public class DialogManager
 	private FrameList frames;
 	private KeyMap keyMap;
 	private KeyMap doNothingKeyMap;
+	private Settings settings;
 
-	public DialogManager(MainForm mainForm, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public DialogManager(MainForm mainForm, Settings settings, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
 		this.mainForm = mainForm;
+		this.settings = settings;
 		this.keyMap = keyMap;
 		this.doNothingKeyMap = doNothingKeyMap;
 		frames = mainForm.frames;
@@ -70,6 +72,8 @@ public class DialogManager
 		nest.left = false;
 		nest.isPercents = false;
 		nest.size = dialog.Height;
+		nest.AFrame.UpdateSettings(settings, UpdatePhase.Raw);
+		nest.AFrame.UpdateSettings(settings, UpdatePhase.Parsed);
 		dialog.Focus();
 	}
 
@@ -91,26 +95,33 @@ public class DialogManager
 		return true;
 	}
 
+	private void RemoveDialog(ADialog dialog)
+	{
+		dialog.DoBeforeClose();
+		frames.Remove(dialog.Nest);
+	}
+
 	private void OnCommandNeedClose()
 	{
-		frames.Remove(commandDialog.Nest);
+		RemoveDialog(commandDialog);
 		commandDialog = null;
 	}
 
 	private FindDialog findDialog;
+	private FindDialog.Data findDialogData = new FindDialog.Data();
 
 	private bool DoFind(Controller controller)
 	{
 		if (findDialog == null)
 		{
 			HideInfo();
-			findDialog = new FindDialog("Find", keyMap, doNothingKeyMap);
+			findDialog = new FindDialog(findDialogData, "Find", keyMap, doNothingKeyMap);
 			AddBottomNest(findDialog);
 			findDialog.NeedClose += OnFindNeedClose;
 		}
 		else
 		{
-			frames.Remove(findDialog.Nest);
+			RemoveDialog(findDialog);
 			findDialog = null;
 		}
 		return true;
@@ -118,7 +129,7 @@ public class DialogManager
 
 	private void OnFindNeedClose()
 	{
-		frames.Remove(findDialog.Nest);
+		RemoveDialog(findDialog);
 		findDialog = null;
 	}
 
@@ -142,7 +153,7 @@ public class DialogManager
 
 	private void OnReplaceClose()
 	{
-		frames.Remove(replaceDialog.Nest);
+		RemoveDialog(replaceDialog);
 		replaceDialog = null;
 	}
 }

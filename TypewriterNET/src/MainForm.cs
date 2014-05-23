@@ -119,7 +119,7 @@ public class MainForm : Form
 		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
 		mainNest.Frame.AddBuffer(NewFileBuffer());
 
-		SetFocus(null, new KeyMapNode(keyMap, 0));
+		SetFocus(null, new KeyMapNode(keyMap, 0), null);
 
 		ApplySettings();
 		ReloadConfig();
@@ -153,10 +153,15 @@ public class MainForm : Form
 	private MulticaretTextBox focusedTextBox;
 	public Controller FocusedController { get { return focusedTextBox != null ? focusedTextBox.Controller : null; } }
 
-	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node)
+	private Frame lastFrame;
+	public Frame LastFrame { get { return lastFrame; } }
+
+	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
 	{
 		focusedTextBox = textBox;
 		menu.node = node;
+		if (frame != null)
+			lastFrame = frame;
 	}
 
 	private void ApplySettings()
@@ -195,7 +200,7 @@ public class MainForm : Form
 	{
 		keyMap = new KeyMap();
 		doNothingKeyMap = new KeyMap();
-		dialogs = new DialogManager(this, keyMap, doNothingKeyMap);
+		dialogs = new DialogManager(this, settings, keyMap, doNothingKeyMap);
 		
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));

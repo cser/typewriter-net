@@ -64,6 +64,9 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		tabBar.MouseDown += OnTabBarMouseDown;
 	}
 
+	public MulticaretTextBox TextBox { get { return textBox; } }
+	public Controller Controller { get { return textBox.Controller; } }
+
 	private bool DoTabDown(Controller controller)
 	{
 		list.Down();
@@ -114,7 +117,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		if (Nest != null)
 		{
 			tabBar.Selected = textBox.Focused;
-			Nest.MainForm.SetFocus(textBox, textBox.KeyMap);
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, this);
 		}
 	}
 
@@ -139,18 +142,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	{
 		if (phase == UpdatePhase.Raw)
 		{
-			textBox.WordWrap = settings.wordWrap.Value;
-			textBox.ShowLineNumbers = settings.showLineNumbers.Value;
-			textBox.ShowLineBreaks = settings.showLineBreaks.Value;
-			textBox.HighlightCurrentLine = settings.highlightCurrentLine.Value;
-			textBox.TabSize = settings.tabSize.Value;
-			textBox.LineBreak = settings.lineBreak.Value;
-			textBox.FontFamily = settings.font.Value;
-			textBox.FontSize = settings.fontSize.Value;
-			textBox.ScrollingIndent = settings.scrollingIndent.Value;
-			textBox.ShowColorAtCursor = settings.showColorAtCursor.Value;
-			textBox.KeyMap.main.SetAltChars(settings.altCharsSource.Value, settings.altCharsResult.Value);
-			
+			settings.ApplyParameters(textBox);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
