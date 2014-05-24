@@ -80,17 +80,12 @@ public class FindDialog : ADialog
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 		if (!textBox.Focused)
-			DoOnLostFocus();
+			DispatchNeedClose();
 	}
 
 	override public void DoBeforeClose()
 	{
 		data.oldText = textBox.Text;
-	}
-
-	private void DoOnLostFocus()
-	{
-		DispatchNeedClose();
 	}
 
 	override protected void OnResize(EventArgs e)

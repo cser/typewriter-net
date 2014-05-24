@@ -139,7 +139,7 @@ public class DialogManager
 		{
 			HideInfo();
 			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
-			AddBottomNest(findDialog);
+			AddBottomNest(replaceDialog);
 			replaceDialog.NeedClose += OnReplaceClose;
 		}
 		else
