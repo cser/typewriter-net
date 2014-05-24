@@ -37,8 +37,8 @@ public class FindDialog : ADialog
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel find", DoCancel, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Find next", DoFindNext, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(keyMap);
@@ -64,8 +64,7 @@ public class FindDialog : ADialog
 			textBox.Text = lastController.Lines.LastSelection.Empty ?
 				data.oldText :
 				lastController.Lines.GetText(lastController.Lines.LastSelection.Left, lastController.Lines.LastSelection.Count);
-    		textBox.Controller.Lines.LastSelection.anchor = 0;
-    		textBox.Controller.Lines.LastSelection.caret = textBox.Controller.Lines.charsCount;
+    		textBox.Controller.SelectAllToEnd();
 		}
 	}
 

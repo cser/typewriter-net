@@ -132,13 +132,14 @@ public class DialogManager
 	}
 
 	private ReplaceDialog replaceDialog;
+	private ReplaceDialog.Data replaceDialogData = new ReplaceDialog.Data();
 
 	private bool DoReplace(Controller controller)
 	{
 		if (replaceDialog == null)
 		{
 			HideInfo();
-			replaceDialog = new ReplaceDialog("Replace", keyMap, doNothingKeyMap);
+			replaceDialog = new ReplaceDialog(replaceDialogData, "Replace", keyMap, doNothingKeyMap);
 			AddBottomNest(replaceDialog);
 			replaceDialog.NeedClose += OnReplaceClose;
 		}
