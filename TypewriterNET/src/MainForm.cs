@@ -65,8 +65,14 @@ public class MainForm : Form
 	}
 
 	private Nest mainNest;
+	public Nest MainNest { get { return mainNest; } }
+
 	private Nest consoleNest;
+	public Nest ConsoleNest { get { return consoleNest; } }
+
 	private Nest leftNest;
+	public Nest LeftNest { get { return leftNest; } }
+
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
 	private SchemeManager schemeManager;

@@ -152,7 +152,7 @@ public class DialogManager
 		if (findInFiles.Dialog == null)
 		{
 			HideInfo();
-			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find", keyMap, doNothingKeyMap));
+			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files", keyMap, doNothingKeyMap));
 		}
 		else
 		{
@@ -195,7 +195,12 @@ public class DialogManager
 
 	private bool DoFindInFilesDialog(string text)
 	{
-		Console.WriteLine("find text in files: " + text);
+		findInFiles.Close();
+		Buffer buffer = new Buffer(null, "Find results");
+		buffer.Controller.isReadonly = true;
+		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
+		if (mainForm.ConsoleNest.Frame != null)
+			mainForm.ConsoleNest.Frame.Focus();
 		return true;
 	}
 }
