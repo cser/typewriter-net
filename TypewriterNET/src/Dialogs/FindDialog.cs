@@ -23,10 +23,12 @@ public class FindDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private Data data;
+	private Getter<string, bool> doFind;
 
-	public FindDialog(Data data, string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public FindDialog(Data data, Getter<string, bool> doFind, string name, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
 		this.data = data;
+		this.doFind = doFind;
 		Name = name;
 
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
@@ -120,20 +122,6 @@ public class FindDialog : ADialog
 
 	private bool DoFindNext(Controller controller)
 	{
-		if (Nest.MainForm.LastFrame != null)
-		{
-			Controller lastController = Nest.MainForm.LastFrame.Controller;
-			string text = controller.Lines.GetText();
-			int index = lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
-			if (index == -1)
-				index = lastController.Lines.IndexOf(text, 0);
-			if (index != -1)
-			{
-				lastController.PutCursor(lastController.Lines.PlaceOf(index), false);
-				lastController.PutCursor(lastController.Lines.PlaceOf(index + text.Length), true);
-				Nest.MainForm.LastFrame.TextBox.MoveToCaret();
-			}
-		}
-		return true;
+		return doFind(textBox.Text);
 	}
 }
