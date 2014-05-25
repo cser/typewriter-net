@@ -25,6 +25,8 @@ public class ReplaceDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
+	private MonospaceLabel textLabel;
+	private MonospaceLabel replaceTextLabel;
 
 	public ReplaceDialog(Data data, string name, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
@@ -59,6 +61,14 @@ public class ReplaceDialog : ADialog
 		replaceTextBox.KeyMap.AddAfter(frameKeyMap, 1);
 		replaceTextBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(replaceTextBox);
+
+		textLabel = new MonospaceLabel();
+		textLabel.Text = "Text";
+		Controls.Add(textLabel);
+
+		replaceTextLabel = new MonospaceLabel();
+		replaceTextLabel.Text = "Replace";
+		Controls.Add(replaceTextLabel);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
@@ -157,10 +167,14 @@ public class ReplaceDialog : ADialog
 		tabBar.Size = new Size(Width, tabBarHeight);
 		splitLine.Location = new Point(Width - 10, tabBarHeight);
 		splitLine.Size = new Size(10, Height - tabBarHeight);
-		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, (Height - tabBarHeight) / 2);
-		replaceTextBox.Location = new Point(0, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
-		replaceTextBox.Size = new Size(Width - 10, (Height - tabBarHeight) / 2);
+		textLabel.Location = new Point(0, tabBarHeight);
+		replaceTextLabel.Location = new Point(0, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
+
+		int left = Math.Max(textLabel.Width, replaceTextLabel.Width) + 10;
+		textBox.Location = new Point(left, tabBarHeight);
+		textBox.Size = new Size(Width - left - 10, (Height - tabBarHeight) / 2);
+		replaceTextBox.Location = new Point(left, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
+		replaceTextBox.Size = new Size(Width - left - 10, (Height - tabBarHeight) / 2);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -168,13 +182,18 @@ public class ReplaceDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox);
+			settings.ApplyToLabel(textLabel);
+			settings.ApplyToLabel(replaceTextLabel);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
+			BackColor = settings.ParsedScheme.tabsBgColor;
 			textBox.Scheme = settings.ParsedScheme;
 			replaceTextBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			settings.ApplySchemeToLabel(textLabel);
+			settings.ApplySchemeToLabel(replaceTextLabel);
 		}
 	}
 }

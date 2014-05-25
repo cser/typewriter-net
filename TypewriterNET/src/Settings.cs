@@ -137,4 +137,17 @@ public class Settings
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
 	}
+
+	public void ApplyToLabel(MonospaceLabel label)
+	{
+		label.TabSize = tabSize.Value;
+		label.FontFamily = font.Value;
+		label.FontSize = fontSize.Value;
+	}
+
+	public void ApplySchemeToLabel(MonospaceLabel label)
+	{
+		label.BackColor = parsedScheme.tabsBgColor;
+		label.TextColor = parsedScheme.fgColor;
+	}
 }
