@@ -198,6 +198,27 @@ public class DialogManager
 		findInFiles.Close();
 		Buffer buffer = new Buffer(null, "Find results");
 		buffer.Controller.isReadonly = true;
+		StringBuilder builder = new StringBuilder();
+		foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories))
+		{
+			string fileText = File.ReadAllText(file);
+			bool first = true;
+			int index = 0;
+			while (true)
+			{
+				index = fileText.IndexOf(text, index);
+				if (index == -1)
+					break;
+				if (first)
+				{
+					first = false;
+					builder.AppendLine(file + ":");
+				}
+				builder.AppendLine("  at " + index);
+				index++;
+			}
+		}
+		buffer.Controller.InitText(builder.ToString());
 		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
 		if (mainForm.ConsoleNest.Frame != null)
 			mainForm.ConsoleNest.Frame.Focus();
