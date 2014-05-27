@@ -193,11 +193,47 @@ public class DialogManager
 		return true;
 	}
 
+	public struct Position
+	{
+		public readonly string fileName;
+		public readonly int position0;
+		public readonly int position1;
+
+		public Position(string fileName, int position0, int position1)
+		{
+			this.fileName = fileName;
+			this.position0 = position0;
+			this.position1 = position1;
+		}
+	}
+
+	public class Navigator
+	{
+		private MainForm mainForm;
+
+		public Navigator(MainForm mainForm)
+		{
+			this.mainForm = mainForm;
+		}
+
+		public List<Position> positions = new List<Position>();
+
+		public bool Execute(Controller controller)
+		{
+			Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+			mainForm.NavigateTo(positions[place.iLine].fileName, positions[place.iLine].position0, positions[place.iLine].position1);
+			return true;
+		}
+	}
+
 	private bool DoFindInFilesDialog(string text)
 	{
 		findInFiles.Close();
 		Buffer buffer = new Buffer(null, "Find results");
 		buffer.Controller.isReadonly = true;
+
+		Navigator navigator = new Navigator(mainForm);
+
 		StringBuilder builder = new StringBuilder();
 		foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories))
 		{
@@ -213,12 +249,18 @@ public class DialogManager
 				{
 					first = false;
 					builder.AppendLine(file + ":");
+					navigator.positions.Add(new Position(file, index, index + text.Length));
 				}
 				builder.AppendLine("  at " + index);
+				navigator.positions.Add(new Position(file, index, index + text.Length));
 				index++;
 			}
 		}
 		buffer.Controller.InitText(builder.ToString());
+
+		buffer.additionKeyMap = new KeyMap();
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Navigate to finded", navigator.Execute, null, false)));
+
 		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
 		if (mainForm.ConsoleNest.Frame != null)
 			mainForm.ConsoleNest.Frame.Focus();

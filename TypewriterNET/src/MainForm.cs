@@ -244,7 +244,7 @@ public class MainForm : Form
 		return true;
 	}
 
-	public void LoadFile(string file)
+	public Buffer LoadFile(string file)
 	{
 		string fullPath = Path.GetFullPath(file);
 		Buffer buffer = NewFileBuffer();
@@ -258,7 +258,7 @@ public class MainForm : Form
 			Log.Write("Missing file: ", Ds.Keyword);
 			Log.WriteLine(buffer.FullPath, Ds.Normal);
 			Log.Open();
-			return;
+			return null;
 		}
 		string text = "";
 		try
@@ -276,6 +276,7 @@ public class MainForm : Form
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
 		tempSettings.ApplyQualities(buffer);
+		return buffer;
 	}
 	
 	private bool DoSave(Controller controller)
@@ -547,5 +548,17 @@ public class MainForm : Form
 		string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
 		string extension = fileName.ToLowerInvariant();
 		textBox.Highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
+	}
+
+	public void NavigateTo(string fileName, int position0, int position1)
+	{
+		Buffer buffer = LoadFile(fileName);
+		if (buffer != null)
+		{
+			buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(position0), false);
+			buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(position1), true);
+			if (buffer.Frame != null)
+				buffer.Frame.Focus();
+		}
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
+using MulticaretEditor.KeyMapping;
 
 public class Buffer
 {
@@ -42,6 +43,8 @@ public class Buffer
 	public BufferTag tags = BufferTag.None;
 	public Getter<Buffer, bool> onRemove;
 	public Setter<Buffer> onAdd;
+
+	public KeyMap additionKeyMap;
 
 	public static string StringOf(Buffer buffer)
 	{

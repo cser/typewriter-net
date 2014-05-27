@@ -724,5 +724,7 @@ namespace MulticaretEditor
 		{
 			return lines.SoftNormalizedPlaceOf(index);
 		}
+
+		public Selection LastSelection { get { return lines.LastSelection; } }
 	}
 }

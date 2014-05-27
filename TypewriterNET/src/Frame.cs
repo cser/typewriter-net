@@ -197,10 +197,17 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		tabBar.Invalidate();
 	}
 
+	private KeyMap additionKeyMap;
+
 	private void OnTabSelected()
 	{
 		Buffer buffer = list.Selected;
+		if (additionKeyMap != null)
+			textBox.KeyMap.RemoveAfter(additionKeyMap);
+		additionKeyMap = buffer != null ? buffer.additionKeyMap : null;
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
+		if (additionKeyMap != null)
+			textBox.KeyMap.AddAfter(additionKeyMap, 1);
 		UpdateHighlighter();
 	}
 
