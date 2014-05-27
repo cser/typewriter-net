@@ -251,7 +251,33 @@ public class DialogManager
 					builder.AppendLine(file + ":");
 					navigator.positions.Add(new Position(file, index, index + text.Length));
 				}
-				builder.AppendLine("  at " + index);
+				int index0 = Math.Max(0, index - 50);
+				int index1 = Math.Min(fileText.Length, index + 50);
+				int bra = index;
+				bool needLeftEllipsis = true;
+				for (; bra > index0; bra--)
+				{
+					char c = fileText[bra];
+					if (c == '\n' || c == '\r')
+					{
+						bra++;
+						needLeftEllipsis = false;
+						break;
+					}
+				}
+				int ket = index + text.Length;
+				bool needRightEllipsis = true;
+				for (; ket < index1; ket++)
+				{
+					char c = fileText[ket];
+					if (c == '\n' || c == '\r')
+					{
+						ket--;
+						needRightEllipsis = false;
+						break;
+					}
+				}
+				builder.AppendLine("| " + (needLeftEllipsis ? "…" : "") + fileText.Substring(bra, ket - bra) + (needRightEllipsis ? "…" : ""));
 				navigator.positions.Add(new Position(file, index, index + text.Length));
 				index++;
 			}
