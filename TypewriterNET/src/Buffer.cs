@@ -12,14 +12,10 @@ public class Buffer
 		controller = new Controller(new LineArray());
 	}
 
-	private Frame frame;
-	public Frame Frame { get { return frame; } }
+	public BufferList owner;
 
-	public void SetFrame(Frame frame)
-	{
-		this.frame = frame;
-	}
-	
+	public Frame Frame { get { return owner != null ? owner.frame : null; } }
+
 	private Controller controller;
 	public Controller Controller { get { return controller; } }
 

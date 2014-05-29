@@ -18,6 +18,15 @@ public class Nest : NestBase
 	public int FullWidth;
 	public int FullHeight;
 
+	private BufferList buffers;
+
+	public BufferList GetBuffers()
+	{
+		if (buffers == null)
+			buffers = new BufferList();
+		return buffers;
+	}
+
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
 

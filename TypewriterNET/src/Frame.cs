@@ -30,17 +30,16 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	private TabBar<Buffer> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
-	private SwitchList<Buffer> list;
+	private BufferList buffers;
 
-	public Frame(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public Frame(BufferList buffers, KeyMap keyMap, KeyMap doNothingKeyMap)
 	{
-		Name = name;
+		this.buffers = buffers;
 
-		list = new SwitchList<Buffer>();
-		list.SelectedChange += OnTabSelected;
+		buffers.frame = this;
+		buffers.list.SelectedChange += OnTabSelected;
 
-		tabBar = new TabBar<Buffer>(list, Buffer.StringOf);
-		tabBar.Text = name;
+		tabBar = new TabBar<Buffer>(buffers.list, Buffer.StringOf);
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
 		Controls.Add(tabBar);
@@ -64,26 +63,32 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		tabBar.MouseDown += OnTabBarMouseDown;
 	}
 
+	public void Destroy()
+	{
+		buffers.list.SelectedChange -= OnTabSelected;
+		buffers.frame = null;
+	}
+
 	public MulticaretTextBox TextBox { get { return textBox; } }
 	public Controller Controller { get { return textBox.Controller; } }
 
 	private bool DoTabDown(Controller controller)
 	{
-		list.Down();
+		buffers.list.Down();
 		return true;
 	}
 	
 	private void DoTabModeChange(Controller controller, bool mode)
 	{
 		if (mode)
-			list.ModeOn();
+			buffers.list.ModeOn();
 		else
-			list.ModeOff();
+			buffers.list.ModeOff();
 	}
 
 	private bool DoCloseTab(Controller controller)
 	{
-		RemoveBuffer(list.Selected);
+		RemoveBuffer(buffers.list.Selected);
 		return true;
 	}
 
@@ -92,11 +97,11 @@ public class Frame : AFrame, IEnumerable<Buffer>
 
 	public Buffer SelectedBuffer
 	{
-		get { return list.Selected; }
+		get { return buffers.list.Selected; }
 		set
 		{
 			if (value.Frame == this)
-				list.Selected = value;
+				buffers.list.Selected = value;
 		}
 	}
 
@@ -158,7 +163,12 @@ public class Frame : AFrame, IEnumerable<Buffer>
 
 	public bool ContainsBuffer(Buffer buffer)
 	{
-		return list.Contains(buffer);
+		return buffers.list.Contains(buffer);
+	}
+
+	public Buffer GetBuffer(string fullPath, string name)
+	{
+		return buffers.GetBuffer(fullPath, name);
 	}
 
 	public void AddBuffer(Buffer buffer)
@@ -167,15 +177,15 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		{
 			if (buffer.Frame != null)
 				buffer.Frame.RemoveBuffer(buffer);
-			buffer.SetFrame(this);
+			buffer.owner = buffers;
 			buffer.Controller.history.ChangedChange += OnChangedChange;
-			list.Add(buffer);
+			buffers.list.Add(buffer);
 			if (buffer.onAdd != null)
 				buffer.onAdd(buffer);
 		}
 		else
 		{
-			list.Add(buffer);
+			buffers.list.Add(buffer);
 		}
 	}
 
@@ -186,9 +196,9 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		if (buffer.onRemove != null && !buffer.onRemove(buffer))
 			return;
 		buffer.Controller.history.ChangedChange -= OnChangedChange;
-		buffer.SetFrame(null);
-		list.Remove(buffer);
-		if (list.Count == 0)
+		buffer.owner = null;
+		buffers.list.Remove(buffer);
+		if (buffers.list.Count == 0)
 			Close();
 	}
 
@@ -201,7 +211,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 
 	private void OnTabSelected()
 	{
-		Buffer buffer = list.Selected;
+		Buffer buffer = buffers.list.Selected;
 		if (additionKeyMap != null)
 			textBox.KeyMap.RemoveAfter(additionKeyMap);
 		additionKeyMap = buffer != null ? buffer.additionKeyMap : null;
@@ -213,13 +223,13 @@ public class Frame : AFrame, IEnumerable<Buffer>
 
 	public void UpdateHighlighter()
 	{
-		Nest.MainForm.UpdateHighlighter(textBox, list.Selected != null ? list.Selected.Name : null);
+		Nest.MainForm.UpdateHighlighter(textBox, buffers.list.Selected != null ? buffers.list.Selected.Name : null);
 	}
 
 	private void OnCloseClick()
 	{
-		RemoveBuffer(list.Selected);
-		if (list.Count == 0)
+		RemoveBuffer(buffers.list.Selected);
+		if (buffers.list.Count == 0)
 			Close();
 	}
 
@@ -237,26 +247,26 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		mainForm.DoResize();
 	}
 
-	public int BuffersCount { get { return list.Count; } }
+	public int BuffersCount { get { return buffers.list.Count; } }
 
 	public Buffer this[int index]
 	{
-		get { return list[index]; }
+		get { return buffers.list[index]; }
 	}
 
 	public IEnumerator<Buffer> GetEnumerator()
 	{
-		return list.GetEnumerator();
+		return buffers.list.GetEnumerator();
 	}
 	
 	IEnumerator IEnumerable.GetEnumerator()
 	{
-		return list.GetEnumerator();
+		return buffers.list.GetEnumerator();
 	}
 
 	public Buffer GetByFullPath(BufferTag tags, string fullPath)
 	{
-		foreach (Buffer buffer in list)
+		foreach (Buffer buffer in buffers.list)
 		{
 			if (buffer.FullPath == fullPath && (buffer.tags & tags) == tags)
 				return buffer;

@@ -101,7 +101,7 @@ public class MainForm : Form
 		commander.Init(this, settings);
 
 		mainNest = AddNest(false, true, true, 70);
-		mainFrame = new Frame("", keyMap, doNothingKeyMap);
+		mainFrame = new Frame(mainNest.GetBuffers(), keyMap, doNothingKeyMap);
 		mainNest.AFrame = mainFrame;
 
 		consoleNest = AddNest(false, false, true, 20);
@@ -120,7 +120,7 @@ public class MainForm : Form
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
-		leftNest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+		leftNest.AFrame = new Frame(leftNest.GetBuffers(), keyMap, doNothingKeyMap);
 		mainNest.Frame.AddBuffer(NewFileBuffer());
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
@@ -247,9 +247,12 @@ public class MainForm : Form
 	public Buffer LoadFile(string file)
 	{
 		string fullPath = Path.GetFullPath(file);
-		Buffer buffer = NewFileBuffer();
+		string name = Path.GetFileName(file);
+		Buffer buffer = mainNest.GetBuffers().GetBuffer(fullPath, name);
+		if (buffer == null)
+			buffer = NewFileBuffer();
 		ShowBuffer(mainNest, buffer);
-		buffer.SetFile(fullPath, Path.GetFileName(file));
+		buffer.SetFile(fullPath, name);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
@@ -473,7 +476,7 @@ public class MainForm : Form
 	{
 		if (nest.Frame == null)
 		{
-			nest.AFrame = new Frame("", keyMap, doNothingKeyMap);
+			nest.AFrame = new Frame(nest.GetBuffers(), keyMap, doNothingKeyMap);
 			nest.AFrame.UpdateSettings(settings, UpdatePhase.Raw);
 			nest.AFrame.UpdateSettings(settings, UpdatePhase.Parsed);
 		}
