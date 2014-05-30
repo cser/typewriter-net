@@ -17,7 +17,10 @@ using MulticaretEditor.KeyMapping;
 public class MainForm : Form
 {
 	private readonly string[] args;
+	
 	private readonly Settings settings;
+	public Settings Settings { get { return settings; } }
+
 	private readonly ConfigParser configParser;
 
 	private readonly MainFormMenu menu;
@@ -83,9 +86,6 @@ public class MainForm : Form
 	private DialogManager dialogs;
 	public DialogManager Dialogs { get { return dialogs; } }
 
-	private Frame mainFrame;
-	public Frame MainFrame { get { return mainFrame; } }
-
 	private Log log;
 	public Log Log { get { return log; } }
 
@@ -101,10 +101,11 @@ public class MainForm : Form
 		commander.Init(this, settings);
 
 		mainNest = AddNest(false, true, true, 70);
-		mainFrame = new Frame(mainNest.GetBuffers(), keyMap, doNothingKeyMap);
-		mainNest.AFrame = mainFrame;
+		mainNest.buffers = new BufferList();
+		new Frame().Create(mainNest);
 
 		consoleNest = AddNest(false, false, true, 20);
+		consoleNest.buffers = new BufferList();
 		leftNest = AddNest(true, true, true, 20);
 
 		log = new Log(this, consoleNest);
@@ -120,7 +121,8 @@ public class MainForm : Form
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
-		leftNest.AFrame = new Frame(leftNest.GetBuffers(), keyMap, doNothingKeyMap);
+		leftNest.buffers = new BufferList();
+		new Frame().Create(leftNest);
 		mainNest.Frame.AddBuffer(NewFileBuffer());
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
@@ -171,6 +173,7 @@ public class MainForm : Form
 	private void ApplySettings()
 	{
 		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
+		settings.Parsed = true;
 		BackColor = settings.ParsedScheme.bgColor;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
@@ -198,13 +201,16 @@ public class MainForm : Form
 	}
 
 	private KeyMap keyMap;
+	public KeyMap KeyMap { get { return keyMap; } }
+
 	private KeyMap doNothingKeyMap;
+	public KeyMap DoNothingKeyMap { get { return doNothingKeyMap; } }
 
 	private void BuildMenu()
 	{
 		keyMap = new KeyMap();
 		doNothingKeyMap = new KeyMap();
-		dialogs = new DialogManager(this, settings, keyMap, doNothingKeyMap);
+		dialogs = new DialogManager(this);
 		
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
@@ -248,7 +254,7 @@ public class MainForm : Form
 	{
 		string fullPath = Path.GetFullPath(file);
 		string name = Path.GetFileName(file);
-		Buffer buffer = mainNest.GetBuffers().GetBuffer(fullPath, name);
+		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
 		if (buffer == null)
 			buffer = NewFileBuffer();
 		ShowBuffer(mainNest, buffer);
@@ -475,11 +481,7 @@ public class MainForm : Form
 	public void ShowBuffer(Nest nest, Buffer buffer)
 	{
 		if (nest.Frame == null)
-		{
-			nest.AFrame = new Frame(nest.GetBuffers(), keyMap, doNothingKeyMap);
-			nest.AFrame.UpdateSettings(settings, UpdatePhase.Raw);
-			nest.AFrame.UpdateSettings(settings, UpdatePhase.Parsed);
-		}
+			new Frame().Create(nest);
 		nest.Frame.AddBuffer(buffer);
 	}
 

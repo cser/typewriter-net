@@ -18,12 +18,15 @@ public class InfoDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public InfoDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public InfoDialog(string name)
+	{
+		Name = name;
+	}
+
+	override protected void DoCreate()
 	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
 		Controls.Add(tabBar);
-
-		Name = name;
 
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
@@ -35,9 +38,9 @@ public class InfoDialog : ADialog
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
-		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
-		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
+		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.Controller.isReadonly = true;
 		Controls.Add(textBox);
@@ -45,6 +48,10 @@ public class InfoDialog : ADialog
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	override protected void DoDestroy()
+	{
 	}
 
 	new public string Name

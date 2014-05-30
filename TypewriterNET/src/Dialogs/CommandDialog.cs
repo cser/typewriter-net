@@ -18,12 +18,15 @@ public class CommandDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public CommandDialog(string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public CommandDialog(string name)
 	{
 		Name = name;
+	}
 
+	override protected void DoCreate()
+	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = name;
+		tabBar.Text = Name;
 		Controls.Add(tabBar);
 
 		splitLine = new SplitLine();
@@ -34,15 +37,19 @@ public class CommandDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Run command", DoRunCommand, null, false)));
 
 		textBox = new MulticaretTextBox();
-		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
-		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
+		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	override protected void DoDestroy()
+	{
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }

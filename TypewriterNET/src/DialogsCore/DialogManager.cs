@@ -41,7 +41,7 @@ public class DialogManager
 		{
 			if (dialog != null)
 			{
-				manager.frames.Remove(dialog.Nest);
+				dialog.Nest.Destroy();
 				dialog = null;
 			}
 		}
@@ -54,28 +54,22 @@ public class DialogManager
 		private void AddBottomNest(ADialog dialog)
 		{
 			Nest nest = manager.frames.AddParentNode();
-			nest.AFrame = dialog;
 			nest.hDivided = false;
 			nest.left = false;
 			nest.isPercents = false;
-			nest.size = dialog.Height;
-			nest.AFrame.UpdateSettings(manager.settings, UpdatePhase.Raw);
-			nest.AFrame.UpdateSettings(manager.settings, UpdatePhase.Parsed);
+			nest.size = 1;
+			dialog.Create(nest);
 			dialog.Focus();
 		}
 
 		private void RemoveDialog(ADialog dialog)
 		{
-			dialog.DoBeforeClose();
-			manager.frames.Remove(dialog.Nest);
+			dialog.Nest.Destroy();
 		}
 	}
 
 	private MainForm mainForm;
 	private FrameList frames;
-	private KeyMap keyMap;
-	private KeyMap doNothingKeyMap;
-	private Settings settings;
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<CommandDialog> command;
@@ -86,14 +80,12 @@ public class DialogManager
 	private DialogOwner<ReplaceDialog> replace;
 	private ReplaceDialog.Data replaceDialogData = new ReplaceDialog.Data();
 
-	public DialogManager(MainForm mainForm, Settings settings, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public DialogManager(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
-		this.settings = settings;
-		this.keyMap = keyMap;
-		this.doNothingKeyMap = doNothingKeyMap;
 		frames = mainForm.frames;
 
+		KeyMap keyMap = mainForm.KeyMap;
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.X, null, new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null, new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
@@ -109,7 +101,7 @@ public class DialogManager
 	public void ShowInfo(string name, string text)
 	{
 		if (info.Dialog == null)
-			info.Open(new InfoDialog("Command", keyMap, doNothingKeyMap));
+			info.Open(new InfoDialog("Command"));
 		info.Dialog.Name = name;
 		info.Dialog.InitText(text);
 	}
@@ -124,7 +116,7 @@ public class DialogManager
 		if (command.Dialog == null)
 		{
 			HideInfo();
-			command.Open(new CommandDialog("Command", keyMap, doNothingKeyMap));
+			command.Open(new CommandDialog("Command"));
 		}
 		else
 		{
@@ -138,7 +130,7 @@ public class DialogManager
 		if (find.Dialog == null)
 		{
 			HideInfo();
-			find.Open(new FindDialog(findDialogData, DoFindText, "Find", keyMap, doNothingKeyMap));
+			find.Open(new FindDialog(findDialogData, DoFindText, "Find"));
 		}
 		else
 		{
@@ -152,7 +144,7 @@ public class DialogManager
 		if (findInFiles.Dialog == null)
 		{
 			HideInfo();
-			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files", keyMap, doNothingKeyMap));
+			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files"));
 		}
 		else
 		{
@@ -166,7 +158,7 @@ public class DialogManager
 		if (replace.Dialog == null)
 		{
 			HideInfo();
-			replace.Open(new ReplaceDialog(replaceDialogData, "Replace", keyMap, doNothingKeyMap));
+			replace.Open(new ReplaceDialog(replaceDialogData, "Replace"));
 		}
 		else
 		{

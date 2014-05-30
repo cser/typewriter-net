@@ -101,6 +101,13 @@ public class Settings
 		}
 	}
 
+	private bool parsed = false;
+	public bool Parsed
+	{
+		get { return parsed; }
+		set { parsed = value; }
+	}
+
 	private Scheme parsedScheme;
 	public Scheme ParsedScheme
 	{

@@ -28,13 +28,16 @@ public class ReplaceDialog : ADialog
 	private MonospaceLabel textLabel;
 	private MonospaceLabel replaceTextLabel;
 
-	public ReplaceDialog(Data data, string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public ReplaceDialog(Data data, string name)
 	{
 		this.data = data;
 		Name = name;
+	}
 
+	override protected void DoCreate()
+	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = name;
+		tabBar.Text = Name;
 		Controls.Add(tabBar);
 
 		splitLine = new SplitLine();
@@ -49,9 +52,9 @@ public class ReplaceDialog : ADialog
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
-		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
-		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
+		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
@@ -75,7 +78,7 @@ public class ReplaceDialog : ADialog
 		Height = MinSize.Height;
 	}
 
-	override public void DoBeforeClose()
+	override protected void DoDestroy()
 	{
 		data.oldText = textBox.Text;
 		data.oldReplaceText = replaceTextBox.Text;

@@ -24,4 +24,14 @@ public class BufferList
 		}
 		return null;
 	}
+
+	public Buffer GetByFullPath(BufferTag tags, string fullPath)
+	{
+		foreach (Buffer buffer in list)
+		{
+			if (buffer.FullPath == fullPath && (buffer.tags & tags) == tags)
+				return buffer;
+		}
+		return null;
+	}
 }

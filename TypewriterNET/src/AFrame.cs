@@ -14,9 +14,61 @@ using MulticaretEditor;
 
 public class AFrame : Control
 {
+	private Nest nest;
+	public Nest Nest { get { return nest; } }
+
 	public AFrame()
 	{
 		TabStop = false;
+	}
+
+	public MainForm MainForm { get { return nest.MainForm; } }
+	public KeyMap KeyMap { get { return nest.MainForm.KeyMap; } }
+	public KeyMap DoNothingKeyMap { get { return nest.MainForm.DoNothingKeyMap; } }
+
+	public void Create(Nest nest)
+	{
+		if (created)
+			throw new Exception("Already created");
+		created = true;
+
+		this.nest = nest;
+		nest.AFrame = this;
+		DoCreate();
+		MainForm.Controls.Add(this);
+		MainForm.DoResize();
+		Settings settings = MainForm.Settings;
+		UpdateSettings(settings, UpdatePhase.Raw);
+		if (settings.Parsed)
+			UpdateSettings(settings, UpdatePhase.Parsed);
+	}
+
+	private bool created = false;
+	public new bool Created { get { return created; } }
+
+	private bool destroyed = false;
+	public bool Destroyed { get { return destroyed; } }
+
+	public void Destroy()
+	{
+		if (!created)
+			throw new Exception("Not created");
+		if (destroyed)
+			throw new Exception("Already destroyed");
+		destroyed = true;
+
+		DoDestroy();
+		nest.AFrame = null;
+		MainForm.Controls.Remove(this);
+		MainForm.DoResize();
+	}
+
+	virtual protected void DoDestroy()
+	{
+	}
+
+	virtual protected void DoCreate()
+	{
 	}
 
 	private Control top;
@@ -31,16 +83,6 @@ public class AFrame : Control
 		right.MouseDown += OnSplitLineMouseDown;
 		right.MouseUp += OnSplitLineMouseUp;
 	}
-
-	private Nest nest;
-	public Nest Nest { get { return nest; } }
-
-	public void SetNest(Nest nest)
-	{
-		this.nest = nest;
-	}
-
-	public MainForm MainForm { get { return nest != null ? nest.MainForm : null; } }
 
 	virtual public Size MinSize { get { return new Size(100, 100); } }
 	virtual public Frame AsFrame { get { return null; } }

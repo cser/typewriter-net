@@ -10,7 +10,7 @@ public class FrameList
 	public FrameList(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
-		list = new NestList();
+		list = new NestList(mainForm);
 	}
 
 	public bool NeedResize
@@ -30,9 +30,7 @@ public class FrameList
 
 	public Nest AddParentNode()
 	{
-		Nest nest = new Nest(mainForm);
-		list.AddParent(nest);
-		return nest;
+		return list.AddParent();
 	}
 
 	public Frame GetFocusedFrame()
@@ -84,11 +82,6 @@ public class FrameList
 		return null;
 	}
 
-	public void Remove(Nest nest)
-	{
-		list.Remove(nest);
-	}
-
 	public void UpdateSettings(Settings settings, UpdatePhase phase)
 	{
 		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
@@ -102,12 +95,11 @@ public class FrameList
 	{
 		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
 		{
-			if (nestI.Frame != null)
+			if (nestI.buffers != null)
 			{
-				int count = nestI.Frame.BuffersCount;
-				for (int i = 0; i < count; i++)
+				for (int i = 0, count = nestI.buffers.list.Count; i < count; i++)
 				{
-					Buffer buffer = nestI.Frame[i];
+					Buffer buffer = nestI.buffers.list[i];
 					if ((buffer.tags & tags) == tags)
 						yield return buffer;
 				}

@@ -41,9 +41,9 @@ public class TempSettings
 				if (fullPath != "" && File.Exists(fullPath))
 					mainForm.LoadFile(fullPath);
 			}
-			Buffer selectedTab = mainForm.MainFrame.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
+			Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
 			if (selectedTab != null)
-				mainForm.MainFrame.SelectedBuffer = selectedTab;
+				mainForm.MainNest.buffers.list.Selected = selectedTab;
 		}
 	}
 
@@ -80,15 +80,15 @@ public class TempSettings
 		if (settings.rememberOpenedFiles.Value)
 		{
 			SValue openedTabs = state.SetNewList("openedTabs");
-			foreach (Buffer buffer in mainForm.MainFrame)
+			foreach (Buffer buffer in mainForm.MainNest.buffers.list)
 			{
 				SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(buffer.FullPath));
 				openedTabs.Add(valueI);
-				if (buffer == mainForm.MainFrame.SelectedBuffer)
+				if (buffer == mainForm.MainNest.buffers.list.Selected)
 					state["selectedTab"] = valueI;
 			}
 		}
-		foreach (Buffer buffer in mainForm.MainFrame)
+		foreach (Buffer buffer in mainForm.MainNest.buffers.list)
 		{
 			StorageQualities(buffer);
 		}

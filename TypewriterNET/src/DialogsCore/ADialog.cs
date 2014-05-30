@@ -25,8 +25,4 @@ public class ADialog : AFrame
 		if (NeedClose != null)
 			NeedClose();
 	}
-
-	virtual public void DoBeforeClose()
-	{
-	}
 }

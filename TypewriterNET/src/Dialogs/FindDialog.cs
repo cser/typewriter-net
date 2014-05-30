@@ -25,14 +25,18 @@ public class FindDialog : ADialog
 	private Data data;
 	private Getter<string, bool> doFind;
 
-	public FindDialog(Data data, Getter<string, bool> doFind, string name, KeyMap keyMap, KeyMap doNothingKeyMap)
+	public FindDialog(Data data, Getter<string, bool> doFind, string name)
 	{
 		this.data = data;
 		this.doFind = doFind;
 		Name = name;
+	}
 
+	override protected void DoCreate()
+	{
+		Console.WriteLine("DoCreate");
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = name;
+		tabBar.Text = Name;
 		Controls.Add(tabBar);
 
 		splitLine = new SplitLine();
@@ -43,15 +47,20 @@ public class FindDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 
 		textBox = new MulticaretTextBox();
-		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
-		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
+		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	override protected void DoDestroy()
+	{
+		data.oldText = textBox.Text;
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
@@ -77,16 +86,13 @@ public class FindDialog : ADialog
 
 	private void OnTextBoxFocusedChange()
 	{
+		if (Destroyed)
+			return;
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 		if (!textBox.Focused)
 			DispatchNeedClose();
-	}
-
-	override public void DoBeforeClose()
-	{
-		data.oldText = textBox.Text;
 	}
 
 	override protected void OnResize(EventArgs e)
@@ -116,6 +122,7 @@ public class FindDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
+		Console.WriteLine("DispatchNeedClose");
 		DispatchNeedClose();
 		return true;
 	}

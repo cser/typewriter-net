@@ -12,7 +12,7 @@ using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
-public class Frame : AFrame, IEnumerable<Buffer>
+public class Frame : AFrame
 {
 	private static Controller _emptyController;
 
@@ -32,9 +32,11 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	private MulticaretTextBox textBox;
 	private BufferList buffers;
 
-	public Frame(BufferList buffers, KeyMap keyMap, KeyMap doNothingKeyMap)
+	override protected void DoCreate()
 	{
-		this.buffers = buffers;
+		if (Nest.buffers == null)
+			throw new Exception("buffers == null");
+		this.buffers = Nest.buffers;
 
 		buffers.frame = this;
 		buffers.list.SelectedChange += OnTabSelected;
@@ -43,7 +45,6 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
 		Controls.Add(tabBar);
-
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
@@ -52,9 +53,9 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 
 		textBox = new MulticaretTextBox();
-		textBox.KeyMap.AddAfter(keyMap);
+		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap);
-		textBox.KeyMap.AddAfter(doNothingKeyMap, -1);
+		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.Controller = GetEmptyController();
 		Controls.Add(textBox);
@@ -63,7 +64,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		tabBar.MouseDown += OnTabBarMouseDown;
 	}
 
-	public void Destroy()
+	override protected void DoDestroy()
 	{
 		buffers.list.SelectedChange -= OnTabSelected;
 		buffers.frame = null;
@@ -199,7 +200,7 @@ public class Frame : AFrame, IEnumerable<Buffer>
 		buffer.owner = null;
 		buffers.list.Remove(buffer);
 		if (buffers.list.Count == 0)
-			Close();
+			Destroy();
 	}
 
 	private void OnChangedChange()
@@ -230,47 +231,11 @@ public class Frame : AFrame, IEnumerable<Buffer>
 	{
 		RemoveBuffer(buffers.list.Selected);
 		if (buffers.list.Count == 0)
-			Close();
+			Destroy();
 	}
 
 	private void OnTabDoubleClick(Buffer buffer)
 	{
 		RemoveBuffer(buffer);
-	}
-
-	private void Close()
-	{
-		if (Nest == null)
-			return;
-		MainForm mainForm = Nest.MainForm;
-		Nest.AFrame = null;
-		mainForm.DoResize();
-	}
-
-	public int BuffersCount { get { return buffers.list.Count; } }
-
-	public Buffer this[int index]
-	{
-		get { return buffers.list[index]; }
-	}
-
-	public IEnumerator<Buffer> GetEnumerator()
-	{
-		return buffers.list.GetEnumerator();
-	}
-	
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return buffers.list.GetEnumerator();
-	}
-
-	public Buffer GetByFullPath(BufferTag tags, string fullPath)
-	{
-		foreach (Buffer buffer in buffers.list)
-		{
-			if (buffer.FullPath == fullPath && (buffer.tags & tags) == tags)
-				return buffer;
-		}
-		return null;
 	}
 }

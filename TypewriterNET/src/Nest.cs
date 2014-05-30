@@ -1,11 +1,17 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System;
+using MulticaretEditor;
 
-public class Nest : NestBase
+public class Nest
 {
+	public Nest child;
 	public Nest Child { get { return child; } }
+
+	public Nest parent;
 	public Nest Parent { get { return parent; } }
+
+	private NestList owner;
 	public NestList Owner { get { return owner; } }
 
 	public bool hDivided;
@@ -18,72 +24,43 @@ public class Nest : NestBase
 	public int FullWidth;
 	public int FullHeight;
 
-	private BufferList buffers;
-
-	public BufferList GetBuffers()
-	{
-		if (buffers == null)
-			buffers = new BufferList();
-		return buffers;
-	}
+	public BufferList buffers;
 
 	public Size frameSize;
 	public Size FrameSize { get { return frameSize; } }
 
-	private readonly MainForm mainForm;
+	private MainForm mainForm;
 	public MainForm MainForm { get { return mainForm; } }
 
-	public Nest(MainForm mainForm)
+	private Setter<Nest> removeNest;
+
+	public Nest(NestList owner, MainForm mainForm, Setter<Nest> removeNest)
 	{
+		this.owner = owner;
 		this.mainForm = mainForm;
+		this.removeNest = removeNest;
+	}
+
+	public void Destroy()
+	{
+		if (owner == null)
+			return;
+		if (AFrame != null)
+			AFrame.Destroy();
+		removeNest(this);
+
+		mainForm = null;
+		owner = null;
 	}
 
 	private AFrame frame;
 	public AFrame AFrame
 	{
 		get { return frame; }
-		set
-		{
-			if (frame != value)
-			{
-				if (frame != null)
-				{
-					frame.SetNest(null);
-					if (frame.Parent == mainForm)
-						mainForm.Controls.Remove(frame);
-				}
-				frame = value;
-				if (frame != null)
-				{
-					frame.SetNest(this);
-					if (owner != null && frame.Parent != mainForm)
-						mainForm.Controls.Add(frame);
-				}
-				if (owner != null)
-					owner.needResize = true;
-			}
-		}
+		set { frame = value; }
 	}
 
-	override protected void DoOnOwnerChange()
-	{
-		if (frame != null)
-		{
-			if (owner != null)
-			{
-				mainForm.Controls.Add(frame);
-			}
-			else if (frame.Parent == mainForm)
-			{
-				mainForm.Controls.Remove(frame);
-			}
-		}
-	}
-
-	public Frame Frame
-	{
-		get { return frame as Frame; }
-	}
+	public Frame Frame { get { return frame as Frame; } }
 
 	public int GetSize(int nestSize)
 	{

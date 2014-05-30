@@ -1,9 +1,13 @@
 using System;
+using MulticaretEditor;
 
-public class NestList : NestBase
+public class NestList
 {
-	public NestList()
+	private MainForm mainForm;
+
+	public NestList(MainForm mainForm)
 	{
+		this.mainForm = mainForm;
 	}
 
 	private Nest head;
@@ -11,43 +15,38 @@ public class NestList : NestBase
 
 	public bool needResize;
 
-	public void AddParent(Nest nest)
+	public Nest AddParent()
 	{
-		if (nest.Owner != null)
-			nest.Owner.Remove(nest);
-		if (nest != null)
-		{
-			SetParent(nest, null);
-			SetChild(nest, head);
-			if (head != null)
-				SetParent(head, nest);
-			head = nest;
-			SetOwner(nest, this);
-			needResize = true;
-		}
+		Nest nest = new Nest(this, mainForm, RemoveNest);
+		nest.parent = null;
+		nest.child = head;
+		if (head != null)
+			head.parent = nest;
+		head = nest;
+		needResize = true;
+		return nest;
 	}
 
-	public void Remove(Nest nest)
+	private void RemoveNest(Nest nest)
 	{
 		if (nest != null && nest.Owner == this)
 		{
 			if (nest == head)
 			{
-				head = GetChild(head);
+				head = head.child;
 				if (head != null)
-					SetParent(head, null);
+					head.parent = null;
 			}
 			else
 			{
-				Nest parent = GetParent(nest);
-				Nest child = GetChild(nest);
-				SetChild(parent, child);
+				Nest parent = nest.parent;
+				Nest child = nest.child;
+				parent.child = child;
 				if (child != null)
-					SetParent(child, parent);
+					child.parent = parent;
 			}
-			SetParent(nest, null);
-			SetChild(nest, null);
-			SetOwner(nest, null);
+			nest.parent = null;
+			nest.child = null;
 			needResize = true;
 		}
 	}
