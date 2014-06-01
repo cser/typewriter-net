@@ -19,7 +19,9 @@ public class Buffer
 	private Controller controller;
 	public Controller Controller { get { return controller; } }
 
+	public bool HasHistory { get { return controller.history.CanUndo || controller.history.CanRedo; } }
 	public bool Changed { get { return controller.history.Changed; } }
+	public bool IsEmpty { get { return controller.Lines.IsEmpty; } }
 	
 	private string fullPath;
 	public string FullPath { get { return fullPath; } }

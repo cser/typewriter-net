@@ -6,8 +6,11 @@ using MulticaretEditor;
 
 public class BufferList
 {
+	public event Setter AllRemoved;
+
 	public BufferList()
 	{
+		list.SelectedChange += OnSelectedChange;
 	}
 
 	public readonly SwitchList<Buffer> list = new SwitchList<Buffer>();
@@ -33,5 +36,11 @@ public class BufferList
 				return buffer;
 		}
 		return null;
+	}
+
+	private void OnSelectedChange()
+	{
+		if (list.Selected == null && AllRemoved != null)
+			AllRemoved();
 	}
 }

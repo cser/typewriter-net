@@ -123,7 +123,6 @@ public class MainForm : Form
 
 		leftNest.buffers = new BufferList();
 		new Frame().Create(leftNest);
-		mainNest.Frame.AddBuffer(NewFileBuffer());
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
 
@@ -135,10 +134,37 @@ public class MainForm : Form
 		tempSettings.Load();
 
 		if (args.Length == 1)
-		{
 			LoadFile(args[0]);
-		}
 		FormClosing += OnFormClosing;
+		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
+		OpenEmptyIfNeed();
+	}
+
+	private void OpenEmptyIfNeed()
+	{
+		if (mainNest.Frame == null)
+			new Frame().Create(mainNest);
+		if (mainNest.buffers.list.Count == 0)
+		{
+			Buffer buffer = NewFileBuffer();
+			mainNest.Frame.AddBuffer(buffer);
+		}
+	}
+
+	private void RemoveEmptyIfNeed()
+	{
+		Buffer buffer = null;
+		for (int i = mainNest.buffers.list.Count; i-- > 0;)
+		{
+			Buffer bufferI = mainNest.buffers.list[i];
+			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory)
+			{
+				buffer = bufferI;
+				break;
+			}
+		}
+		if (buffer != null)
+			mainNest.buffers.list.Remove(buffer);
 	}
 
 	private void OnFormClosing(object sender, FormClosingEventArgs e)
@@ -238,6 +264,7 @@ public class MainForm : Form
 
 	private bool DoNew(Controller controller)
 	{
+		RemoveEmptyIfNeed();
 		mainNest.Frame.AddBuffer(NewFileBuffer());
 		return true;
 	}
@@ -285,6 +312,7 @@ public class MainForm : Form
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
 		tempSettings.ApplyQualities(buffer);
+		RemoveEmptyIfNeed();
 		return buffer;
 	}
 	

@@ -34,7 +34,6 @@ public class FindDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		Console.WriteLine("DoCreate");
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
 		tabBar.Text = Name;
 		Controls.Add(tabBar);
@@ -122,7 +121,6 @@ public class FindDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
-		Console.WriteLine("DispatchNeedClose");
 		DispatchNeedClose();
 		return true;
 	}
