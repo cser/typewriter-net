@@ -248,7 +248,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close editor console", DoOpenCloseEditorConsole, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
@@ -390,12 +391,36 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoOpenCloseEditorConsole(Controller controller)
+	private bool DoOpenCloseLog(Controller controller)
 	{
 		if (Log.Opened)
+		{
 			Log.Close();
+		}
 		else
+		{
 			Log.Open();
+			Log.Focus();
+		}
+		return true;
+	}
+
+	private bool DoOpenCloseConsolePanel(Controller controller)
+	{
+		if (consoleNest.AFrame != null)
+		{
+			if (consoleNest.AFrame.Focused)
+				consoleNest.AFrame.Destroy();
+			else
+				consoleNest.AFrame.Focus();
+		}
+		else
+		{
+			new Frame().Create(consoleNest);
+			if (consoleNest.buffers.list.Count == 0)
+				Log.Open();
+			consoleNest.Frame.Focus();
+		}
 		return true;
 	}
 

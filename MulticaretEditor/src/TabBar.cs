@@ -25,7 +25,6 @@ namespace MulticaretEditor
 		
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
-		private readonly SwitchList<T> list;
 		private readonly StringOfDelegate<T> stringOf;
 		private readonly Point[] tempPoints;
 
@@ -36,10 +35,8 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 			
-			this.list = list;
 			this.stringOf = stringOf;
 			TabStop = false;
-			list.SelectedChange += OnSelectedChange;
 			
 			tempPoints = new Point[3];
 			SetFont(FontFamily.GenericMonospace, 10.25f);
@@ -47,6 +44,8 @@ namespace MulticaretEditor
 			arrowTimer = new Timer();
 			arrowTimer.Interval = 150;
 			arrowTimer.Tick += OnArrowTick;
+
+			List = list;
 		}
 		
 		private void OnSelectedChange()
@@ -55,7 +54,26 @@ namespace MulticaretEditor
 			Invalidate();
 		}
 
-		public SwitchList<T> List { get { return list; } }
+		private SwitchList<T> list;
+		public SwitchList<T> List
+		{
+			get { return list; }
+			set
+			{
+				if (list != value)
+				{
+					if (list != null)
+					{
+						list.SelectedChange -= OnSelectedChange;
+					}
+					list = value;
+					if (list != null)
+					{
+						list.SelectedChange += OnSelectedChange;
+					}
+				}
+			}
+		}
 
 		private string text;
 		public override string Text
@@ -132,7 +150,7 @@ namespace MulticaretEditor
 			if (!needScrollToSelected)
 				return;
 			needScrollToSelected = false;
-			int selectedIndex = list.IndexOf(list.Selected);
+			int selectedIndex = list != null ? list.IndexOf(list.Selected) : -1;
 			if (selectedIndex != -1)
 			{
 				if (offsetIndex > selectedIndex)
@@ -178,13 +196,16 @@ namespace MulticaretEditor
 			}
 
 			rects.Clear();
-			for (int i = 0; i < list.Count; i++)
+			if (list != null)
 			{
-				T value = list[i];
-				string tabText = stringOf(value);
-				Rectangle rect = new Rectangle(x - indent, 0, tabText.Length * charWidth + indent * 2, charHeight);
-				x += (tabText.Length + 1) * charWidth;
-				rects.Add(rect);
+				for (int i = 0; i < list.Count; i++)
+				{
+					T value = list[i];
+					string tabText = stringOf(value);
+					Rectangle rect = new Rectangle(x - indent, 0, tabText.Length * charWidth + indent * 2, charHeight);
+					x += (tabText.Length + 1) * charWidth;
+					rects.Add(rect);
+				}
 			}
 			rightIndent = charHeight;
 			if (x > width - leftIndent - rightIndent)
@@ -214,34 +235,37 @@ namespace MulticaretEditor
 				offsetIndex = 0;
 			}
 			
-			int offsetX = GetOffsetX(offsetIndex);
-			for (int i = Math.Max(0, offsetIndex); i < list.Count; i++)
+			if (list != null)
 			{
-				T value = list[i];
-				string tabText = stringOf(value);
-				bool selected = object.Equals(list.Selected, value);
-				Rectangle rect = rects.buffer[i];
-				rect.X += offsetX;
-				if (rect.X > width)
-					break;
-				
-				if (selected)
+				int offsetX = GetOffsetX(offsetIndex);
+				for (int i = Math.Max(0, offsetIndex); i < list.Count; i++)
 				{
-					g.FillRectangle(scheme.bgBrush, rect);
-					g.DrawRectangle(scheme.lineNumberFgPen, rect);
+					T value = list[i];
+					string tabText = stringOf(value);
+					bool selected = object.Equals(list.Selected, value);
+					Rectangle rect = rects.buffer[i];
+					rect.X += offsetX;
+					if (rect.X > width)
+						break;
+					
+					if (selected)
+					{
+						g.FillRectangle(scheme.bgBrush, rect);
+						g.DrawRectangle(scheme.lineNumberFgPen, rect);
+					}
+					else
+					{
+						g.FillRectangle(scheme.lineNumberBackground, rect);
+						g.DrawRectangle(scheme.lineNumberFgPen, rect.X, rect.Y, rect.Width, rect.Height - 1);
+					}
+					for (int j = 0; j < tabText.Length; j++)
+					{
+						g.DrawString(
+							tabText[j] + "", font, selected ? scheme.fgBrush : scheme.lineNumberForeground,
+							rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
+					}
+					rects.Add(rect);
 				}
-				else
-				{
-					g.FillRectangle(scheme.lineNumberBackground, rect);
-					g.DrawRectangle(scheme.lineNumberFgPen, rect.X, rect.Y, rect.Width, rect.Height - 1);
-				}
-				for (int j = 0; j < tabText.Length; j++)
-				{
-					g.DrawString(
-						tabText[j] + "", font, selected ? scheme.fgBrush : scheme.lineNumberForeground,
-						rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
-				}
-				rects.Add(rect);
 			}
 			
 			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
@@ -306,7 +330,7 @@ namespace MulticaretEditor
 				arrowTimer.Start();
 				Invalidate();
 			}
-			if (location.X < Width - rightIndent)
+			if (location.X < Width - rightIndent && list != null)
 			{
 				location.X -= GetOffsetX(offsetIndex);
 				for (int i = 0; i < rects.count; i++)

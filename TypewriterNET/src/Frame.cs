@@ -62,10 +62,12 @@ public class Frame : AFrame
 
 		InitResizing(tabBar, splitLine);
 		tabBar.MouseDown += OnTabBarMouseDown;
+		OnTabSelected();
 	}
 
 	override protected void DoDestroy()
 	{
+		tabBar.List = null;
 		buffers.list.SelectedChange -= OnTabSelected;
 		buffers.frame = null;
 	}

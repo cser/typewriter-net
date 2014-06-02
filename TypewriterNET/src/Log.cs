@@ -32,16 +32,15 @@ public class Log
 	public void Close()
 	{
 		if (buffer.Frame != null)
-			buffer.Frame.RemoveBuffer(buffer);
+			buffer.Frame.Destroy();
 	}
 
-	public bool Opened
+	public void Focus()
 	{
-		get
-		{
-			return buffer.Frame != null;
-		}
+		buffer.Frame.Focus();
 	}
+
+	public bool Opened { get { return buffer.Frame != null; } }
 
 	public void Write(string text)
 	{

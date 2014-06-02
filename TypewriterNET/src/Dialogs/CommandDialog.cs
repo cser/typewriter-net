@@ -25,7 +25,7 @@ public class CommandDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
+		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
 		tabBar.Text = Name;
 		Controls.Add(tabBar);
 
@@ -66,6 +66,8 @@ public class CommandDialog : ADialog
 
 	private void OnTextBoxFocusedChange()
 	{
+		if (Destroyed)
+			return;
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
@@ -111,8 +113,9 @@ public class CommandDialog : ADialog
 
 	private bool DoRunCommand(Controller controller)
 	{
+		Commander commander = MainForm.commander;
 		DispatchNeedClose();
-		MainForm.commander.Execute(textBox.Text);
+		commander.Execute(textBox.Text);
 		return true;
 	}
 }
