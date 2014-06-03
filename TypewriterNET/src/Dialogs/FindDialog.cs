@@ -68,7 +68,8 @@ public class FindDialog : ADialog
 	{
 		textBox.Focus();
 
-		Controller lastController = Nest.MainForm.LastFrame != null ? Nest.MainForm.LastFrame.Controller : null;
+		Frame lastFrame = Nest.MainForm.LastFrame;
+		Controller lastController = lastFrame != null ? lastFrame.Controller : null;
 		if (lastController != null)
 		{
 			textBox.Text = lastController.Lines.LastSelection.Empty ?

@@ -18,14 +18,13 @@ public class InfoDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public InfoDialog(string name)
+	public InfoDialog()
 	{
-		Name = name;
 	}
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
+		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
 		Controls.Add(tabBar);
 
 		splitLine = new SplitLine();
@@ -74,6 +73,8 @@ public class InfoDialog : ADialog
 
 	private void OnTextBoxFocusedChange()
 	{
+		if (Destroyed)
+			return;
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
@@ -83,6 +84,8 @@ public class InfoDialog : ADialog
 
 	private void DoOnLostFocus()
 	{
+		if (!Destroyed)
+			return;
 		DispatchNeedClose();
 	}
 

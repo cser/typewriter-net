@@ -101,8 +101,8 @@ public class DialogManager
 	public void ShowInfo(string name, string text)
 	{
 		if (info.Dialog == null)
-			info.Open(new InfoDialog("Command"));
-		info.Dialog.Name = name;
+			info.Open(new InfoDialog());
+		info.Dialog.Name = "Command";
 		info.Dialog.InitText(text);
 	}
 
