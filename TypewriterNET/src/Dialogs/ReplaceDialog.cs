@@ -154,6 +154,8 @@ public class ReplaceDialog : ADialog
 
 	private void OnTextBoxFocusedChange()
 	{
+		if (Destroyed)
+			return;
 		tabBar.Selected = textBox.Focused || replaceTextBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
