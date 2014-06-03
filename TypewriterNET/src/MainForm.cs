@@ -123,7 +123,7 @@ public class MainForm : Form
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
-		fileTree = new FileTreeProcessor();
+		fileTree = new FileTreeProcessor(this);
 		fileTree.Reload();
 
 		leftNest.buffers = new BufferList();
@@ -200,7 +200,6 @@ public class MainForm : Form
 
 	private void OnFormClosing(object sender, FormClosingEventArgs e)
 	{
-		tempSettings.Save();
 		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
 		{
 			if (buffer.onRemove != null && !buffer.onRemove(buffer))
@@ -209,6 +208,7 @@ public class MainForm : Form
 				break;
 			}
 		}
+		tempSettings.Save();
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -315,14 +315,18 @@ public class MainForm : Form
 		string fullPath = Path.GetFullPath(file);
 		string name = Path.GetFileName(file);
 		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+		bool needLoad = false;
 		if (buffer == null)
+		{
 			buffer = NewFileBuffer();
+			needLoad = true;
+		}
 		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, name);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
-		if (!ReloadFile(buffer))
+		if (needLoad && !ReloadFile(buffer))
 			return null;
 		RemoveEmptyIfNeed();
 		return buffer;
@@ -598,6 +602,7 @@ public class MainForm : Form
 	{
 		if (buffer != null)
 		{
+			tempSettings.StorageQualities(buffer);
 			if (buffer.Changed)
 			{
 				DialogResult result = MessageBox.Show("Do you want to save the current changes in\n" + buffer.Name + "?", Name, MessageBoxButtons.YesNoCancel);

@@ -88,10 +88,6 @@ public class TempSettings
 					state["selectedTab"] = valueI;
 			}
 		}
-		foreach (Buffer buffer in mainForm.MainNest.buffers.list)
-		{
-			StorageQualities(buffer);
-		}
 		state["storage"] = storage.Serialize();
 		
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
