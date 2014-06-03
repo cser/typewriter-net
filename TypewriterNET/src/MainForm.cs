@@ -89,6 +89,8 @@ public class MainForm : Form
 	private Log log;
 	public Log Log { get { return log; } }
 
+	private FileTreeProcessor fileTree;
+
 	private void OnLoad(object sender, EventArgs e)
 	{
 		string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
@@ -121,8 +123,10 @@ public class MainForm : Form
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
+		fileTree = new FileTreeProcessor();
+		fileTree.Reload();
+
 		leftNest.buffers = new BufferList();
-		new Frame().Create(leftNest);
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
 
@@ -278,6 +282,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
@@ -454,6 +459,23 @@ public class MainForm : Form
 			if (consoleNest.buffers.list.Count == 0)
 				Log.Open();
 			consoleNest.Frame.Focus();
+		}
+		return true;
+	}
+
+	private bool DoOpenCloseFileTree(Controller controller)
+	{
+		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+		{
+			leftNest.AFrame.Destroy();
+		}
+		else
+		{
+			fileTree.Reload();
+			if (leftNest.AFrame == null)
+				new Frame().Create(leftNest);
+			leftNest.Frame.AddBuffer(fileTree.Buffer);
+			leftNest.Frame.Focus();
 		}
 		return true;
 	}
