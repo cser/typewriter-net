@@ -138,6 +138,33 @@ public class MainForm : Form
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
 		OpenEmptyIfNeed();
+
+		Activated += OnActivated;
+	}
+
+	private bool activationInProcess = false;
+	    
+	private void OnActivated(object sender, EventArgs e)
+	{
+		if (activationInProcess)
+			return;
+		activationInProcess = true;
+		
+		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
+		{
+			if (buffer.fileInfo != null)
+			{
+				buffer.fileInfo.Refresh();
+				if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
+				{
+					DialogResult result = MessageBox.Show("File was changed. Reload it?", Name, MessageBoxButtons.YesNo);
+					if (result == DialogResult.Yes)
+						ReloadFile(buffer);
+				}
+			}
+		}
+		
+		activationInProcess = false;
 	}
 
 	private void OpenEmptyIfNeed()
@@ -290,12 +317,20 @@ public class MainForm : Form
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
+		if (!ReloadFile(buffer))
+			return null;
+		RemoveEmptyIfNeed();
+		return buffer;
+	}
+
+	private bool ReloadFile(Buffer buffer)
+	{
 		if (!File.Exists(buffer.FullPath))
 		{
 			Log.Write("Missing file: ", Ds.Keyword);
 			Log.WriteLine(buffer.FullPath, Ds.Normal);
 			Log.Open();
-			return null;
+			return false;
 		}
 		string text = "";
 		try
@@ -313,8 +348,7 @@ public class MainForm : Form
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
 		tempSettings.ApplyQualities(buffer);
-		RemoveEmptyIfNeed();
-		return buffer;
+		return true;
 	}
 	
 	private bool DoSave(Controller controller)
