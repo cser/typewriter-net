@@ -16,6 +16,7 @@ using MulticaretEditor.KeyMapping;
 
 public class MainForm : Form
 {
+	private const string UntitledTxt = "Untitled.txt";
 	private readonly string[] args;
 	
 	private readonly Settings settings;
@@ -188,7 +189,8 @@ public class MainForm : Form
 		for (int i = mainNest.buffers.list.Count; i-- > 0;)
 		{
 			Buffer bufferI = mainNest.buffers.list[i];
-			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory)
+			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory &&
+				bufferI.Name == UntitledTxt)
 			{
 				buffer = bufferI;
 				break;
@@ -320,6 +322,28 @@ public class MainForm : Form
 		{
 			buffer = NewFileBuffer();
 			needLoad = true;
+		}
+		ShowBuffer(mainNest, buffer);
+		buffer.SetFile(fullPath, name);
+		if (buffer.Frame != null)
+			buffer.Frame.UpdateHighlighter();
+
+		if (needLoad && !ReloadFile(buffer))
+			return null;
+		RemoveEmptyIfNeed();
+		return buffer;
+	}
+
+	public Buffer ForcedLoadFile(string file)
+	{
+		string fullPath = Path.GetFullPath(file);
+		string name = Path.GetFileName(file);
+		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+		bool needLoad = false;
+		if (buffer == null)
+		{
+			buffer = NewFileBuffer();
+			needLoad = File.Exists(fullPath);
 		}
 		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, name);
@@ -530,7 +554,27 @@ public class MainForm : Form
 
 	private bool DoNewSyntax(Controller controller)
 	{
+		CreateAppDataFolders();
+		string templatePath = Path.Combine(AppPath.TemplatesDir, "syntax.xml");
+		string filePath = Path.Combine(AppPath.SyntaxDir.appDataPath, "new-syntax.xml");
+		Buffer buffer = ForcedLoadFile(filePath);
+		if (!File.Exists(templatePath))
+		{
+			Log.Write("Missing template: ", Ds.Error);
+			Log.WriteLine(templatePath);
+			Log.Open();
+			return false;
+		}
+		buffer.InitText(File.ReadAllText(templatePath));
 		return true;
+	}
+
+	private void CreateAppDataFolders()
+	{
+		if (!Directory.Exists(AppPath.SyntaxDir.appDataPath))
+			Directory.CreateDirectory(AppPath.SyntaxDir.appDataPath);
+		if (!Directory.Exists(AppPath.SchemesDir.appDataPath))
+			Directory.CreateDirectory(AppPath.SchemesDir.appDataPath);
 	}
 
 	private bool DoHelp(Controller controller)
@@ -584,7 +628,7 @@ public class MainForm : Form
 
 	private Buffer NewFileBuffer()
 	{
-		Buffer buffer = new Buffer(null, "Untitled.txt");
+		Buffer buffer = new Buffer(null, UntitledTxt);
 		buffer.tags = BufferTag.File;
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
