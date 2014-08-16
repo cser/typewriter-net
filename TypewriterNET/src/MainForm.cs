@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Resources;
 using System.Xml;
+using System.Net;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
@@ -140,6 +141,8 @@ public class MainForm : Form
 
 		if (args.Length == 1)
 			LoadFile(args[0]);
+		if (args.Length == 2 && args[0] == "-connect")
+			LoadFile(args[1], BufferTag.Connected);
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
 		OpenEmptyIfNeed();
@@ -314,6 +317,11 @@ public class MainForm : Form
 
 	public Buffer LoadFile(string file)
 	{
+		return LoadFile(file, BufferTag.File);
+	}
+
+	public Buffer LoadFile(string file, BufferTag tags)
+	{
 		string fullPath = Path.GetFullPath(file);
 		string name = Path.GetFileName(file);
 		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
@@ -321,6 +329,7 @@ public class MainForm : Form
 		if (buffer == null)
 		{
 			buffer = NewFileBuffer();
+			buffer.tags = tags;
 			needLoad = true;
 		}
 		ShowBuffer(mainNest, buffer);
@@ -358,6 +367,39 @@ public class MainForm : Form
 
 	private bool ReloadFile(Buffer buffer)
 	{
+		if (buffer.tags == BufferTag.Connected)
+		{
+			string text = "";
+			try
+			{
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:8080/" + buffer.Name);
+				request.Method = "POST";
+				request.ContentType = "application/x-www-form-urlencoded";
+				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+
+				byte[] byteVersion = Encoding.ASCII.GetBytes(string.Concat("content=", "NULL"));
+				request.ContentLength = byteVersion.Length;
+
+				Stream stream = request.GetRequestStream();
+				stream.Write(byteVersion, 0, byteVersion.Length);
+				stream.Close();
+
+				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+				using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+				{
+					text = reader.ReadToEnd();
+				}
+			}
+			catch (Exception e)
+			{
+				Log.WriteLine(e.ToString(), Ds.Error);
+				Log.Open();
+				return false;
+			}
+			buffer.InitText(text);
+			return true;
+		}
 		if (!File.Exists(buffer.FullPath))
 		{
 			Log.Write("Missing file: ", Ds.Keyword);
@@ -365,28 +407,30 @@ public class MainForm : Form
 			Log.Open();
 			return false;
 		}
-		string text = "";
-		try
 		{
-			text = File.ReadAllText(buffer.FullPath);
+			string text = "";
+			try
+			{
+				text = File.ReadAllText(buffer.FullPath);
+			}
+			catch (IOException e)
+			{
+				Log.WriteLine("-- File loading errors:", Ds.Comment);
+				Log.WriteLine(e.Message + "\n" + e.StackTrace);
+				Log.Open();
+			}
+			buffer.Controller.InitText(text);
+			buffer.fileInfo = new FileInfo(buffer.FullPath);
+			buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
+			buffer.needSaveAs = false;
+			tempSettings.ApplyQualities(buffer);
+			return true;
 		}
-		catch (IOException e)
-		{
-			Log.WriteLine("-- File loading errors:", Ds.Comment);
-			Log.WriteLine(e.Message + "\n" + e.StackTrace);
-			Log.Open();
-		}
-		buffer.Controller.InitText(text);
-		buffer.fileInfo = new FileInfo(buffer.FullPath);
-		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
-		buffer.needSaveAs = false;
-		tempSettings.ApplyQualities(buffer);
-		return true;
 	}
 	
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File));
+		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File) ?? frames.GetSelectedBuffer(BufferTag.Connected));
 		return true;
 	}
 
@@ -411,6 +455,40 @@ public class MainForm : Form
 	{
 		if (buffer == null)
 			return;
+		if (buffer.tags == BufferTag.Connected)
+		{
+			string text = "";
+			try
+			{
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:8080/" + buffer.Name + "/push");
+				request.Method = "POST";
+				request.ContentType = "application/x-www-form-urlencoded";
+				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+
+				byte[] byteVersion = Encoding.ASCII.GetBytes(buffer.Controller.Lines.GetText());
+				request.ContentLength = byteVersion.Length;
+
+				Stream stream = request.GetRequestStream();
+				stream.Write(byteVersion, 0, byteVersion.Length);
+				stream.Close();
+
+				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+				using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+				{
+					text = reader.ReadToEnd();
+				}
+			}
+			catch (Exception e)
+			{
+				Log.WriteLine(e.ToString(), Ds.Error);
+				Log.Open();
+				return;
+			}
+			buffer.Controller.history.MarkAsSaved();
+			Log.WriteLine("Responce: " + text);
+			return;
+		}
 		if (!string.IsNullOrEmpty(buffer.FullPath) && !buffer.needSaveAs)
 		{
 			SaveFile(buffer);
