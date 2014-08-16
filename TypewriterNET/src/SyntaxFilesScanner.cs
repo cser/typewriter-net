@@ -58,7 +58,7 @@ public class SyntaxFilesScanner
 			else
 			{
 				XmlReaderSettings settings = new XmlReaderSettings();
-				settings.ProhibitDtd = false;
+				settings.XmlResolver = null;
 				using (XmlReader reader = XmlReader.Create(fileI, settings))
 				{
 					while (reader.Read())

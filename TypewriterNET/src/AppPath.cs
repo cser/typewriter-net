@@ -20,6 +20,9 @@ public struct AppPath
 	private static AppPath syntaxDir;
 	public static AppPath SyntaxDir { get { return syntaxDir; } }
 
+	private static AppPath syntaxDtd;
+	public static AppPath SyntaxDtd { get { return syntaxDtd; } }
+
 	private static AppPath schemesDir;
 	public static AppPath SchemesDir { get { return schemesDir; } }
 
@@ -34,8 +37,9 @@ public struct AppPath
 		AppPath.startupDir = startupDir;
 		AppPath.appDataDir = appDataDir;
 		AppPath.templatesDir = Path.Combine(startupDir, Templates);
-		AppPath.syntaxDir = new AppPath(Path.Combine(appDataDir, Syntax));
-		AppPath.schemesDir = new AppPath(Path.Combine(appDataDir, Schemes));
+		AppPath.syntaxDir = new AppPath(Syntax);
+		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"));
+		AppPath.schemesDir = new AppPath(Schemes);
 		AppPath.configPath = Path.Combine(appDataDir, "config.xml");
 		AppPath.configTemplatePath = Path.Combine(templatesDir, "config.xml");
 	}

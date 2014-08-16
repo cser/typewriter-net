@@ -651,6 +651,8 @@ public class MainForm : Form
 	{
 		if (!Directory.Exists(AppPath.SyntaxDir.appDataPath))
 			Directory.CreateDirectory(AppPath.SyntaxDir.appDataPath);
+		if (!File.Exists(AppPath.SyntaxDtd.appDataPath) && File.Exists(AppPath.SyntaxDtd.startupPath))
+			File.Copy(AppPath.SyntaxDtd.startupPath, AppPath.SyntaxDtd.appDataPath);
 		if (!Directory.Exists(AppPath.SchemesDir.appDataPath))
 			Directory.CreateDirectory(AppPath.SchemesDir.appDataPath);
 	}
