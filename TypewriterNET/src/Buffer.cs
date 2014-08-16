@@ -28,6 +28,8 @@ public class Buffer
 	
 	private string name;
 	public string Name { get { return name; } }
+
+	public string httpServer;
 	
 	public void SetFile(string fullPath, string name)
 	{

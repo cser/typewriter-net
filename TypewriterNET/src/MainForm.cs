@@ -141,8 +141,8 @@ public class MainForm : Form
 
 		if (args.Length == 1)
 			LoadFile(args[0]);
-		if (args.Length == 2 && args[0] == "-connect")
-			LoadFile(args[1], BufferTag.Connected);
+		if (args.Length == 3 && args[0] == "-connect")
+			LoadFile(args[1], args[2]);
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
 		OpenEmptyIfNeed();
@@ -317,10 +317,10 @@ public class MainForm : Form
 
 	public Buffer LoadFile(string file)
 	{
-		return LoadFile(file, BufferTag.File);
+		return LoadFile(file, null);
 	}
 
-	public Buffer LoadFile(string file, BufferTag tags)
+	public Buffer LoadFile(string file, string httpServer)
 	{
 		string fullPath = Path.GetFullPath(file);
 		string name = Path.GetFileName(file);
@@ -329,7 +329,7 @@ public class MainForm : Form
 		if (buffer == null)
 		{
 			buffer = NewFileBuffer();
-			buffer.tags = tags;
+			buffer.httpServer = httpServer;
 			needLoad = true;
 		}
 		ShowBuffer(mainNest, buffer);
@@ -367,17 +367,17 @@ public class MainForm : Form
 
 	private bool ReloadFile(Buffer buffer)
 	{
-		if (buffer.tags == BufferTag.Connected)
+		if (buffer.httpServer != null)
 		{
 			string text = "";
 			try
 			{
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:8080/" + buffer.Name);
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(buffer.httpServer + "/" + buffer.Name + "/get");
 				request.Method = "POST";
 				request.ContentType = "application/x-www-form-urlencoded";
 				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
-				byte[] byteVersion = Encoding.ASCII.GetBytes(string.Concat("content=", "NULL"));
+				byte[] byteVersion = Encoding.ASCII.GetBytes("NULL");
 				request.ContentLength = byteVersion.Length;
 
 				Stream stream = request.GetRequestStream();
@@ -430,7 +430,7 @@ public class MainForm : Form
 	
 	private bool DoSave(Controller controller)
 	{
-		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File) ?? frames.GetSelectedBuffer(BufferTag.Connected));
+		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File));
 		return true;
 	}
 
@@ -455,12 +455,12 @@ public class MainForm : Form
 	{
 		if (buffer == null)
 			return;
-		if (buffer.tags == BufferTag.Connected)
+		if (buffer.httpServer != null)
 		{
 			string text = "";
 			try
 			{
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:8080/" + buffer.Name + "/push");
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(buffer.httpServer + "/" + buffer.Name + "/push");
 				request.Method = "POST";
 				request.ContentType = "application/x-www-form-urlencoded";
 				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
