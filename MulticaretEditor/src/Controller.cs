@@ -427,6 +427,14 @@ namespace MulticaretEditor
 			selection.anchor = lines.charsCount;
 			selection.caret = 0;
 		}
+
+		public void SelectAllToEnd()
+		{
+			ClearMinorSelections();
+			Selection selection = lines.LastSelection;
+			selection.anchor = 0;
+			selection.caret = lines.charsCount;
+		}
 		
 		private CommandType lastCommandType;
 		private long lastTime;
@@ -716,5 +724,7 @@ namespace MulticaretEditor
 		{
 			return lines.SoftNormalizedPlaceOf(index);
 		}
+
+		public Selection LastSelection { get { return lines.LastSelection; } }
 	}
 }

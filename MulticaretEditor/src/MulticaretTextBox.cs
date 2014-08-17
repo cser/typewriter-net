@@ -15,6 +15,8 @@ namespace MulticaretEditor
 {
 	public class MulticaretTextBox : Control
 	{
+		public event Setter FocusedChange;
+
 		private LineArray lines;
 		private Controller controller;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
@@ -24,7 +26,7 @@ namespace MulticaretEditor
 		private Timer keyTimer;
 		private Timer highlightingTimer;
 		private bool isCursorTick = true;
-		private KeyMap keyMap = new KeyMap().SetDefault();
+		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
 
@@ -62,8 +64,6 @@ namespace MulticaretEditor
 			Controller = new Controller(new LineArray());
 		}
 		
-		public readonly List<KeyMap> parentKeyMaps = new List<KeyMap>();
-
 		public override string Text
 		{
 			get { return lines.GetText(); }
@@ -203,7 +203,7 @@ namespace MulticaretEditor
 		{
 			fontFamily = family;
 			fontSize = emSize;
-			
+
 			fonts[TextStyle.NoneMask] = new Font(family, emSize);
 			
 			fonts[TextStyle.ItalicMask] = new Font(family, emSize, FontStyle.Italic);
@@ -334,6 +334,15 @@ namespace MulticaretEditor
 		{
 			UnblinkCursor();
 			base.OnGotFocus(e);
+			if (FocusedChange != null)
+				FocusedChange();
+		}
+
+		protected override void OnLostFocus(EventArgs e)
+		{
+			base.OnLostFocus(e);
+			if (FocusedChange != null)
+				FocusedChange();
 		}
 		
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();
@@ -352,7 +361,6 @@ namespace MulticaretEditor
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
 			int clientHeight = lines.scroller.textAreaHeight;
-			int clientSizeX = (clientWidth - leftIndent) / charWidth - 1;
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
 			
@@ -797,37 +805,27 @@ namespace MulticaretEditor
 				if (modePressedKeys != Control.ModifierKeys)
 				{
 					if (modePressedKeys != Keys.None)
-					{
-						ProcessKeyTick(keyMap, false);
-						for (int i = 0; i < parentKeyMaps.Count; i++)
-						{
-							ProcessKeyTick(parentKeyMaps[i], false);
-						}
-					}
+						keyMap.Enumerate<bool>(ProcessKeyTick, false);
 					modePressedKeys = Control.ModifierKeys;
 					if (modePressedKeys != Keys.None)
-					{
-						ProcessKeyTick(keyMap, true);
-						for (int i = 0; i < parentKeyMaps.Count; i++)
-						{
-							ProcessKeyTick(parentKeyMaps[i], true);
-						}
-					}
+						keyMap.Enumerate<bool>(ProcessKeyTick, true);
 				}
 			}
 		}
 
-		private void ProcessKeyTick(KeyMap keyMap, bool mode)
+		private bool ProcessKeyTick(KeyMap keyMap, bool mode)
 		{
-			if (keyMap == null)
-				return;
-			IRList<KeyItem> items = keyMap.GetModeItems(modePressedKeys);
-			for (int i = 0; i < items.Count; i++)
+			if (keyMap != null)
 			{
-				KeyItem item = items[i];
-				if (item.action != null && item.action.doOnModeChange != null)
-					item.action.doOnModeChange(controller, mode);
+				IRList<KeyItem> items = keyMap.GetModeItems(modePressedKeys);
+				for (int i = 0; i < items.Count; i++)
+				{
+					KeyItem item = items[i];
+					if (item.action != null && item.action.doOnModeChange != null)
+						item.action.doOnModeChange(controller, mode);
+				}
 			}
+			return false;
 		}
 
 		private void OnHighlightingTick(object sender, EventArgs e)
@@ -868,7 +866,7 @@ namespace MulticaretEditor
 				return false;
 			
 			char altChar;
-			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.GetAltChar(charCode, out altChar))
+			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
 			{
 				controller.InsertText(altChar + "");
 				actionProcessed = false;
@@ -919,37 +917,31 @@ namespace MulticaretEditor
 				return;
 			
 			actionProcessed = false;
-			ProcessKeyDown(keyMap, e.KeyData, ref actionProcessed);
-			for (int i = 0; i < parentKeyMaps.Count; i++)
-			{
-				if (actionProcessed)
-					break;
-				KeyMap keyMapI = parentKeyMaps[i];
-				if (keyMapI != null)
-					ProcessKeyDown(keyMapI, e.KeyData, ref actionProcessed);
-			}
+			keyMap.Enumerate<Keys>(ProcessKeyDown, e.KeyData);
 		}
 		
-		private void ProcessKeyDown(KeyMap keyMap, Keys keyData, ref bool processed)
+		private bool ProcessKeyDown(KeyMap keyMap, Keys keyData)
 		{
-			if (processed)
-				return;
-			KeyItem keyItem = keyMap.GetItem(keyData);
-			while (keyItem != null)
+			if (!actionProcessed)
 			{
-				KeyAction action = keyItem.action;
-				if (action == null)
-					break;
-				if (action.doOnDown(controller))
+				KeyItem keyItem = keyMap.GetItem(keyData);
+				while (keyItem != null)
 				{
-					processed = true;
-					UnblinkCursor();
-					if (action.needScroll)
-						ScrollIfNeedToCaret();
-					break;
+					KeyAction action = keyItem.action;
+					if (action == null)
+						break;
+					if (action.doOnDown(controller))
+					{
+						actionProcessed = true;
+						UnblinkCursor();
+						if (action.needScroll)
+							ScrollIfNeedToCaret();
+						return true;
+					}
+					keyItem = keyItem.next;
 				}
-				keyItem = keyItem.next;
 			}
+			return false;
 		}
 		
 		private bool isMouseDown = false;
@@ -1069,7 +1061,7 @@ namespace MulticaretEditor
 		// Scrolling
 		//----------------------------------------------------------
 		
-		public KeyMap KeyMap { get { return keyMap; } }
+		public KeyMapNode KeyMap { get { return keyMap; } }
 		
 		public void MoveToCaret()
 		{

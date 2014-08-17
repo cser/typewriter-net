@@ -26,6 +26,8 @@ namespace MulticaretEditor.Highlighting
 		public Color caretColor;
 		public Color tabsBgColor;
 		public Color tabsFgColor;
+		public Color tabsSelectedBgColor;
+		public Color tabsSelectedFgColor;
 		
 		public int mainCaretWidth;
 		public int caretWidth;
@@ -43,6 +45,10 @@ namespace MulticaretEditor.Highlighting
 		public Pen lineNumberFgPen;
 		public Brush tabsBgBrush;
 		public Brush tabsFgBrush;
+		public Pen tabsFgPen;
+		public Brush tabsSelectedBgBrush;
+		public Brush tabsSelectedFgBrush;
+		public Pen tabsSelectedFgPen;
 		
 		public void ParseXml(IEnumerable<XmlDocument> xmls)
 		{
@@ -126,6 +132,8 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref caretColor, "caret", colors);
 			SetColor(ref tabsBgColor, "tabsBg", colors);
 			SetColor(ref tabsFgColor, "tabsFg", colors);
+			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
+			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
 			
@@ -167,6 +175,8 @@ namespace MulticaretEditor.Highlighting
 			caretColor = Color.Gray;
 			tabsBgColor = Color.WhiteSmoke;
 			tabsFgColor = Color.Black;
+			tabsSelectedBgColor = Color.Gray;
+			tabsSelectedFgColor = Color.White;
 			mainCaretWidth = 1;
 			caretWidth = 1;
 			
@@ -193,6 +203,10 @@ namespace MulticaretEditor.Highlighting
 			caretPen = new Pen(caretColor, caretWidth);
 			tabsBgBrush = new SolidBrush(tabsBgColor);
 			tabsFgBrush = new SolidBrush(tabsFgColor);
+			tabsFgPen = new Pen(tabsFgColor);
+			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
+			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
+			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
 		}

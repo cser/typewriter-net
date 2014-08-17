@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- This is base config -->
 <config>
 	<item name="wordWrap" value="true"/>
 	<item name="showLineNumbers" value="true"/>
@@ -9,13 +8,14 @@
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>
 	<item name="fontSize" value="10.25"/>
-	<item name="fontFamily" value="Courier New"/>
+	<item name="font" value="Courier New"/>
 	<item name="scheme" value="npp"/>
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
 	<item name="maxFileQualitiesCount" value="200"/>
-	
+	<item name="alwaysOnTop" value="false"/>
+	<item name="connectionTimeout" value="1000"/>
 	<altChars 
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>

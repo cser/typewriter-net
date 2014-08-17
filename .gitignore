@@ -5,3 +5,6 @@ TypewriterNET/bin/*.exe
 TypewriterNET/bin/*.dll
 TypewriterNET/bin/*.pdb
 TypewriterNET/*.exe
+ManualTests/bin/*.exe
+ManualTests/bin/*.dll
+ManualTests/bin/*.pdb

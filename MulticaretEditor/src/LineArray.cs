@@ -21,6 +21,8 @@ namespace MulticaretEditor
 		public LineArray() : this(200)
 		{
 		}
+
+		public bool IsEmpty { get { return LinesCount == 1 && this[0].chars.Count == 0; } }
 		
 		override protected LineBlock NewBlock()
 		{
