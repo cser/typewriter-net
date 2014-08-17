@@ -26,11 +26,8 @@ public struct AppPath
 	private static AppPath schemesDir;
 	public static AppPath SchemesDir { get { return schemesDir; } }
 
-	private static string configPath;
-	public static string ConfigPath { get { return configPath; } }
-
-	private static string configTemplatePath;
-	public static string ConfigTemplatePath { get { return configTemplatePath; } }
+	private static AppPath configPath;
+	public static AppPath ConfigPath { get { return configPath; } }
 
 	public static void Init(string startupDir, string appDataDir)
 	{
@@ -40,8 +37,7 @@ public struct AppPath
 		AppPath.syntaxDir = new AppPath(Syntax);
 		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"));
 		AppPath.schemesDir = new AppPath(Schemes);
-		AppPath.configPath = Path.Combine(appDataDir, "config.xml");
-		AppPath.configTemplatePath = Path.Combine(templatesDir, "config.xml");
+		AppPath.configPath = new AppPath("config.xml");
 	}
 
 	public readonly string local;
@@ -62,5 +58,10 @@ public struct AppPath
 		if (File.Exists(startupPath))
 			return startupPath;
 		return null;
+	}
+
+	public string[] GetBoth()
+	{
+		return new string[] { startupPath, appDataPath };
 	}
 }

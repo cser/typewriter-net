@@ -14,7 +14,7 @@
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
 	<item name="maxFileQualitiesCount" value="200"/>
-	
+	<item name="alwaysOnTop" value="false"/>
 	<altChars 
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>

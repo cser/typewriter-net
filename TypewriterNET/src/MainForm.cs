@@ -19,7 +19,7 @@ public class MainForm : Form
 {
 	private const string UntitledTxt = "Untitled.txt";
 	private readonly string[] args;
-	
+
 	private readonly Settings settings;
 	public Settings Settings { get { return settings; } }
 
@@ -84,7 +84,7 @@ public class MainForm : Form
 
 	private XmlLoader xmlLoader;
 	public XmlLoader XmlLoader { get { return xmlLoader; } }
-	
+
 	private DialogManager dialogs;
 	public DialogManager Dialogs { get { return dialogs; } }
 
@@ -151,13 +151,13 @@ public class MainForm : Form
 	}
 
 	private bool activationInProcess = false;
-	    
+
 	private void OnActivated(object sender, EventArgs e)
 	{
 		if (activationInProcess)
 			return;
 		activationInProcess = true;
-		
+
 		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
 		{
 			if (buffer.fileInfo != null)
@@ -171,7 +171,7 @@ public class MainForm : Form
 				}
 			}
 		}
-		
+
 		activationInProcess = false;
 	}
 
@@ -237,6 +237,7 @@ public class MainForm : Form
 		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
 		settings.Parsed = true;
 		BackColor = settings.ParsedScheme.bgColor;
+		TopMost = settings.alwaysOnTop.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 	}
@@ -273,30 +274,31 @@ public class MainForm : Form
 		keyMap = new KeyMap();
 		doNothingKeyMap = new KeyMap();
 		dialogs = new DialogManager(this);
-		
+
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
-		
+
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null, new KeyAction("&File\\Save As", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
-		
+
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\Open/close file tree", DoOpenCloseFileTree, null, false)));
-		
+
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Reset config", DoResetConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
-		
+
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
-		
+
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
 	}
 
@@ -427,7 +429,7 @@ public class MainForm : Form
 			return true;
 		}
 	}
-	
+
 	private bool DoSave(Controller controller)
 	{
 		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File));
@@ -520,7 +522,7 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
-		if (buffer.FullPath == AppPath.ConfigPath)
+		if (buffer.FullPath == AppPath.ConfigPath.startupPath || buffer.FullPath == AppPath.ConfigPath.appDataPath)
 		{
 			ReloadConfig();
 		}
@@ -598,13 +600,25 @@ public class MainForm : Form
 
 	private bool DoOpenUserConfig(Controller controller)
 	{
-		LoadFile(AppPath.ConfigPath);
+		CopyConfigIfNeed();
+		LoadFile(AppPath.ConfigPath.appDataPath);
+		return true;
+	}
+
+	private bool DoOpenBaseConfig(Controller controller)
+	{
+		if (!File.Exists(AppPath.ConfigPath.startupPath))
+		{
+			MessageBox.Show("Missing base config", Name, MessageBoxButtons.OK);
+			return true;
+		}
+		LoadFile(AppPath.ConfigPath.startupPath);
 		return true;
 	}
 
 	private bool DoResetConfig(Controller controller)
 	{
-		if (!File.Exists(AppPath.ConfigPath))
+		if (!File.Exists(AppPath.ConfigPath.appDataPath))
 		{
 			MessageBox.Show("Nothing to reset", Name, MessageBoxButtons.OK);
 			return true;
@@ -612,8 +626,9 @@ public class MainForm : Form
 		DialogResult result = MessageBox.Show("Current config will be removed", Name, MessageBoxButtons.OKCancel);
 		if (result == DialogResult.OK)
 		{
-			if (File.Exists(AppPath.ConfigPath))
-				File.Delete(AppPath.ConfigPath);
+			if (File.Exists(AppPath.ConfigPath.appDataPath))
+				File.Delete(AppPath.ConfigPath.appDataPath);
+			ReloadConfig();
 		}
 		return true;
 	}
@@ -760,34 +775,43 @@ public class MainForm : Form
 		return false;
 	}
 
+	private void CopyConfigIfNeed()
+	{
+		if (!File.Exists(AppPath.ConfigPath.appDataPath))
+		{
+			if (!File.Exists(AppPath.ConfigPath.startupPath))
+			{
+				Log.WriteLine("Warning: Missing base config at: " + AppPath.ConfigPath.startupPath, Ds.String);
+				Log.Open();
+			}
+			File.Copy(AppPath.ConfigPath.startupPath, AppPath.ConfigPath.appDataPath);
+			Log.WriteLine("Config was created: " + AppPath.ConfigPath.appDataPath, Ds.Comment);
+		}
+	}
+
 	private void ReloadConfig()
 	{
 		configParser.Reset();
-		
-		StringBuilder errors = new StringBuilder();
-		if (!File.Exists(AppPath.ConfigPath))
+		CopyConfigIfNeed();
+		foreach (string path in AppPath.ConfigPath.GetBoth())
 		{
-			if (!File.Exists(AppPath.ConfigTemplatePath))
+			if (File.Exists(path))
 			{
-				Log.WriteLine("Warning: Missing config", Ds.String);
-				Log.Open();
+				XmlDocument xml = xmlLoader.Load(path, false);
+				if (xml != null)
+				{
+					StringBuilder builder = new StringBuilder();
+					configParser.Parse(xml, builder);
+					if (builder.Length > 0)
+					{
+						Log.WriteLine(builder.ToString());
+						Log.Open();
+					}
+					StringWriter sw = new StringWriter();
+					XmlTextWriter writer = new XmlTextWriter(sw);
+					xml.WriteTo(writer);
+				}
 			}
-			File.Copy(AppPath.ConfigTemplatePath, AppPath.ConfigPath);
-			Log.WriteLine("Config was created: " + AppPath.ConfigPath, Ds.Comment);
-		}
-		XmlDocument xml = xmlLoader.Load(AppPath.ConfigPath, false);
-		if (xml != null)
-		{
-			StringBuilder builder = new StringBuilder();
-			configParser.Parse(xml, builder);
-			if (builder.Length > 0)
-			{
-				Log.WriteLine(builder.ToString());
-				Log.Open();
-			}
-			StringWriter sw = new StringWriter();
-			XmlTextWriter writer = new XmlTextWriter(sw);
-			xml.WriteTo(writer);
 		}
 		settings.DispatchChange();
 	}

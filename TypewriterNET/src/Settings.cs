@@ -23,6 +23,7 @@ public class Settings
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
+	public readonly Properties.Bool alwaysOnTop = new Properties.Bool("alwaysOnTop", false);
 
 	private Setter onChange;
 
@@ -45,6 +46,7 @@ public class Settings
 		Add(showColorAtCursor);
 		Add(rememberOpenedFiles);
 		Add(maxFileQualitiesCount);
+		Add(alwaysOnTop);
 	}
 
 	public void DispatchChange()
