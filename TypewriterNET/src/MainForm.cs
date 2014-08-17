@@ -290,7 +290,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Reset config", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
@@ -602,8 +602,19 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoOpenBaseConfig(Controller controller)
+	private bool DoResetConfig(Controller controller)
 	{
+		if (!File.Exists(AppPath.ConfigPath))
+		{
+			MessageBox.Show("Nothing to reset", Name, MessageBoxButtons.OK);
+			return true;
+		}
+		DialogResult result = MessageBox.Show("Current config will be removed", Name, MessageBoxButtons.OKCancel);
+		if (result == DialogResult.OK)
+		{
+			if (File.Exists(AppPath.ConfigPath))
+				File.Delete(AppPath.ConfigPath);
+		}
 		return true;
 	}
 
