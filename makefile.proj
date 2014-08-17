@@ -38,7 +38,7 @@ This file was writen for launching with MSBuild
 		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Dialogs\*.cs; TypewriterNET\src\DialogsCore\*.cs;"
 			References="TypewriterNET\bin\MulticaretEditor.dll"
 			Resources="TypewriterNET\TypewriterNET.resources"
-			TargetType="exe"
+			TargetType="winexe"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
 			LangVersion="Default"
