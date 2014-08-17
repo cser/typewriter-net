@@ -375,6 +375,7 @@ public class MainForm : Form
 			try
 			{
 				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(buffer.httpServer + "/" + buffer.Name + "/get");
+				request.Timeout = settings.connectionTimeout.Value;
 				request.Method = "POST";
 				request.ContentType = "application/x-www-form-urlencoded";
 				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
@@ -463,6 +464,7 @@ public class MainForm : Form
 			try
 			{
 				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(buffer.httpServer + "/" + buffer.Name + "/push");
+				request.Timeout = settings.connectionTimeout.Value;
 				request.Method = "POST";
 				request.ContentType = "application/x-www-form-urlencoded";
 				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";

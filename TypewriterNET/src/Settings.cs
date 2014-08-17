@@ -24,6 +24,7 @@ public class Settings
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
 	public readonly Properties.Bool alwaysOnTop = new Properties.Bool("alwaysOnTop", false);
+	public readonly Properties.Int connectionTimeout = new Properties.Int("connectionTimeout", 1000).SetMinMax(1, int.MaxValue);
 
 	private Setter onChange;
 
@@ -47,6 +48,7 @@ public class Settings
 		Add(rememberOpenedFiles);
 		Add(maxFileQualitiesCount);
 		Add(alwaysOnTop);
+		Add(connectionTimeout);
 	}
 
 	public void DispatchChange()
