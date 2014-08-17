@@ -20,8 +20,7 @@ public class MainFormMenu : MainMenu
 		AddRootItem("&Edit", false);
 		AddRootItem("F&ind", false);
 		AddRootItem("&View", false);
-		AddRootItem("Prefere&nces", false);
-		AddRootItem("&Other", true);
+		AddRootItem("Prefere&nces", true);
 		AddRootItem("&?", false);
 	}
 
