@@ -232,8 +232,6 @@ public class Frame : AFrame
 	private void OnCloseClick()
 	{
 		RemoveBuffer(buffers.list.Selected);
-		if (buffers.list.Count == 0)
-			Destroy();
 	}
 
 	private void OnTabDoubleClick(Buffer buffer)
