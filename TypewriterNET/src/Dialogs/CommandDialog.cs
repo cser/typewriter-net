@@ -26,6 +26,7 @@ public class CommandDialog : ADialog
 	override protected void DoCreate()
 	{
 		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
+		tabBar.CloseClick += OnCloseClick;
 		tabBar.Text = Name;
 		Controls.Add(tabBar);
 
@@ -46,6 +47,11 @@ public class CommandDialog : ADialog
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	private void OnCloseClick()
+	{
+		DispatchNeedClose();
 	}
 
 	override protected void DoDestroy()

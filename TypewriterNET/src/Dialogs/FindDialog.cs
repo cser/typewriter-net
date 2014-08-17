@@ -36,6 +36,7 @@ public class FindDialog : ADialog
 	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
 		tabBar.Text = Name;
+		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
 		splitLine = new SplitLine();
@@ -55,6 +56,11 @@ public class FindDialog : ADialog
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+	}
+
+	private void OnCloseClick()
+	{
+		DispatchNeedClose();
 	}
 
 	override protected void DoDestroy()
