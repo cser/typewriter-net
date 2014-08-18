@@ -19,6 +19,12 @@ Sources
 2. Idea of text highlighting got from post about **Qutepart/Enki**: http://habrahabr.ru/post/188144/<br/>
 Editor uses **Kate** highlighting files (because there are already 200 languages for free)
 
+Installation without building
+-----------------------------
+
+Just get <code>typewriter-net-installer-00.exe</code> at the root of the repository and run it<br/>
+Requires **NET Framework 2.0**
+
 Building
 --------
 
