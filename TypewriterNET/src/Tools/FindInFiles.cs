@@ -195,7 +195,9 @@ public class FindInFiles
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
 		buffer.additionKeyMap = new KeyMap();
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false)));
+		KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
 		if (mainForm.ConsoleNest.Frame != null)
 			mainForm.ConsoleNest.Frame.Focus();

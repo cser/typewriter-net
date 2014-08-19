@@ -10,6 +10,7 @@ namespace MulticaretEditor.KeyMapping
 		public readonly KeyAction action;
 		
 		public KeyItem next;
+		public bool doubleClick;
 		
 		public KeyItem(Keys keys, Keys? modeKeys, KeyAction action)
 		{
@@ -18,6 +19,12 @@ namespace MulticaretEditor.KeyMapping
 			this.action = action;
 			
 			next = null;
+		}
+
+		public KeyItem SetDoubleClick(bool value)
+		{
+			doubleClick = value;
+			return this;
 		}
 	}
 }

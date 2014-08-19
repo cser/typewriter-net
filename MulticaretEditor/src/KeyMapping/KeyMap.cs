@@ -11,6 +11,7 @@ namespace MulticaretEditor.KeyMapping
 		
 		private Dictionary<Keys, KeyItem> itemByKeys;
 		private Dictionary<Keys, RWList<KeyItem>> modeItemsByKeys;
+		private KeyItem doubleClickItem;
 		private Dictionary<char, char> altChars;
 		
 		private IRList<KeyItem> nullItems = new RWList<KeyItem>();
@@ -21,6 +22,7 @@ namespace MulticaretEditor.KeyMapping
 			items = _items;
 			itemByKeys = new Dictionary<Keys, KeyItem>();
 			modeItemsByKeys = new Dictionary<Keys, RWList<KeyItem>>();
+			doubleClickItem = null;
 			altChars = new Dictionary<char, char>();
 		}
 		
@@ -68,6 +70,25 @@ namespace MulticaretEditor.KeyMapping
 					items.Add(item);
 				}
 			}
+			if (item.doubleClick)
+			{
+				if (doubleClickItem != null)
+				{
+					if (asMain)
+					{
+						item.next = doubleClickItem;
+						doubleClickItem = item;
+					}
+					else
+					{
+						doubleClickItem.next = item;
+					}
+				}
+				else
+				{
+					doubleClickItem = item;
+				}
+			}
 		}
 		
 		public KeyItem GetItem(Keys keys)
@@ -75,6 +96,11 @@ namespace MulticaretEditor.KeyMapping
 			KeyItem item;
 			itemByKeys.TryGetValue(keys, out item);
 			return item;
+		}
+
+		public KeyItem GetDoubleClickItem()
+		{
+			return doubleClickItem;
 		}
 		
 		public IRList<KeyItem> GetModeItems(Keys keys)

@@ -943,6 +943,31 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
+
+		private bool ProcessDoubleClick(KeyMap keyMap, bool _)
+		{
+			if (!actionProcessed)
+			{
+				KeyItem keyItem = keyMap.GetDoubleClickItem();
+				while (keyItem != null)
+				{
+					KeyAction action = keyItem.action;
+					if (action == null)
+						break;
+					if (action.doOnDown(controller))
+					{
+
+						actionProcessed = true;
+						UnblinkCursor();
+						if (action.needScroll)
+							ScrollIfNeedToCaret();
+						return true;
+					}
+					keyItem = keyItem.next;
+				}
+			}
+			return false;
+		}
 		
 		private bool isMouseDown = false;
 		private int mouseDownIndex = 0;
@@ -986,6 +1011,10 @@ namespace MulticaretEditor
 			else if (mouseDownIndex == 2)
 			{
 				controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
+
+				actionProcessed = false;
+				keyMap.Enumerate<bool>(ProcessDoubleClick, false);
+
 				Invalidate();
 			}
 		}

@@ -37,7 +37,9 @@ public class FileTreeProcessor
 		buffer = new Buffer(null, "File tree");
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Open item", DoOnEnter, null, false)));
+		KeyAction action = new KeyAction("F&ind\\Open item", DoOnEnter, null, false);
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 	}
 
 	private bool DoOnEnter(Controller controller)
