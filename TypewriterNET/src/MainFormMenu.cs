@@ -103,13 +103,16 @@ public class MainFormMenu : MainMenu
 				bool first = true;
 				foreach (KeyItem keyItem in keys)
 				{
-					if (keyItem.keys == Keys.None)
+					if (keyItem.keys == Keys.None && !keyItem.doubleClick)
 						continue;
-					itemName += first ? "\t" : "/";
+					itemName += first ? "\t" : " / ";
 					first = false;
 					if (action.doOnModeChange != null)
 						itemName += "[";
-					itemName += keysConverter.ConvertToString(keyItem.keys);
+					if (keyItem.keys != Keys.None)
+						itemName += keysConverter.ConvertToString(keyItem.keys);
+					if (keyItem.doubleClick)
+						itemName += (keyItem.keys != Keys.None ? "+" : "") + "DoubleClick";
 					if (action.doOnModeChange != null)
 						itemName += "]";
 				}
