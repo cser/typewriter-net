@@ -35,7 +35,8 @@ namespace MulticaretEditor.KeyMapping
 		{
 			if (item.modeKeys != null)
 			{
-				item = new KeyItem(item.keys | item.modeKeys.Value, item.modeKeys, item.action);
+				item = new KeyItem(item.keys | item.modeKeys.Value, item.modeKeys, item.action)
+					.SetDoubleClick(item.doubleClick);
 			}
 			_items.Add(item);
 			if (item.keys != Keys.None)

@@ -930,6 +930,7 @@ namespace MulticaretEditor
 					KeyAction action = keyItem.action;
 					if (action == null)
 						break;
+					if (keyItem.modeKeys == null || (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
 					if (action.doOnDown(controller))
 					{
 						actionProcessed = true;
@@ -954,9 +955,9 @@ namespace MulticaretEditor
 					KeyAction action = keyItem.action;
 					if (action == null)
 						break;
+					if (keyItem.modeKeys == null || (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
 					if (action.doOnDown(controller))
 					{
-
 						actionProcessed = true;
 						UnblinkCursor();
 						if (action.needScroll)
