@@ -185,103 +185,12 @@ public class DialogManager
 		return true;
 	}
 
-	public struct Position
-	{
-		public readonly string fileName;
-		public readonly int position0;
-		public readonly int position1;
-
-		public Position(string fileName, int position0, int position1)
-		{
-			this.fileName = fileName;
-			this.position0 = position0;
-			this.position1 = position1;
-		}
-	}
-
-	public class Navigator
-	{
-		private MainForm mainForm;
-
-		public Navigator(MainForm mainForm)
-		{
-			this.mainForm = mainForm;
-		}
-
-		public List<Position> positions = new List<Position>();
-
-		public bool Execute(Controller controller)
-		{
-			Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
-			mainForm.NavigateTo(positions[place.iLine].fileName, positions[place.iLine].position0, positions[place.iLine].position1);
-			return true;
-		}
-	}
-
 	private bool DoFindInFilesDialog(string text)
 	{
 		findInFiles.Close();
-		Buffer buffer = new Buffer(null, "Find results");
-		buffer.Controller.isReadonly = true;
-
-		Navigator navigator = new Navigator(mainForm);
-
-		StringBuilder builder = new StringBuilder();
-		foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories))
-		{
-			string fileText = File.ReadAllText(file);
-			bool first = true;
-			int index = 0;
-			while (true)
-			{
-				index = fileText.IndexOf(text, index);
-				if (index == -1)
-					break;
-				if (first)
-				{
-					first = false;
-					builder.AppendLine(file + ":");
-					navigator.positions.Add(new Position(file, index, index + text.Length));
-				}
-				int index0 = Math.Max(0, index - 50);
-				int index1 = Math.Min(fileText.Length, index + 50);
-				int bra = index;
-				bool needLeftEllipsis = true;
-				for (; bra > index0; bra--)
-				{
-					char c = fileText[bra];
-					if (c == '\n' || c == '\r')
-					{
-						bra++;
-						needLeftEllipsis = false;
-						break;
-					}
-				}
-				int ket = index + text.Length;
-				bool needRightEllipsis = true;
-				for (; ket < index1; ket++)
-				{
-					char c = fileText[ket];
-					if (c == '\n' || c == '\r')
-					{
-						ket--;
-						needRightEllipsis = false;
-						break;
-					}
-				}
-				builder.AppendLine("| " + (needLeftEllipsis ? "…" : "") + fileText.Substring(bra, ket - bra) + (needRightEllipsis ? "…" : ""));
-				navigator.positions.Add(new Position(file, index, index + text.Length));
-				index++;
-			}
-		}
-		buffer.Controller.InitText(builder.ToString());
-
-		buffer.additionKeyMap = new KeyMap();
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Navigate to finded", navigator.Execute, null, false)));
-
-		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
-		if (mainForm.ConsoleNest.Frame != null)
-			mainForm.ConsoleNest.Frame.Focus();
+		string errors = new FindInFiles(mainForm).Execute(text, null, "*.*");
+		if (errors != null)
+			ShowInfo("FindInFiles", errors);
 		return true;
 	}
 }
