@@ -33,37 +33,37 @@ namespace MulticaretEditor
 		public MulticaretTextBox()
 		{
 			bgBrush = new SolidBrush(BackColor);
-			
+
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 			ImeMode = ImeMode.Off;
 			Cursor = Cursors.IBeam;
-			
+
 			cursorTimer = new Timer();
 			cursorTimer.Interval = 400;
 			cursorTimer.Tick += OnCursorTick;
-			
+
 			keyTimer = new Timer();
 			keyTimer.Interval = 50;
 			keyTimer.Tick += OnKeyTick;
-			
+
 			highlightingTimer = new Timer();
 			highlightingTimer.Interval = 50;
 			highlightingTimer.Tick += OnHighlightingTick;
-			
+
 			SetFont(FontFamily.GenericMonospace, 10.25f);
 			cursorTimer.Start();
 			keyTimer.Start();
 			highlightingTimer.Start();
-			
+
 			styles = Highlighter.GetDefaultStyles(scheme);
-			
+
 			InitScrollBars();
 			Controller = new Controller(new LineArray());
 		}
-		
+
 		public override string Text
 		{
 			get { return lines.GetText(); }
@@ -73,7 +73,7 @@ namespace MulticaretEditor
 				Invalidate();
 			}
 		}
-		
+
 		public Controller Controller
 		{
 			get { return controller; }
@@ -99,7 +99,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private bool wordWrap = false;
 		public bool WordWrap
 		{
@@ -114,7 +114,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private string lineBreak = "\r\n";
 		public string LineBreak
 		{
@@ -140,7 +140,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private int tabSize = 4;
 		public int TabSize
 		{
@@ -152,7 +152,7 @@ namespace MulticaretEditor
 					lines.SetTabSize(tabSize);
 			}
 		}
-		
+
 		private Scheme scheme = new Scheme();
 		public Scheme Scheme
 		{
@@ -164,7 +164,7 @@ namespace MulticaretEditor
 				BackColor = scheme.bgColor;
 			}
 		}
-		
+
 		private Highlighter highlighter;
 		public Highlighter Highlighter
 		{
@@ -175,7 +175,7 @@ namespace MulticaretEditor
 				styles = highlighter != null ? highlighter.GetStyles(scheme) : Highlighter.GetDefaultStyles(scheme);
 			}
 		}
-		
+
 		private bool showColorAtCursor = false;
 		public bool ShowColorAtCursor
 		{
@@ -189,37 +189,37 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private Font font;
 		private Font[] fonts = new Font[16];
-		
+
 		private int charWidth;
 		public int CharWidth { get { return charWidth; } }
-		
+
 		private int charHeight;
 		public int CharHeight { get { return charHeight; } }
-		
+
 		private void SetFont(FontFamily family, float emSize)
 		{
 			fontFamily = family;
 			fontSize = emSize;
 
 			fonts[TextStyle.NoneMask] = new Font(family, emSize);
-			
+
 			fonts[TextStyle.ItalicMask] = new Font(family, emSize, FontStyle.Italic);
 			fonts[TextStyle.BoldMask] = new Font(family, emSize, FontStyle.Bold);
 			fonts[TextStyle.UnderlineMask] = new Font(family, emSize, FontStyle.Underline);
 			fonts[TextStyle.StrikeoutMask] = new Font(family, emSize, FontStyle.Strikeout);
-			
+
 			fonts[TextStyle.ItalicMask | TextStyle.BoldMask] = new Font(family, emSize, FontStyle.Italic | FontStyle.Bold);
 			fonts[TextStyle.ItalicMask | TextStyle.UnderlineMask] = new Font(family, emSize, FontStyle.Italic | FontStyle.Underline);
 			fonts[TextStyle.ItalicMask | TextStyle.StrikeoutMask] = new Font(family, emSize, FontStyle.Italic | FontStyle.Strikeout);
-			
+
 			fonts[TextStyle.BoldMask | TextStyle.UnderlineMask] = new Font(family, emSize, FontStyle.Bold | FontStyle.Underline);
 			fonts[TextStyle.BoldMask | TextStyle.StrikeoutMask] = new Font(family, emSize, FontStyle.Bold | FontStyle.Strikeout);
-			
+
 			fonts[TextStyle.StrikeoutMask | TextStyle.UnderlineMask] = new Font(family, emSize, FontStyle.Strikeout | FontStyle.Underline);
-			
+
 			fonts[TextStyle.ItalicMask | TextStyle.BoldMask | TextStyle.UnderlineMask] =
 				new Font(family, emSize, FontStyle.Italic | FontStyle.Bold | FontStyle.Underline);
 			fonts[TextStyle.ItalicMask | TextStyle.BoldMask | TextStyle.StrikeoutMask] =
@@ -228,19 +228,19 @@ namespace MulticaretEditor
 				new Font(family, emSize, FontStyle.Italic | FontStyle.Underline | FontStyle.Strikeout);
 			fonts[TextStyle.BoldMask | TextStyle.UnderlineMask | TextStyle.StrikeoutMask] =
 				new Font(family, emSize, FontStyle.Bold | FontStyle.Underline | FontStyle.Strikeout);
-			
+
 			fonts[TextStyle.ItalicMask | TextStyle.BoldMask | TextStyle.UnderlineMask | TextStyle.StrikeoutMask] =
 				new Font(family, emSize, FontStyle.Italic | FontStyle.Bold | FontStyle.Underline | FontStyle.Strikeout);
-			
+
 			font = fonts[TextStyle.NoneMask];
-			
+
 			SizeF size = GetCharSize(fonts[0], 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
 			charHeight = lineInterval + (int)Math.Round(size.Height * 1f) + 1;
-			
+
 			Invalidate();
 		}
-		
+
 		private float fontSize;
 		public float FontSize
 		{
@@ -251,7 +251,7 @@ namespace MulticaretEditor
 					SetFont(fontFamily, value);
 			}
 		}
-		
+
 		private FontFamily fontFamily;
 		public FontFamily FontFamily
 		{
@@ -262,7 +262,7 @@ namespace MulticaretEditor
 					SetFont(value, fontSize);
 			}
 		}
-		
+
 		private int scrollingIndent = 2;
 		public int ScrollingIndent
 		{
@@ -274,7 +274,7 @@ namespace MulticaretEditor
 					lines.scroller.scrollingIndent = scrollingIndent;
 			}
 		}
-		
+
 		private bool showLineNumbers = true;
 		public bool ShowLineNumbers
 		{
@@ -288,7 +288,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private bool highlightCurrentLine = true;
 		public bool HighlightCurrentLine
 		{
@@ -309,19 +309,19 @@ namespace MulticaretEditor
 			Size sz3 = TextRenderer.MeasureText("<>", font);
 			return new SizeF(sz2.Width - sz3.Width + 1, font.Height);
 		}
-		
+
         private const int WM_HSCROLL = 0x114;
         private const int WM_VSCROLL = 0x115;
         private const int SB_ENDSCROLL = 0x8;
 
         protected override void WndProc(ref Message m)
         {
-        	if ((m.Msg == WM_HSCROLL || m.Msg == WM_VSCROLL) &&
-        		m.WParam.ToInt32() != SB_ENDSCROLL)
+			if ((m.Msg == WM_HSCROLL || m.Msg == WM_VSCROLL) &&
+				m.WParam.ToInt32() != SB_ENDSCROLL)
                 Invalidate();
             base.WndProc(ref m);
         }
-		
+
 		public new void Invalidate()
 		{
 			if (InvokeRequired)
@@ -329,7 +329,7 @@ namespace MulticaretEditor
 			else
 				base.Invalidate();
 		}
-		
+
 		protected override void OnGotFocus(EventArgs e)
 		{
 			UnblinkCursor();
@@ -344,7 +344,7 @@ namespace MulticaretEditor
 			if (FocusedChange != null)
 				FocusedChange();
 		}
-		
+
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -352,21 +352,21 @@ namespace MulticaretEditor
 			#if debug
             Stopwatch sw = Stopwatch.StartNew();
             #endif
-            
+
             if (lines == null)
-            	return;
-            
+				return;
+
             UpdateScrollOnPaint();
-            
+
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
 			int clientHeight = lines.scroller.textAreaHeight;
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
-			
+
 			e.Graphics.SmoothingMode = SmoothingMode.None;
 			e.Graphics.Clear(scheme.bgColor);
-			
+
 			int offsetX = -valueX + leftIndent;
 			int offsetY = -valueY;
 			int linesCount = lines.LinesCount;
@@ -377,7 +377,7 @@ namespace MulticaretEditor
 			if (lines.wordWrap)
 			{
 				wwILineMin = Math.Max(0, valueY / charHeight - 1);
-				wwILineMax = Math.Min(lines.scroller.textSizeY, (valueY + clientHeight) / charHeight); 
+				wwILineMax = Math.Min(lines.scroller.textSizeY, (valueY + clientHeight) / charHeight);
 				lineMin = lines.wwValidator.GetLineIndexOfWW(wwILineMin);
 				lineMax = lines.wwValidator.GetLineIndexOfWW(wwILineMax);
 				if (lineMax.iLine < linesCount - 1)
@@ -448,7 +448,7 @@ namespace MulticaretEditor
 					int x;
 					int y;
 					if (lines.wordWrap)
-					{	
+					{
 						int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 						Pos innerPos = line.WWPosOfIndex(caret.iChar);
 						x = offsetX + innerPos.ix * charWidth;
@@ -459,7 +459,7 @@ namespace MulticaretEditor
 						x = offsetX + line.PosOfIndex(caret.iChar) * charWidth;
 						y = offsetY + caret.iLine * charHeight;
 					}
-					
+
 					if (showColorAtCursor)
 					{
 						int offset;
@@ -470,7 +470,7 @@ namespace MulticaretEditor
 								e.Graphics.DrawLine(pen, x + offset * CharWidth, y + charHeight - 1, x + (offset + 6) * CharWidth, y + charHeight - 1);
 						}
 					}
-					
+
 					if (isCursorTick && Focused)
 						e.Graphics.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
 				}
@@ -485,19 +485,19 @@ namespace MulticaretEditor
 						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
 				}
 			}
-			
+
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
 				e.Graphics.FillRectangle(bgBrush, clientWidth + leftIndent, clientHeight, scrollBarBreadth, scrollBarBreadth);
-			
+
 			base.OnPaint(e);
-			
+
 			#if debug
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
 		}
-		
+
 		private PredictableList<DrawingLine> selectionRects = new PredictableList<DrawingLine>();
-		
+
 		private void DrawSelections_Fixed(int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
 		{
 			int leftIndent = GetLeftIndent();
@@ -510,9 +510,9 @@ namespace MulticaretEditor
 			{
 				if (selection.Right < start || selection.Left > end || selection.Count == 0)
 					continue;
-				
+
 				selectionRects.Clear();
-				
+
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
 				if (left.iChar + selection.Count <= leftLine.chars.Count)
@@ -549,12 +549,12 @@ namespace MulticaretEditor
 						}
 					}
 				}
-				
+
 				DrawSelection(g, selectionRects, offsetX, offsetY);
 				selectionRects.Clear();
 			}
 		}
-		
+
 		private void DrawSelections_WordWrap(
 			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
 		{
@@ -570,9 +570,9 @@ namespace MulticaretEditor
 			{
 				if (selection.Right < start || selection.Left > end || selection.Count == 0)
 					continue;
-				
+
 				selectionRects.Clear();
-				
+
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
 				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
@@ -585,7 +585,7 @@ namespace MulticaretEditor
 						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, pos1.ix - pos0.ix));
 					}
 					else
-					{						
+					{
 						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(0) - pos0.ix));
 						int sublineLeft;
 						for (int iy = pos0.iy + 1; iy < pos1.iy; iy++)
@@ -646,12 +646,12 @@ namespace MulticaretEditor
 						}
 					}
 				}
-				
+
 				DrawSelection(g, selectionRects, offsetX, offsetY);
 				selectionRects.Clear();
 			}
 		}
-		
+
 		private void DrawSelection(Graphics g, PredictableList<DrawingLine> rects, int offsetX, int offsetY)
 		{
 			Pen selectionPen = scheme.selectionPen;
@@ -677,7 +677,7 @@ namespace MulticaretEditor
 					charHeight);
 			}
 		}
-		
+
 		private int GetLeftIndent()
 		{
 			int result = 0;
@@ -693,7 +693,7 @@ namespace MulticaretEditor
 			}
 			return result;
 		}
-		
+
 		private void DrawLineChars(Graphics g, Point position, Line line, int minPos, int maxPos)
 		{
 			int size = line.Size;
@@ -703,7 +703,7 @@ namespace MulticaretEditor
 			int tabSize = lines.tabSize;
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
-			
+
 			if (lines.wordWrap)
 			{
 				for (int iCutOff = 0; iCutOff <= line.cutOffs.count; iCutOff++)
@@ -726,10 +726,10 @@ namespace MulticaretEditor
 							g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 						}
 						else if (showLineBreaks && c.c == '\n')
-					    {
+						{
 							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-					    	g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-					    }
+							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
+						}
 						else
 						{
 							TextStyle style = styles[c.style];
@@ -737,7 +737,7 @@ namespace MulticaretEditor
 						}
 						if (c.c == '\t')
 						{
-							pos = ((pos + tabSize) / tabSize) * tabSize; 
+							pos = ((pos + tabSize) / tabSize) * tabSize;
 						}
 						else
 						{
@@ -763,10 +763,10 @@ namespace MulticaretEditor
 							g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 						}
 						else if (showLineBreaks && c.c == '\n')
-					    {
+						{
 							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-					    	g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-					    }
+							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
+						}
 						else
 						{
 							TextStyle style = styles[c.style];
@@ -784,20 +784,20 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		protected override void OnPaintBackground(PaintEventArgs e)
         {
 			e.Graphics.FillRectangle(scheme.bgBrush, ClientRectangle);
         }
-		
+
 		private void OnCursorTick(object sender, EventArgs e)
 		{
 			isCursorTick = !isCursorTick;
 			Invalidate();
 		}
-		
+
 		private Keys modePressedKeys = Keys.None;
-		
+
 		private void OnKeyTick(object sender, EventArgs e)
 		{
 			if (Focused)
@@ -833,7 +833,7 @@ namespace MulticaretEditor
 			if (highlighter != null && highlighter.Parse(lines))
 				Invalidate();
 		}
-		
+
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
@@ -842,7 +842,7 @@ namespace MulticaretEditor
 				cursorTimer.Dispose();
 			}
 		}
-		
+
 		private void UnblinkCursor()
 		{
 			cursorTimer.Stop();
@@ -850,21 +850,21 @@ namespace MulticaretEditor
 			isCursorTick = true;
 			Invalidate();
 		}
-		
+
 		//---------------------------------
 		// Keys
 		//---------------------------------
-		
+
 		protected override bool IsInputKey(Keys keyData)
 		{
 			return true;
 		}
-		
+
 		protected override bool ProcessMnemonic(char charCode)
 		{
 			if (!Focused)
 				return false;
-			
+
 			char altChar;
 			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
 			{
@@ -874,7 +874,7 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
-		
+
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
 			char code = e.KeyChar;
@@ -907,19 +907,19 @@ namespace MulticaretEditor
 			actionProcessed = false;
 			base.OnKeyPress(e);
 		}
-		
+
 		private bool actionProcessed = false;
-		
+
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			base.OnKeyDown(e);
 			if (!Focused)
 				return;
-			
+
 			actionProcessed = false;
 			keyMap.Enumerate<Keys>(ProcessKeyDown, e.KeyData);
 		}
-		
+
 		private bool ProcessKeyDown(KeyMap keyMap, Keys keyData)
 		{
 			if (!actionProcessed)
@@ -969,28 +969,25 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
-		
+
 		private bool isMouseDown = false;
 		private int mouseDownIndex = 0;
 		private Point lastMouseDownLocation;
 		private long lastMouseDownTicks;
-		
+
 		protected override void OnMouseDown(MouseEventArgs e)
-		{			
+		{
 			base.OnMouseDown(e);
 			Focus();
-			if ((DateTime.Now.Ticks - lastMouseDownTicks) / 10000 < 500 &&
-			    (Math.Abs(lastMouseDownLocation.X - e.Location.X) + Math.Abs(lastMouseDownLocation.Y - e.Location.Y) < charWidth / 2))
-			{
+			if (mouseDownIndex == 1 &&
+				(DateTime.Now.Ticks - lastMouseDownTicks) / 10000 < 500 &&
+				(Math.Abs(lastMouseDownLocation.X - e.Location.X) + Math.Abs(lastMouseDownLocation.Y - e.Location.Y) < charWidth / 2))
 				mouseDownIndex = 2;
-			}
 			else
-			{
 				mouseDownIndex = 1;
-			}
 			lastMouseDownLocation = e.Location;
 			lastMouseDownTicks = DateTime.Now.Ticks;
-			
+
 			if (mouseDownIndex == 1)
 			{
 				if (e.Button == MouseButtons.Left)
@@ -1011,25 +1008,21 @@ namespace MulticaretEditor
 			}
 			else if (mouseDownIndex == 2)
 			{
-				controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
-
+				mouseDownIndex = 0;
 				actionProcessed = false;
-				keyMap.Enumerate<bool>(ProcessDoubleClick, false);
-
+				if (!keyMap.Enumerate<bool>(ProcessDoubleClick, false))
+					controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
 				Invalidate();
 			}
 		}
-		
+
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			base.OnMouseUp(e);
 			if (e.Button == MouseButtons.Left)
-			{
 				isMouseDown = false;
-				mouseDownIndex = 0;
-			}
 		}
-		
+
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
@@ -1039,7 +1032,7 @@ namespace MulticaretEditor
 				UnblinkCursor();
 			}
 		}
-		
+
 		protected override void OnMouseWheel(MouseEventArgs e)
 		{
 			int delta = (int)Math.Round((float)e.Delta / 120f) * GetControlPanelWheelScrollLinesValue();
@@ -1058,20 +1051,20 @@ namespace MulticaretEditor
 			}
 			UnblinkCursor();
 		}
-		
+
 		private Pos GetMousePos(Point location)
 		{
 			return new Pos(
 				(location.X + charWidth / 3 + lines.scroller.scrollX.value - GetLeftIndent()) / charWidth,
 				(location.Y + lines.scroller.scrollY.value) / charHeight);
 		}
-		
+
 		private Place GetMousePlace(Point location)
 		{
 			Pos pos = GetMousePos(location);
 			return lines.UniversalPlaceOf(pos);
 		}
-		
+
 		private static int GetControlPanelWheelScrollLinesValue()
         {
             try
@@ -1086,49 +1079,49 @@ namespace MulticaretEditor
                 return 3;
             }
         }
-		
+
 		//----------------------------------------------------------
 		// Scrolling
 		//----------------------------------------------------------
-		
+
 		public KeyMapNode KeyMap { get { return keyMap; } }
-		
+
 		public void MoveToCaret()
 		{
 			ScrollIfNeedToCaret();
 			Invalidate();
 		}
-		
+
 		private void ScrollIfNeedToCaret()
 		{
 			lines.scroller.needScrollToCaret = true;
 		}
-		
+
 		private ScrollBar hScrollBar;
 		private ScrollBar vScrollBar;
 		private int scrollBarBreadth;
-		
+
 		private void InitScrollBars()
 		{
 			SuspendLayout();
-			
+
 			hScrollBar = new HScrollBar();
 			hScrollBar.Cursor = Cursors.Default;
 			hScrollBar.SmallChange = charWidth;
 			Controls.Add(hScrollBar);
-			
+
 			vScrollBar = new VScrollBar();
 			vScrollBar.Cursor = Cursors.Default;
 			vScrollBar.SmallChange = charHeight;
 			vScrollBar.Scroll += OnVScroll;
 			Controls.Add(vScrollBar);
-			
+
 			scrollBarBreadth = vScrollBar.Width;
 			AlignScrollBars();
 
 			ResumeLayout(false);
 		}
-		
+
 		private void InitScrollByLines()
 		{
 			ScrollBarData scrollX = lines.scroller.scrollX;
@@ -1138,13 +1131,13 @@ namespace MulticaretEditor
 			hScrollBar.Value = scrollX.ClampValue(scrollX.value);
 			vScrollBar.Value = scrollY.ClampValue(scrollY.value);
 		}
-		
+
 		private void OnVScroll(object target, ScrollEventArgs args)
 		{
 			if (args.Type == ScrollEventType.EndScroll)
 				lines.scroller.needVScrollFix = true;
 		}
-		
+
 		private void AlignScrollBars()
 		{
 			int clientWidth = ClientRectangle.Width;
@@ -1152,13 +1145,13 @@ namespace MulticaretEditor
 			hScrollBar.Top = clientHeight - scrollBarBreadth;
 			vScrollBar.Left = clientWidth - scrollBarBreadth;
 		}
-		
+
 		protected override void OnLayout(LayoutEventArgs levent)
 		{
 			base.OnLayout(levent);
 			AlignScrollBars();
 		}
-		
+
 		public void UpdateScrollOnPaint()
 		{
 			ScrollOnPaintInfo info = new ScrollOnPaintInfo();
@@ -1167,11 +1160,11 @@ namespace MulticaretEditor
 			info.leftIndent = GetLeftIndent();
 			info.charSize = new IntSize(charWidth, charHeight);
 			info.scrollBarBreadth = scrollBarBreadth;
-			
+
 			int valueX = hScrollBar.Value;
 			int valueY = vScrollBar.Value;
 			lines.scroller.UpdateScrollOnPaint(info, ref valueX, ref valueY);
-			
+
 			lines.scroller.scrollX.ApplyParamsTo(hScrollBar);
 			lines.scroller.scrollY.ApplyParamsTo(vScrollBar);
 			hScrollBar.Width = info.leftIndent + lines.scroller.textAreaWidth;
