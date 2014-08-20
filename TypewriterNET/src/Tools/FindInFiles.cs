@@ -116,6 +116,7 @@ public class FindInFiles
 		{
 			return "Error: File list reading error: " + e.Message;
 		}
+		List<StyleRange> ranges = new List<StyleRange>();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
 		foreach (string file in files)
@@ -185,8 +186,32 @@ public class FindInFiles
 							offset = rIndex + 1;
 					}
 				}
-				builder.AppendLine(
-					path + "(" + (currentLineIndex + 1) + "," + (index - offset + 1) + "): " + text.Substring(offset, lineEnd - offset));
+				ranges.Add(new StyleRange(builder.Length, path.Length, Ds.String.index));
+				builder.Append(path);
+				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
+				builder.Append("|");
+
+				string lineNumber = (currentLineIndex + 1) + "";
+				ranges.Add(new StyleRange(builder.Length, lineNumber.Length, Ds.DecVal.index));
+				builder.Append(lineNumber);
+
+				builder.Append(" ");
+
+				string charNumber = (index - offset + 1) + "";
+				ranges.Add(new StyleRange(builder.Length, charNumber.Length, Ds.DecVal.index));
+				builder.Append(charNumber);
+
+				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
+				builder.Append("| ");
+
+				string line = text.Substring(offset, lineEnd - offset);
+				int whitespaceLength = GetStartWhitespaceLength(line);
+				int trimOffset = 0;
+				if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
+					trimOffset = whitespaceLength;
+				ranges.Add(new StyleRange(builder.Length + index - offset - trimOffset, length, Ds.Keyword.index));
+				builder.Append(line, trimOffset, line.Length - trimOffset);
+				builder.AppendLine();
 				positions.Add(new Position(file, index, index + length));
 			}
 		}
@@ -194,6 +219,7 @@ public class FindInFiles
 		Buffer buffer = new Buffer(null, "Find results");
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
+		buffer.Controller.SetStyleRanges(ranges);
 		buffer.additionKeyMap = new KeyMap();
 		KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
@@ -202,6 +228,17 @@ public class FindInFiles
 		if (mainForm.ConsoleNest.Frame != null)
 			mainForm.ConsoleNest.Frame.Focus();
 		return null;
+	}
+
+	public static int GetStartWhitespaceLength(string text)
+	{
+		for (int i = 0, length = text.Length; i < length; i++)
+		{
+			char c = text[i];
+			if (c != ' ' && c != '\t')
+				return i;
+		}
+		return text.Length;
 	}
 
 	public bool ExecuteEnter(Controller controller)

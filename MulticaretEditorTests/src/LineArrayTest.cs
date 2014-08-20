@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using MulticaretEditor;
+using MulticaretEditor.Highlighting;
 using NUnit.Framework;
 
 namespace UnitTests
@@ -926,7 +927,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void StyleRange()
+		public void StyleRangeTest()
 		{
 			Init();
 			lines.SetText(
@@ -939,22 +940,22 @@ namespace UnitTests
 			    /*117*/"Eiszeit\n" +
 			    /*125*/"und nie wieder auferstehen");
 			
-			lines.SetRangeStyle(3, 4, 1);
+			lines.SetStyleRange(new StyleRange(3, 4, 1));
 			AssertHighlighting("00011110", lines[0]);
-			lines.SetRangeStyle(12, 3, 1);
+			lines.SetStyleRange(new StyleRange(12, 3, 1));
 			//                  und wir sind verloren im Meer\n
 			AssertHighlighting("000011100000000000000000000000", lines[1]);			
-			lines.SetRangeStyle(89, 27, 2);
+			lines.SetStyleRange(new StyleRange(89, 27, 2));
 			//                  mit dir werd ich untergehen\n
 			AssertHighlighting("2222222222222222222222222220", lines[5]);
 			
-			lines.SetRangeStyle(41, 8, 2);
+			lines.SetStyleRange(new StyleRange(41, 8, 2));
 			//                  Eiszeit\n
 			AssertHighlighting("00022222", lines[2]);
 			//                  und das Atmen faellt so schwer\n
 			AssertHighlighting("2220000000000000000000000000000", lines[3]);
 			
-			lines.SetRangeStyle(41, 38, 3);
+			lines.SetStyleRange(new StyleRange(41, 38, 3));
 			//                  Eiszeit\n
 			AssertHighlighting("00033333", lines[2]);
 			//                  und das Atmen faellt so schwer\n

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
 using MulticaretEditor.Commands;
+using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -727,5 +728,18 @@ namespace MulticaretEditor
 
 		public IEnumerable<Selection> Selections { get { return selections; } }
 		public Selection LastSelection { get { return lines.LastSelection; } }
+
+		public void SetStyleRange(StyleRange range)
+		{
+			lines.SetStyleRange(range);
+		}
+
+		public void SetStyleRanges(List<StyleRange> ranges)
+		{
+			foreach (StyleRange range in ranges)
+			{
+				lines.SetStyleRange(range);
+			}
+		}
 	}
 }

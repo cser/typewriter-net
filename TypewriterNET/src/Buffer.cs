@@ -67,7 +67,7 @@ public class Buffer
 		controller.PutCursor(controller.Lines.PlaceOf(controller.Lines.charsCount), false);
 		controller.Lines.InsertText(index, text);
 		if (ds != null)
-			controller.Lines.SetRangeStyle(new StyleRange(index, text.Length, ds.index));
+			controller.SetStyleRange(new StyleRange(index, text.Length, ds.index));
 	}
 	
 	public void WriteLine(string text)

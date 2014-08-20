@@ -730,7 +730,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void SetRangeStyle(StyleRange range)
+		public void SetStyleRange(StyleRange range)
 		{
 			short style = range.style;
 			Place start = PlaceOf(range.start);

@@ -138,10 +138,7 @@ public class FileTreeProcessor
 		List<StyleRange> ranges = new List<StyleRange>();
 		Rebuild(node, builder, "", ref line, ranges);
 		buffer.Controller.InitText(builder.ToString());
-		foreach (StyleRange range in ranges)
-		{
-			buffer.Controller.Lines.SetRangeStyle(range);
-		}
+		buffer.Controller.SetStyleRanges(ranges);
 	}
 
 	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line, List<StyleRange> ranges)
