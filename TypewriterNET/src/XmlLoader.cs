@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using MulticaretEditor.Highlighting;
 
 public class XmlLoader
 {
@@ -30,7 +31,7 @@ public class XmlLoader
 		}
 		catch (Exception e)
 		{
-			mainForm.Log.WriteLine("Error: " + e.Message);
+			mainForm.Log.WriteLine("Error: " + e.Message, Ds.Error);
 			mainForm.Log.Open();
 		}
 		return null;

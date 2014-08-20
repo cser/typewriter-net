@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
+using MulticaretEditor.Highlighting;
 
 public class FileTreeProcessor
 {
@@ -44,10 +45,16 @@ public class FileTreeProcessor
 
 	private bool DoOnEnter(Controller controller)
 	{
-		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+		Dictionary<int, bool> selections = new Dictionary<int, bool>();
+		foreach (Selection selection in controller.Selections)
+		{
+			Place place = controller.Lines.PlaceOf(selection.anchor);
+			selections[place.iLine] = selection == controller.LastSelection;
+		}
+		bool needRebuild = false;
 		foreach (Node nodeI in GetNodes())
 		{
-			if (nodeI.line == place.iLine)
+			if (selections.ContainsKey(nodeI.line))
 			{
 				if (nodeI.isDirectory)
 				{
@@ -55,17 +62,18 @@ public class FileTreeProcessor
 						Collapse(nodeI);
 					else
 						Expand(nodeI);
-					Rebuild();
+					needRebuild = true;
 				}
 				else
 				{
 					mainForm.LoadFile(nodeI.fullPath);
-					if (mainForm.MainNest.Frame != null)
+					if (selections[nodeI.line] && mainForm.MainNest.Frame != null)
 						mainForm.MainNest.Frame.Focus();
 				}
-				return true;
 			}
 		}
+		if (needRebuild)
+			Rebuild();
 		return false;
 	}
 
@@ -127,22 +135,46 @@ public class FileTreeProcessor
 	{
 		StringBuilder builder = new StringBuilder();
 		int line = 0;
-		Rebuild(node, builder, "", ref line);
+		List<StyleRange> ranges = new List<StyleRange>();
+		Rebuild(node, builder, "", ref line, ranges);
 		buffer.Controller.InitText(builder.ToString());
+		foreach (StyleRange range in ranges)
+		{
+			buffer.Controller.Lines.SetRangeStyle(range);
+		}
 	}
 
-	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line)
+	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line, List<StyleRange> ranges)
 	{
 		string prefix = "  ";
 		if (node.isDirectory)
 			prefix = node.expanded ? "- " : "+ ";
-		builder.AppendLine(indent + prefix + node.name);
+		builder.Append(indent + prefix);
+		if (node.isDirectory)
+		{
+			ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Keyword.index));
+		}
+		else
+		{
+			string extension = Path.GetExtension(node.name).ToLowerInvariant();
+			if (extension == ".exe" || extension == ".bat" || extension == ".cmd")
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.DataType.index));
+			else if (extension == ".dll")
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Function.index));
+			else if (extension == ".txt" || extension == ".md" || extension == ".xml" || extension == ".ini")
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.String.index));
+			else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".gif")
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Others.index));
+			else if (node.name.StartsWith("."))
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
+		}
+		builder.AppendLine(node.name);
 		node.line = line;
 		line++;
 		indent += "  ";
 		foreach (Node child in node.childs)
 		{
-			Rebuild(child, builder, indent, ref line);
+			Rebuild(child, builder, indent, ref line, ranges);
 		}
 	}
 }

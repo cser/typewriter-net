@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -729,10 +730,11 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void SetRangeStyle(int startIndex, int count, short style)
+		public void SetRangeStyle(StyleRange range)
 		{
-			Place start = PlaceOf(startIndex);
-			Place end = PlaceOf(startIndex + count);
+			short style = range.style;
+			Place start = PlaceOf(range.start);
+			Place end = PlaceOf(range.start + range.count);
 			if (start.iLine == end.iLine)
 			{
 				this[start.iLine].SetRangeStyle(start.iChar, end.iChar - start.iChar, style);
