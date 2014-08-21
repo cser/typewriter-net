@@ -51,6 +51,21 @@ public class Buffer
 		return buffer.Name + (buffer.Changed ? "*" : "");
 	}
 
+	private bool? overrideWordWrap = null;
+	public bool? OverrideWordWrap
+	{
+		get { return overrideWordWrap; }
+		set
+		{
+			if (overrideWordWrap != value)
+			{
+				overrideWordWrap = value;
+				if (Frame != null)
+					Frame.UpdateOverrides();
+			}
+		}
+	}
+
 	//--------------------------------------------------------------------------
 	// Helped
 	//--------------------------------------------------------------------------

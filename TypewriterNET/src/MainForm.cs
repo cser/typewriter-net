@@ -91,7 +91,7 @@ public class MainForm : Form
 	private Log log;
 	public Log Log { get { return log; } }
 
-	private FileTreeProcessor fileTree;
+	private FileTree fileTree;
 
 	private void OnLoad(object sender, EventArgs e)
 	{
@@ -125,7 +125,7 @@ public class MainForm : Form
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
-		fileTree = new FileTreeProcessor(this);
+		fileTree = new FileTree(this);
 		fileTree.Reload();
 
 		leftNest.buffers = new BufferList();

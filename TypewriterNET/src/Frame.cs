@@ -150,8 +150,10 @@ public class Frame : AFrame
 	{
 		if (phase == UpdatePhase.Raw)
 		{
+			_settingsWordWrap = settings.wordWrap.Value;
 			settings.ApplyParameters(textBox);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+			UpdateOverrides();
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -221,7 +223,18 @@ public class Frame : AFrame
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
 		if (additionKeyMap != null)
 			textBox.KeyMap.AddAfter(additionKeyMap, 1);
+		UpdateOverrides();
 		UpdateHighlighter();
+	}
+
+	private bool _settingsWordWrap = false;
+
+	public void UpdateOverrides()
+	{
+		Buffer buffer = buffers.list.Selected;
+		textBox.WordWrap = buffer != null && buffer.OverrideWordWrap != null ?
+			buffer.OverrideWordWrap.Value :
+			_settingsWordWrap;
 	}
 
 	public void UpdateHighlighter()

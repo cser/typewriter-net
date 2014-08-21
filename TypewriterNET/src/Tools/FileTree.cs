@@ -7,7 +7,7 @@ using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 
-public class FileTreeProcessor
+public class FileTree
 {
 	public class Node
 	{
@@ -16,34 +16,54 @@ public class FileTreeProcessor
 			this.isDirectory = isDirectory;
 			this.name = name;
 			this.fullPath = fullPath;
+			hash = fullPath.GetHashCode();
 		}
 
 		public readonly bool isDirectory;
 		public readonly string name;
 		public readonly string fullPath;
+		public readonly int hash;
 		public readonly List<Node> childs = new List<Node>();
 		public bool expanded = false;
-		public int line = 0;
+		public int line = -1;
 	}
 
 	private MainForm mainForm;
+	private Dictionary<int, bool> expanded;
 
 	private Buffer buffer;
 	public Buffer Buffer { get { return buffer; } }
 
-	public FileTreeProcessor(MainForm mainForm)
+	public FileTree(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
 
+		expanded = new Dictionary<int, bool>();
 		buffer = new Buffer(null, "File tree");
+		buffer.OverrideWordWrap = false;
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
+
+		KeyAction actionNoSwitch = new KeyAction("F&ind\\Open item, no switch", DoOnEnterNoSwitch, null, false);
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter | Keys.Shift, null, actionNoSwitch));
+		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Shift, actionNoSwitch).SetDoubleClick(true));
+
 		KeyAction action = new KeyAction("F&ind\\Open item", DoOnEnter, null, false);
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 	}
 
+	private bool DoOnEnterNoSwitch(Controller controller)
+	{
+		return ProcessEnter(controller, true);
+	}
+
 	private bool DoOnEnter(Controller controller)
+	{
+		return ProcessEnter(controller, false);
+	}
+
+	private bool ProcessEnter(Controller controller, bool noSwitch)
 	{
 		Dictionary<int, bool> selections = new Dictionary<int, bool>();
 		foreach (Selection selection in controller.Selections)
@@ -60,14 +80,12 @@ public class FileTreeProcessor
 		bool needRebuild = false;
 		Node mainFileNode = null;
 		bool fileOpened = false;
-		bool directoryOpened = false;
 		foreach (Node nodeI in GetNodes())
 		{
 			if (selections.ContainsKey(nodeI.line))
 			{
 				if (nodeI.isDirectory)
 				{
-					directoryOpened = true;
 					if (nodeI.expanded)
 						Collapse(nodeI);
 					else
@@ -86,11 +104,11 @@ public class FileTreeProcessor
 		}
 		if (mainFileNode != null)
 			mainForm.LoadFile(mainFileNode.fullPath);
-		if (fileOpened && mainForm.MainNest.Frame != null)
+		if (!noSwitch && fileOpened && mainForm.MainNest.Frame != null)
 			mainForm.MainNest.Frame.Focus();
 		if (needRebuild)
 			Rebuild();
-		return fileOpened || directoryOpened;
+		return true;
 	}
 
 	private Node node;
@@ -129,11 +147,17 @@ public class FileTreeProcessor
 			node.childs.Clear();
 			foreach (string file in Directory.GetDirectories(node.fullPath))
 			{
-				node.childs.Add(new Node(true, Path.GetFileName(file), Path.GetFullPath(file)));
+				Node nodeI = new Node(true, Path.GetFileName(file), Path.GetFullPath(file));
+				if (expanded.ContainsKey(nodeI.hash))
+					Expand(nodeI);
+				node.childs.Add(nodeI);
 			}
 			foreach (string file in Directory.GetFiles(node.fullPath))
 			{
-				node.childs.Add(new Node(false, Path.GetFileName(file), Path.GetFullPath(file)));
+				Node nodeI = new Node(false, Path.GetFileName(file), Path.GetFullPath(file));
+				if (expanded.ContainsKey(nodeI.hash))
+					Expand(nodeI);
+				node.childs.Add(nodeI);
 			}
 		}
 	}
@@ -162,6 +186,13 @@ public class FileTreeProcessor
 	{
 		if (!first)
 			builder.AppendLine();
+		if (node.isDirectory)
+		{
+			if (node.expanded)
+				expanded[node.hash] = true;
+			else
+				expanded.Remove(node.hash);
+		}
 		first = false;
 		string prefix = "  ";
 		if (node.isDirectory)
