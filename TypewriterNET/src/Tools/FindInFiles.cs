@@ -36,6 +36,8 @@ public class FindInFiles
 		}
 	}
 
+	private const int MaxPartChars = 150;
+
 	private MainForm mainForm;
 	private List<Position> positions;
 
@@ -116,6 +118,7 @@ public class FindInFiles
 		{
 			return "Error: File list reading error: " + e.Message;
 		}
+		bool first = true;
 		List<StyleRange> ranges = new List<StyleRange>();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
@@ -186,6 +189,10 @@ public class FindInFiles
 							offset = rIndex + 1;
 					}
 				}
+				if (!first)
+					builder.AppendLine();
+				first = false;
+
 				ranges.Add(new StyleRange(builder.Length, path.Length, Ds.String.index));
 				builder.Append(path);
 				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
@@ -204,14 +211,22 @@ public class FindInFiles
 				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
 				builder.Append("| ");
 
-				string line = text.Substring(offset, lineEnd - offset);
-				int whitespaceLength = GetStartWhitespaceLength(line);
 				int trimOffset = 0;
-				if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
-					trimOffset = whitespaceLength;
+				int rightTrimOffset = 0;
+				int lineLength = lineEnd - offset;
+				if (index - offset - MaxPartChars > 0)
+					trimOffset = index - offset - MaxPartChars;
+				if (lineLength - index + offset - length - MaxPartChars > 0)
+					rightTrimOffset = lineLength - index + offset - length - MaxPartChars;
+				string line = text.Substring(offset, lineLength);
+				if (trimOffset == 0)
+				{
+					int whitespaceLength = GetStartWhitespaceLength(line);
+					if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
+						trimOffset = whitespaceLength;
+				}
 				ranges.Add(new StyleRange(builder.Length + index - offset - trimOffset, length, Ds.Keyword.index));
-				builder.Append(line, trimOffset, line.Length - trimOffset);
-				builder.AppendLine();
+				builder.Append(line, trimOffset, line.Length - trimOffset - rightTrimOffset);
 				positions.Add(new Position(file, index, index + length));
 			}
 		}

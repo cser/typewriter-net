@@ -135,14 +135,18 @@ public class FileTreeProcessor
 	{
 		StringBuilder builder = new StringBuilder();
 		int line = 0;
+		bool first = true;
 		List<StyleRange> ranges = new List<StyleRange>();
-		Rebuild(node, builder, "", ref line, ranges);
+		Rebuild(node, builder, "", ref line, ref first, ranges);
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
 	}
 
-	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line, List<StyleRange> ranges)
+	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line, ref bool first, List<StyleRange> ranges)
 	{
+		if (!first)
+			builder.AppendLine();
+		first = false;
 		string prefix = "  ";
 		if (node.isDirectory)
 			prefix = node.expanded ? "- " : "+ ";
@@ -165,13 +169,13 @@ public class FileTreeProcessor
 			else if (node.name.StartsWith("."))
 				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
 		}
-		builder.AppendLine(node.name);
+		builder.Append(node.name);
 		node.line = line;
 		line++;
 		indent += "  ";
 		foreach (Node child in node.childs)
 		{
-			Rebuild(child, builder, indent, ref line, ranges);
+			Rebuild(child, builder, indent, ref line, ref first, ranges);
 		}
 	}
 }
