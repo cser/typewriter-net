@@ -734,13 +734,14 @@ namespace MulticaretEditor
 		{
 			short style = range.style;
 			Place start = PlaceOf(range.start);
-			Place end = PlaceOf(range.start + range.count);
-			if (start.iLine == end.iLine)
+			Line line = this[start.iLine];
+			if (start.iChar + range.count <= line.chars.Count)
 			{
-				this[start.iLine].SetRangeStyle(start.iChar, end.iChar - start.iChar, style);
+				line.SetRangeStyle(start.iChar, range.count, style);
 			}
 			else
 			{
+				Place end = PlaceOf(range.start + range.count);
 				LineIterator iterator = GetLineRange(start.iLine, end.iLine - start.iLine + 1);
 				if (iterator.MoveNext())
 				{
