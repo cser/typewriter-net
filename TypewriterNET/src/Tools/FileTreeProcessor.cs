@@ -18,10 +18,10 @@ public class FileTreeProcessor
 			this.fullPath = fullPath;
 		}
 
-		public bool isDirectory;
-		public string name;
-		public string fullPath;
-		public List<Node> childs = new List<Node>();
+		public readonly bool isDirectory;
+		public readonly string name;
+		public readonly string fullPath;
+		public readonly List<Node> childs = new List<Node>();
 		public bool expanded = false;
 		public int line = 0;
 	}
@@ -48,16 +48,26 @@ public class FileTreeProcessor
 		Dictionary<int, bool> selections = new Dictionary<int, bool>();
 		foreach (Selection selection in controller.Selections)
 		{
-			Place place = controller.Lines.PlaceOf(selection.anchor);
-			selections[place.iLine] = selection == controller.LastSelection;
+			Place place0 = controller.Lines.PlaceOf(selection.anchor);
+			Place place1 = controller.Lines.PlaceOf(selection.caret);
+			int i0 = Math.Min(place0.iLine, place1.iLine);
+			int i1 = Math.Max(place0.iLine, place1.iLine);
+			for (int i = i0; i <= i1; i++)
+			{
+				selections[i] = selection == controller.LastSelection && i == place1.iLine;
+			}
 		}
 		bool needRebuild = false;
+		Node mainFileNode = null;
+		bool fileOpened = false;
+		bool directoryOpened = false;
 		foreach (Node nodeI in GetNodes())
 		{
 			if (selections.ContainsKey(nodeI.line))
 			{
 				if (nodeI.isDirectory)
 				{
+					directoryOpened = true;
 					if (nodeI.expanded)
 						Collapse(nodeI);
 					else
@@ -66,15 +76,21 @@ public class FileTreeProcessor
 				}
 				else
 				{
-					mainForm.LoadFile(nodeI.fullPath);
-					if (selections[nodeI.line] && mainForm.MainNest.Frame != null)
-						mainForm.MainNest.Frame.Focus();
+					fileOpened = true;
+					if (selections[nodeI.line])
+						mainFileNode = nodeI;
+					else
+						mainForm.LoadFile(nodeI.fullPath);
 				}
 			}
 		}
+		if (mainFileNode != null)
+			mainForm.LoadFile(mainFileNode.fullPath);
+		if (fileOpened && mainForm.MainNest.Frame != null)
+			mainForm.MainNest.Frame.Focus();
 		if (needRebuild)
 			Rebuild();
-		return false;
+		return fileOpened || directoryOpened;
 	}
 
 	private Node node;
