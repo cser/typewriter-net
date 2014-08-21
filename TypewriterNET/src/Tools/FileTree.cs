@@ -44,11 +44,11 @@ public class FileTree
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
 
-		KeyAction actionNoSwitch = new KeyAction("&View\\FileTree\\Open item, no switch", DoOnEnterNoSwitch, null, false);
+		KeyAction actionNoSwitch = new KeyAction("&View\\File tree\\Open item, no switch", DoOnEnterNoSwitch, null, false);
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter | Keys.Shift, null, actionNoSwitch));
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Shift, actionNoSwitch).SetDoubleClick(true));
 
-		KeyAction action = new KeyAction("&View\\FileTree\\Open item", DoOnEnter, null, false);
+		KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 	}
