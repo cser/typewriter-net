@@ -288,7 +288,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\Open/close file tree", DoOpenCloseFileTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\FileTree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
