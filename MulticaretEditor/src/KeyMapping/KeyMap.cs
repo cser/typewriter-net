@@ -119,8 +119,11 @@ namespace MulticaretEditor.KeyMapping
 			AddItem(new KeyItem(Keys.End | Keys.Shift, null, KeyAction.EndWithSelection));
 			AddItem(new KeyItem(Keys.A | Keys.Control, null, KeyAction.SelectAll));
 			AddItem(new KeyItem(Keys.C | Keys.Control, null, KeyAction.Copy));
+			AddItem(new KeyItem(Keys.Control | Keys.Insert, null, KeyAction.Copy));
 			AddItem(new KeyItem(Keys.V | Keys.Control, null, KeyAction.Paste));
+			AddItem(new KeyItem(Keys.Shift | Keys.Insert, null, KeyAction.Paste));
 			AddItem(new KeyItem(Keys.X | Keys.Control, null, KeyAction.Cut));
+			AddItem(new KeyItem(Keys.Shift | Keys.Delete, null, KeyAction.Cut));
 			AddItem(new KeyItem(Keys.Escape, null, KeyAction.ClearMinorSelections));
 			AddItem(new KeyItem(Keys.Shift | Keys.Escape, null, KeyAction.ClearFirstMinorSelections));
 			AddItem(new KeyItem(Keys.Delete, null, KeyAction.Delete));
