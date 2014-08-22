@@ -729,6 +729,15 @@ namespace MulticaretEditor
 		public IEnumerable<Selection> Selections { get { return selections; } }
 		public Selection LastSelection { get { return lines.LastSelection; } }
 
+		public void RemoveSelections(List<Selection> selections)
+		{
+			foreach (Selection selection in selections)
+			{
+				lines.selections.Remove(selection);
+			}
+			lines.JoinSelections();
+		}
+
 		public void SetStyleRange(StyleRange range)
 		{
 			lines.SetStyleRange(range);

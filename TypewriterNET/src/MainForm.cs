@@ -575,7 +575,7 @@ public class MainForm : Form
 
 	private bool DoOpenCloseFileTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+		if (leftNest.AFrame != null && leftNest.AFrame.Focused && leftNest.buffers.list.Selected == fileTree.Buffer)
 		{
 			leftNest.AFrame.Destroy();
 		}

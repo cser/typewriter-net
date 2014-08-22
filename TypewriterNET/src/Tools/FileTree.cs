@@ -28,8 +28,25 @@ public class FileTree
 		public int line = -1;
 	}
 
+	public struct SelectionData
+	{
+		public int hash0;
+		public int iChar0;
+		public int hash1;
+		public int iChar1;
+
+		public SelectionData(int hash0, int iChar0, int hash1, int iChar1)
+		{
+			this.hash0 = hash0;
+			this.iChar0 = iChar0;
+			this.hash1 = hash1;
+			this.iChar1 = iChar1;
+		}
+	}
+
 	private MainForm mainForm;
 	private Dictionary<int, bool> expanded;
+	private Dictionary<Selection, SelectionData> selectionDatas;
 
 	private Buffer buffer;
 	public Buffer Buffer { get { return buffer; } }
@@ -39,6 +56,7 @@ public class FileTree
 		this.mainForm = mainForm;
 
 		expanded = new Dictionary<int, bool>();
+		selectionDatas = new Dictionary<Selection, SelectionData>();
 		buffer = new Buffer(null, "File tree");
 		buffer.OverrideWordWrap = false;
 		buffer.Controller.isReadonly = true;
@@ -63,13 +81,20 @@ public class FileTree
 		return ProcessEnter(controller, false);
 	}
 
+	private List<Node> nodes = new List<Node>();
+
 	private bool ProcessEnter(Controller controller, bool noSwitch)
 	{
+		if (nodes.Count == 0)
+			return false;
 		Dictionary<int, bool> selections = new Dictionary<int, bool>();
 		foreach (Selection selection in controller.Selections)
 		{
 			Place place0 = controller.Lines.PlaceOf(selection.anchor);
 			Place place1 = controller.Lines.PlaceOf(selection.caret);
+			selectionDatas[selection] = new SelectionData(
+				nodes[place0.iLine].hash, place0.iChar,
+				nodes[place1.iLine].hash, place1.iChar);
 			int i0 = Math.Min(place0.iLine, place1.iLine);
 			int i1 = Math.Max(place0.iLine, place1.iLine);
 			for (int i = i0; i <= i1; i++)
@@ -80,7 +105,7 @@ public class FileTree
 		bool needRebuild = false;
 		Node mainFileNode = null;
 		bool fileOpened = false;
-		foreach (Node nodeI in GetNodes())
+		foreach (Node nodeI in nodes)
 		{
 			if (selections.ContainsKey(nodeI.line))
 			{
@@ -104,32 +129,53 @@ public class FileTree
 		}
 		if (mainFileNode != null)
 			mainForm.LoadFile(mainFileNode.fullPath);
+		if (needRebuild)
+		{
+			Rebuild();
+			List<Selection> selectionsToRemove = new List<Selection>();
+			Dictionary<int, Node> nodeOf = new Dictionary<int, Node>();
+			foreach (Node nodeI in nodes)
+			{
+				nodeOf[nodeI.hash] = nodeI;
+			}
+			foreach (Selection selection in controller.Selections)
+			{
+				SelectionData selectionData;
+				if (!selectionDatas.TryGetValue(selection, out selectionData))
+				{
+					selectionsToRemove.Add(selection);
+					continue;
+				}
+				Node node0;
+				nodeOf.TryGetValue(selectionData.hash0, out node0);
+				Node node1;
+				nodeOf.TryGetValue(selectionData.hash1, out node1);
+				if (node0 == null && node1 == null)
+				{
+					selectionsToRemove.Add(selection);
+					continue;
+				}
+				if (node0 != null && node1 == null)
+				{
+					selection.anchor = selection.caret = controller.Lines.IndexOf(new Place(node0.line, selectionData.iChar0));
+				}
+				else if (node0 == null && node1 != null)
+				{
+					selection.anchor = selection.caret = controller.Lines.IndexOf(new Place(node1.line, selectionData.iChar1));
+				}
+				else
+				{
+					selection.anchor = controller.Lines.IndexOf(new Place(selectionData.iChar0, node0.line));
+					selection.caret = controller.Lines.IndexOf(new Place(selectionData.iChar1, node1.line));
+				}
+			}
+		}
 		if (!noSwitch && fileOpened && mainForm.MainNest.Frame != null)
 			mainForm.MainNest.Frame.Focus();
-		if (needRebuild)
-			Rebuild();
 		return true;
 	}
 
 	private Node node;
-
-	private IEnumerable<Node> GetNodes()
-	{
-		if (node != null)
-		{
-			Stack<Node> nodes = new Stack<Node>();
-			nodes.Push(node);
-			while (nodes.Count > 0)
-			{
-				Node nodeI = nodes.Pop();
-				yield return nodeI;
-				foreach (Node nodeJ in nodeI.childs)
-				{
-					nodes.Push(nodeJ);
-				}
-			}
-		}
-	}
 
 	public void Reload()
 	{
@@ -173,16 +219,16 @@ public class FileTree
 
 	private void Rebuild()
 	{
+		nodes.Clear();
 		StringBuilder builder = new StringBuilder();
-		int line = 0;
 		bool first = true;
 		List<StyleRange> ranges = new List<StyleRange>();
-		Rebuild(node, builder, "", ref line, ref first, ranges);
+		Rebuild(node, builder, "", ref first, ranges);
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
 	}
 
-	private void Rebuild(Node node, StringBuilder builder, string indent, ref int line, ref bool first, List<StyleRange> ranges)
+	private void Rebuild(Node node, StringBuilder builder, string indent, ref bool first, List<StyleRange> ranges)
 	{
 		if (!first)
 			builder.AppendLine();
@@ -217,12 +263,12 @@ public class FileTree
 				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
 		}
 		builder.Append(node.name);
-		node.line = line;
-		line++;
+		node.line = nodes.Count;
+		nodes.Add(node);
 		indent += "  ";
 		foreach (Node child in node.childs)
 		{
-			Rebuild(child, builder, indent, ref line, ref first, ranges);
+			Rebuild(child, builder, indent, ref first, ranges);
 		}
 	}
 }
