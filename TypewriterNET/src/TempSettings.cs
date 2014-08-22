@@ -45,6 +45,7 @@ public class TempSettings
 			if (selectedTab != null)
 				mainForm.MainNest.buffers.list.Selected = selectedTab;
 		}
+		ValuesUnserialize(state);
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -89,7 +90,70 @@ public class TempSettings
 			}
 		}
 		state["storage"] = storage.Serialize();
+		ValuesSerialize(state);
 		
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
+	}
+
+	private const int MaxSettingsInts = 20;
+	private Dictionary<string, TempSettingsInt> settingsInts = new Dictionary<string, TempSettingsInt>();
+
+	private void ValuesSerialize(SValue state)
+	{
+		List<TempSettingsInt> list = new List<TempSettingsInt>();
+		foreach (KeyValuePair<string, TempSettingsInt> pair in settingsInts)
+		{
+			list.Add(pair.Value);
+		}
+		list.Sort(CompareSettingsInts);
+		if (list.Count > MaxSettingsInts)
+			list.RemoveRange(MaxSettingsInts, list.Count - MaxSettingsInts);
+		SValue sList = SValue.NewList();
+		foreach (TempSettingsInt settingsInt in list)
+		{
+			SValue hash = SValue.NewHash();
+			hash["id"] = SValue.NewString(settingsInt.id);
+			hash["priority"] = SValue.NewInt(settingsInt.priority);
+			hash["value"] = SValue.NewInt(settingsInt.value);
+			sList.Add(hash);
+		}
+		state["values"] = sList;
+	}
+
+	private static int CompareSettingsInts(TempSettingsInt value0, TempSettingsInt value1)
+	{
+		return value1.priority - value0.priority;
+	}
+
+	private void ValuesUnserialize(SValue state)
+	{
+		SValue sList = state["values"];
+		foreach (SValue hash in sList.List)
+		{
+			string id = hash["id"].String;
+			TempSettingsInt settingsInt;
+			settingsInts.TryGetValue(id, out settingsInt);
+			if (settingsInt == null)
+			{
+				settingsInt = new TempSettingsInt(id);
+				settingsInts[id] = settingsInt;
+			}
+			settingsInt.priority = hash["priority"].Int;
+			settingsInt.value = hash["value"].Int;
+			settingsInts[id] = settingsInt;
+		}
+	}
+
+	public TempSettingsInt GetInt(string id, int defaultValue)
+	{
+		TempSettingsInt settingsInt;
+		settingsInts.TryGetValue(id, out settingsInt);
+		if (settingsInt == null)
+		{
+			settingsInt = new TempSettingsInt(id);
+			settingsInt.value = defaultValue;
+			settingsInts[id] = settingsInt;
+		}
+		return settingsInt;
 	}
 }

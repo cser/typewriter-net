@@ -18,6 +18,7 @@ public class Nest
 	public bool left;
 	public bool isPercents = true;
 	public int size = 50;
+	public TempSettingsInt settingsSize;
 
 	public Size minSize;
 	public Size selfMinSize;
@@ -161,5 +162,25 @@ public class Nest
 			frame.Location = new Point(x, y);
 			SetFrameSize(new Size(width, height));
 		}
+	}
+
+	public void MarkSizeAsChanged()
+	{
+		if (settingsSize != null)
+		{
+			settingsSize.value = size;
+			settingsSize.changed = true;
+		}
+	}
+
+	public void UpdateSettings(Settings settings, UpdatePhase phase)
+	{
+		if (phase == UpdatePhase.TempSettingsLoaded)
+		{
+			if (settingsSize != null && !settingsSize.changed)
+				size = settingsSize.value;
+		}
+		if (AFrame != null)
+			AFrame.UpdateSettings(settings, phase);
 	}
 }

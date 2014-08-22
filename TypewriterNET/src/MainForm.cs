@@ -103,14 +103,15 @@ public class MainForm : Form
 		BuildMenu();
 
 		commander.Init(this, settings);
+		tempSettings = new TempSettings(this, settings);
 
-		mainNest = AddNest(false, true, true, 70);
+		mainNest = AddNest(false, true, true, tempSettings.GetInt("mainNest.size", 70));
 		mainNest.buffers = new BufferList();
 		new Frame().Create(mainNest);
 
-		consoleNest = AddNest(false, false, true, 20);
+		consoleNest = AddNest(false, false, true, tempSettings.GetInt("consoleNest.size", 20));
 		consoleNest.buffers = new BufferList();
-		leftNest = AddNest(true, true, true, 20);
+		leftNest = AddNest(true, true, true, tempSettings.GetInt("leftNest.size", 20));
 
 		log = new Log(this, consoleNest);
 		xmlLoader = new XmlLoader(this);
@@ -136,8 +137,8 @@ public class MainForm : Form
 		ReloadConfig();
 		fileDragger = new FileDragger(this);
 
-		tempSettings = new TempSettings(this, settings);
 		tempSettings.Load();
+		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
 
 		if (args.Length == 1)
 			LoadFile(args[0]);
@@ -247,13 +248,14 @@ public class MainForm : Form
 		frames.Resize(0, 0, ClientSize);
 	}
 
-	private Nest AddNest(bool hDivided, bool left, bool isPercents, int percents)
+	private Nest AddNest(bool hDivided, bool left, bool isPercents, TempSettingsInt settingsInt)
 	{
 		Nest nest = frames.AddParentNode();
 		nest.hDivided = hDivided;
 		nest.left = left;
 		nest.isPercents = isPercents;
-		nest.size = percents;
+		nest.size = settingsInt.value;
+		nest.settingsSize = settingsInt;
 		return nest;
 	}
 

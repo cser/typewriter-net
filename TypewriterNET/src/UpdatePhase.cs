@@ -2,5 +2,6 @@ public enum UpdatePhase
 {
 	Raw,
 	Parsed,
-	HighlighterChange
+	HighlighterChange,
+	TempSettingsLoaded
 }

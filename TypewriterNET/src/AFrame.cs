@@ -151,6 +151,7 @@ public class AFrame : Control
 			else if (target.isPercents && target.size > 100)
 				target.size = 100;
 			target.MainForm.DoResize();
+			target.MarkSizeAsChanged();
 		}
 	}
 
@@ -210,6 +211,7 @@ public class AFrame : Control
 			else if (target.isPercents && target.size > 100)
 				target.size = 100;
 			target.MainForm.DoResize();
+			target.MarkSizeAsChanged();
 		}
 	}
 

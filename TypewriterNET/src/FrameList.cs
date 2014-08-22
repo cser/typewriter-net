@@ -86,8 +86,7 @@ public class FrameList
 	{
 		for (Nest nestI = list.Head; nestI != null; nestI = nestI.Child)
 		{
-			if (nestI.AFrame != null)
-				nestI.AFrame.UpdateSettings(settings, phase);
+			nestI.UpdateSettings(settings, phase);
 		}
 	}
 
