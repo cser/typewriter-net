@@ -61,14 +61,34 @@ public class FileTree
 		buffer.OverrideWordWrap = false;
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Open item, no switch", DoOnEnterNoSwitch, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Shift | Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Shift, action).SetDoubleClick(true));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Set cwd", DoOnSetCwd, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
+		}
+		buffer.onSelected = OnBufferSelected;
+		buffer.onUpdateSettings = OnBufferUpdateSettings;
+	}
 
-		KeyAction actionNoSwitch = new KeyAction("&View\\File tree\\Open item, no switch", DoOnEnterNoSwitch, null, false);
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter | Keys.Shift, null, actionNoSwitch));
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Shift, actionNoSwitch).SetDoubleClick(true));
+	private void OnBufferSelected(Buffer buffer)
+	{
+		Reload();
+	}
 
-		KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+	private void OnBufferUpdateSettings(Buffer buffer, UpdatePhase phase)
+	{
+		if (phase == UpdatePhase.ChangeCurrentDirectory)
+			Reload();
 	}
 
 	private bool DoOnEnterNoSwitch(Controller controller)
@@ -79,6 +99,20 @@ public class FileTree
 	private bool DoOnEnter(Controller controller)
 	{
 		return ProcessEnter(controller, false);
+	}
+
+	private bool DoOnSetCwd(Controller controller)
+	{
+		if (nodes.Count == 0)
+			return false;
+		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+		Node node = nodes[place.iLine];
+		if (!node.isDirectory)
+			return false;
+		string error;
+		if (!mainForm.SetCurrentDirectory(node.fullPath, out error))
+			mainForm.Dialogs.ShowInfo("Error", error);
+		return true;
 	}
 
 	private List<Node> nodes = new List<Node>();

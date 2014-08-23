@@ -115,5 +115,7 @@ public class InfoDialog : ADialog
 	public void InitText(string text)
 	{
 		textBox.Controller.InitText(text);
+		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.Controller.Lines.LinesCount : 1);
+		SetNeedResize();
 	}
 }

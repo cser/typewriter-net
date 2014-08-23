@@ -43,6 +43,8 @@ public class Buffer
 	public BufferTag tags = BufferTag.None;
 	public Getter<Buffer, bool> onRemove;
 	public Setter<Buffer> onAdd;
+	public Setter<Buffer> onSelected;
+	public Setter<Buffer, UpdatePhase> onUpdateSettings;
 
 	public KeyMap additionKeyMap;
 

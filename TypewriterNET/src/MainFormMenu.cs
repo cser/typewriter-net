@@ -98,24 +98,9 @@ public class MainFormMenu : MainMenu
 			string itemName = GetMenuItemName(action.name);
 			List<KeyItem> keys;
 			keysByAction.TryGetValue(action, out keys);
-			if (keys != null)
+			if (keys != null && keys.Count > 0)
 			{
-				bool first = true;
-				foreach (KeyItem keyItem in keys)
-				{
-					if (keyItem.keys == Keys.None && !keyItem.doubleClick)
-						continue;
-					itemName += first ? "\t" : " / ";
-					first = false;
-					if (action.doOnModeChange != null)
-						itemName += "[";
-					if (keyItem.keys != Keys.None)
-						itemName += keysConverter.ConvertToString(keyItem.keys);
-					if (keyItem.doubleClick)
-						itemName += (keyItem.keys != Keys.None ? "+" : "") + "DoubleClick";
-					if (action.doOnModeChange != null)
-						itemName += "]";
-				}
+				itemName += "\t" + GetShortcutText(action, keys, keysConverter);
 			}
 			bool filtered;
 			if (isOther)
@@ -140,6 +125,32 @@ public class MainFormMenu : MainMenu
 				GetMenuItemParent(root, rootName, action.name, itemByPath).MenuItems.Add(item);
 			}
 		}
+	}
+
+	private static string GetShortcutText(KeyAction action, List<KeyItem> keys, KeysConverter keysConverter)
+	{
+		string text = "";
+		bool first = true;
+		foreach (KeyItem keyItem in keys)
+		{
+			if (keyItem.keys == Keys.None && !keyItem.doubleClick)
+				continue;
+			text += first ? "\t" : " / ";
+			first = false;
+			if (action.doOnModeChange != null)
+				text += "[";
+			bool hasPrev = false;
+			if (keyItem.keys != Keys.None)
+			{
+				text += keyItem.keys == Keys.Alt ? "Alt" : keysConverter.ConvertToString(keyItem.keys);
+				hasPrev = true;
+			}
+			if (keyItem.doubleClick)
+				text += (hasPrev ? "+" : "") + "DoubleClick";
+			if (action.doOnModeChange != null)
+				text += "]";
+		}
+		return text;
 	}
 
 	private Menu GetMenuItemParent(MenuItem root, string rootName, string path, Dictionary<string, Menu> itemByPath)

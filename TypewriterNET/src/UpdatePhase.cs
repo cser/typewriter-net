@@ -3,5 +3,6 @@ public enum UpdatePhase
 	Raw,
 	Parsed,
 	HighlighterChange,
-	TempSettingsLoaded
+	TempSettingsLoaded,
+	ChangeCurrentDirectory
 }

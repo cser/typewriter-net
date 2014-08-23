@@ -127,7 +127,6 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 
 		fileTree = new FileTree(this);
-		fileTree.Reload();
 
 		leftNest.buffers = new BufferList();
 
@@ -149,6 +148,22 @@ public class MainForm : Form
 		OpenEmptyIfNeed();
 
 		Activated += OnActivated;
+	}
+
+	public bool SetCurrentDirectory(string path, out string error)
+	{
+		try
+		{
+			Directory.SetCurrentDirectory(path);
+		}
+		catch (Exception e)
+		{
+			error = e.Message;
+			return false;
+		}
+		frames.UpdateSettings(settings, UpdatePhase.ChangeCurrentDirectory);
+		error = null;
+		return true;
 	}
 
 	private bool activationInProcess = false;

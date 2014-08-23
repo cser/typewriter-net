@@ -164,6 +164,10 @@ public class Frame : AFrame
 		{
 			UpdateHighlighter();
 		}
+
+		Buffer buffer = buffers.list.Selected;
+		if (buffer != null && buffer.onUpdateSettings != null)
+			buffer.onUpdateSettings(buffer, phase);
 	}
 
 	public bool ContainsBuffer(Buffer buffer)
@@ -225,6 +229,8 @@ public class Frame : AFrame
 			textBox.KeyMap.AddAfter(additionKeyMap, 1);
 		UpdateOverrides();
 		UpdateHighlighter();
+		if (buffer != null && buffer.onSelected != null)
+			buffer.onSelected(buffer);
 	}
 
 	private bool _settingsWordWrap = false;

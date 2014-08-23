@@ -61,11 +61,6 @@ public class DialogManager
 			dialog.Create(nest);
 			dialog.Focus();
 		}
-
-		private void RemoveDialog(ADialog dialog)
-		{
-			dialog.Nest.Destroy();
-		}
 	}
 
 	private MainForm mainForm;

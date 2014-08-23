@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+using System.Diagnostics;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 
@@ -79,6 +81,10 @@ public class Commander
 				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
 			}
 		}
+		else if (name.StartsWith("!"))
+		{
+			ExecuteShellCommand(name.Substring(1).Trim());
+		}
 		else
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
@@ -90,11 +96,20 @@ public class Commander
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Commands");
 		builder.AppendLine();
+
+		TextTable table = new TextTable().SetMaxColWidth(30);
+		table.Add("Command").Add("Arguments").Add("Description");
+		table.AddLine();
+		table.Add("!command").Add("*").Add("Run shell command");
 		foreach (Command command in commands)
 		{
-			builder.Append(command.name + (!string.IsNullOrEmpty(command.desc) ? " " + command.argNames : "") + "\n" +
-				(!string.IsNullOrEmpty(command.desc) ? "  " + command.desc.Replace("\n", "\n  ") + "\n" : "") + "\n");
+			table.NewRow();
+			table.Add(command.name)
+				.Add(!string.IsNullOrEmpty(command.desc) ? command.argNames : "")
+				.Add(!string.IsNullOrEmpty(command.desc) ? command.desc : "");
 		}
+		builder.Append(table);
+
 		return builder.ToString();
 	}
 
@@ -102,7 +117,8 @@ public class Commander
 	{
 		this.mainForm = mainForm;
 		this.settings = settings;
-		commands.Add(new Command("help", "", "Open tab with help text", DoHelp));
+		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("cd", "path", "Change current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
@@ -152,5 +168,27 @@ public class Commander
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Unknown property \"" + args + "\"");
 		}
+	}
+
+	private void DoChangeCurrentDirectory(string path)
+	{
+		string error;
+		if (mainForm.SetCurrentDirectory(path, out error))
+			mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
+		else
+			mainForm.Dialogs.ShowInfo("Error", error);
+	}
+	
+	private void ExecuteShellCommand(string commandText)
+	{
+		Process p = new Process();
+		p.StartInfo.UseShellExecute = false;
+		p.StartInfo.RedirectStandardOutput = true;
+		p.StartInfo.FileName = "cmd.exe";
+		p.StartInfo.Arguments = "/C " + commandText;
+		p.Start();
+		string output = p.StandardOutput.ReadToEnd();
+		p.WaitForExit();
+		mainForm.Dialogs.ShowInfo(commandText, output);
 	}
 }
