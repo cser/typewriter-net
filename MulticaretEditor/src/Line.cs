@@ -369,5 +369,17 @@ namespace MulticaretEditor
         	chars.RemoveRange(chars.Count - count, count);
         	return text;
         }
+
+		public int GetFirstSpaces()
+		{
+			int count = chars.Count;
+			for (int i = 0; i < count; i++)
+			{
+				char c = chars[i].c;
+				if (c != ' ' && c != '\t')
+					return i;
+			}
+			return count;
+		}
 	}
 }
