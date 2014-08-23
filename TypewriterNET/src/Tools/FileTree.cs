@@ -11,15 +11,17 @@ public class FileTree
 {
 	public class Node
 	{
-		public Node(bool isDirectory, string name, string fullPath)
+		public Node(bool isDirectory, bool isFile, string name, string fullPath)
 		{
 			this.isDirectory = isDirectory;
+			this.isFile = isFile;
 			this.name = name;
 			this.fullPath = fullPath;
 			hash = fullPath.GetHashCode();
 		}
 
 		public readonly bool isDirectory;
+		public readonly bool isFile;
 		public readonly string name;
 		public readonly string fullPath;
 		public readonly int hash;
@@ -109,10 +111,15 @@ public class FileTree
 		Node node = nodes[place.iLine];
 		if (!node.isDirectory)
 			return false;
+		SetCwd(node);
+		return true;
+	}
+
+	private void SetCwd(Node node)
+	{
 		string error;
 		if (!mainForm.SetCurrentDirectory(node.fullPath, out error))
 			mainForm.Dialogs.ShowInfo("Error", error);
-		return true;
 	}
 
 	private List<Node> nodes = new List<Node>();
@@ -145,13 +152,18 @@ public class FileTree
 			{
 				if (nodeI.isDirectory)
 				{
+					if (nodeI.fullPath == "..")
+					{
+						SetCwd(nodeI);
+						return true;
+					}
 					if (nodeI.expanded)
 						Collapse(nodeI);
 					else
 						Expand(nodeI);
 					needRebuild = true;
 				}
-				else
+				else if (nodeI.isFile)
 				{
 					fileOpened = true;
 					if (selections[nodeI.line])
@@ -214,7 +226,7 @@ public class FileTree
 	public void Reload()
 	{
 		string root = Directory.GetCurrentDirectory();
-		node = new Node(true, Path.GetFileName(root), Path.GetFullPath(root));
+		node = new Node(true, false, Path.GetFileName(root), Path.GetFullPath(root));
 		Expand(node);
 		Rebuild();
 	}
@@ -227,14 +239,14 @@ public class FileTree
 			node.childs.Clear();
 			foreach (string file in Directory.GetDirectories(node.fullPath))
 			{
-				Node nodeI = new Node(true, Path.GetFileName(file), Path.GetFullPath(file));
+				Node nodeI = new Node(true, false, Path.GetFileName(file), Path.GetFullPath(file));
 				if (expanded.ContainsKey(nodeI.hash))
 					Expand(nodeI);
 				node.childs.Add(nodeI);
 			}
 			foreach (string file in Directory.GetFiles(node.fullPath))
 			{
-				Node nodeI = new Node(false, Path.GetFileName(file), Path.GetFullPath(file));
+				Node nodeI = new Node(false, true, Path.GetFileName(file), Path.GetFullPath(file));
 				if (expanded.ContainsKey(nodeI.hash))
 					Expand(nodeI);
 				node.childs.Add(nodeI);
@@ -260,6 +272,16 @@ public class FileTree
 		Rebuild(node, builder, "", ref first, ranges);
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
+
+		int charsCount = buffer.Controller.Lines.charsCount;
+		foreach (Selection selection in buffer.Controller.Selections)
+		{
+			if (selection.anchor > charsCount)
+				selection.anchor = charsCount;
+			if (selection.caret > charsCount)
+				selection.caret = charsCount;
+		}
+		buffer.Controller.JoinSelections();
 	}
 
 	private void Rebuild(Node node, StringBuilder builder, string indent, ref bool first, List<StyleRange> ranges)
@@ -273,33 +295,53 @@ public class FileTree
 			else
 				expanded.Remove(node.hash);
 		}
-		first = false;
-		string prefix = "  ";
-		if (node.isDirectory)
-			prefix = node.expanded ? "- " : "+ ";
-		builder.Append(indent + prefix);
-		if (node.isDirectory)
+		string prefix = "";
+		if (!first)
 		{
-			ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Keyword.index));
+			prefix = "  ";
+			if (node.isDirectory)
+				prefix = node.expanded ? "- " : "+ ";
+			builder.Append(indent + prefix);
+			if (node.isDirectory)
+			{
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Keyword.index));
+			}
+			else
+			{
+				string extension = Path.GetExtension(node.name).ToLowerInvariant();
+				if (extension == ".exe" || extension == ".bat" || extension == ".cmd")
+					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.DataType.index));
+				else if (extension == ".dll")
+					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Function.index));
+				else if (extension == ".txt" || extension == ".md" || extension == ".xml" || extension == ".ini")
+					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.String.index));
+				else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".gif")
+					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Others.index));
+				else if (node.name.StartsWith("."))
+					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
+			}
+			builder.Append(node.name);
+			node.line = nodes.Count;
+			nodes.Add(node);
 		}
 		else
 		{
-			string extension = Path.GetExtension(node.name).ToLowerInvariant();
-			if (extension == ".exe" || extension == ".bat" || extension == ".cmd")
-				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.DataType.index));
-			else if (extension == ".dll")
-				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Function.index));
-			else if (extension == ".txt" || extension == ".md" || extension == ".xml" || extension == ".ini")
-				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.String.index));
-			else if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".gif")
-				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Others.index));
-			else if (node.name.StartsWith("."))
-				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
+			Node upNode = new Node(true, false, "..", "..");
+			upNode.line = nodes.Count;
+			nodes.Add(upNode);
+			builder.Append(upNode.name);
+
+			builder.AppendLine();
+
+			Node cwdNode = new Node(false, false, node.name, "");
+			cwdNode.line = nodes.Count;
+			nodes.Add(cwdNode);
+			ranges.Add(new StyleRange(builder.Length, cwdNode.name.Length, Ds.Constructor.index));
+			builder.Append(cwdNode.name);
 		}
-		builder.Append(node.name);
-		node.line = nodes.Count;
-		nodes.Add(node);
-		indent += "  ";
+		if (!first)
+			indent += "  ";
+		first = false;
 		foreach (Node child in node.childs)
 		{
 			Rebuild(child, builder, indent, ref first, ranges);

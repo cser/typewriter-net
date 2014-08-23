@@ -738,6 +738,11 @@ namespace MulticaretEditor
 			lines.JoinSelections();
 		}
 
+		public void JoinSelections()
+		{
+			lines.JoinSelections();
+		}
+
 		public void SetStyleRange(StyleRange range)
 		{
 			lines.SetStyleRange(range);
