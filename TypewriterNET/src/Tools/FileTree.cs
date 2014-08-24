@@ -81,6 +81,10 @@ public class FileTree
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
+		{
+			KeyAction action = new KeyAction("F&ind\\File tree\\Close file tree", CloseBuffer, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
 	}
@@ -367,5 +371,12 @@ public class FileTree
 		{
 			Rebuild(child, builder, indent, ref first, ranges);
 		}
+	}
+
+	private bool CloseBuffer(Controller controller)
+	{
+		if (buffer != null && buffer.Frame != null)
+			buffer.Frame.RemoveBuffer(buffer);
+		return true;
 	}
 }

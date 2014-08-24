@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Diagnostics;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 
@@ -181,14 +180,6 @@ public class Commander
 	
 	private void ExecuteShellCommand(string commandText)
 	{
-		Process p = new Process();
-		p.StartInfo.UseShellExecute = false;
-		p.StartInfo.RedirectStandardOutput = true;
-		p.StartInfo.FileName = "cmd.exe";
-		p.StartInfo.Arguments = "/C " + commandText;
-		p.Start();
-		string output = p.StandardOutput.ReadToEnd();
-		p.WaitForExit();
-		mainForm.Dialogs.ShowInfo(commandText, output);
+		new RunShellCommand(mainForm).Execute(commandText);
 	}
 }

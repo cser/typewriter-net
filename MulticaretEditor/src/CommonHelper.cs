@@ -29,5 +29,17 @@ namespace MulticaretEditor
 				return text;
 			return text.Substring(0, index);
 		}
+
+		public static int GetFirstSpaces(string text)
+		{
+			int length = text.Length;
+			for (int i = 0; i < length; i++)
+			{
+				char c = text[i];
+				if (c != ' ' && c != '\t')
+					return i;
+			}
+			return text.Length;
+		}
 	}
 }

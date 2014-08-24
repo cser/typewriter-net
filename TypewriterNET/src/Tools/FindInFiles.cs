@@ -40,6 +40,7 @@ public class FindInFiles
 
 	private MainForm mainForm;
 	private List<Position> positions;
+	Buffer buffer;
 
 	public FindInFiles(MainForm mainForm)
 	{
@@ -84,16 +85,6 @@ public class FindInFiles
 			pattern = regexText;
 		}
 		return Search(directory, regex, pattern, filter);
-	}
-
-	private string GetArg(string[] args, int i)
-	{
-		if (i >= args.Length)
-			return null;
-		string arg = args[i];
-		if (arg.Length > 2 && arg[0] == '"' && arg[arg.Length - 1] == '"')
-			return arg.Substring(1, arg.Length - 2);
-		return arg;
 	}
 
 	private string Search(string directory, Regex regex, string pattern, string filter)
@@ -221,7 +212,7 @@ public class FindInFiles
 				string line = text.Substring(offset, lineLength);
 				if (trimOffset == 0)
 				{
-					int whitespaceLength = GetStartWhitespaceLength(line);
+					int whitespaceLength = CommonHelper.GetFirstSpaces(line);
 					if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
 						trimOffset = whitespaceLength;
 				}
@@ -231,29 +222,24 @@ public class FindInFiles
 			}
 		}
 
-		Buffer buffer = new Buffer(null, "Find results");
+		buffer = new Buffer(null, "Find results");
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
 		buffer.additionKeyMap = new KeyMap();
-		KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
-		buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+		{
+			KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+		}
+		{
+			KeyAction action = new KeyAction("F&ind\\Close find results", CloseBuffer, null, false);
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+		}
 		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
 		if (mainForm.ConsoleNest.Frame != null)
 			mainForm.ConsoleNest.Frame.Focus();
 		return null;
-	}
-
-	public static int GetStartWhitespaceLength(string text)
-	{
-		for (int i = 0, length = text.Length; i < length; i++)
-		{
-			char c = text[i];
-			if (c != ' ' && c != '\t')
-				return i;
-		}
-		return text.Length;
 	}
 
 	public bool ExecuteEnter(Controller controller)
@@ -261,6 +247,13 @@ public class FindInFiles
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Position position = positions[place.iLine];
 		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.position0, position.position1);
+		return true;
+	}
+
+	private bool CloseBuffer(Controller controller)
+	{
+		if (buffer != null && buffer.Frame != null)
+			buffer.Frame.RemoveBuffer(buffer);
 		return true;
 	}
 }
