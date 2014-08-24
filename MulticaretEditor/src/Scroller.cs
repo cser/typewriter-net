@@ -66,8 +66,8 @@ namespace MulticaretEditor
 			
 			if (changed)
 			{
-				valueX = MathHelper.Clamp(valueX, 0, scrollX.contentSize - scrollX.areaSize);
-				valueY = MathHelper.Clamp(valueY, 0, scrollY.contentSize - scrollY.areaSize);
+				valueX = CommonHelper.Clamp(valueX, 0, scrollX.contentSize - scrollX.areaSize);
+				valueY = CommonHelper.Clamp(valueY, 0, scrollY.contentSize - scrollY.areaSize);
 			}
 		}
 		
@@ -127,7 +127,7 @@ namespace MulticaretEditor
 					int wwLine = lines.wwValidator.GetWWILine(oldFirstLine.Value.iLine) + oldFirstLine.Value.iSubline;
 					int delta = wwLine - oldWWLine.Value;
 					if (delta != 0)
-						valueY = MathHelper.Clamp(vScrollBarValue + delta * charSize.y, 0, scrollY.contentSize - scrollY.areaSize);
+						valueY = CommonHelper.Clamp(vScrollBarValue + delta * charSize.y, 0, scrollY.contentSize - scrollY.areaSize);
 				}
 			}
 			else

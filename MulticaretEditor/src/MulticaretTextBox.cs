@@ -949,13 +949,12 @@ namespace MulticaretEditor
 		{
 			if (!actionProcessed)
 			{
-				KeyItem keyItem = keyMap.GetDoubleClickItem();
-				while (keyItem != null)
+				for (KeyItem keyItem = keyMap.GetDoubleClickItem(); keyItem != null; keyItem = keyItem.next)
 				{
 					KeyAction action = keyItem.action;
-					if (action == null)
-						break;
-					if (keyItem.modeKeys == null || (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
+					if (action != null)
+					if (keyItem.modeKeys == null && modePressedKeys == Keys.None ||
+						keyItem.modeKeys != null && (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
 					if (action.doOnDown(controller))
 					{
 						actionProcessed = true;
@@ -964,7 +963,6 @@ namespace MulticaretEditor
 							ScrollIfNeedToCaret();
 						return true;
 					}
-					keyItem = keyItem.next;
 				}
 			}
 			return false;
@@ -1038,11 +1036,11 @@ namespace MulticaretEditor
 			int delta = (int)Math.Round((float)e.Delta / 120f) * GetControlPanelWheelScrollLinesValue();
 			if ((Control.ModifierKeys & Keys.Shift) != 0)
 			{
-				hScrollBar.Value = MathHelper.Clamp(hScrollBar.Value - delta * charWidth, 0, lines.scroller.scrollX.contentSize - lines.scroller.scrollX.areaSize);
+				hScrollBar.Value = CommonHelper.Clamp(hScrollBar.Value - delta * charWidth, 0, lines.scroller.scrollX.contentSize - lines.scroller.scrollX.areaSize);
 			}
 			else
 			{
-				vScrollBar.Value = MathHelper.Clamp(vScrollBar.Value - delta * charHeight, 0, lines.scroller.scrollY.contentSize - lines.scroller.scrollY.areaSize);
+				vScrollBar.Value = CommonHelper.Clamp(vScrollBar.Value - delta * charHeight, 0, lines.scroller.scrollY.contentSize - lines.scroller.scrollY.areaSize);
 			}
 			if (isMouseDown)
 			{

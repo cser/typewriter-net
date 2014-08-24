@@ -73,21 +73,19 @@ namespace MulticaretEditor.KeyMapping
 			}
 			if (item.doubleClick)
 			{
-				if (doubleClickItem != null)
+				if (asMain)
 				{
-					if (asMain)
-					{
-						item.next = doubleClickItem;
-						doubleClickItem = item;
-					}
-					else
-					{
-						doubleClickItem.next = item;
-					}
+					item.next = doubleClickItem;
+					doubleClickItem = item;
 				}
 				else
 				{
-					doubleClickItem = item;
+					KeyItem lastItem = doubleClickItem;
+					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next);
+					if (lastItem != null)
+						lastItem.next = item;
+					else
+						doubleClickItem = item;
 				}
 			}
 		}

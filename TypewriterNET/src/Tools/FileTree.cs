@@ -9,19 +9,22 @@ using MulticaretEditor.Highlighting;
 
 public class FileTree
 {
+	public enum NodeType
+	{
+		None, Directory, File, Error
+	}
+
 	public class Node
 	{
-		public Node(bool isDirectory, bool isFile, string name, string fullPath)
+		public Node(NodeType type, string name, string fullPath)
 		{
-			this.isDirectory = isDirectory;
-			this.isFile = isFile;
+			this.type = type;
 			this.name = name;
 			this.fullPath = fullPath;
 			hash = fullPath.GetHashCode();
 		}
 
-		public readonly bool isDirectory;
-		public readonly bool isFile;
+		public readonly NodeType type;
 		public readonly string name;
 		public readonly string fullPath;
 		public readonly int hash;
@@ -74,7 +77,7 @@ public class FileTree
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Set cwd", DoOnSetCwd, null, false);
+			KeyAction action = new KeyAction("&View\\File tree\\Set current directory", DoOnSetCurrentDirectory, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
@@ -103,19 +106,19 @@ public class FileTree
 		return ProcessEnter(controller, false);
 	}
 
-	private bool DoOnSetCwd(Controller controller)
+	private bool DoOnSetCurrentDirectory(Controller controller)
 	{
 		if (nodes.Count == 0)
 			return false;
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Node node = nodes[place.iLine];
-		if (!node.isDirectory)
+		if (node.type != NodeType.Directory)
 			return false;
-		SetCwd(node);
+		SetCurrentDirectory(node);
 		return true;
 	}
 
-	private void SetCwd(Node node)
+	private void SetCurrentDirectory(Node node)
 	{
 		string error;
 		if (!mainForm.SetCurrentDirectory(node.fullPath, out error))
@@ -150,11 +153,11 @@ public class FileTree
 		{
 			if (selections.ContainsKey(nodeI.line))
 			{
-				if (nodeI.isDirectory)
+				if (nodeI.type == NodeType.Directory)
 				{
 					if (nodeI.fullPath == "..")
 					{
-						SetCwd(nodeI);
+						SetCurrentDirectory(nodeI);
 						return true;
 					}
 					if (nodeI.expanded)
@@ -163,7 +166,7 @@ public class FileTree
 						Expand(nodeI);
 					needRebuild = true;
 				}
-				else if (nodeI.isFile)
+				else if (nodeI.type == NodeType.File)
 				{
 					fileOpened = true;
 					if (selections[nodeI.line])
@@ -222,31 +225,45 @@ public class FileTree
 	}
 
 	private Node node;
+	private string currentDirectory;
 
 	public void Reload()
 	{
-		string root = Directory.GetCurrentDirectory();
-		node = new Node(true, false, Path.GetFileName(root), Path.GetFullPath(root));
+		currentDirectory = Directory.GetCurrentDirectory();
+		string root = currentDirectory;
+		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
 		Expand(node);
 		Rebuild();
 	}
 
 	private void Expand(Node node)
 	{
-		if (node.isDirectory)
+		if (node.type == NodeType.Directory)
 		{
 			node.expanded = true;
 			node.childs.Clear();
-			foreach (string file in Directory.GetDirectories(node.fullPath))
+			string[] directories = null;
+			string[] files = null;
+			try
 			{
-				Node nodeI = new Node(true, false, Path.GetFileName(file), Path.GetFullPath(file));
+				directories = Directory.GetDirectories(node.fullPath);
+				files = Directory.GetFiles(node.fullPath);
+			}
+			catch (Exception e)
+			{
+				node.childs.Add(new Node(NodeType.Error, CommonHelper.GetOneLine(e.Message), node.fullPath + "#error"));
+				return;
+			}
+			foreach (string file in directories)
+			{
+				Node nodeI = new Node(NodeType.Directory, Path.GetFileName(file), Path.GetFullPath(file));
 				if (expanded.ContainsKey(nodeI.hash))
 					Expand(nodeI);
 				node.childs.Add(nodeI);
 			}
-			foreach (string file in Directory.GetFiles(node.fullPath))
+			foreach (string file in files)
 			{
-				Node nodeI = new Node(false, true, Path.GetFileName(file), Path.GetFullPath(file));
+				Node nodeI = new Node(NodeType.File, Path.GetFileName(file), Path.GetFullPath(file));
 				if (expanded.ContainsKey(nodeI.hash))
 					Expand(nodeI);
 				node.childs.Add(nodeI);
@@ -256,7 +273,7 @@ public class FileTree
 
 	private void Collapse(Node node)
 	{
-		if (node.isDirectory)
+		if (node.type == NodeType.Directory)
 		{
 			node.expanded = false;
 			node.childs.Clear();
@@ -288,7 +305,7 @@ public class FileTree
 	{
 		if (!first)
 			builder.AppendLine();
-		if (node.isDirectory)
+		if (node.type == NodeType.Directory)
 		{
 			if (node.expanded)
 				expanded[node.hash] = true;
@@ -299,14 +316,14 @@ public class FileTree
 		if (!first)
 		{
 			prefix = "  ";
-			if (node.isDirectory)
+			if (node.type == NodeType.Directory)
 				prefix = node.expanded ? "- " : "+ ";
 			builder.Append(indent + prefix);
-			if (node.isDirectory)
+			if (node.type == NodeType.Directory)
 			{
 				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Keyword.index));
 			}
-			else
+			else if (node.type == NodeType.File)
 			{
 				string extension = Path.GetExtension(node.name).ToLowerInvariant();
 				if (extension == ".exe" || extension == ".bat" || extension == ".cmd")
@@ -320,24 +337,28 @@ public class FileTree
 				else if (node.name.StartsWith("."))
 					ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Comment.index));
 			}
+			else if (node.type == NodeType.Error)
+			{
+				ranges.Add(new StyleRange(builder.Length, node.name.Length, Ds.Error.index));
+			}
 			builder.Append(node.name);
 			node.line = nodes.Count;
 			nodes.Add(node);
 		}
 		else
 		{
-			Node upNode = new Node(true, false, "..", "..");
+			Node upNode = new Node(NodeType.Directory, "..", "..");
 			upNode.line = nodes.Count;
 			nodes.Add(upNode);
 			builder.Append(upNode.name);
 
 			builder.AppendLine();
 
-			Node cwdNode = new Node(false, false, node.name, "");
-			cwdNode.line = nodes.Count;
-			nodes.Add(cwdNode);
-			ranges.Add(new StyleRange(builder.Length, cwdNode.name.Length, Ds.Constructor.index));
-			builder.Append(cwdNode.name);
+			Node currentDirectoryNode = new Node(NodeType.Directory, node.name, "");
+			currentDirectoryNode.line = nodes.Count;
+			nodes.Add(currentDirectoryNode);
+			ranges.Add(new StyleRange(builder.Length, currentDirectory.Length, Ds.Constructor.index));
+			builder.Append(currentDirectory);
 		}
 		if (!first)
 			indent += "  ";

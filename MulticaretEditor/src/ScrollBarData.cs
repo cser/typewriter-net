@@ -20,7 +20,7 @@ namespace MulticaretEditor
 		
 		public int ClampValue(int value)
 		{
-			return MathHelper.Clamp(value, 0, contentSize - areaSize);
+			return CommonHelper.Clamp(value, 0, contentSize - areaSize);
 		}
 	}
 }
