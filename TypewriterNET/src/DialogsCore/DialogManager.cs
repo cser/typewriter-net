@@ -18,7 +18,7 @@ public class DialogManager
 {
 	public class DialogOwner<T> where T : ADialog
 	{
-		private DialogManager manager;
+		private readonly DialogManager manager;
 
 		public DialogOwner(DialogManager manager)
 		{
@@ -39,6 +39,11 @@ public class DialogManager
 
 		public void Close()
 		{
+			if (dialog != null)
+			{
+				if (manager.mainForm.LastFrame != null)
+					manager.mainForm.LastFrame.Focus();
+			}
 			if (dialog != null)
 			{
 				dialog.Nest.Destroy();
