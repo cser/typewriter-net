@@ -43,21 +43,19 @@ namespace MulticaretEditor.KeyMapping
 			{
 				KeyItem prevItem;
 				itemByKeys.TryGetValue(item.keys, out prevItem);
-				if (prevItem != null)
+				if (asMain)
 				{
-					if (asMain)
-					{
-						item.next = prevItem;
-						itemByKeys[item.keys] = item;
-					}
-					else
-					{
-						prevItem.next = item;
-					}
+					item.next = prevItem;
+					itemByKeys[item.keys] = item;
 				}
 				else
 				{
-					itemByKeys.Add(item.keys, item);
+					KeyItem lastItem = prevItem;
+					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next);
+					if (lastItem != null)
+						lastItem.next = item;
+					else
+						itemByKeys.Add(item.keys, item);
 				}
 				if (item.modeKeys != null)
 				{
