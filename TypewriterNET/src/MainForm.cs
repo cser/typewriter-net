@@ -855,7 +855,25 @@ public class MainForm : Form
 			buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(position0), false);
 			buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(position1), true);
 			if (buffer.Frame != null)
+			{
 				buffer.Frame.Focus();
+				buffer.Frame.TextBox.MoveToCaret();
+			}
+		}
+	}
+
+	public void NavigateTo(string fileName, Place place0, Place place1)
+	{
+		Buffer buffer = LoadFile(fileName);
+		if (buffer != null)
+		{
+			buffer.Controller.PutCursor(place0, false);
+			buffer.Controller.PutCursor(place1, true);
+			if (buffer.Frame != null)
+			{
+				buffer.Frame.Focus();
+				buffer.Frame.TextBox.MoveToCaret();
+			}
 		}
 	}
 }
