@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Text.RegularExpressions;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 
@@ -25,6 +26,7 @@ public class Settings
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
 	public readonly Properties.Bool alwaysOnTop = new Properties.Bool("alwaysOnTop", false);
 	public readonly Properties.Int connectionTimeout = new Properties.Int("connectionTimeout", 1000).SetMinMax(1, int.MaxValue);
+	public readonly Properties.RegexList shellRegexList = new Properties.RegexList("shellRegex");
 
 	private Setter onChange;
 
@@ -49,6 +51,7 @@ public class Settings
 		Add(maxFileQualitiesCount);
 		Add(alwaysOnTop);
 		Add(connectionTimeout);
+		Add(shellRegexList);
 	}
 
 	public void DispatchChange()

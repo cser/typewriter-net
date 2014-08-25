@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
+using System.Text.RegularExpressions;
 
 public class Commander
 {
@@ -180,6 +181,6 @@ public class Commander
 	
 	private void ExecuteShellCommand(string commandText)
 	{
-		new RunShellCommand(mainForm).Execute(commandText);
+		new RunShellCommand(mainForm).Execute(commandText, settings.shellRegexList.Value);
 	}
 }

@@ -33,7 +33,7 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, Position> positions;
 
-	public string Execute(string commandText)
+	public string Execute(string commandText, IRList<RegexData> regexList)
 	{
 		positions = new Dictionary<int, Position>();
 
@@ -49,25 +49,46 @@ public class RunShellCommand
 		buffer = new Buffer(null, "Shell command results");
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(output);
-		List<StyleRange> ranges = new List<StyleRange>();
-		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
-		Regex regex = new Regex(@"^\s*(.*)\((\d+),\s?(\d+)\):.*$", RegexOptions.Multiline);
-		foreach (Match match in regex.Matches(output))
+		if (regexList != null)
 		{
-			if (match.Groups.Count >= 4)
+			List<StyleRange> ranges = new List<StyleRange>();
+			foreach (RegexData regexData in regexList)
 			{
-				string path = match.Groups[1].Value;
-				ranges.Add(new StyleRange(match.Groups[1].Index, match.Groups[1].Length, Ds.String.index));
-				int iLine = int.Parse(match.Groups[2].Value);
-				ranges.Add(new StyleRange(match.Groups[2].Index, match.Groups[2].Length, Ds.DecVal.index));
-				int iChar = int.Parse(match.Groups[3].Value);
-				ranges.Add(new StyleRange(match.Groups[3].Index, match.Groups[3].Length, Ds.DecVal.index));
-
-				Place place = buffer.Controller.Lines.PlaceOf(match.Index);
-				positions[place.iLine] = new Position(path, new Place(iChar - 1, iLine - 1));
+				string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
+				foreach (Match match in regexData.regex.Matches(output))
+				{
+					if (match.Groups.Count >= 3)
+					{
+						string path = match.Groups[1].Value;
+						ranges.Add(new StyleRange(match.Groups[1].Index, match.Groups[1].Length, Ds.String.index));
+						int iLine = 1;
+						try
+						{
+							iLine = int.Parse(match.Groups[2].Value);
+						}
+						catch
+						{
+						}
+						ranges.Add(new StyleRange(match.Groups[2].Index, match.Groups[2].Length, Ds.DecVal.index));
+						int iChar = 1;
+						if (match.Groups.Count >= 4)
+						{
+							try
+							{
+								iChar = int.Parse(match.Groups[3].Value);
+							}
+							catch
+							{
+							}
+							ranges.Add(new StyleRange(match.Groups[3].Index, match.Groups[3].Length, Ds.DecVal.index));
+						}
+						Place place = buffer.Controller.Lines.PlaceOf(match.Index);
+						positions[place.iLine] = new Position(path, new Place(iChar - 1, iLine - 1));
+					}
+				}
 			}
+			buffer.Controller.SetStyleRanges(ranges);
 		}
-		buffer.Controller.SetStyleRanges(ranges);
 		buffer.additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("F&ind\\Navigate to position", ExecuteEnter, null, false);

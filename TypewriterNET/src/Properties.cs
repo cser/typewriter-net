@@ -1,14 +1,16 @@
 using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Globalization;
-using System.Text;
+using MulticaretEditor;
 
 public class Properties
 {
 	public static void AddHeadTo(TextTable table)
 	{
-		table.Add("Name").Add("Type").Add("Default value");
+		table.Add("Name").Add("Type").Add("Default value").Add("Possible values");
 	}
 
 	public class Property
@@ -25,6 +27,7 @@ public class Properties
 		virtual public String AsString { get { return null; } }
 		virtual public Bool AsBool { get { return null; } }
 		virtual public Font AsFont { get { return null; } }
+		virtual public RegexList AsRegexList { get { return null; } }
 
 		virtual public string Text { get { return ""; } }
 		virtual public string SetText(string value)
@@ -225,6 +228,17 @@ public class Properties
 		override public void GetHelpText(TextTable table)
 		{
 			table.Add(name).Add("string").Add(ReplaceLineBreaks(defaultValue));
+			if (variants != null && variants.Length > 0)
+			{
+				bool first = true;
+				foreach (string variant in variants)
+				{
+					if (!first)
+						table.NewRow().Add("").Add("").Add("");
+					first = false;
+					table.Add(ReplaceLineBreaks(variant));
+				}
+			}
 		}
 
 		private string ReplaceLineBreaks(string value)
@@ -237,6 +251,55 @@ public class Properties
 		override public void Reset()
 		{
 			value = defaultValue;
+		}
+	}
+
+	public class RegexList : Property
+	{
+		public RegexList(string name) : base(name)
+		{
+		}
+
+		override public RegexList AsRegexList { get { return this; } }
+
+		private readonly RWList<RegexData> value = new RWList<RegexData>();
+		public IRList<RegexData> Value { get { return value; } }
+
+		override public string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (RegexData regexData in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append(regexData.pattern);
+				}
+				return builder.ToString();
+			}
+		}
+
+		override public string SetText(string value)
+		{
+			string errors;
+			RegexData data = RegexData.Parse(value, out errors);
+			if (!string.IsNullOrEmpty(errors))
+				return errors;
+			this.value.Add(data);
+			return null;
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("regex").Add("");
+		}
+
+		override public void Reset()
+		{
+			value.Clear();
 		}
 	}
 
@@ -312,7 +375,7 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("font").Add(StringOf(defaultValue)).Add(StringOf(value));
+			table.Add(name).Add("font").Add(StringOf(defaultValue));
 		}
 
 		private string StringOf(FontFamily fontFamily)
