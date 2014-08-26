@@ -58,6 +58,8 @@ public class FindDialog : ADialog
 		Height = MinSize.Height;
 	}
 
+	override public bool Focused { get { return textBox.Focused; } }
+
 	private void OnCloseClick()
 	{
 		DispatchNeedClose();
@@ -97,8 +99,6 @@ public class FindDialog : ADialog
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
-		if (!textBox.Focused)
-			DispatchNeedClose();
 	}
 
 	override protected void OnResize(EventArgs e)

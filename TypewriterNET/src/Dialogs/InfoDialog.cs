@@ -14,6 +14,7 @@ using MulticaretEditor;
 
 public class InfoDialog : ADialog
 {
+	private SwitchList<string> list;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -24,7 +25,9 @@ public class InfoDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
+		list = new SwitchList<string>();
+		tabBar = new TabBar<string>(list, TabBar<string>.DefaultStringOf);
+		tabBar.Text = "Info";
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
@@ -36,14 +39,12 @@ public class InfoDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Close info", DoClose, null, false)));
 
 		textBox = new MulticaretTextBox();
-		textBox.ShowLineNumbers = false;
-		textBox.HighlightCurrentLine = false;
-		textBox.WordWrap = true;
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.Controller.isReadonly = true;
+		SetTextBoxParameters();
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
@@ -62,8 +63,12 @@ public class InfoDialog : ADialog
 
 	new public string Name
 	{
-		get { return tabBar.Text; }
-		set { tabBar.Text = value; }
+		get { return list.Count > 0 ? list[0] : ""; }
+		set
+		{
+			list.Clear();
+			list.Add(value);
+		}
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
@@ -85,16 +90,9 @@ public class InfoDialog : ADialog
 		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
-		if (!textBox.Focused)
-			DoOnLostFocus();
 	}
 
-	private void DoOnLostFocus()
-	{
-		if (!Destroyed)
-			return;
-		DispatchNeedClose();
-	}
+	override public bool Focused { get { return textBox.Focused; } }
 
 	override protected void OnResize(EventArgs e)
 	{
@@ -105,6 +103,28 @@ public class InfoDialog : ADialog
 		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
+	}
+
+	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
+	{
+		if (phase == UpdatePhase.Raw)
+		{
+			settings.ApplySimpleParameters(textBox);
+			SetTextBoxParameters();
+			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+		}
+		else if (phase == UpdatePhase.Parsed)
+		{
+			textBox.Scheme = settings.ParsedScheme;
+			tabBar.Scheme = settings.ParsedScheme;
+		}
+	}
+	
+	private void SetTextBoxParameters()
+	{
+		textBox.ShowLineNumbers = false;
+		textBox.HighlightCurrentLine = false;
+		textBox.WordWrap = true;
 	}
 
 	private bool DoClose(Controller controller)

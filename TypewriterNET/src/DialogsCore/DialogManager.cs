@@ -28,32 +28,44 @@ public class DialogManager
 		private T dialog;
 		public T Dialog { get { return dialog; } }
 
-		public void Open(T dialog)
+		public void Open(T dialog, bool closeOther)
 		{
-			if (dialog != null)
-				Close();
+			if (closeOther)
+				manager.CloseDialogs();
 			this.dialog = dialog;
+			manager.closeMethods.Add(Close);
 			AddBottomNest(dialog);
 			dialog.NeedClose += OnNeedClose;
 		}
 
-		public void Close()
+		public bool SwitchOpen()
 		{
-			if (dialog != null)
+			if (dialog == null || !dialog.Focused)
+				return true;
+			Close(true);
+			return false;
+		}
+
+		public bool Close(bool changeFocus)
+		{
+			if (changeFocus && dialog != null)
 			{
 				if (manager.mainForm.LastFrame != null)
 					manager.mainForm.LastFrame.Focus();
 			}
 			if (dialog != null)
 			{
+				manager.closeMethods.Remove(Close);
 				dialog.Nest.Destroy();
 				dialog = null;
+				return true;
 			}
+			return false;
 		}
 
 		private void OnNeedClose()
 		{
-			Close();
+			Close(true);
 		}
 
 		private void AddBottomNest(ADialog dialog)
@@ -70,6 +82,7 @@ public class DialogManager
 
 	private MainForm mainForm;
 	private FrameList frames;
+	private List<Getter<bool, bool>> closeMethods;
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<CommandDialog> command;
@@ -86,13 +99,15 @@ public class DialogManager
 	{
 		this.mainForm = mainForm;
 		frames = mainForm.frames;
+		closeMethods = new List<Getter<bool, bool>>();
 
 		KeyMap keyMap = mainForm.KeyMap;
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.X, null, new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null, new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("F&ind\\Go to line...", GoToLine, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
 
 		info = new DialogOwner<InfoDialog>(this);
 		command = new DialogOwner<CommandDialog>(this);
@@ -105,69 +120,36 @@ public class DialogManager
 	public void ShowInfo(string name, string text)
 	{
 		if (info.Dialog == null)
-			info.Open(new InfoDialog());
+			info.Open(new InfoDialog(), false);
 		info.Dialog.Name = "Command";
 		info.Dialog.InitText(text);
 	}
 
-	public void HideInfo()
-	{
-		info.Close();
-	}
-
 	private bool DoInputCommand(Controller controller)
 	{
-		if (command.Dialog == null)
-		{
-			HideInfo();
-			command.Open(new CommandDialog("Command"));
-		}
-		else
-		{
-			command.Close();
-		}
+		if (command.SwitchOpen())
+			command.Open(new CommandDialog("Command"), true);
 		return true;
 	}
 
 	private bool DoFind(Controller controller)
 	{
-		if (find.Dialog == null)
-		{
-			HideInfo();
-			find.Open(new FindDialog(findDialogData, DoFindText, "Find"));
-		}
-		else
-		{
-			find.Close();
-		}
+		if (find.SwitchOpen())
+			find.Open(new FindDialog(findDialogData, DoFindText, "Find"), true);
 		return true;
 	}
 
 	private bool DoFindInFiles(Controller controller)
 	{
-		if (findInFiles.Dialog == null)
-		{
-			HideInfo();
-			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files"));
-		}
-		else
-		{
-			findInFiles.Close();
-		}
+		if (findInFiles.SwitchOpen())
+			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files"), true);
 		return true;
 	}
 
 	private bool DoReplace(Controller controller)
 	{
-		if (replace.Dialog == null)
-		{
-			HideInfo();
-			replace.Open(new ReplaceDialog(replaceDialogData, "Replace"));
-		}
-		else
-		{
-			replace.Close();
-		}
+		if (replace.SwitchOpen())
+			replace.Open(new ReplaceDialog(replaceDialogData, "Replace"), true);
 		return true;
 	}
 
@@ -191,7 +173,7 @@ public class DialogManager
 
 	private bool DoFindInFilesDialog(string text)
 	{
-		findInFiles.Close();
+		findInFiles.Close(true);
 		string errors = new FindInFiles(mainForm).Execute(text, null, "*.*");
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
@@ -208,11 +190,10 @@ public class DialogManager
 		return null;
 	}
 
-	private bool GoToLine(Controller controller)
+	private bool DoGoToLine(Controller controller)
 	{
-		if (goToLine.Dialog == null)
+		if (goToLine.SwitchOpen())
 		{
-			HideInfo();
 			Place? place = GetLastPlace();
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
@@ -220,11 +201,7 @@ public class DialogManager
 				goToLineData, DoGoToLine,
 				"Go to line" +
 				(place != null ? " (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
-			));
-		}
-		else
-		{
-			goToLine.Close();
+			), true);
 		}
 		return true;
 	}
@@ -251,5 +228,22 @@ public class DialogManager
 			mainForm.LastFrame.Focus();
 		}
 		return true;
+	}
+
+	private bool DoCloseDialogs(Controller controller)
+	{
+		return CloseDialogs();
+	}
+
+	private bool CloseDialogs()
+	{
+		bool result = false;
+		foreach (Getter<bool, bool> closeMethod in closeMethods.ToArray())
+		{
+			if (closeMethod(false))
+				result = true;
+		}
+		closeMethods.Clear();
+		return result;
 	}
 }

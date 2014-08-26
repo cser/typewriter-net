@@ -167,9 +167,9 @@ public class ReplaceDialog : ADialog
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 		if (replaceTextBox.Focused)
 			Nest.MainForm.SetFocus(replaceTextBox, textBox.KeyMap, null);
-		if (!textBox.Focused && !replaceTextBox.Focused)
-			DispatchNeedClose();
 	}
+
+	override public bool Focused { get { return textBox.Focused || replaceTextBox.Focused; } }
 
 	override protected void OnResize(EventArgs e)
 	{
