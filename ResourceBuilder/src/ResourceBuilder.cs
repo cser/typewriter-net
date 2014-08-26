@@ -16,7 +16,10 @@ public class ResourceBuilder
 		string file = args[0];
 		string dir = Path.GetDirectoryName(file);
 		if (!string.IsNullOrEmpty(dir))
+		{
 			Directory.SetCurrentDirectory(dir);
+			file = Path.GetFileName(file);
+		}
 
 		XmlDocument xml = new XmlDocument();
 		try

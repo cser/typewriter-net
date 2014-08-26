@@ -1170,5 +1170,20 @@ namespace MulticaretEditor
 			hScrollBar.Value = valueX;
 			vScrollBar.Value = valueY;
 		}
+
+		public int GetScrollSizeY()
+		{
+			ScrollOnPaintInfo info = new ScrollOnPaintInfo();
+			info.width = ClientRectangle.Width;
+			info.height = ClientRectangle.Height;
+			info.leftIndent = GetLeftIndent();
+			info.charSize = new IntSize(charWidth, charHeight);
+			info.scrollBarBreadth = scrollBarBreadth;
+
+			int valueX = hScrollBar.Value;
+			int valueY = vScrollBar.Value;
+			lines.scroller.UpdateScrollOnPaint(info, ref valueX, ref valueY);
+			return lines.wwSizeY;
+		}
 	}
 }

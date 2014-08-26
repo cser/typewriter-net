@@ -30,10 +30,9 @@ This file was writen for launching with MSBuild
 			EmitDebugInformation="False"
 			LangVersion="Default"
 			OutputAssembly="ResourceBuilder\bin\ResourceBuilder.exe" />
-		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml" />
 	</Target>
 	<Target Name="build-tw" DependsOnTargets="me; resources">
-		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe resources.xml" />
+		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml" />
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin" />
 		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Dialogs\*.cs; TypewriterNET\src\DialogsCore\*.cs; TypewriterNET\src\Tools\*.cs;"
 			References="TypewriterNET\bin\MulticaretEditor.dll"

@@ -38,6 +38,7 @@ public class InfoDialog : ADialog
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
+		textBox.WordWrap = true;
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -115,7 +116,7 @@ public class InfoDialog : ADialog
 	public void InitText(string text)
 	{
 		textBox.Controller.InitText(text);
-		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.Controller.Lines.LinesCount : 1);
+		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
 		SetNeedResize();
 	}
 }

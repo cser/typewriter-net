@@ -15,11 +15,15 @@ public class RunShellCommand
 	{
 		public string fileName;
 		public Place place;
+		public int shellStart;
+		public int shellLength;
 
-		public Position(string fileName, Place place)
+		public Position(string fileName, Place place, int shellStart, int shellLength)
 		{
 			this.fileName = fileName;
 			this.place = place;
+			this.shellStart = shellStart;
+			this.shellLength = shellLength;
 		}
 	}
 
@@ -31,11 +35,11 @@ public class RunShellCommand
 	}
 
 	private Buffer buffer;
-	private Dictionary<int, Position> positions;
+	private Dictionary<int, List<Position>> positions;
 
 	public string Execute(string commandText, IRList<RegexData> regexList)
 	{
-		positions = new Dictionary<int, Position>();
+		positions = new Dictionary<int, List<Position>>();
 
 		Process p = new Process();
 		p.StartInfo.UseShellExecute = false;
@@ -57,19 +61,27 @@ public class RunShellCommand
 				string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 				foreach (Match match in regexData.regex.Matches(output))
 				{
-					if (match.Groups.Count >= 3)
+					if (match.Groups.Count >= 2)
 					{
 						string path = match.Groups[1].Value;
-						ranges.Add(new StyleRange(match.Groups[1].Index, match.Groups[1].Length, Ds.String.index));
+						int shellStart = match.Groups[1].Index;
+						int shellLength = match.Groups[1].Length;
+						ranges.Add(new StyleRange(shellStart, shellLength, Ds.String.index));
 						int iLine = 1;
-						try
+						if (match.Groups.Count >= 3)
 						{
-							iLine = int.Parse(match.Groups[2].Value);
+							try
+							{
+								iLine = int.Parse(match.Groups[2].Value);
+							}
+							catch
+							{
+							}
+							int start = match.Groups[2].Index;
+							int length = match.Groups[2].Length;
+							ranges.Add(new StyleRange(start, length, Ds.DecVal.index));
+							shellLength = Math.Max(shellStart + shellLength, start + length) - shellStart;
 						}
-						catch
-						{
-						}
-						ranges.Add(new StyleRange(match.Groups[2].Index, match.Groups[2].Length, Ds.DecVal.index));
 						int iChar = 1;
 						if (match.Groups.Count >= 4)
 						{
@@ -80,10 +92,20 @@ public class RunShellCommand
 							catch
 							{
 							}
-							ranges.Add(new StyleRange(match.Groups[3].Index, match.Groups[3].Length, Ds.DecVal.index));
+							int start = match.Groups[3].Index;
+							int length = match.Groups[3].Length;
+							ranges.Add(new StyleRange(start, length, Ds.DecVal.index));
+							shellLength = Math.Max(shellStart + shellLength, start + length) - shellStart;
 						}
 						Place place = buffer.Controller.Lines.PlaceOf(match.Index);
-						positions[place.iLine] = new Position(path, new Place(iChar - 1, iLine - 1));
+						List<Position> list;
+						positions.TryGetValue(place.iLine, out list);
+						if (list == null)
+						{
+							list = new List<Position>();
+							positions[place.iLine] = list;
+						}
+						list.Add(new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength));
 					}
 				}
 			}
@@ -107,14 +129,42 @@ public class RunShellCommand
 
 	public bool ExecuteEnter(Controller controller)
 	{
-		Place place = buffer.Controller.Lines.PlaceOf(buffer.Controller.LastSelection.caret);
-		Position position;
-		if (positions.TryGetValue(place.iLine, out position))
+		int caret = buffer.Controller.LastSelection.caret;
+		Place place = buffer.Controller.Lines.PlaceOf(caret);
+		List<Position> list;
+		if (positions.TryGetValue(place.iLine, out list))
 		{
-			mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.place, position.place);
+			list.Sort(ComparePositions);
+			Position position = list[0];
+			for (int i = 0; i < list.Count; i++)
+			{
+				Position positionI = list[i];
+				int index = caret - positionI.shellStart;
+				if (index >= 0 && index < positionI.shellLength)
+				{
+					position = positionI;
+					break;
+				}
+			}
+			string fullPath = null;
+			try
+			{
+				fullPath = Path.GetFullPath(position.fileName);
+			}
+			catch
+			{
+				mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + position.fileName);
+				return true;
+			}
+			mainForm.NavigateTo(fullPath, position.place, position.place);
 			return true;
 		}
 		return false;
+	}
+
+	private static int ComparePositions(Position position0, Position position1)
+	{
+		return position0.shellStart - position1.shellStart;
 	}
 
 	private bool CloseBuffer(Controller controller)
