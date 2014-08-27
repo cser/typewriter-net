@@ -113,6 +113,10 @@ namespace MulticaretEditor.KeyMapping
 			AddItem(new KeyItem(Keys.Home | Keys.Shift, null, KeyAction.HomeWithSelection));
 			AddItem(new KeyItem(Keys.End, null, KeyAction.End));
 			AddItem(new KeyItem(Keys.End | Keys.Shift, null, KeyAction.EndWithSelection));
+			AddItem(new KeyItem(Keys.Control | Keys.Home, null, KeyAction.DocumentStart));
+			AddItem(new KeyItem(Keys.Control | Keys.Home | Keys.Shift, null, KeyAction.DocumentStartWithSelection));
+			AddItem(new KeyItem(Keys.Control | Keys.End, null, KeyAction.DocumentEnd));
+			AddItem(new KeyItem(Keys.Control | Keys.End | Keys.Shift, null, KeyAction.DocumentEndWithSelection));
 			AddItem(new KeyItem(Keys.A | Keys.Control, null, KeyAction.SelectAll));
 			AddItem(new KeyItem(Keys.C | Keys.Control, null, KeyAction.Copy));
 			AddItem(new KeyItem(Keys.Control | Keys.Insert, null, KeyAction.Copy));

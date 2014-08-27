@@ -211,6 +211,31 @@ namespace MulticaretEditor
 				lines.SetPreferredPos(selection, caret);
 			}
 		}
+
+		public void DocumentStart(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				selection.caret = 0;
+				if (!shift)
+					selection.anchor = selection.caret;
+			}
+			lines.JoinSelections();
+			lines.LastSelection.preferredPos = 0;
+		}
+
+		public void DocumentEnd(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				selection.caret = lines.charsCount;
+				if (!shift)
+					selection.anchor = selection.caret;
+			}
+			lines.JoinSelections();
+			Place place = lines.PlaceOf(lines.charsCount);
+			lines.SetPreferredPos(lines.LastSelection, place);
+		}
 		
 		public void PutCursor(Pos pos, bool moving)
 		{

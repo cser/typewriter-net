@@ -325,6 +325,34 @@ namespace MulticaretEditor.KeyMapping
 			controller.Scroll(0, 1);
 			return true;
 		}
+
+		public static readonly KeyAction DocumentStart = Add("&Edit\\Selection\\Document start", DoDocumentStart, null, true);
+		private static bool DoDocumentStart(Controller controller)
+		{
+			controller.DocumentStart(false);
+			return true;
+		}
+
+		public static readonly KeyAction DocumentEnd = Add("&Edit\\Selection\\Document end", DoDocumentEnd, null, true);
+		private static bool DoDocumentEnd(Controller controller)
+		{
+			controller.DocumentEnd(false);
+			return true;
+		}
+
+		public static readonly KeyAction DocumentStartWithSelection = Add("&Edit\\Selection\\Document start with selection", DoDocumentStartWithSelection, null, true);
+		private static bool DoDocumentStartWithSelection(Controller controller)
+		{
+			controller.DocumentStart(true);
+			return true;
+		}
+
+		public static readonly KeyAction DocumentEndWithSelection = Add("&Edit\\Selection\\Document end with selection", DoDocumentEndWithSelection, null, true);
+		private static bool DoDocumentEndWithSelection(Controller controller)
+		{
+			controller.DocumentEnd(true);
+			return true;
+		}
 		
 		public static readonly KeyAction Nothing = new KeyAction("Nothing", DoNothing, null, false);
 		private static bool DoNothing(Controller controller)
