@@ -95,6 +95,12 @@ namespace UnitTests
 				Assert.AreEqual(pos, selection.preferredPos, "PreferredPos");
 				return this;
 			}
+
+			public SelectionAssertion ModePreferredPos(int pos)
+			{
+				Assert.AreEqual(pos, provider.wordWrap ? selection.wwPreferredPos : selection.preferredPos, "WWPreferredPos");
+				return this;
+			}
 			
 			public SelectionAssertion Count(int count)
 			{

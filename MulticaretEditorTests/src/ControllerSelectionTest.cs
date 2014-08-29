@@ -467,5 +467,73 @@ namespace UnitTests
 			controller.DocumentEnd(true);
 			AssertSelection().Anchor(3, 1).Caret(12, 2).PreferredPos(12).NoNext();
 		}
+
+		private void InitWordWrap()
+		{
+			Init(4);
+			lines.tabSize = 4;
+			lines.wordWrap = true;
+			controller = new Controller(lines);
+		}
+
+		[Test]
+		public void WordWrapMoveCursor0()
+		{
+			InitWordWrap();
+
+			lines.SetText("t0\nt1\nt2\n    line1 text\r\n\tline2 text");
+			lines.wwValidator.Validate(10);
+			Assert.AreEqual(10, lines.wwSizeX);
+			Assert.AreEqual(7, lines.wwSizeY);
+
+			// t0
+			// t1
+			// t2
+			//     line1 |
+			//     textRN
+			//     line2 |
+			//     text
+
+			Assert.AreEqual(new LineIndex(0, 0), lines.wwValidator.GetLineIndexOfWW(0));
+			Assert.AreEqual(new LineIndex(1, 0), lines.wwValidator.GetLineIndexOfWW(1));
+			Assert.AreEqual(new LineIndex(2, 0), lines.wwValidator.GetLineIndexOfWW(2));
+			Assert.AreEqual(new LineIndex(3, 0), lines.wwValidator.GetLineIndexOfWW(3));
+			Assert.AreEqual(new LineIndex(3, 1), lines.wwValidator.GetLineIndexOfWW(4));
+			Assert.AreEqual(new LineIndex(4, 0), lines.wwValidator.GetLineIndexOfWW(5));
+			Assert.AreEqual(new LineIndex(4, 1), lines.wwValidator.GetLineIndexOfWW(6));
+
+			controller.PutCursor(new Pos(4, 3), false);
+			AssertSelection().Anchor(4, 3).Caret(4, 3).PreferredPos(4).NoNext();
+			controller.MoveDown(false);
+			AssertSelection().Anchor(10, 3).Caret(10, 3).PreferredPos(4).NoNext();
+		}
+
+		[Test]
+		public void WordWrapMoveCursor1()
+		{
+			InitWordWrap();
+
+			lines.SetText("t0\nt1\nt2\n    line1 text12\r\n\tline2 text");
+			lines.wwValidator.Validate(12);
+			Assert.AreEqual(12, lines.wwSizeX);
+			Assert.AreEqual(7, lines.wwSizeY);
+
+			// t0
+			// t1
+			// t2
+			//     line1   |
+			//     text12RN
+			//     line2   |
+			//     text
+
+			Assert.AreEqual(new LineIndex(3, 0), lines.wwValidator.GetLineIndexOfWW(3));
+			Assert.AreEqual(new LineIndex(3, 1), lines.wwValidator.GetLineIndexOfWW(4));
+
+			controller.PutCursor(new Place(16, 3), false);
+			AssertSelection().Both(16, 3).ModePreferredPos(10).NoNext();
+
+			controller.MoveUp(false);
+			AssertSelection().Both(9, 3).ModePreferredPos(10).NoNext();
+		}
 	}
 }
