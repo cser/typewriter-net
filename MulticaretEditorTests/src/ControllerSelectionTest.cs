@@ -535,5 +535,34 @@ namespace UnitTests
 			controller.MoveUp(false);
 			AssertSelection().Both(9, 3).ModePreferredPos(10).NoNext();
 		}
+
+		[Test]
+		public void WordWrapHomeEnd()
+		{
+			InitWordWrap();
+
+			lines.SetText("t0\nt1\nt2\n    line1 text12 line3\r\nt3");
+			lines.wwValidator.Validate(12);
+			Assert.AreEqual(12, lines.wwSizeX);
+			Assert.AreEqual(7, lines.wwSizeY);
+
+			// t0
+			// t1
+			// t2
+			//     line1   |
+			//     text12
+			//     text3RN
+			// t3
+
+			Assert.AreEqual(new LineIndex(3, 0), lines.wwValidator.GetLineIndexOfWW(3));
+			Assert.AreEqual(new LineIndex(3, 1), lines.wwValidator.GetLineIndexOfWW(4));
+
+			controller.PutCursor(new Place(16, 3), false);
+			AssertSelection().Both(16, 3).ModePreferredPos(10).NoNext();
+			controller.MoveHome(false);
+			AssertSelection().Both(10, 3).ModePreferredPos(4).NoNext();
+			controller.MoveEnd(false);
+			AssertSelection().Both(16, 3).ModePreferredPos(10).NoNext();
+		}
 	}
 }

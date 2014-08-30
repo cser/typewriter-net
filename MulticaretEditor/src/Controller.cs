@@ -13,9 +13,9 @@ namespace MulticaretEditor
 	{
 		private readonly LineArray lines;
 		private readonly List<Selection> selections;
-		
+
 		public readonly History history;
-		
+
 		public Controller(LineArray lines)
 		{
 			this.lines = lines;
@@ -23,28 +23,28 @@ namespace MulticaretEditor
 			history = new History();
 			ResetCommandsBatching();
 		}
-		
+
 		public bool isReadonly;
-		
+
 		public LineArray Lines { get { return lines; } }
-		
+
 		public void InitText(string text)
 		{
 			lines.SetText(text);
 			history.Reset();
 			history.MarkAsSaved();
 		}
-		
+
 		public void MoveRight(bool shift)
 		{
 			MoveRight(lines, shift);
 		}
-		
+
 		public void MoveLeft(bool shift)
 		{
 			MoveLeft(lines, shift);
 		}
-		
+
 		public static void MoveRight(LineArray lines, bool shift)
 		{
 			foreach (Selection selection in lines.selections)
@@ -72,7 +72,7 @@ namespace MulticaretEditor
 				lines.SetPreferredPos(selection, place);
 			}
 		}
-		
+
 		public static void MoveLeft(LineArray lines, bool shift)
 		{
 			foreach (Selection selection in lines.selections)
@@ -100,7 +100,7 @@ namespace MulticaretEditor
 				lines.SetPreferredPos(selection, place);
 			}
 		}
-		
+
 		public void MoveUp(bool shift)
 		{
 			if (lines.wordWrap && selections.Count == 1)
@@ -117,7 +117,7 @@ namespace MulticaretEditor
 				else if (place.iLine > 0)
 				{
 					line = lines[place.iLine - 1];
-					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, line.cutOffs.count), place.iLine - 1);	
+					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, line.cutOffs.count), place.iLine - 1);
 				}
 				selection.caret = lines.IndexOf(newPlace);
 				if (!shift)
@@ -139,7 +139,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public void MoveDown(bool shift)
 		{
 			if (lines.wordWrap && selections.Count == 1)
@@ -178,9 +178,32 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public void MoveEnd(bool shift)
 		{
+			if (lines.wordWrap && selections.Count == 1)
+			{
+				Selection selection = lines.LastSelection;
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				if (line.cutOffs.count > 0)
+				{
+					Pos pos = line.WWPosOfIndex(place.iChar);
+					if (pos.iy < line.cutOffs.count)
+					{
+						int sublineStart = line.cutOffs.buffer[pos.iy].iChar;
+						if (place.iChar < sublineStart - 1)
+						{
+							Place newPlace = new Place(sublineStart - 1, place.iLine);
+							selection.caret = lines.IndexOf(newPlace);
+							if (!shift)
+								selection.anchor = selection.caret;
+							lines.SetPreferredPos(selection, newPlace);
+							return;
+						}
+					}
+				}
+			}
 			foreach (Selection selection in selections)
 			{
 				Place caret = lines.PlaceOf(selection.caret);
@@ -191,9 +214,32 @@ namespace MulticaretEditor
 				lines.SetPreferredPos(selection, caret);
 			}
 		}
-		
+
 		public void MoveHome(bool shift)
 		{
+			if (lines.wordWrap && selections.Count == 1)
+			{
+				Selection selection = lines.LastSelection;
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				if (line.cutOffs.count > 0)
+				{
+					Pos pos = line.WWPosOfIndex(place.iChar);
+					if (pos.iy > 0)
+					{
+						int sublineStart = line.cutOffs.buffer[pos.iy - 1].iChar;
+						if (place.iChar - sublineStart > 0)
+						{
+							Place newPlace = new Place(sublineStart, place.iLine);
+							selection.caret = lines.IndexOf(newPlace);
+							if (!shift)
+								selection.anchor = selection.caret;
+							lines.SetPreferredPos(selection, newPlace);
+							return;
+						}
+					}
+				}
+			}
 			foreach (Selection selection in selections)
 			{
 				Place caret = lines.PlaceOf(selection.caret);
@@ -236,12 +282,12 @@ namespace MulticaretEditor
 			Place place = lines.PlaceOf(lines.charsCount);
 			lines.SetPreferredPos(lines.LastSelection, place);
 		}
-		
+
 		public void PutCursor(Pos pos, bool moving)
 		{
 			PutCursor(lines.PlaceOf(pos), moving);
 		}
-		
+
 		public void PutCursor(Place place, bool moving)
 		{
 			Selection selection = selections[selections.Count - 1];
@@ -252,7 +298,7 @@ namespace MulticaretEditor
 			Line line = lines[caret.iLine];
 			lines.SetPreferredPos(selection, caret);
 		}
-		
+
 		public enum CharType
 		{
 			Identifier,
@@ -260,7 +306,7 @@ namespace MulticaretEditor
 			Punctuation,
 			Special
 		}
-		
+
 		private static CharType GetCharType(char c)
         {
 			if (c == ' ' || c == '\t')
@@ -269,23 +315,23 @@ namespace MulticaretEditor
 				return CharType.Special;
 			return char.IsLetterOrDigit(c) || c == '_' ? CharType.Identifier : CharType.Punctuation;
         }
-		
+
 		public void MoveWordRight(bool shift)
 		{
 			MoveWordRight(lines, shift);
 		}
-		
+
 		public void MoveWordLeft(bool shift)
 		{
 			MoveWordLeft(lines, shift);
 		}
-		
+
 		public static void MoveWordRight(LineArray lines, bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				
+
 				bool wasSpace = false;
 				while (GetCharType(iterator.RightChar) == CharType.Space)
 				{
@@ -308,29 +354,29 @@ namespace MulticaretEditor
 				}
 				if (!wasIdentifier && (!wasSpace || iterator.RightChar != '\n' && iterator.RightChar != '\r'))
 					iterator.MoveRightWithRN();
-				
+
 				selection.caret = iterator.Position;
 				if (!shift)
 					selection.anchor = iterator.Position;
 				lines.SetPreferredPos(selection, iterator.Place);
 			}
 		}
-		
+
 		public static void MoveWordLeft(LineArray lines, bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				
-	            bool wasSpace = false;
-	            while (GetCharType(iterator.LeftChar) == CharType.Space)
-	            {
-	            	wasSpace = true;
-	                if (!iterator.MoveLeftWithRN())
-	                	break;
-	            }
-	            bool wasIdentifier = false;
-	            CharType type = GetCharType(iterator.LeftChar);
+
+				bool wasSpace = false;
+				while (GetCharType(iterator.LeftChar) == CharType.Space)
+				{
+					wasSpace = true;
+					if (!iterator.MoveLeftWithRN())
+						break;
+				}
+				bool wasIdentifier = false;
+				CharType type = GetCharType(iterator.LeftChar);
 				if (type == CharType.Identifier || type == CharType.Punctuation)
 				{
 					CharType typeI = type;
@@ -342,16 +388,16 @@ namespace MulticaretEditor
 						typeI = GetCharType(iterator.LeftChar);
 					}
 				}
-	            if (!wasIdentifier && (!wasSpace || iterator.LeftChar != '\n' && iterator.LeftChar != '\r'))
-	            	iterator.MoveLeftWithRN();
-	            
-	            selection.caret = iterator.Position;
-	            if (!shift)
-	            	selection.anchor = iterator.Position;
-	            lines.SetPreferredPos(selection, iterator.Place);
+				if (!wasIdentifier && (!wasSpace || iterator.LeftChar != '\n' && iterator.LeftChar != '\r'))
+					iterator.MoveLeftWithRN();
+
+				selection.caret = iterator.Position;
+				if (!shift)
+					selection.anchor = iterator.Position;
+				lines.SetPreferredPos(selection, iterator.Place);
 			}
 		}
-		
+
 		public void PutCursorDown()
 		{
 			if (lines.selections.Count > 1)
@@ -374,7 +420,7 @@ namespace MulticaretEditor
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
 			}
 		}
-		
+
 		public void PutCursorUp()
 		{
 			if (lines.selections.Count > 1)
@@ -397,12 +443,12 @@ namespace MulticaretEditor
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
 			}
 		}
-		
+
 		public void PutNewCursor(Pos pos)
 		{
 			PutNewCursor(lines.PlaceOf(pos));
 		}
-		
+
 		public void PutNewCursor(Place place)
 		{
 			int caret = lines.IndexOf(place);
@@ -425,7 +471,7 @@ namespace MulticaretEditor
 			}
 			PutCursor(place, false);
 		}
-		
+
 		public bool ClearMinorSelections()
 		{
 			if (lines.selections.Count > 1)
@@ -445,7 +491,7 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
-		
+
 		public void SelectAll()
 		{
 			ClearMinorSelections();
@@ -461,16 +507,16 @@ namespace MulticaretEditor
 			selection.anchor = 0;
 			selection.caret = lines.charsCount;
 		}
-		
+
 		private CommandType lastCommandType;
 		private long lastTime;
-		
+
 		private void ResetCommandsBatching()
 		{
 			lastCommandType = CommandType.None;
 			lastTime = 0;
 		}
-		
+
 		private bool Execute(Command command)
 		{
 			if (isReadonly && command.type.changesText)
@@ -497,7 +543,7 @@ namespace MulticaretEditor
 				history.ExecuteInited(command);
 			return result;
 		}
-		
+
 		public void Undo()
 		{
 			ResetCommandsBatching();
@@ -508,7 +554,7 @@ namespace MulticaretEditor
 					break;
 			}
 		}
-		
+
 		public void Redo()
 		{
 			ResetCommandsBatching();
@@ -524,22 +570,22 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public void Backspace()
 		{
 			Execute(new BackspaceCommand());
 		}
-		
+
 		public void Delete()
 		{
 			Execute(new DeleteCommand());
 		}
-		
+
 		public void InsertText(string text)
 		{
 			Execute(new InsertTextCommand(text, null));
 		}
-		
+
 		public void InsertLineBreak()
 		{
 			lines.JoinSelections();
@@ -551,9 +597,9 @@ namespace MulticaretEditor
 				Line line = lines[place.iLine];
 				texts[i] = lines.lineBreak + GetLineBreakFirstSpaces(line, place.iChar);
 			}
-			Execute(new InsertTextCommand(null, texts)); 
+			Execute(new InsertTextCommand(null, texts));
 		}
-		
+
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
 		{
 			int count = line.chars.Count;
@@ -579,58 +625,58 @@ namespace MulticaretEditor
 			}
 			return "";
 		}
-		
+
 		public void Copy()
 		{
 			Execute(new CopyCommand());
 		}
-		
+
 		public void Cut()
 		{
 			Copy();
 			EraseSelection();
 		}
-		
+
 		public void EraseSelection()
 		{
 			Execute(new EraseSelectionCommand());
 		}
-		
+
 		public void Paste()
 		{
 			Execute(new PasteCommand());
 		}
-		
+
 		public bool ShiftLeft()
 		{
 			return Execute(new ShiftCommand(true));
 		}
-		
+
 		public bool ShiftRight()
 		{
 			return Execute(new ShiftCommand(false));
 		}
-		
+
 		public bool RemoveWordLeft()
 		{
 			return Execute(new RemoveWordCommand(true));
 		}
-		
+
 		public bool RemoveWordRight()
 		{
 			return Execute(new RemoveWordCommand(false));
 		}
-		
+
 		public bool MoveLineUp()
 		{
 			return Execute(new MoveLineCommand(true));
 		}
-		
+
 		public bool MoveLineDown()
 		{
 			return Execute(new MoveLineCommand(false));
 		}
-		
+
 		private void GetWordSelection(Place place, out int position, out int count)
 		{
 			Line line = lines[place.iLine];
@@ -662,7 +708,7 @@ namespace MulticaretEditor
 			position = lines.IndexOf(new Place(left, place.iLine));
 			count = right - left;
 		}
-		
+
 		public void SelectWordAtPlace(Place place, bool newSelection)
 		{
 			int position;
@@ -681,7 +727,7 @@ namespace MulticaretEditor
 			selection.caret = position + count;
 			lines.JoinSelections();
 		}
-		
+
 		public void SelectNextText()
 		{
 			if (lines.LastSelection.Empty)
@@ -728,14 +774,14 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public bool AllSelectionsEmpty { get { return lines.AllSelectionsEmpty; } }
-		
+
 		public void ScrollPage(bool isUp, bool withSelection)
 		{
 			lines.scroller.ScrollPage(isUp, this, withSelection);
 		}
-		
+
 		public void Scroll(int x, int y)
 		{
 			lines.scroller.Scroll(x, y);
