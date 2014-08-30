@@ -586,7 +586,7 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(0) - pos0.ix));
+						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(pos0.iy) - pos0.ix));
 						int sublineLeft;
 						for (int iy = pos0.iy + 1; iy < pos1.iy; iy++)
 						{
