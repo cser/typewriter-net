@@ -100,7 +100,9 @@ public class MainFormMenu : MainMenu
 			keysByAction.TryGetValue(action, out keys);
 			if (keys != null && keys.Count > 0)
 			{
-				itemName += "\t" + GetShortcutText(action, keys, keysConverter);
+				string shortcutText = GetShortcutText(action, keys, keysConverter);
+				if (!string.IsNullOrEmpty(shortcutText))
+					itemName += "\t" + shortcutText;
 			}
 			bool filtered;
 			if (isOther)

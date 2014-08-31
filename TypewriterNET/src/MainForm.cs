@@ -111,7 +111,7 @@ public class MainForm : Form
 
 		consoleNest = AddNest(false, false, true, tempSettings.GetInt("consoleNest.size", 20));
 		consoleNest.buffers = new BufferList();
-		leftNest = AddNest(true, true, true, tempSettings.GetInt("leftNest.size", 20));
+		leftNest = AddNest(true, true, false, tempSettings.GetInt("leftNest.size", 120));
 
 		log = new Log(this, consoleNest);
 		xmlLoader = new XmlLoader(this);

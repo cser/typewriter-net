@@ -332,7 +332,7 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("bool").Add(defaultValue + "");
+			table.Add(name).Add("bool").Add(defaultValue ? "true" : "false");
 		}
 
 		override public void Reset()

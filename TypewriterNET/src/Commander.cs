@@ -121,8 +121,6 @@ public class Commander
 		commands.Add(new Command("cd", "path", "Change current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
-		commands.Add(new Command("lopen", "", "Open editor log", DoOpenLog));
-		commands.Add(new Command("lclose", "", "Close editor log", DoCloseLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
 	}
 
@@ -139,16 +137,6 @@ public class Commander
 	private void DoClearLog(string args)
 	{
 		mainForm.Log.Clear();
-	}
-
-	private void DoOpenLog(string args)
-	{
-		mainForm.Log.Open();
-	}
-
-	private void DoCloseLog(string args)
-	{
-		mainForm.Log.Close();
 	}
 
 	private void DoResetProperty(string args)

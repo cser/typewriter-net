@@ -13,6 +13,8 @@ namespace MulticaretEditor
 		
 		public void Validate(int wwSizeX)
 		{
+			if (wwSizeX < 1)
+				wwSizeX = 1;
 			if (lines.wwSizeX != wwSizeX)
 			{
 				lines.wwSizeX = wwSizeX;
