@@ -413,7 +413,7 @@ public class MainForm : Form
 			}
 			catch (Exception e)
 			{
-				Log.WriteLine(e.ToString(), Ds.Error);
+				Log.WriteError("http", e.ToString());
 				Log.Open();
 				return false;
 			}
@@ -422,8 +422,7 @@ public class MainForm : Form
 		}
 		if (!File.Exists(buffer.FullPath))
 		{
-			Log.Write("Missing file: ", Ds.Keyword);
-			Log.WriteLine(buffer.FullPath, Ds.Normal);
+			Log.WriteWarning("Mission file", buffer.FullPath);
 			Log.Open();
 			return false;
 		}
@@ -435,8 +434,7 @@ public class MainForm : Form
 			}
 			catch (IOException e)
 			{
-				Log.WriteLine("-- File loading errors:", Ds.Comment);
-				Log.WriteLine(e.Message + "\n" + e.StackTrace);
+				Log.WriteError("File loading error", e.Message);
 				Log.Open();
 			}
 			buffer.Controller.InitText(text);
@@ -502,12 +500,12 @@ public class MainForm : Form
 			}
 			catch (Exception e)
 			{
-				Log.WriteLine(e.ToString(), Ds.Error);
+				Log.WriteError("http", e.ToString());
 				Log.Open();
 				return;
 			}
 			buffer.Controller.history.MarkAsSaved();
-			Log.WriteLine("Responce: " + text);
+			Log.WriteInfo("Responce", text);
 			return;
 		}
 		if (!string.IsNullOrEmpty(buffer.FullPath) && !buffer.needSaveAs)
@@ -683,10 +681,9 @@ public class MainForm : Form
 		Buffer buffer = ForcedLoadFile(filePath);
 		if (!File.Exists(templatePath))
 		{
-			Log.Write("Missing template: ", Ds.Error);
-			Log.WriteLine(templatePath);
+			Log.WriteWarning("Missing template", templatePath);
 			Log.Open();
-			return false;
+			return true;
 		}
 		buffer.InitText(File.ReadAllText(templatePath));
 		return true;
@@ -800,11 +797,12 @@ public class MainForm : Form
 		{
 			if (!File.Exists(AppPath.ConfigPath.startupPath))
 			{
-				Log.WriteLine("Warning: Missing base config at: " + AppPath.ConfigPath.startupPath, Ds.String);
+				Log.WriteWarning("Config", "Missing base config at: " + AppPath.ConfigPath.startupPath);
 				Log.Open();
+				return;
 			}
 			File.Copy(AppPath.ConfigPath.startupPath, AppPath.ConfigPath.appDataPath);
-			Log.WriteLine("Config was created: " + AppPath.ConfigPath.appDataPath, Ds.Comment);
+			Log.WriteInfo("Config", "Config was created: " + AppPath.ConfigPath.appDataPath);
 		}
 	}
 
@@ -812,25 +810,20 @@ public class MainForm : Form
 	{
 		configParser.Reset();
 		CopyConfigIfNeed();
+		StringBuilder builder = new StringBuilder();
 		foreach (string path in AppPath.ConfigPath.GetBoth())
 		{
 			if (File.Exists(path))
 			{
 				XmlDocument xml = xmlLoader.Load(path, false);
 				if (xml != null)
-				{
-					StringBuilder builder = new StringBuilder();
 					configParser.Parse(xml, builder);
-					if (builder.Length > 0)
-					{
-						Log.WriteLine(builder.ToString());
-						Log.Open();
-					}
-					StringWriter sw = new StringWriter();
-					XmlTextWriter writer = new XmlTextWriter(sw);
-					xml.WriteTo(writer);
-				}
 			}
+		}
+		if (builder.Length > 0)
+		{
+			Log.WriteError("Config", builder.ToString());
+			Log.Open();
 		}
 		settings.DispatchChange();
 	}

@@ -42,24 +42,22 @@ public class Log
 
 	public bool Opened { get { return buffer.Frame != null; } }
 
-	public void Write(string text)
+	public void WriteInfo(string type, string desc)
 	{
-		buffer.Write(text);
+		buffer.Write(type + ":", Ds.Comment);
+		buffer.WriteLine(" " + desc);
 	}
 
-	public void Write(string text, Ds ds)
+	public void WriteError(string type, string desc)
 	{
-		buffer.Write(text, ds);
+		buffer.Write(type + ":", Ds.Error);
+		buffer.WriteLine(" " + desc);
 	}
 
-	public void WriteLine(string text)
+	public void WriteWarning(string type, string desc)
 	{
-		buffer.WriteLine(text);
-	}
-
-	public void WriteLine(string text, Ds ds)
-	{
-		buffer.WriteLine(text, ds);
+		buffer.Write(type + ":", Ds.Others);
+		buffer.WriteLine(" " + desc);
 	}
 
 	public void Clear()

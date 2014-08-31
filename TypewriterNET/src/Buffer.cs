@@ -85,6 +85,7 @@ public class Buffer
 		controller.Lines.InsertText(index, text);
 		if (ds != null)
 			controller.SetStyleRange(new StyleRange(index, text.Length, ds.index));
+		controller.NeedScrollToCaret();
 	}
 	
 	public void WriteLine(string text)

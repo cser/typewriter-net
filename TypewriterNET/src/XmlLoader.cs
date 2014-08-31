@@ -18,7 +18,7 @@ public class XmlLoader
 		{
 			if (!ignoreMissingFile)
 			{
-				mainForm.Log.WriteLine("Missing file: " + file);
+				mainForm.Log.WriteWarning("Xml", "Missing file: " + file);
 				mainForm.Log.Open();
 			}
 			return null;
@@ -31,7 +31,7 @@ public class XmlLoader
 		}
 		catch (Exception e)
 		{
-			mainForm.Log.WriteLine("Error: " + e.Message, Ds.Error);
+			mainForm.Log.WriteError("Xml", e.Message);
 			mainForm.Log.Open();
 		}
 		return null;
