@@ -29,6 +29,9 @@ public class Commander
 
 	private readonly List<Command> commands = new List<Command>();
 
+	private StringList history;
+	public StringList History { get { return history; } }
+
 	private string FirstWord(string text, out string tail)
 	{
 		string first;
@@ -54,6 +57,7 @@ public class Commander
 		string name = FirstWord(text, out args);
 		if (name == "")
 			return;
+		history.Add(text);
 		Command command = null;
 		foreach (Command commandI in commands)
 		{
@@ -113,10 +117,11 @@ public class Commander
 		return builder.ToString();
 	}
 
-	public void Init(MainForm mainForm, Settings settings)
+	public void Init(MainForm mainForm, Settings settings, StringList history)
 	{
 		this.mainForm = mainForm;
 		this.settings = settings;
+		this.history = history;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
 		commands.Add(new Command("cd", "path", "Change current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
@@ -166,7 +171,7 @@ public class Commander
 		else
 			mainForm.Dialogs.ShowInfo("Error", error);
 	}
-	
+
 	private void ExecuteShellCommand(string commandText)
 	{
 		new RunShellCommand(mainForm).Execute(commandText, settings.shellRegexList.Value);

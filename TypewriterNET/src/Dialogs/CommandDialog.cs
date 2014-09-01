@@ -14,12 +14,19 @@ using MulticaretEditor;
 
 public class CommandDialog : ADialog
 {
+	public class Data
+	{
+		public string oldText = "";
+	}
+
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
+	private Data data;
 
-	public CommandDialog(string name)
+	public CommandDialog(Data data, string name)
 	{
+		this.data = data;
 		Name = name;
 	}
 
@@ -36,6 +43,8 @@ public class CommandDialog : ADialog
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel command", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Run command", DoRunCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("&View\\Next command", DoNextCommand, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -58,6 +67,7 @@ public class CommandDialog : ADialog
 
 	override protected void DoDestroy()
 	{
+		data.oldText = textBox.Text;
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
@@ -65,6 +75,13 @@ public class CommandDialog : ADialog
 	override public void Focus()
 	{
 		textBox.Focus();
+		Frame lastFrame = Nest.MainForm.LastFrame;
+		Controller lastController = lastFrame != null ? lastFrame.Controller : null;
+		if (lastController != null)
+		{
+			textBox.Text = data.oldText;
+    		textBox.Controller.SelectAllToEnd();
+		}
 	}
 
 	private void OnTabBarMouseDown(object sender, EventArgs e)
@@ -118,5 +135,27 @@ public class CommandDialog : ADialog
 		DispatchNeedClose();
 		commander.Execute(textBox.Text);
 		return true;
+	}
+
+	private bool DoPrevCommand(Controller controller)
+	{
+		return GetHistoryCommand(true);
+	}
+
+	private bool DoNextCommand(Controller controller)
+	{
+		return GetHistoryCommand(false);
+	}
+
+	private bool GetHistoryCommand(bool isPrev)
+	{
+		string text = textBox.Text;
+		string newText = MainForm.commander.History.Get(text, isPrev);
+		if (newText != text)
+		{
+			textBox.Text = newText;
+			return true;
+		}
+		return false;
 	}
 }

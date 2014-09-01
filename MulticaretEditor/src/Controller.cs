@@ -35,22 +35,25 @@ namespace MulticaretEditor
 			history.MarkAsSaved();
 		}
 
-		public void MoveRight(bool shift)
+		public bool MoveRight(bool shift)
 		{
-			MoveRight(lines, shift);
+			return MoveRight(lines, shift);
 		}
 
-		public void MoveLeft(bool shift)
+		public bool MoveLeft(bool shift)
 		{
-			MoveLeft(lines, shift);
+			return MoveLeft(lines, shift);
 		}
 
-		public static void MoveRight(LineArray lines, bool shift)
+		public static bool MoveRight(LineArray lines, bool shift)
 		{
+			bool result = false;
 			foreach (Selection selection in lines.selections)
 			{
 				if (!shift && !selection.Empty)
 				{
+					if (selection.caret != selection.anchor)
+						result = true;
 					int index = selection.Right;
 					selection.caret = index;
 					selection.anchor = index;
@@ -60,25 +63,34 @@ namespace MulticaretEditor
 					if (selection.caret < lines.charsCount - 1 && lines.GetText(selection.caret, 2) == "\r\n")
 					{
 						selection.caret += 2;
+						result = true;
 					}
 					else if (selection.caret < lines.charsCount)
 					{
 						selection.caret++;
+						result = true;
 					}
-					if (!shift)
+					if (!shift && selection.anchor != selection.caret)
+					{
 						selection.anchor = selection.caret;
+						result = true;
+					}
 				}
 				Place place = lines.PlaceOf(selection.caret);
 				lines.SetPreferredPos(selection, place);
 			}
+			return result;
 		}
 
-		public static void MoveLeft(LineArray lines, bool shift)
+		public static bool MoveLeft(LineArray lines, bool shift)
 		{
+			bool result = false;
 			foreach (Selection selection in lines.selections)
 			{
 				if (!shift && !selection.Empty)
 				{
+					if (selection.caret != selection.anchor)
+						result = true;
 					int index = selection.Left;
 					selection.caret = index;
 					selection.anchor = index;
@@ -88,21 +100,28 @@ namespace MulticaretEditor
 					if (selection.caret > 1 && lines.GetText(selection.caret - 2, 2) == "\r\n")
 					{
 						selection.caret -= 2;
+						result = true;
 					}
 					else if (selection.caret > 0)
 					{
 						selection.caret--;
+						result = true;
 					}
-					if (!shift)
+					if (!shift && selection.anchor != selection.caret)
+					{
 						selection.anchor = selection.caret;
+						result = true;
+					}
 				}
 				Place place = lines.PlaceOf(selection.caret);
 				lines.SetPreferredPos(selection, place);
 			}
+			return result;
 		}
 
-		public void MoveUp(bool shift)
+		public bool MoveUp(bool shift)
 		{
+			bool result = false;
 			if (lines.wordWrap && selections.Count == 1)
 			{
 				Selection selection = lines.LastSelection;
@@ -113,15 +132,20 @@ namespace MulticaretEditor
 				if (pos.iy > 0)
 				{
 					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, pos.iy - 1), place.iLine);
+					result = true;
 				}
 				else if (place.iLine > 0)
 				{
 					line = lines[place.iLine - 1];
 					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, line.cutOffs.count), place.iLine - 1);
+					result = true;
 				}
 				selection.caret = lines.IndexOf(newPlace);
-				if (!shift)
+				if (!shift && selection.anchor != selection.caret)
+				{
 					selection.anchor = selection.caret;
+					result = true;
+				}
 			}
 			else
 			{
@@ -132,16 +156,22 @@ namespace MulticaretEditor
 					{
 						Line line = lines[place.iLine - 1];
 						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
+						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
-					if (!shift)
+					if (!shift && selection.anchor != selection.caret)
+					{
 						selection.anchor = selection.caret;
+						result = true;
+					}
 				}
 			}
+			return result;
 		}
 
-		public void MoveDown(bool shift)
+		public bool MoveDown(bool shift)
 		{
+			bool result = false;
 			if (lines.wordWrap && selections.Count == 1)
 			{
 				Selection selection = lines.LastSelection;
@@ -152,15 +182,20 @@ namespace MulticaretEditor
 				if (pos.iy < line.cutOffs.count)
 				{
 					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, pos.iy + 1), place.iLine);
+					result = true;
 				}
 				else if (place.iLine < lines.LinesCount - 1)
 				{
 					line = lines[place.iLine + 1];
 					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, 0), place.iLine + 1);
+					result = true;
 				}
 				selection.caret = lines.IndexOf(newPlace);
-				if (!shift)
+				if (!shift && selection.anchor != selection.caret)
+				{
 					selection.anchor = selection.caret;
+					result = true;
+				}
 			}
 			else
 			{
@@ -171,12 +206,17 @@ namespace MulticaretEditor
 					{
 						Line line = lines[place.iLine + 1];
 						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
+						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
-					if (!shift)
+					if (!shift && selection.anchor != selection.caret)
+					{
 						selection.anchor = selection.caret;
+						result = true;
+					}
 				}
 			}
+			return result;
 		}
 
 		public void MoveEnd(bool shift)

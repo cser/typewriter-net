@@ -86,6 +86,7 @@ public class DialogManager
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<CommandDialog> command;
+	private CommandDialog.Data commandDialogData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
 	private FindDialog.Data findDialogData = new FindDialog.Data();
 	private DialogOwner<FindDialog> findInFiles;
@@ -128,7 +129,7 @@ public class DialogManager
 	private bool DoInputCommand(Controller controller)
 	{
 		if (command.SwitchOpen())
-			command.Open(new CommandDialog("Command"), true);
+			command.Open(new CommandDialog(commandDialogData, "Command"), true);
 		return true;
 	}
 

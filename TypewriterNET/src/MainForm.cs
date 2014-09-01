@@ -102,8 +102,8 @@ public class MainForm : Form
 
 		BuildMenu();
 
-		commander.Init(this, settings);
 		tempSettings = new TempSettings(this, settings);
+		commander.Init(this, settings, tempSettings.CommandHistory);
 
 		mainNest = AddNest(false, true, true, tempSettings.GetInt("mainNest.size", 70));
 		mainNest.buffers = new BufferList();

@@ -102,15 +102,13 @@ namespace MulticaretEditor.KeyMapping
 		public static readonly KeyAction Right = Add("&Edit\\Selection\\Right", DoRight, null, true);
 		private static bool DoRight(Controller controller)
 		{
-			controller.MoveRight(false);
-			return true;
+			return controller.MoveRight(false);
 		}
 
 		public static readonly KeyAction RightWithSelection = Add("&Edit\\Selection\\Right with selection", DoRightWithSelection, null, true);
 		private static bool DoRightWithSelection(Controller controller)
 		{ 
-			controller.MoveRight(true);
-			return true;
+			return controller.MoveRight(true);
 		}
 
 		public static readonly KeyAction RightWord = Add("&Edit\\Selection\\Right word", DoRightWord, null, true);
@@ -130,29 +128,25 @@ namespace MulticaretEditor.KeyMapping
 		public static readonly KeyAction Up = Add("&Edit\\Selection\\Up", DoKeyAction, null, true);
 		private static bool DoKeyAction(Controller controller)
 		{
-			controller.MoveUp(false);
-			return true;
+			return controller.MoveUp(false);
 		}
 		
 		public static readonly KeyAction UpWithSelection = Add("&Edit\\Selection\\Up with selection", DoUpWithSelection, null, true);
 		private static bool DoUpWithSelection(Controller controller)
 		{
-			controller.MoveUp(true);
-			return true;
+			return controller.MoveUp(true);
 		}
 		
 		public static readonly KeyAction Down = Add("&Edit\\Selection\\Down", DoDown, null, true);
 		private static bool DoDown(Controller controller)
 		{
-			controller.MoveDown(false);
-			return true;
+			return controller.MoveDown(false);
 		}
 		
 		public static readonly KeyAction DownWithSelection = Add("&Edit\\Selection\\Down with selection", DoDownWithSelection, null, true);
 		private static bool DoDownWithSelection(Controller controller)
 		{
-			controller.MoveDown(true);
-			return true;
+			return controller.MoveDown(true);
 		}
 		
 		public static readonly KeyAction PutCursorUp = Add("&Edit\\Selection\\Put cursor up", DoPutCursorUp, null, true);

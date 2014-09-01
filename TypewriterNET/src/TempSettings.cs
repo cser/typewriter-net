@@ -46,6 +46,7 @@ public class TempSettings
 				mainForm.MainNest.buffers.list.Selected = selectedTab;
 		}
 		ValuesUnserialize(state);
+		commandHistory.Unserialize(state["commandHistory"]);
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -91,6 +92,7 @@ public class TempSettings
 		}
 		state["storage"] = storage.Serialize();
 		ValuesSerialize(state);
+		state["commandHistory"] = commandHistory.Serialize();
 		
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
 	}
@@ -156,4 +158,7 @@ public class TempSettings
 		}
 		return settingsInt;
 	}
+
+	private StringList commandHistory = new StringList();
+	public StringList CommandHistory { get { return commandHistory; } }
 }
