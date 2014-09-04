@@ -81,24 +81,26 @@ public class DialogManager
 	}
 
 	private MainForm mainForm;
+	private TempSettings tempSettings;
 	private FrameList frames;
 	private List<Getter<bool, bool>> closeMethods;
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<CommandDialog> command;
-	private CommandDialog.Data commandDialogData = new CommandDialog.Data();
+	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
-	private FindDialog.Data findDialogData = new FindDialog.Data();
+	private FindDialog.Data findData;
 	private DialogOwner<FindDialog> findInFiles;
-	private FindDialog.Data findInFilesDialogData = new FindDialog.Data();
+	private FindDialog.Data findInFilesData;
 	private DialogOwner<ReplaceDialog> replace;
-	private ReplaceDialog.Data replaceDialogData = new ReplaceDialog.Data();
+	private ReplaceDialog.Data replaceData = new ReplaceDialog.Data();
 	private DialogOwner<FindDialog> goToLine;
-	private FindDialog.Data goToLineData = new FindDialog.Data();
+	private FindDialog.Data goToLineData;
 
-	public DialogManager(MainForm mainForm)
+	public DialogManager(MainForm mainForm, TempSettings tempSettings)
 	{
 		this.mainForm = mainForm;
+		this.tempSettings = tempSettings;
 		frames = mainForm.frames;
 		closeMethods = new List<Getter<bool, bool>>();
 
@@ -113,9 +115,12 @@ public class DialogManager
 		info = new DialogOwner<InfoDialog>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
+		findData = new FindDialog.Data(tempSettings.FindHistory);
 		findInFiles = new DialogOwner<FindDialog>(this);
+		findInFilesData = new FindDialog.Data(tempSettings.FindInFilesHistory);
 		replace = new DialogOwner<ReplaceDialog>(this);
 		goToLine = new DialogOwner<FindDialog>(this);
+		goToLineData = new FindDialog.Data(tempSettings.GoToLineHistory);
 	}
 
 	public void ShowInfo(string name, string text)
@@ -129,28 +134,28 @@ public class DialogManager
 	private bool DoInputCommand(Controller controller)
 	{
 		if (command.SwitchOpen())
-			command.Open(new CommandDialog(commandDialogData, "Command"), true);
+			command.Open(new CommandDialog(commandData, "Command"), true);
 		return true;
 	}
 
 	private bool DoFind(Controller controller)
 	{
 		if (find.SwitchOpen())
-			find.Open(new FindDialog(findDialogData, DoFindText, "Find"), true);
+			find.Open(new FindDialog(findData, DoFindText, "Find"), true);
 		return true;
 	}
 
 	private bool DoFindInFiles(Controller controller)
 	{
 		if (findInFiles.SwitchOpen())
-			findInFiles.Open(new FindDialog(findInFilesDialogData, DoFindInFilesDialog, "Find in Files"), true);
+			findInFiles.Open(new FindDialog(findInFilesData, DoFindInFilesDialog, "Find in Files"), true);
 		return true;
 	}
 
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(new ReplaceDialog(replaceDialogData, "Replace"), true);
+			replace.Open(new ReplaceDialog(replaceData, "Replace"), true);
 		return true;
 	}
 

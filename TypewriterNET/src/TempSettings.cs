@@ -47,6 +47,9 @@ public class TempSettings
 		}
 		ValuesUnserialize(state);
 		commandHistory.Unserialize(state["commandHistory"]);
+		findHistory.Unserialize(state["findHistory"]);
+		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
+		goToLineHistory.Unserialize(state["goToLineHistory"]);
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -93,7 +96,9 @@ public class TempSettings
 		state["storage"] = storage.Serialize();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
-		
+		state["findHistory"] = findHistory.Serialize();
+		state["findInFilesHistory"] = findInFilesHistory.Serialize();
+		state["goToLineHistory"] = goToLineHistory.Serialize();
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
 	}
 
@@ -161,4 +166,13 @@ public class TempSettings
 
 	private StringList commandHistory = new StringList();
 	public StringList CommandHistory { get { return commandHistory; } }
+
+	private StringList findHistory = new StringList();
+	public StringList FindHistory { get { return findHistory; } }
+
+	private StringList findInFilesHistory = new StringList();
+	public StringList FindInFilesHistory { get { return findInFilesHistory; } }
+
+	private StringList goToLineHistory = new StringList();
+	public StringList GoToLineHistory { get { return goToLineHistory; } }
 }

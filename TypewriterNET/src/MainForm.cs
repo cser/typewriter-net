@@ -104,6 +104,7 @@ public class MainForm : Form
 
 		tempSettings = new TempSettings(this, settings);
 		commander.Init(this, settings, tempSettings.CommandHistory);
+		dialogs = new DialogManager(this, tempSettings);
 
 		mainNest = AddNest(false, true, true, tempSettings.GetInt("mainNest.size", 70));
 		mainNest.buffers = new BufferList();
@@ -290,7 +291,6 @@ public class MainForm : Form
 	{
 		keyMap = new KeyMap();
 		doNothingKeyMap = new KeyMap();
-		dialogs = new DialogManager(this);
 
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
@@ -302,8 +302,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 

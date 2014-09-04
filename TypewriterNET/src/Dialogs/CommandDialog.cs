@@ -154,6 +154,8 @@ public class CommandDialog : ADialog
 		if (newText != text)
 		{
 			textBox.Text = newText;
+			textBox.Controller.ClearMinorSelections();
+			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
 			return true;
 		}
 		return false;
