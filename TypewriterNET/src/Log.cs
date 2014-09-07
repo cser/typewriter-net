@@ -17,6 +17,7 @@ public class Log
 		buffer.needSaveAs = false;
 		buffer.Controller.isReadonly = true;
 		buffer.onAdd = OnLogAdd;
+		mainForm.RegisterConsoleBuffer(MainForm.LogId, buffer);
 	}
 
 	private void OnLogAdd(Buffer buffer)
@@ -26,7 +27,7 @@ public class Log
 
 	public void Open()
 	{
-		mainForm.ShowBuffer(consoleNest, buffer);
+		mainForm.ShowConsoleBuffer(MainForm.LogId, buffer);
 	}
 
 	public void Close()

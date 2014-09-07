@@ -232,7 +232,7 @@ public class FindInFiles
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		mainForm.ShowConsoleBuffer(MainForm.FindResultId, buffer);
+		mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 		return null;
 	}
 

@@ -302,7 +302,9 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null, new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null, new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
@@ -316,8 +318,6 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
-
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close editor console", DoCloseEditorConsole, null, false)));
 	}
 
 	private bool DoNew(Controller controller)
@@ -558,15 +558,35 @@ public class MainForm : Form
 
 	private bool DoOpenCloseLog(Controller controller)
 	{
-		if (Log.Opened)
+		return OpenCloseConsoleBuffer(LogId);
+	}
+
+	private bool DoOpenCloseFindResults(Controller controller)
+	{
+		return OpenCloseConsoleBuffer(FindResultsId);
+	}
+
+	private bool DoOpenCloseShellResults(Controller controller)
+	{
+		return OpenCloseConsoleBuffer(ShellResultsId);
+	}
+
+	private bool OpenCloseConsoleBuffer(string id)
+	{
+		Buffer buffer;
+		consoleBuffers.TryGetValue(id, out buffer);
+		if (buffer == null)
+			return false;
+		if (consoleNest.buffers.list.Selected == buffer)
+		if (buffer.Frame != null)
 		{
-			Log.Close();
+			buffer.Frame.Destroy();
+			return true;
 		}
-		else
-		{
-			Log.Open();
-			Log.Focus();
-		}
+		consoleBuffers[id] = buffer;
+		ShowBuffer(consoleNest, buffer);
+		if (consoleNest.Frame != null)
+			consoleNest.Frame.Focus();
 		return true;
 	}
 
@@ -749,16 +769,6 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool DoCloseEditorConsole(Controller controller)
-	{
-		if (Log.Opened)
-		{
-			Log.Close();
-			return true;
-		}
-		return false;
-	}
-
 	private Buffer NewFileBuffer()
 	{
 		Buffer buffer = new Buffer(null, UntitledTxt);
@@ -777,8 +787,9 @@ public class MainForm : Form
 
 	private Dictionary<string, Buffer> consoleBuffers = new Dictionary<string, Buffer>();
 
-	public const string FindResultId = "FindResultId";
-	public const string RunShellCommandResultId = "RunShellCommandResultId";
+	public const string LogId = "LogId";
+	public const string FindResultsId = "FindResultsId";
+	public const string ShellResultsId = "ShellResultsId";
 
 	public void ShowConsoleBuffer(string id, Buffer buffer)
 	{
@@ -792,13 +803,21 @@ public class MainForm : Form
 				consoleNest.buffers.list.Remove(oldBuffer);
 			consoleBuffers.Remove(id);
 		}
+		RegisterConsoleBuffer(id, buffer);
 		if (buffer != null)
 		{
-			consoleBuffers[id] = buffer;
 			ShowBuffer(consoleNest, buffer);
 			if (consoleNest.Frame != null)
 				consoleNest.Frame.Focus();
 		}
+	}
+
+	public void RegisterConsoleBuffer(string id, Buffer buffer)
+	{
+		if (id != null && buffer != null)
+			consoleBuffers[id] = buffer;
+		else if (id != null)
+			consoleBuffers.Remove(id);
 	}
 
 	private bool OnFileBufferRemove(Buffer buffer)

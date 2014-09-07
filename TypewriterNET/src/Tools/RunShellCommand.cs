@@ -117,7 +117,7 @@ public class RunShellCommand
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		mainForm.ShowConsoleBuffer(MainForm.RunShellCommandResultId, buffer);
+		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		return null;
 	}
 
