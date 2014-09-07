@@ -117,13 +117,7 @@ public class RunShellCommand
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		{
-			KeyAction action = new KeyAction("F&ind\\Close execution", CloseBuffer, null, false);
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
-		}
-		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
-		if (mainForm.ConsoleNest.Frame != null)
-			mainForm.ConsoleNest.Frame.Focus();
+		mainForm.ShowConsoleBuffer(MainForm.RunShellCommandResultId, buffer);
 		return null;
 	}
 
@@ -165,12 +159,5 @@ public class RunShellCommand
 	private static int ComparePositions(Position position0, Position position1)
 	{
 		return position0.shellStart - position1.shellStart;
-	}
-
-	private bool CloseBuffer(Controller controller)
-	{
-		if (buffer != null && buffer.Frame != null)
-			buffer.Frame.RemoveBuffer(buffer);
-		return true;
 	}
 }

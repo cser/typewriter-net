@@ -222,7 +222,7 @@ public class FindInFiles
 			}
 		}
 
-		buffer = new Buffer(null, "Find results");
+		buffer = new Buffer(null, "Find in files results");
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
@@ -232,13 +232,7 @@ public class FindInFiles
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		{
-			KeyAction action = new KeyAction("F&ind\\Close find results", CloseBuffer, null, false);
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
-		}
-		mainForm.ShowBuffer(mainForm.ConsoleNest, buffer);
-		if (mainForm.ConsoleNest.Frame != null)
-			mainForm.ConsoleNest.Frame.Focus();
+		mainForm.ShowConsoleBuffer(MainForm.FindResultId, buffer);
 		return null;
 	}
 
@@ -247,13 +241,6 @@ public class FindInFiles
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Position position = positions[place.iLine];
 		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.position0, position.position1);
-		return true;
-	}
-
-	private bool CloseBuffer(Controller controller)
-	{
-		if (buffer != null && buffer.Frame != null)
-			buffer.Frame.RemoveBuffer(buffer);
 		return true;
 	}
 }

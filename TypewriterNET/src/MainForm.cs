@@ -304,6 +304,7 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 
@@ -588,6 +589,16 @@ public class MainForm : Form
 		return true;
 	}
 
+	private bool DoCloseConsolePanel(Controller controller)
+	{
+		if (consoleNest.AFrame != null)
+		{
+			consoleNest.AFrame.Destroy();
+			return true;
+		}
+		return false;
+	}
+
 	private bool DoOpenCloseFileTree(Controller controller)
 	{
 		if (leftNest.AFrame != null && leftNest.AFrame.Focused && leftNest.buffers.list.Selected == fileTree.Buffer)
@@ -762,6 +773,32 @@ public class MainForm : Form
 		if (nest.Frame == null)
 			new Frame().Create(nest);
 		nest.Frame.AddBuffer(buffer);
+	}
+
+	private Dictionary<string, Buffer> consoleBuffers = new Dictionary<string, Buffer>();
+
+	public const string FindResultId = "FindResultId";
+	public const string RunShellCommandResultId = "RunShellCommandResultId";
+
+	public void ShowConsoleBuffer(string id, Buffer buffer)
+	{
+		Buffer oldBuffer;
+		consoleBuffers.TryGetValue(id, out oldBuffer);
+		if (oldBuffer != null)
+		{
+			if (oldBuffer.Frame != null)
+				oldBuffer.Frame.RemoveBuffer(oldBuffer);
+			else
+				consoleNest.buffers.list.Remove(oldBuffer);
+			consoleBuffers.Remove(id);
+		}
+		if (buffer != null)
+		{
+			consoleBuffers[id] = buffer;
+			ShowBuffer(consoleNest, buffer);
+			if (consoleNest.Frame != null)
+				consoleNest.Frame.Focus();
+		}
 	}
 
 	private bool OnFileBufferRemove(Buffer buffer)
