@@ -82,7 +82,7 @@ public class FileTree
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("F&ind\\File tree\\Close file tree", CloseBuffer, null, false);
+			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", CloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;
