@@ -303,6 +303,34 @@ namespace MulticaretEditor
 			}
 		}
 
+		private float mapScale = .3f;
+		public float MapScale
+		{
+			get { return mapScale; }
+			set
+			{
+				if (Math.Abs(mapScale - value) > .00001f)
+				{
+					mapScale = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private bool showMap = false;
+		public bool ShowMap
+		{
+			get { return showMap; }
+			set
+			{
+				if (showMap != value)
+				{
+					showMap = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private static SizeF GetCharSize(Font font, char c)
 		{
 			Size sz2 = TextRenderer.MeasureText("<" + c.ToString() + ">", font);
@@ -346,6 +374,7 @@ namespace MulticaretEditor
 		}
 
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();
+		private int mouseAreaRight;
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
@@ -367,6 +396,39 @@ namespace MulticaretEditor
 			e.Graphics.SmoothingMode = SmoothingMode.None;
 			e.Graphics.Clear(scheme.bgColor);
 
+			DrawText(e.Graphics, valueX, valueY, leftIndent, clientWidth, clientHeight);
+			e.Graphics.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
+			if (showLineNumbers)
+			{
+				for (int i = 0; i < lineNumberInfos.count; i++)
+				{
+					LineNumberInfo info = lineNumberInfos.buffer[i];
+					e.Graphics.DrawString(
+						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
+				}
+			}
+
+			mouseAreaRight = leftIndent + clientWidth;
+			if (showMap)
+			{
+				e.Graphics.FillRectangle(scheme.bgBrush, leftIndent + clientWidth, 0, leftIndent + clientWidth + (int)(clientWidth / mapScale) + 1, clientHeight);
+				e.Graphics.ScaleTransform(mapScale, mapScale);
+				DrawText(e.Graphics, valueX, valueY, (int)((clientWidth + leftIndent) / mapScale), clientWidth, (int)(clientHeight / mapScale));
+				e.Graphics.ScaleTransform(1, 1);
+			}
+
+			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
+				e.Graphics.FillRectangle(bgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
+
+			base.OnPaint(e);
+
+			#if debug
+            Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
+			#endif
+		}
+
+		private void DrawText(Graphics g, int valueX, int valueY, int leftIndent, int clientWidth, int clientHeight)
+		{
 			int offsetX = -valueX + leftIndent;
 			int offsetY = -valueY;
 			int linesCount = lines.LinesCount;
@@ -399,11 +461,11 @@ namespace MulticaretEditor
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].chars.Count, lineMax.iLine));
 			if (lines.wordWrap)
 			{
-				DrawSelections_WordWrap(start, end, e.Graphics, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
 			}
 			else
 			{
-				DrawSelections_Fixed(start, end, e.Graphics, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
 			}
 			lineNumberInfos.Clear();
 			if (lines.wordWrap)
@@ -414,7 +476,7 @@ namespace MulticaretEditor
 					int y = offsetY + (wwILineMin - lineMin.iSubline) * charHeight;
 					do
 					{
-						DrawLineChars(e.Graphics, new Point(offsetX, y), iterator.current, minPos, maxPos);
+						DrawLineChars(g, new Point(offsetX, y), iterator.current, minPos, maxPos);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += (iterator.current.cutOffs.count + 1) * charHeight;
 					}
@@ -429,7 +491,7 @@ namespace MulticaretEditor
 					int y = offsetY + iterator.Index * charHeight;
 					do
 					{
-						DrawLineChars(e.Graphics, new Point(offsetX, y), iterator.current, minPos, maxPos);
+						DrawLineChars(g, new Point(offsetX, y), iterator.current, minPos, maxPos);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += charHeight;
 					}
@@ -467,40 +529,22 @@ namespace MulticaretEditor
 						if (HighlighterUtil.GetRGBForHighlight(line.chars, caret.iChar, out offset, out color))
 						{
 							using (Pen pen = new Pen(color, 2))
-								e.Graphics.DrawLine(pen, x + offset * CharWidth, y + charHeight - 1, x + (offset + 6) * CharWidth, y + charHeight - 1);
+								g.DrawLine(pen, x + offset * CharWidth, y + charHeight - 1, x + (offset + 6) * CharWidth, y + charHeight - 1);
 						}
 					}
 
 					if (isCursorTick && Focused)
-						e.Graphics.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
+						g.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
 				}
 			}
-			e.Graphics.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
-			if (showLineNumbers)
-			{
-				for (int i = 0; i < lineNumberInfos.count; i++)
-				{
-					LineNumberInfo info = lineNumberInfos.buffer[i];
-					e.Graphics.DrawString(
-						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
-				}
-			}
-
-			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
-				e.Graphics.FillRectangle(bgBrush, clientWidth + leftIndent, clientHeight, scrollBarBreadth, scrollBarBreadth);
-
-			base.OnPaint(e);
-
-			#if debug
-            Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
-			#endif
 		}
 
 		private PredictableList<DrawingLine> selectionRects = new PredictableList<DrawingLine>();
 
-		private void DrawSelections_Fixed(int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+		private void DrawSelections_Fixed(
+			int leftIndent,
+			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
 		{
-			int leftIndent = GetLeftIndent();
 			if (lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
 			{
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
@@ -556,9 +600,9 @@ namespace MulticaretEditor
 		}
 
 		private void DrawSelections_WordWrap(
+			int leftIndent,
 			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
 		{
-			int leftIndent = GetLeftIndent();
 			if (lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
 			{
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
@@ -976,6 +1020,8 @@ namespace MulticaretEditor
 		protected override void OnMouseDown(MouseEventArgs e)
 		{
 			base.OnMouseDown(e);
+			if (e.Location.X > mouseAreaRight)
+				return;
 			Focus();
 			if (mouseDownIndex == 1 &&
 				(DateTime.Now.Ticks - lastMouseDownTicks) / 10000 < 500 &&
@@ -1024,7 +1070,7 @@ namespace MulticaretEditor
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-			if (e.Button == MouseButtons.Left && mouseDownIndex < 2)
+			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
 				controller.PutCursor(GetMousePlace(e.Location), true);
 				UnblinkCursor();
@@ -1152,10 +1198,14 @@ namespace MulticaretEditor
 
 		public void UpdateScrollOnPaint()
 		{
+			int leftIndent = GetLeftIndent();
 			ScrollOnPaintInfo info = new ScrollOnPaintInfo();
-			info.width = ClientRectangle.Width;
+			info.leftIndent = leftIndent;
+			if (showMap)
+				info.width = leftIndent + (int)((ClientRectangle.Width - leftIndent) / (mapScale + 1));
+			else
+				info.width = ClientRectangle.Width;
 			info.height = ClientRectangle.Height;
-			info.leftIndent = GetLeftIndent();
 			info.charSize = new IntSize(charWidth, charHeight);
 			info.scrollBarBreadth = scrollBarBreadth;
 
@@ -1165,7 +1215,7 @@ namespace MulticaretEditor
 
 			lines.scroller.scrollX.ApplyParamsTo(hScrollBar);
 			lines.scroller.scrollY.ApplyParamsTo(vScrollBar);
-			hScrollBar.Width = info.leftIndent + lines.scroller.textAreaWidth;
+			hScrollBar.Width = ClientRectangle.Width - (lines.scroller.scrollY.visible ? scrollBarBreadth : 0);
 			vScrollBar.Height = lines.scroller.textAreaHeight;
 			hScrollBar.Value = valueX;
 			vScrollBar.Value = valueY;

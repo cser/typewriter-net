@@ -146,14 +146,17 @@ public class Frame : AFrame
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
 	}
 
+	private Settings settings;
+
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
 	{
+		this.settings = settings;
+		Buffer buffer = buffers.list.Selected;
+
 		if (phase == UpdatePhase.Raw)
 		{
-			_settingsWordWrap = settings.wordWrap.Value;
-			settings.ApplyParameters(textBox);
+			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
-			UpdateOverrides();
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -165,7 +168,6 @@ public class Frame : AFrame
 			UpdateHighlighter();
 		}
 
-		Buffer buffer = buffers.list.Selected;
 		if (buffer != null && buffer.onUpdateSettings != null)
 			buffer.onUpdateSettings(buffer, phase);
 	}
@@ -227,20 +229,11 @@ public class Frame : AFrame
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
 		if (additionKeyMap != null)
 			textBox.KeyMap.AddAfter(additionKeyMap, 1);
-		UpdateOverrides();
+		if (settings != null && buffer != null)
+			settings.ApplyParameters(textBox, buffer.settingsMode);
 		UpdateHighlighter();
 		if (buffer != null && buffer.onSelected != null)
 			buffer.onSelected(buffer);
-	}
-
-	private bool _settingsWordWrap = false;
-
-	public void UpdateOverrides()
-	{
-		Buffer buffer = buffers.list.Selected;
-		textBox.WordWrap = buffer != null && buffer.OverrideWordWrap != null ?
-			buffer.OverrideWordWrap.Value :
-			_settingsWordWrap;
 	}
 
 	public void UpdateHighlighter()

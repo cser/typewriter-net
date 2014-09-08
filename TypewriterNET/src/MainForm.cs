@@ -749,7 +749,7 @@ public class MainForm : Form
 				"\n" +
 				commander.GetHelpText() + "\n" +
 				settings.GetHelpText();
-			_helpBuffer = new Buffer(null, "Help.twh");
+			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Normal);
 			_helpBuffer.tags = BufferTag.Other;
 			_helpBuffer.onRemove = OnHelpBufferRemove;
 			_helpBuffer.Controller.isReadonly = true;
@@ -771,7 +771,7 @@ public class MainForm : Form
 
 	private Buffer NewFileBuffer()
 	{
-		Buffer buffer = new Buffer(null, UntitledTxt);
+		Buffer buffer = new Buffer(null, UntitledTxt, SettingsMode.Normal);
 		buffer.tags = BufferTag.File;
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;

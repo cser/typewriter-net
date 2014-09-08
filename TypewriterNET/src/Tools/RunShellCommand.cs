@@ -50,7 +50,7 @@ public class RunShellCommand
 		string output = p.StandardOutput.ReadToEnd();
 		p.WaitForExit();
 
-		buffer = new Buffer(null, "Shell command results");
+		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(output);
 		if (regexList != null)

@@ -16,6 +16,8 @@
 	<item name="maxFileQualitiesCount" value="200"/>
 	<item name="alwaysOnTop" value="false"/>
 	<item name="connectionTimeout" value="1000"/>
+	<item name="miniMap" value="false"/>
+	<item name="miniMapScale" value=".3"/>
 	<altChars 
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>

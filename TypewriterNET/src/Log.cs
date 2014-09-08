@@ -12,7 +12,7 @@ public class Log
 		this.mainForm = mainForm;
 		this.consoleNest = consoleNest;
 
-		buffer = new Buffer(null, "Log");
+		buffer = new Buffer(null, "Log", SettingsMode.Normal);
 		buffer.tags = BufferTag.Console;
 		buffer.needSaveAs = false;
 		buffer.Controller.isReadonly = true;

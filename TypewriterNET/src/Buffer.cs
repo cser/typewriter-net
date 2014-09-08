@@ -6,8 +6,11 @@ using MulticaretEditor.KeyMapping;
 
 public class Buffer
 {
-	public Buffer(string fullPath, string name)
+	public readonly SettingsMode settingsMode;
+
+	public Buffer(string fullPath, string name, SettingsMode settingsMode)
 	{
+		this.settingsMode = settingsMode;
 		SetFile(fullPath, name);
 		controller = new Controller(new LineArray());
 	}
@@ -51,21 +54,6 @@ public class Buffer
 	public static string StringOf(Buffer buffer)
 	{
 		return buffer.Name + (buffer.Changed ? "*" : "");
-	}
-
-	private bool? overrideWordWrap = null;
-	public bool? OverrideWordWrap
-	{
-		get { return overrideWordWrap; }
-		set
-		{
-			if (overrideWordWrap != value)
-			{
-				overrideWordWrap = value;
-				if (Frame != null)
-					Frame.UpdateOverrides();
-			}
-		}
 	}
 
 	//--------------------------------------------------------------------------

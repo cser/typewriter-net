@@ -222,7 +222,7 @@ public class FindInFiles
 			}
 		}
 
-		buffer = new Buffer(null, "Find in files results");
+		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
 		buffer.Controller.SetStyleRanges(ranges);
