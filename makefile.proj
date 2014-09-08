@@ -41,6 +41,7 @@ This file was writen for launching with MSBuild
 			NoStandardLib="False"
 			EmitDebugInformation="False"
 			LangVersion="Default"
+			Optimize="True"
 			Win32Icon="TypewriterNET\TypewriterNET.ico"
 			OutputAssembly="TypewriterNET\bin\TypewriterNET.exe" />
 	</Target>
