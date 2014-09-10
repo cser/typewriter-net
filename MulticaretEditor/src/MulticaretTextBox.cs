@@ -413,7 +413,10 @@ namespace MulticaretEditor
 			{
 				e.Graphics.FillRectangle(scheme.bgBrush, leftIndent + clientWidth, 0, leftIndent + clientWidth + (int)(clientWidth / mapScale) + 1, clientHeight);
 				e.Graphics.ScaleTransform(mapScale, mapScale);
-				DrawText(e.Graphics, valueX, valueY, (int)((clientWidth + leftIndent) / mapScale), clientWidth, (int)(clientHeight / mapScale));
+				int offsetX = (int)((clientWidth + leftIndent) / mapScale);
+				int mapValueY = GetMapValueY();
+				e.Graphics.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth, clientHeight);
+				DrawText(e.Graphics, valueX, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
 				e.Graphics.ScaleTransform(1, 1);
 			}
 
@@ -425,6 +428,22 @@ namespace MulticaretEditor
 			#if debug
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
+		}
+
+		private int GetMapValueY()
+		{
+			int valueY = lines.scroller.scrollY.value;
+			int maxValueY = lines.scroller.scrollY.contentSize - lines.scroller.scrollY.areaSize;
+			if (maxValueY <= 0)
+				return 0;
+			int maxMapValueY = lines.scroller.scrollY.contentSize - (int)(lines.scroller.scrollY.areaSize / mapScale);
+			if (maxMapValueY <= 0)
+				return 0;
+			if (valueY < 0)
+				valueY = 0;
+			else if (valueY > maxValueY)
+				valueY = maxValueY;
+			return valueY * maxMapValueY / maxValueY;
 		}
 
 		private void DrawText(Graphics g, int valueX, int valueY, int leftIndent, int clientWidth, int clientHeight)

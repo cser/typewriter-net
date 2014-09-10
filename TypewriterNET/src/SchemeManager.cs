@@ -36,9 +36,9 @@ public class SchemeManager
 		foreach (string schemeNameI in ParseSchemeName(schemeName))
 		{
 			AppPath path = GetSchemePath(schemeNameI);
-			if (path.appDataPath == fullPath)
+			if (path.appDataPath.ToLowerInvariant() == fullPath.ToLowerInvariant())
 				return true;
-			if (path.startupPath == fullPath && !File.Exists(path.appDataPath))
+			if (path.startupPath.ToLowerInvariant() == fullPath.ToLowerInvariant() && !File.Exists(path.appDataPath))
 				return true;
 		}
 		return false;
