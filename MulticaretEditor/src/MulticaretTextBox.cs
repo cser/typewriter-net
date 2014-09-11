@@ -416,7 +416,7 @@ namespace MulticaretEditor
 				int offsetX = (int)((clientWidth + leftIndent) / mapScale);
 				int mapValueY = GetMapValueY();
 				mapRectangle = new RectangleF(clientWidth + leftIndent, (valueY - mapValueY) * mapScale, clientWidth * mapScale, clientHeight * mapScale);
-				e.Graphics.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth, clientHeight);
+				e.Graphics.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth + (lines.scroller.scrollY.visible ? scrollBarBreadth : 0), clientHeight);
 				DrawText(e.Graphics, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
 				e.Graphics.ScaleTransform(1, 1);
 			}
@@ -1140,6 +1140,8 @@ namespace MulticaretEditor
 			base.OnMouseUp(e);
 			if (showMap)
 				DoMapMouseUp(e);
+			else
+				Cursor = Cursors.IBeam;
 			if (e.Button == MouseButtons.Left)
 				isMouseDown = false;
 		}
@@ -1148,7 +1150,10 @@ namespace MulticaretEditor
 		{
 			base.OnMouseMove(e);
 			if (showMap)
+			{
 				DoMapMouseMove(e);
+				Cursor = e.Location.X > mouseAreaRight ? Cursors.Default : Cursors.IBeam;
+			}
 			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
 				controller.PutCursor(GetMousePlace(e.Location), true);
