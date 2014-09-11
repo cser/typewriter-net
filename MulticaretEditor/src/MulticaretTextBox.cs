@@ -446,7 +446,7 @@ namespace MulticaretEditor
 				}
 				else
 				{
-					int valueY = (int)(GetMapValueY() + e.Location.Y / mapScale + lines.scroller.scrollY.areaSize * mapScale / 2);
+					int valueY = (int)(GetMapValueY() + e.Location.Y / mapScale - lines.scroller.scrollY.areaSize / 2);
 					lines.scroller.ScrollValue(lines.scroller.scrollX.value, valueY);
 					Invalidate();
 				}
