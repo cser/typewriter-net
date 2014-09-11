@@ -822,9 +822,9 @@ namespace MulticaretEditor
 			lines.scroller.ScrollPage(isUp, this, withSelection);
 		}
 
-		public void Scroll(int x, int y)
+		public void ScrollRelative(int x, int y)
 		{
-			lines.scroller.Scroll(x, y);
+			lines.scroller.ScrollRelative(x, y);
 		}
 
 		public void NeedScrollToCaret()

@@ -5,7 +5,7 @@ namespace MulticaretEditor
 	public class Scroller
 	{
 		private readonly LineArray lines;
-		
+
 		public Scroller(LineArray lines)
 		{
 			this.lines = lines;
@@ -218,8 +218,11 @@ namespace MulticaretEditor
 		}
 		
 		private bool scroll_Need;
+		private bool scroll_ValueNeed;
 		private int scroll_X;
 		private int scroll_Y;
+		private int scroll_ValueX;
+		private int scroll_ValueY;
 		
 		private void CheckScroll(ref int valueX, ref int valueY, IntSize charSize)
 		{
@@ -232,13 +235,29 @@ namespace MulticaretEditor
 				scroll_X = 0;
 				scroll_Y = 0;
 			}
+			if (scroll_ValueNeed)
+			{
+				valueX = scroll_ValueX;
+				valueY = FixScrollY(scroll_ValueY, charSize);
+				
+				scroll_ValueNeed = false;
+				scroll_ValueX = 0;
+				scroll_ValueY = 0;
+			}
 		}
 		
-		public void Scroll(int x, int y)
+		public void ScrollRelative(int x, int y)
 		{
 			scroll_Need = true;
 			scroll_X += x;
 			scroll_Y += y;
+		}
+
+		public void ScrollValue(int valueX, int valueY)
+		{
+			scroll_ValueNeed = true;
+			scroll_ValueX = valueX;
+			scroll_ValueY = valueY;
 		}
 	}
 }

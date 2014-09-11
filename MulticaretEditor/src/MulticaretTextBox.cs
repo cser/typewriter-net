@@ -415,8 +415,9 @@ namespace MulticaretEditor
 				e.Graphics.ScaleTransform(mapScale, mapScale);
 				int offsetX = (int)((clientWidth + leftIndent) / mapScale);
 				int mapValueY = GetMapValueY();
+				mapRectangle = new RectangleF(clientWidth + leftIndent, (valueY - mapValueY) * mapScale, clientWidth * mapScale, clientHeight * mapScale);
 				e.Graphics.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth, clientHeight);
-				DrawText(e.Graphics, valueX, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
+				DrawText(e.Graphics, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
 				e.Graphics.ScaleTransform(1, 1);
 			}
 
@@ -428,6 +429,34 @@ namespace MulticaretEditor
 			#if debug
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
+		}
+
+		private RectangleF mapRectangle;
+		private bool mapMouseDown;
+		private int mapPageMouseOffset;
+
+		private void DoMapMouseDown(MouseEventArgs e)
+		{
+			if (mapRectangle.Contains(e.Location))
+			if (e.Button == MouseButtons.Left)
+			{
+				mapMouseDown = true;
+				mapPageMouseOffset = (int)(e.Location.Y - mapRectangle.Y);
+			}
+		}
+
+		private void DoMapMouseUp(MouseEventArgs e)
+		{
+			mapMouseDown = false;
+		}
+
+		private void DoMapMouseMove(MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left && mapMouseDown)
+			{
+				lines.scroller.ScrollValue(lines.scroller.scrollX.value, GetMapPageDraggingValueY(e.Location.Y));
+				Invalidate();
+			}
 		}
 
 		private int GetMapValueY()
@@ -444,6 +473,21 @@ namespace MulticaretEditor
 			else if (valueY > maxValueY)
 				valueY = maxValueY;
 			return valueY * maxMapValueY / maxValueY;
+		}
+
+		private int GetMapPageDraggingValueY(int mouseY)
+		{
+			int maxValueY = lines.scroller.scrollY.contentSize - lines.scroller.scrollY.areaSize;
+			if (maxValueY <= 0)
+				return 0;
+			float ratio = (mouseY - mapPageMouseOffset) /
+				(float)(Math.Min(lines.scroller.scrollY.areaSize, lines.scroller.scrollY.contentSize * mapScale) - lines.scroller.scrollY.areaSize * mapScale);
+			int valueY = (int)(ratio * maxValueY);
+			if (valueY < 0)
+				valueY = 0;
+			else if (valueY > maxValueY)
+				valueY = maxValueY;
+			return valueY;
 		}
 
 		private void DrawText(Graphics g, int valueX, int valueY, int leftIndent, int clientWidth, int clientHeight)
@@ -1040,7 +1084,11 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDown(e);
 			if (e.Location.X > mouseAreaRight)
+			{
+				if (showMap)
+					DoMapMouseDown(e);
 				return;
+			}
 			Focus();
 			if (mouseDownIndex == 1 &&
 				(DateTime.Now.Ticks - lastMouseDownTicks) / 10000 < 500 &&
@@ -1082,6 +1130,8 @@ namespace MulticaretEditor
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			base.OnMouseUp(e);
+			if (showMap)
+				DoMapMouseUp(e);
 			if (e.Button == MouseButtons.Left)
 				isMouseDown = false;
 		}
@@ -1089,6 +1139,8 @@ namespace MulticaretEditor
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
+			if (showMap)
+				DoMapMouseMove(e);
 			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
 				controller.PutCursor(GetMousePlace(e.Location), true);
