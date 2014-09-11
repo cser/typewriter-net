@@ -437,11 +437,19 @@ namespace MulticaretEditor
 
 		private void DoMapMouseDown(MouseEventArgs e)
 		{
-			if (mapRectangle.Contains(e.Location))
 			if (e.Button == MouseButtons.Left)
 			{
-				mapMouseDown = true;
-				mapPageMouseOffset = (int)(e.Location.Y - mapRectangle.Y);
+				if (mapRectangle.Contains(e.Location))
+				{
+					mapMouseDown = true;
+					mapPageMouseOffset = (int)(e.Location.Y - mapRectangle.Y);
+				}
+				else
+				{
+					int valueY = (int)(GetMapValueY() + e.Location.Y / mapScale + lines.scroller.scrollY.areaSize * mapScale / 2);
+					lines.scroller.ScrollValue(lines.scroller.scrollX.value, valueY);
+					Invalidate();
+				}
 			}
 		}
 
