@@ -480,7 +480,7 @@ namespace MulticaretEditor
 				valueY = 0;
 			else if (valueY > maxValueY)
 				valueY = maxValueY;
-			return valueY * maxMapValueY / maxValueY;
+			return (int)(valueY * (maxMapValueY / (float)maxValueY));
 		}
 
 		private int GetMapPageDraggingValueY(int mouseY)
