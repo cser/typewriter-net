@@ -857,29 +857,13 @@ namespace MulticaretEditor
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
 
+			int[] indices = null;
+			int markI = -1;
 			if (lines.markedWord != null)
 			{
-				int[] indices;
 				lines.marksByLine.TryGetValue(iLine, out indices);
 				if (indices != null)
-				{
-					for (int i = 0; i < indices.Length; i++)
-					{
-						int index = indices[i];
-						g.DrawRectangle(
-							scheme.selectionPen,
-							position.X + index * charWidth,
-							y + lineInterval / 2,
-							lines.markedWord.Length * charWidth,
-							charHeight);
-						g.FillRectangle(
-							scheme.bgBrush,
-							position.X + index * charWidth,
-							y + lineInterval / 2,
-							lines.markedWord.Length * charWidth,
-							charHeight);
-					}
-				}
+					markI = 0;
 			}
 			if (lines.wordWrap)
 			{
@@ -896,6 +880,24 @@ namespace MulticaretEditor
 					int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.chars.Count;
 					for (int i = i0; i < i1; i++)
 					{
+						if (markI != -1 && i == indices[markI])
+						{
+							g.DrawRectangle(
+								scheme.selectionPen,
+								position.X + pos * charWidth,
+								y + lineInterval / 2,
+								lines.markedWord.Length * charWidth,
+								charHeight);
+							g.FillRectangle(
+								scheme.bgBrush,
+								position.X + pos * charWidth,
+								y + lineInterval / 2,
+								lines.markedWord.Length * charWidth,
+								charHeight);
+							if (markI < indices.Length - 1)
+								markI++;
+						}
+
 						Char c = line.chars[i];
 						if (showLineBreaks && c.c == '\r')
 						{
@@ -931,6 +933,23 @@ namespace MulticaretEditor
 				{
 					if (pos > maxPos)
 						break;
+					if (markI != -1 && i == indices[markI])
+					{
+						g.DrawRectangle(
+							scheme.selectionPen,
+							position.X + pos * charWidth,
+							y + lineInterval / 2,
+							lines.markedWord.Length * charWidth,
+							charHeight);
+						g.FillRectangle(
+							scheme.bgBrush,
+							position.X + pos * charWidth,
+							y + lineInterval / 2,
+							lines.markedWord.Length * charWidth,
+							charHeight);
+						if (markI < indices.Length - 1)
+							markI++;
+					}
 					Char c = line.chars[i];
 					if (pos >= minPos)
 					{
