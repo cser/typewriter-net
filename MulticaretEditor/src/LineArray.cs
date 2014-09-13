@@ -756,5 +756,9 @@ namespace MulticaretEditor
 				}
 			}
 		}
+
+		public string markedWord;
+
+		public readonly Dictionary<int, int[]> marksByLine = new Dictionary<int, int[]>();
 	}
 }

@@ -416,6 +416,7 @@ namespace MulticaretEditor
 				return;
 
             UpdateScrollOnPaint();
+			controller.MarkWordOnPaint();
 
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
@@ -584,7 +585,7 @@ namespace MulticaretEditor
 					int y = offsetY + (wwILineMin - lineMin.iSubline) * charHeight;
 					do
 					{
-						DrawLineChars(g, new Point(offsetX, y), iterator.current, minPos, maxPos);
+						DrawLineChars(g, new Point(offsetX, y), iterator.current, iterator.Index, minPos, maxPos);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += (iterator.current.cutOffs.count + 1) * charHeight;
 					}
@@ -599,7 +600,7 @@ namespace MulticaretEditor
 					int y = offsetY + iterator.Index * charHeight;
 					do
 					{
-						DrawLineChars(g, new Point(offsetX, y), iterator.current, minPos, maxPos);
+						DrawLineChars(g, new Point(offsetX, y), iterator.current, iterator.Index, minPos, maxPos);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += charHeight;
 					}
@@ -846,7 +847,7 @@ namespace MulticaretEditor
 			return result;
 		}
 
-		private void DrawLineChars(Graphics g, Point position, Line line, int minPos, int maxPos)
+		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos)
 		{
 			int size = line.Size;
 			int count = line.chars.Count;
@@ -856,6 +857,30 @@ namespace MulticaretEditor
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
 
+			if (lines.markedWord != null)
+			{
+				int[] indices;
+				lines.marksByLine.TryGetValue(iLine, out indices);
+				if (indices != null)
+				{
+					for (int i = 0; i < indices.Length; i++)
+					{
+						int index = indices[i];
+						g.DrawRectangle(
+							scheme.selectionPen,
+							position.X + index * charWidth,
+							y + lineInterval / 2,
+							lines.markedWord.Length * charWidth,
+							charHeight);
+						g.FillRectangle(
+							scheme.bgBrush,
+							position.X + index * charWidth,
+							y + lineInterval / 2,
+							lines.markedWord.Length * charWidth,
+							charHeight);
+					}
+				}
+			}
 			if (lines.wordWrap)
 			{
 				for (int iCutOff = 0; iCutOff <= line.cutOffs.count; iCutOff++)

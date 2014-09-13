@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
@@ -864,6 +865,98 @@ namespace MulticaretEditor
 			foreach (StyleRange range in ranges)
 			{
 				lines.SetStyleRange(range);
+			}
+		}
+
+		private int markLeft = -1;
+		private int markRight = -1;
+		private int markCount = -1;
+
+		public void MarkWordOnPaint()
+		{
+			Selection selection = selections[0];
+			if (selection.Empty)
+			{
+				if (lines.marksByLine.Count != 0)
+					lines.marksByLine.Clear();
+				lines.markedWord = null;
+				markLeft = -1;
+				markRight = -1;
+				return;
+			}
+			if (selection.Left == markLeft && selection.Right == markRight && markCount == selections.Count)
+				return;
+			markLeft = selection.Left;
+			markRight = selection.Right;
+			markCount = selections.Count;
+			Place leftPlace = lines.PlaceOf(selection.Left);
+			Place rightPlace = lines.PlaceOf(selection.Right);
+			if (leftPlace.iLine != rightPlace.iLine)
+			{
+				if (lines.marksByLine.Count != 0)
+					lines.marksByLine.Clear();
+				lines.markedWord = null;
+				return;
+			}
+			Line line = lines[leftPlace.iLine];
+			string word = null;
+			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
+				(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
+			{
+				StringBuilder builder = new StringBuilder();
+				for (int i = leftPlace.iChar; i < rightPlace.iChar; i++)
+				{
+					char c = line.chars[i].c;
+					if (GetCharType(c) != CharType.Identifier)
+					{
+						builder = null;
+						break;
+					}
+					builder.Append(c);
+				}
+				if (builder != null && builder.Length != 0)
+					word = builder.ToString();
+			}
+			if (word == null)
+			{
+				if (lines.marksByLine.Count != 0)
+					lines.marksByLine.Clear();
+				lines.markedWord = null;
+				return;
+			}
+			lines.markedWord = word;
+			Regex regex = new Regex("\\b" + word + "\\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+			Dictionary<int, bool> selectionLefts = new Dictionary<int, bool>();
+			PredictableList<int> indexList = new PredictableList<int>();
+			for (int i = selections.Count; i-- > 0;)
+			{
+				selectionLefts[selections[i].Left] = true;
+			}
+			lines.marksByLine.Clear();
+			int charOffset = 0;
+			for (int i = 0; i < lines.blocksCount; i++)
+			{
+				LineBlock block = lines.blocks[i];
+				for (int j = 0; j < block.count; j++)
+				{
+					Line lineI = block.array[j];
+					MatchCollection matches = regex.Matches(lineI.Text);
+					int count = matches.Count;
+					if (count > 0)
+					{
+						indexList.Clear();
+						for (int k = 0; k < count; k++)
+						{
+							int matchIndex = matches[k].Index;
+							if (!selectionLefts.ContainsKey(charOffset + matchIndex))
+								indexList.Add(matchIndex);
+						}
+						if (indexList.count > 0)
+							lines.marksByLine[block.offset + j] = indexList.ToArray();
+					}
+					charOffset += lineI.chars.Count;
+				}
 			}
 		}
 	}
