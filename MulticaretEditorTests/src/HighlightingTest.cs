@@ -408,6 +408,11 @@ namespace UnitTests
 			AssertHighlighting("2222220111110220000000202020200020202020000222220", provider[0]);
 			//                  (1)/2/[3,4,5];6;7:8 '9' 0'' $123 123$ \1\ "1"
 			AssertHighlighting("020020020202002020200000200000000222000200000", provider[1]);
+
+			provider.SetText("124123+1=124124");
+			highlighting.Parse(provider);
+			//                  124123+1=124124
+			AssertHighlighting("222222020222222", provider[0]);
 		}
 		
 		[Test]

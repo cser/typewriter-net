@@ -225,9 +225,7 @@ namespace MulticaretEditor.Highlighting
 				nextPosition = position;
 				int length = text.Length;
 				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
-				if (char.IsWhiteSpace(prev) ||
-					char.IsPunctuation(prev) && prev != '\'' && prev != '"' ||
-					prev == '\0')
+				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 				{
 					while (nextPosition < length && char.IsDigit(text[nextPosition]))
 					{
@@ -247,9 +245,7 @@ namespace MulticaretEditor.Highlighting
 				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
 				bool hasDot = false;
 				bool hasNumber = false;
-				if (char.IsWhiteSpace(prev) ||
-				    char.IsPunctuation(prev) && prev != '\'' && prev != '"' ||
-					prev == '\0')
+				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 				{
 					while (i < length)
 					{
@@ -288,9 +284,7 @@ namespace MulticaretEditor.Highlighting
 				{
 					int length = text.Length;
 					char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
-					if (char.IsWhiteSpace(prev) ||
-					    char.IsPunctuation(prev) && prev != '\'' && prev != '"' ||
-						prev == '\0')
+					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
 						i++;
 						while (i < length)
@@ -324,9 +318,7 @@ namespace MulticaretEditor.Highlighting
 					if (c1 == 'x' || c1 == 'X')
 					{
 						char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
-						if (char.IsWhiteSpace(prev) ||
-						    char.IsPunctuation(prev) && prev != '\'' && prev != '"' ||
-							prev == '\0')
+						if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 						{
 							i += 2;
 							while (i < length)
@@ -404,9 +396,7 @@ namespace MulticaretEditor.Highlighting
 				{
 					int length = text.Length;
 					char prev = position > 0 ? text[position - 1] : '\0';
-					if (char.IsWhiteSpace(prev) ||
-						(char.IsPunctuation(prev) && prev != '\'' && prev != '"') ||
-						prev == '\0')
+					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
 						nextPosition = position + 1;
 						while (nextPosition < length)
@@ -483,6 +473,42 @@ namespace MulticaretEditor.Highlighting
 				nextPosition = result ? position + length - position : position;
 				return result;
 			}
+		}
+
+		private static bool IsPunctuation(char c)
+		{
+			bool result = false;
+			switch (c)
+			{
+				case '!':
+				case '%':
+				case '&':
+				case '(':
+				case ')':
+				case '*':
+				case '+':
+				case ',':
+				case '-':
+				case '.':
+				case '/':
+				case ':':
+				case ';':
+				case '<':
+				case '=':
+				case '>':
+				case '?':
+				case '[':
+				case '\\':
+				case ']':
+				case '^':
+				case '{':
+				case '|':
+				case '}':
+				case '~':
+					result = true;
+					break;
+			}
+			return result;
 		}
 		
 		private static int ParseRightEscape(string text, int slashPosition)

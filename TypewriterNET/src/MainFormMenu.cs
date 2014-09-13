@@ -16,7 +16,7 @@ public class MainFormMenu : MainMenu
 		this.mainForm = mainForm;
 
 		names = new List<string>();
-		AddRootItem("&File", false);
+		AddRootItem("&File", false);/*
 		AddRootItem("&Edit", false);
 		AddRootItem("F&ind", false);
 		AddRootItem("&View", false);
