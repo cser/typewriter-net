@@ -51,8 +51,8 @@
 	<color name="bg" value="base03"/>
 	<color name="fg" value="base00"/>
 	<color name="lineBg" value="base02"/>
-	<color name="lineNumberBg" value="#073642"/>
-	<color name="lineNumberFg" value="#586E75"/>
+	<color name="lineNumberBg" value="base02"/>
+	<color name="lineNumberFg" value="base01"/>
 	<color name="selectionBrush" value="base3"/>
 	<color name="selectionPen" value="#071E26"/>
 	<color name="mainCaret" value="#657B83"/>
@@ -60,9 +60,9 @@
 	
 	<color name="tabsLine" value="base00"/>
 	<color name="tabsBg" value="#021318"/>
-	<color name="tabsFg" value="#657B83"/>
+	<color name="tabsFg" value="base00"/>
 	<color name="tabsSelectedLine" value="base00"/>
-	<color name="tabsSelectedBg" value="#base01"/>
+	<color name="tabsSelectedBg" value="base00"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<style name="dsNormal" color="base1"/>
