@@ -125,6 +125,7 @@ public class Frame : AFrame
 		if (Nest != null)
 		{
 			tabBar.Selected = textBox.Focused;
+			splitLine.Selected = textBox.Focused;
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, this);
 		}
 	}
@@ -162,6 +163,7 @@ public class Frame : AFrame
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.HighlighterChange)
 		{
@@ -234,6 +236,8 @@ public class Frame : AFrame
 		UpdateHighlighter();
 		if (buffer != null && buffer.onSelected != null)
 			buffer.onSelected(buffer);
+		if (Nest != null)
+			Nest.MainForm.UpdateTitle();
 	}
 
 	public void UpdateHighlighter()

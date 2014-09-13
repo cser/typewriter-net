@@ -9,6 +9,34 @@ using MulticaretEditor.Highlighting;
 
 public class SchemeManager
 {	
+	public static string[] GetAllSchemeNames()
+	{
+		List<string> schemes = new List<string>();
+		Dictionary<string, bool> added = new Dictionary<string, bool>();
+		for (int i = 0; i < 2; i++)
+		{
+			string dir = i == 0 ? AppPath.SchemesDir.appDataPath : AppPath.SchemesDir.startupPath;
+			string[] files = null;
+			try
+			{
+				files = Directory.GetFiles(dir, "*.xml");
+			}
+			catch {}
+			if (files != null)
+			foreach (string file in files)
+			{
+				string scheme = Path.GetFileNameWithoutExtension(file);
+				if (!added.ContainsKey(scheme))
+				{
+					added[scheme] = true;
+					schemes.Add(scheme);
+				}
+			}
+		}
+		schemes.Sort();
+		return schemes.ToArray();
+	}
+
 	private XmlLoader xmlLoader;
 
 	public SchemeManager(XmlLoader xmlLoader)

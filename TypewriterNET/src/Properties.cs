@@ -201,6 +201,14 @@ public class Properties
 			return this;
 		}
 
+		private Getter<string[]> loadVariants;
+
+		public String SetLoadVariants(Getter<string[]> loadVariants)
+		{
+			this.loadVariants = loadVariants;
+			return this;
+		}
+
 		override public string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
 
 		override public string SetText(string value)
@@ -228,6 +236,9 @@ public class Properties
 		override public void GetHelpText(TextTable table)
 		{
 			table.Add(name).Add("string").Add(ReplaceLineBreaks(defaultValue));
+			string[] variants = this.variants;
+			if (variants == null && loadVariants != null)
+				variants = loadVariants();
 			if (variants != null && variants.Length > 0)
 			{
 				bool first = true;

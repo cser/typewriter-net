@@ -21,10 +21,10 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
-			
+
 			TabStop = false;
 		}
-		
+
 		private Scheme scheme = new Scheme();
 		public Scheme Scheme
 		{
@@ -47,12 +47,26 @@ namespace MulticaretEditor
 				base.Invalidate();
 		}
 
+		private bool selected = false;
+		public bool Selected
+		{
+			get { return selected; }
+			set
+			{
+				if (selected != value)
+				{
+					selected = value;
+					Invalidate();
+				}
+			}
+		}
+
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			Graphics g = e.Graphics;
-			
+
 			g.FillRectangle(scheme.tabsBgBrush, 0, 0, Width, Height);
-			g.DrawLine(scheme.lineNumberFgPen, Width - 1, 0, Width - 1, Height);
+			g.DrawLine(selected ? scheme.tabsSelectedLinePen : scheme.tabsLinePen, Width - 1, 0, Width - 1, Height);
 
 			base.OnPaint(e);
 		}

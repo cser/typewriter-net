@@ -24,8 +24,13 @@
 	<color name="selectionPen" value="#AAAAAA"/>
 	<color name="mainCaret" value="#8000FF"/>
 	<color name="caret" value="#7F7F7F"/>
+	
+	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#F5F5F5"/>
 	<color name="tabsFg" value="#000000"/>
+	<color name="tabsSelectedLine" value="#808080"/>
+	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<style name="dsNormal" color="#000000"/>
 	<style name="dsKeyword" color="blue" bold="true"/>

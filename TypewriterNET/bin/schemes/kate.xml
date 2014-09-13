@@ -9,8 +9,13 @@
 	<color name="selectionPen" value="#FFFFFF"/>
 	<color name="mainCaret" value="#1F1C1B"/>
 	<color name="caret" value="#808080"/>
+	
+	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#F5F5F5"/>
 	<color name="tabsFg" value="#000000"/>
+	<color name="tabsSelectedLine" value="#808080"/>
+	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

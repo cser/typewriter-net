@@ -57,8 +57,13 @@
 	<color name="selectionPen" value="#071E26"/>
 	<color name="mainCaret" value="#657B83"/>
 	<color name="caret" value="#305050"/>
+	
+	<color name="tabsLine" value="base00"/>
 	<color name="tabsBg" value="#021318"/>
 	<color name="tabsFg" value="#657B83"/>
+	<color name="tabsSelectedLine" value="base00"/>
+	<color name="tabsSelectedBg" value="#base01"/>
+	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<style name="dsNormal" color="base1"/>
 	<style name="dsNormal2" color="base1" italic="true"/>

@@ -60,6 +60,13 @@ public class MainForm : Form
 		validationTimer.Start();
 	}
 
+	public void UpdateTitle()
+	{
+		Buffer buffer = lastFrame != null && lastFrame.Nest != null ? lastFrame.SelectedBuffer : null;
+		string name = buffer != null ? buffer.FullPath : null;
+		Text = Application.ProductName + (string.IsNullOrEmpty(name) ? "" : " - " + name);
+	}
+
 	private void OnValidationTimerTick(object sender, EventArgs e)
 	{
 		if (frames.NeedResize)
@@ -148,6 +155,8 @@ public class MainForm : Form
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
 		OpenEmptyIfNeed();
 
+		UpdateTitle();
+
 		Activated += OnActivated;
 	}
 
@@ -220,6 +229,8 @@ public class MainForm : Form
 			mainNest.buffers.list.Remove(buffer);
 	}
 
+	private bool forbidTempSaving = false;
+
 	private void OnFormClosing(object sender, FormClosingEventArgs e)
 	{
 		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
@@ -230,7 +241,8 @@ public class MainForm : Form
 				break;
 			}
 		}
-		tempSettings.Save();
+		if (!forbidTempSaving)
+			tempSettings.Save();
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -247,6 +259,7 @@ public class MainForm : Form
 		menu.node = node;
 		if (frame != null)
 			lastFrame = frame;
+		UpdateTitle();
 	}
 
 	private void ApplySettings()
@@ -312,9 +325,11 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config", DoResetConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open startup folder", DoOpenStartupFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
@@ -352,8 +367,8 @@ public class MainForm : Form
 			buffer.httpServer = httpServer;
 			needLoad = true;
 		}
-		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, name);
+		ShowBuffer(mainNest, buffer);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
@@ -374,8 +389,8 @@ public class MainForm : Form
 			buffer = NewFileBuffer();
 			needLoad = File.Exists(fullPath);
 		}
-		ShowBuffer(mainNest, buffer);
 		buffer.SetFile(fullPath, name);
+		ShowBuffer(mainNest, buffer);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
@@ -465,6 +480,7 @@ public class MainForm : Form
 			{
 				buffer.SetFile(Path.GetFullPath(dialog.FileName), Path.GetFileName(dialog.FileName));
 				SaveFile(buffer);
+				UpdateTitle();
 			}
 		}
 		return true;
@@ -676,13 +692,25 @@ public class MainForm : Form
 		{
 			if (File.Exists(AppPath.ConfigPath.appDataPath))
 				File.Delete(AppPath.ConfigPath.appDataPath);
+			CopyConfigIfNeed();
 			ReloadConfig();
 		}
 		return true;
 	}
 
+	private bool DoResetTempAndClose(Controller controller)
+	{
+		string path = TempSettings.GetTempSettingsPath();
+		if (File.Exists(path))
+			File.Delete(path);
+		forbidTempSaving = true;
+		Close();
+		return true;
+	}
+
 	private bool DoEditCurrentScheme(Controller controller)
 	{
+		CreateAppDataFolders();
 		List<AppPath> paths = schemeManager.GetSchemePaths(settings.scheme.Value);
 		if (paths.Count > 0)
 		{
@@ -698,8 +726,17 @@ public class MainForm : Form
 
 	private bool DoOpenAppDataFolder(Controller controller)
 	{
+		CreateAppDataFolders();
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		process.StartInfo.FileName = AppPath.AppDataDir;
+		process.Start();
+		return true;
+	}
+
+	private bool DoOpenStartupFolder(Controller controller)
+	{
+		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		process.StartInfo.FileName = AppPath.StartupDir;
 		process.Start();
 		return true;
 	}
@@ -722,6 +759,7 @@ public class MainForm : Form
 
 	private void CreateAppDataFolders()
 	{
+		CopyConfigIfNeed();
 		if (!Directory.Exists(AppPath.SyntaxDir.appDataPath))
 			Directory.CreateDirectory(AppPath.SyntaxDir.appDataPath);
 		if (!File.Exists(AppPath.SyntaxDtd.appDataPath) && File.Exists(AppPath.SyntaxDtd.startupPath))
@@ -865,7 +903,6 @@ public class MainForm : Form
 	private void ReloadConfig()
 	{
 		configParser.Reset();
-		CopyConfigIfNeed();
 		StringBuilder builder = new StringBuilder();
 		foreach (string path in AppPath.ConfigPath.GetBoth())
 		{

@@ -17,7 +17,7 @@ public class Settings
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
-	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false);
+	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false).SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
 	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false);
 	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false);

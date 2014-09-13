@@ -26,8 +26,10 @@ namespace MulticaretEditor.Highlighting
 		public Color caretColor;
 		public Color tabsBgColor;
 		public Color tabsFgColor;
+		public Color tabsLineColor;
 		public Color tabsSelectedBgColor;
 		public Color tabsSelectedFgColor;
+		public Color tabsSelectedLineColor;
 		
 		public int mainCaretWidth;
 		public int caretWidth;
@@ -46,9 +48,11 @@ namespace MulticaretEditor.Highlighting
 		public Brush tabsBgBrush;
 		public Brush tabsFgBrush;
 		public Pen tabsFgPen;
+		public Pen tabsLinePen;
 		public Brush tabsSelectedBgBrush;
 		public Brush tabsSelectedFgBrush;
 		public Pen tabsSelectedFgPen;
+		public Pen tabsSelectedLinePen;
 		
 		public void ParseXml(IEnumerable<XmlDocument> xmls)
 		{
@@ -132,8 +136,10 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref caretColor, "caret", colors);
 			SetColor(ref tabsBgColor, "tabsBg", colors);
 			SetColor(ref tabsFgColor, "tabsFg", colors);
+			SetColor(ref tabsLineColor, "tabsLine", colors);
 			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
 			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
+			SetColor(ref tabsSelectedLineColor, "tabsSelectedLine", colors);
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
 			
@@ -175,8 +181,10 @@ namespace MulticaretEditor.Highlighting
 			caretColor = Color.Gray;
 			tabsBgColor = Color.WhiteSmoke;
 			tabsFgColor = Color.Black;
+			tabsLineColor = Color.Gray;
 			tabsSelectedBgColor = Color.Gray;
 			tabsSelectedFgColor = Color.White;
+			tabsSelectedLineColor = Color.Gray;
 			mainCaretWidth = 1;
 			caretWidth = 1;
 			
@@ -204,9 +212,11 @@ namespace MulticaretEditor.Highlighting
 			tabsBgBrush = new SolidBrush(tabsBgColor);
 			tabsFgBrush = new SolidBrush(tabsFgColor);
 			tabsFgPen = new Pen(tabsFgColor);
+			tabsLinePen = new Pen(tabsLineColor);
 			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
 			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
 			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
+			tabsSelectedLinePen = new Pen(tabsSelectedLineColor);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
 		}

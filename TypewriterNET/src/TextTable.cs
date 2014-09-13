@@ -114,7 +114,14 @@ public class TextTable
 			}
 			else
 			{
-				builder.AppendLine(new string('-', width));
+				for (int j = 0; j < colsCount; j++)
+				{
+					if (j > 0)
+						builder.Append("-+-");
+					int colSize = colSizes[j];
+					builder.Append(new string('-', colSize));
+				}
+				builder.AppendLine();
 			}
 		}
 		return builder.ToString();

@@ -179,9 +179,10 @@ namespace MulticaretEditor
 			Brush bgBrush = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
 			Brush tabsFgBrush = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
 			Pen tabsFgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
+			Pen linePen = _selected ? scheme.tabsSelectedLinePen : scheme.tabsLinePen;
 
 			g.FillRectangle(bgBrush, 0, 0, width - rightIndent, charHeight - 1);
-			g.DrawLine(scheme.lineNumberFgPen, 0, charHeight - 1, width, charHeight - 1);
+			g.DrawLine(linePen, 0, charHeight - 1, width, charHeight - 1);
 
 			leftIndent = charWidth;
 			if (text != null)
@@ -251,12 +252,12 @@ namespace MulticaretEditor
 					if (selected)
 					{
 						g.FillRectangle(scheme.bgBrush, rect);
-						g.DrawRectangle(scheme.lineNumberFgPen, rect);
+						g.DrawRectangle(linePen, rect);
 					}
 					else
 					{
 						g.FillRectangle(scheme.lineNumberBackground, rect);
-						g.DrawRectangle(scheme.lineNumberFgPen, rect.X, rect.Y, rect.Width, rect.Height - 1);
+						g.DrawRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height - 1);
 					}
 					for (int j = 0; j < tabText.Length; j++)
 					{
@@ -269,7 +270,7 @@ namespace MulticaretEditor
 			}
 			
 			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
-			g.DrawLine(scheme.lineNumberFgPen, width - rightIndent, charHeight - 1, width, charHeight - 1);
+			g.DrawLine(linePen, width - rightIndent, charHeight - 1, width, charHeight - 1);
 			
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);

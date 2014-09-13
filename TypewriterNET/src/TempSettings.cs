@@ -7,6 +7,11 @@ using MulticaretEditor;
 
 public class TempSettings
 {
+	public static string GetTempSettingsPath()
+	{
+		return Path.Combine(Path.GetTempPath(), "typewriter-state.bin");
+	}
+	
 	private MainForm mainForm;
 	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
@@ -17,11 +22,6 @@ public class TempSettings
 		this.settings = settings;
 	}
 
-	private static string GetTempSettingsPath()
-	{
-		return Path.Combine(Path.GetTempPath(), "typewriter-state.bin");
-	}
-	
 	public void Load()
 	{
 		SValue state = SValue.None;
