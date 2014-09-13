@@ -20,11 +20,11 @@
 	<color name="mainCaret" value="#F8F8F0"/>
 	<color name="caret" value="#AAAAAA"/>
 	
-	<color name="tabsLine" value="gray"/>
+	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#161713"/>
 	<color name="tabsFg" value="default"/>
-	<color name="tabsSelectedLine" value="gray"/>
-	<color name="tabsSelectedBg" value="gray"/>
+	<color name="tabsSelectedLine" value="#808080"/>
+	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<width name="mainCaret" value="2"/>

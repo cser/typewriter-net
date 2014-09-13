@@ -22,7 +22,7 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 Installation without building
 -----------------------------
 
-Just get <code>typewriter-net-installer-01.exe</code> at the root of the repository and run it<br/>
+Just get <code>typewriter-net-installer-02.exe</code> at the root of the repository and run it<br/>
 Requires **NET Framework 2.0**
 
 Building
@@ -34,11 +34,11 @@ To build and install:
 
 1. Install **NSIS** from http://nsis.sourceforge.net/Download
 2. Add **NSIS** directory (for example <code>C:\Program Files (x86)\NSIS</code>) to PATH
-3. Execute **MSBuild** in repository folder:
+3. Execute **MSBuild** in repository folder:<br/>
 	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe</code><br/>
 	(Of cause, you can add **MSBuild** to PATH too)
 
 To build and run without installation:
 
-1. Execute in repository folder:
+1. Execute in repository folder:<br/>
 	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:tw</code>
