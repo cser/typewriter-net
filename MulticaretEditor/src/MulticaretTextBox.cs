@@ -190,6 +190,36 @@ namespace MulticaretEditor
 			}
 		}
 
+		private bool printMargin = false;
+		public bool PrintMargin
+		{
+			get { return printMargin; }
+			set
+			{
+				printMargin = value;
+				if (printMargin != value)
+				{
+					printMargin = value;
+					Invalidate();
+				}
+			}
+		}
+
+		private int printMarginSize = 80;
+		public int PrintMarginSize
+		{
+			get { return printMarginSize; }
+			set
+			{
+				printMarginSize = value;
+				if (printMarginSize != value)
+				{
+					printMarginSize = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private Font font;
 		private Font[] fonts = new Font[16];
 
@@ -317,15 +347,15 @@ namespace MulticaretEditor
 			}
 		}
 
-		private bool showMap = false;
-		public bool ShowMap
+		private bool map = false;
+		public bool Map
 		{
-			get { return showMap; }
+			get { return map; }
 			set
 			{
-				if (showMap != value)
+				if (map != value)
 				{
-					showMap = value;
+					map = value;
 					Invalidate();
 				}
 			}
@@ -393,36 +423,38 @@ namespace MulticaretEditor
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
 
-			e.Graphics.SmoothingMode = SmoothingMode.None;
-			e.Graphics.Clear(scheme.bgColor);
+			Graphics g = e.Graphics;
 
-			DrawText(e.Graphics, valueX, valueY, leftIndent, clientWidth, clientHeight);
-			e.Graphics.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
+			g.SmoothingMode = SmoothingMode.None;
+			g.Clear(scheme.bgColor);
+
+			DrawText(g, valueX, valueY, leftIndent, clientWidth, clientHeight);
+			g.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
 			if (showLineNumbers)
 			{
 				for (int i = 0; i < lineNumberInfos.count; i++)
 				{
 					LineNumberInfo info = lineNumberInfos.buffer[i];
-					e.Graphics.DrawString(
+					g.DrawString(
 						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
 				}
 			}
 
 			mouseAreaRight = leftIndent + clientWidth;
-			if (showMap)
+			if (map)
 			{
-				e.Graphics.FillRectangle(scheme.bgBrush, leftIndent + clientWidth, 0, leftIndent + clientWidth + (int)(clientWidth / mapScale) + 1, clientHeight);
-				e.Graphics.ScaleTransform(mapScale, mapScale);
+				g.FillRectangle(scheme.bgBrush, leftIndent + clientWidth, 0, leftIndent + clientWidth + (int)(clientWidth / mapScale) + 1, clientHeight);
+				g.ScaleTransform(mapScale, mapScale);
 				int offsetX = (int)((clientWidth + leftIndent) / mapScale);
 				int mapValueY = GetMapValueY();
 				mapRectangle = new RectangleF(clientWidth + leftIndent, (valueY - mapValueY) * mapScale, clientWidth * mapScale, clientHeight * mapScale);
-				e.Graphics.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth + (lines.scroller.scrollY.visible ? scrollBarBreadth : 0), clientHeight);
-				DrawText(e.Graphics, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
-				e.Graphics.ScaleTransform(1, 1);
+				g.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth + (lines.scroller.scrollY.visible ? scrollBarBreadth : 0), clientHeight);
+				DrawText(g, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
+				g.ScaleTransform(1, 1);
 			}
 
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
-				e.Graphics.FillRectangle(bgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
+				g.FillRectangle(bgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
 
 			base.OnPaint(e);
 
@@ -537,6 +569,11 @@ namespace MulticaretEditor
 			else
 			{
 				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+			}
+			if (printMargin)
+			{
+				float x = leftIndent + charWidth * printMarginSize - valueX;
+				g.DrawLine(scheme.tabsLinePen, x, 0, x, clientHeight);
 			}
 			lineNumberInfos.Clear();
 			if (lines.wordWrap)
@@ -1093,7 +1130,7 @@ namespace MulticaretEditor
 			base.OnMouseDown(e);
 			if (e.Location.X > mouseAreaRight)
 			{
-				if (showMap)
+				if (map)
 					DoMapMouseDown(e);
 				return;
 			}
@@ -1138,7 +1175,7 @@ namespace MulticaretEditor
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			base.OnMouseUp(e);
-			if (showMap)
+			if (map)
 				DoMapMouseUp(e);
 			else
 				Cursor = Cursors.IBeam;
@@ -1149,7 +1186,7 @@ namespace MulticaretEditor
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-			if (showMap)
+			if (map)
 			{
 				DoMapMouseMove(e);
 				Cursor = e.Location.X > mouseAreaRight ? Cursors.Default : Cursors.IBeam;
@@ -1285,7 +1322,7 @@ namespace MulticaretEditor
 			int leftIndent = GetLeftIndent();
 			ScrollOnPaintInfo info = new ScrollOnPaintInfo();
 			info.leftIndent = leftIndent;
-			if (showMap)
+			if (map)
 				info.width = leftIndent + (int)((ClientRectangle.Width - leftIndent) / (mapScale + 1));
 			else
 				info.width = ClientRectangle.Width;

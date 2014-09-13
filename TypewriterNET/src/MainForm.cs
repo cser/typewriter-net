@@ -186,19 +186,24 @@ public class MainForm : Form
 
 		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
 		{
-			if (buffer.fileInfo != null)
-			{
-				buffer.fileInfo.Refresh();
-				if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
-				{
-					DialogResult result = MessageBox.Show("File was changed. Reload it?", Name, MessageBoxButtons.YesNo);
-					if (result == DialogResult.Yes)
-						ReloadFile(buffer);
-				}
-			}
+			CheckFileChange(buffer);
 		}
 
 		activationInProcess = false;
+	}
+
+	private void CheckFileChange(Buffer buffer)
+	{
+		if (buffer.fileInfo != null)
+		{
+			buffer.fileInfo.Refresh();
+			if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
+			{
+				DialogResult result = MessageBox.Show("File was changed. Reload it?", Name, MessageBoxButtons.YesNo);
+				if (result == DialogResult.Yes)
+					ReloadFile(buffer);
+			}
+		}
 	}
 
 	private void OpenEmptyIfNeed()
@@ -694,6 +699,14 @@ public class MainForm : Form
 				File.Delete(AppPath.ConfigPath.appDataPath);
 			CopyConfigIfNeed();
 			ReloadConfig();
+
+			activationInProcess = true;
+			string fullPath = Path.GetFullPath(AppPath.ConfigPath.appDataPath);
+			string name = Path.GetFileName(AppPath.ConfigPath.appDataPath);
+			Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+			if (buffer != null && buffer.Frame != null)
+				CheckFileChange(buffer);
+			activationInProcess = false;
 		}
 		return true;
 	}

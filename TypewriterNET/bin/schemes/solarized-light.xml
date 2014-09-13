@@ -13,7 +13,6 @@
 	<color name="tabsLine" value="base00"/>
 	<color name="tabsBg" value="#C0C0C0"/>
 	<color name="tabsFg" value="#000000"/>
-	<color name="tabsSelectedLine" value="base00"/>
 	<color name="tabsSelectedBg" value="#base01"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	

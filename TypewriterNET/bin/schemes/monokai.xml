@@ -23,7 +23,6 @@
 	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#161713"/>
 	<color name="tabsFg" value="default"/>
-	<color name="tabsSelectedLine" value="#808080"/>
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	

@@ -29,6 +29,8 @@ public class Settings
 	public readonly Properties.RegexList shellRegexList = new Properties.RegexList("shellRegex");
 	public readonly Properties.Bool miniMap = new Properties.Bool("miniMap", false);
 	public readonly Properties.Float miniMapScale = new Properties.Float("miniMapScale", .3f).SetMinMax(.1f, 10f);
+	public readonly Properties.Bool printMargin = new Properties.Bool("printMargin", false);
+	public readonly Properties.Int printMarginSize = new Properties.Int("printMarginSize", 80).SetMinMax(1, int.MaxValue);
 
 	private Setter onChange;
 
@@ -56,6 +58,8 @@ public class Settings
 		Add(shellRegexList);
 		Add(miniMap);
 		Add(miniMapScale);
+		Add(printMargin);
+		Add(printMarginSize);
 	}
 
 	public void DispatchChange()
@@ -139,8 +143,10 @@ public class Settings
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
-		textBox.ShowMap = settingsMode != SettingsMode.FileTree && miniMap.Value;
+		textBox.Map = settingsMode != SettingsMode.FileTree && miniMap.Value;
 		textBox.MapScale = miniMapScale.Value;
+		textBox.PrintMargin = settingsMode == SettingsMode.Normal && printMargin.Value;
+		textBox.PrintMarginSize = printMarginSize.Value;
 	}
 
 	public void ApplySimpleParameters(MulticaretTextBox textBox)

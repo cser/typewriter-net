@@ -125,7 +125,6 @@ public class Frame : AFrame
 		if (Nest != null)
 		{
 			tabBar.Selected = textBox.Focused;
-			splitLine.Selected = textBox.Focused;
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, this);
 		}
 	}

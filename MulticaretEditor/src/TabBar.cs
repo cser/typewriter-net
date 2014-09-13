@@ -179,7 +179,7 @@ namespace MulticaretEditor
 			Brush bgBrush = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
 			Brush tabsFgBrush = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
 			Pen tabsFgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
-			Pen linePen = _selected ? scheme.tabsSelectedLinePen : scheme.tabsLinePen;
+			Pen linePen = scheme.tabsLinePen;
 
 			g.FillRectangle(bgBrush, 0, 0, width - rightIndent, charHeight - 1);
 			g.DrawLine(linePen, 0, charHeight - 1, width, charHeight - 1);
