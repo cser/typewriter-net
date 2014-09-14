@@ -872,10 +872,10 @@ namespace MulticaretEditor
 		private int markRight = -1;
 		private int markCount = -1;
 
-		public void MarkWordOnPaint()
+		public void MarkWordOnPaint(bool enabled)
 		{
 			Selection selection = selections[0];
-			if (selection.Empty)
+			if (selection.Empty || !enabled)
 			{
 				if (lines.marksByLine.Count != 0)
 					lines.marksByLine.Clear();

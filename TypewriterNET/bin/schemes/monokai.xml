@@ -17,6 +17,7 @@
 	<color name="lineNumberFg" value="#8F908A"/>
 	<color name="selectionBrush" value="#59584E"/>
 	<color name="selectionPen" value="#69685E"/>
+	<color name="markPen" value="#69685E"/>
 	<color name="mainCaret" value="#F8F8F0"/>
 	<color name="caret" value="#AAAAAA"/>
 	

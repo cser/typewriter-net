@@ -7,6 +7,7 @@
 	<color name="lineNumberFg" value="base1"/>
 	<color name="selectionBrush" value="base03"/>
 	<color name="selectionPen" value="#052831"/>
+	<color name="markPen" value="base0"/>
 	<color name="mainCaret" value="#000000"/>
 	<color name="caret" value="#808080"/>
 	

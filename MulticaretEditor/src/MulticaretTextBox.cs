@@ -220,6 +220,20 @@ namespace MulticaretEditor
 			}
 		}
 
+		private bool markWord = true;
+		public bool MarkWord
+		{
+			get { return markWord; }
+			set
+			{
+				if (markWord != value)
+				{
+					markWord = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private Font font;
 		private Font[] fonts = new Font[16];
 
@@ -416,7 +430,7 @@ namespace MulticaretEditor
 				return;
 
             UpdateScrollOnPaint();
-			controller.MarkWordOnPaint();
+			controller.MarkWordOnPaint(markWord);
 
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
@@ -883,7 +897,7 @@ namespace MulticaretEditor
 						if (markI != -1 && i == indices[markI])
 						{
 							g.DrawRectangle(
-								scheme.selectionPen,
+								scheme.markPen,
 								position.X + pos * charWidth,
 								y + lineInterval / 2,
 								lines.markedWord.Length * charWidth,

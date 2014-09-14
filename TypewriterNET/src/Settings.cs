@@ -31,6 +31,7 @@ public class Settings
 	public readonly Properties.Float miniMapScale = new Properties.Float("miniMapScale", .3f).SetMinMax(.1f, 10f);
 	public readonly Properties.Bool printMargin = new Properties.Bool("printMargin", false);
 	public readonly Properties.Int printMarginSize = new Properties.Int("printMarginSize", 80).SetMinMax(1, int.MaxValue);
+	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 
 	private Setter onChange;
 
@@ -60,6 +61,7 @@ public class Settings
 		Add(miniMapScale);
 		Add(printMargin);
 		Add(printMarginSize);
+		Add(markWord);
 	}
 
 	public void DispatchChange()
@@ -147,6 +149,7 @@ public class Settings
 		textBox.MapScale = miniMapScale.Value;
 		textBox.PrintMargin = settingsMode == SettingsMode.Normal && printMargin.Value;
 		textBox.PrintMarginSize = printMarginSize.Value;
+		textBox.MarkWord = markWord.Value;
 	}
 
 	public void ApplySimpleParameters(MulticaretTextBox textBox)

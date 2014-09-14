@@ -55,6 +55,7 @@
 	<color name="lineNumberFg" value="base01"/>
 	<color name="selectionBrush" value="base3"/>
 	<color name="selectionPen" value="#071E26"/>
+	<color name="markPen" value="base00"/>
 	<color name="mainCaret" value="#657B83"/>
 	<color name="caret" value="#305050"/>
 	
