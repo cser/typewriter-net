@@ -318,6 +318,7 @@ namespace MulticaretEditor
 							else
 							{
 								lastSeparator = i;
+								lastPos = pos;
 							}
 						}
 						cutOffs.Add(new CutOff(lastSeparator, left, lastPos));
