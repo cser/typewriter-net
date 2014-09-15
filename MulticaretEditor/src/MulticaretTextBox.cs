@@ -896,20 +896,56 @@ namespace MulticaretEditor
 					{
 						if (markI != -1 && i == indices[markI])
 						{
-							g.DrawRectangle(
-								scheme.markPen,
-								position.X + pos * charWidth,
-								y + lineInterval / 2,
-								lines.markedWord.Length * charWidth,
-								charHeight);
-							g.FillRectangle(
-								scheme.bgBrush,
-								position.X + pos * charWidth,
-								y + lineInterval / 2,
-								lines.markedWord.Length * charWidth,
-								charHeight);
-							if (markI < indices.Length - 1)
-								markI++;
+							int length = lines.markedWord.Length;
+							if (i + length <= i1)
+							{
+								g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+								g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+								if (markI < indices.Length - 1)
+									markI++;
+							}
+							else
+							{
+								selectionRects.Clear();
+								selectionRects.Add(new DrawingLine(pos, (int)(y + lineInterval / 2), line.GetSublineSize(iCutOff) - pos));
+								for (int k = iCutOff + 1; k <= line.cutOffs.count; k++)
+								{
+									int left = line.cutOffs.buffer[k - 1].left;
+									int ii0 = line.cutOffs.buffer[k - 1].iChar;
+									int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
+									int top = (int)(y + (k - iCutOff) * charHeight + lineInterval / 2);
+									if (i + length <= ii1)
+									{
+										int offsetX = left;
+										for (int ii = ii0; ii < i + length; ii++)
+										{
+											if (line.chars[ii].c == '\t')
+											{
+												offsetX = ((offsetX + tabSize) / tabSize) * tabSize;
+											}
+											else
+											{
+												offsetX++;
+											}
+										}
+										selectionRects.Add(new DrawingLine(left, top, offsetX));
+										break;
+									}
+									selectionRects.Add(new DrawingLine(left, top, line.GetSublineSize(k)));
+								}
+								for (int k = 0; k < selectionRects.count; k++)
+								{
+									DrawingLine rect = selectionRects.buffer[k];
+									g.DrawRectangle(scheme.markPen, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
+								}
+								for (int k = 0; k < selectionRects.count; k++)
+								{
+									DrawingLine rect = selectionRects.buffer[k];
+									g.FillRectangle(scheme.bgBrush, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
+								}
+								if (markI < indices.Length - 1)
+									markI++;
+							}
 						}
 
 						Char c = line.chars[i];
@@ -949,18 +985,9 @@ namespace MulticaretEditor
 						break;
 					if (markI != -1 && i == indices[markI])
 					{
-						g.DrawRectangle(
-							scheme.selectionPen,
-							position.X + pos * charWidth,
-							y + lineInterval / 2,
-							lines.markedWord.Length * charWidth,
-							charHeight);
-						g.FillRectangle(
-							scheme.bgBrush,
-							position.X + pos * charWidth,
-							y + lineInterval / 2,
-							lines.markedWord.Length * charWidth,
-							charHeight);
+						int length = lines.markedWord.Length;
+						g.DrawRectangle(scheme.selectionPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+						g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 						if (markI < indices.Length - 1)
 							markI++;
 					}
