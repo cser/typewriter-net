@@ -871,6 +871,7 @@ namespace MulticaretEditor
 		private int markLeft = -1;
 		private int markRight = -1;
 		private int markCount = -1;
+		private bool markEnabled = true;
 
 		public void MarkWordOnPaint(bool enabled)
 		{
@@ -884,11 +885,12 @@ namespace MulticaretEditor
 				markRight = -1;
 				return;
 			}
-			if (selection.Left == markLeft && selection.Right == markRight && markCount == selections.Count)
+			if (selection.Left == markLeft && selection.Right == markRight && markCount == selections.Count && markEnabled == enabled)
 				return;
 			markLeft = selection.Left;
 			markRight = selection.Right;
 			markCount = selections.Count;
+			markEnabled = enabled;
 			Place leftPlace = lines.PlaceOf(selection.Left);
 			Place rightPlace = lines.PlaceOf(selection.Right);
 			if (leftPlace.iLine != rightPlace.iLine)
@@ -958,6 +960,98 @@ namespace MulticaretEditor
 					charOffset += lineI.chars.Count;
 				}
 			}
+		}
+
+		private int markedBracketCaret = -1;
+		private bool markedBracketEnabled = true;
+
+		public void MarkBracketOnPaint(bool enabled)
+		{
+			if (!enabled)
+			{
+				markedBracketCaret = -1;
+				lines.markedBracket = false;
+				return;
+			}
+			Selection selection = selections[0];
+			if (!selection.Empty || selections.Count != 1)
+			{
+				markedBracketCaret = -1;
+				lines.markedBracket = false;
+				return;
+			}
+			if (markedBracketCaret == selection.caret && markedBracketEnabled == enabled)
+				return;
+			markedBracketCaret = selection.caret;
+			markedBracketEnabled = enabled;
+
+			Place place = lines.PlaceOf(selection.caret);
+			Line line = lines[place.iLine];
+			int iChar = -1;
+			int position = selection.caret;
+			char c0 = '\0';
+			if (place.iChar > 0)
+			{
+				c0 = line.chars[place.iChar - 1].c;
+				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')
+				{
+					iChar = place.iChar - 1;
+					position--;
+				}
+			}
+			if (iChar == -1 && place.iChar < line.chars.Count)
+			{
+				c0 = line.chars[place.iChar].c;
+				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')
+					iChar = place.iChar;
+			}
+			if (iChar == -1)
+			{
+				lines.markedBracket = false;
+				return;
+			}
+			char c1;
+			bool direct;
+			if (c0 == '{')
+			{
+				c1 = '}';
+				direct = true;
+			}
+			else if (c0 == '}')
+			{
+				c1 = '{';
+				direct = false;
+			}
+			else if (c0 == '(')
+			{
+				c1 = ')';
+				direct = true;
+			}
+			else
+			{
+				c1 = '(';
+				direct = false;
+			}
+			PlaceIterator iterator = lines.GetCharIterator(position);
+			int depth = 1;
+			while (direct ? iterator.MoveRight() : iterator.MoveLeft())
+			{
+				char c = iterator.RightChar;
+				if (c == c0)
+					depth++;
+				else if (c == c1)
+					depth--;
+				if (depth <= 0)
+					break;
+			}
+			if (depth <= 0)
+			{
+				lines.markedBracket = true;
+				lines.markedBracket0 = new Place(iChar, place.iLine);
+				lines.markedBracket1 = iterator.Place;
+				return;
+			}
+			lines.markedBracket = false;
 		}
 	}
 }

@@ -21,7 +21,8 @@
 	<item name="printMargin" value="false"/>
 	<item name="printMarginSize" value="80"/>
 	<item name="markWord" value="true"/>
-	<altChars 
+	<item name="markBracket" value="true"/>
+	<altChars
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>
 	<altChars

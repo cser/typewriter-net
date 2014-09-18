@@ -234,6 +234,20 @@ namespace MulticaretEditor
 			}
 		}
 
+		private bool markBracket = true;
+		public bool MarkBracket
+		{
+			get { return markBracket; }
+			set
+			{
+				if (markBracket != value)
+				{
+					markBracket = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private Font font;
 		private Font[] fonts = new Font[16];
 
@@ -431,6 +445,7 @@ namespace MulticaretEditor
 
             UpdateScrollOnPaint();
 			controller.MarkWordOnPaint(markWord);
+			controller.MarkBracketOnPaint(markBracket);
 
             int leftIndent = GetLeftIndent();
 			int clientWidth = lines.scroller.textAreaWidth;
@@ -584,6 +599,33 @@ namespace MulticaretEditor
 			else
 			{
 				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+			}
+			if (lines.markedBracket)
+			{
+				for (int i = 0; i < 2; i++)
+				{
+					Place place = i == 0 ? lines.markedBracket0 : lines.markedBracket1;
+					if (place.iLine >= lineMin.iLine && place.iLine <= lineMax.iLine)
+					{
+						Line line = lines[place.iLine];
+						int x;
+						int y;
+						if (lines.wordWrap)
+						{
+							int wwILine = lines.wwValidator.GetWWILine(place.iLine);
+							Pos innerPos = line.WWPosOfIndex(place.iChar);
+							x = offsetX + innerPos.ix * charWidth;
+							y = offsetY + (wwILine + innerPos.iy) * charHeight;
+						}
+						else
+						{
+							x = place.iLine * charWidth;
+							y = offsetY + line.PosOfIndex(place.iChar) * charHeight;
+						}
+						y += charHeight + lineInterval / 2;
+						g.DrawLine(scheme.markPen, x, y, x + charWidth, y);
+					}
+				}
 			}
 			if (printMargin)
 			{

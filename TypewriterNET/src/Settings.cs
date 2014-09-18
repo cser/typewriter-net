@@ -32,6 +32,7 @@ public class Settings
 	public readonly Properties.Bool printMargin = new Properties.Bool("printMargin", false);
 	public readonly Properties.Int printMarginSize = new Properties.Int("printMarginSize", 80).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
+	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 
 	private Setter onChange;
 
@@ -62,6 +63,7 @@ public class Settings
 		Add(printMargin);
 		Add(printMarginSize);
 		Add(markWord);
+		Add(markBracket);
 	}
 
 	public void DispatchChange()
@@ -150,6 +152,7 @@ public class Settings
 		textBox.PrintMargin = settingsMode == SettingsMode.Normal && printMargin.Value;
 		textBox.PrintMarginSize = printMarginSize.Value;
 		textBox.MarkWord = markWord.Value;
+		textBox.MarkBracket = markBracket.Value;
 	}
 
 	public void ApplySimpleParameters(MulticaretTextBox textBox)

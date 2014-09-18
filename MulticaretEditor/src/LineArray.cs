@@ -760,5 +760,9 @@ namespace MulticaretEditor
 		public string markedWord;
 
 		public readonly Dictionary<int, int[]> marksByLine = new Dictionary<int, int[]>();
+
+		public bool markedBracket;
+		public Place markedBracket0;
+		public Place markedBracket1;
 	}
 }
