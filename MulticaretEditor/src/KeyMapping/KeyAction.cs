@@ -29,6 +29,21 @@ namespace MulticaretEditor.KeyMapping
 			return action;
 		}
 		
+		public static readonly KeyAction MacrosRecordOnOff = Add("&Edit\\Macros record on/off", DoMacrosRecordOnOff, null, true);
+		private static bool DoMacrosRecordOnOff(Controller controller)
+		{
+			if (controller.macrosExecutor != null)
+				controller.macrosExecutor.RecordOnOff();
+			return true;
+		}
+
+		public static readonly KeyAction ExecuteMacros = Add("&Edit\\Execute macros", DoExecuteMacros, null, true);
+		private static bool DoExecuteMacros(Controller controller)
+		{
+			if (controller.macrosExecutor != null)
+				controller.macrosExecutor.Execute();
+			return true;
+		}
 		public static readonly KeyAction Home = Add("&Edit\\Selection\\Home", DoHome, null, true);
 		private static bool DoHome(Controller controller)
 		{

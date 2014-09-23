@@ -15,6 +15,8 @@ namespace MulticaretEditor
 {
 	public class MulticaretTextBox : Control
 	{
+		public static MacrosExecutor initMacrosExecutor;
+
 		public event Setter FocusedChange;
 
 		private LineArray lines;
@@ -29,9 +31,12 @@ namespace MulticaretEditor
 		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
+		private MacrosExecutor macrosExecutor;
 
 		public MulticaretTextBox()
 		{
+			macrosExecutor = initMacrosExecutor ?? new MacrosExecutor(GetSelf);
+
 			bgBrush = new SolidBrush(BackColor);
 
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -64,6 +69,11 @@ namespace MulticaretEditor
 			Controller = new Controller(new LineArray());
 		}
 
+		private MulticaretTextBox GetSelf()
+		{
+			return this;
+		}
+
 		public override string Text
 		{
 			get { return lines.GetText(); }
@@ -81,9 +91,12 @@ namespace MulticaretEditor
 			{
 				if (controller != value)
 				{
+					if (controller != null)
+						controller.macrosExecutor = null;
 					controller = value;
 					if (controller != null)
 					{
+						controller.macrosExecutor = macrosExecutor;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -468,6 +481,12 @@ namespace MulticaretEditor
 					g.DrawString(
 						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
 				}
+			}
+
+			if (macrosExecutor.current != null)
+			{
+				int d = charWidth;
+				g.DrawEllipse(scheme.markPen, new Rectangle(leftIndent + clientWidth - d - 4, clientHeight - d - 4, d, d));
 			}
 
 			mouseAreaRight = leftIndent + clientWidth;
@@ -1084,10 +1103,18 @@ namespace MulticaretEditor
 				if (modePressedKeys != Control.ModifierKeys)
 				{
 					if (modePressedKeys != Keys.None)
+					{
 						keyMap.Enumerate<bool>(ProcessKeyTick, false);
+						if (macrosExecutor.current != null)
+							macrosExecutor.current.Add(new MacrosExecutor.Action(modePressedKeys, false));
+					}
 					modePressedKeys = Control.ModifierKeys;
 					if (modePressedKeys != Keys.None)
+					{
 						keyMap.Enumerate<bool>(ProcessKeyTick, true);
+						if (macrosExecutor.current != null)
+							macrosExecutor.current.Add(new MacrosExecutor.Action(modePressedKeys, true));
+					}
 				}
 			}
 		}
@@ -1159,32 +1186,61 @@ namespace MulticaretEditor
 			char code = e.KeyChar;
 			if (Focused && !actionProcessed)
 			{
-				switch (code)
-				{
-					case '\b':
-						if (lines.AllSelectionsEmpty)
-						{
-							controller.Backspace();
-						}
-						else
-						{
-							controller.EraseSelection();
-						}
-						break;
-					case '\r':
-						controller.InsertLineBreak();
-						break;
-					default:
-						controller.InsertText(code + "");
-						break;
-				}
-				if (highlighter != null && !highlighter.LastParsingChanged)
-					highlighter.Parse(lines, 100);
-				UnblinkCursor();
-				ScrollIfNeedToCaret();
+				if (macrosExecutor.current != null)
+					macrosExecutor.current.Add(new MacrosExecutor.Action(code));
+				ExecuteKeyPress(code);
 			}
 			actionProcessed = false;
 			base.OnKeyPress(e);
+		}
+
+		public void ProcessMacrosAction(MacrosExecutor.Action action)
+		{
+			if (action.keys != Keys.None)
+			{
+				if (action.mode != null)
+				{
+					Keys oldKeys = modePressedKeys;
+					modePressedKeys = action.keys;
+					keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
+					modePressedKeys = oldKeys;
+				}
+				else
+				{
+					ExecuteKeyDown(action.keys);
+				}
+			}
+			else
+			{
+				ExecuteKeyPress(action.code);
+			}
+		}
+
+		private void ExecuteKeyPress(char code)
+		{
+			switch (code)
+			{
+				case '\b':
+					if (lines.AllSelectionsEmpty)
+					{
+						controller.Backspace();
+					}
+					else
+					{
+						controller.EraseSelection();
+					}
+					break;
+				case '\r':
+					controller.InsertLineBreak();
+					break;
+				default:
+					controller.InsertText(code + "");
+					break;
+			}
+			if (highlighter != null && !highlighter.LastParsingChanged)
+				highlighter.Parse(lines, 100);
+			UnblinkCursor();
+			ScrollIfNeedToCaret();
 		}
 
 		private bool actionProcessed = false;
@@ -1194,9 +1250,28 @@ namespace MulticaretEditor
 			base.OnKeyDown(e);
 			if (!Focused)
 				return;
+			if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, e.KeyData))
+				macrosExecutor.current.Add(new MacrosExecutor.Action(e.KeyData));
+			ExecuteKeyDown(e.KeyData);
+		}
 
+		private void ExecuteKeyDown(Keys keyData)
+		{
 			actionProcessed = false;
-			keyMap.Enumerate<Keys>(ProcessKeyDown, e.KeyData);
+			keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+		}
+
+		private bool IsMacrosKeys(KeyMap keyMap, Keys keyData)
+		{
+			KeyItem keyItem = keyMap.GetItem(keyData);
+			while (keyItem != null)
+			{
+				KeyAction action = keyItem.action;
+				if (action == KeyAction.ExecuteMacros || action == KeyAction.MacrosRecordOnOff)
+					return true;
+				keyItem = keyItem.next;
+			}
+			return false;
 		}
 
 		private bool ProcessKeyDown(KeyMap keyMap, Keys keyData)

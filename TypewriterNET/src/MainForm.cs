@@ -38,6 +38,8 @@ public class MainForm : Form
 	{
 		this.args = args;
 
+		MulticaretTextBox.initMacrosExecutor = new MacrosExecutor(GetFocusedTextBox);
+
 		frames = new FrameList(this);
 
 		ResourceManager manager = new ResourceManager("TypewriterNET", typeof(Program).Assembly);
@@ -254,6 +256,11 @@ public class MainForm : Form
 
 	private MulticaretTextBox focusedTextBox;
 	public Controller FocusedController { get { return focusedTextBox != null ? focusedTextBox.Controller : null; } }
+
+	private MulticaretTextBox GetFocusedTextBox()
+	{
+		return focusedTextBox;
+	}
 
 	private Frame lastFrame;
 	public Frame LastFrame { get { return lastFrame; } }

@@ -109,6 +109,9 @@ namespace MulticaretEditor.KeyMapping
 		
 		public KeyMap SetDefault()
 		{
+			AddItem(new KeyItem(Keys.Control | Keys.Q, null, KeyAction.MacrosRecordOnOff));
+			AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Q, null, KeyAction.ExecuteMacros));
+
 			AddItem(new KeyItem(Keys.Home, null, KeyAction.Home));
 			AddItem(new KeyItem(Keys.Home | Keys.Shift, null, KeyAction.HomeWithSelection));
 			AddItem(new KeyItem(Keys.End, null, KeyAction.End));
