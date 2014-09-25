@@ -237,5 +237,32 @@ namespace UnitTests
 			}
 			return lines;
 		}
+
+		[Test]
+		public void MoveRightBug()
+		{
+			Init();
+			
+			lines.SetText(
+				"123\n" +
+				""
+			);
+			PlaceIterator iterator = lines.GetCharIterator(0);
+			
+			char c;
+			
+			Assert.True(iterator.MoveRight(out c));
+			Assert.True(iterator.MoveRight(out c));
+			Assert.AreEqual('2', c);
+			Assert.True(iterator.MoveRight(out c));
+			Assert.AreEqual('3', c);
+			
+			Assert.True(iterator.MoveRight(out c));
+			Assert.AreEqual('\n', c);
+			Assert.False(iterator.MoveRight(out c));
+			Assert.AreEqual('\0', c);
+			Assert.True(iterator.MoveLeft(out c));
+			Assert.AreEqual('\n', c);
+		}
 	}
 }

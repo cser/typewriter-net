@@ -10,7 +10,7 @@ namespace MulticaretEditor
 		private int blockI;
 		private int blockILine;
 		private int iChar;
-		
+
 		public PlaceIterator(LineBlock[] blocks, int blocksCount, int charsCount, int blockI, int blockILine, int iChar, int position)
 		{
 			this.blocks = blocks;
@@ -29,12 +29,12 @@ namespace MulticaretEditor
 				rightChar = blocks[blockI].array[blockILine].chars[iChar].c;
 			}
 		}
-		
+
 		public Place Place { get { return new Place(iChar, blocks[blockI].offset + blockILine); } }
-		
+
 		private char rightChar;
 		public char RightChar { get { return rightChar; } }
-		
+
 		private char? leftChar = null;
 		public char LeftChar
 		{
@@ -75,17 +75,17 @@ namespace MulticaretEditor
 				return leftChar.Value;
 			}
 		}
-				
+
 		private int position;
 		public int Position { get { return position; } }
-		
+
 		public bool MoveLeft(out char c)
 		{
 			bool result = MoveLeft();
 			c = RightChar;
 			return result;
 		}
-		
+
 		public bool MoveLeft()
 		{
 			leftChar = null;
@@ -119,13 +119,13 @@ namespace MulticaretEditor
 			}
 			return result;
 		}
-		
+
 		public bool MoveRight(out char c)
 		{
 			c = RightChar;
 			return MoveRight();
 		}
-		
+
 		public bool MoveRight()
 		{
 			bool result = position < charsCount;
@@ -156,17 +156,18 @@ namespace MulticaretEditor
 					}
 					line = block.array[blockILine];
 					iChar = 0;
+					rightChar = line.chars.Count > 0 ? line.chars[iChar].c : '\0';
 				}
 				else
 				{
 					iChar++;
+					rightChar = line.chars[iChar].c;
 				}
-				rightChar = line.chars[iChar].c;
 				position++;
 			}
 			return result;
 		}
-		
+
 		public bool MoveRightWithRN()
 		{
 			char c;
@@ -175,7 +176,7 @@ namespace MulticaretEditor
 				MoveRight();
 			return moved;
 		}
-		
+
 		public bool MoveLeftWithRN()
 		{
 			char c;
