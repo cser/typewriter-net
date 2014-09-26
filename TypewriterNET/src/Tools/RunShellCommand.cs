@@ -27,6 +27,8 @@ public class RunShellCommand
 		}
 	}
 
+	public const string FileVar = "%f%";
+
 	private MainForm mainForm;
 
 	public RunShellCommand(MainForm mainForm)
@@ -41,25 +43,48 @@ public class RunShellCommand
 	{
 		positions = new Dictionary<int, List<Position>>();
 
+		{
+			if (commandText.Contains(FileVar))
+			{
+				Buffer lastBuffer = mainForm.LastBuffer;
+				if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+				{
+					mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame for replace " + FileVar);
+					return null;
+				}
+				commandText = commandText.Replace(FileVar, lastBuffer.FullPath);
+			}
+		}
+
 		Process p = new Process();
-		p.StartInfo.UseShellExecute = false;
 		p.StartInfo.RedirectStandardOutput = true;
+		p.StartInfo.RedirectStandardError = true;
+		p.StartInfo.UseShellExecute = false;
 		p.StartInfo.FileName = "cmd.exe";
 		p.StartInfo.Arguments = "/C " + commandText;
 		p.Start();
 		string output = p.StandardOutput.ReadToEnd();
+		string errors = p.StandardError.ReadToEnd();
+		string text = output;
 		p.WaitForExit();
+
+		List<StyleRange> ranges = new List<StyleRange>();
+		if (!string.IsNullOrEmpty(errors))
+		{
+			string left = !string.IsNullOrEmpty(output) ? output + "\n" : output;
+			text = left + errors;
+			ranges.Add(new StyleRange(left.Length, errors.Length, Ds.Error.index));
+		}
 
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
-		buffer.Controller.InitText(output);
+		buffer.Controller.InitText(text);
 		if (regexList != null)
 		{
-			List<StyleRange> ranges = new List<StyleRange>();
 			foreach (RegexData regexData in regexList)
 			{
 				string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
-				foreach (Match match in regexData.regex.Matches(output))
+				foreach (Match match in regexData.regex.Matches(text))
 				{
 					if (match.Groups.Count >= 2)
 					{
@@ -109,8 +134,8 @@ public class RunShellCommand
 					}
 				}
 			}
-			buffer.Controller.SetStyleRanges(ranges);
 		}
+		buffer.Controller.SetStyleRanges(ranges);
 		buffer.additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("F&ind\\Navigate to position", ExecuteEnter, null, false);
@@ -121,7 +146,7 @@ public class RunShellCommand
 		return null;
 	}
 
-	public bool ExecuteEnter(Controller controller)
+	private bool ExecuteEnter(Controller controller)
 	{
 		int caret = buffer.Controller.LastSelection.caret;
 		Place place = buffer.Controller.Lines.PlaceOf(caret);

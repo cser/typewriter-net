@@ -5,6 +5,7 @@ using System.IO;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 public class Commander
 {
@@ -87,7 +88,7 @@ public class Commander
 		}
 		else if (name.StartsWith("!"))
 		{
-			ExecuteShellCommand(name.Substring(1).Trim());
+			ExecuteShellCommand(text.Substring(1).Trim());
 		}
 		else
 		{
@@ -101,10 +102,14 @@ public class Commander
 		builder.AppendLine("# Commands");
 		builder.AppendLine();
 
-		TextTable table = new TextTable().SetMaxColWidth(30);
+		TextTable table = new TextTable().SetMaxColWidth(40);
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
+		table.NewRow();
+		table.Add("").Add("").Add("Variables: ");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file full path");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
@@ -127,6 +132,9 @@ public class Commander
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
+		commands.Add(new Command("edit", "file", "Edit file / new file", DoEditFile));
+		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
+		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 	}
 
 	private void DoHelp(string args)
@@ -175,5 +183,28 @@ public class Commander
 	private void ExecuteShellCommand(string commandText)
 	{
 		new RunShellCommand(mainForm).Execute(commandText, settings.shellRegexList.Value);
+	}
+
+	private void DoEditFile(string file)
+	{
+		Buffer buffer = mainForm.ForcedLoadFile(file);
+		buffer.needSaveAs = false;
+	}
+
+	private void DoOpenFile(string file)
+	{
+		mainForm.LoadFile(file);
+	}
+
+	private void DoCreateDirectory(string dir)
+	{
+		try
+		{
+			Directory.CreateDirectory(dir);
+		}
+		catch (Exception e)
+		{
+			MessageBox.Show(e.Message, mainForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
 	}
 }

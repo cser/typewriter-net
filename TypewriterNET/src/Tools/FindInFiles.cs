@@ -236,7 +236,7 @@ public class FindInFiles
 		return null;
 	}
 
-	public bool ExecuteEnter(Controller controller)
+	private bool ExecuteEnter(Controller controller)
 	{
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Position position = positions[place.iLine];

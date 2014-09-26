@@ -64,9 +64,14 @@ public class MainForm : Form
 
 	public void UpdateTitle()
 	{
-		Buffer buffer = lastFrame != null && lastFrame.Nest != null ? lastFrame.SelectedBuffer : null;
+		Buffer buffer = LastBuffer;
 		string name = buffer != null ? buffer.FullPath : null;
 		Text = Application.ProductName + (string.IsNullOrEmpty(name) ? "" : " - " + name);
+	}
+
+	public Buffer LastBuffer
+	{
+		get { return lastFrame != null && lastFrame.Nest != null ? lastFrame.SelectedBuffer : null; }
 	}
 
 	private void OnValidationTimerTick(object sender, EventArgs e)
@@ -369,15 +374,28 @@ public class MainForm : Form
 
 	public Buffer LoadFile(string file, string httpServer)
 	{
-		string fullPath = Path.GetFullPath(file);
-		string name = Path.GetFileName(file);
+		string fullPath = null;
+		string name = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception e)
+		{
+			Log.WriteWarning("Path", e.Message);
+			Log.Open();
+			return null;
+		}
 		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
 		bool needLoad = false;
+		bool isNew = false;
 		if (buffer == null)
 		{
 			buffer = NewFileBuffer();
 			buffer.httpServer = httpServer;
 			needLoad = true;
+			isNew = true;
 		}
 		buffer.SetFile(fullPath, name);
 		ShowBuffer(mainNest, buffer);
@@ -385,15 +403,30 @@ public class MainForm : Form
 			buffer.Frame.UpdateHighlighter();
 
 		if (needLoad && !ReloadFile(buffer))
+		{
+			if (isNew && buffer.Frame != null)
+				buffer.Frame.RemoveBuffer(buffer);
 			return null;
+		}
 		RemoveEmptyIfNeed();
 		return buffer;
 	}
 
 	public Buffer ForcedLoadFile(string file)
 	{
-		string fullPath = Path.GetFullPath(file);
-		string name = Path.GetFileName(file);
+		string fullPath = null;
+		string name = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception e)
+		{
+			Log.WriteWarning("Path", e.Message);
+			Log.Open();
+			return null;
+		}
 		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
 		bool needLoad = false;
 		if (buffer == null)
@@ -450,7 +483,7 @@ public class MainForm : Form
 		}
 		if (!File.Exists(buffer.FullPath))
 		{
-			Log.WriteWarning("Mission file", buffer.FullPath);
+			Log.WriteWarning("Missing file", buffer.FullPath);
 			Log.Open();
 			return false;
 		}
