@@ -7,9 +7,10 @@ Features
 --------
 - Multiple cursors/selections (next selection by Ctrl + D)
 - Switching of undo branches (storage undo history as tree)
-- Show color of code like #FFFFFF at cursor
+- Color highlighting at cursor
+![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/color_highlighting.gif "Color highlighting")
 - Macroses<br/>
-![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/macros_using.gif "Macros using (monokai color scheme)")
+![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/macros_using.gif "Macros using")
 
 Sources
 -------
