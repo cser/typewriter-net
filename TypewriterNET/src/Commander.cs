@@ -5,7 +5,6 @@ using System.IO;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 
 public class Commander
 {
@@ -128,7 +127,7 @@ public class Commander
 		this.settings = settings;
 		this.history = history;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
-		commands.Add(new Command("cd", "path", "Change current directory", DoChangeCurrentDirectory));
+		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
@@ -174,7 +173,7 @@ public class Commander
 	private void DoChangeCurrentDirectory(string path)
 	{
 		string error;
-		if (mainForm.SetCurrentDirectory(path, out error))
+		if (string.IsNullOrEmpty(path) || mainForm.SetCurrentDirectory(path, out error))
 			mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
 		else
 			mainForm.Dialogs.ShowInfo("Error", error);
@@ -200,11 +199,12 @@ public class Commander
 	{
 		try
 		{
-			Directory.CreateDirectory(dir);
+			DirectoryInfo info = Directory.CreateDirectory(dir);
+			mainForm.Dialogs.ShowInfo("Created directory", info.FullName);
 		}
 		catch (Exception e)
 		{
-			MessageBox.Show(e.Message, mainForm.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			mainForm.Dialogs.ShowInfo("Error", e.Message);
 		}
 	}
 }
