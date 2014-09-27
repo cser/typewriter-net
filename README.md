@@ -7,7 +7,7 @@ Features
 --------
 - Multiple cursors/selections (next selection by Ctrl + D)
 - Switching of undo branches (storage undo history as tree)
-- Color highlighting at cursor
+- Color highlighting at cursor<br/>
 ![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/color_highlighting.gif "Color highlighting")
 - Macroses<br/>
 ![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/macros_using.gif "Macros using")
