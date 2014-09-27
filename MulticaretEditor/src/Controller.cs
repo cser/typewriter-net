@@ -625,7 +625,7 @@ namespace MulticaretEditor
 
 		public void InsertText(string text)
 		{
-			Execute(new InsertTextCommand(text, null));
+			Execute(new InsertTextCommand(text, null, true));
 		}
 
 		public void InsertLineBreak()
@@ -639,7 +639,7 @@ namespace MulticaretEditor
 				Line line = lines[place.iLine];
 				texts[i] = lines.lineBreak + GetLineBreakFirstSpaces(line, place.iChar);
 			}
-			Execute(new InsertTextCommand(null, texts));
+			Execute(new InsertTextCommand(null, texts, true));
 		}
 
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
@@ -815,6 +815,23 @@ namespace MulticaretEditor
 					selections.Add(selection);
 				}
 			}
+		}
+
+		public void ChangeCase(bool upper)
+		{
+			lines.JoinSelections();
+			string[] texts = new string[selections.Count];
+			bool needChange = false;
+			for (int i = 0; i < selections.Count; i++)
+			{
+				Selection selection = selections[i];
+				string text = lines.GetText(selection.Left, selection.Count);
+				if (text.Length > 0)
+					needChange = true;
+				texts[i] = upper ? text.ToUpperInvariant() : text.ToLowerInvariant();
+			}
+			if (needChange)
+				Execute(new InsertTextCommand(null, texts, false));
 		}
 
 		public bool AllSelectionsEmpty { get { return lines.AllSelectionsEmpty; } }

@@ -6,23 +6,25 @@ namespace MulticaretEditor.Commands
 	{
 		private string text;
 		private string[] texts;
-		
-		public InsertTextCommand(string text, string[] texts) : base(CommandType.InsertText)
+		private bool changeSelection;
+
+		public InsertTextCommand(string text, string[] texts, bool changeSelection) : base(CommandType.InsertText)
 		{
 			this.text = text;
 			this.texts = texts;
+			this.changeSelection = changeSelection;
 		}
-		
+
 		private string[] deleted;
 		private SelectionMemento[] mementos;
-		
+
 		override public bool Init()
 		{
 			lines.JoinSelections();
 			mementos = GetSelectionMementos();
 			return true;
 		}
-		
+
 		override public void Redo()
 		{
 			deleted = new string[mementos.Length];
@@ -43,16 +45,31 @@ namespace MulticaretEditor.Commands
 				deleted[i] = deletedI;
 			}
 			SetSelectionMementos(mementos);
-			foreach (Selection selection in selections)
+			if (changeSelection)
 			{
-				selection.anchor = selection.Left;
-				selection.caret = selection.anchor;
-				Place place = lines.PlaceOf(selection.caret);
-				lines.SetPreferredPos(selection, place);
+				foreach (Selection selection in selections)
+				{
+					selection.anchor = selection.Left;
+					selection.caret = selection.anchor;
+					Place place = lines.PlaceOf(selection.caret);
+					lines.SetPreferredPos(selection, place);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < selections.Count; i++)
+				{
+					Selection selection = selections[i];
+					int length = GetText(i).Length;
+					selection.anchor -= length;
+					selection.caret -= length;
+					Place place = lines.PlaceOf(selection.caret);
+					lines.SetPreferredPos(selection, place);
+				}
 			}
 			lines.JoinSelections();
 		}
-		
+
 		override public void Undo()
 		{
 			int offset = 0;
@@ -75,7 +92,7 @@ namespace MulticaretEditor.Commands
 			deleted = null;
 			SetSelectionMementos(mementos);
 		}
-		
+
 		private string GetText(int index)
 		{
 			string result = text;

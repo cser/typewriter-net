@@ -160,6 +160,9 @@ namespace MulticaretEditor.KeyMapping
 			
 			AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Up, null, KeyAction.MoveLineUp));
 			AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Down, null, KeyAction.MoveLineDown));
+
+			AddItem(new KeyItem(Keys.Control | Keys.U, null, KeyAction.LowerCase));
+			AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.U, null, KeyAction.UpperCase));
 			
 			AddItem(new KeyItem(Keys.Control | Keys.Z, null, KeyAction.Undo));
 			AddItem(new KeyItem(Keys.Control | Keys.Y, null, KeyAction.Redo));
