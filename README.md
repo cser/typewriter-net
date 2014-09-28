@@ -6,7 +6,8 @@ Typewriter.NET
 Features
 --------
 - Multiple cursors/selections (next selection by Ctrl + D)
-- Switching of undo branches (storage undo history as tree)
+- Switching of undo branches (storage undo history as tree)<br/>
+![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/undo_branches.gif "Undo branches")
 - Color highlighting at cursor<br/>
 ![preview_1](https://raw2.github.com/cser/typewriter-net/master/TypewriterNET/previews/color_highlighting.gif "Color highlighting")
 - Macroses<br/>
