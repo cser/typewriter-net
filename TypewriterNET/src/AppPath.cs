@@ -37,7 +37,7 @@ public struct AppPath
 		AppPath.syntaxDir = new AppPath(Syntax);
 		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"));
 		AppPath.schemesDir = new AppPath(Schemes);
-		AppPath.configPath = new AppPath("config.xml");
+		AppPath.configPath = new AppPath("tw-config.xml");
 	}
 
 	public readonly string local;
@@ -49,6 +49,11 @@ public struct AppPath
 		this.local = local;
 		appDataPath = Path.Combine(appDataDir, local);
 		startupPath = Path.Combine(startupDir, local);
+	}
+
+	public string GetCurrentPath()
+	{
+		return Path.Combine(Directory.GetCurrentDirectory(), local);
 	}
 
 	public string GetExisted()

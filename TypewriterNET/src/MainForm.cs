@@ -169,6 +169,11 @@ public class MainForm : Form
 
 	public bool SetCurrentDirectory(string path, out string error)
 	{
+		error = null;
+		if (string.IsNullOrEmpty(path))
+			return false;
+		if (path.ToLowerInvariant() == Directory.GetCurrentDirectory().ToLowerInvariant())
+			return false;
 		try
 		{
 			Directory.SetCurrentDirectory(path);
@@ -179,7 +184,8 @@ public class MainForm : Form
 			return false;
 		}
 		frames.UpdateSettings(settings, UpdatePhase.ChangeCurrentDirectory);
-		error = null;
+		if (hasCurrentConfig || File.Exists(AppPath.ConfigPath.GetCurrentPath()))
+			ReloadConfig();
 		return true;
 	}
 
@@ -340,11 +346,12 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open startup folder", DoOpenStartupFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
@@ -603,7 +610,9 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
-		if (buffer.FullPath == AppPath.ConfigPath.startupPath || buffer.FullPath == AppPath.ConfigPath.appDataPath)
+		if (buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.GetCurrentPath().ToLowerInvariant() ||
+			buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.startupPath.ToLowerInvariant() ||
+			buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.appDataPath.ToLowerInvariant())
 		{
 			ReloadConfig();
 		}
@@ -722,6 +731,24 @@ public class MainForm : Form
 			frame = frames.GetFirstFrame();
 		if (frame != null)
 			frame.Focus();
+		return true;
+	}
+
+	private bool DoEditCreateCurrentConfig(Controller controller)
+	{
+		string path = AppPath.ConfigPath.GetCurrentPath();
+		string templatePath = Path.Combine(AppPath.TemplatesDir, "current-tw-config.xml");
+		if (!File.Exists(path))
+		{
+			if (!File.Exists(templatePath))
+			{
+				Log.WriteWarning("Config", "Missing template config at: " + templatePath);
+				Log.Open();
+				return false;
+			}
+			File.Copy(templatePath, path);
+		}
+		LoadFile(path);
 		return true;
 	}
 
@@ -993,8 +1020,11 @@ public class MainForm : Form
 		}
 	}
 
+	private bool hasCurrentConfig = false;
+
 	private void ReloadConfig()
 	{
+		hasCurrentConfig = false;
 		configParser.Reset();
 		StringBuilder builder = new StringBuilder();
 		foreach (string path in AppPath.ConfigPath.GetBoth())
@@ -1004,6 +1034,18 @@ public class MainForm : Form
 				XmlDocument xml = xmlLoader.Load(path, false);
 				if (xml != null)
 					configParser.Parse(xml, builder);
+			}
+		}
+		{
+			string path = AppPath.ConfigPath.GetCurrentPath();
+			if (File.Exists(path))
+			{
+				XmlDocument xml = xmlLoader.Load(path, false);
+				if (xml != null)
+				{
+					configParser.Parse(xml, builder);
+					hasCurrentConfig = true;
+				}
 			}
 		}
 		if (builder.Length > 0)
