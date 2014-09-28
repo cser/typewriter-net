@@ -33,6 +33,7 @@ public class Settings
 	public readonly Properties.Int printMarginSize = new Properties.Int("printMarginSize", 80).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
+	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
 
 	private Setter onChange;
 
@@ -64,6 +65,7 @@ public class Settings
 		Add(printMarginSize);
 		Add(markWord);
 		Add(markBracket);
+		Add(rememberCurrentDir);
 	}
 
 	public void DispatchChange()

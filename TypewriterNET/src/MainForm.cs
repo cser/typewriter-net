@@ -699,6 +699,22 @@ public class MainForm : Form
 		return true;
 	}
 
+	public bool FileTreeOpened
+	{
+		get { return fileTree.Buffer.Frame != null; }
+	}
+
+	public void OpenFileTree()
+	{
+		if (fileTree.Buffer.Frame == null)
+		{
+			if (leftNest.AFrame == null)
+				new Frame().Create(leftNest);
+			leftNest.Frame.AddBuffer(fileTree.Buffer);
+			leftNest.Frame.Focus();
+		}
+	}
+
 	private bool DoChangeFocus(Controller controller)
 	{
 		Frame frame = frames.GetChildFrame(frames.GetFocusedFrame());

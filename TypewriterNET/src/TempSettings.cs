@@ -50,6 +50,13 @@ public class TempSettings
 		findHistory.Unserialize(state["findHistory"]);
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
+		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(state["currentDir"].String))
+		{
+			string error;
+			mainForm.SetCurrentDirectory(state["currentDir"].String, out error);
+		}
+		if (state["showFileTree"].Bool)
+			mainForm.OpenFileTree();
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -99,6 +106,9 @@ public class TempSettings
 		state["findHistory"] = findHistory.Serialize();
 		state["findInFilesHistory"] = findInFilesHistory.Serialize();
 		state["goToLineHistory"] = goToLineHistory.Serialize();
+		if (settings.rememberCurrentDir.Value)
+			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
+		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
 	}
 
