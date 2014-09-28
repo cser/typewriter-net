@@ -347,7 +347,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open startup folder", DoOpenStartupFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
@@ -800,6 +801,20 @@ public class MainForm : Form
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		process.StartInfo.FileName = Directory.GetCurrentDirectory();
 		process.Start();
+		return true;
+	}
+
+	private bool DoChangeCurrentFolder(Controller controller)
+	{
+		FolderBrowserDialog dialog = new FolderBrowserDialog();
+		dialog.Description = "Current folder selection";
+		dialog.SelectedPath = Directory.GetCurrentDirectory();
+		if (dialog.ShowDialog() == DialogResult.OK)
+		{
+			string error;
+			if (!SetCurrentDirectory(dialog.SelectedPath, out error))
+				MessageBox.Show(error, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
 		return true;
 	}
 

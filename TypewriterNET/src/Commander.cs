@@ -172,7 +172,7 @@ public class Commander
 
 	private void DoChangeCurrentDirectory(string path)
 	{
-		string error;
+		string error = "";
 		if (string.IsNullOrEmpty(path) || mainForm.SetCurrentDirectory(path, out error))
 			mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
 		else
