@@ -35,6 +35,11 @@ public class Settings
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
 
+	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
+	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
+	public readonly Properties.String f7Command = new Properties.String("f7Command", "", false);
+	public readonly Properties.String f8Command = new Properties.String("f8Command", "", false);
+
 	private Setter onChange;
 
 	public Settings(Setter onChange)
@@ -66,6 +71,10 @@ public class Settings
 		Add(markWord);
 		Add(markBracket);
 		Add(rememberCurrentDir);
+		Add(f5Command);
+		Add(f6Command);
+		Add(f7Command);
+		Add(f8Command);
 	}
 
 	public void DispatchChange()

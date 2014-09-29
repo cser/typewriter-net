@@ -357,6 +357,10 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F5, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F6, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F7, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F8, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -1096,5 +1100,31 @@ public class MainForm : Form
 				buffer.Frame.TextBox.MoveToCaret();
 			}
 		}
+	}
+
+	private bool DoExecuteF5Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f5Command.Value);
+	}
+
+	private bool DoExecuteF6Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f6Command.Value);
+	}
+	
+	private bool DoExecuteF7Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f7Command.Value);
+	}
+
+	private bool DoExecuteF8Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f8Command.Value);
+	}
+
+	private bool ExecuteCommand(string command)
+	{
+		commander.Execute(command);
+		return true;
 	}
 }
