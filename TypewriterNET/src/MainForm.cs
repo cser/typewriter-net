@@ -501,17 +501,23 @@ public class MainForm : Form
 			return false;
 		}
 		{
-			string text = "";
+			byte[] bytes = null;
 			try
 			{
-				text = File.ReadAllText(buffer.FullPath);
+				bytes = File.ReadAllBytes(buffer.FullPath);
 			}
 			catch (IOException e)
 			{
 				Log.WriteError("File loading error", e.Message);
 				Log.Open();
 			}
-			buffer.Controller.InitText(text);
+			string error;
+			buffer.InitBytes(bytes, out error);
+			if (error != null)
+			{
+				Log.WriteError("File decoding error", error);
+				Log.Open();
+			}
 			buffer.fileInfo = new FileInfo(buffer.FullPath);
 			buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 			buffer.needSaveAs = false;
@@ -601,9 +607,13 @@ public class MainForm : Form
 
 	public void SaveFile(Buffer buffer)
 	{
+		string text = buffer.Controller.Lines.GetText();
 		try
 		{
-			File.WriteAllText(buffer.FullPath, buffer.Controller.Lines.GetText());
+			if (!buffer.bom && buffer.encoding == Encoding.UTF8)
+				File.WriteAllText(buffer.FullPath, text);
+			else
+				File.WriteAllText(buffer.FullPath, text, buffer.encoding);
 		}
 		catch (Exception e)
 		{
@@ -1111,7 +1121,7 @@ public class MainForm : Form
 	{
 		return ExecuteCommand(settings.f6Command.Value);
 	}
-	
+
 	private bool DoExecuteF7Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f7Command.Value);

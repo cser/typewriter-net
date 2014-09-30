@@ -131,9 +131,10 @@ public class Commander
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
-		commands.Add(new Command("edit", "file", "Edit file / new file", DoEditFile));
+		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
+		commands.Add(new Command("encode", "encoding-bom", "Change/show encoding-bom to save", DoChangeEncodingToSave));
 	}
 
 	private void DoHelp(string args)
@@ -206,5 +207,52 @@ public class Commander
 		{
 			mainForm.Dialogs.ShowInfo("Error", e.Message);
 		}
+	}
+
+	private void DoChangeEncodingToSave(string encoding)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
+			return;
+		}
+		EncodingInfo[] infos = new EncodingInfo[]
+		{
+			new EncodingInfo(Encoding.ASCII, false, "ascii"),
+			new EncodingInfo(Encoding.UTF8, false, "utf8"),
+			new EncodingInfo(Encoding.UTF8, true, "utf8-bom"),
+			new EncodingInfo(Encoding.Unicode, false, "utf-16"),
+			new EncodingInfo(Encoding.BigEndianUnicode, false, "utf-16-big")
+		};
+		if (string.IsNullOrEmpty(encoding))
+		{
+			foreach (EncodingInfo info in infos)
+			{
+				if (info.encoding == lastBuffer.encoding && info.bom == lastBuffer.bom)
+				{
+					mainForm.Dialogs.ShowInfo("Encoding", info.name);
+					return;
+				}
+			}
+			mainForm.Dialogs.ShowInfo("Unknown encoding", lastBuffer.encoding + (lastBuffer.bom ? "-bom" : ""));
+		}
+		foreach (EncodingInfo info in infos)
+		{
+			if (info.name == encoding)
+			{
+				lastBuffer.encoding = info.encoding;
+				lastBuffer.bom = info.bom;
+				return;
+			}
+		}
+		StringBuilder builder = new StringBuilder();
+		builder.Append("Awailable encodings:");
+		foreach (EncodingInfo info in infos)
+		{
+			builder.AppendLine();
+			builder.Append(info.name);
+		}
+		mainForm.Dialogs.ShowInfo("Unknown encoding", builder.ToString());
 	}
 }
