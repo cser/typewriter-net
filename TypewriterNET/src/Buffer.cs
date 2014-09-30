@@ -35,7 +35,7 @@ public class Buffer
 	public string Name { get { return name; } }
 
 	public string httpServer;
-	public Encoding encoding;
+	public Encoding encoding = Encoding.UTF8;
 	public bool bom;
 
 	public void SetFile(string fullPath, string name)

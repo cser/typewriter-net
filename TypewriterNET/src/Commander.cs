@@ -134,7 +134,7 @@ public class Commander
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
-		commands.Add(new Command("encode", "encoding-bom", "Change/show encoding-bom to save", DoChangeEncodingToSave));
+		commands.Add(new Command("encode", "encoding[ bom]", "Change/show encoding to save", DoChangeEncodingToSave));
 	}
 
 	private void DoHelp(string args)
@@ -209,7 +209,7 @@ public class Commander
 		}
 	}
 
-	private void DoChangeEncodingToSave(string encoding)
+	private void DoChangeEncodingToSave(string raw)
 	{
 		Buffer lastBuffer = mainForm.LastBuffer;
 		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
@@ -217,42 +217,44 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
 			return;
 		}
-		EncodingInfo[] infos = new EncodingInfo[]
+		string[] array = raw.Split(' ');
+		string encodingName = array.Length > 0 ? array[0] : "";
+		bool bom = array.Length > 1 && array[1] == "bom";
+		if (string.IsNullOrEmpty(encodingName))
 		{
-			new EncodingInfo(Encoding.ASCII, false, "ascii"),
-			new EncodingInfo(Encoding.UTF8, false, "utf8"),
-			new EncodingInfo(Encoding.UTF8, true, "utf8-bom"),
-			new EncodingInfo(Encoding.Unicode, false, "utf-16"),
-			new EncodingInfo(Encoding.BigEndianUnicode, false, "utf-16-big")
-		};
-		if (string.IsNullOrEmpty(encoding))
+			mainForm.Dialogs.ShowInfo("Unknown encoding", lastBuffer.encoding.EncodingName + (lastBuffer.bom ? " bom" : ""));
+			return;
+		}
+		Encoding encoding = null;
+		string error = null;
+		try
 		{
-			foreach (EncodingInfo info in infos)
+			encoding = Encoding.GetEncoding(encodingName);
+		}
+		catch (Exception e)
+		{
+			error = e.Message;
+		}
+		if (encoding == null)
+		{
+			StringBuilder builder = new StringBuilder();
+			if (!string.IsNullOrEmpty(error))
+				builder.AppendLine("Error: " + error);
+			builder.AppendLine("Awailable encodings:");
+			TextTable table = new TextTable().SetMaxColWidth(20);
+			int index = 0;
+			foreach (EncodingInfo info in Encoding.GetEncodings())
 			{
-				if (info.encoding == lastBuffer.encoding && info.bom == lastBuffer.bom)
-				{
-					mainForm.Dialogs.ShowInfo("Encoding", info.name);
-					return;
-				}
+				table.Add(info.Name);
+				index++;
+				if (index % 3 == 0)
+					table.NewRow();
 			}
-			mainForm.Dialogs.ShowInfo("Unknown encoding", lastBuffer.encoding + (lastBuffer.bom ? "-bom" : ""));
+			builder.Append(table.ToString());
+			mainForm.Dialogs.ShowInfo("Unknown encoding", builder.ToString());
+			return;
 		}
-		foreach (EncodingInfo info in infos)
-		{
-			if (info.name == encoding)
-			{
-				lastBuffer.encoding = info.encoding;
-				lastBuffer.bom = info.bom;
-				return;
-			}
-		}
-		StringBuilder builder = new StringBuilder();
-		builder.Append("Awailable encodings:");
-		foreach (EncodingInfo info in infos)
-		{
-			builder.AppendLine();
-			builder.Append(info.name);
-		}
-		mainForm.Dialogs.ShowInfo("Unknown encoding", builder.ToString());
+		lastBuffer.encoding = encoding;
+		lastBuffer.bom = bom;
 	}
 }
