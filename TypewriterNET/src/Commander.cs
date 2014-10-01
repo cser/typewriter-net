@@ -210,72 +210,52 @@ public class Commander
 		}
 	}
 
-	private bool ParseEncoding(string raw, Buffer lastBuffer, out Encoding encoding, out bool bom)
+	private string GetEncodingsText()
 	{
-		encoding = null;
-		bom = false;
-		string error = null;
-		string[] array = raw.Split(' ');
-		string encodingName = array.Length > 0 ? array[0] : "";
-		bom = array.Length > 1 && array[1] == "bom";
-		if (string.IsNullOrEmpty(encodingName))
+		StringBuilder builder = new StringBuilder();
+		builder.AppendLine("Awailable encodings:");
+		TextTable table = new TextTable().SetMaxColWidth(20);
+		int index = 0;
+		foreach (EncodingInfo info in Encoding.GetEncodings())
 		{
-			mainForm.Dialogs.ShowInfo("Unknown encoding", lastBuffer.encoding.EncodingName + (lastBuffer.bom ? " bom" : ""));
-			return false;
+			table.Add(info.Name);
+			index++;
+			if (index % 3 == 0)
+				table.NewRow();
 		}
-		try
-		{
-			encoding = Encoding.GetEncoding(encodingName);
-		}
-		catch (Exception e)
-		{
-			error = e.Message;
-		}
-		if (encoding == null)
-		{
-			StringBuilder builder = new StringBuilder();
-			if (!string.IsNullOrEmpty(error))
-				builder.AppendLine("Error: " + error);
-			builder.AppendLine("Awailable encodings:");
-			TextTable table = new TextTable().SetMaxColWidth(20);
-			int index = 0;
-			foreach (EncodingInfo info in Encoding.GetEncodings())
-			{
-				table.Add(info.Name);
-				index++;
-				if (index % 3 == 0)
-					table.NewRow();
-			}
-			builder.Append(table.ToString());
-			mainForm.Dialogs.ShowInfo("Unknown encoding", builder.ToString());
-			return false;
-		}
-		return true;
+		builder.Append(table.ToString());
+		return builder.ToString();
 	}
 
 	private void DoChangeEncodingToSave(string raw)
 	{
 		Buffer lastBuffer = mainForm.LastBuffer;
-		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		if (lastBuffer == null || lastBuffer.Controller.isReadonly)
 		{
-			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
+			mainForm.Dialogs.ShowInfo("Error", "No file in current frame");
 			return;
 		}
-		Encoding encoding;
-		bool bom;
-		if (ParseEncoding(raw, lastBuffer, out encoding, out bom))
+		if (string.IsNullOrEmpty(raw))
 		{
-			lastBuffer.encoding = encoding;
-			lastBuffer.bom = bom;
+			mainForm.Dialogs.ShowInfo("Encoding", lastBuffer.encodingPair.Name);
+			return;
 		}
+		string error;
+		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
+		if (pair.IsNull)
+		{
+			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + GetEncodingsText());
+			return;
+		}
+		lastBuffer.encodingPair = pair;
 	}
 
 	private void DoReloadInCustomEncoding(string raw)
 	{
 		Buffer lastBuffer = mainForm.LastBuffer;
-		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		if (lastBuffer == null || lastBuffer.Controller.isReadonly || string.IsNullOrEmpty(lastBuffer.FullPath))
 		{
-			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
+			mainForm.Dialogs.ShowInfo("Error", "No file with path in current frame");
 			return;
 		}
 		if (string.IsNullOrEmpty(raw))
@@ -283,13 +263,14 @@ public class Commander
 			mainForm.ReloadFile(lastBuffer);
 			return;
 		}
-		Encoding encoding;
-		bool bom;
-		if (ParseEncoding(raw, lastBuffer, out encoding, out bom))
+		string error;
+		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
+		if (pair.IsNull)
 		{
-			lastBuffer.settedEncoding = encoding;
-			lastBuffer.settedBOM = bom;
-			mainForm.ReloadFile(lastBuffer);
+			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + GetEncodingsText());
+			return;
 		}
+		lastBuffer.settedEncodingPair = pair;
+		mainForm.ReloadFile(lastBuffer);
 	}
 }

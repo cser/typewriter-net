@@ -63,4 +63,15 @@ public class ConfigParser
 			}
 		}
 	}
+
+	public void PostParse(StringBuilder errors)
+	{
+		string error;
+		settings.defaultEncodingPair = EncodingPair.ParseEncoding(settings.defaultEncoding.Value, out error);
+		if (!string.IsNullOrEmpty(error))
+			errors.Append("defaultEncoding error: " + error);
+		settings.shellEncodingPair = EncodingPair.ParseEncoding(settings.shellEncoding.Value, out error);
+		if (!string.IsNullOrEmpty(error))
+			errors.Append("shellEncoding error: " + error);
+	}
 }

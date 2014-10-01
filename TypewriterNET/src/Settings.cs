@@ -35,6 +35,8 @@ public class Settings
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
 	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false);
+	public readonly Properties.String defaultEncoding = new Properties.String("defaultEncoding", "utf-8", false).SetLoadVariants(GetEncodingsNamesWithBOM);
+	public readonly Properties.String shellEncoding = new Properties.String("shellEncoding", "utf-8", false).SetLoadVariants(GetEncodingsNames);
 
 	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
 	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
@@ -77,6 +79,8 @@ public class Settings
 		Add(f6Command);
 		Add(f7Command);
 		Add(f8Command);
+		Add(defaultEncoding);
+		Add(shellEncoding);
 	}
 
 	public void DispatchChange()
@@ -147,6 +151,9 @@ public class Settings
 		set { parsedScheme = value; }
 	}
 
+	public EncodingPair defaultEncodingPair;
+	public EncodingPair shellEncodingPair;
+
 	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode)
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && wordWrap.Value;
@@ -194,5 +201,27 @@ public class Settings
 	{
 		label.BackColor = parsedScheme.tabsBgColor;
 		label.TextColor = parsedScheme.fgColor;
+	}
+
+	private static string[] GetEncodingsNamesWithBOM()
+	{
+		List<string> names = new List<string>();
+		foreach (EncodingInfo info in Encoding.GetEncodings())
+		{
+			names.Add(info.Name);
+			if (info.Name != "us-ascii")
+				names.Add(info.Name + " bom");
+		}
+		return names.ToArray();
+	}
+
+	private static string[] GetEncodingsNames()
+	{
+		List<string> names = new List<string>();
+		foreach (EncodingInfo info in Encoding.GetEncodings())
+		{
+			names.Add(info.Name);
+		}
+		return names.ToArray();
 	}
 }

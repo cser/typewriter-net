@@ -35,10 +35,8 @@ public class Buffer
 	public string Name { get { return name; } }
 
 	public string httpServer;
-	public Encoding settedEncoding;
-	public bool settedBOM;
-	public Encoding encoding = Encoding.UTF8;
-	public bool bom;
+	public EncodingPair settedEncodingPair;
+	public EncodingPair encodingPair = new EncodingPair(Encoding.UTF8, false);
 
 	public void SetFile(string fullPath, string name)
 	{
@@ -97,37 +95,35 @@ public class Buffer
 		controller.InitText(text);
 	}
 
-	public void InitBytes(byte[] bytes, out string error)
+	public void InitBytes(byte[] bytes, EncodingPair defaultEncoding, out string error)
 	{
 		error = null;
 		string text = "";
-		encoding = Encoding.UTF8;
-		bom = false;
+		encodingPair = defaultEncoding;
 		if (bytes != null)
 		{
 			try
 			{
-				if (settedEncoding != null)
+				if (!settedEncodingPair.IsNull)
 				{
-					encoding = settedEncoding;
-					bom = settedBOM;
+					encodingPair = settedEncodingPair;
 				}
 				else
 				{
-					encoding = TextFileEncodingDetector.DetectTextByteArrayEncoding(bytes, out bom);
-					if (encoding == null)
-						encoding = Encoding.UTF8;
+					bool bom;
+					Encoding encoding = TextFileEncodingDetector.DetectTextByteArrayEncoding(bytes, out bom);
+					if (encoding != null)
+						encodingPair = new EncodingPair(encoding, bom);
 				}
-				int length = bom ? encoding.GetPreamble().Length : 0;
-				text = encoding.GetString(bytes, length, bytes.Length - length);
+				text = encodingPair.GetString(bytes);
 			}
 			catch (Exception e)
 			{
-				encoding = Encoding.UTF8;
-				bom = false;
 				error = e.Message;
 			}
 		}
+		if (encodingPair.IsNull)
+			encodingPair = new EncodingPair(Encoding.UTF8, false);
 		Controller.InitText(text);
 	}
 }

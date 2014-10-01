@@ -512,7 +512,7 @@ public class MainForm : Form
 				Log.Open();
 			}
 			string error;
-			buffer.InitBytes(bytes, out error);
+			buffer.InitBytes(bytes, settings.defaultEncodingPair, out error);
 			if (error != null)
 			{
 				Log.WriteError("File decoding error", error);
@@ -610,10 +610,10 @@ public class MainForm : Form
 		string text = buffer.Controller.Lines.GetText();
 		try
 		{
-			if (!buffer.bom && buffer.encoding == Encoding.UTF8)
+			if (!buffer.encodingPair.bom && buffer.encodingPair.encoding == Encoding.UTF8)
 				File.WriteAllText(buffer.FullPath, text);
 			else
-				File.WriteAllText(buffer.FullPath, text, buffer.encoding);
+				File.WriteAllText(buffer.FullPath, text, buffer.encodingPair.encoding);
 		}
 		catch (Exception e)
 		{
@@ -947,6 +947,7 @@ public class MainForm : Form
 		buffer.tags = BufferTag.File;
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
+		buffer.encodingPair = settings.defaultEncodingPair;
 		return buffer;
 	}
 
@@ -1050,6 +1051,7 @@ public class MainForm : Form
 					configParser.Parse(xml, builder);
 			}
 		}
+		configParser.PostParse(builder);
 		{
 			string path = AppPath.ConfigPath.GetCurrentPath();
 			if (File.Exists(path))

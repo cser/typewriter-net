@@ -24,6 +24,8 @@
 	<item name="markBracket" value="true"/>
 	<item name="rememberCurrentDir" value="true"/>
 	<item name="findInFilesDir" value=""/>
+	<item name="defaultEncoding" value="utf-8"/>
+	<item name="shellEncoding" value="cp866"/>
 	<altChars
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>
