@@ -458,7 +458,7 @@ public class MainForm : Form
 		return buffer;
 	}
 
-	private bool ReloadFile(Buffer buffer)
+	public bool ReloadFile(Buffer buffer)
 	{
 		if (buffer.httpServer != null)
 		{

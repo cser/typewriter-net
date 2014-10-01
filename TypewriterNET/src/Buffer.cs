@@ -35,6 +35,8 @@ public class Buffer
 	public string Name { get { return name; } }
 
 	public string httpServer;
+	public Encoding settedEncoding;
+	public bool settedBOM;
 	public Encoding encoding = Encoding.UTF8;
 	public bool bom;
 
@@ -105,14 +107,24 @@ public class Buffer
 		{
 			try
 			{
-				encoding = TextFileEncodingDetector.DetectTextByteArrayEncoding(bytes, out bom);
-				if (encoding == null)
-					encoding = Encoding.UTF8;
+				if (settedEncoding != null)
+				{
+					encoding = settedEncoding;
+					bom = settedBOM;
+				}
+				else
+				{
+					encoding = TextFileEncodingDetector.DetectTextByteArrayEncoding(bytes, out bom);
+					if (encoding == null)
+						encoding = Encoding.UTF8;
+				}
 				int length = bom ? encoding.GetPreamble().Length : 0;
 				text = encoding.GetString(bytes, length, bytes.Length - length);
 			}
 			catch (Exception e)
 			{
+				encoding = Encoding.UTF8;
+				bom = false;
 				error = e.Message;
 			}
 		}

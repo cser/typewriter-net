@@ -135,6 +135,7 @@ public class Commander
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command("encode", "encoding[ bom]", "Change/show encoding to save", DoChangeEncodingToSave));
+		commands.Add(new Command("reload", "encoding[ bom]", "Reload file in custom encoding", DoReloadInCustomEncoding));
 	}
 
 	private void DoHelp(string args)
@@ -209,24 +210,19 @@ public class Commander
 		}
 	}
 
-	private void DoChangeEncodingToSave(string raw)
+	private bool ParseEncoding(string raw, Buffer lastBuffer, out Encoding encoding, out bool bom)
 	{
-		Buffer lastBuffer = mainForm.LastBuffer;
-		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
-		{
-			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
-			return;
-		}
+		encoding = null;
+		bom = false;
+		string error = null;
 		string[] array = raw.Split(' ');
 		string encodingName = array.Length > 0 ? array[0] : "";
-		bool bom = array.Length > 1 && array[1] == "bom";
+		bom = array.Length > 1 && array[1] == "bom";
 		if (string.IsNullOrEmpty(encodingName))
 		{
 			mainForm.Dialogs.ShowInfo("Unknown encoding", lastBuffer.encoding.EncodingName + (lastBuffer.bom ? " bom" : ""));
-			return;
+			return false;
 		}
-		Encoding encoding = null;
-		string error = null;
 		try
 		{
 			encoding = Encoding.GetEncoding(encodingName);
@@ -252,9 +248,48 @@ public class Commander
 			}
 			builder.Append(table.ToString());
 			mainForm.Dialogs.ShowInfo("Unknown encoding", builder.ToString());
+			return false;
+		}
+		return true;
+	}
+
+	private void DoChangeEncodingToSave(string raw)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
 			return;
 		}
-		lastBuffer.encoding = encoding;
-		lastBuffer.bom = bom;
+		Encoding encoding;
+		bool bom;
+		if (ParseEncoding(raw, lastBuffer, out encoding, out bom))
+		{
+			lastBuffer.encoding = encoding;
+			lastBuffer.bom = bom;
+		}
+	}
+
+	private void DoReloadInCustomEncoding(string raw)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame");
+			return;
+		}
+		if (string.IsNullOrEmpty(raw))
+		{
+			mainForm.ReloadFile(lastBuffer);
+			return;
+		}
+		Encoding encoding;
+		bool bom;
+		if (ParseEncoding(raw, lastBuffer, out encoding, out bom))
+		{
+			lastBuffer.settedEncoding = encoding;
+			lastBuffer.settedBOM = bom;
+			mainForm.ReloadFile(lastBuffer);
+		}
 	}
 }
