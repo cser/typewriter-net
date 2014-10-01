@@ -34,6 +34,7 @@ public class Settings
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
+	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false);
 
 	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
 	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
@@ -71,6 +72,7 @@ public class Settings
 		Add(markWord);
 		Add(markBracket);
 		Add(rememberCurrentDir);
+		Add(findInFilesDir);
 		Add(f5Command);
 		Add(f6Command);
 		Add(f7Command);

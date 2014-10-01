@@ -23,6 +23,7 @@
 	<item name="markWord" value="true"/>
 	<item name="markBracket" value="true"/>
 	<item name="rememberCurrentDir" value="true"/>
+	<item name="findInFilesDir" value=""/>
 	<altChars
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>

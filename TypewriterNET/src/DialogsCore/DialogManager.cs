@@ -180,7 +180,7 @@ public class DialogManager
 	private bool DoFindInFilesDialog(string text)
 	{
 		findInFiles.Close(true);
-		string errors = new FindInFiles(mainForm).Execute(text, null, "*.*");
+		string errors = new FindInFiles(mainForm).Execute(text, mainForm.Settings.findInFilesDir.Value, "*.*");
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
 		return true;

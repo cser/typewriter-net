@@ -29,6 +29,11 @@ Sources
 2. Idea of text highlighting got from post about **Qutepart/Enki**: http://habrahabr.ru/post/188144/<br/>
 Editor uses **Kate** highlighting files (because there are already 200 languages for free)
 
+3. Encoding detection
+
+	TextFileEncodingDetector.cs got without changes from<br/>
+	https://gist.github.com/TaoK/945127
+
 Installation without building
 -----------------------------
 
