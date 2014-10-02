@@ -243,6 +243,7 @@ public class Commander
 		}
 		if (string.IsNullOrEmpty(raw))
 		{
+			lastBuffer.settedEncodingPair = new EncodingPair();
 			mainForm.ReloadFile(lastBuffer);
 			return;
 		}

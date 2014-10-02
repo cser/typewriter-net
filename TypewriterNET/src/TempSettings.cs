@@ -11,7 +11,7 @@ public class TempSettings
 	{
 		return Path.Combine(Path.GetTempPath(), "typewriter-state.bin");
 	}
-	
+
 	private MainForm mainForm;
 	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
@@ -28,7 +28,12 @@ public class TempSettings
 		string file = GetTempSettingsPath();
 		if (File.Exists(file))
 			state = SValue.Unserialize(File.ReadAllBytes(file));
-		
+
+		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(state["currentDir"].String))
+		{
+			string error;
+			mainForm.SetCurrentDirectory(state["currentDir"].String, out error);
+		}
 		mainForm.Size = new Size(state["width"].GetInt(700), state["height"].GetInt(480));
 		mainForm.Location = new Point(state["x"].Int, state["y"].Int);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
@@ -50,11 +55,6 @@ public class TempSettings
 		findHistory.Unserialize(state["findHistory"]);
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
-		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(state["currentDir"].String))
-		{
-			string error;
-			mainForm.SetCurrentDirectory(state["currentDir"].String, out error);
-		}
 		if (state["showFileTree"].Bool)
 			mainForm.OpenFileTree();
 	}
