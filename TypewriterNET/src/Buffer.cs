@@ -100,7 +100,6 @@ public class Buffer
 		error = null;
 		string text = "";
 		encodingPair = defaultEncoding;
-		Console.WriteLine("defaultEncoding=" + defaultEncoding);
 		if (bytes != null)
 		{
 			try
@@ -113,7 +112,6 @@ public class Buffer
 				{
 					bool bom;
 					Encoding encoding = TextFileEncodingDetector.DetectTextByteArrayEncoding(bytes, out bom);
-					Console.WriteLine("encoding=" + encoding);
 					if (encoding != null)
 						encodingPair = new EncodingPair(encoding, bom);
 				}
