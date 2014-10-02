@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 public struct EncodingPair
 {
@@ -20,7 +21,12 @@ public struct EncodingPair
 		return encoding.GetString(bytes, length, bytes.Length - length);
 	}
 
-	public string Name { get { return encoding.EncodingName + (bom ? " bom" : ""); } }
+	override public string ToString()
+	{
+		if (encoding == null)
+			return "Null";
+		return GetName(encoding) + (bom ? " bom" : "");
+	}
 
 	public static EncodingPair ParseEncoding(string raw, out string error)
 	{
@@ -43,5 +49,38 @@ public struct EncodingPair
 			error = e.Message;
 		}
 		return encoding != null ? new EncodingPair(encoding, bom) : new EncodingPair();
+	}
+
+	public static string GetEncodingsText()
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.AppendLine("Awailable encodings:");
+		TextTable table = new TextTable().SetMaxColWidth(20);
+		int index = 0;
+		foreach (EncodingInfo info in Encoding.GetEncodings())
+		{
+			table.Add(info.Name);
+			index++;
+			if (index % 3 == 0)
+				table.NewRow();
+		}
+		builder.Append(table.ToString());
+		return builder.ToString();
+	}
+
+	private static Dictionary<int, string> nameByCodePage;
+
+	private static string GetName(Encoding encoding)
+	{
+		if (nameByCodePage == null)
+		{
+			nameByCodePage = new Dictionary<int, string>();
+			foreach (EncodingInfo info in Encoding.GetEncodings())
+			{
+				nameByCodePage[info.CodePage] = info.Name;
+			}
+		}
+		string name;
+		return nameByCodePage.TryGetValue(encoding.CodePage, out name) ? name : encoding.EncodingName;
 	}
 }

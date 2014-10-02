@@ -512,7 +512,7 @@ public class MainForm : Form
 				Log.Open();
 			}
 			string error;
-			buffer.InitBytes(bytes, settings.defaultEncodingPair, out error);
+			buffer.InitBytes(bytes, settings.defaultEncoding.Value, out error);
 			if (error != null)
 			{
 				Log.WriteError("File decoding error", error);
@@ -947,7 +947,7 @@ public class MainForm : Form
 		buffer.tags = BufferTag.File;
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
-		buffer.encodingPair = settings.defaultEncodingPair;
+		buffer.encodingPair = settings.defaultEncoding.Value;
 		return buffer;
 	}
 
@@ -1051,7 +1051,6 @@ public class MainForm : Form
 					configParser.Parse(xml, builder);
 			}
 		}
-		configParser.PostParse(builder);
 		{
 			string path = AppPath.ConfigPath.GetCurrentPath();
 			if (File.Exists(path))

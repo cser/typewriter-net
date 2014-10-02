@@ -22,14 +22,8 @@ public class Properties
 			this.name = name;
 		}
 
-		virtual public Float AsFloat { get { return null; } }
-		virtual public Int AsInt { get { return null; } }
-		virtual public String AsString { get { return null; } }
-		virtual public Bool AsBool { get { return null; } }
-		virtual public Font AsFont { get { return null; } }
-		virtual public RegexList AsRegexList { get { return null; } }
-
 		virtual public string Text { get { return ""; } }
+
 		virtual public string SetText(string value)
 		{
 			return null;
@@ -54,8 +48,6 @@ public class Properties
 			defaultValue = value;
 			this.value = value;
 		}
-
-		override public Float AsFloat { get { return this; } }
 
 		private float min = float.MinValue;
 		private float max = float.MaxValue;
@@ -129,8 +121,6 @@ public class Properties
 			this.value = value;
 		}
 
-		override public Int AsInt { get { return this; } }
-
 		private int min = int.MinValue;
 		private int max = int.MaxValue;
 
@@ -183,8 +173,6 @@ public class Properties
 			this.value = value ?? "";
 			this.convertEscape = convertEscape;
 		}
-
-		override public String AsString { get { return this; } }
 
 		private string value;
 		public string Value
@@ -271,8 +259,6 @@ public class Properties
 		{
 		}
 
-		override public RegexList AsRegexList { get { return this; } }
-
 		private readonly RWList<RegexData> value = new RWList<RegexData>();
 		public IRList<RegexData> Value { get { return value; } }
 
@@ -314,6 +300,40 @@ public class Properties
 		}
 	}
 
+	public class EncodingProperty : Property
+	{
+		private EncodingPair defaultValue;
+
+		public EncodingProperty(string name, EncodingPair defaultValue) : base(name)
+		{
+			this.defaultValue = defaultValue;
+		}
+
+		private EncodingPair value;
+		public EncodingPair Value { get { return value; } }
+
+		override public string Text { get { return Value.ToString(); } }
+
+		override public string SetText(string value)
+		{
+			string error;
+			EncodingPair newValue = EncodingPair.ParseEncoding(value, out error);
+			if (!newValue.IsNull)
+				this.value = newValue;
+			return error;
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add("encoding[ bom]").Add(defaultValue.ToString());
+		}
+
+		override public void Reset()
+		{
+			value = defaultValue;
+		}
+	}
+
 	public class Bool : Property
 	{
 		private bool defaultValue;
@@ -323,8 +343,6 @@ public class Properties
 			defaultValue = value;
 			this.value = value;
 		}
-
-		override public Bool AsBool { get { return this; } }
 
 		private bool value;
 		public bool Value
@@ -361,8 +379,6 @@ public class Properties
 			defaultValue = value;
 			this.value = value;
 		}
-
-		override public Font AsFont { get { return this; } }
 
 		private FontFamily value;
 		public FontFamily Value

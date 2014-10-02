@@ -210,23 +210,6 @@ public class Commander
 		}
 	}
 
-	private string GetEncodingsText()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.AppendLine("Awailable encodings:");
-		TextTable table = new TextTable().SetMaxColWidth(20);
-		int index = 0;
-		foreach (EncodingInfo info in Encoding.GetEncodings())
-		{
-			table.Add(info.Name);
-			index++;
-			if (index % 3 == 0)
-				table.NewRow();
-		}
-		builder.Append(table.ToString());
-		return builder.ToString();
-	}
-
 	private void DoChangeEncodingToSave(string raw)
 	{
 		Buffer lastBuffer = mainForm.LastBuffer;
@@ -237,14 +220,14 @@ public class Commander
 		}
 		if (string.IsNullOrEmpty(raw))
 		{
-			mainForm.Dialogs.ShowInfo("Encoding", lastBuffer.encodingPair.Name);
+			mainForm.Dialogs.ShowInfo("Encoding", lastBuffer.encodingPair.ToString());
 			return;
 		}
 		string error;
 		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
 		if (pair.IsNull)
 		{
-			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + GetEncodingsText());
+			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
 			return;
 		}
 		lastBuffer.encodingPair = pair;
@@ -267,7 +250,7 @@ public class Commander
 		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
 		if (pair.IsNull)
 		{
-			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + GetEncodingsText());
+			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
 			return;
 		}
 		lastBuffer.settedEncodingPair = pair;

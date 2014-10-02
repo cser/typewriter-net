@@ -59,8 +59,8 @@ public class RunShellCommand
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
-		p.StartInfo.StandardOutputEncoding = mainForm.Settings.shellEncodingPair.encoding ?? Encoding.UTF8;
-		p.StartInfo.StandardErrorEncoding = mainForm.Settings.shellEncodingPair.encoding ?? Encoding.UTF8;
+		p.StartInfo.StandardOutputEncoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+		p.StartInfo.StandardErrorEncoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 		p.StartInfo.UseShellExecute = false;
 		p.StartInfo.FileName = "cmd.exe";
 		p.StartInfo.Arguments = "/C " + commandText;
