@@ -61,7 +61,21 @@ public class TempSettings
 
 	public void StorageQualities(Buffer buffer)
 	{
-		storage.Set(buffer.FullPath).With("cursor", SValue.NewInt(buffer.Controller.Lines.LastSelection.caret));
+		SValue value = storage.Set(buffer.FullPath).With("cursor", SValue.NewInt(buffer.Controller.Lines.LastSelection.caret));
+		if (!buffer.settedEncodingPair.IsNull)
+			value.With("encoding", SValue.NewString(buffer.settedEncodingPair.ToString()));
+		else
+			value.With("encoding", SValue.None);
+	}
+
+	public void ApplyQualitiesBeforeLoading(Buffer buffer)
+	{
+		string rawEncoding = storage.Get(buffer.FullPath)["encoding"].String;
+		if (!string.IsNullOrEmpty(rawEncoding))
+		{
+			string error;
+			buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
+		}
 	}
 
 	public void ApplyQualities(Buffer buffer)

@@ -135,7 +135,8 @@ public class Commander
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command("encode", "encoding[ bom]", "Change/show encoding to save", DoChangeEncodingToSave));
-		commands.Add(new Command("reload", "encoding[ bom]", "Reload file in custom encoding", DoReloadInCustomEncoding));
+		commands.Add(new Command("reload", "encoding[ bom]/reset", "Reload file in custom encoding, reset - detect encoding anew",
+			DoReloadInCustomEncoding));
 	}
 
 	private void DoHelp(string args)
@@ -242,6 +243,11 @@ public class Commander
 			return;
 		}
 		if (string.IsNullOrEmpty(raw))
+		{
+			mainForm.ReloadFile(lastBuffer);
+			return;
+		}
+		if (raw == "reset")
 		{
 			lastBuffer.settedEncodingPair = new EncodingPair();
 			mainForm.ReloadFile(lastBuffer);

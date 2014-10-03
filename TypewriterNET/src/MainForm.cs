@@ -501,6 +501,7 @@ public class MainForm : Form
 			return false;
 		}
 		{
+			tempSettings.ApplyQualitiesBeforeLoading(buffer);
 			byte[] bytes = null;
 			try
 			{
