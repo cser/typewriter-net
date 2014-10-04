@@ -480,7 +480,8 @@ public class MainForm : Form
 
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-				using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+				buffer.encodingPair = settings.httpEncoding.Value;
+				using (StreamReader reader = new StreamReader(response.GetResponseStream(), settings.httpEncoding.Value.encoding))
 				{
 					text = reader.ReadToEnd();
 				}
@@ -555,6 +556,7 @@ public class MainForm : Form
 	{
 		if (buffer == null)
 			return;
+		buffer.settedEncodingPair = buffer.encodingPair;
 		if (buffer.httpServer != null)
 		{
 			string text = "";
@@ -566,7 +568,7 @@ public class MainForm : Form
 				request.ContentType = "application/x-www-form-urlencoded";
 				request.Accept = "Accept=text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
-				byte[] byteVersion = Encoding.ASCII.GetBytes(buffer.Controller.Lines.GetText());
+				byte[] byteVersion = buffer.encodingPair.encoding.GetBytes(buffer.Controller.Lines.GetText());
 				request.ContentLength = byteVersion.Length;
 
 				Stream stream = request.GetRequestStream();
@@ -575,7 +577,7 @@ public class MainForm : Form
 
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-				using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+				using (StreamReader reader = new StreamReader(response.GetResponseStream(), buffer.encodingPair.encoding))
 				{
 					text = reader.ReadToEnd();
 				}

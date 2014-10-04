@@ -105,7 +105,7 @@ public class DialogManager
 		closeMethods = new List<Getter<bool, bool>>();
 
 		KeyMap keyMap = mainForm.KeyMap;
-		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.X, null, new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null, new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null, new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
