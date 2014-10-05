@@ -60,6 +60,11 @@ public class Buffer
 		return buffer.Name + (buffer.Changed ? "*" : "");
 	}
 
+	public static string EncodeOf(Buffer buffer)
+	{
+		return buffer.encodingPair.ToString();
+	}
+
 	//--------------------------------------------------------------------------
 	// Helped
 	//--------------------------------------------------------------------------

@@ -42,6 +42,7 @@ public class Frame : AFrame
 		buffers.list.SelectedChange += OnTabSelected;
 
 		tabBar = new TabBar<Buffer>(buffers.list, Buffer.StringOf);
+		tabBar.Text2Of = Buffer.EncodeOf;
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
 		Controls.Add(tabBar);

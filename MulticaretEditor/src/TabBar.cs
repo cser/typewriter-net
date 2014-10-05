@@ -22,7 +22,7 @@ namespace MulticaretEditor
 
 		public event Setter CloseClick;
 		public event Setter<T> TabDoubleClick;
-		
+
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly StringOfDelegate<T> stringOf;
@@ -34,24 +34,31 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
-			
+
 			this.stringOf = stringOf;
 			TabStop = false;
-			
+
 			tempPoints = new Point[3];
 			SetFont(FontFamily.GenericMonospace, 10.25f);
-			
+
 			arrowTimer = new Timer();
 			arrowTimer.Interval = 150;
 			arrowTimer.Tick += OnArrowTick;
 
 			List = list;
 		}
-		
+
 		private void OnSelectedChange()
 		{
 			needScrollToSelected = true;
 			Invalidate();
+		}
+
+		private Getter<T, string> text2Of;
+		public Getter<T, string> Text2Of
+		{
+			get { return text2Of; }
+			set { text2Of = value; }
 		}
 
 		private SwitchList<T> list;
@@ -98,15 +105,15 @@ namespace MulticaretEditor
 		{
 			font = new Font(family, emSize);
 			boldFont = new Font(family, emSize, FontStyle.Bold);
-			
+
 			SizeF size = GetCharSize(font, 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
 			charHeight = (int)Math.Round(size.Height * 1f) + 1;
 			Height = charHeight;
-			
+
 			Invalidate();
 		}
-		
+
 		private Scheme scheme = new Scheme();
 		public Scheme Scheme
 		{
@@ -127,7 +134,7 @@ namespace MulticaretEditor
 			Size sz3 = TextRenderer.MeasureText("<>", font);
 			return new SizeF(sz2.Width - sz3.Width + 1, font.Height);
 		}
-		
+
 		public new void Invalidate()
 		{
 			if (InvokeRequired)
@@ -144,7 +151,7 @@ namespace MulticaretEditor
 		private int rightIndent;
 		private int offsetIndex;
 		private bool needScrollToSelected;
-		
+
 		private void ScrollToSelectedIfNeed()
 		{
 			if (!needScrollToSelected)
@@ -168,20 +175,20 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			Graphics g = e.Graphics;
 			int width = Width;
 			int x = charWidth;
 			int indent = charWidth / 2;
-			
+
 			Brush bgBrush = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
 			Brush tabsFgBrush = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
 			Pen tabsFgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
 			Pen linePen = scheme.tabsLinePen;
 
-			g.FillRectangle(bgBrush, 0, 0, width - rightIndent, charHeight - 1);
+			g.FillRectangle(bgBrush, 0, 0, width - charWidth, charHeight - 1);
 			g.DrawLine(linePen, 0, charHeight - 1, width, charHeight - 1);
 
 			leftIndent = charWidth;
@@ -208,7 +215,8 @@ namespace MulticaretEditor
 					rects.Add(rect);
 				}
 			}
-			rightIndent = charHeight;
+			string text2 = list != null && list.Selected != null && text2Of != null ? text2Of(list.Selected) : null;
+			rightIndent = charHeight + (text2 != null ? text2.Length * charWidth : 0);
 			if (x > width - leftIndent - rightIndent)
 			{
 				rightIndent += charHeight * 3 / 2;
@@ -235,7 +243,6 @@ namespace MulticaretEditor
 				rightRect = null;
 				offsetIndex = 0;
 			}
-			
 			if (list != null)
 			{
 				int offsetX = GetOffsetX(offsetIndex);
@@ -248,7 +255,7 @@ namespace MulticaretEditor
 					rect.X += offsetX;
 					if (rect.X > width)
 						break;
-					
+
 					if (selected)
 					{
 						g.FillRectangle(scheme.bgBrush, rect);
@@ -268,10 +275,10 @@ namespace MulticaretEditor
 					rects.Add(rect);
 				}
 			}
-			
+
 			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
 			g.DrawLine(linePen, width - rightIndent, charHeight - 1, width, charHeight - 1);
-			
+
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
 			{
@@ -283,7 +290,7 @@ namespace MulticaretEditor
 				g.DrawLine(tabsFgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
 				g.DrawLine(tabsFgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
 			}
-			
+
 			if (leftRect != null)
 			{
 				int tx = leftRect.Value.X + leftRect.Value.Width / 2;
@@ -305,9 +312,20 @@ namespace MulticaretEditor
 				g.FillPolygon(tabsFgBrush, tempPoints);
 			}
 
+			if (text2 != null)
+			{
+				int left = width - text2.Length * charWidth - charHeight * 3 / 2;
+				for (int j = 0; j < text2.Length; j++)
+				{
+					g.DrawString(
+						text2[j] + "", font, tabsFgBrush,
+						left + charWidth * 2 / 3 + j * charWidth, 0, stringFormat);
+				}
+			}
+
 			base.OnPaint(e);
 		}
-		
+
 		protected override void OnMouseDown(MouseEventArgs e)
 		{
 			base.OnMouseDown(e);
@@ -345,18 +363,18 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		protected override void OnMouseUp(MouseEventArgs e)
 		{
 			base.OnMouseUp(e);
 			arrowTimer.Stop();
 		}
-		
+
 		protected override void OnLostFocus(EventArgs e)
 		{
 			arrowTimer.Stop();
 		}
-		
+
 		protected override void OnMouseDoubleClick(MouseEventArgs e)
 		{
 			base.OnMouseDoubleClick(e);
@@ -378,14 +396,14 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		private int GetOffsetX(int index)
 		{
 			return (index >= 0 && index < rects.count ? -rects.buffer[index].X : 0) + leftIndent;
 		}
-		
+
 		private int arrowTickDelta;
-		
+
 		private void OnArrowTick(object senter, EventArgs e)
 		{
 			offsetIndex += arrowTickDelta;
