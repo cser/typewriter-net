@@ -38,6 +38,7 @@ public class Settings
 	public readonly Properties.EncodingProperty defaultEncoding = new Properties.EncodingProperty("defaultEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty shellEncoding = new Properties.EncodingProperty("shellEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
+	public readonly Properties.Bool showEncoding = new Properties.Bool("showEncoding", false);
 
 	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
 	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
@@ -83,6 +84,7 @@ public class Settings
 		Add(defaultEncoding);
 		Add(shellEncoding);
 		Add(httpEncoding);
+		Add(showEncoding);
 	}
 
 	public void DispatchChange()

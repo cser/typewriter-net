@@ -26,6 +26,7 @@
 	<item name="findInFilesDir" value=""/>
 	<item name="defaultEncoding" value="utf-8"/>
 	<item name="shellEncoding" value="cp866"/>
+	<item name="showEncoding" value="true"/>
 	<altChars
 		source="1234567890-=\qwertyuiop[]"
 		result="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»"/>

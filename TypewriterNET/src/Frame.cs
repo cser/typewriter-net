@@ -42,7 +42,6 @@ public class Frame : AFrame
 		buffers.list.SelectedChange += OnTabSelected;
 
 		tabBar = new TabBar<Buffer>(buffers.list, Buffer.StringOf);
-		tabBar.Text2Of = Buffer.EncodeOf;
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
 		Controls.Add(tabBar);
@@ -163,6 +162,10 @@ public class Frame : AFrame
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			if (settings.showEncoding.Value)
+				tabBar.Text2Of = Buffer.EncodeOf;
+			else
+				tabBar.Text2Of = null;
 			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.HighlighterChange)
