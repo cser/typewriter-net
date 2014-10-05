@@ -25,6 +25,7 @@ public class Commander
 	}
 
 	private MainForm mainForm;
+	private TempSettings tempSettings;
 	private Settings settings;
 
 	private readonly List<Command> commands = new List<Command>();
@@ -121,11 +122,13 @@ public class Commander
 		return builder.ToString();
 	}
 
-	public void Init(MainForm mainForm, Settings settings, StringList history)
+	public void Init(MainForm mainForm, Settings settings, TempSettings tempSettings)
 	{
 		this.mainForm = mainForm;
 		this.settings = settings;
-		this.history = history;
+		this.tempSettings = tempSettings;
+
+		history = tempSettings.CommandHistory;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
 		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
@@ -249,6 +252,7 @@ public class Commander
 		}
 		if (raw == "reset")
 		{
+			tempSettings.ResetQualitiesEncoding(lastBuffer);
 			lastBuffer.settedEncodingPair = new EncodingPair();
 			mainForm.ReloadFile(lastBuffer);
 			return;

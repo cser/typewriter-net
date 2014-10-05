@@ -68,6 +68,12 @@ public class TempSettings
 			value.With("encoding", SValue.None);
 	}
 
+	public void ResetQualitiesEncoding(Buffer buffer)
+	{
+		SValue value = storage.Get(buffer.FullPath);
+		value["encoding"] = SValue.None;
+	}
+
 	public void ApplyQualitiesBeforeLoading(Buffer buffer)
 	{
 		string rawEncoding = storage.Get(buffer.FullPath)["encoding"].String;

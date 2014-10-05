@@ -117,7 +117,7 @@ public class MainForm : Form
 		BuildMenu();
 
 		tempSettings = new TempSettings(this, settings);
-		commander.Init(this, settings, tempSettings.CommandHistory);
+		commander.Init(this, settings, tempSettings);
 		dialogs = new DialogManager(this, tempSettings);
 
 		mainNest = AddNest(false, true, true, tempSettings.GetInt("mainNest.size", 70));
