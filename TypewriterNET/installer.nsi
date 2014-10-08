@@ -47,6 +47,7 @@ section "install"
 	file "TypewriterNET.ico"
 	file /r "bin\schemes"
 	file /r "bin\syntax"
+	file /r "bin\templates"
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
 	writeUninstaller "$INSTDIR\uninstall.exe"
@@ -96,6 +97,7 @@ section "uninstall"
 	delete $INSTDIR\*.xml
 	rmdir /r /rebootok $INSTDIR\schemes
 	rmdir /r /rebootok $INSTDIR\syntax
+	rmdir /r /rebootok $INSTDIR\templates
  
 	# Always delete uninstaller as the last action
 	delete $INSTDIR\uninstall.exe
