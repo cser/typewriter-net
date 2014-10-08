@@ -55,6 +55,7 @@ public class TempSettings
 		findHistory.Unserialize(state["findHistory"]);
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
+		findParams.Unserialize(state["findParams"]);
 		if (state["showFileTree"].Bool)
 			mainForm.OpenFileTree();
 	}
@@ -126,6 +127,7 @@ public class TempSettings
 		state["findHistory"] = findHistory.Serialize();
 		state["findInFilesHistory"] = findInFilesHistory.Serialize();
 		state["goToLineHistory"] = goToLineHistory.Serialize();
+		state["findParams"] = findParams.Serialize();
 		if (settings.rememberCurrentDir.Value)
 			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
@@ -205,4 +207,7 @@ public class TempSettings
 
 	private StringList goToLineHistory = new StringList();
 	public StringList GoToLineHistory { get { return goToLineHistory; } }
+
+	private FindParams findParams = new FindParams();
+	public FindParams FindParams { get { return findParams; } }
 }

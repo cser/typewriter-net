@@ -25,15 +25,17 @@ public class FindDialog : ADialog
 		}
 	}
 
+	private Data data;
+	private FindParams findParams;
+	private Getter<string, bool> doFind;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
-	private Data data;
-	private Getter<string, bool> doFind;
 
-	public FindDialog(Data data, Getter<string, bool> doFind, string name)
+	public FindDialog(Data data, FindParams findParams, Getter<string, bool> doFind, string name)
 	{
 		this.data = data;
+		this.findParams = findParams;
 		this.doFind = doFind;
 		Name = name;
 	}
@@ -53,6 +55,8 @@ public class FindDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -64,6 +68,12 @@ public class FindDialog : ADialog
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+		UpdateFindParams();
+	}
+
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = findParams.GetIndicationText();
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -91,7 +101,7 @@ public class FindDialog : ADialog
 			textBox.Text = lastController.Lines.LastSelection.Empty ?
 				data.oldText :
 				lastController.Lines.GetText(lastController.Lines.LastSelection.Left, lastController.Lines.LastSelection.Count);
-    		textBox.Controller.SelectAllToEnd();
+			textBox.Controller.SelectAllToEnd();
 		}
 	}
 
@@ -150,6 +160,20 @@ public class FindDialog : ADialog
 	private bool DoPrevPattern(Controller controller)
 	{
 		return GetHistoryPattern(true);
+	}
+
+	private bool DoSwitchRegex(Controller controller)
+	{
+		findParams.regex = !findParams.regex;
+		UpdateFindParams();
+		return true;
+	}
+
+	private bool DoSwitchIgnoreCase(Controller controller)
+	{
+		findParams.ignoreCase = !findParams.ignoreCase;
+		UpdateFindParams();
+		return true;
 	}
 
 	private bool DoNextPattern(Controller controller)

@@ -141,21 +141,21 @@ public class DialogManager
 	private bool DoFind(Controller controller)
 	{
 		if (find.SwitchOpen())
-			find.Open(new FindDialog(findData, DoFindText, "Find"), true);
+			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText, "Find"), true);
 		return true;
 	}
 
 	private bool DoFindInFiles(Controller controller)
 	{
 		if (findInFiles.SwitchOpen())
-			findInFiles.Open(new FindDialog(findInFilesData, DoFindInFilesDialog, "Find in Files"), true);
+			findInFiles.Open(new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
 		return true;
 	}
 
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(new ReplaceDialog(replaceData, "Replace"), true);
+			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, "Replace"), true);
 		return true;
 	}
 
@@ -180,7 +180,8 @@ public class DialogManager
 	private bool DoFindInFilesDialog(string text)
 	{
 		findInFiles.Close(true);
-		string errors = new FindInFiles(mainForm).Execute(text, mainForm.Settings.findInFilesDir.Value, "*.*");
+		string errors = new FindInFiles(mainForm)
+			.Execute(text, tempSettings.FindParams, mainForm.Settings.findInFilesDir.Value, mainForm.Settings.findInFilesFilter.Value);
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
 		return true;
@@ -204,7 +205,7 @@ public class DialogManager
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
 			goToLine.Open(new FindDialog(
-				goToLineData, DoGoToLine,
+				goToLineData, tempSettings.FindParams, DoGoToLine,
 				"Go to line" +
 				(place != null ? " (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
 			), true);

@@ -24,6 +24,7 @@
 	<item name="markBracket" value="true"/>
 	<item name="rememberCurrentDir" value="true"/>
 	<item name="findInFilesDir" value=""/>
+	<item name="findInFilesFilter" value="*.*"/>
 	<item name="defaultEncoding" value="utf-8"/>
 	<item name="shellEncoding" value="cp866"/>
 	<item name="showEncoding" value="true"/>

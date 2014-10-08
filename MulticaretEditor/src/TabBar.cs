@@ -96,6 +96,20 @@ namespace MulticaretEditor
 			}
 		}
 
+		private string text2;
+		public string Text2
+		{
+			get { return text2; }
+			set
+			{
+				if (text2 != value)
+				{
+					text2 = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private Font font;
 		private Font boldFont;
 		private int charWidth;
@@ -215,7 +229,11 @@ namespace MulticaretEditor
 					rects.Add(rect);
 				}
 			}
-			string text2 = list != null && list.Selected != null && text2Of != null ? text2Of(list.Selected) : null;
+			string text2;
+			if (list != null && list.Selected != null && text2Of != null)
+				text2 = text2Of(list.Selected);
+			else
+				text2 = this.text2;
 			rightIndent = charHeight + (text2 != null ? text2.Length * charWidth : 0);
 			if (x > width - leftIndent - rightIndent)
 			{

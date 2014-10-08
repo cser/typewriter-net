@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -47,29 +48,37 @@ public class FindInFiles
 		this.mainForm = mainForm;
 	}
 
-	public string Execute(string regexText, string directory, string filter)
+	public string Execute(string regexText, FindParams findParams, string directory, string filter)
 	{
 		Regex regex = null;
 		string pattern = null;
-		if (regexText.Length > 2 && regexText[0] == '/' && regexText.LastIndexOf("/") > 1)
+		if (findParams.regex)
 		{
 			RegexOptions options = RegexOptions.CultureInvariant | RegexOptions.Multiline;
-			int lastIndex = regexText.LastIndexOf("/");
-			string optionsText = regexText.Substring(lastIndex + 1);
-			string rawRegex = regexText.Substring(1, lastIndex - 1);
-			for (int i = 0; i < optionsText.Length; i++)
+			string rawRegex;
+			if (regexText.Length > 2 && regexText[0] == '/' && regexText.LastIndexOf("/") > 1)
 			{
-				char c = optionsText[i];
-				if (c == 'i')
-					options |= RegexOptions.IgnoreCase;
-				else if (c == 's')
-					options &= ~RegexOptions.Multiline;
-				else if (c == 'e')
-					options |= RegexOptions.ExplicitCapture;
-				else
+				int lastIndex = regexText.LastIndexOf("/");
+				string optionsText = regexText.Substring(lastIndex + 1);
+				rawRegex = regexText.Substring(1, lastIndex - 1);
+				for (int i = 0; i < optionsText.Length; i++)
 				{
-					return "Error: Unsupported regex option: " + c;
+					char c = optionsText[i];
+					if (c == 'i')
+						options |= RegexOptions.IgnoreCase;
+					else if (c == 's')
+						options &= ~RegexOptions.Multiline;
+					else if (c == 'e')
+						options |= RegexOptions.ExplicitCapture;
+					else
+					{
+						return "Error: Unsupported regex option: " + c;
+					}
 				}
+			}
+			else
+			{
+				rawRegex = regexText;
 			}
 			try
 			{
@@ -84,10 +93,10 @@ public class FindInFiles
 		{
 			pattern = regexText;
 		}
-		return Search(directory, regex, pattern, filter);
+		return Search(directory, regex, pattern, findParams.ignoreCase, filter);
 	}
 
-	private string Search(string directory, Regex regex, string pattern, string filter)
+	private string Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
 	{
 		positions = new List<Position>();
 
@@ -113,6 +122,7 @@ public class FindInFiles
 		List<StyleRange> ranges = new List<StyleRange>();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
+		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 		foreach (string file in files)
 		{
 			string text = File.ReadAllText(file);
@@ -129,13 +139,13 @@ public class FindInFiles
 			}
 			else
 			{
-				int index = text.IndexOf(pattern);
+				int index = ci != null ?  ci.IndexOf(text, pattern, CompareOptions.IgnoreCase) : text.IndexOf(pattern);
 				if (index == -1)
 					continue;
 				while (true)
 				{
 					indices.Add(new IndexAndLength(index, pattern.Length));
-					index = text.IndexOf(pattern, index + 1);
+					index = ci != null ?  ci.IndexOf(text, pattern, index + 1, CompareOptions.IgnoreCase) : text.IndexOf(pattern, index + 1);
 					if (index == -1)
 						break;
 				}

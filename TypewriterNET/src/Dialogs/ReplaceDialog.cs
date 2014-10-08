@@ -21,6 +21,7 @@ public class ReplaceDialog : ADialog
 	}
 
 	private Data data;
+	private FindParams findParams;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -28,9 +29,10 @@ public class ReplaceDialog : ADialog
 	private MonospaceLabel textLabel;
 	private MonospaceLabel replaceTextLabel;
 
-	public ReplaceDialog(Data data, string name)
+	public ReplaceDialog(Data data, FindParams findParams, string name)
 	{
 		this.data = data;
+		this.findParams = findParams;
 		Name = name;
 	}
 
@@ -49,6 +51,8 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
@@ -77,6 +81,12 @@ public class ReplaceDialog : ADialog
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
+		UpdateFindParams();
+	}
+
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = findParams.GetIndicationText();
 	}
 
 	private void OnCloseClick()
@@ -206,5 +216,19 @@ public class ReplaceDialog : ADialog
 			settings.ApplySchemeToLabel(textLabel);
 			settings.ApplySchemeToLabel(replaceTextLabel);
 		}
+	}
+
+	private bool DoSwitchRegex(Controller controller)
+	{
+		findParams.regex = !findParams.regex;
+		UpdateFindParams();
+		return true;
+	}
+
+	private bool DoSwitchIgnoreCase(Controller controller)
+	{
+		findParams.ignoreCase = !findParams.ignoreCase;
+		UpdateFindParams();
+		return true;
 	}
 }
