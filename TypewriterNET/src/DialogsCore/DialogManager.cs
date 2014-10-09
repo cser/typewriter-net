@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Drawing;
@@ -163,10 +164,15 @@ public class DialogManager
 	{
 		if (mainForm.LastFrame != null)
 		{
+			CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 			Controller lastController = mainForm.LastFrame.Controller;
-			int index = lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
+			int index = ci != null ?
+				ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
+				lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
 			if (index == -1)
-				index = lastController.Lines.IndexOf(text, 0);
+				index = ci != null ?
+				ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
+				lastController.Lines.IndexOf(text, 0);
 			if (index != -1)
 			{
 				lastController.PutCursor(lastController.Lines.PlaceOf(index), false);

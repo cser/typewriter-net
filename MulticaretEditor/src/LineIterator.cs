@@ -156,6 +156,7 @@ namespace MulticaretEditor
 			
 			block.valid = 0;
 			block.wwSizeX = 0;
+			lines.cachedText = null;
 		}
 	}
 }

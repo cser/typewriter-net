@@ -6,15 +6,15 @@ namespace MulticaretEditor.Commands
 	public class MoveLineCommand : Command
 	{
 		private bool isUp;
-		
+
 		public MoveLineCommand(bool isUp) : base(isUp ? CommandType.MoveLineUp : CommandType.MoveLineDown)
 		{
 			this.isUp = isUp;
 		}
-		
+
 		private SelectionMemento[] mementos;
 		private Range[] ranges;
-		
+
 		override public bool Init()
 		{
 			int minIndex = 0;
@@ -37,9 +37,9 @@ namespace MulticaretEditor.Commands
 					maxIndex = selection.caret;
 			}
 			if (isUp && lines.PlaceOf(minIndex).iLine <= 0 ||
-			    !isUp && lines.PlaceOf(maxIndex).iLine >= lines.LinesCount - 1)
+				!isUp && lines.PlaceOf(maxIndex).iLine >= lines.LinesCount - 1)
 				return false;
-			
+
 			lines.JoinSelections();
 			mementos = GetSelectionMementos();
 			List<Range> ranges = new List<Range>();
@@ -75,7 +75,7 @@ namespace MulticaretEditor.Commands
 			this.ranges = ranges.ToArray();
 			return true;
 		}
-		
+
 		override public void Redo()
 		{
 			SetSelectionMementos(mementos);
@@ -115,7 +115,7 @@ namespace MulticaretEditor.Commands
 				selection.caret = lines.IndexOf(caret);
 			}
 		}
-		
+
 		override public void Undo()
 		{
 			for (int i = 0; i < ranges.Length; i++)

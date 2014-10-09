@@ -9,7 +9,7 @@ namespace MulticaretEditor
 	{
 		public readonly WordWrapValidator wwValidator;
 		public readonly Scroller scroller;
-		
+
 		public LineArray(int blockSize) : base(blockSize)
 		{
 			SetText("");
@@ -18,21 +18,21 @@ namespace MulticaretEditor
 			wwValidator = new WordWrapValidator(this);
 			scroller = new Scroller(this);
 		}
-		
+
 		public LineArray() : this(200)
 		{
 		}
 
 		public bool IsEmpty { get { return LinesCount == 1 && this[0].chars.Count == 0; } }
-		
+
 		override protected LineBlock NewBlock()
 		{
 			return new LineBlock(blockSize);
 		}
-		
+
 		public int tabSize = 4;
 		public string lineBreak = "\r\n";
-		
+
 		private void ValidateSize()
 		{
 			if (this.size != null)
@@ -55,10 +55,10 @@ namespace MulticaretEditor
 				}
 				if (size.x < block.maxSizeX)
 					size.x = block.maxSizeX;
-			}			
+			}
 			this.size = size;
 		}
-		
+
 		private IntSize? size = null;
 		public IntSize Size
 		{
@@ -69,16 +69,16 @@ namespace MulticaretEditor
 				return size.Value;
 			}
 		}
-		
+
 		public int LinesCount { get { return valuesCount; } }
-		
+
 		public int charsCount = 0;
-		
+
 		public Line this[int index]
 		{
 			get { return GetValue(index); }
 		}
-		
+
 		public void SetText(string text)
 		{
 			ClearValues();
@@ -103,23 +103,30 @@ namespace MulticaretEditor
 			AddValue(NewLine(text, lineStart, length - lineStart));
 			charsCount = length;
 			size = null;
+			cachedText = null;
 			wwSizeX = 0;
 		}
-		
+
+		public string cachedText;
+
 		public string GetText()
 		{
-			StringBuilder builder = new StringBuilder(charsCount);
-			for (int i = 0; i < blocksCount; i++)
+			if (cachedText == null)
 			{
-				LineBlock block = blocks[i];
-				for (int j = 0; j < block.count; j++)
+				StringBuilder builder = new StringBuilder(charsCount);
+				for (int i = 0; i < blocksCount; i++)
 				{
-					builder.Append(block.array[j].Text);
+					LineBlock block = blocks[i];
+					for (int j = 0; j < block.count; j++)
+					{
+						builder.Append(block.array[j].Text);
+					}
 				}
+				cachedText = builder.ToString();
 			}
-			return builder.ToString();
+			return cachedText;
 		}
-		
+
 		private Line NewLine(string text, int index, int count)
 		{
 			Line line = new Line();
@@ -132,7 +139,7 @@ namespace MulticaretEditor
 			}
 			return line;
 		}
-		
+
 		public void InsertText(int index, string text)
 		{
 			if (index < 0 || index > charsCount)
@@ -197,9 +204,10 @@ namespace MulticaretEditor
 			}
 			charsCount += text.Length;
 			size = null;
+			cachedText = null;
 			wwSizeX = 0;
 		}
-		
+
 		public void RemoveText(int index, int count)
 		{
 			if (index < 0 || index + count > charsCount)
@@ -269,7 +277,7 @@ namespace MulticaretEditor
 				end.cachedSize = -1;
 				end.wwSizeX = 0;
 				start.chars.AddRange(end.chars);
-				
+
 				int startCharsCount = start.chars.Count;
 				bool needMerge;
 				if (startCharsCount > 0)
@@ -287,15 +295,16 @@ namespace MulticaretEditor
 					start.chars.AddRange(next.chars);
 					countToRemove++;
 				}
-				
+
 				countToRemove++;
 				RemoveValuesRange(place.iLine + 1, countToRemove);
 			}
 			charsCount -= count;
 			size = null;
+			cachedText = null;
 			wwSizeX = 0;
 		}
-		
+
 		public string GetText(int index, int count)
 		{
 			if (index < 0 || index + count > charsCount)
@@ -337,7 +346,7 @@ namespace MulticaretEditor
 			}
 			return builder.ToString();
 		}
-		
+
 		public int IndexOf(Place place)
 		{
 			int charOffset = 0;
@@ -368,17 +377,17 @@ namespace MulticaretEditor
 			}
 			return charOffset;
 		}
-		
+
 		public Place UniversalPlaceOf(Pos pos)
 		{
 			return wordWrap ? wwValidator.PlaceOf(pos) : PlaceOf(pos);
 		}
-		
+
 		public Pos UniversalPosOf(Place place)
 		{
 			return wordWrap ? wwValidator.PosOf(place) : PosOf(place);
 		}
-		
+
 		private Place PlaceOf(int index, out int blockI, out int blockIChar)
 		{
 			if (index < 0 || index > charsCount)
@@ -424,7 +433,7 @@ namespace MulticaretEditor
 			int blockIChar;
 			return PlaceOf(index, out blockI, out blockIChar);
 		}
-		
+
 		public Place PlaceOf(Pos pos)
 		{
 			int iLine = pos.iy;
@@ -443,7 +452,7 @@ namespace MulticaretEditor
 		{
 			return Normalize(PlaceOf(Math.Max(0, Math.Min(charsCount, index))));
 		}
-		
+
 		public Place Normalize(Place place)
 		{
 			if (place.iLine < 0)
@@ -456,7 +465,7 @@ namespace MulticaretEditor
 			}
 			return new Place(Math.Min(place.iChar, this[place.iLine].NormalCount), place.iLine);
 		}
-		
+
 		public Pos PosOf(Place place)
 		{
 			int iLine = place.iLine;
@@ -470,7 +479,7 @@ namespace MulticaretEditor
 			}
 			return new Pos(this[iLine].PosOfIndex(place.iChar), iLine);
 		}
-		
+
 		public PlaceIterator GetCharIterator(int position)
 		{
 			int blockI;
@@ -483,7 +492,7 @@ namespace MulticaretEditor
 		{
 			return IndexOf(text, startIndex, charsCount - startIndex);
 		}
-		
+
 		public int IndexOf(string text, int startIndex, int length)
 		{
 			Place place = PlaceOf(startIndex);
@@ -540,9 +549,9 @@ namespace MulticaretEditor
 			}
 			return -1;
 		}
-		
+
 		public readonly List<Selection> selections;
-		
+
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();
 
@@ -562,29 +571,29 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
-		
+
 		public Selection LastSelection { get { return selections[selections.Count - 1]; } }
-		
+
 		public int wwSizeX;
 		public int wwSizeY;
 		public bool wordWrap;
-		
+
 		public void JoinSelections()
 		{
 			if (selections.Count == 0)
 				return;
-			
+
 			selectionsBuffer.Resize(selections.Count);
-			
+
 			for (int i = 0; i < selections.Count; i++)
 			{
 				Selection selection = selections[i];
 				selection.needRemove = false;
 				selectionsBuffer.buffer[i] = selection;
 			}
-			
+
 			Array.Sort(selectionsBuffer.buffer, 0, selectionsBuffer.count, selectionComparer);
-			
+
 			int count;
 
 			count = selectionsBuffer.count;
@@ -594,7 +603,7 @@ namespace MulticaretEditor
 				int currentRight = current.Right;
 				int iLeft = selectionsBuffer.buffer[i].Left;
 				if (currentRight > iLeft ||
-				    (current.Empty || selectionsBuffer.buffer[i].Empty) && currentRight >= iLeft)
+					(current.Empty || selectionsBuffer.buffer[i].Empty) && currentRight >= iLeft)
 				{
 					selectionsBuffer.buffer[i].needRemove = true;
 					int right = currentRight >= selectionsBuffer.buffer[i].Right ? currentRight : selectionsBuffer.buffer[i].Right;
@@ -612,16 +621,16 @@ namespace MulticaretEditor
 					current = selectionsBuffer.buffer[i];
 				}
 			}
-			
+
 			selectionsBuffer.Clear();
-				
+
 			for (int i = selections.Count; i-- > 0;)
 			{
 				if (selections[i].needRemove)
 					selections.RemoveAt(i);
 			}
 		}
-		
+
 		public class SelectionComparer : IComparer<Selection>
 		{
 			public int Compare(Selection a, Selection b)
@@ -631,7 +640,7 @@ namespace MulticaretEditor
 				return a.Left - b.Left;
 			}
 		}
-		
+
 		public bool AllSelectionsEmpty
 		{
 			get
@@ -644,19 +653,19 @@ namespace MulticaretEditor
 				return true;
 			}
 		}
-		
+
 		public LineIterator GetLineRange(int index, int count)
 		{
 			return new LineIterator(this, index, count, -1);
 		}
-		
+
 		public void SetPreferredPos(Selection selection, Place place)
 		{
 			Line line = this[place.iLine];
 			selection.preferredPos = line.PosOfIndex(place.iChar);
 			selection.wwPreferredPos = wordWrap ? line.WWPosOfIndex(place.iChar).ix : selection.preferredPos;
 		}
-		
+
 		public string[] Debug_GetLinesText()
 		{
 			string[] array = new string[LinesCount];
@@ -666,7 +675,7 @@ namespace MulticaretEditor
 			}
 			return array;
 		}
-		
+
 		public string Debug_GetBlocksInfo()
 		{
 			StringBuilder builder = new StringBuilder();
@@ -695,17 +704,17 @@ namespace MulticaretEditor
 			}
 			return builder.ToString();
 		}
-		
+
 		public string Debug_GetSelections()
 		{
 			return ListUtil.ToString<Selection>(selections);
 		}
-		
+
 		public static string Debug_GetOneLineText(string text)
 		{
 			return string.Join("\\r", string.Join("\\n", text.Split('\n')).Split('\r'));
 		}
-		
+
 		public void SetTabSize(int value)
 		{
 			if (tabSize != value)
@@ -729,7 +738,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public void SetStyleRange(StyleRange range)
 		{
 			short style = range.style;
