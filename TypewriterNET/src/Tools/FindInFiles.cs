@@ -54,40 +54,10 @@ public class FindInFiles
 		string pattern = null;
 		if (findParams.regex)
 		{
-			RegexOptions options = RegexOptions.CultureInvariant | RegexOptions.Multiline;
-			string rawRegex;
-			if (regexText.Length > 2 && regexText[0] == '/' && regexText.LastIndexOf("/") > 1)
-			{
-				int lastIndex = regexText.LastIndexOf("/");
-				string optionsText = regexText.Substring(lastIndex + 1);
-				rawRegex = regexText.Substring(1, lastIndex - 1);
-				for (int i = 0; i < optionsText.Length; i++)
-				{
-					char c = optionsText[i];
-					if (c == 'i')
-						options |= RegexOptions.IgnoreCase;
-					else if (c == 's')
-						options &= ~RegexOptions.Multiline;
-					else if (c == 'e')
-						options |= RegexOptions.ExplicitCapture;
-					else
-					{
-						return "Error: Unsupported regex option: " + c;
-					}
-				}
-			}
-			else
-			{
-				rawRegex = regexText;
-			}
-			try
-			{
-				regex = new Regex(rawRegex, options);
-			}
-			catch (Exception e)
-			{
-				return "Error: Incorrect regex: " + regexText + " - " + e.Message;
-			}
+			string error;
+			regex = DialogManager.ParseRegex(regexText, out error);
+			if (regex == null || error != null)
+				return "Error: " + error;
 		}
 		else
 		{

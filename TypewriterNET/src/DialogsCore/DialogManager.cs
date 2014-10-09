@@ -156,7 +156,7 @@ public class DialogManager
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, "Replace"), true);
+			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, "Replace"), true);
 		return true;
 	}
 
@@ -164,19 +164,52 @@ public class DialogManager
 	{
 		if (mainForm.LastFrame != null)
 		{
-			CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 			Controller lastController = mainForm.LastFrame.Controller;
-			int index = ci != null ?
-				ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
-				lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
-			if (index == -1)
+			int index;
+			int length;
+			if (tempSettings.FindParams.regex)
+			{
+				string error;
+				Regex regex = ParseRegex(text, out error);
+				if (regex == null || error != null)
+				{
+					ShowInfo("FindInFiles", "Error: " + error);
+					return true;
+				}
+				Match match = regex.Match(lastController.Lines.GetText(), lastController.Lines.LastSelection.Right);
+				index = -1;
+				length = text.Length;
+				if (match.Success)
+				{
+					index = match.Index;
+					length = match.Length;
+				}
+				else
+				{
+					match = regex.Match(lastController.Lines.GetText(), 0);
+					if (match.Success)
+					{
+						index = match.Index;
+						length = match.Length;
+					}
+				}
+			}
+			else
+			{
+				length = text.Length;
+				CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 				index = ci != null ?
-				ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
-				lastController.Lines.IndexOf(text, 0);
+					ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
+					lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
+				if (index == -1)
+					index = ci != null ?
+						ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
+						lastController.Lines.IndexOf(text, 0);
+			}
 			if (index != -1)
 			{
 				lastController.PutCursor(lastController.Lines.PlaceOf(index), false);
-				lastController.PutCursor(lastController.Lines.PlaceOf(index + text.Length), true);
+				lastController.PutCursor(lastController.Lines.PlaceOf(index + length), true);
 				mainForm.LastFrame.TextBox.MoveToCaret();
 			}
 		}
@@ -258,5 +291,48 @@ public class DialogManager
 		}
 		closeMethods.Clear();
 		return result;
+	}
+
+	public static Regex ParseRegex(string regexText, out string error)
+	{
+		Regex regex = null;
+		RegexOptions options = RegexOptions.CultureInvariant | RegexOptions.Multiline;
+		string rawRegex;
+		if (regexText.Length > 2 && regexText[0] == '/' && regexText.LastIndexOf("/") > 1)
+		{
+			int lastIndex = regexText.LastIndexOf("/");
+			string optionsText = regexText.Substring(lastIndex + 1);
+			rawRegex = regexText.Substring(1, lastIndex - 1);
+			for (int i = 0; i < optionsText.Length; i++)
+			{
+				char c = optionsText[i];
+				if (c == 'i')
+					options |= RegexOptions.IgnoreCase;
+				else if (c == 's')
+					options &= ~RegexOptions.Multiline;
+				else if (c == 'e')
+					options |= RegexOptions.ExplicitCapture;
+				else
+				{
+					error = "Unsupported regex option: " + c;
+					return null;
+				}
+			}
+		}
+		else
+		{
+			rawRegex = regexText;
+		}
+		try
+		{
+			regex = new Regex(rawRegex, options);
+		}
+		catch (Exception e)
+		{
+			error = "Incorrect regex: " + regexText + " - " + e.Message;
+			return null;
+		}
+		error = null;
+		return regex;
 	}
 }

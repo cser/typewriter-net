@@ -22,6 +22,7 @@ public class ReplaceDialog : ADialog
 
 	private Data data;
 	private FindParams findParams;
+	private Getter<string, bool> doFindText;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -29,10 +30,11 @@ public class ReplaceDialog : ADialog
 	private MonospaceLabel textLabel;
 	private MonospaceLabel replaceTextLabel;
 
-	public ReplaceDialog(Data data, FindParams findParams, string name)
+	public ReplaceDialog(Data data, FindParams findParams, Getter<string, bool> doFindText, string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
+		this.doFindText = doFindText;
 		Name = name;
 	}
 
@@ -49,7 +51,7 @@ public class ReplaceDialog : ADialog
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
@@ -130,22 +132,9 @@ public class ReplaceDialog : ADialog
 		return true;
 	}
 
-	private bool DoFindNext(Controller controller)
+	private bool DoFind(Controller controller)
 	{
-		if (Nest.MainForm.LastFrame != null)
-		{
-			Controller lastController = Nest.MainForm.LastFrame.Controller;
-			string text = textBox.Text;
-			int index = lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
-			if (index == -1)
-				index = lastController.Lines.IndexOf(text, 0);
-			if (index != -1)
-			{
-				lastController.PutCursor(lastController.Lines.PlaceOf(index), false);
-				lastController.PutCursor(lastController.Lines.PlaceOf(index + text.Length), true);
-				Nest.MainForm.LastFrame.TextBox.MoveToCaret();
-			}
-		}
+		doFindText(textBox.Text);
 		return true;
 	}
 
@@ -156,7 +145,7 @@ public class ReplaceDialog : ADialog
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			if (!lastController.Lines.AllSelectionsEmpty)
 				lastController.InsertText(replaceTextBox.Text);
-			DoFindNext(controller);
+			doFindText(textBox.Text);
 		}
 		return true;
 	}
