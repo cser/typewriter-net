@@ -56,11 +56,12 @@ public class RunShellCommand
 			}
 		}
 
+		Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
-		p.StartInfo.StandardOutputEncoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
-		p.StartInfo.StandardErrorEncoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+		p.StartInfo.StandardOutputEncoding = encoding;
+		p.StartInfo.StandardErrorEncoding = encoding;
 		p.StartInfo.UseShellExecute = false;
 		p.StartInfo.FileName = "cmd.exe";
 		p.StartInfo.Arguments = "/C " + commandText;
@@ -81,6 +82,7 @@ public class RunShellCommand
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(text);
+		buffer.encodingPair = new EncodingPair(encoding, false);
 		if (regexList != null)
 		{
 			foreach (RegexData regexData in regexList)

@@ -89,7 +89,7 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("float").Add(StringOf(defaultValue)).Add("min = " + StringOf(min) + ", max = " + StringOf(max));
+			table.Add(name).Add("float").Add(StringOf(defaultValue)).Add("min: " + StringOf(min) + ", max: " + StringOf(max));
 		}
 
 		override public void Reset()
@@ -153,7 +153,7 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("int").Add(defaultValue + "").Add("min = " + min + ", max = " + max);
+			table.Add(name).Add("int").Add(defaultValue + "").Add("min: " + min + ", max: " + max);
 		}
 
 		override public void Reset()

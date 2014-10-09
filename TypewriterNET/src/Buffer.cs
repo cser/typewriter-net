@@ -37,6 +37,7 @@ public class Buffer
 	public string httpServer;
 	public EncodingPair settedEncodingPair;
 	public EncodingPair encodingPair = new EncodingPair(Encoding.UTF8, false);
+	public bool showEncoding = true;
 
 	public void SetFile(string fullPath, string name)
 	{
@@ -62,7 +63,7 @@ public class Buffer
 
 	public static string EncodeOf(Buffer buffer)
 	{
-		return buffer.encodingPair.ToString();
+		return buffer.showEncoding ? buffer.encodingPair.ToString() : null;
 	}
 
 	//--------------------------------------------------------------------------

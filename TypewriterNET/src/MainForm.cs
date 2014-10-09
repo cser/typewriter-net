@@ -345,6 +345,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
+		//keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null, new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
@@ -725,6 +726,15 @@ public class MainForm : Form
 		return true;
 	}
 
+	private bool DoFindFileInTree(Controller controller)
+	{
+		Buffer buffer = LastBuffer;
+		if (buffer == null || buffer.FullPath == null)
+			return false;
+		OpenFileTree();
+		return true;
+	}
+
 	public bool FileTreeOpened
 	{
 		get { return fileTree.Buffer.Frame != null; }
@@ -921,6 +931,15 @@ public class MainForm : Form
 				"\n" +
 				Application.ProductName + "\n" +
 				"Build " + Application.ProductVersion + "\n" +
+				"\n" +
+				"# Actions\n" + 
+				"\n" +
+				"All actions are represented in menu.\n" +
+				"Menu subitems are depended on frame with cursor\n" +
+				"[] in menu item denotes complex shortcut,\n" +
+				"i.e. for [Ctrl+Tab]:\n" + 
+				"\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs\n" +
+				"\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs\n" +
 				"\n" +
 				commander.GetHelpText() + "\n" +
 				settings.GetHelpText();

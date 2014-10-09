@@ -63,6 +63,7 @@ public class FileTree
 		expanded = new Dictionary<int, bool>();
 		selectionDatas = new Dictionary<Selection, SelectionData>();
 		buffer = new Buffer(null, "File tree", SettingsMode.FileTree);
+		buffer.showEncoding = false;
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
 		{
