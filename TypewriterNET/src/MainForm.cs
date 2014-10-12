@@ -345,7 +345,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
-		//keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null, new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null, new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
@@ -732,6 +732,8 @@ public class MainForm : Form
 		if (buffer == null || buffer.FullPath == null)
 			return false;
 		OpenFileTree();
+		fileTree.Find(buffer.FullPath);
+		leftNest.Frame.Focus();
 		return true;
 	}
 

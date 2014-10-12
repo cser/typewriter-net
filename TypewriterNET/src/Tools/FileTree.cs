@@ -124,8 +124,13 @@ public class FileTree
 
 	private void SetCurrentDirectory(Node node)
 	{
+		SetCurrentDirectory(node.fullPath);
+	}
+
+	private void SetCurrentDirectory(string path)
+	{
 		string error;
-		if (!mainForm.SetCurrentDirectory(node.fullPath, out error))
+		if (!mainForm.SetCurrentDirectory(path, out error))
 			mainForm.Dialogs.ShowInfo("Error", error);
 	}
 
@@ -238,6 +243,51 @@ public class FileTree
 		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
 		Expand(node);
 		Rebuild();
+	}
+
+	public void Find(string fullPath)
+	{
+		if (!fullPath.StartsWith(currentDirectory))
+		{
+			string dir = Path.GetDirectoryName(fullPath);
+			SetCurrentDirectory(dir);
+		}
+		ExpandTo(node, fullPath);
+		Rebuild();
+		for (int i = 0, count = nodes.Count; i < count; i++)
+		{
+			Node nodeI = nodes[i];
+			if (nodeI.fullPath == fullPath)
+			{
+				buffer.Controller.ClearMinorSelections();
+				Place place = new Place(0, i);
+				buffer.Controller.LastSelection.anchor = buffer.Controller.LastSelection.caret = buffer.Controller.Lines.IndexOf(place);
+				buffer.Controller.NeedScrollToCaret();
+				break;
+			}
+		}
+	}
+
+	private void ExpandTo(Node node, string fullPath)
+	{
+		if (!fullPath.StartsWith(node.fullPath))
+			return;
+		if (node.fullPath == fullPath)
+			return;
+		if (!node.expanded)
+		{
+			Console.WriteLine("Expand " + node.fullPath);
+			Expand(node);
+			return;
+		}
+		foreach (Node nodeI in node.childs)
+		{
+			if (fullPath.StartsWith(nodeI.fullPath))
+			{
+				ExpandTo(nodeI, fullPath);
+				break;
+			}
+		}
 	}
 
 	private void Expand(Node node)
