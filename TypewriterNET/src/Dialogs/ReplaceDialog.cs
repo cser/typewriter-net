@@ -53,6 +53,7 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
 
@@ -146,6 +147,25 @@ public class ReplaceDialog : ADialog
 			if (!lastController.Lines.AllSelectionsEmpty)
 				lastController.InsertText(replaceTextBox.Text);
 			doFindText(textBox.Text);
+		}
+		return true;
+	}
+
+	private bool DoReplaceAll(Controller controller)
+	{
+		if (Nest.MainForm.LastFrame != null)
+		{
+			Controller lastController = Nest.MainForm.LastFrame.Controller;
+			lastController.ClearMinorSelections();
+			lastController.LastSelection.anchor = lastController.LastSelection.caret = 0;
+			while (true)
+			{
+				doFindText(textBox.Text);
+				if (!lastController.Lines.AllSelectionsEmpty)
+					lastController.InsertText(replaceTextBox.Text);
+				else
+					break;
+			}
 		}
 		return true;
 	}
