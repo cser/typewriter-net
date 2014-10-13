@@ -56,6 +56,7 @@ public class TempSettings
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
 		findParams.Unserialize(state["findParams"]);
+		mainForm.FileTree.SetExpandedTemp(state["fileTreeExpanded"]);
 		if (state["showFileTree"].Bool)
 			mainForm.OpenFileTree();
 	}
@@ -131,6 +132,7 @@ public class TempSettings
 		if (settings.rememberCurrentDir.Value)
 			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
+		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		File.WriteAllBytes(GetTempSettingsPath(), SValue.Serialize(state));
 	}
 

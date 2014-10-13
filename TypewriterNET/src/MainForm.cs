@@ -742,6 +742,8 @@ public class MainForm : Form
 		get { return fileTree.Buffer.Frame != null; }
 	}
 
+	public FileTree FileTree { get { return fileTree; } }
+
 	public void OpenFileTree()
 	{
 		if (fileTree.Buffer.Frame == null)
@@ -934,12 +936,12 @@ public class MainForm : Form
 				Application.ProductName + "\n" +
 				"Build " + Application.ProductVersion + "\n" +
 				"\n" +
-				"# Actions\n" + 
+				"# Actions\n" +
 				"\n" +
 				"All actions are represented in menu.\n" +
 				"Menu subitems are depended on frame with cursor\n" +
 				"[] in menu item denotes complex shortcut,\n" +
-				"i.e. for [Ctrl+Tab]:\n" + 
+				"i.e. for [Ctrl+Tab]:\n" +
 				"\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs\n" +
 				"\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs\n" +
 				"\n" +

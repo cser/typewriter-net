@@ -243,6 +243,11 @@ public class FileTree
 		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
 		Expand(node);
 		Rebuild();
+		if (!expandedTemp.Equals(SValue.None))
+		{
+			SetExpandedTemp(expandedTemp);
+			expandedTemp = SValue.None;
+		}
 	}
 
 	public void Find(string fullPath)
@@ -276,7 +281,6 @@ public class FileTree
 			return;
 		if (!node.expanded)
 		{
-			Console.WriteLine("Expand " + node.fullPath);
 			Expand(node);
 			return;
 		}
@@ -428,5 +432,46 @@ public class FileTree
 		if (buffer != null && buffer.Frame != null)
 			buffer.Frame.RemoveBuffer(buffer);
 		return true;
+	}
+
+	public SValue GetExpandedTemp()
+	{
+		SValue value = SValue.NewList();
+		foreach (Node nodeI in nodes)
+		{
+			if (nodeI.expanded)
+			{
+				value.Add(SValue.NewInt(nodeI.hash));
+			}
+		}
+		return value;
+	}
+
+	private SValue expandedTemp = SValue.None;
+
+	public void SetExpandedTemp(SValue value)
+	{
+		if (node == null)
+		{
+			expandedTemp = value;
+			return;
+		}
+		Dictionary<int, bool> expanded = new Dictionary<int, bool>();
+		foreach (SValue valueI in value.List)
+		{
+			expanded[valueI.Int] = true;
+		}
+		ExpandCollection(node, expanded);
+		Rebuild();
+	}
+
+	private void ExpandCollection(Node node, Dictionary<int, bool> expanded)
+	{
+		if ((!node.expanded) && expanded.ContainsKey(node.hash))
+			Expand(node);
+		foreach (Node nodeI in node.childs)
+		{
+			ExpandCollection(nodeI, expanded);
+		}
 	}
 }
