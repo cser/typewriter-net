@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
@@ -56,6 +57,7 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null, new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
@@ -89,7 +91,7 @@ public class ReplaceDialog : ADialog
 
 	private void UpdateFindParams()
 	{
-		tabBar.Text2 = findParams.GetIndicationText();
+		tabBar.Text2 = findParams.GetIndicationTextWithEscape();
 	}
 
 	private void OnCloseClick()
@@ -139,13 +141,20 @@ public class ReplaceDialog : ADialog
 		return true;
 	}
 
+	private string GetReplaceText()
+	{
+		if (findParams.escape)
+			return Regex.Unescape(replaceTextBox.Text);
+		return replaceTextBox.Text;
+	}
+
 	private bool DoReplace(Controller controller)
 	{
 		if (Nest.MainForm.LastFrame != null)
 		{
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			if (!lastController.Lines.AllSelectionsEmpty)
-				lastController.InsertText(replaceTextBox.Text);
+				lastController.InsertText(GetReplaceText());
 			doFindText(textBox.Text);
 		}
 		return true;
@@ -162,7 +171,7 @@ public class ReplaceDialog : ADialog
 			{
 				doFindText(textBox.Text);
 				if (!lastController.Lines.AllSelectionsEmpty)
-					lastController.InsertText(replaceTextBox.Text);
+					lastController.InsertText(GetReplaceText());
 				else
 					break;
 			}
@@ -237,6 +246,13 @@ public class ReplaceDialog : ADialog
 	private bool DoSwitchIgnoreCase(Controller controller)
 	{
 		findParams.ignoreCase = !findParams.ignoreCase;
+		UpdateFindParams();
+		return true;
+	}
+
+	private bool DoSwitchEscape(Controller controller)
+	{
+		findParams.escape = !findParams.escape;
 		UpdateFindParams();
 		return true;
 	}
