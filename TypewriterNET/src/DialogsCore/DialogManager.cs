@@ -94,7 +94,7 @@ public class DialogManager
 	private DialogOwner<FindDialog> findInFiles;
 	private FindDialog.Data findInFilesData;
 	private DialogOwner<ReplaceDialog> replace;
-	private ReplaceDialog.Data replaceData = new ReplaceDialog.Data();
+	private ReplaceDialog.Data replaceData;
 	private DialogOwner<FindDialog> goToLine;
 	private FindDialog.Data goToLineData;
 
@@ -120,6 +120,7 @@ public class DialogManager
 		findInFiles = new DialogOwner<FindDialog>(this);
 		findInFilesData = new FindDialog.Data(tempSettings.FindInFilesHistory);
 		replace = new DialogOwner<ReplaceDialog>(this);
+		replaceData = new ReplaceDialog.Data(tempSettings.ReplaceHistory);
 		goToLine = new DialogOwner<FindDialog>(this);
 		goToLineData = new FindDialog.Data(tempSettings.GoToLineHistory);
 	}

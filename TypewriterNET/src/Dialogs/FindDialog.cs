@@ -157,11 +157,6 @@ public class FindDialog : ADialog
 		return doFind(text);
 	}
 
-	private bool DoPrevPattern(Controller controller)
-	{
-		return GetHistoryPattern(true);
-	}
-
 	private bool DoSwitchRegex(Controller controller)
 	{
 		findParams.regex = !findParams.regex;
@@ -174,6 +169,11 @@ public class FindDialog : ADialog
 		findParams.ignoreCase = !findParams.ignoreCase;
 		UpdateFindParams();
 		return true;
+	}
+
+	private bool DoPrevPattern(Controller controller)
+	{
+		return GetHistoryPattern(true);
 	}
 
 	private bool DoNextPattern(Controller controller)

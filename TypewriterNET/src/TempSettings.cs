@@ -54,6 +54,7 @@ public class TempSettings
 		commandHistory.Unserialize(state["commandHistory"]);
 		findHistory.Unserialize(state["findHistory"]);
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
+		replaceHistory.Unserialize(state["replaceHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
 		findParams.Unserialize(state["findParams"]);
 		mainForm.FileTree.SetExpandedTemp(state["fileTreeExpanded"]);
@@ -127,6 +128,7 @@ public class TempSettings
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();
 		state["findInFilesHistory"] = findInFilesHistory.Serialize();
+		state["replaceHistory"] = replaceHistory.Serialize();
 		state["goToLineHistory"] = goToLineHistory.Serialize();
 		state["findParams"] = findParams.Serialize();
 		if (settings.rememberCurrentDir.Value)
@@ -206,6 +208,9 @@ public class TempSettings
 
 	private StringList findInFilesHistory = new StringList();
 	public StringList FindInFilesHistory { get { return findInFilesHistory; } }
+
+	private StringList replaceHistory = new StringList();
+	public StringList ReplaceHistory { get { return replaceHistory; } }
 
 	private StringList goToLineHistory = new StringList();
 	public StringList GoToLineHistory { get { return goToLineHistory; } }

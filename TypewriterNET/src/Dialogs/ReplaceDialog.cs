@@ -19,6 +19,12 @@ public class ReplaceDialog : ADialog
 	{
 		public string oldText = "";
 		public string oldReplaceText = "";
+		public readonly StringList history;
+		
+		public Data(StringList history)
+		{
+			this.history = history;
+		}
 	}
 
 	private Data data;
@@ -58,6 +64,8 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null, new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
@@ -137,7 +145,9 @@ public class ReplaceDialog : ADialog
 
 	private bool DoFind(Controller controller)
 	{
-		doFindText(textBox.Text);
+		string text = textBox.Text;
+		doFindText(text);
+		data.history.Add(text);
 		return true;
 	}
 
@@ -155,7 +165,9 @@ public class ReplaceDialog : ADialog
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			if (!lastController.Lines.AllSelectionsEmpty)
 				lastController.InsertText(GetReplaceText());
-			doFindText(textBox.Text);
+			string text = textBox.Text;
+			doFindText(text);
+			data.history.Add(text);
 		}
 		return true;
 	}
@@ -167,14 +179,16 @@ public class ReplaceDialog : ADialog
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			lastController.ClearMinorSelections();
 			lastController.LastSelection.anchor = lastController.LastSelection.caret = 0;
+			string text = textBox.Text;
 			while (true)
 			{
-				doFindText(textBox.Text);
+				doFindText(text);
 				if (!lastController.Lines.AllSelectionsEmpty)
 					lastController.InsertText(GetReplaceText());
 				else
 					break;
 			}
+			data.history.Add(text);
 		}
 		return true;
 	}
@@ -255,5 +269,29 @@ public class ReplaceDialog : ADialog
 		findParams.escape = !findParams.escape;
 		UpdateFindParams();
 		return true;
+	}
+
+	private bool DoPrevPattern(Controller controller)
+	{
+		return GetHistoryPattern(true);
+	}
+
+	private bool DoNextPattern(Controller controller)
+	{
+		return GetHistoryPattern(false);
+	}
+
+	private bool GetHistoryPattern(bool isPrev)
+	{
+		string text = textBox.Text;
+		string newText = data.history.Get(text, isPrev);
+		if (newText != text)
+		{
+			textBox.Text = newText;
+			textBox.Controller.ClearMinorSelections();
+			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
+			return true;
+		}
+		return false;
 	}
 }
