@@ -20,10 +20,12 @@ public class ReplaceDialog : ADialog
 		public string oldText = "";
 		public string oldReplaceText = "";
 		public readonly StringList history;
+		public readonly StringList replaceHistory;
 		
-		public Data(StringList history)
+		public Data(StringList history, StringList replaceHistory)
 		{
 			this.history = history;
+			this.replaceHistory = replaceHistory;
 		}
 	}
 
@@ -273,23 +275,36 @@ public class ReplaceDialog : ADialog
 
 	private bool DoPrevPattern(Controller controller)
 	{
-		return GetHistoryPattern(true);
+		return GetHistoryPattern(controller, true);
 	}
 
 	private bool DoNextPattern(Controller controller)
 	{
-		return GetHistoryPattern(false);
+		return GetHistoryPattern(controller, false);
 	}
 
-	private bool GetHistoryPattern(bool isPrev)
+	private bool GetHistoryPattern(Controller controller, bool isPrev)
 	{
-		string text = textBox.Text;
-		string newText = data.history.Get(text, isPrev);
+		string text;
+		string newText;
+		MulticaretTextBox currentTextBox;
+		if (controller == textBox.Controller)
+		{
+			currentTextBox = textBox;
+			text = currentTextBox.Text;
+			newText = data.history.Get(text, isPrev);
+		}
+		else
+		{
+			currentTextBox = replaceTextBox;
+			text = currentTextBox.Text;
+			newText = data.replaceHistory.Get(text, isPrev);
+		}
 		if (newText != text)
 		{
-			textBox.Text = newText;
-			textBox.Controller.ClearMinorSelections();
-			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
+			currentTextBox.Text = newText;
+			currentTextBox.Controller.ClearMinorSelections();
+			currentTextBox.Controller.LastSelection.anchor = currentTextBox.Controller.LastSelection.caret = newText.Length;
 			return true;
 		}
 		return false;

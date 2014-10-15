@@ -120,7 +120,7 @@ public class DialogManager
 		findInFiles = new DialogOwner<FindDialog>(this);
 		findInFilesData = new FindDialog.Data(tempSettings.FindInFilesHistory);
 		replace = new DialogOwner<ReplaceDialog>(this);
-		replaceData = new ReplaceDialog.Data(tempSettings.ReplaceHistory);
+		replaceData = new ReplaceDialog.Data(tempSettings.ReplacePatternHistory, tempSettings.ReplaceHistory);
 		goToLine = new DialogOwner<FindDialog>(this);
 		goToLineData = new FindDialog.Data(tempSettings.GoToLineHistory);
 	}
