@@ -765,6 +765,21 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public void ResetHighlighting()
+		{
+			for (int i = 0; i < blocksCount; i++)
+			{
+				LineBlock block = blocks[i];
+				block.valid &= (~LineBlock.ColorValid);
+				for (int j = 0; j < block.count; j++)
+				{
+					Line line = block.array[j];
+					line.startState = null;
+					line.endState = null;
+				}
+			}
+		}
 
 		public string markedWord;
 

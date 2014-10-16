@@ -27,9 +27,10 @@ public class SyntaxFilesScanner
 				continue;
 			foreach (string fileI in Directory.GetFiles(dir, "*.xml"))
 			{
-				if (!scanned.ContainsKey(fileI))
+				string fileName = Path.GetFileName(fileI);
+				if (!scanned.ContainsKey(fileName))
 				{
-					scanned[fileI] = true;
+					scanned[fileName] = true;
 					files.Add(fileI);
 				}
 			}

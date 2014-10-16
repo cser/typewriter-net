@@ -628,15 +628,23 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
-		if (buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.GetCurrentPath().ToLowerInvariant() ||
-			buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.startupPath.ToLowerInvariant() ||
-			buffer.FullPath.ToLowerInvariant() == AppPath.ConfigPath.appDataPath.ToLowerInvariant())
+		string fullPath = buffer.FullPath.ToLowerInvariant();
+		string syntaxDir = Path.GetDirectoryName(buffer.FullPath).ToLowerInvariant();
+		if (fullPath == AppPath.ConfigPath.GetCurrentPath().ToLowerInvariant() ||
+			fullPath == AppPath.ConfigPath.startupPath.ToLowerInvariant() ||
+			fullPath == AppPath.ConfigPath.appDataPath.ToLowerInvariant())
 		{
 			ReloadConfig();
 		}
 		else if (schemeManager.IsActiveSchemePath(settings.scheme.Value, buffer.FullPath))
 		{
 			ApplySettings();
+		}
+		else if (Path.GetExtension(buffer.FullPath).ToLowerInvariant() == ".xml" &&
+			(syntaxDir == AppPath.SyntaxDir.appDataPath.ToLowerInvariant() ||
+			syntaxDir == AppPath.SyntaxDir.startupPath.ToLowerInvariant()))
+		{
+			ReloadSyntaxes();
 		}
 	}
 
@@ -1157,6 +1165,17 @@ public class MainForm : Form
 	private bool DoExecuteF8Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f8Command.Value);
+	}
+	
+	private void ReloadSyntaxes()
+	{
+		syntaxFilesScanner.Rescan();
+		highlightingSet.UpdateParameters(syntaxFilesScanner);
+		mainNest.Frame.UpdateHighlighter();
+		foreach (Buffer buffer in mainNest.buffers.list)
+		{
+			buffer.Controller.Lines.ResetHighlighting();
+		}
 	}
 
 	private bool ExecuteCommand(string command)
