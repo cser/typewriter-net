@@ -1079,7 +1079,7 @@ public class MainForm : Form
 		}
 		{
 			string path = AppPath.ConfigPath.GetCurrentPath();
-			if (File.Exists(path))
+			if (path != AppPath.ConfigPath.startupPath && File.Exists(path))
 			{
 				XmlDocument xml = xmlLoader.Load(path, false);
 				if (xml != null)
