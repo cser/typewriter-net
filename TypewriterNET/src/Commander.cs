@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
-using System.Text.RegularExpressions;
 
 public class Commander
 {
@@ -86,14 +87,43 @@ public class Commander
 				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
 			}
 		}
+		else if (name.StartsWith("!!"))
+		{
+			string commandText = text.Substring(2);
+			if (ReplaceVars(ref commandText))
+			{
+				Process p = new Process();
+				p.StartInfo.UseShellExecute = true;
+				p.StartInfo.FileName = "cmd.exe";
+				p.StartInfo.Arguments = "/C " + commandText;
+				p.Start();
+			}
+		}
 		else if (name.StartsWith("!"))
 		{
-			ExecuteShellCommand(text.Substring(1).Trim());
+			string commandText = text.Substring(1).Trim();
+			if (ReplaceVars(ref commandText))
+				ExecuteShellCommand(commandText);
 		}
 		else
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
 		}
+	}
+
+	private bool ReplaceVars(ref string commandText)
+	{
+		if (commandText.Contains(RunShellCommand.FileVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			{
+				mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
+				return false;
+			}
+			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath);
+		}
+		return true;
 	}
 
 	public string GetHelpText()
@@ -106,6 +136,8 @@ public class Commander
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
+		table.NewRow();
+		table.Add("!!command").Add("*").Add("Execute without output capture");
 		table.NewRow();
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();

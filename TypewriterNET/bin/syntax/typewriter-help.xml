@@ -3,7 +3,6 @@
 <highlighting>
 	<contexts>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
-			<Detect2Chars attribute="Meta" context="Meta 2" char="!" char1="!"/>
 			<DetectSpaces attribute="" context="#stay"/>
 			<RegExpr attribute="Operator" context="Title2" String="~\s*"/>
 			<DetectChar attribute="Title" context="Title" char="#"/>
@@ -36,11 +35,6 @@
 		</context>
 		<context attribute="Meta" lineEndContext="#stay" name="Meta 1">
 			<DetectChar attribute="Meta" context="#pop" char="]"/>
-			<Int attribute="Operator" context="#stay"/>
-			<IncludeRules context="Common"/>
-			<IncludeRules context="CommonMeta"/>
-		</context>
-		<context attribute="Meta" lineEndContext="#pop" name="Meta 2">
 			<Int attribute="Operator" context="#stay"/>
 			<IncludeRules context="Common"/>
 			<IncludeRules context="CommonMeta"/>

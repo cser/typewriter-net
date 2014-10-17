@@ -43,19 +43,6 @@ public class RunShellCommand
 	{
 		positions = new Dictionary<int, List<Position>>();
 
-		{
-			if (commandText.Contains(FileVar))
-			{
-				Buffer lastBuffer = mainForm.LastBuffer;
-				if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
-				{
-					mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame for replace " + FileVar);
-					return null;
-				}
-				commandText = commandText.Replace(FileVar, lastBuffer.FullPath);
-			}
-		}
-
 		Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
