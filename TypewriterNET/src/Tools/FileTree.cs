@@ -82,8 +82,13 @@ public class FileTree
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", CloseBuffer, null, false);
+			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", DoCloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+		}
+		buffer.additionBeforeKeyMap = new KeyMap();
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Remove items", DoRemoveItems, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
@@ -427,7 +432,7 @@ public class FileTree
 		}
 	}
 
-	private bool CloseBuffer(Controller controller)
+	private bool DoCloseBuffer(Controller controller)
 	{
 		if (buffer != null && buffer.Frame != null)
 			buffer.Frame.RemoveBuffer(buffer);
@@ -473,5 +478,63 @@ public class FileTree
 		{
 			ExpandCollection(nodeI, expanded);
 		}
+	}
+
+	private bool DoRemoveItems(Controller controller)
+	{
+		DialogResult result = MessageBox.Show("Remove items?", mainForm.Name, MessageBoxButtons.YesNo);
+		if (result == DialogResult.Yes)
+		{
+			Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
+			foreach (Selection selection in controller.Selections)
+			{
+				Place place0 = controller.Lines.PlaceOf(selection.anchor);
+				Place place1 = controller.Lines.PlaceOf(selection.caret);
+				int i0 = Math.Min(place0.iLine, place1.iLine);
+				int i1 = Math.Max(place0.iLine, place1.iLine);
+				for (int i = i0; i <= i1; i++)
+				{
+					indexHash[i] = true;
+				}
+			}
+			List<int> indices = new List<int>();
+			foreach (KeyValuePair<int, bool> pair in indexHash)
+			{
+				indices.Add(pair.Key);
+			}
+			indices.Sort();
+			Dictionary<Node, bool> nodesToRemoveHash = new Dictionary<Node, bool>();
+			List<Node> nodesToRemove = new List<Node>();
+			foreach (int index in indices)
+			{
+				nodesToRemoveHash[nodes[index]] = true;
+				nodesToRemove.Add(nodes[index]);
+			}
+			foreach (Node nodeI in nodesToRemove)
+			{
+				foreach (Node nodeJ in nodeI.childs)
+				{
+					nodesToRemoveHash.Remove(nodeJ);
+				}
+			}
+			foreach (KeyValuePair<Node, bool> pair in nodesToRemoveHash)
+			{
+				try
+				{
+					Node nodeI = pair.Key;
+					if (Directory.Exists(nodeI.fullPath))
+						Directory.Delete(nodeI.fullPath, true);
+					else
+						File.Delete(nodeI.fullPath);
+				}
+				catch (Exception e)
+				{
+					mainForm.Log.WriteError("Remove error", e.Message);
+					mainForm.Log.Open();
+				}
+			}
+			Reload();
+		}
+		return true;
 	}
 }

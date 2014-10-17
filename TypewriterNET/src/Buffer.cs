@@ -55,6 +55,7 @@ public class Buffer
 	public Setter<Buffer, UpdatePhase> onUpdateSettings;
 
 	public KeyMap additionKeyMap;
+	public KeyMap additionBeforeKeyMap;
 
 	public static string StringOf(Buffer buffer)
 	{

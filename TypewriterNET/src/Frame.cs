@@ -80,7 +80,7 @@ public class Frame : AFrame
 		buffers.list.Down();
 		return true;
 	}
-	
+
 	private void DoTabModeChange(Controller controller, bool mode)
 	{
 		if (mode)
@@ -224,16 +224,22 @@ public class Frame : AFrame
 	}
 
 	private KeyMap additionKeyMap;
+	private KeyMap additionBeforeKeyMap;
 
 	private void OnTabSelected()
 	{
 		Buffer buffer = buffers.list.Selected;
 		if (additionKeyMap != null)
 			textBox.KeyMap.RemoveAfter(additionKeyMap);
+		if (additionBeforeKeyMap != null)
+			textBox.KeyMap.RemoveBefore(additionBeforeKeyMap);
 		additionKeyMap = buffer != null ? buffer.additionKeyMap : null;
+		additionBeforeKeyMap = buffer != null ? buffer.additionBeforeKeyMap : null;
 		textBox.Controller = buffer != null ? buffer.Controller : GetEmptyController();
 		if (additionKeyMap != null)
 			textBox.KeyMap.AddAfter(additionKeyMap, 1);
+		if (additionBeforeKeyMap != null)
+			textBox.KeyMap.AddBefore(additionBeforeKeyMap);
 		if (settings != null && buffer != null)
 			settings.ApplyParameters(textBox, buffer.settingsMode);
 		UpdateHighlighter();
