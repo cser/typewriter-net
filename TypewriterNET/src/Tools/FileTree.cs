@@ -564,9 +564,9 @@ public class FileTree
 			{
 				try
 				{
-					if (Directory.Exists(nodeI.fullPath))
+					if (nodeI.type == NodeType.Directory)
 						Directory.Delete(nodeI.fullPath, true);
-					else
+					else if (nodeI.type == NodeType.File)
 						File.Delete(nodeI.fullPath);
 				}
 				catch (Exception e)
@@ -596,12 +596,15 @@ public class FileTree
 		foreach (int index in indices)
 		{
 			Node nodeI = nodes[index];
-			if (Directory.Exists(nodeI.fullPath))
+			if (nodeI.type == NodeType.Directory)
 			{
 				dirs[nodeI.fullPath] = true;
 				continue;
 			}
-			dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+			else if (nodeI.type == NodeType.File)
+			{
+				dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+			}
 		}
 		foreach (KeyValuePair<string, bool> pair in dirs)
 		{
@@ -630,12 +633,15 @@ public class FileTree
 		foreach (int index in indices)
 		{
 			Node nodeI = nodes[index];
-			if (Directory.Exists(nodeI.fullPath))
+			if (nodeI.type == NodeType.Directory)
 			{
 				dirs[nodeI.fullPath] = true;
 				continue;
 			}
-			dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+			else if (nodeI.type == NodeType.File)
+			{
+				dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+			}
 		}
 		foreach (KeyValuePair<string, bool> pair in dirs)
 		{
@@ -678,9 +684,9 @@ public class FileTree
 		{
 			try
 			{
-				if (Directory.Exists(nodeI.fullPath))
+				if (nodeI.type == NodeType.Directory)
 					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
-				else
+				else if (nodeI.type == NodeType.File)
 					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 			}
 			catch (Exception e)
