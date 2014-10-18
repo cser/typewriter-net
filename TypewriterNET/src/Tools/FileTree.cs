@@ -90,6 +90,10 @@ public class FileTree
 			KeyAction action = new KeyAction("&View\\File tree\\Remove items", DoRemoveItems, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
 		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Add item", DoAddItem, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
+		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
 	}
@@ -480,29 +484,35 @@ public class FileTree
 		}
 	}
 
+	private List<int> GetSelectionIndices(Controller controller)
+	{
+		Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
+		foreach (Selection selection in controller.Selections)
+		{
+			Place place0 = controller.Lines.PlaceOf(selection.anchor);
+			Place place1 = controller.Lines.PlaceOf(selection.caret);
+			int i0 = Math.Min(place0.iLine, place1.iLine);
+			int i1 = Math.Max(place0.iLine, place1.iLine);
+			for (int i = i0; i <= i1; i++)
+			{
+				indexHash[i] = true;
+			}
+		}
+		List<int> indices = new List<int>();
+		foreach (KeyValuePair<int, bool> pair in indexHash)
+		{
+			indices.Add(pair.Key);
+		}
+		indices.Sort();
+		return indices;
+	}
+
 	private bool DoRemoveItems(Controller controller)
 	{
 		DialogResult result = MessageBox.Show("Remove items?", mainForm.Name, MessageBoxButtons.YesNo);
 		if (result == DialogResult.Yes)
 		{
-			Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
-			foreach (Selection selection in controller.Selections)
-			{
-				Place place0 = controller.Lines.PlaceOf(selection.anchor);
-				Place place1 = controller.Lines.PlaceOf(selection.caret);
-				int i0 = Math.Min(place0.iLine, place1.iLine);
-				int i1 = Math.Max(place0.iLine, place1.iLine);
-				for (int i = i0; i <= i1; i++)
-				{
-					indexHash[i] = true;
-				}
-			}
-			List<int> indices = new List<int>();
-			foreach (KeyValuePair<int, bool> pair in indexHash)
-			{
-				indices.Add(pair.Key);
-			}
-			indices.Sort();
+			List<int> indices = GetSelectionIndices(controller);
 			Dictionary<Node, bool> nodesToRemoveHash = new Dictionary<Node, bool>();
 			List<Node> nodesToRemove = new List<Node>();
 			foreach (int index in indices)
@@ -535,6 +545,40 @@ public class FileTree
 			}
 			Reload();
 		}
+		return true;
+	}
+
+	private bool DoAddItem(Controller controller)
+	{
+		mainForm.Dialogs.OpenInput("Add item", "unnamed.txt", DoInputItemName);
+		return true;
+	}
+
+	private bool DoInputItemName(string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		mainForm.Dialogs.CloseInput();
+		List<int> indices = GetSelectionIndices(this.buffer.Controller);
+		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
+		foreach (int index in indices)
+		{
+			Node nodeI = nodes[index];
+			if (Directory.Exists(nodeI.fullPath))
+			{
+				dirs[nodeI.fullPath] = true;
+				continue;
+			}
+			dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+		}
+		foreach (KeyValuePair<string, bool> pair in dirs)
+		{
+			string dir = pair.Key;
+			Buffer buffer = mainForm.ForcedLoadFile(Path.Combine(dir, fileName));
+			buffer.needSaveAs = false;
+			mainForm.SaveFile(buffer);
+		}
+		Reload();
 		return true;
 	}
 }

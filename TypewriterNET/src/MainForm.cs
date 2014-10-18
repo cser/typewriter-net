@@ -1166,7 +1166,7 @@ public class MainForm : Form
 	{
 		return ExecuteCommand(settings.f8Command.Value);
 	}
-	
+
 	private void ReloadSyntaxes()
 	{
 		syntaxFilesScanner.Rescan();

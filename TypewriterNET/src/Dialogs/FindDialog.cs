@@ -53,10 +53,16 @@ public class FindDialog : ADialog
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
+		if (data.history != null)
+		{
+			frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+		}
+		if (findParams != null)
+		{
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
+		}
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -73,7 +79,7 @@ public class FindDialog : ADialog
 
 	private void UpdateFindParams()
 	{
-		tabBar.Text2 = findParams.GetIndicationText();
+		tabBar.Text2 = findParams != null ? findParams.GetIndicationText() : "";
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -153,7 +159,8 @@ public class FindDialog : ADialog
 	private bool DoFindNext(Controller controller)
 	{
 		string text = textBox.Text;
-		data.history.Add(text);
+		if (data.history != null)
+			data.history.Add(text);
 		return doFind(text);
 	}
 

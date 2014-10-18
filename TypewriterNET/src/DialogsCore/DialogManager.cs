@@ -97,6 +97,8 @@ public class DialogManager
 	private ReplaceDialog.Data replaceData;
 	private DialogOwner<FindDialog> goToLine;
 	private FindDialog.Data goToLineData;
+	private DialogOwner<FindDialog> input;
+	private FindDialog.Data inputData;
 
 	public DialogManager(MainForm mainForm, TempSettings tempSettings)
 	{
@@ -123,6 +125,8 @@ public class DialogManager
 		replaceData = new ReplaceDialog.Data(tempSettings.ReplacePatternHistory, tempSettings.ReplaceHistory);
 		goToLine = new DialogOwner<FindDialog>(this);
 		goToLineData = new FindDialog.Data(tempSettings.GoToLineHistory);
+		input = new DialogOwner<FindDialog>(this);
+		inputData = new FindDialog.Data(null);
 	}
 
 	public void ShowInfo(string name, string text)
@@ -245,7 +249,7 @@ public class DialogManager
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
 			goToLine.Open(new FindDialog(
-				goToLineData, tempSettings.FindParams, DoGoToLine,
+				goToLineData, null, DoGoToLine,
 				"Go to line" +
 				(place != null ? " (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
 			), true);
@@ -335,5 +339,20 @@ public class DialogManager
 		}
 		error = null;
 		return regex;
+	}
+
+	public bool OpenInput(string title, string text, Getter<string, bool> doInput)
+	{
+		if (input.SwitchOpen())
+		{
+			inputData.oldText = text;
+			input.Open(new FindDialog(inputData, null, doInput, title), true);
+		}
+		return true;
+	}
+
+	public void CloseInput()
+	{
+		input.Close(true);
 	}
 }
