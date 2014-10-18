@@ -99,8 +99,8 @@ public class FileTree
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Move item", DoAddDir, null, false);
-			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
+			KeyAction action = new KeyAction("&View\\File tree\\Move item", DoMoveItem, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.M, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
@@ -638,6 +638,52 @@ public class FileTree
 			catch (Exception e)
 			{
 				mainForm.Log.WriteError("Add directory error", e.Message);
+				mainForm.Log.Open();
+			}
+		}
+		Reload();
+		return true;
+	}
+
+	private string GetRelativePath(string fullPath)
+	{
+		return fullPath.StartsWith(currentDirectory) && fullPath.Length >= currentDirectory.Length + 1 ?
+			fullPath.Substring(currentDirectory.Length + 1) : fullPath;
+	}
+
+	private bool DoMoveItem(Controller controller)
+	{
+		Place place = controller.Lines.PlaceOf(controller.LastSelection.caret);
+		int index = place.iLine;
+		Node node = nodes[index];
+		string path = Path.GetDirectoryName(GetRelativePath(node.fullPath));
+		mainForm.Dialogs.OpenInput("Move item", path, DoInputNewDir);
+		return true;
+	}
+
+	private bool DoInputNewDir(string fileName)
+	{
+		List<int> indices = GetSelectionIndices(this.buffer.Controller);
+		Dictionary<string, bool> files = new Dictionary<string, bool>();
+		foreach (int index in indices)
+		{
+			Node nodeI = nodes[index];
+			if (!Directory.Exists(nodeI.fullPath))
+			{
+				files[nodeI.fullPath] = true;
+				continue;
+			}
+		}
+		foreach (KeyValuePair<string, bool> pair in files)
+		{
+			try
+			{
+				string file = pair.Key;
+				File.Move(file, Path.Combine(fileName, Path.GetFileName(file)));
+			}
+			catch (Exception e)
+			{
+				mainForm.Log.WriteError("Move file error", e.Message);
 				mainForm.Log.Open();
 			}
 		}
