@@ -94,6 +94,10 @@ public class FileTree
 			KeyAction action = new KeyAction("&View\\File tree\\Add item", DoAddItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
 		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Add directory", DoAddDir, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
+		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
 	}
@@ -577,6 +581,46 @@ public class FileTree
 			Buffer buffer = mainForm.ForcedLoadFile(Path.Combine(dir, fileName));
 			buffer.needSaveAs = false;
 			mainForm.SaveFile(buffer);
+		}
+		Reload();
+		return true;
+	}
+
+	private bool DoAddDir(Controller controller)
+	{
+		mainForm.Dialogs.OpenInput("Add directory", "unnamed", DoInputDirName);
+		return true;
+	}
+
+	private bool DoInputDirName(string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		mainForm.Dialogs.CloseInput();
+		List<int> indices = GetSelectionIndices(this.buffer.Controller);
+		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
+		foreach (int index in indices)
+		{
+			Node nodeI = nodes[index];
+			if (Directory.Exists(nodeI.fullPath))
+			{
+				dirs[nodeI.fullPath] = true;
+				continue;
+			}
+			dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+		}
+		foreach (KeyValuePair<string, bool> pair in dirs)
+		{
+			try
+			{
+				string dir = pair.Key;
+				Directory.CreateDirectory(Path.Combine(dir, fileName));
+			}
+			catch (Exception e)
+			{
+				mainForm.Log.WriteError("Add directory error", e.Message);
+				mainForm.Log.Open();
+			}
 		}
 		Reload();
 		return true;
