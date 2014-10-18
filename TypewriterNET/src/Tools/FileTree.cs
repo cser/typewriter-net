@@ -87,7 +87,7 @@ public class FileTree
 		}
 		buffer.additionBeforeKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Remove items", DoRemoveItems, null, false);
+			KeyAction action = new KeyAction("&View\\File tree\\Remove item", DoRemoveItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
 		}
 		{
@@ -96,6 +96,10 @@ public class FileTree
 		}
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Add directory", DoAddDir, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Move item", DoAddDir, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;
@@ -511,26 +515,41 @@ public class FileTree
 		return indices;
 	}
 
-	private bool DoRemoveItems(Controller controller)
+	private bool DoRemoveItem(Controller controller)
 	{
-		DialogResult result = MessageBox.Show("Remove items?", mainForm.Name, MessageBoxButtons.YesNo);
+		List<int> indices = GetSelectionIndices(controller);
+		Dictionary<Node, bool> nodesToRemoveHash = new Dictionary<Node, bool>();
+		List<Node> nodesToRemove = new List<Node>();
+		foreach (int index in indices)
+		{
+			nodesToRemoveHash[nodes[index]] = true;
+			nodesToRemove.Add(nodes[index]);
+		}
+		foreach (Node nodeI in nodesToRemove)
+		{
+			foreach (Node nodeJ in nodeI.childs)
+			{
+				nodesToRemoveHash.Remove(nodeJ);
+			}
+		}
+
+		int count = 0;
+		StringBuilder builder = new StringBuilder();
+		builder.AppendLine("Remove " + (nodesToRemoveHash.Count > 1 ? "items" : "item") + "?");
+		foreach (KeyValuePair<Node, bool> pair in nodesToRemoveHash)
+		{
+			count++;
+			if (count > 10)
+			{
+				builder.AppendLine("...");
+				break;
+			}
+			builder.AppendLine(pair.Key.fullPath);
+		}
+
+		DialogResult result = MessageBox.Show(builder.ToString(), mainForm.Name, MessageBoxButtons.YesNo);
 		if (result == DialogResult.Yes)
 		{
-			List<int> indices = GetSelectionIndices(controller);
-			Dictionary<Node, bool> nodesToRemoveHash = new Dictionary<Node, bool>();
-			List<Node> nodesToRemove = new List<Node>();
-			foreach (int index in indices)
-			{
-				nodesToRemoveHash[nodes[index]] = true;
-				nodesToRemove.Add(nodes[index]);
-			}
-			foreach (Node nodeI in nodesToRemove)
-			{
-				foreach (Node nodeJ in nodeI.childs)
-				{
-					nodesToRemoveHash.Remove(nodeJ);
-				}
-			}
 			foreach (KeyValuePair<Node, bool> pair in nodesToRemoveHash)
 			{
 				try
