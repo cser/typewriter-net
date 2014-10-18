@@ -515,28 +515,38 @@ public class FileTree
 		return indices;
 	}
 
-	private bool DoRemoveItem(Controller controller)
+	private List<Node> GetFilesAndDirs(Controller controller)
 	{
 		List<int> indices = GetSelectionIndices(controller);
-		Dictionary<Node, bool> nodesToRemoveHash = new Dictionary<Node, bool>();
+		Dictionary<Node, bool> nodesHash = new Dictionary<Node, bool>();
 		List<Node> nodesToRemove = new List<Node>();
 		foreach (int index in indices)
 		{
-			nodesToRemoveHash[nodes[index]] = true;
+			nodesHash[nodes[index]] = true;
 			nodesToRemove.Add(nodes[index]);
 		}
 		foreach (Node nodeI in nodesToRemove)
 		{
 			foreach (Node nodeJ in nodeI.childs)
 			{
-				nodesToRemoveHash.Remove(nodeJ);
+				nodesHash.Remove(nodeJ);
 			}
 		}
+		List<Node> result = new List<Node>();
+		foreach (KeyValuePair<Node, bool> pair in nodesHash)
+		{
+			result.Add(pair.Key);
+		}
+		return result;
+	}
 
+	private bool DoRemoveItem(Controller controller)
+	{
+		List<Node> filesAndDirs = GetFilesAndDirs(controller);
 		int count = 0;
 		StringBuilder builder = new StringBuilder();
-		builder.AppendLine("Remove " + (nodesToRemoveHash.Count > 1 ? "items" : "item") + "?");
-		foreach (KeyValuePair<Node, bool> pair in nodesToRemoveHash)
+		builder.AppendLine("Remove " + (filesAndDirs.Count > 1 ? "items" : "item") + "?");
+		foreach (Node nodeI in filesAndDirs)
 		{
 			count++;
 			if (count > 10)
@@ -544,17 +554,16 @@ public class FileTree
 				builder.AppendLine("...");
 				break;
 			}
-			builder.AppendLine(pair.Key.fullPath);
+			builder.AppendLine(nodeI.fullPath);
 		}
 
 		DialogResult result = MessageBox.Show(builder.ToString(), mainForm.Name, MessageBoxButtons.YesNo);
 		if (result == DialogResult.Yes)
 		{
-			foreach (KeyValuePair<Node, bool> pair in nodesToRemoveHash)
+			foreach (Node nodeI in filesAndDirs)
 			{
 				try
 				{
-					Node nodeI = pair.Key;
 					if (Directory.Exists(nodeI.fullPath))
 						Directory.Delete(nodeI.fullPath, true);
 					else
@@ -580,7 +589,7 @@ public class FileTree
 	private bool DoInputItemName(string fileName)
 	{
 		if (string.IsNullOrEmpty(fileName))
-			return false;
+			return true;
 		mainForm.Dialogs.CloseInput();
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
 		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
@@ -614,7 +623,7 @@ public class FileTree
 	private bool DoInputDirName(string fileName)
 	{
 		if (string.IsNullOrEmpty(fileName))
-			return false;
+			return true;
 		mainForm.Dialogs.CloseInput();
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
 		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
@@ -663,23 +672,16 @@ public class FileTree
 
 	private bool DoInputNewDir(string fileName)
 	{
-		List<int> indices = GetSelectionIndices(this.buffer.Controller);
-		Dictionary<string, bool> files = new Dictionary<string, bool>();
-		foreach (int index in indices)
-		{
-			Node nodeI = nodes[index];
-			if (!Directory.Exists(nodeI.fullPath))
-			{
-				files[nodeI.fullPath] = true;
-				continue;
-			}
-		}
-		foreach (KeyValuePair<string, bool> pair in files)
+		mainForm.Dialogs.CloseInput();
+		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
+		foreach (Node nodeI in filesAndDirs)
 		{
 			try
 			{
-				string file = pair.Key;
-				File.Move(file, Path.Combine(fileName, Path.GetFileName(file)));
+				if (Directory.Exists(nodeI.fullPath))
+					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				else
+					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 			}
 			catch (Exception e)
 			{
