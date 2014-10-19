@@ -133,6 +133,8 @@ public class RunShellCommand
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
+		buffer.Controller.DocumentEnd(false);
+		buffer.Controller.NeedScrollToCaret();
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		return null;
 	}

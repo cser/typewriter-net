@@ -102,6 +102,10 @@ public class FileTree
 			KeyAction action = new KeyAction("&View\\File tree\\Move item", DoMoveItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.M, null, action));
 		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Rename item", DoRenameItem, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, action));
+		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
 	}
@@ -691,7 +695,42 @@ public class FileTree
 			}
 			catch (Exception e)
 			{
-				mainForm.Log.WriteError("Move file error", e.Message);
+				mainForm.Log.WriteError("Move error", e.Message);
+				mainForm.Log.Open();
+			}
+		}
+		Reload();
+		return true;
+	}
+	
+	private bool DoRenameItem(Controller controller)
+	{
+		Place place = controller.Lines.PlaceOf(controller.LastSelection.caret);
+		int index = place.iLine;
+		Node node = nodes[index];
+		string fileName = Path.GetFileName(node.fullPath);
+		mainForm.Dialogs.OpenInput("Move item", fileName, DoInputNewFileName);
+		return true;
+	}
+	
+	private bool DoInputNewFileName(string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return true;
+		mainForm.Dialogs.CloseInput();
+		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
+		foreach (Node nodeI in filesAndDirs)
+		{
+			try
+			{
+				if (nodeI.type == NodeType.Directory)
+					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				else if (nodeI.type == NodeType.File)
+					File.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+			}
+			catch (Exception e)
+			{
+				mainForm.Log.WriteError("Rename error", e.Message);
 				mainForm.Log.Open();
 			}
 		}
