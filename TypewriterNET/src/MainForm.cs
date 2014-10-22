@@ -353,8 +353,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppDdata folder", DoOpenAppDataFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open startup folder", DoOpenStartupFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
