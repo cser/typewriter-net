@@ -786,6 +786,7 @@ public class MainForm : Form
 				return false;
 			}
 			File.Copy(templatePath, path);
+			fileTree.Reload();
 		}
 		LoadFile(path);
 		return true;
