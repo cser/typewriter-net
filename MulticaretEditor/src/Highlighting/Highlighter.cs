@@ -11,14 +11,14 @@ namespace MulticaretEditor.Highlighting
 	public class Highlighter
 	{
 		public static int MaxStylesCount = 124;
-		
+
 		private Rules.Context[] contexts;
 		private Dictionary<string, StyleData> styleDataOf;
 		private StyleData defaultStyleData;
 		private Dictionary<string, string[]> textListOf;
 		private Dictionary<string, Rules.Context> contextOf;
 		private List<StyleData> customStyleDatas;
-		
+
 		public Highlighter(Raw raw)
 		{
 			styleDataOf = new Dictionary<string, StyleData>();
@@ -35,7 +35,7 @@ namespace MulticaretEditor.Highlighting
 					StyleData data = new StyleData();
 					data.ds = Ds.GetByName(itemDataI.defStyleNum);
 					data.name = itemDataI.name;
-					
+
 					data.color = HighlighterUtil.ParseColor(itemDataI.color);
 					data.italic = GetVariantBool(itemDataI.italic);
 					data.bold = GetVariantBool(itemDataI.bold);
@@ -50,7 +50,7 @@ namespace MulticaretEditor.Highlighting
 						data.index = (short)(Ds.all.Count + customStyleDatas.Count);
 						customStyleDatas.Add(data);
 					}
-					
+
 					styleDataOf[data.name.ToLowerInvariant()] = data;
 					if (first)
 					{
@@ -59,7 +59,7 @@ namespace MulticaretEditor.Highlighting
 					}
 				}
 			}
-			
+
 			List<Rules.Context> contextList = new List<Rules.Context>();
 			contextOf = new Dictionary<string, Rules.Context>();
 			foreach (Raw.Context contextI in raw.contexts)
@@ -87,7 +87,7 @@ namespace MulticaretEditor.Highlighting
 				context.lineEndContext = GetSwitchInfo(contextI.lineEndContext);
 				context.fallthrough = GetBool(contextI.fallthrough);
 				context.fallthroughContext = GetSwitchInfo(contextI.fallthroughContext);
-				
+
 				List<Rules.Rule> contextRules = new List<Rules.Rule>();
 				foreach (Raw.Rule ruleI in contextI.rules)
 				{
@@ -104,40 +104,40 @@ namespace MulticaretEditor.Highlighting
 				rule.awakePositions = awakePositions;
 				rule.awakeIndex = i;
 			}
-			contexts = contextList.ToArray();			
+			contexts = contextList.ToArray();
 			styleDataOf = null;
 			contextOf = null;
 			textListOf = null;
 		}
-			
+
 		private bool GetBool(string value, bool altValue)
 		{
 			return !string.IsNullOrEmpty(value) ? value == "1" || value == "true" : altValue;
 		}
-		
+
 		private bool GetBool(string value)
 		{
 			return !string.IsNullOrEmpty(value) ? value == "1" || value == "true" : false;
 		}
-		
+
 		private bool? GetVariantBool(string value)
 		{
 			if (string.IsNullOrEmpty(value))
 				return null;
 			return value == "1" || value == "true";
 		}
-		
+
 		private int GetInt(string value, int defaultValue)
 		{
 			int result;
 			return value != null && int.TryParse(value, out result) ? result : defaultValue;
 		}
-		
+
 		private char CharOf(string text)
 		{
 			return text == null && text.Length == 0 ? '\0' : text[0];
 		}
-		
+
 		private Rules.Rule ParseRule(Raw.Rule rawRule, List<Rules.RegExpr> regExprRules, StyleData parentStyleData)
 		{
 			Rules.Rule commonRule = null;
@@ -267,14 +267,14 @@ namespace MulticaretEditor.Highlighting
 			}
 			return commonRule;
 		}
-		
+
 		public static void ParseSwitch(string text, out int pops, out string contextName)
 		{
 			contextName = null;
 			pops = 0;
 			if (text == null)
 				return;
-			
+
 			int index = 0;
 			while (text.IndexOf("#pop", index) == index)
 			{
@@ -290,7 +290,7 @@ namespace MulticaretEditor.Highlighting
 				contextName = text;
 			}
 		}
-		
+
 		private Rules.SwitchInfo GetSwitchInfo(string text)
 		{
 			string contextName;
@@ -301,9 +301,9 @@ namespace MulticaretEditor.Highlighting
 			info.next = contextName != null ? contextOf[contextName.ToLowerInvariant()] : null;
 			return info;
 		}
-		
+
 		private PredictableList<Rules.Context> stack;
-		
+
 		private static bool AreEquals(PredictableList<Rules.Context> a, Rules.Context[] b)
 		{
 			if (b == null || a.count != b.Length)
@@ -315,7 +315,7 @@ namespace MulticaretEditor.Highlighting
 			}
 			return true;
 		}
-		
+
 		private static bool AreEquals(Rules.Context[] a, Rules.Context[] b)
 		{
 			if (a == null || b == null)
@@ -329,19 +329,19 @@ namespace MulticaretEditor.Highlighting
 			}
 			return true;
 		}
-		
+
 		private Random random = new Random();
-		
+
 		private bool lastParsingChanged = true;
 		public bool LastParsingChanged { get { return lastParsingChanged; } }
-		
+
 		public bool Parse(LineArray lines)
 		{
 			return Parse(lines, 20);
 		}
-		
+
 		private int[] awakePositions;
-		
+
 		public bool Parse(LineArray lines, int maxMilliseconds)
 		{
 			DateTime startTime = DateTime.Now;
@@ -429,13 +429,13 @@ namespace MulticaretEditor.Highlighting
 									{
 										int childNextPosition;
 										if (childRule.Match(text, nextPosition, out childNextPosition))
-									    {
-									    	for (; position < childNextPosition; position++)
+										{
+											for (; position < childNextPosition; position++)
 											{
 												line.SetStyle(position, childRule.attribute.index);
 											}
-									    	Switch(rule.context);
-									    }
+											Switch(rule.context);
+										}
 									}
 								}
 								Switch(rule.context);
@@ -487,9 +487,16 @@ namespace MulticaretEditor.Highlighting
 			}
 			stack = null;
 			lastParsingChanged = changed;
+			if (!changed && lines.ranges != null)
+			{
+				foreach (StyleRange range in lines.ranges)
+				{
+					lines.SetStyleRange(range);
+				}
+			}
 			return changed;
 		}
-		
+
 		private void Switch(Rules.SwitchInfo info)
 		{
 			for (int i = 0; i < info.pops; i++)
@@ -499,7 +506,7 @@ namespace MulticaretEditor.Highlighting
 			if (info.next != null)
 				stack.Add(info.next);
 		}
-		
+
 		public TextStyle[] GetStyles(Scheme scheme)
 		{
 			TextStyle[] styles = new TextStyle[MaxStylesCount];
@@ -530,7 +537,7 @@ namespace MulticaretEditor.Highlighting
 			}
 			return styles;
 		}
-		
+
 		public static TextStyle[] GetDefaultStyles(Scheme scheme)
 		{
 			TextStyle[] styles = new TextStyle[MaxStylesCount];
