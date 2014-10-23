@@ -5,6 +5,7 @@
 	<item name="showLineBreaks" value="false"/>
 	<item name="highlightCurrentLine" value="true"/>
 	<item name="tabSize" value="4"/>
+	<item name="spacesInsteadTabs" value="false"/>
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>
 	<item name="fontSize" value="10.25"/>

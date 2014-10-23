@@ -101,6 +101,7 @@ namespace MulticaretEditor
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
 						lines.SetTabSize(tabSize);
+						lines.spacesInsteadTabs = spacesInsteadTabs;
 						lines.scroller.scrollingIndent = scrollingIndent;
 						InitScrollByLines();
 					}
@@ -163,6 +164,18 @@ namespace MulticaretEditor
 				tabSize = value;
 				if (lines != null)
 					lines.SetTabSize(tabSize);
+			}
+		}
+
+		private bool spacesInsteadTabs = false;
+		public bool SpacesInsteadTabs
+		{
+			get { return spacesInsteadTabs; }
+			set
+			{
+				spacesInsteadTabs = value;
+				if (lines != null)
+					lines.spacesInsteadTabs = spacesInsteadTabs;
 			}
 		}
 

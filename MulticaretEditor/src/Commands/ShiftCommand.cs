@@ -7,16 +7,16 @@ namespace MulticaretEditor.Commands
 	public class ShiftCommand : Command
 	{
 		private readonly bool isLeft;
-		
+
 		public ShiftCommand(bool isLeft) : base(isLeft ? CommandType.ShiftLeft : CommandType.ShiftRight)
 		{
 			this.isLeft = isLeft;
 		}
-		
+
 		private Memento[] deleted;
 		private Range[] ranges;
 		private SelectionMemento[] mementos;
-		
+
 		override public bool Init()
 		{
 			bool allow = false;
@@ -35,7 +35,7 @@ namespace MulticaretEditor.Commands
 			}
 			if (!allow)
 				return false;
-			
+
 			lines.JoinSelections();
 			mementos = GetSelectionMementos();
 			List<Range> ranges = new List<Range>();
@@ -73,7 +73,7 @@ namespace MulticaretEditor.Commands
 			this.ranges = ranges.ToArray();
 			return true;
 		}
-		
+
 		override public void Redo()
 		{
 			int deletedLength = 0;
@@ -98,7 +98,7 @@ namespace MulticaretEditor.Commands
 					parts[i * 2 + 1] = new SelectionPart(false, memento.index);
 				}
 			}
-			
+
 			int k = 0;
 			int iPart = 0;
 			int start = 0;
@@ -121,9 +121,19 @@ namespace MulticaretEditor.Commands
 					List<Char> chars = new List<Char>();
 					if (isLeft)
 					{
-						for (int j = 0; j < tabsCount - 1; j++)
+						if (lines.spacesInsteadTabs)
 						{
-							chars.Add(new Char('\t'));
+							for (int j = 0; j < (tabsCount - 1) * lines.tabSize; j++)
+							{
+								chars.Add(new Char(' '));
+							}
+						}
+						else
+						{
+							for (int j = 0; j < tabsCount - 1; j++)
+							{
+								chars.Add(new Char('\t'));
+							}
 						}
 						if (tabsCount == 0)
 						{
@@ -137,9 +147,19 @@ namespace MulticaretEditor.Commands
 					}
 					else
 					{
-						for (int j = 0; j < tabsCount + 1; j++)
+						if (lines.spacesInsteadTabs)
 						{
-							chars.Add(new Char('\t'));
+							for (int j = 0; j < (tabsCount + 1) * lines.tabSize; j++)
+							{
+								chars.Add(new Char(' '));
+							}
+						}
+						else
+						{
+							for (int j = 0; j < tabsCount + 1; j++)
+							{
+								chars.Add(new Char('\t'));
+							}
 						}
 					}
 					line.chars.RemoveRange(0, deletedI.Length);
@@ -188,7 +208,7 @@ namespace MulticaretEditor.Commands
 			}
 			lines.cachedText = null;
 		}
-		
+
 		override public void Undo()
 		{
 			int k = 0;
@@ -198,7 +218,7 @@ namespace MulticaretEditor.Commands
 				int iLine0 = range.iLine0;
 				int iLine1 = range.iLine1;
 				LineIterator iterator = lines.GetLineRange(iLine0, iLine1 - iLine0 + 1);
-				
+
 				while (iterator.MoveNext())
 				{
 					Memento deletedI = deleted[k++];

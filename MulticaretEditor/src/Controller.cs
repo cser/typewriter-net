@@ -625,6 +625,8 @@ namespace MulticaretEditor
 
 		public void InsertText(string text)
 		{
+			if (lines.spacesInsteadTabs && text == "\t")
+				text = new string(' ', lines.tabSize);
 			Execute(new InsertTextCommand(text, null, true));
 		}
 

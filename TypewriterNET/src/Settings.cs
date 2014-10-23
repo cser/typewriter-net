@@ -14,6 +14,7 @@ public class Settings
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true).SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
+	public readonly Properties.Bool spacesInsteadTabs = new Properties.Bool("spacesInsteadTabs", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
@@ -57,6 +58,7 @@ public class Settings
 		Add(highlightCurrentLine);
 		Add(lineBreak);
 		Add(tabSize);
+		Add(spacesInsteadTabs);
 		Add(maxTabsCount);
 		Add(fontSize);
 		Add(font);
@@ -166,6 +168,7 @@ public class Settings
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
@@ -187,6 +190,7 @@ public class Settings
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
