@@ -86,6 +86,9 @@ public class MainForm : Form
 	private Nest mainNest;
 	public Nest MainNest { get { return mainNest; } }
 
+	private Nest mainNest2;
+	public Nest MainNest2 { get { return mainNest2; } }
+
 	private Nest consoleNest;
 	public Nest ConsoleNest { get { return consoleNest; } }
 
@@ -123,6 +126,9 @@ public class MainForm : Form
 		mainNest = AddNest(false, true, true, tempSettings.GetInt("mainNest.size", 70));
 		mainNest.buffers = new BufferList();
 		new Frame().Create(mainNest);
+
+		mainNest2 = AddNest(true, false, true, tempSettings.GetInt("mainNest2.size", 50));
+		mainNest2.buffers = new BufferList();
 
 		consoleNest = AddNest(false, false, true, tempSettings.GetInt("consoleNest.size", 20));
 		consoleNest.buffers = new BufferList();
@@ -344,6 +350,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null, new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null, new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null, new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 
@@ -388,6 +396,11 @@ public class MainForm : Form
 
 	public Buffer LoadFile(string file, string httpServer)
 	{
+		return LoadFile(file, httpServer, null);
+	}
+
+	public Buffer LoadFile(string file, string httpServer, Nest nest)
+	{
 		string fullPath = null;
 		string name = null;
 		try
@@ -401,7 +414,7 @@ public class MainForm : Form
 			Log.Open();
 			return null;
 		}
-		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
 		bool needLoad = false;
 		bool isNew = false;
 		if (buffer == null)
@@ -412,7 +425,9 @@ public class MainForm : Form
 			isNew = true;
 		}
 		buffer.SetFile(fullPath, name);
-		ShowBuffer(mainNest, buffer);
+		if (nest == null)
+			nest = buffer.Frame != null ? buffer.Frame.Nest : mainNest;
+		ShowBuffer(nest, buffer);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
@@ -441,7 +456,7 @@ public class MainForm : Form
 			Log.Open();
 			return null;
 		}
-		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
 		bool needLoad = false;
 		if (buffer == null)
 		{
@@ -449,7 +464,7 @@ public class MainForm : Form
 			needLoad = File.Exists(fullPath);
 		}
 		buffer.SetFile(fullPath, name);
-		ShowBuffer(mainNest, buffer);
+		ShowBuffer(buffer.Frame != null ? buffer.Frame.Nest : mainNest, buffer);
 		if (buffer.Frame != null)
 			buffer.Frame.UpdateHighlighter();
 
@@ -828,7 +843,7 @@ public class MainForm : Form
 			activationInProcess = true;
 			string fullPath = Path.GetFullPath(AppPath.ConfigPath.appDataPath);
 			string name = Path.GetFileName(AppPath.ConfigPath.appDataPath);
-			Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name);
+			Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest.buffers.GetBuffer(fullPath, name);
 			if (buffer != null && buffer.Frame != null)
 				CheckFileChange(buffer);
 			activationInProcess = false;
@@ -1188,11 +1203,34 @@ public class MainForm : Form
 		{
 			buffer.Controller.Lines.ResetHighlighting();
 		}
+		if (mainNest2.Frame != null)
+		{
+			mainNest2.Frame.UpdateHighlighter();
+			foreach (Buffer buffer in mainNest2.buffers.list)
+			{
+				buffer.Controller.Lines.ResetHighlighting();
+			}
+		}
 	}
 
 	private bool ExecuteCommand(string command)
 	{
 		commander.Execute(command);
+		return true;
+	}
+
+	private bool MoveDocumentRight(Controller controller)
+	{
+		if (mainNest2.Frame == null)
+			new Frame().Create(mainNest2);
+		mainNest2.Frame.AddBuffer(mainNest.buffers.list.Selected);
+		return true;
+	}
+
+	private bool MoveDocumentLeft(Controller controller)
+	{
+		if (mainNest2.Frame != null)
+			mainNest.Frame.AddBuffer(mainNest2.buffers.list.Selected);
 		return true;
 	}
 }

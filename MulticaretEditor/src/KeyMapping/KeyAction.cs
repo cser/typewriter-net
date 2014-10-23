@@ -289,7 +289,7 @@ namespace MulticaretEditor.KeyMapping
 			return true;
 		}
 
-		public static readonly KeyAction SwitchBranch = Add("&Edit\\Switch branch", DoSwitchBranch, DoSwitchBranchCangeMode, true);
+		public static readonly KeyAction SwitchBranch = Add("&Edit\\Switch redo branch", DoSwitchBranch, DoSwitchBranchCangeMode, true);
 		private static bool DoSwitchBranch(Controller controller)
 		{
 			controller.history.TagsDown();

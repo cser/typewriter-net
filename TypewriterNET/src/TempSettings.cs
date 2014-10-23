@@ -40,15 +40,31 @@ public class TempSettings
 		storage.Unserialize(state["storage"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
-			foreach (SValue valueI in state["openedTabs"].List)
 			{
-				string fullPath = valueI["fullPath"].String;
-				if (fullPath != "" && File.Exists(fullPath))
-					mainForm.LoadFile(fullPath);
+				foreach (SValue valueI in state["openedTabs"].List)
+				{
+					string fullPath = valueI["fullPath"].String;
+					if (fullPath != "" && File.Exists(fullPath))
+						mainForm.LoadFile(fullPath);
+				}
+				Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
+				if (selectedTab != null)
+					mainForm.MainNest.buffers.list.Selected = selectedTab;
 			}
-			Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
-			if (selectedTab != null)
-				mainForm.MainNest.buffers.list.Selected = selectedTab;
+			{
+				foreach (SValue valueI in state["openedTabs2"].List)
+				{
+					string fullPath = valueI["fullPath"].String;
+					if (fullPath != "" && File.Exists(fullPath))
+						mainForm.LoadFile(fullPath, null, mainForm.MainNest2);
+				}
+				if (mainForm.MainNest2 != null)
+				{
+					Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab2"]["fullPath"].String);
+					if (selectedTab != null)
+						mainForm.MainNest.buffers.list.Selected = selectedTab;
+				}
+			}
 		}
 		ValuesUnserialize(state);
 		commandHistory.Unserialize(state["commandHistory"]);
@@ -115,13 +131,26 @@ public class TempSettings
 		state["maximized"] = SValue.NewBool(mainForm.WindowState == FormWindowState.Maximized);
 		if (settings.rememberOpenedFiles.Value)
 		{
-			SValue openedTabs = state.SetNewList("openedTabs");
-			foreach (Buffer buffer in mainForm.MainNest.buffers.list)
 			{
-				SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(buffer.FullPath));
-				openedTabs.Add(valueI);
-				if (buffer == mainForm.MainNest.buffers.list.Selected)
-					state["selectedTab"] = valueI;
+				SValue openedTabs = state.SetNewList("openedTabs");
+				foreach (Buffer buffer in mainForm.MainNest.buffers.list)
+				{
+					SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(buffer.FullPath));
+					openedTabs.Add(valueI);
+					if (buffer == mainForm.MainNest.buffers.list.Selected)
+						state["selectedTab"] = valueI;
+				}
+			}
+			if (mainForm.MainNest2 != null)
+			{
+				SValue openedTabs = state.SetNewList("openedTabs2");
+				foreach (Buffer buffer in mainForm.MainNest2.buffers.list)
+				{
+					SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(buffer.FullPath));
+					openedTabs.Add(valueI);
+					if (buffer == mainForm.MainNest2.buffers.list.Selected)
+						state["selectedTab2"] = valueI;
+				}
 			}
 		}
 		state["storage"] = storage.Serialize();
