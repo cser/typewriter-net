@@ -145,11 +145,16 @@ namespace MulticaretEditor.Highlighting
 			Rules.Rule commonRule = null;
 			if (rawRule.type == "keyword")
 			{
-				commonRule = new Rules.Keyword(
-					textListOf[rawRule.String.ToLowerInvariant()],
-					GetBool(rawRule.general.keywordsCasesensitive, true),
-					rawRule.general.keywordsWeakDeliminator ?? "",
-					rawRule.general.keywordsAdditionalDeliminator ?? "");
+				string[] list;
+				textListOf.TryGetValue(rawRule.String.ToLowerInvariant(), out list);
+				if (list != null)
+				{
+					commonRule = new Rules.Keyword(
+						list,
+						GetBool(rawRule.general.keywordsCasesensitive, true),
+						rawRule.general.keywordsWeakDeliminator ?? "",
+						rawRule.general.keywordsAdditionalDeliminator ?? "");
+				}
 			}
 			else if (rawRule.type == "DetectChar")
 			{
