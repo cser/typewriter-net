@@ -155,6 +155,20 @@ namespace MulticaretEditor
 			}
 		}
 
+		private bool showSpaceCharacters = false;
+		public bool ShowSpaceCharacters
+		{
+			get { return showSpaceCharacters; }
+			set
+			{
+				if (showSpaceCharacters != value)
+				{
+					showSpaceCharacters = value;
+					Invalidate();
+				}
+			}
+		}
+
 		private int tabSize = 4;
 		public int TabSize
 		{
@@ -1033,6 +1047,10 @@ namespace MulticaretEditor
 							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 						}
+						else if (showSpaceCharacters && c.c == ' ')
+						{
+							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						}
 						else
 						{
 							TextStyle style = styles[c.style];
@@ -1040,7 +1058,17 @@ namespace MulticaretEditor
 						}
 						if (c.c == '\t')
 						{
-							pos = ((pos + tabSize) / tabSize) * tabSize;
+							int newPos = ((pos + tabSize) / tabSize) * tabSize;
+							if (showSpaceCharacters)
+							{
+								float x1 = x + charWidth * pos + charWidth * (newPos - pos) - 2;
+								float y1 = y + charHeight / 2;
+								float arrowSize = charWidth * .4f;
+								g.DrawLine(scheme.lineNumberFgPen, x + charWidth * pos + 1, y + charHeight / 2, x1, y1);
+								g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 - arrowSize);
+								g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 + arrowSize);
+							}
+							pos = newPos;
 						}
 						else
 						{
@@ -1078,6 +1106,10 @@ namespace MulticaretEditor
 							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 						}
+						else if (showSpaceCharacters && c.c == ' ')
+						{
+							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						}
 						else
 						{
 							TextStyle style = styles[c.style];
@@ -1086,7 +1118,17 @@ namespace MulticaretEditor
 					}
 					if (c.c == '\t')
 					{
-						pos = ((pos + tabSize) / tabSize) * tabSize;
+						int newPos = ((pos + tabSize) / tabSize) * tabSize;
+						if (showSpaceCharacters)
+						{
+							float x1 = x + charWidth * pos + charWidth * (newPos - pos) - 2;
+							float y1 = y + charHeight / 2;
+							float arrowSize = charWidth * .4f;
+							g.DrawLine(scheme.lineNumberFgPen, x + charWidth * pos + 1, y + charHeight / 2, x1, y1);
+							g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 - arrowSize);
+							g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 + arrowSize);
+						}
+						pos = newPos;
 					}
 					else
 					{

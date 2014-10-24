@@ -11,6 +11,7 @@ public class Settings
 	public readonly Properties.Bool wordWrap = new Properties.Bool("wordWrap", false);
 	public readonly Properties.Bool showLineNumbers = new Properties.Bool("showLineNumbers", true);
 	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
+	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true).SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
@@ -55,6 +56,7 @@ public class Settings
 		Add(wordWrap);
 		Add(showLineNumbers);
 		Add(showLineBreaks);
+		Add(showSpaceCharacters);
 		Add(highlightCurrentLine);
 		Add(lineBreak);
 		Add(tabSize);
@@ -166,6 +168,7 @@ public class Settings
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value;
 		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.Value;
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
@@ -188,6 +191,7 @@ public class Settings
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
 		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.Value;
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;

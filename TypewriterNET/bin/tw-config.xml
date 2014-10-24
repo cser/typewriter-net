@@ -3,6 +3,7 @@
 	<item name="wordWrap" value="true"/>
 	<item name="showLineNumbers" value="true"/>
 	<item name="showLineBreaks" value="false"/>
+	<item name="showSpaceCharacters" value="false"/>
 	<item name="highlightCurrentLine" value="true"/>
 	<item name="tabSize" value="4"/>
 	<item name="spacesInsteadTabs" value="false"/>
