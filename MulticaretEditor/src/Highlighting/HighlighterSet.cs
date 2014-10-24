@@ -29,6 +29,7 @@ namespace MulticaretEditor.Highlighting
 				if (raw != null)
 				{
 					highlighter = new Highlighter(raw);
+					highlighter.type = type;
 					highlighterBy[type] = highlighter;
 				}
 			}

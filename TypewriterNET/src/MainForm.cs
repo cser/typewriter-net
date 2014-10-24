@@ -366,6 +366,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F6, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F7, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
@@ -929,6 +930,35 @@ public class MainForm : Form
 			return true;
 		}
 		buffer.InitText(File.ReadAllText(templatePath));
+		return true;
+	}
+
+	private bool DoEditCurrentSyntaxFile(Controller controller)
+	{
+		CreateAppDataFolders();
+		if (LastBuffer == null || LastBuffer.Controller.isReadonly || string.IsNullOrEmpty(LastBuffer.FullPath))
+		{
+			Dialogs.ShowInfo("Error", "No file with path in current frame");
+			return true;
+		}
+		Highlighter highlighter = LastBuffer.Frame.TextBox.Highlighter;
+		if (highlighter == null || string.IsNullOrEmpty(highlighter.type))
+		{
+			Dialogs.ShowInfo("Error", "No syntax in current frame");
+			return true;
+		}
+		string file = syntaxFilesScanner.GetSyntaxFileByName(highlighter.type);
+		if (string.IsNullOrEmpty(file))
+		{
+			Dialogs.ShowInfo("Error", "No file for syntax");
+			return true;
+		}
+		string fileName = Path.GetFileName(file);
+		string startupPath = Path.Combine(AppPath.SyntaxDir.startupPath, fileName);
+		string appDataPath = Path.Combine(AppPath.SyntaxDir.appDataPath, fileName);
+		if (!File.Exists(appDataPath))
+			File.Copy(startupPath, appDataPath);
+		LoadFile(appDataPath);
 		return true;
 	}
 

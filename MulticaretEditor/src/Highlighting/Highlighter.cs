@@ -12,6 +12,8 @@ namespace MulticaretEditor.Highlighting
 	{
 		public static int MaxStylesCount = 124;
 
+		public string type;
+
 		private Rules.Context[] contexts;
 		private Dictionary<string, StyleData> styleDataOf;
 		private StyleData defaultStyleData;
