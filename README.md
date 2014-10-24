@@ -37,7 +37,7 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 Installation without building
 -----------------------------
 
-Just get <code>typewriter-net-installer-07.exe</code> at the root of the repository and run it<br/>
+Just get <code>typewriter-net-installer-08.exe</code> at the root of the repository and run it<br/>
 Requires **NET Framework 2.0**
 
 Building
