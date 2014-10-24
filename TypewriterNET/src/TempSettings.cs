@@ -34,8 +34,12 @@ public class TempSettings
 			string error;
 			mainForm.SetCurrentDirectory(state["currentDir"].String, out error);
 		}
-		mainForm.Size = new Size(state["width"].GetInt(700), state["height"].GetInt(480));
-		mainForm.Location = new Point(state["x"].Int, state["y"].Int);
+		int width = Math.Max(50, state["width"].GetInt(700));
+		int height = Math.Max(30, state["height"].GetInt(480));
+		int x = Math.Max(0, state["x"].Int);
+		int y = Math.Max(0, state["y"].Int);
+		mainForm.Size = new Size(width, height);
+		mainForm.Location = new Point(x, y);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
 		storage.Unserialize(state["storage"]);
 		if (settings.rememberOpenedFiles.Value)
