@@ -169,7 +169,7 @@ public class FileIncrementalSearch : ADialog
 
 	private bool DoNextField(Controller controller)
 	{
-		if (controller == textBox.Controller)
+		if (controller == textBox.Controller && variantsTextBox.Controller.Lines.charsCount != 0)
 			variantsTextBox.Focus();
 		else
 			textBox.Focus();
@@ -219,6 +219,7 @@ public class FileIncrementalSearch : ADialog
 	}
 
 	private string compareText;
+	private char directorySeparator;
 
 	private string GetVariantsText(string text)
 	{
@@ -231,6 +232,7 @@ public class FileIncrementalSearch : ADialog
 				files.Add(file);
 		}
 		compareText = text;
+		directorySeparator = Path.DirectorySeparatorChar;
 		files.Sort(CompareFiles);
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
@@ -246,8 +248,14 @@ public class FileIncrementalSearch : ADialog
 
 	private int CompareFiles(string file0, string file1)
 	{
-		int offset0 = file0.Length - file0.IndexOf(compareText);
-		int offset1 = file1.Length - file1.IndexOf(compareText);
+		int index0 = file0.LastIndexOf(compareText);
+		int index1 = file1.LastIndexOf(compareText);
+		int separatorCriterion0 = index0 == file0.LastIndexOf(directorySeparator) + 1 ? 1 : 0;
+		int separatorCriterion1 = index1 == file1.LastIndexOf(directorySeparator) + 1 ? 1 : 0;
+		if (separatorCriterion0 != separatorCriterion1)
+			return separatorCriterion0 - separatorCriterion1;
+		int offset0 = file0.Length - index0;
+		int offset1 = file1.Length - index1;
 		if (offset0 != offset1)
 			return offset1 - offset0;
 		return file1.Length - file0.Length;
