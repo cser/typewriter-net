@@ -97,6 +97,7 @@ public class MainForm : Form
 
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	private string tempFilePostfix;
 	private SchemeManager schemeManager;
 
 	private XmlLoader xmlLoader;
@@ -112,6 +113,9 @@ public class MainForm : Form
 
 	private void OnLoad(object sender, EventArgs e)
 	{
+		List<FileArg> filesToLoad;
+		ApplyArgs(args, out filesToLoad, out tempFilePostfix);
+
 		string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
 		if (!Directory.Exists(appDataPath))
 			Directory.CreateDirectory(appDataPath);
@@ -157,13 +161,14 @@ public class MainForm : Form
 		ReloadConfig();
 		fileDragger = new FileDragger(this);
 
-		tempSettings.Load();
+		tempSettings.Load(tempFilePostfix);
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
 
-		if (args.Length == 1)
-			LoadFile(args[0]);
-		if (args.Length == 3 && args[0] == "-connect")
-			LoadFile(args[1], args[2]);
+		foreach (FileArg fileArg in filesToLoad)
+		{
+			LoadFile(fileArg.file, fileArg.httpServer);
+		}
+
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
 		OpenEmptyIfNeed();
@@ -171,6 +176,74 @@ public class MainForm : Form
 		UpdateTitle();
 
 		Activated += OnActivated;
+	}
+
+	public struct FileArg
+	{
+		public string file;
+		public string httpServer;
+
+		public FileArg(string file, string httpServer)
+		{
+			this.file = file;
+			this.httpServer = httpServer;
+		}
+	}
+
+	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out string tempFilePostfix)
+	{
+		filesToLoad = new List<FileArg>();
+		tempFilePostfix = null;
+		for (int i = 0; true;)
+		{
+			if (i < args.Length && args[i] == "-connect")
+			{
+				i++;
+				if (i + 1 < args.Length && !args[i].StartsWith("-") && !args[i + 1].StartsWith("-"))
+				{
+					filesToLoad.Add(new FileArg(args[i], args[i + 1]));
+					i += 2;
+				}
+				else
+				{
+					Console.Error.WriteLine("-connect requires fileName and httpServer");
+					break;
+				}
+			}
+			else if (i < args.Length && !args[i].StartsWith("-"))
+			{
+				filesToLoad.Add(new FileArg(args[i], null));
+				i++;
+			}
+			else if (i < args.Length && args[i] == "-temp")
+			{
+				i++;
+				if (i < args.Length && !args[i].StartsWith("-"))
+				{
+					tempFilePostfix = args[i];
+					i++;
+				}
+				else
+				{
+					Console.Error.WriteLine("-temp requires tempFilePostfix");
+					break;
+				}
+			}
+			else if (i < args.Length && args[i] == "-help")
+			{
+				Console.Write("Typewriter.NET options:\n" +
+					"<fileName>\n" +
+					"-connect <fictiveFileName> <httpServer>\n" +
+					"-temp <tempFilePostfix> - for using different temp settings\n" +
+					"-help");
+			}
+			else
+			{
+				if (i < args.Length)
+					Console.Error.WriteLine("Unexpected parameter: " + args[i]);
+				break;
+			}
+		}
 	}
 
 	public bool SetCurrentDirectory(string path, out string error)
@@ -266,7 +339,7 @@ public class MainForm : Form
 			}
 		}
 		if (!forbidTempSaving)
-			tempSettings.Save();
+			tempSettings.Save(tempFilePostfix);
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -855,7 +928,7 @@ public class MainForm : Form
 
 	private bool DoResetTempAndClose(Controller controller)
 	{
-		string path = TempSettings.GetTempSettingsPath();
+		string path = TempSettings.GetTempSettingsPath(tempFilePostfix);
 		if (File.Exists(path))
 			File.Delete(path);
 		forbidTempSaving = true;
