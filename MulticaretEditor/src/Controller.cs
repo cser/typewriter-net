@@ -26,6 +26,7 @@ namespace MulticaretEditor
 		}
 
 		public bool isReadonly;
+		public bool needDispatchChange;
 		public MacrosExecutor macrosExecutor;
 
 		public LineArray Lines { get { return lines; } }
@@ -583,18 +584,23 @@ namespace MulticaretEditor
 			bool result = command.Init();
 			if (result)
 				history.ExecuteInited(command);
+			needDispatchChange = true;
 			return result;
 		}
 
 		public void Undo()
 		{
 			ResetCommandsBatching();
+			bool changed = false;
 			while (true)
 			{
-				history.Undo();
+				if (history.Undo())
+					changed = true;
 				if (history.LastCommand == null || history.LastCommand.marked)
 					break;
 			}
+			if (changed)
+				needDispatchChange = true;
 		}
 
 		public void Redo()

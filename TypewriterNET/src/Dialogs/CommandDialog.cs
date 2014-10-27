@@ -80,7 +80,7 @@ public class CommandDialog : ADialog
 		if (lastController != null)
 		{
 			textBox.Text = data.oldText;
-    		textBox.Controller.SelectAllToEnd();
+			textBox.Controller.SelectAllToEnd();
 		}
 	}
 

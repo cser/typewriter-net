@@ -18,6 +18,7 @@ namespace MulticaretEditor
 		public static MacrosExecutor initMacrosExecutor;
 
 		public event Setter FocusedChange;
+		public event Setter TextChange;
 
 		private LineArray lines;
 		private Controller controller;
@@ -537,6 +538,13 @@ namespace MulticaretEditor
 			#if debug
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
+
+			if (controller != null && controller.needDispatchChange)
+			{
+				controller.needDispatchChange = false;
+				if (TextChange != null)
+					TextChange();
+			}
 		}
 
 		private RectangleF mapRectangle;

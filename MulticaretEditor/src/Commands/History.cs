@@ -7,12 +7,12 @@ namespace MulticaretEditor.Commands
 	public class History
 	{
 		public event Setter ChangedChange;
-		
+
 		private int _nextTagIndex = 0;
-		
+
 		private SwitchList<CommandTag> _tags;
 		public readonly IRList<CommandTag> tags;
-		
+
 		private CommandTag head;
 		public CommandTag Head { get { return head; } }
 
@@ -25,19 +25,19 @@ namespace MulticaretEditor.Commands
 			get { return maxUndosCount; }
 			set { maxUndosCount = value; }
 		}
-		
+
 		private Node root;
-		
+
 		public History()
 		{
 			_tags = new SwitchList<CommandTag>();
 			tags = _tags;
-			
+
 			Reset();
-			
+
 			savedNode = head.Prev;
 		}
-		
+
 		public void Reset()
 		{
 			_tags.Clear();
@@ -46,7 +46,7 @@ namespace MulticaretEditor.Commands
 			head.Prev = root;
 			_tags.Add(head);
 		}
-		
+
 		public void ExecuteInited(Command command)
 		{
 			Node node0 = head.Prev;
@@ -88,14 +88,14 @@ namespace MulticaretEditor.Commands
 			head.Prev = node;
 			node.main = true;
 			node.command.Redo();
-			
+
 			SetChanged(savedNode != head.Prev);
 		}
-		
+
 		public bool CanUndo { get { return head.Prev != root; } }
 		public Command LastCommand { get { return head.Prev != root ? head.Prev.command : null; } }
-		
-		public void Undo()
+
+		public bool Undo()
 		{
 			if (head.Prev != root)
 			{
@@ -104,14 +104,16 @@ namespace MulticaretEditor.Commands
 				head.redos.Add(node);
 				node.main = false;
 				node.command.Undo();
-				
+
 				SetChanged(savedNode != head.Prev);
+				return true;
 			}
+			return false;
 		}
-		
+
 		public bool CanRedo { get { return head.redos.Count > 0; } }
 		public Command NextCommand { get { return head.redos.Count > 0 ? head.redos[head.redos.Count - 1].command : null; } }
-		
+
 		public void Redo()
 		{
 			if (head.redos.Count > 0)
@@ -122,11 +124,11 @@ namespace MulticaretEditor.Commands
 				head.Prev = node;
 				node.main = true;
 				node.command.Redo();
-				
+
 				SetChanged(savedNode != head.Prev);
 			}
 		}
-		
+
 		public void Checkout(CommandTag tag)
 		{
 			Node common = null;
@@ -165,7 +167,7 @@ namespace MulticaretEditor.Commands
 					nodeI.main = false;
 					nodeI.command.Undo();
 				}
-				
+
 				List<Node> redos = new List<Node>();
 				for (Node nodeI = tag.Prev; nodeI != common; nodeI = nodeI.prev)
 				{
@@ -177,11 +179,11 @@ namespace MulticaretEditor.Commands
 					nodeI.main = true;
 					nodeI.command.Redo();
 				}
-				
+
 				head = tag;
 			}
 		}
-		
+
 		private void FindAllTagsOf(Node root, Dictionary<CommandTag, bool> tags)
 		{
 			Stack<Node> stack = new Stack<Node>();
@@ -199,14 +201,14 @@ namespace MulticaretEditor.Commands
 				}
 			}
 		}
-		
+
 		public string ToDebugString()
 		{
 			StringBuilder text = new StringBuilder();
 			ToDebugString(text, 0, root);
 			return text.ToString();
 		}
-		
+
 		private void ToDebugString(StringBuilder text, int indent, Node node)
 		{
 			text.Append(new string(' ', indent * 2));
@@ -221,34 +223,34 @@ namespace MulticaretEditor.Commands
 				ToDebugString(text, indent + 1, node.nexts[i]);
 			}
 		}
-		
+
 		public void TagsModeOn()
 		{
 			_tags.ModeOn();
 		}
-		
+
 		public void TagsModeOff()
 		{
 			_tags.ModeOff();
 		}
-		
+
 		public void TagsDown()
 		{
 			_tags.Down();
 			Checkout(_tags.Selected);
 		}
-		
+
 		private bool changed = false;
 		public bool Changed { get { return changed; } }
-		
+
 		private Node savedNode;
-		
+
 		public void MarkAsSaved()
 		{
 			savedNode = head.Prev;
 			SetChanged(false);
 		}
-		
+
 		private void SetChanged(bool value)
 		{
 			if (changed != value)

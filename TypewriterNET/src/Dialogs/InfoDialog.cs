@@ -119,7 +119,7 @@ public class InfoDialog : ADialog
 			tabBar.Scheme = settings.ParsedScheme;
 		}
 	}
-	
+
 	private void SetTextBoxParameters()
 	{
 		textBox.ShowLineNumbers = false;

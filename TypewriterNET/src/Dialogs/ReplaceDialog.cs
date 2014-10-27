@@ -21,7 +21,7 @@ public class ReplaceDialog : ADialog
 		public string oldReplaceText = "";
 		public readonly StringList history;
 		public readonly StringList replaceHistory;
-		
+
 		public Data(StringList history, StringList replaceHistory)
 		{
 			this.history = history;

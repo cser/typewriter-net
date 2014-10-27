@@ -766,7 +766,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-		
+
 		public void ResetHighlighting()
 		{
 			for (int i = 0; i < blocksCount; i++)
