@@ -82,7 +82,11 @@ public class TempSettings
 		findParams.Unserialize(state["findParams"]);
 		mainForm.FileTree.SetExpandedTemp(state["fileTreeExpanded"]);
 		if (state["showFileTree"].Bool)
+		{
 			mainForm.OpenFileTree();
+			if (mainForm.MainNest.Frame != null)
+				mainForm.MainNest.Frame.Focus();
+		}
 	}
 
 	public void StorageQualities(Buffer buffer)
