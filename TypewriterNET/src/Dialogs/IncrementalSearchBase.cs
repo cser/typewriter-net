@@ -42,13 +42,13 @@ public class IncrementalSearchBase : ADialog
 		KeyMap textKeyMap = new KeyMap();
 		KeyMap variantsKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Close search", DoClose, null, false);
+			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Close", DoClose, null, false);
 			textKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
 		{
-			textKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\" + submenu + "\\Select searching file up", DoUp, null, false)));
-			textKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\" + submenu + "\\Select searching file down", DoDown, null, false)));
+			textKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\" + submenu + "\\Select up", DoUp, null, false)));
+			textKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\" + submenu + "\\Select down", DoDown, null, false)));
 		}
 		{
 			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Next field", DoNextField, null, false);
@@ -56,7 +56,7 @@ public class IncrementalSearchBase : ADialog
 			variantsKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Open searching file", DoExecute, null, false);
+			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Open", DoExecute, null, false);
 			textKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			textKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
@@ -140,15 +140,17 @@ public class IncrementalSearchBase : ADialog
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
+		Console.WriteLine("OnResize");
 		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
+		int width = Width < 50 ? MainForm.Width - 20 : Width;
+		tabBar.Size = new Size(width, tabBarHeight);
+		splitLine.Location = new Point(width - 10, tabBarHeight);
 		splitLine.Size = new Size(10, Height - tabBarHeight);
 		variantsTextBox.Location = new Point(0, tabBarHeight);
-		variantsTextBox.Size = new Size(Width - 10, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
+		variantsTextBox.Size = new Size(width - 10, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		textBox.Location = new Point(0, Height - variantsTextBox.CharHeight);
-		textBox.Size = new Size(Width - 10, variantsTextBox.CharHeight);
+		textBox.Size = new Size(width - 10, variantsTextBox.CharHeight);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -202,6 +204,7 @@ public class IncrementalSearchBase : ADialog
 		Place place = new Place(0, variantsTextBox.Controller.Lines.LinesCount - 1);
 		selection.anchor = selection.caret = variantsTextBox.Controller.Lines.IndexOf(place);
 		variantsTextBox.Invalidate();
+		Console.WriteLine("y=" + variantsTextBox.GetScrollSizeY() + "/" + variantsTextBox.Width);
 		Nest.size = tabBar.Height + variantsTextBox.CharHeight *
 			(!string.IsNullOrEmpty(text) && variantsTextBox.Controller != null ? variantsTextBox.GetScrollSizeY() + 1 : 1) + 4;
 		variantsTextBox.Controller.NeedScrollToCaret();
