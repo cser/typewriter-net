@@ -36,18 +36,33 @@ public class FileIncrementalSearch : ADialog
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
-		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close search", DoClose, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("V&iew\\Next field", DoNextField, null, false)));
+		KeyMap textKeyMap = new KeyMap();
+		KeyMap variantsKeyMap = new KeyMap();
+		{
+			KeyAction action = new KeyAction("&View\\Close search", DoClose, null, false);
+			textKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+			variantsKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+		}
+		{
+			textKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Select searching file up", DoUp, null, false)));
+			textKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("&View\\Select searching file down", DoDown, null, false)));
+		}
+		{
+			KeyAction action = new KeyAction("V&iew\\Next field", DoNextField, null, false);
+			textKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+			variantsKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+		}
 		{
 			KeyAction action = new KeyAction("&View\\Open searching file", DoOpen, null, false);
-			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
-			frameKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+			textKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			textKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
+			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			variantsKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 
 		variantsTextBox = new MulticaretTextBox();
 		variantsTextBox.KeyMap.AddAfter(KeyMap);
-		variantsTextBox.KeyMap.AddAfter(frameKeyMap, 1);
+		variantsTextBox.KeyMap.AddAfter(variantsKeyMap, 1);
 		variantsTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		variantsTextBox.FocusedChange += OnTextBoxFocusedChange;
 		variantsTextBox.Controller.isReadonly = true;
@@ -55,7 +70,7 @@ public class FileIncrementalSearch : ADialog
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
-		textBox.KeyMap.AddAfter(frameKeyMap, 1);
+		textBox.KeyMap.AddAfter(textKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.TextChange += OnTextBoxTextChange;
@@ -69,7 +84,7 @@ public class FileIncrementalSearch : ADialog
 
 		Name = Directory.GetCurrentDirectory();
 		BuildFilesList();
-		InitVariantsText("");
+		InitVariantsText(GetVariantsText());
 	}
 
 	private void OnCloseClick()
@@ -114,7 +129,7 @@ public class FileIncrementalSearch : ADialog
 
 	private void OnTextBoxTextChange()
 	{
-		InitVariantsText(GetVariantsText(textBox.Text));
+		InitVariantsText(GetVariantsText());
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -186,6 +201,7 @@ public class FileIncrementalSearch : ADialog
 		variantsTextBox.Invalidate();
 		Nest.size = tabBar.Height + variantsTextBox.CharHeight *
 			(!string.IsNullOrEmpty(text) && variantsTextBox.Controller != null ? variantsTextBox.GetScrollSizeY() + 1 : 1) + 4;
+		variantsTextBox.Controller.NeedScrollToCaret();
 		SetNeedResize();
 	}
 
@@ -221,10 +237,9 @@ public class FileIncrementalSearch : ADialog
 	private string compareText;
 	private char directorySeparator;
 
-	private string GetVariantsText(string text)
+	private string GetVariantsText()
 	{
-		if (string.IsNullOrEmpty(text))
-			return "";
+		string text = textBox.Text;
 		List<string> files = new List<string>();
 		foreach (string file in filesList)
 		{
@@ -270,6 +285,22 @@ public class FileIncrementalSearch : ADialog
 			MainForm.LoadFile(file);
 			DispatchNeedClose();
 		}
+		return true;
+	}
+
+	private bool DoUp(Controller controller)
+	{
+		variantsTextBox.Controller.MoveUp(false);
+		variantsTextBox.Controller.NeedScrollToCaret();
+		variantsTextBox.Invalidate();
+		return true;
+	}
+
+	private bool DoDown(Controller controller)
+	{
+		variantsTextBox.Controller.MoveDown(false);
+		variantsTextBox.Controller.NeedScrollToCaret();
+		variantsTextBox.Invalidate();
 		return true;
 	}
 }
