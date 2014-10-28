@@ -88,6 +88,7 @@ public class DialogManager
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<FileIncrementalSearch> fileIncrementalSearch;
+	private DialogOwner<MenuItemIncrementalSearch> menuItemIncrementalSearch;
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
@@ -114,11 +115,13 @@ public class DialogManager
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null, new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, new KeyAction("F&ind\\File incremental search...", FileIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null, new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
 
 		info = new DialogOwner<InfoDialog>(this);
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
+		menuItemIncrementalSearch = new DialogOwner<MenuItemIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
@@ -284,10 +287,17 @@ public class DialogManager
 		return true;
 	}
 
-	private bool FileIncrementalSearch(Controller controller)
+	private bool DoFileIncrementalSearch(Controller controller)
 	{
 		if (fileIncrementalSearch.Dialog == null)
 			fileIncrementalSearch.Open(new FileIncrementalSearch(), false);
+		return true;
+	}
+
+	private bool DoMenuItemIncrementalSearch(Controller controller)
+	{
+		if (menuItemIncrementalSearch.Dialog == null)
+			menuItemIncrementalSearch.Open(new MenuItemIncrementalSearch(), false);
 		return true;
 	}
 

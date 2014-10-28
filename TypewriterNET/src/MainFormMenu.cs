@@ -129,7 +129,7 @@ public class MainFormMenu : MainMenu
 		}
 	}
 
-	private static string GetShortcutText(KeyAction action, List<KeyItem> keys, KeysConverter keysConverter)
+	public static string GetShortcutText(KeyAction action, List<KeyItem> keys, KeysConverter keysConverter)
 	{
 		string text = "";
 		bool first = true;
