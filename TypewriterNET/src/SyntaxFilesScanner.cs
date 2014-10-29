@@ -136,6 +136,8 @@ public class SyntaxFilesScanner
 	}
 	
 	private List<LanguageInfo> infos = new List<LanguageInfo>();
+	public IEnumerable<LanguageInfo> Infos { get { return infos; } }
+	
 	private Dictionary<string, string> syntaxFileByName = new Dictionary<string, string>();
 	
 	public void Reset()

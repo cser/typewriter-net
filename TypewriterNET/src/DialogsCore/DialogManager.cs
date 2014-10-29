@@ -89,6 +89,7 @@ public class DialogManager
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<FileIncrementalSearch> fileIncrementalSearch;
 	private DialogOwner<MenuItemIncrementalSearch> menuItemIncrementalSearch;
+	private DialogOwner<SyntaxIncrementalSearch> syntaxIncrementalSearch;
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
@@ -110,18 +111,29 @@ public class DialogManager
 		closeMethods = new List<Getter<bool, bool>>();
 
 		KeyMap keyMap = mainForm.KeyMap;
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null, new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, new KeyAction("F&ind\\Find...", DoFind, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null, new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null, new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null, new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null, new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null,
+			new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+			new KeyAction("F&ind\\Find...", DoFind, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null,
+			new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null,
+			new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null,
+			new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null,
+			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null,
+			new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
+			new KeyAction("&View\\Set syntax...", DoSetSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null,
+			new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
 
 		info = new DialogOwner<InfoDialog>(this);
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
 		menuItemIncrementalSearch = new DialogOwner<MenuItemIncrementalSearch>(this);
+		syntaxIncrementalSearch = new DialogOwner<SyntaxIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
@@ -298,6 +310,13 @@ public class DialogManager
 	{
 		if (menuItemIncrementalSearch.Dialog == null)
 			menuItemIncrementalSearch.Open(new MenuItemIncrementalSearch(), false);
+		return true;
+	}
+
+	private bool DoSetSyntax(Controller controller)
+	{
+		if (syntaxIncrementalSearch.Dialog == null)
+			syntaxIncrementalSearch.Open(new SyntaxIncrementalSearch(), false);
 		return true;
 	}
 

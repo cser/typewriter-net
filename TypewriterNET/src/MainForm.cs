@@ -32,7 +32,10 @@ public class MainForm : Form
 	public readonly Commander commander;
 
 	private ConcreteHighlighterSet highlightingSet;
+	public ConcreteHighlighterSet HighlightingSet { get { return highlightingSet; } }
+	
 	private SyntaxFilesScanner syntaxFilesScanner;
+	public SyntaxFilesScanner SyntaxFilesScanner { get { return syntaxFilesScanner; } }
 
 	public MainForm(string[] args)
 	{
@@ -116,7 +119,8 @@ public class MainForm : Form
 		List<FileArg> filesToLoad;
 		ApplyArgs(args, out filesToLoad, out tempFilePostfix);
 
-		string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
+		string appDataPath = Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
 		if (!Directory.Exists(appDataPath))
 			Directory.CreateDirectory(appDataPath);
 		AppPath.Init(Application.StartupPath, appDataPath);
@@ -413,38 +417,66 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null, new KeyAction("&File\\Save As", DoSaveAs, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
+			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null, new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null, new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null, new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null, new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null, new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null, new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null, new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
+			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null,
+			new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null,
+			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
+			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null,
+			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null,
+			new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null,
+			new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null,
+			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
+			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null, new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F2, null, new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null, new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null, new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null, new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F4, null, new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F5, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F6, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F7, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.F8, null, new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
+			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F2, null,
+			new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null,
+			new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null,
+			new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F4, null,
+			new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F5, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F6, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F7, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F8, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -556,7 +588,8 @@ public class MainForm : Form
 			string text = "";
 			try
 			{
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(buffer.httpServer + "/" + buffer.Name + "/get");
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+					buffer.httpServer + "/" + buffer.Name + "/get");
 				request.Timeout = settings.connectionTimeout.Value;
 				request.Method = "POST";
 				request.ContentType = "application/x-www-form-urlencoded";
@@ -572,7 +605,8 @@ public class MainForm : Form
 				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
 				buffer.encodingPair = settings.httpEncoding.Value;
-				using (StreamReader reader = new StreamReader(response.GetResponseStream(), settings.httpEncoding.Value.encoding))
+				using (StreamReader reader = new StreamReader(
+					response.GetResponseStream(), settings.httpEncoding.Value.encoding))
 				{
 					text = reader.ReadToEnd();
 				}
@@ -1183,7 +1217,10 @@ public class MainForm : Form
 			tempSettings.StorageQualities(buffer);
 			if (buffer.Changed)
 			{
-				DialogResult result = MessageBox.Show("Do you want to save the current changes in\n" + buffer.Name + "?", Name, MessageBoxButtons.YesNoCancel);
+				DialogResult result = MessageBox.Show(
+					"Do you want to save the current changes in\n" + buffer.Name + "?",
+					Name,
+					MessageBoxButtons.YesNoCancel);
 				switch (result)
 				{
 					case DialogResult.Yes:
@@ -1262,7 +1299,6 @@ public class MainForm : Form
 			return;
 		}
 		string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
-		string extension = fileName.ToLowerInvariant();
 		textBox.Highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
 	}
 
