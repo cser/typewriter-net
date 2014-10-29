@@ -15,7 +15,7 @@ using MulticaretEditor;
 
 public class MenuItemIncrementalSearch : IncrementalSearchBase
 {
-	public MenuItemIncrementalSearch() : base("Menu item incremental search")
+	public MenuItemIncrementalSearch() : base("Search in menu", "Menu item incremental search")
 	{
 	}
 

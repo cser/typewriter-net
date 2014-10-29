@@ -15,7 +15,7 @@ using MulticaretEditor;
 
 public class SyntaxIncrementalSearch : IncrementalSearchBase
 {
-	public SyntaxIncrementalSearch() : base("Menu item incremental search")
+	public SyntaxIncrementalSearch() : base("Syntax selection", "Syntax selection")
 	{
 	}
 

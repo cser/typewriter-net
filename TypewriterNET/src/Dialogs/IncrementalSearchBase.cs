@@ -21,10 +21,12 @@ public class IncrementalSearchBase : ADialog
 	private MulticaretTextBox variantsTextBox;
 	private MulticaretTextBox textBox;
 
+	private string name;
 	private string submenu;
 
-	public IncrementalSearchBase(string submenu)
+	public IncrementalSearchBase(string name, string submenu)
 	{
+		this.name = name;
 		this.submenu = submenu;
 	}
 
@@ -32,7 +34,7 @@ public class IncrementalSearchBase : ADialog
 	{
 		list = new SwitchList<string>();
 		tabBar = new TabBar<string>(list, TabBar<string>.DefaultStringOf);
-		tabBar.Text = "Search";
+		tabBar.Text = name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
@@ -97,7 +99,7 @@ public class IncrementalSearchBase : ADialog
 		InitResizing(tabBar, splitLine);
 		Height = MinSize.Height;
 
-		Name = Directory.GetCurrentDirectory();
+		Name = GetSubname();
 		Prebuild();
 		InitVariantsText(GetVariantsText(textBox.Text));
 	}
@@ -117,7 +119,8 @@ public class IncrementalSearchBase : ADialog
 		set
 		{
 			list.Clear();
-			list.Add(value);
+			if (!string.IsNullOrEmpty(value))
+				list.Add(value);
 		}
 	}
 
@@ -277,6 +280,11 @@ public class IncrementalSearchBase : ADialog
 		string lineText = variantsTextBox.Controller.Lines[place.iLine].Text.Trim();
 		Execute(place.iLine, lineText);
 		return true;
+	}
+	
+	virtual protected string GetSubname()
+	{
+		return null;
 	}
 
 	virtual protected void Prebuild()

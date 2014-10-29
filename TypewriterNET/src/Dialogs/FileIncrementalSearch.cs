@@ -15,8 +15,13 @@ using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {
-	public FileIncrementalSearch() : base("Incremental file search")
+	public FileIncrementalSearch() : base("File search", "Incremental file search")
 	{
+	}
+	
+	override protected string GetSubname()
+	{
+		return Directory.GetCurrentDirectory();
 	}
 
 	private string compareText;
