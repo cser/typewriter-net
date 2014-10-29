@@ -1,14 +1,7 @@
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
-using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
@@ -41,7 +34,7 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		currentItem = highlighter.type;
 	}
 	
-	private const string ResetText = "[reset]";
+	private const string Reset = "[reset]";
 
 	private string compareText;
 	private List<string> sortedItems = new List<string>();
@@ -50,12 +43,12 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 	{
 		compareText = text;
 		sortedItems.Clear();
-		sortedItems.Add(ResetText);
 		foreach (string item in items)
 		{
 			sortedItems.Add(item);
 		}
 		sortedItems.Sort(CompareItems);
+		sortedItems.Insert(0, Reset);
 		compareText = text;
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
@@ -97,7 +90,7 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return;
-		buffer.customSyntax = lineText != ResetText ? lineText : null;
+		buffer.customSyntax = lineText != Reset ? lineText : null;
 		MainForm.UpdateHighlighter(textBox, buffer.Name, buffer);
 		textBox.Controller.Lines.ResetHighlighting();
 		DispatchNeedClose();
