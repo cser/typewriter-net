@@ -118,7 +118,8 @@ public class Commander
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
 			{
-				mainForm.Dialogs.ShowInfo("Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
 				return false;
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath);
@@ -170,8 +171,11 @@ public class Commander
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command("encode", "encoding[ bom]", "Change/show encoding to save", DoChangeEncodingToSave));
-		commands.Add(new Command("reload", "encoding[ bom]/reset", "Reload file in custom encoding, reset - detect encoding anew",
+		commands.Add(new Command(
+			"reload", "encoding[ bom]/reset", "Reload file in custom encoding, reset - detect encoding anew",
 			DoReloadInCustomEncoding));
+		commands.Add(new Command(
+			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 	}
 
 	private void DoHelp(string args)
@@ -263,7 +267,8 @@ public class Commander
 		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
 		if (pair.IsNull)
 		{
-			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
+			mainForm.Dialogs.ShowInfo(
+				"Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
 			return;
 		}
 		lastBuffer.encodingPair = pair;
@@ -293,10 +298,16 @@ public class Commander
 		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
 		if (pair.IsNull)
 		{
-			mainForm.Dialogs.ShowInfo("Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
+			mainForm.Dialogs.ShowInfo(
+				"Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
 			return;
 		}
 		lastBuffer.settedEncodingPair = pair;
 		mainForm.ReloadFile(lastBuffer);
+	}
+	
+	private void DoShortcut(string text)
+	{
+		mainForm.Dialogs.ShowInputCommand(text);
 	}
 }

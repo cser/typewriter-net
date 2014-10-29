@@ -158,8 +158,13 @@ public class DialogManager
 	private bool DoInputCommand(Controller controller)
 	{
 		if (command.SwitchOpen())
-			command.Open(new CommandDialog(commandData, "Command"), true);
+			ShowInputCommand(null);
 		return true;
+	}
+	
+	public void ShowInputCommand(string text)
+	{
+		command.Open(new CommandDialog(commandData, "Command", text), true);
 	}
 
 	private bool DoFind(Controller controller)

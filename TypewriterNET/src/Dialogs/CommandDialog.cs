@@ -23,11 +23,13 @@ public class CommandDialog : ADialog
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private Data data;
+	private string text;
 
-	public CommandDialog(Data data, string name)
+	public CommandDialog(Data data, string name, string text)
 	{
 		this.data = data;
 		Name = name;
+		this.text = text;
 	}
 
 	override protected void DoCreate()
@@ -41,10 +43,14 @@ public class CommandDialog : ADialog
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Cancel command", DoCancel, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Run command", DoRunCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("&View\\Next command", DoNextCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
+			new KeyAction("&View\\Cancel command", DoCancel, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
+			new KeyAction("&View\\Run command", DoRunCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
+			new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
+			new KeyAction("&View\\Next command", DoNextCommand, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -79,8 +85,16 @@ public class CommandDialog : ADialog
 		Controller lastController = lastFrame != null ? lastFrame.Controller : null;
 		if (lastController != null)
 		{
-			textBox.Text = data.oldText;
-			textBox.Controller.SelectAllToEnd();
+			if (text != null)
+			{
+				textBox.Text = text;
+				textBox.Controller.DocumentEnd(false);
+			}
+			else
+			{
+				textBox.Text = data.oldText;
+				textBox.Controller.SelectAllToEnd();
+			}
 		}
 	}
 
