@@ -96,6 +96,10 @@ public class TempSettings
 			value.With("encoding", SValue.NewString(buffer.settedEncodingPair.ToString()));
 		else
 			value.With("encoding", SValue.None);
+		if (!string.IsNullOrEmpty(buffer.customSyntax))
+			value.With("syntax", SValue.NewString(buffer.customSyntax.ToString()));
+		else
+			value.With("syntax", SValue.None);
 	}
 
 	public void ResetQualitiesEncoding(Buffer buffer)
@@ -106,12 +110,14 @@ public class TempSettings
 
 	public void ApplyQualitiesBeforeLoading(Buffer buffer)
 	{
-		string rawEncoding = storage.Get(buffer.FullPath)["encoding"].String;
+		SValue value = storage.Get(buffer.FullPath);
+		string rawEncoding = value["encoding"].String;
 		if (!string.IsNullOrEmpty(rawEncoding))
 		{
 			string error;
 			buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
 		}
+		buffer.customSyntax = value["syntax"].String;
 	}
 
 	public void ApplyQualities(Buffer buffer)

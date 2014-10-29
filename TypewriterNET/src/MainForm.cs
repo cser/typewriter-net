@@ -1291,15 +1291,22 @@ public class MainForm : Form
 		settings.DispatchChange();
 	}
 
-	public void UpdateHighlighter(MulticaretTextBox textBox, string fileName)
+	public void UpdateHighlighter(MulticaretTextBox textBox, string fileName, Buffer buffer)
 	{
 		if (fileName == null)
 		{
 			textBox.Highlighter = null;
 			return;
 		}
-		string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
-		textBox.Highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
+		Highlighter highlighter = null;
+		if (!string.IsNullOrEmpty(buffer.customSyntax))
+			highlighter = highlightingSet.GetHighlighter(buffer.customSyntax);
+		if (highlighter == null)
+		{
+			string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
+			highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
+		}
+		textBox.Highlighter = highlighter;
 	}
 
 	public void NavigateTo(string fileName, int position0, int position1)

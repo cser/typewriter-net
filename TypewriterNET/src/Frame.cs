@@ -251,7 +251,8 @@ public class Frame : AFrame
 
 	public void UpdateHighlighter()
 	{
-		Nest.MainForm.UpdateHighlighter(textBox, buffers.list.Selected != null ? buffers.list.Selected.Name : null);
+		Buffer buffer = buffers.list.Selected != null ? buffers.list.Selected : null;
+		Nest.MainForm.UpdateHighlighter(textBox, buffer != null ? buffer.Name : null, buffer);
 	}
 
 	private void OnCloseClick()

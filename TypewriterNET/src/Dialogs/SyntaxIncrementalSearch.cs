@@ -40,6 +40,8 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		}
 		currentItem = highlighter.type;
 	}
+	
+	private const string ResetText = "[reset]";
 
 	private string compareText;
 	private List<string> sortedItems = new List<string>();
@@ -48,6 +50,7 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 	{
 		compareText = text;
 		sortedItems.Clear();
+		sortedItems.Add(ResetText);
 		foreach (string item in items)
 		{
 			sortedItems.Add(item);
@@ -86,15 +89,16 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 
 	override protected void Execute(int line, string lineText)
 	{
-		Highlighter highlighter = MainForm.HighlightingSet.GetHighlighter(lineText);
-		if (highlighter == null)
-			return;
 		if (MainForm.LastFrame == null)
+			return;
+		Buffer buffer = MainForm.LastFrame.SelectedBuffer;
+		if (buffer == null)
 			return;
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return;
-		textBox.Highlighter = highlighter;
+		buffer.customSyntax = lineText != ResetText ? lineText : null;
+		MainForm.UpdateHighlighter(textBox, buffer.Name, buffer);
 		textBox.Controller.Lines.ResetHighlighting();
 		DispatchNeedClose();
 	}

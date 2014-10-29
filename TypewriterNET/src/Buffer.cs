@@ -38,6 +38,7 @@ public class Buffer
 	public EncodingPair settedEncodingPair;
 	public EncodingPair encodingPair = new EncodingPair(Encoding.UTF8, false);
 	public bool showEncoding = true;
+	public string customSyntax;
 
 	public void SetFile(string fullPath, string name)
 	{
