@@ -35,8 +35,22 @@ public class DialogManager
 				manager.CloseDialogs();
 			this.dialog = dialog;
 			manager.closeMethods.Add(Close);
-			AddBottomNest(dialog);
-			dialog.NeedClose += OnNeedClose;
+			
+			Nest nest = manager.frames.AddParentNode();
+			nest.hDivided = false;
+			nest.left = false;
+			nest.isPercents = false;
+			nest.size = 1;
+			dialog.Create(nest);
+			if (!dialog.preventOpen)
+			{
+				dialog.Focus();
+				dialog.NeedClose += OnNeedClose;
+			}
+			else
+			{
+				Close(true);
+			}
 		}
 
 		public bool SwitchOpen()
@@ -68,17 +82,6 @@ public class DialogManager
 		{
 			Close(true);
 		}
-
-		private void AddBottomNest(ADialog dialog)
-		{
-			Nest nest = manager.frames.AddParentNode();
-			nest.hDivided = false;
-			nest.left = false;
-			nest.isPercents = false;
-			nest.size = 1;
-			dialog.Create(nest);
-			dialog.Focus();
-		}
 	}
 
 	private MainForm mainForm;
@@ -90,6 +93,8 @@ public class DialogManager
 	private DialogOwner<FileIncrementalSearch> fileIncrementalSearch;
 	private DialogOwner<MenuItemIncrementalSearch> menuItemIncrementalSearch;
 	private DialogOwner<SyntaxIncrementalSearch> syntaxIncrementalSearch;
+	private DialogOwner<EncodingIncrementalSearch> saveEncodingIncrementalSearch;
+	private DialogOwner<EncodingIncrementalSearch> loadEncodingIncrementalSearch;
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
@@ -113,6 +118,12 @@ public class DialogManager
 		KeyMap keyMap = mainForm.KeyMap;
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null,
 			new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
+			new KeyAction("&View\\Set syntax...", DoSetSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemplus, null,
+			new KeyAction("&View\\Set save encoding...", DoSetSaveEncoding, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemPipe, null,
+			new KeyAction("&View\\Reload with encoding...", DoReloadWithEncoding, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 			new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null,
@@ -125,8 +136,6 @@ public class DialogManager
 			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null,
 			new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
-			new KeyAction("&View\\Set syntax...", DoSetSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
 
@@ -134,6 +143,8 @@ public class DialogManager
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
 		menuItemIncrementalSearch = new DialogOwner<MenuItemIncrementalSearch>(this);
 		syntaxIncrementalSearch = new DialogOwner<SyntaxIncrementalSearch>(this);
+		saveEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
+		loadEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
@@ -177,7 +188,8 @@ public class DialogManager
 	private bool DoFindInFiles(Controller controller)
 	{
 		if (findInFiles.SwitchOpen())
-			findInFiles.Open(new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
+			findInFiles.Open(
+				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
 		return true;
 	}
 
@@ -274,7 +286,8 @@ public class DialogManager
 			goToLine.Open(new FindDialog(
 				goToLineData, null, DoGoToLine,
 				"Go to line" +
-				(place != null ? " (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
+				(place != null ?
+					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
 			), true);
 		}
 		return true;
@@ -322,6 +335,20 @@ public class DialogManager
 	{
 		if (syntaxIncrementalSearch.Dialog == null)
 			syntaxIncrementalSearch.Open(new SyntaxIncrementalSearch(), false);
+		return true;
+	}
+	
+	private bool DoSetSaveEncoding(Controller controller)
+	{
+		if (saveEncodingIncrementalSearch.Dialog == null)
+			saveEncodingIncrementalSearch.Open(new EncodingIncrementalSearch(tempSettings, true), false);
+		return true;
+	}
+	
+	private bool DoReloadWithEncoding(Controller controller)
+	{
+		if (loadEncodingIncrementalSearch.Dialog == null)
+			loadEncodingIncrementalSearch.Open(new EncodingIncrementalSearch(tempSettings, false), false);
 		return true;
 	}
 

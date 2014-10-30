@@ -21,18 +21,18 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 		public KeyAction action;
 	}
 
-	private List<Item> items;
+	private List<Item> items = new List<Item>();
+	private MulticaretTextBox textBox;
 
-	override protected void Prebuild()
+	override protected bool Prebuild()
 	{
-		items = new List<Item>();
 		if (MainForm.LastFrame == null)
-			return;
-		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
+			return false;
+		textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
-			return;
+			return false;
 		KeyMapNode node = textBox.KeyMap;
-
+		
 		List<KeyAction> actions = new List<KeyAction>();
 		Dictionary<KeyAction, bool> actionSet = new Dictionary<KeyAction, bool>();
 		Dictionary<KeyAction, List<KeyItem>> keysByAction = new Dictionary<KeyAction, List<KeyItem>>();
@@ -60,6 +60,7 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 			}
 			list.Add(keyItem);
 		}
+		items.Clear();
 		Dictionary<string, Menu> itemByPath = new Dictionary<string, Menu>();
 		KeysConverter keysConverter = new KeysConverter();
 		int length = 0;
@@ -87,6 +88,7 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 			else
 				item.text = item.name;
 		}
+		return true;
 	}
 
 	private List<Item> filteredItems = new List<Item>();
@@ -135,9 +137,9 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 			return;
 		Item item = filteredItems[line];
 		KeyAction action = item.action;
-		if (MainForm.LastFrame == null)
+		if (textBox == null || textBox.Controller == null)
 			return;
-		Controller controller = MainForm.LastFrame.Controller;
+		Controller controller = textBox.Controller;
 		if (action.doOnModeChange != null)
 			action.doOnModeChange(controller, true);
 		action.doOnDown(controller);

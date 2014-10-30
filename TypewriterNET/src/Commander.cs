@@ -170,10 +170,6 @@ public class Commander
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
-		commands.Add(new Command("encode", "encoding[ bom]", "Change/show encoding to save", DoChangeEncodingToSave));
-		commands.Add(new Command(
-			"reload", "encoding[ bom]/reset", "Reload file in custom encoding, reset - detect encoding anew",
-			DoReloadInCustomEncoding));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 	}
@@ -248,62 +244,6 @@ public class Commander
 		{
 			mainForm.Dialogs.ShowInfo("Error", e.Message);
 		}
-	}
-
-	private void DoChangeEncodingToSave(string raw)
-	{
-		Buffer lastBuffer = mainForm.LastBuffer;
-		if (lastBuffer == null || lastBuffer.Controller.isReadonly)
-		{
-			mainForm.Dialogs.ShowInfo("Error", "No file in current frame");
-			return;
-		}
-		if (string.IsNullOrEmpty(raw))
-		{
-			mainForm.Dialogs.ShowInfo("Encoding", lastBuffer.encodingPair.ToString());
-			return;
-		}
-		string error;
-		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
-		if (pair.IsNull)
-		{
-			mainForm.Dialogs.ShowInfo(
-				"Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
-			return;
-		}
-		lastBuffer.encodingPair = pair;
-	}
-
-	private void DoReloadInCustomEncoding(string raw)
-	{
-		Buffer lastBuffer = mainForm.LastBuffer;
-		if (lastBuffer == null || lastBuffer.Controller.isReadonly || string.IsNullOrEmpty(lastBuffer.FullPath))
-		{
-			mainForm.Dialogs.ShowInfo("Error", "No file with path in current frame");
-			return;
-		}
-		if (string.IsNullOrEmpty(raw))
-		{
-			mainForm.ReloadFile(lastBuffer);
-			return;
-		}
-		if (raw == "reset")
-		{
-			tempSettings.ResetQualitiesEncoding(lastBuffer);
-			lastBuffer.settedEncodingPair = new EncodingPair();
-			mainForm.ReloadFile(lastBuffer);
-			return;
-		}
-		string error;
-		EncodingPair pair = EncodingPair.ParseEncoding(raw, out error);
-		if (pair.IsNull)
-		{
-			mainForm.Dialogs.ShowInfo(
-				"Encoding parsing error", "Error: " + error + "\n" + EncodingPair.GetEncodingsText());
-			return;
-		}
-		lastBuffer.settedEncodingPair = pair;
-		mainForm.ReloadFile(lastBuffer);
 	}
 	
 	private void DoShortcut(string text)

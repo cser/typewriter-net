@@ -1129,7 +1129,6 @@ public class MainForm : Form
 			builder.AppendLine();
 			builder.AppendLine(commander.GetHelpText());
 			builder.AppendLine(settings.GetHelpText());
-			builder.AppendLine();
 			builder.AppendLine("# Syntax highlighting styles");
 			builder.AppendLine();
 			foreach (Ds ds in Ds.all)

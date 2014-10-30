@@ -26,11 +26,10 @@ public class FileIncrementalSearch : IncrementalSearchBase
 
 	private string compareText;
 	private char directorySeparator;
-	private List<string> filesList;
+	private List<string> filesList = new List<string>();
 
-	override protected void Prebuild()
+	override protected bool Prebuild()
 	{
-		filesList = new List<string>();
 		string filter = MainForm.Settings.findInFilesFilter.Value;
 		if (string.IsNullOrEmpty(filter))
 			filter = "*";
@@ -42,9 +41,9 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		catch (Exception e)
 		{
 			MainForm.Dialogs.ShowInfo("Error", "File list reading error: " + e.Message);
-			DispatchNeedClose();
-			return;
+			return false;
 		}
+		filesList.Clear();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		foreach (string file in files)
 		{
@@ -53,6 +52,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 				path = file.Substring(currentDirectory.Length);
 			filesList.Add(path);
 		}
+		return true;
 	}
 
 	override protected string GetVariantsText(string text)

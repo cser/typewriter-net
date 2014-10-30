@@ -15,23 +15,24 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 	private List<string> items;
 	private string currentItem;
 
-	override protected void Prebuild()
+	override protected bool Prebuild()
 	{
 		items = new List<string>();
 		if (MainForm.LastFrame == null)
-			return;
+			return false;
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
-			return;
+			return false;
 		Highlighter highlighter = MainForm.LastFrame.TextBox.Highlighter;
 		if (highlighter == null)
-			return;
+			return false;
 		
 		foreach (SyntaxFilesScanner.LanguageInfo info in MainForm.SyntaxFilesScanner.Infos)
 		{
 			items.Add(info.syntax);
 		}
 		currentItem = highlighter.type;
+		return true;
 	}
 	
 	private const string Reset = "[reset]";

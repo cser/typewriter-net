@@ -4,13 +4,19 @@ using System.Collections.Generic;
 
 public struct EncodingPair
 {
-	public Encoding encoding;
-	public bool bom;
+	public readonly Encoding encoding;
+	public readonly bool bom;
+	
+	private readonly string text;
 
 	public EncodingPair(Encoding encoding, bool bom)
 	{
 		this.encoding = encoding;
 		this.bom = bom;
+		if (encoding != null)
+			text = GetName(encoding) + (bom ? " bom" : "");
+		else
+			text = "Null";
 	}
 
 	public bool IsNull { get { return encoding == null; } }
@@ -23,9 +29,7 @@ public struct EncodingPair
 
 	override public string ToString()
 	{
-		if (encoding == null)
-			return "Null";
-		return GetName(encoding) + (bom ? " bom" : "");
+		return text;
 	}
 
 	public static EncodingPair ParseEncoding(string raw, out string error)
@@ -54,8 +58,9 @@ public struct EncodingPair
 	public static string GetEncodingsText()
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.AppendLine("Awailable encodings:");
-		TextTable table = new TextTable().SetMaxColWidth(20);
+		builder.AppendLine("# Awailable encodings");
+		builder.AppendLine();
+		TextTable table = new TextTable().SetMaxColWidth(35);
 		int index = 0;
 		foreach (EncodingInfo info in Encoding.GetEncodings())
 		{
@@ -63,6 +68,13 @@ public struct EncodingPair
 			index++;
 			if (index % 3 == 0)
 				table.NewRow();
+			if (info.GetEncoding().GetPreamble().Length > 0)
+			{
+				table.Add(info.Name + " bom");
+				index++;
+				if (index % 3 == 0)
+					table.NewRow();
+			}
 		}
 		builder.Append(table.ToString());
 		return builder.ToString();

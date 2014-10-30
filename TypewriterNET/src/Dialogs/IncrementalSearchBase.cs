@@ -100,7 +100,11 @@ public class IncrementalSearchBase : ADialog
 		Height = MinSize.Height;
 
 		Name = GetSubname();
-		Prebuild();
+		if (!Prebuild())
+		{
+			preventOpen = true;
+			return;
+		}
 		InitVariantsText(GetVariantsText(textBox.Text));
 	}
 
@@ -287,8 +291,9 @@ public class IncrementalSearchBase : ADialog
 		return null;
 	}
 
-	virtual protected void Prebuild()
+	virtual protected bool Prebuild()
 	{
+		return true;
 	}
 
 	virtual protected string GetVariantsText(string text)
