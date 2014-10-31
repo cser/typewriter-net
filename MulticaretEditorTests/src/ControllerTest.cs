@@ -1086,5 +1086,33 @@ namespace UnitTests
 			AssertText("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 1).Caret(2, 2).Next().Anchor(2, 4).Caret(2, 6).NoNext();
 		}
+		
+		[Test]
+		public void FixLineBreaks()
+		{
+			Init();
+			lines.SetText("line0\nline3\nline1\nline2\r\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
+			controller.PutCursor(new Place(2, 2), false);
+			controller.PutCursor(new Place(2, 3), true);
+			controller.PutNewCursor(new Place(2, 5));
+			controller.PutCursor(new Place(2, 7), true);
+			controller.Lines.lineBreak = "\r\n";
+			
+			controller.FixLineBreaks();
+			
+			AssertText(
+				"line0\r\nline3\r\nline1\r\nline2\r\nline7\r\nline4\r\nline5\r\nline6\r\nline8\r\nline9\r\nline10");
+			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
+			
+			controller.Undo();
+			
+			AssertText("line0\nline3\nline1\nline2\r\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
+			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
+			
+			controller.Redo();
+			AssertText(
+				"line0\r\nline3\r\nline1\r\nline2\r\nline7\r\nline4\r\nline5\r\nline6\r\nline8\r\nline9\r\nline10");
+			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
+		}
 	}
 }

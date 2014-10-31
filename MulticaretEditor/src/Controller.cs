@@ -1079,5 +1079,10 @@ namespace MulticaretEditor
 			}
 			lines.markedBracket = false;
 		}
+		
+		public bool FixLineBreaks()
+		{
+			return Execute(new FixLineBreaksCommand());
+		}
 	}
 }

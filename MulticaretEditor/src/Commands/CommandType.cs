@@ -18,6 +18,7 @@ namespace MulticaretEditor.Commands
 		public static readonly CommandType RemoveWordRight = new CommandType(true);
 		public static readonly CommandType MoveLineUp = new CommandType(true);
 		public static readonly CommandType MoveLineDown = new CommandType(true);
+		public static readonly CommandType FixLineBreaks = new CommandType(true);
 		
 		public readonly bool changesText;
 		

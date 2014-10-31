@@ -236,6 +236,12 @@ namespace MulticaretEditor.KeyMapping
 		{
 			return controller.ShiftRight();
 		}
+		
+		public static readonly KeyAction FixLineBreaks = Add("&Edit\\Text\\Fix line breaks", DoFixLineBreaks, null, true);
+		private static bool DoFixLineBreaks(Controller controller)
+		{
+			return controller.FixLineBreaks();
+		}
 
 		public static readonly KeyAction RemoveWordLeft = Add("&Edit\\Text\\Remove word left", DoRemoveWordLeft, null, true);
 		private static bool DoRemoveWordLeft(Controller controller)

@@ -382,5 +382,19 @@ namespace MulticaretEditor
 			}
 			return count;
 		}
+		
+		public string GetRN()
+		{
+			char c0 = chars.Count > 1 ? chars[chars.Count - 2].c : '\0';
+			char c1 = chars.Count > 0 ? chars[chars.Count - 1].c : '\0';
+			string result = "";
+			if (c0 == '\r' && c1 == '\n')
+				result = "\r\n";
+			else if (c1 == '\r')
+				result = "\r";
+			else if (c1 == '\n')
+				result = "\n";
+			return result;
+		}
 	}
 }

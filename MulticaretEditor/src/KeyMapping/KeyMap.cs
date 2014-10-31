@@ -176,6 +176,8 @@ namespace MulticaretEditor.KeyMapping
 			AddItem(new KeyItem(Keys.Control | Keys.Up, null, KeyAction.ScrollUp));
 			AddItem(new KeyItem(Keys.Control | Keys.Down, null, KeyAction.ScrollDown));
 			
+			AddItem(new KeyItem(Keys.None, null, KeyAction.FixLineBreaks));
+			
 			return this;
 		}
 		
