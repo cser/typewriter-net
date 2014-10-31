@@ -8,7 +8,8 @@ using MulticaretEditor;
 
 public class SyntaxIncrementalSearch : IncrementalSearchBase
 {
-	public SyntaxIncrementalSearch() : base("Syntax selection", "Syntax selection")
+	public SyntaxIncrementalSearch(TempSettings tempSettings)
+		: base(tempSettings, "Syntax selection", "Syntax selection")
 	{
 	}
 
@@ -37,12 +38,10 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 	
 	private const string Reset = "[reset]";
 
-	private string compareText;
 	private List<string> sortedItems = new List<string>();
 
-	override protected string GetVariantsText(string text)
+	override protected string GetVariantsText()
 	{
-		compareText = text;
 		sortedItems.Clear();
 		foreach (string item in items)
 		{
@@ -50,12 +49,11 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		}
 		sortedItems.Sort(CompareItems);
 		sortedItems.Insert(0, Reset);
-		compareText = text;
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
 		foreach (string item in sortedItems)
 		{
-			if (item.Contains(text))
+			if (GetIndex(item) != -1)
 			{
 				if (!first)
 					builder.AppendLine();
@@ -72,8 +70,8 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		int equals1 = item1 == currentItem ? 1 : 0;
 		if (equals0 != equals1)
 			return equals0 - equals1;
-		int index0 = item0.LastIndexOf(compareText);
-		int index1 = item1.LastIndexOf(compareText);
+		int index0 = GetLastIndex(item0);
+		int index1 = GetLastIndex(item1);
 		int offset0 = item0.Length - index0;
 		int offset1 = item1.Length - index1;
 		if (offset0 != offset1)

@@ -8,15 +8,14 @@ using MulticaretEditor;
 
 public class EncodingIncrementalSearch : IncrementalSearchBase
 {
-	private TempSettings tempSettings;
 	private bool isSave;
 	
 	public EncodingIncrementalSearch(TempSettings tempSettings, bool isSave) : base(
+		tempSettings,
 		isSave ? "Save encoding" : "Reload with encoding",
 		isSave ? "Save encoding" : "Reload with encoding"
 	)
 	{
-		this.tempSettings = tempSettings;
 		this.isSave = isSave;
 	}
 
@@ -50,22 +49,19 @@ public class EncodingIncrementalSearch : IncrementalSearchBase
 		return !pair.IsNull ? pair.ToString() : "[reset]";
 	}
 
-	private string compareText;
 	private List<EncodingPair> sortedItems = new List<EncodingPair>();
 
-	override protected string GetVariantsText(string text)
+	override protected string GetVariantsText()
 	{
-		compareText = text;
 		sortedItems.Clear();
 		foreach (EncodingPair item in items)
 		{
-			if (StringOf(item).Contains(text))
+			if (GetIndex(StringOf(item)) != -1)
 				sortedItems.Add(item);
 		}
 		sortedItems.Sort(CompareItems);
 		if (!isSave)
 			sortedItems.Insert(0, new EncodingPair());
-		compareText = text;
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
 		foreach (EncodingPair item in sortedItems)
@@ -90,8 +86,8 @@ public class EncodingIncrementalSearch : IncrementalSearchBase
 		equals1 = item1.encoding == currentItem.encoding ? 1 : 0;
 		if (equals0 != equals1)
 			return equals0 - equals1;
-		int index0 = StringOf(item0).IndexOf(compareText);
-		int index1 = StringOf(item1).IndexOf(compareText);
+		int index0 = GetIndex(StringOf(item0));
+		int index1 = GetIndex(StringOf(item1));
 		if (index0 != index1)
 			return index1 - index0;
 		return string.Compare(StringOf(item1), StringOf(item0));

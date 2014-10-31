@@ -15,7 +15,8 @@ using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {
-	public FileIncrementalSearch() : base("File search", "Incremental file search")
+	public FileIncrementalSearch(TempSettings tempSettings)
+		: base(tempSettings, "File search", "Incremental file search")
 	{
 	}
 	
@@ -24,7 +25,6 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		return Directory.GetCurrentDirectory();
 	}
 
-	private string compareText;
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
 
@@ -55,15 +55,14 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		return true;
 	}
 
-	override protected string GetVariantsText(string text)
+	override protected string GetVariantsText()
 	{
 		List<string> files = new List<string>();
 		foreach (string file in filesList)
 		{
-			if (file.Contains(text))
+			if (GetIndex(file) != -1)
 				files.Add(file);
 		}
-		compareText = text;
 		directorySeparator = Path.DirectorySeparatorChar;
 		files.Sort(CompareFiles);
 		StringBuilder builder = new StringBuilder();
@@ -80,8 +79,8 @@ public class FileIncrementalSearch : IncrementalSearchBase
 
 	private int CompareFiles(string file0, string file1)
 	{
-		int index0 = file0.LastIndexOf(compareText);
-		int index1 = file1.LastIndexOf(compareText);
+		int index0 = GetLastIndex(file0);
+		int index1 = GetLastIndex(file1);
 		int separatorCriterion0 = index0 == file0.LastIndexOf(directorySeparator) + 1 ? 1 : 0;
 		int separatorCriterion1 = index1 == file1.LastIndexOf(directorySeparator) + 1 ? 1 : 0;
 		if (separatorCriterion0 != separatorCriterion1)

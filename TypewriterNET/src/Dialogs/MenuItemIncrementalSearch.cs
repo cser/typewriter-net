@@ -9,8 +9,8 @@ using MulticaretEditor;
 
 public class MenuItemIncrementalSearch : IncrementalSearchBase
 {
-	public MenuItemIncrementalSearch(MulticaretTextBox textBox)
-		: base("Search in menu", "Menu item incremental search")
+	public MenuItemIncrementalSearch(TempSettings tempSettings, MulticaretTextBox textBox)
+		: base(tempSettings, "Search in menu", "Menu item incremental search")
 	{
 		this.textBox = textBox;
 	}
@@ -92,15 +92,13 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 	}
 
 	private List<Item> filteredItems = new List<Item>();
-	private string compareText;
 
-	override protected string GetVariantsText(string text)
+	override protected string GetVariantsText()
 	{
-		compareText = text;
 		filteredItems.Clear();
 		foreach (Item item in items)
 		{
-			if (item.name.Contains(text))
+			if (GetIndex(item.name) != -1)
 				filteredItems.Add(item);
 		}
 		filteredItems.Sort(CompareItems);
@@ -119,8 +117,8 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 
 	private int CompareItems(Item item0, Item item1)
 	{
-		int index0 = item0.name.LastIndexOf(compareText);
-		int index1 = item1.name.LastIndexOf(compareText);
+		int index0 = GetLastIndex(item0.name);
+		int index1 = GetLastIndex(item1.name);
 		int separatorCriterion0 = index0 == item0.name.LastIndexOf("\\") + 1 ? 1 : 0;
 		int separatorCriterion1 = index1 == item1.name.LastIndexOf("\\") + 1 ? 1 : 0;
 		if (separatorCriterion0 != separatorCriterion1)

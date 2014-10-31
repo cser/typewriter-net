@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
@@ -21,11 +22,13 @@ public class IncrementalSearchBase : ADialog
 	private MulticaretTextBox variantsTextBox;
 	private MulticaretTextBox textBox;
 
+	protected readonly TempSettings tempSettings;
 	private string name;
 	private string submenu;
 
-	public IncrementalSearchBase(string name, string submenu)
+	public IncrementalSearchBase(TempSettings tempSettings, string name, string submenu)
 	{
+		this.tempSettings = tempSettings;
 		this.name = name;
 		this.submenu = submenu;
 	}
@@ -105,7 +108,8 @@ public class IncrementalSearchBase : ADialog
 			preventOpen = true;
 			return;
 		}
-		InitVariantsText(GetVariantsText(textBox.Text));
+		UpdateVariantsText();
+		UpdateFindParams();
 	}
 
 	private void OnCloseClick()
@@ -151,7 +155,34 @@ public class IncrementalSearchBase : ADialog
 
 	private void OnTextBoxTextChange()
 	{
-		InitVariantsText(GetVariantsText(textBox.Text));
+		UpdateVariantsText();
+	}
+
+	private string pattern;
+	private CompareInfo ci;
+	
+	protected int GetIndex(string text)
+	{
+		return ci != null ?
+			ci.IndexOf(text, pattern, CompareOptions.IgnoreCase) :
+			text.IndexOf(pattern);
+	}
+	
+	protected int GetLastIndex(string text)
+	{
+		return ci != null ?
+			ci.LastIndexOf(text, pattern, CompareOptions.IgnoreCase) :
+			text.LastIndexOf(pattern);
+	}
+	
+	private bool ignoreCase;
+	
+	private void UpdateVariantsText()
+	{
+		ignoreCase = tempSettings.FindParams.ignoreCase;
+		pattern = textBox.Text;
+		ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
+		InitVariantsText(GetVariantsText());
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -187,6 +218,17 @@ public class IncrementalSearchBase : ADialog
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 		}
+		else if (phase == UpdatePhase.FindParams)
+		{
+			UpdateFindParams();
+			if (ignoreCase != tempSettings.FindParams.ignoreCase)
+				UpdateVariantsText();
+		}
+	}
+
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = tempSettings.FindParams != null ? tempSettings.FindParams.GetIgnoreCaseIndicationText() : "";
 	}
 
 	private void SetTextBoxParameters()
@@ -296,7 +338,7 @@ public class IncrementalSearchBase : ADialog
 		return true;
 	}
 
-	virtual protected string GetVariantsText(string text)
+	virtual protected string GetVariantsText()
 	{
 		return "";
 	}

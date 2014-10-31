@@ -322,21 +322,22 @@ public class DialogManager
 	private bool DoFileIncrementalSearch(Controller controller)
 	{
 		if (fileIncrementalSearch.SwitchOpen())
-			fileIncrementalSearch.Open(new FileIncrementalSearch(), false);
+			fileIncrementalSearch.Open(new FileIncrementalSearch(tempSettings), false);
 		return true;
 	}
 
 	private bool DoMenuItemIncrementalSearch(Controller controller)
 	{
 		if (menuItemIncrementalSearch.SwitchOpen())
-			menuItemIncrementalSearch.Open(new MenuItemIncrementalSearch(mainForm.GetFocusedTextBox()), false);
+			menuItemIncrementalSearch.Open(
+				new MenuItemIncrementalSearch(tempSettings, mainForm.GetFocusedTextBox()), false);
 		return true;
 	}
 
 	private bool DoSetSyntax(Controller controller)
 	{
 		if (syntaxIncrementalSearch.Dialog == null)
-			syntaxIncrementalSearch.Open(new SyntaxIncrementalSearch(), false);
+			syntaxIncrementalSearch.Open(new SyntaxIncrementalSearch(tempSettings), false);
 		return true;
 	}
 	

@@ -6,6 +6,11 @@ public class FindParams
 	public bool regex;
 	public bool ignoreCase;
 	public bool escape;
+	
+	public string GetIgnoreCaseIndicationText()
+	{
+		return ignoreCase ? "[i]" : " i ";
+	}
 
 	public string GetIndicationText()
 	{
