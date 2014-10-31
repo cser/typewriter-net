@@ -9,8 +9,10 @@ using MulticaretEditor;
 
 public class MenuItemIncrementalSearch : IncrementalSearchBase
 {
-	public MenuItemIncrementalSearch() : base("Search in menu", "Menu item incremental search")
+	public MenuItemIncrementalSearch(MulticaretTextBox textBox)
+		: base("Search in menu", "Menu item incremental search")
 	{
+		this.textBox = textBox;
 	}
 
 	public class Item
@@ -26,9 +28,7 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 
 	override protected bool Prebuild()
 	{
-		if (MainForm.LastFrame == null)
-			return false;
-		textBox = MainForm.LastFrame.TextBox;
+		textBoxToFocus = textBox;
 		if (textBox == null)
 			return false;
 		KeyMapNode node = textBox.KeyMap;

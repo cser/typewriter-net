@@ -65,7 +65,9 @@ public class DialogManager
 		{
 			if (changeFocus && dialog != null)
 			{
-				if (manager.mainForm.LastFrame != null)
+				if (dialog.textBoxToFocus != null)
+					dialog.textBoxToFocus.Focus();
+				else if (manager.mainForm.LastFrame != null)
 					manager.mainForm.LastFrame.Focus();
 			}
 			if (dialog != null)
@@ -319,15 +321,15 @@ public class DialogManager
 
 	private bool DoFileIncrementalSearch(Controller controller)
 	{
-		if (fileIncrementalSearch.Dialog == null)
+		if (fileIncrementalSearch.SwitchOpen())
 			fileIncrementalSearch.Open(new FileIncrementalSearch(), false);
 		return true;
 	}
 
 	private bool DoMenuItemIncrementalSearch(Controller controller)
 	{
-		if (menuItemIncrementalSearch.Dialog == null)
-			menuItemIncrementalSearch.Open(new MenuItemIncrementalSearch(), false);
+		if (menuItemIncrementalSearch.SwitchOpen())
+			menuItemIncrementalSearch.Open(new MenuItemIncrementalSearch(mainForm.GetFocusedTextBox()), false);
 		return true;
 	}
 

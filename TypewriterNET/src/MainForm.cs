@@ -351,7 +351,7 @@ public class MainForm : Form
 	private MulticaretTextBox focusedTextBox;
 	public Controller FocusedController { get { return focusedTextBox != null ? focusedTextBox.Controller : null; } }
 
-	private MulticaretTextBox GetFocusedTextBox()
+	public MulticaretTextBox GetFocusedTextBox()
 	{
 		return focusedTextBox;
 	}

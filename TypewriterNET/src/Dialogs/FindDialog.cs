@@ -51,17 +51,23 @@ public class FindDialog : ADialog
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
+			new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
+			new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 		if (data.history != null)
 		{
-			frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-			frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
+				new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
+				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
 		if (findParams != null)
 		{
-			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
-			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
+				new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null,
+				new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
