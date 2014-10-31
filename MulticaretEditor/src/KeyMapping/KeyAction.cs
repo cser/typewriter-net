@@ -18,6 +18,13 @@ namespace MulticaretEditor.KeyMapping
 			this.doOnModeChange = doOnModeChange;
 			this.needScroll = needScroll;
 		}
+		
+		public Getter<string> getText;
+		public KeyAction SetGetText(Getter<string> getText)
+		{
+			this.getText = getText;
+			return this;
+		}
 
 		private static RWList<KeyAction> actions = new RWList<KeyAction>();
 		public static IRList<KeyAction> Actions { get { return actions; } }

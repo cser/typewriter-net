@@ -4,5 +4,6 @@ public enum UpdatePhase
 	Parsed,
 	HighlighterChange,
 	TempSettingsLoaded,
-	ChangeCurrentDirectory
+	ChangeCurrentDirectory,
+	FindParams
 }

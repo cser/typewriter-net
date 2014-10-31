@@ -63,9 +63,6 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null, new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null, new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null, new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 
@@ -250,27 +247,10 @@ public class ReplaceDialog : ADialog
 			settings.ApplySchemeToLabel(textLabel);
 			settings.ApplySchemeToLabel(replaceTextLabel);
 		}
-	}
-
-	private bool DoSwitchRegex(Controller controller)
-	{
-		findParams.regex = !findParams.regex;
-		UpdateFindParams();
-		return true;
-	}
-
-	private bool DoSwitchIgnoreCase(Controller controller)
-	{
-		findParams.ignoreCase = !findParams.ignoreCase;
-		UpdateFindParams();
-		return true;
-	}
-
-	private bool DoSwitchEscape(Controller controller)
-	{
-		findParams.escape = !findParams.escape;
-		UpdateFindParams();
-		return true;
+		else if (phase == UpdatePhase.FindParams)
+		{
+			UpdateFindParams();
+		}
 	}
 
 	private bool DoPrevPattern(Controller controller)

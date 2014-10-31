@@ -421,6 +421,16 @@ public class MainForm : Form
 			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
+		
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
+			new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)
+			.SetGetText(GetFindRegex)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null,
+			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
+			.SetGetText(GetFindIgnoreCase)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null,
+			new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)
+			.SetGetText(GetFindEscape)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
 			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
@@ -776,6 +786,42 @@ public class MainForm : Form
 	{
 		Close();
 		return true;
+	}
+	
+	private bool DoSwitchRegex(Controller controller)
+	{
+		tempSettings.FindParams.regex = !tempSettings.FindParams.regex;
+		frames.UpdateSettings(settings, UpdatePhase.FindParams);
+		return true;
+	}
+
+	private bool DoSwitchIgnoreCase(Controller controller)
+	{
+		tempSettings.FindParams.ignoreCase = !tempSettings.FindParams.ignoreCase;
+		frames.UpdateSettings(settings, UpdatePhase.FindParams);
+		return true;
+	}
+
+	private bool DoSwitchEscape(Controller controller)
+	{
+		tempSettings.FindParams.escape = !tempSettings.FindParams.escape;
+		frames.UpdateSettings(settings, UpdatePhase.FindParams);
+		return true;
+	}
+	
+	private string GetFindRegex()
+	{
+		return tempSettings.FindParams.regex ? " (on)" : " (off)";
+	}
+	
+	private string GetFindIgnoreCase()
+	{
+		return tempSettings.FindParams.ignoreCase ? " (on)" : " (off)";
+	}
+	
+	private string GetFindEscape()
+	{
+		return tempSettings.FindParams.escape ? " (on)" : " (off)";
 	}
 
 	private bool DoOpenCloseLog(Controller controller)

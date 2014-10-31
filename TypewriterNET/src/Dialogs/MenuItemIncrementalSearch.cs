@@ -111,7 +111,8 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 			if (!first)
 				builder.AppendLine();
 			first = false;
-			builder.Append(item.text);
+			builder.Append(
+				item.text + (item.action != null && item.action.getText != null ? item.action.getText() : ""));
 		}
 		return builder.ToString();
 	}

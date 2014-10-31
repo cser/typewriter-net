@@ -62,13 +62,6 @@ public class FindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
-		if (findParams != null)
-		{
-			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
-				new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)));
-			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null,
-				new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)));
-		}
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -154,6 +147,10 @@ public class FindDialog : ADialog
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 		}
+		else if (phase == UpdatePhase.FindParams)
+		{
+			UpdateFindParams();
+		}
 	}
 
 	private bool DoCancel(Controller controller)
@@ -169,21 +166,7 @@ public class FindDialog : ADialog
 			data.history.Add(text);
 		return doFind(text);
 	}
-
-	private bool DoSwitchRegex(Controller controller)
-	{
-		findParams.regex = !findParams.regex;
-		UpdateFindParams();
-		return true;
-	}
-
-	private bool DoSwitchIgnoreCase(Controller controller)
-	{
-		findParams.ignoreCase = !findParams.ignoreCase;
-		UpdateFindParams();
-		return true;
-	}
-
+	
 	private bool DoPrevPattern(Controller controller)
 	{
 		return GetHistoryPattern(true);
