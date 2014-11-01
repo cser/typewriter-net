@@ -23,7 +23,7 @@ public class ADialog : AFrame
 	public bool preventOpen = false;
 	public MulticaretTextBox textBoxToFocus;
 
-	public void DispatchNeedClose()
+	virtual public void DispatchNeedClose()
 	{
 		if (NeedClose != null)
 			NeedClose();

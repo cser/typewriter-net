@@ -16,6 +16,7 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 	private List<string> items = new List<string>();
 	private string currentItem;
 	private string oldItem;
+	private bool executed;
 
 	override protected bool Prebuild()
 	{
@@ -65,18 +66,30 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 		return string.Compare(item1, item0);
 	}
 	
-	override protected void DoOnSelectionChange(int line, string lineText)
+	private void ChangeSelection(string lineText)
 	{
 		string errors = MainForm.Settings.scheme.SetText(lineText);
 		MainForm.Settings.DispatchChange();
 		if (!string.IsNullOrEmpty(errors))
-			MainForm.Dialogs.ShowInfo(
-				"Error assign of \"" + MainForm.Settings.scheme.name + "\"", errors);
+			MainForm.Dialogs.ShowInfo("Error assign of \"" + MainForm.Settings.scheme.name + "\"", errors);
+	}
+	
+	override protected void DoOnSelectionChange(int line, string lineText)
+	{
+		ChangeSelection(lineText);
 	}
 
 	override protected void Execute(int line, string lineText)
 	{
-		DoOnSelectionChange(line, lineText);
+		ChangeSelection(lineText);
+		executed = true;
 		DispatchNeedClose();
+	}
+
+	override public void DispatchNeedClose()
+	{
+		if (!executed)
+			ChangeSelection(oldItem);
+		base.DispatchNeedClose();
 	}
 }
