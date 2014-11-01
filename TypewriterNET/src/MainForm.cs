@@ -545,15 +545,14 @@ public class MainForm : Form
 		if (nest == null)
 			nest = buffer.Frame != null ? buffer.Frame.Nest : mainNest;
 		ShowBuffer(nest, buffer);
-		if (buffer.Frame != null)
-			buffer.Frame.UpdateHighlighter();
-
 		if (needLoad && !ReloadFile(buffer))
 		{
 			if (isNew && buffer.Frame != null)
 				buffer.Frame.RemoveBuffer(buffer);
 			return null;
 		}
+		if (buffer.Frame != null)
+			buffer.Frame.UpdateHighlighter();
 		RemoveEmptyIfNeed();
 		return buffer;
 	}
@@ -582,11 +581,10 @@ public class MainForm : Form
 		}
 		buffer.SetFile(fullPath, name);
 		ShowBuffer(buffer.Frame != null ? buffer.Frame.Nest : mainNest, buffer);
-		if (buffer.Frame != null)
-			buffer.Frame.UpdateHighlighter();
-
 		if (needLoad && !ReloadFile(buffer))
 			return null;
+		if (buffer.Frame != null)
+			buffer.Frame.UpdateHighlighter();
 		RemoveEmptyIfNeed();
 		return buffer;
 	}
@@ -1338,20 +1336,21 @@ public class MainForm : Form
 
 	public void UpdateHighlighter(MulticaretTextBox textBox, string fileName, Buffer buffer)
 	{
-		if (fileName == null)
-		{
-			textBox.Highlighter = null;
-			return;
-		}
 		Highlighter highlighter = null;
-		if (!string.IsNullOrEmpty(buffer.customSyntax))
+		if (buffer != null && !string.IsNullOrEmpty(buffer.customSyntax))
 			highlighter = highlightingSet.GetHighlighter(buffer.customSyntax);
-		if (highlighter == null)
+		if (highlighter == null && fileName != null)
 		{
 			string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
 			highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
 		}
-		textBox.Highlighter = highlighter;
+		if (textBox.Highlighter != highlighter)
+		{
+			if (highlighter == null && buffer != null && (buffer.tags & BufferTag.File) != 0 &&
+				textBox.Controller != null)
+				textBox.Controller.Lines.ResetColor();
+			textBox.Highlighter = highlighter;
+		}
 	}
 
 	public void NavigateTo(string fileName, int position0, int position1)

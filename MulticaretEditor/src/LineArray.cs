@@ -144,7 +144,8 @@ namespace MulticaretEditor
 		public void InsertText(int index, string text)
 		{
 			if (index < 0 || index > charsCount)
-				throw new IndexOutOfRangeException("text index=" + index + ", count=" + text.Length + " is out of [0, " + charsCount + "]");
+				throw new IndexOutOfRangeException(
+					"text index=" + index + ", count=" + text.Length + " is out of [0, " + charsCount + "]");
 			if (text.Length == 0)
 				return;
 			int blockI;
@@ -486,7 +487,8 @@ namespace MulticaretEditor
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(position, out blockI, out blockIChar);
-			return new PlaceIterator(blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
+			return new PlaceIterator(
+				blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
 		}
 
 		public int IndexOf(string text, int startIndex)
@@ -607,7 +609,8 @@ namespace MulticaretEditor
 					(current.Empty || selectionsBuffer.buffer[i].Empty) && currentRight >= iLeft)
 				{
 					selectionsBuffer.buffer[i].needRemove = true;
-					int right = currentRight >= selectionsBuffer.buffer[i].Right ? currentRight : selectionsBuffer.buffer[i].Right;
+					int right = currentRight >= selectionsBuffer.buffer[i].Right ?
+						currentRight : selectionsBuffer.buffer[i].Right;
 					if (current.caret >= current.anchor)
 					{
 						current.caret = right;
@@ -699,7 +702,8 @@ namespace MulticaretEditor
 					if (!first)
 						builder.Append("; ");
 					first = false;
-					builder.Append("(" + Debug_GetOneLineText(block.array[j] != null ? block.array[j].Text : "") + ")");
+					builder.Append(
+						"(" + Debug_GetOneLineText(block.array[j] != null ? block.array[j].Text : "") + ")");
 				}
 				builder.Append("]");
 			}
@@ -778,6 +782,19 @@ namespace MulticaretEditor
 					Line line = block.array[j];
 					line.startState = null;
 					line.endState = null;
+				}
+			}
+		}
+		
+		public void ResetColor()
+		{
+			for (int i = 0; i < blocksCount; i++)
+			{
+				LineBlock block = blocks[i];
+				for (int j = 0; j < block.count; j++)
+				{
+					Line line = block.array[j];
+					line.SetRangeStyle(0, line.chars.Count, 0);
 				}
 			}
 		}

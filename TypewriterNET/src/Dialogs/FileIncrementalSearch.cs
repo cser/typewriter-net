@@ -24,6 +24,8 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	{
 		return Directory.GetCurrentDirectory();
 	}
+	
+	private const string Dots = "...";
 
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
@@ -58,10 +60,19 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	override protected string GetVariantsText()
 	{
 		List<string> files = new List<string>();
+		int count = 0;
 		foreach (string file in filesList)
 		{
 			if (GetIndex(file) != -1)
+			{
 				files.Add(file);
+				count++;
+				if (count > 500)
+				{
+					files.Add(Dots);
+					break;
+				}
+			}
 		}
 		directorySeparator = Path.DirectorySeparatorChar;
 		files.Sort(CompareFiles);
@@ -94,7 +105,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 
 	override protected void Execute(int line, string lineText)
 	{
-		if (!string.IsNullOrEmpty(lineText))
+		if (!string.IsNullOrEmpty(lineText) && lineText != Dots)
 		{
 			MainForm.LoadFile(lineText);
 			DispatchNeedClose();

@@ -25,13 +25,14 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return false;
-		Highlighter highlighter = MainForm.LastFrame.TextBox.Highlighter;
 
 		items.Clear();		
 		foreach (SyntaxFilesScanner.LanguageInfo info in MainForm.SyntaxFilesScanner.Infos)
 		{
 			items.Add(info.syntax);
 		}
+		
+		Highlighter highlighter = MainForm.LastFrame.TextBox.Highlighter;
 		currentItem = highlighter != null ? highlighter.type : Reset;
 		return true;
 	}
@@ -85,9 +86,9 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return;
+		textBox.Controller.Lines.ResetHighlighting();
 		buffer.customSyntax = lineText != Reset ? lineText : null;
 		MainForm.UpdateHighlighter(textBox, buffer.Name, buffer);
-		textBox.Controller.Lines.ResetHighlighting();
 		DispatchNeedClose();
 	}
 }
