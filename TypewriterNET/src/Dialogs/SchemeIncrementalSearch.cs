@@ -68,10 +68,8 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 	
 	private void ChangeSelection(string lineText)
 	{
-		string errors = MainForm.Settings.scheme.SetText(lineText);
+		MainForm.Settings.scheme.SetText(lineText);
 		MainForm.Settings.DispatchChange();
-		if (!string.IsNullOrEmpty(errors))
-			MainForm.Dialogs.ShowInfo("Error assign of \"" + MainForm.Settings.scheme.name + "\"", errors);
 	}
 	
 	override protected void DoOnSelectionChange(int line, string lineText)
@@ -85,11 +83,11 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 		executed = true;
 		DispatchNeedClose();
 	}
-
-	override public void DispatchNeedClose()
+	
+	override protected void DoDestroy()
 	{
 		if (!executed)
 			ChangeSelection(oldItem);
-		base.DispatchNeedClose();
+		base.DoDestroy();
 	}
 }
