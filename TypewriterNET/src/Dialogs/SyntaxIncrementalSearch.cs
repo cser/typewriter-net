@@ -13,33 +13,29 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 	{
 	}
 
-	private List<string> items;
+	private List<string> items = new List<string>();
+	private List<string> sortedItems = new List<string>();
 	private string currentItem;
+	private const string Reset = "[reset]";
 
 	override protected bool Prebuild()
 	{
-		items = new List<string>();
 		if (MainForm.LastFrame == null)
 			return false;
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return false;
 		Highlighter highlighter = MainForm.LastFrame.TextBox.Highlighter;
-		if (highlighter == null)
-			return false;
-		
+
+		items.Clear();		
 		foreach (SyntaxFilesScanner.LanguageInfo info in MainForm.SyntaxFilesScanner.Infos)
 		{
 			items.Add(info.syntax);
 		}
-		currentItem = highlighter.type;
+		currentItem = highlighter != null ? highlighter.type : Reset;
 		return true;
 	}
 	
-	private const string Reset = "[reset]";
-
-	private List<string> sortedItems = new List<string>();
-
 	override protected string GetVariantsText()
 	{
 		sortedItems.Clear();

@@ -7,11 +7,13 @@ using MulticaretEditor;
 
 public class TempSettings
 {
-	public static string GetTempSettingsPath(string postfix)
+	public static string GetTempSettingsPath(string postfix, string startupPath)
 	{
 		return Path.Combine(
 			Path.GetTempPath(),
-			"typewriter-state" + (!string.IsNullOrEmpty(postfix) ? "-" + postfix : "") + ".bin");
+			"typewriter-state" + (!string.IsNullOrEmpty(postfix) ? "-" + postfix : startupPath.GetHashCode() + "") +
+			".bin"
+		);
 	}
 
 	private MainForm mainForm;
@@ -27,7 +29,7 @@ public class TempSettings
 	public void Load(string postfix)
 	{
 		SValue state = SValue.None;
-		string file = GetTempSettingsPath(postfix);
+		string file = GetTempSettingsPath(postfix, AppPath.StartupDir);
 		if (File.Exists(file))
 			state = SValue.Unserialize(File.ReadAllBytes(file));
 
@@ -182,7 +184,7 @@ public class TempSettings
 			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
-		File.WriteAllBytes(GetTempSettingsPath(postfix), SValue.Serialize(state));
+		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 
 	private const int MaxSettingsInts = 20;

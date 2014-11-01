@@ -1008,7 +1008,7 @@ public class MainForm : Form
 
 	private bool DoResetTempAndClose(Controller controller)
 	{
-		string path = TempSettings.GetTempSettingsPath(tempFilePostfix);
+		string path = TempSettings.GetTempSettingsPath(tempFilePostfix, AppPath.StartupDir);
 		if (File.Exists(path))
 			File.Delete(path);
 		forbidTempSaving = true;
