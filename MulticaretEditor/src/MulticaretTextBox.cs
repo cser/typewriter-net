@@ -19,6 +19,8 @@ namespace MulticaretEditor
 
 		public event Setter FocusedChange;
 		public event Setter TextChange;
+		public event Setter AfterClick;
+		public event Setter AfterKeyPress;
 
 		private LineArray lines;
 		private Controller controller;
@@ -1255,6 +1257,8 @@ namespace MulticaretEditor
 			}
 			actionProcessed = false;
 			base.OnKeyPress(e);
+			if (AfterKeyPress != null)
+				AfterKeyPress();
 		}
 
 		public void ProcessMacrosAction(MacrosExecutor.Action action)
@@ -1316,6 +1320,8 @@ namespace MulticaretEditor
 			if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, e.KeyData))
 				macrosExecutor.current.Add(new MacrosExecutor.Action(e.KeyData));
 			ExecuteKeyDown(e.KeyData);
+			if (AfterKeyPress != null)
+				AfterKeyPress();
 		}
 
 		private void ExecuteKeyDown(Keys keyData)
@@ -1435,6 +1441,8 @@ namespace MulticaretEditor
 					controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
 				Invalidate();
 			}
+			if (AfterClick != null)
+				AfterClick();
 		}
 
 		protected override void OnMouseUp(MouseEventArgs e)
@@ -1460,6 +1468,8 @@ namespace MulticaretEditor
 			{
 				controller.PutCursor(GetMousePlace(e.Location), true);
 				UnblinkCursor();
+				if (AfterClick != null)
+					AfterClick();
 			}
 		}
 

@@ -85,6 +85,8 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		variantsTextBox.FocusedChange += OnTextBoxFocusedChange;
 		variantsTextBox.Controller.isReadonly = true;
+		variantsTextBox.AfterClick += OnVariantsTextBoxClick;
+		variantsTextBox.AfterKeyPress += OnVariantsTextBoxClick;
 		Controls.Add(variantsTextBox);
 
 		textBox = new MulticaretTextBox();
@@ -334,8 +336,15 @@ public class IncrementalSearchBase : ADialog
 		return true;
 	}
 	
+	private void OnVariantsTextBoxClick()
+	{
+		UpdateSelectionChange();
+	}
+	
 	private void UpdateSelectionChange()
 	{
+		if (MainForm == null)
+			return;
 		Place place = variantsTextBox.Controller.Lines.PlaceOf(variantsTextBox.Controller.LastSelection.caret);
 		string lineText = variantsTextBox.Controller.Lines[place.iLine].Text.Trim();
 		DoOnSelectionChange(place.iLine, lineText);

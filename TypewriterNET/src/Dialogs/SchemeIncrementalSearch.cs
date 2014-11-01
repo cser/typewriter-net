@@ -68,8 +68,11 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 	
 	private void ChangeSelection(string lineText)
 	{
-		MainForm.Settings.scheme.SetText(lineText);
-		MainForm.Settings.DispatchChange();
+		if (MainForm.Settings.scheme.Value != lineText)
+		{
+			MainForm.Settings.scheme.SetText(lineText);
+			MainForm.Settings.DispatchChange();
+		}
 	}
 	
 	override protected void DoOnSelectionChange(int line, string lineText)
