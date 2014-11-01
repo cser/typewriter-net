@@ -97,6 +97,7 @@ public class DialogManager
 	private DialogOwner<SyntaxIncrementalSearch> syntaxIncrementalSearch;
 	private DialogOwner<EncodingIncrementalSearch> saveEncodingIncrementalSearch;
 	private DialogOwner<EncodingIncrementalSearch> loadEncodingIncrementalSearch;
+	private DialogOwner<SchemeIncrementalSearch> schemeIncrementalSearch;
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
@@ -126,6 +127,8 @@ public class DialogManager
 			new KeyAction("&View\\Set save encoding...", DoSetSaveEncoding, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemPipe, null,
 			new KeyAction("&View\\Reload with encoding...", DoReloadWithEncoding, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.C, null,
+			new KeyAction("&View\\Preview color scheme...", DoSchemeIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 			new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null,
@@ -147,6 +150,7 @@ public class DialogManager
 		syntaxIncrementalSearch = new DialogOwner<SyntaxIncrementalSearch>(this);
 		saveEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
 		loadEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
+		schemeIncrementalSearch = new DialogOwner<SchemeIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
@@ -331,6 +335,13 @@ public class DialogManager
 		if (menuItemIncrementalSearch.SwitchOpen())
 			menuItemIncrementalSearch.Open(
 				new MenuItemIncrementalSearch(tempSettings, mainForm.GetFocusedTextBox()), false);
+		return true;
+	}
+	
+	private bool DoSchemeIncrementalSearch(Controller controller)
+	{
+		if (schemeIncrementalSearch.SwitchOpen())
+			schemeIncrementalSearch.Open(new SchemeIncrementalSearch(tempSettings), false);
 		return true;
 	}
 

@@ -266,7 +266,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Invalidate();
 		Nest.size = tabBar.Height + variantsTextBox.CharHeight * (
 			!string.IsNullOrEmpty(text) && variantsTextBox.Controller != null ?
-				variantsTextBox.GetScrollSizeY() + 1 : 1
+				variantsTextBox.GetScrollSizeY() + 2 : 1
 		) + 4;
 		variantsTextBox.Controller.NeedScrollToCaret();
 		SetNeedResize();
@@ -277,6 +277,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.MoveUp(false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 
@@ -285,6 +286,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.MoveDown(false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 
@@ -293,6 +295,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.DocumentStart(false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 
@@ -301,6 +304,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.DocumentEnd(false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 
@@ -309,6 +313,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.ScrollPage(true, false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 	
@@ -317,6 +322,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.ScrollPage(false, false);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		variantsTextBox.Invalidate();
+		UpdateSelectionChange();
 		return true;
 	}
 
@@ -326,6 +332,13 @@ public class IncrementalSearchBase : ADialog
 		string lineText = variantsTextBox.Controller.Lines[place.iLine].Text.Trim();
 		Execute(place.iLine, lineText);
 		return true;
+	}
+	
+	private void UpdateSelectionChange()
+	{
+		Place place = variantsTextBox.Controller.Lines.PlaceOf(variantsTextBox.Controller.LastSelection.caret);
+		string lineText = variantsTextBox.Controller.Lines[place.iLine].Text.Trim();
+		DoOnSelectionChange(place.iLine, lineText);
 	}
 	
 	virtual protected string GetSubname()
@@ -341,6 +354,10 @@ public class IncrementalSearchBase : ADialog
 	virtual protected string GetVariantsText()
 	{
 		return "";
+	}
+	
+	virtual protected void DoOnSelectionChange(int line, string lineText)
+	{
 	}
 
 	virtual protected void Execute(int line, string lineText)

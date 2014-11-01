@@ -190,6 +190,13 @@ public class Properties
 		}
 
 		private Getter<string[]> loadVariants;
+		
+		public string[] GetVariants()
+		{
+			if (loadVariants != null)
+				return loadVariants();
+			return variants ?? new string[0];
+		}
 
 		public String SetLoadVariants(Getter<string[]> loadVariants)
 		{
