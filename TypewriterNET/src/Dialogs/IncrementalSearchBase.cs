@@ -201,7 +201,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Size = new Size(width - 10, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		textBox.Location = new Point(0, Height - variantsTextBox.CharHeight);
-		textBox.Size = new Size(width - 10, variantsTextBox.CharHeight);
+		textBox.Size = new Size(width - 10, variantsTextBox.CharHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)

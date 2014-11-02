@@ -132,7 +132,7 @@ public class FindDialog : ADialog
 		splitLine.Location = new Point(Width - 10, tabBarHeight);
 		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
+		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
