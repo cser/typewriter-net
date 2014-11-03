@@ -643,8 +643,32 @@ public class MainForm : Form
 			}
 			catch (IOException e)
 			{
-				Log.WriteError("File loading error", e.Message);
-				Log.Open();
+				bool needDelete = false;
+				string tempFile = Path.Combine(Path.GetTempPath(), buffer.Name);
+				try
+				{
+					File.Copy(buffer.FullPath, tempFile, true);
+					needDelete = true;
+					bytes = File.ReadAllBytes(tempFile);
+				}
+				catch
+				{
+					Log.WriteError("File loading error", e.Message);
+					Log.Open();
+				}
+				finally
+				{
+					if (needDelete)
+					{
+						try
+						{
+							File.Delete(tempFile);
+						}
+						catch
+						{
+						}
+					}
+				}
 			}
 			string error;
 			buffer.InitBytes(bytes, settings.defaultEncoding.Value, out error);
