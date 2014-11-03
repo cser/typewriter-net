@@ -192,7 +192,11 @@ public class Frame : AFrame
 		if (buffer.Frame != this)
 		{
 			if (buffer.Frame != null)
+			{
+				buffer.softRemove = true;
 				buffer.Frame.RemoveBuffer(buffer);
+				buffer.softRemove = false;
+			}
 			buffer.owner = buffers;
 			buffer.Controller.history.ChangedChange += OnChangedChange;
 			buffers.list.Add(buffer);
@@ -209,7 +213,7 @@ public class Frame : AFrame
 	{
 		if (buffer == null)
 			return;
-		if (buffer.onRemove != null && !buffer.onRemove(buffer))
+		if (!buffer.softRemove && buffer.onRemove != null && !buffer.onRemove(buffer))
 			return;
 		buffer.Controller.history.ChangedChange -= OnChangedChange;
 		buffer.owner = null;

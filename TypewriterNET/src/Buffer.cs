@@ -18,6 +18,7 @@ public class Buffer
 	}
 
 	public BufferList owner;
+	public bool softRemove;
 
 	public Frame Frame { get { return owner != null ? owner.frame : null; } }
 
