@@ -697,7 +697,6 @@ public class MainForm : Form
 		Buffer buffer = frames.GetSelectedBuffer(BufferTag.File);
 		if (buffer != null)
 		{
-			bool doIt = false;
 			if (buffer.Changed)
 			{
 				DialogResult result = MessageBox.Show(

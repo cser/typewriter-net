@@ -10,7 +10,7 @@ namespace MulticaretEditor.Highlighting
 {
 	public class Highlighter
 	{
-		public static int MaxStylesCount = 124;
+		public const int MaxStylesCount = 124;
 
 		public string type;
 
@@ -305,7 +305,10 @@ namespace MulticaretEditor.Highlighting
 			ParseSwitch(text, out pops, out contextName);
 			Rules.SwitchInfo info = new Rules.SwitchInfo();
 			info.pops = pops;
-			info.next = contextName != null ? contextOf[contextName.ToLowerInvariant()] : null;
+			if (contextName != null)
+				contextOf.TryGetValue(contextName.ToLowerInvariant(), out info.next);
+			else
+				info.next = null;
 			return info;
 		}
 
@@ -522,7 +525,7 @@ namespace MulticaretEditor.Highlighting
 				TextStyle style = scheme[Ds.all[i]].Clone();
 				styles[i] = style;
 			}
-			for (int i = 0; i < customStyleDatas.Count; i++)
+			for (int i = 0; i < customStyleDatas.Count && i < MaxStylesCount; i++)
 			{
 				StyleData data = customStyleDatas[i];
 				TextStyle style = scheme[data.ds].Clone();
