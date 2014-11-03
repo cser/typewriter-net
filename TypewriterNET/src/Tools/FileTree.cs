@@ -709,7 +709,7 @@ public class FileTree
 		int index = place.iLine;
 		Node node = nodes[index];
 		string fileName = Path.GetFileName(node.fullPath);
-		mainForm.Dialogs.OpenInput("Move item", fileName, DoInputNewFileName);
+		mainForm.Dialogs.OpenInput("Rename item", fileName, DoInputNewFileName);
 		return true;
 	}
 	

@@ -417,6 +417,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
 			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
@@ -688,6 +689,28 @@ public class MainForm : Form
 	private bool DoSave(Controller controller)
 	{
 		TrySaveFile(frames.GetSelectedBuffer(BufferTag.File));
+		return true;
+	}
+
+	private bool DoReload(Controller controller)
+	{
+		Buffer buffer = frames.GetSelectedBuffer(BufferTag.File);
+		if (buffer != null)
+		{
+			bool doIt = false;
+			if (buffer.Changed)
+			{
+				DialogResult result = MessageBox.Show(
+					"File has unsaved changes. Reload it anyway?",
+					Name, MessageBoxButtons.YesNo);
+				if (result == DialogResult.Yes)
+					ReloadFile(buffer);
+			}
+			else
+			{
+				ReloadFile(buffer);
+			}
+		}
 		return true;
 	}
 
