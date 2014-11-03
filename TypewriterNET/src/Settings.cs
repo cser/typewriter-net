@@ -47,6 +47,9 @@ public class Settings
 	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
 	public readonly Properties.String f7Command = new Properties.String("f7Command", "", false);
 	public readonly Properties.String f8Command = new Properties.String("f8Command", "", false);
+	public readonly Properties.String f9Command = new Properties.String("f9Command", "", false);
+	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
+	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
 
 	private Setter onChange;
 
@@ -87,6 +90,9 @@ public class Settings
 		Add(f6Command);
 		Add(f7Command);
 		Add(f8Command);
+		Add(f9Command);
+		Add(f11Command);
+		Add(f12Command);
 		Add(defaultEncoding);
 		Add(shellEncoding);
 		Add(httpEncoding);

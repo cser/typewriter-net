@@ -488,6 +488,12 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F8, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F9, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F11, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F12, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -1447,6 +1453,21 @@ public class MainForm : Form
 	private bool DoExecuteF8Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f8Command.Value);
+	}
+
+	private bool DoExecuteF9Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f9Command.Value);
+	}
+
+	private bool DoExecuteF11Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f11Command.Value);
+	}
+
+	private bool DoExecuteF12Command(Controller controller)
+	{
+		return ExecuteCommand(settings.f12Command.Value);
 	}
 
 	private void ReloadSyntaxes()
