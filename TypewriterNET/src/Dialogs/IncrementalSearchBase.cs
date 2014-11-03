@@ -158,6 +158,7 @@ public class IncrementalSearchBase : ADialog
 	private void OnTextBoxTextChange()
 	{
 		UpdateVariantsText();
+		UpdateSelectionChange();
 	}
 
 	private string pattern;
