@@ -642,7 +642,9 @@ public class MainForm : Form
 			return false;
 		}
 		{
-			tempSettings.ApplyQualitiesBeforeLoading(buffer);
+            Selection selection = buffer.Controller.Lines.LastSelection;
+            bool last = selection.Empty && selection.caret == buffer.Controller.Lines.charsCount;
+			tempSettings.StorageQualities(buffer);
 			byte[] bytes = null;
 			try
 			{
@@ -688,6 +690,10 @@ public class MainForm : Form
 			buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 			buffer.needSaveAs = false;
 			tempSettings.ApplyQualities(buffer);
+            if (last)
+            {
+                buffer.Controller.DocumentEnd(false);
+            }
 			return true;
 		}
 	}

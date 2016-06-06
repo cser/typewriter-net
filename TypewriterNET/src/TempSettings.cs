@@ -110,18 +110,6 @@ public class TempSettings
 		value["encoding"] = SValue.None;
 	}
 
-	public void ApplyQualitiesBeforeLoading(Buffer buffer)
-	{
-		SValue value = storage.Get(buffer.FullPath);
-		string rawEncoding = value["encoding"].String;
-		if (!string.IsNullOrEmpty(rawEncoding))
-		{
-			string error;
-			buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
-		}
-		buffer.customSyntax = value["syntax"].String;
-	}
-
 	public void ApplyQualities(Buffer buffer)
 	{
 		int caret = storage.Get(buffer.FullPath)["cursor"].Int;
