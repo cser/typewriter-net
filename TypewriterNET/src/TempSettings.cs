@@ -117,6 +117,18 @@ public class TempSettings
 		buffer.Controller.NeedScrollToCaret();
 	}
 
+    public void ApplyQualitiesBeforeLoading(Buffer buffer)
+    {
+        SValue value = storage.Get(buffer.FullPath);
+        string rawEncoding = value["encoding"].String;
+        if (!string.IsNullOrEmpty(rawEncoding))
+        {
+            string error;
+            buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
+        }
+        buffer.customSyntax = value["syntax"].String;
+    }
+
 	public void Save(string postfix)
 	{
 		SValue state = SValue.NewHash();

@@ -597,6 +597,11 @@ public class MainForm : Form
 	}
 
 	public bool ReloadFile(Buffer buffer)
+    {
+        return ReloadFile(buffer, false);
+    }
+
+	public bool ReloadFile(Buffer buffer, bool last)
 	{
 		if (buffer.httpServer != null)
 		{
@@ -642,9 +647,7 @@ public class MainForm : Form
 			return false;
 		}
 		{
-            Selection selection = buffer.Controller.Lines.LastSelection;
-            bool last = selection.Empty && selection.caret == buffer.Controller.Lines.charsCount;
-			tempSettings.StorageQualities(buffer);
+            tempSettings.ApplyQualitiesBeforeLoading(buffer);
 			byte[] bytes = null;
 			try
 			{
@@ -709,17 +712,23 @@ public class MainForm : Form
 		Buffer buffer = frames.GetSelectedBuffer(BufferTag.File);
 		if (buffer != null)
 		{
+            Selection selection = buffer.Controller.Lines.LastSelection;
+            bool last = selection.Empty && selection.caret == buffer.Controller.Lines.charsCount;
+			tempSettings.StorageQualities(buffer);
+
 			if (buffer.Changed)
 			{
 				DialogResult result = MessageBox.Show(
 					"File has unsaved changes. Reload it anyway?",
 					Name, MessageBoxButtons.YesNo);
 				if (result == DialogResult.Yes)
-					ReloadFile(buffer);
+                {
+					ReloadFile(buffer, last);
+                }
 			}
 			else
 			{
-				ReloadFile(buffer);
+				ReloadFile(buffer, last);
 			}
 		}
 		return true;
