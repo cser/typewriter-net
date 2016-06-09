@@ -138,12 +138,12 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 		KeyAction action = item.action;
 		if (textBox == null || textBox.Controller == null)
 			return;
+		DispatchNeedClose();
 		Controller controller = textBox.Controller;
 		if (action.doOnModeChange != null)
 			action.doOnModeChange(controller, true);
 		action.doOnDown(controller);
 		if (action.doOnModeChange != null)
 			action.doOnModeChange(controller, false);
-		DispatchNeedClose();
 	}
 }
