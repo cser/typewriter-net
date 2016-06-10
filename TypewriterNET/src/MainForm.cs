@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
@@ -64,6 +65,43 @@ public class MainForm : Form
 		validationTimer.Tick += OnValidationTimerTick;
 		validationTimer.Start();
 	}
+
+    public void ProcessParameters(string[] args)
+    {
+        if (this.InvokeRequired)
+        {
+            this.BeginInvoke((MethodInvoker)delegate { this.ProcessParameters(args); });
+            return;
+        }
+        this.Activate();
+        this.Focus();
+        MessageBox.Show("Parameters: " + string.Join(", ", args), "Start");
+        if (args == null)
+        {
+            foreach (string arg in args)
+            {
+                if (!arg.StartsWith("-"))
+                {
+                    LoadFile(arg);
+                }
+            }
+        }
+        RestoreWindow(this.Handle);
+    }
+
+    public const int SW_RESTORE = 9;
+
+    [DllImport("user32.dll")]
+    public static extern bool IsIconic(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
+
+    public static void RestoreWindow(IntPtr handle)
+    {
+        if (IsIconic(handle))
+            ShowWindow(handle, SW_RESTORE);
+    }
 
 	public void UpdateTitle()
 	{
