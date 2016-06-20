@@ -1590,8 +1590,12 @@ public class MainForm : Form
             int dataType = (int)copyData.dwData;
             if (dataType == 2)
             {
-                string fileName = Marshal.PtrToStringAnsi(copyData.lpData);
-                LoadFile(fileName);
+                string text = Marshal.PtrToStringAnsi(copyData.lpData);
+                string[] files = text.Split('+');
+                foreach (string file in files)
+                {
+                    LoadFile(file);
+                }
             }
             else
             {
