@@ -11,69 +11,65 @@ public class Program
     [return: MarshalAs(UnmanagedType.Bool)]
     static extern bool SetForegroundWindow(IntPtr hWnd);
 
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
     [STAThread]
     static void Main(string[] args)
     {
-       /*bool createdNew = true;
-       using (Mutex mutex = new Mutex(true, "3549b015-0564-4e97-b519-2a911a927b45", out createdNew))
-       {
-          if (createdNew)
-          {
-             Application.EnableVisualStyles();
-             Application.SetCompatibleTextRenderingDefault(false);
-             Application.Run(new MainForm(args));
-          }
-          else
-          {
-             Process current = Process.GetCurrentProcess();
-             foreach (Process process in Process.GetProcessesByName(current.ProcessName))
-             {
-                if (process.Id != current.Id)
-                {
-                   SetForegroundWindow(process.MainWindowHandle);
-                   break;
-                }
-             }
-          }
-       }*/
-        if (SingleInstanceApplication.AlreadyExists)
+        bool isNewInstance;
+        using (Mutex singleMutex = new Mutex(true, "3549b015-0564-4e97-b519-2a911a927b45", out isNewInstance))
         {
-            if (!SingleInstanceApplication.NotifyExistingInstance(args))
-            {
-                Run(args);
-            }
-        }
-        else
-        {
-            Run(args);
-        }
-    }
+            string fileName = null;
+            if (args.Length == 1)
+               fileName = args[0];
 
-    static void Run(string[] args)
-    {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        MainForm mainForm = new MainForm(args);
-        SingleInstanceApplication.NewInstanceMessage += delegate(object sender, object message)
-        {
-            mainForm.ProcessParameters(message as string[]);
-        };
-        try
-        {
-            SingleInstanceApplication.Initialize();
-            Application.Run(mainForm);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message, "Running error");
-        }
-        finally
-        {
-            MessageBox.Show("Close");
-            SingleInstanceApplication.Close();
+            if (isNewInstance || args.Length > 0 && fileName == null)
+            {
+                // Start the form with the file name as a parameter
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm(args));
+            }
+            else
+            {
+                Process current = Process.GetCurrentProcess();
+                foreach (Process process in Process.GetProcessesByName(current.ProcessName))
+                {
+                    if (process.Id != current.Id)
+                    {
+                        IntPtr ptrWnd = process.MainWindowHandle;
+                        SetForegroundWindow(ptrWnd);
+                        if (fileName != null)
+                        {
+                            IntPtr ptrCopyData = IntPtr.Zero;
+                            try
+                            {
+                                // Create the data structure and fill with data
+                                NativeMethods.COPYDATASTRUCT copyData = new NativeMethods.COPYDATASTRUCT();
+                                copyData.dwData = new IntPtr(2);    // Just a number to identify the data type
+                                copyData.cbData = fileName.Length + 1;  // One extra byte for the \0 character
+                                copyData.lpData = Marshal.StringToHGlobalAnsi(fileName);
+
+                                // Allocate memory for the data and copy
+                                ptrCopyData = Marshal.AllocCoTaskMem(Marshal.SizeOf(copyData));
+                                Marshal.StructureToPtr(copyData, ptrCopyData, false);
+
+                                // Send the message
+                                NativeMethods.SendMessage(ptrWnd, NativeMethods.WM_COPYDATA, IntPtr.Zero, ptrCopyData);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.ToString(), "Typewriter.NET", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                            finally
+                            {
+                                // Free the allocated memory after the contol has been returned
+                                if (ptrCopyData != IntPtr.Zero)
+                                    Marshal.FreeCoTaskMem(ptrCopyData);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
     }
 }

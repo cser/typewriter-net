@@ -218,7 +218,23 @@ public class MainForm : Form
 		UpdateTitle();
 
 		Activated += OnActivated;
+
+        InitMessageReceiving();
 	}
+
+    private void InitMessageReceiving()
+    {
+        NativeMethods.CHANGEFILTERSTRUCT changeFilter = new NativeMethods.CHANGEFILTERSTRUCT();
+        changeFilter.size = (uint)Marshal.SizeOf(changeFilter);
+        changeFilter.info = 0;
+        if (!NativeMethods.ChangeWindowMessageFilterEx
+        (this.Handle, NativeMethods.WM_COPYDATA, 
+        NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
+        {
+            int error = Marshal.GetLastWin32Error();
+            MessageBox.Show(String.Format("The error {0} occurred.", error));
+        }
+    }
 
 	public struct FileArg
 	{
@@ -1562,4 +1578,30 @@ public class MainForm : Form
 			mainNest.Frame.AddBuffer(mainNest2.buffers.list.Selected);
 		return true;
 	}
+
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == NativeMethods.WM_COPYDATA)
+        {
+            // Extract the file name
+            NativeMethods.COPYDATASTRUCT copyData = 
+            (NativeMethods.COPYDATASTRUCT)Marshal.PtrToStructure
+            (m.LParam, typeof(NativeMethods.COPYDATASTRUCT));
+            int dataType = (int)copyData.dwData;
+            if (dataType == 2)
+            {
+                string fileName = Marshal.PtrToStringAnsi(copyData.lpData);
+                LoadFile(fileName);
+            }
+            else
+            {
+                MessageBox.Show(String.Format("Unrecognized data type = {0}.", 
+                dataType), "SendMessageDemo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        else
+        {
+            base.WndProc(ref m);
+        }
+    }
 }
