@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
@@ -64,6 +65,43 @@ public class MainForm : Form
 		validationTimer.Tick += OnValidationTimerTick;
 		validationTimer.Start();
 	}
+
+    public void ProcessParameters(string[] args)
+    {
+        if (this.InvokeRequired)
+        {
+            this.BeginInvoke((MethodInvoker)delegate { this.ProcessParameters(args); });
+            return;
+        }
+        this.Activate();
+        this.Focus();
+        MessageBox.Show("Parameters: " + string.Join(", ", args), "Start");
+        if (args == null)
+        {
+            foreach (string arg in args)
+            {
+                if (!arg.StartsWith("-"))
+                {
+                    LoadFile(arg);
+                }
+            }
+        }
+        RestoreWindow(this.Handle);
+    }
+
+    public const int SW_RESTORE = 9;
+
+    [DllImport("user32.dll")]
+    public static extern bool IsIconic(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
+
+    public static void RestoreWindow(IntPtr handle)
+    {
+        if (IsIconic(handle))
+            ShowWindow(handle, SW_RESTORE);
+    }
 
 	public void UpdateTitle()
 	{
@@ -180,7 +218,23 @@ public class MainForm : Form
 		UpdateTitle();
 
 		Activated += OnActivated;
+
+        InitMessageReceiving();
 	}
+
+    private void InitMessageReceiving()
+    {
+        NativeMethods.CHANGEFILTERSTRUCT changeFilter = new NativeMethods.CHANGEFILTERSTRUCT();
+        changeFilter.size = (uint)Marshal.SizeOf(changeFilter);
+        changeFilter.info = 0;
+        if (!NativeMethods.ChangeWindowMessageFilterEx
+        (this.Handle, NativeMethods.WM_COPYDATA, 
+        NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
+        {
+            int error = Marshal.GetLastWin32Error();
+            MessageBox.Show(String.Format("The error {0} occurred.", error));
+        }
+    }
 
 	public struct FileArg
 	{
@@ -1524,4 +1578,34 @@ public class MainForm : Form
 			mainNest.Frame.AddBuffer(mainNest2.buffers.list.Selected);
 		return true;
 	}
+
+    protected override void WndProc(ref Message m)
+    {
+        if (m.Msg == NativeMethods.WM_COPYDATA)
+        {
+            // Extract the file name
+            NativeMethods.COPYDATASTRUCT copyData = 
+            (NativeMethods.COPYDATASTRUCT)Marshal.PtrToStructure
+            (m.LParam, typeof(NativeMethods.COPYDATASTRUCT));
+            int dataType = (int)copyData.dwData;
+            if (dataType == 2)
+            {
+                string text = Marshal.PtrToStringAnsi(copyData.lpData);
+                string[] files = text.Split('+');
+                foreach (string file in files)
+                {
+                    LoadFile(file);
+                }
+            }
+            else
+            {
+                MessageBox.Show(String.Format("Unrecognized data type = {0}.", 
+                dataType), "SendMessageDemo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        else
+        {
+            base.WndProc(ref m);
+        }
+    }
 }
