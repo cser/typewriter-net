@@ -22,6 +22,7 @@ namespace MulticaretEditor.Highlighting
 		public Color lineNumberFgColor;
 		public Color selectionBrushColor;
 		public Color selectionPenColor;
+		public Color selectionPenColor2;
 		public Color markPenColor;
 		public Color mainCaretColor;
 		public Color caretColor;
@@ -40,6 +41,7 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineBgBrush;
 		public Brush selectionBrush;
 		public Pen selectionPen;
+		public Pen selectionPen2;
 		public Pen markPen;
 		public Pen mainCaretPen;
 		public Pen caretPen;
@@ -132,6 +134,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref lineNumberFgColor, "lineNumberFg", colors);
 			SetColor(ref selectionBrushColor, "selectionBrush", colors);
 			SetColor(ref selectionPenColor, "selectionPen", colors);
+			SetColor(ref selectionPenColor2, "selectionPen2", colors);
 			SetColor(ref markPenColor, "markPen", colors);
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
@@ -177,6 +180,7 @@ namespace MulticaretEditor.Highlighting
 			fgColor = Color.Black;
 			selectionBrushColor = Color.FromArgb(220, 220, 255);
 			selectionPenColor = Color.FromArgb(150, 150, 200);
+			selectionPenColor2 = Color.FromArgb(150, 150, 200);
 			markPenColor = Color.FromArgb(150, 150, 200);
 			mainCaretColor = Color.Black;
 			caretColor = Color.Gray;
@@ -207,6 +211,7 @@ namespace MulticaretEditor.Highlighting
 			lineNumberFgPen = new Pen(lineNumberFgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
+			selectionPen2 = new Pen(selectionPenColor2, 2);
 			markPen = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);

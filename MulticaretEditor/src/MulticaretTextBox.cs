@@ -1098,7 +1098,7 @@ namespace MulticaretEditor
 					if (markI != -1 && i == indices[markI])
 					{
 						int length = lines.markedWord.Length;
-						g.DrawRectangle(scheme.selectionPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+						g.DrawRectangle(scheme.selectionPen2, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 						g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 						if (markI < indices.Length - 1)
 							markI++;
