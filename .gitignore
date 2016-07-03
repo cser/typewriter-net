@@ -9,3 +9,4 @@ ManualTests/bin/*.exe
 ManualTests/bin/*.dll
 ManualTests/bin/*.pdb
 .vimrc
+tags
