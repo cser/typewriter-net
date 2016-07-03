@@ -679,7 +679,8 @@ namespace MulticaretEditor
 							y = offsetY + line.PosOfIndex(place.iChar) * charHeight;
 						}
 						y += charHeight + lineInterval / 2;
-						g.DrawLine(scheme.markPen, x, y, x + charWidth, y);
+                        g.DrawRectangle(scheme.markPen, x, y - charHeight, charWidth, charHeight);
+						//g.DrawLine(scheme.markPen, x, y, x + charWidth, y);
 					}
 				}
 			}
