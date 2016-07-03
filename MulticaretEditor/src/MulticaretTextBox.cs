@@ -675,7 +675,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							x = leftIndent + line.PosOfIndex(place.iChar) * charWidth;
+							x = offsetX + line.PosOfIndex(place.iChar) * charWidth;
 							y = offsetY + place.iLine * charHeight;
 						}
 						y += charHeight + lineInterval / 2;
