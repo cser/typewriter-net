@@ -675,12 +675,11 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							x = place.iLine * charWidth;
-							y = offsetY + line.PosOfIndex(place.iChar) * charHeight;
+							x = leftIndent + line.PosOfIndex(place.iChar) * charWidth;
+							y = offsetY + place.iLine * charHeight;
 						}
 						y += charHeight + lineInterval / 2;
                         g.DrawRectangle(scheme.markPen, x, y - charHeight, charWidth, charHeight);
-						//g.DrawLine(scheme.markPen, x, y, x + charWidth, y);
 					}
 				}
 			}
@@ -1099,7 +1098,7 @@ namespace MulticaretEditor
 					if (markI != -1 && i == indices[markI])
 					{
 						int length = lines.markedWord.Length;
-						g.DrawRectangle(scheme.selectionPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+						g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 						g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 						if (markI < indices.Length - 1)
 							markI++;
