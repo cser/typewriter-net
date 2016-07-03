@@ -124,6 +124,34 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath);
 		}
+        if (commandText.Contains(RunShellCommand.LineVar))
+        {
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No opened file in current frame for replace " + RunShellCommand.LineVar);
+				return false;
+			}
+            commandText = commandText.Replace(
+                RunShellCommand.LineVar,
+                (lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
+            );
+        }
+        if (commandText.Contains(RunShellCommand.CharVar))
+        {
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No opened file in current frame for replace " + RunShellCommand.CharVar);
+				return false;
+			}
+            commandText = commandText.Replace(
+                RunShellCommand.CharVar,
+                lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
+            );
+        }
 		return true;
 	}
 

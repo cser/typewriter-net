@@ -28,6 +28,8 @@ public class RunShellCommand
 	}
 
 	public const string FileVar = "%f%";
+	public const string LineVar = "%l%";
+	public const string CharVar = "%c%";
 
 	private MainForm mainForm;
 
