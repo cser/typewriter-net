@@ -34,6 +34,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 	TextFileEncodingDetector.cs got without changes from<br/>
 	https://gist.github.com/TaoK/945127
 
+4. Info that using for file opening in same application instance
+    http://www.codeproject.com/Tips/1017834/How-to-Send-Data-from-One-Process-to-Another-in-Cs
+
 Installation without building
 -----------------------------
 

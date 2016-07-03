@@ -171,6 +171,10 @@ public class Commander
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file full path");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
 		foreach (Command command in commands)
 		{
 			table.NewRow();

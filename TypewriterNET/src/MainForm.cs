@@ -66,29 +66,6 @@ public class MainForm : Form
 		validationTimer.Start();
 	}
 
-    public void ProcessParameters(string[] args)
-    {
-        if (this.InvokeRequired)
-        {
-            this.BeginInvoke((MethodInvoker)delegate { this.ProcessParameters(args); });
-            return;
-        }
-        this.Activate();
-        this.Focus();
-        MessageBox.Show("Parameters: " + string.Join(", ", args), "Start");
-        if (args == null)
-        {
-            foreach (string arg in args)
-            {
-                if (!arg.StartsWith("-"))
-                {
-                    LoadFile(arg);
-                }
-            }
-        }
-        RestoreWindow(this.Handle);
-    }
-
     public const int SW_RESTORE = 9;
 
     [DllImport("user32.dll")]
@@ -289,20 +266,28 @@ public class MainForm : Form
 			}
 			else if (i < args.Length && args[i] == "-help")
 			{
-				Console.Write("Typewriter.NET options:\n" +
-					"<fileName>\n" +
-					"-connect <fictiveFileName> <httpServer>\n" +
-					"-temp <tempFilePostfix> - for using different temp settings\n" +
-					"-help");
+                WriteHelp();
 			}
 			else
 			{
 				if (i < args.Length)
+                {
 					Console.Error.WriteLine("Unexpected parameter: " + args[i]);
+                    WriteHelp();
+                }
 				break;
 			}
 		}
 	}
+
+    private void WriteHelp()
+    {
+        Console.Write("Typewriter.NET options:\n" +
+            "<fileName>\n" +
+            "-connect <fictiveFileName> <httpServer>\n" +
+            "-temp <tempFilePostfix> - for using different temp settings\n" +
+            "-help");
+    }
 
 	public bool SetCurrentDirectory(string path, out string error)
 	{

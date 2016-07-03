@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
-using SingleInstance;
 
 public class Program
 {
