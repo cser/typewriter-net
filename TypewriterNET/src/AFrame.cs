@@ -145,7 +145,10 @@ public class AFrame : Control
 		{
 			int k = target.left ? -1 : 1;
 			target.frameSize.Width = startWidth + k * (startX - Control.MousePosition.X);
-			target.size = target.isPercents ? 100 * target.frameSize.Width / target.FullWidth : target.frameSize.Width;
+            if (target.isPercents)
+                target.size = target.FullWidth > 0 ? 100 * target.frameSize.Width / target.FullWidth : 100;
+            else
+                target.size = target.frameSize.Width;
 			if (target.size < 0)
 				target.size = 0;
 			else if (target.isPercents && target.size > 100)
