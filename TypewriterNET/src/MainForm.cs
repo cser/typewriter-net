@@ -367,6 +367,8 @@ public class MainForm : Form
 		}
 		if (buffer != null)
 			mainNest.buffers.list.Remove(buffer);
+		
+		CloseOldBuffers();
 	}
 
 	private bool forbidTempSaving = false;
@@ -533,6 +535,8 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -1523,6 +1527,11 @@ public class MainForm : Form
 	{
 		return ExecuteCommand(settings.f12Command.Value);
 	}
+	
+	private bool DoExecuteCtrlSpaceCommand(Controller controller)
+	{
+		return ExecuteCommand(settings.ctrlSpaceCommand.Value);
+	}
 
 	private void ReloadSyntaxes()
 	{
@@ -1592,5 +1601,48 @@ public class MainForm : Form
         {
             base.WndProc(ref m);
         }
+    }
+    
+    private void CloseOldBuffers()
+    {
+   		CloseOldBuffers(mainNest);
+   		CloseOldBuffers(mainNest2);
+    }
+    
+    private void CloseOldBuffers(Nest nest)
+    {
+    	if (nest.buffers == null)
+    		return;
+    	
+    	int count = nest.buffers.list.Count;
+    	int filesCount = 0;
+		for (int i = 0; i < count; i++)
+		{
+			Buffer buffer = nest.buffers.list[i];
+			if ((buffer.tags & BufferTag.File) == BufferTag.File)
+				filesCount++;
+		}
+		int countToRemove = filesCount - settings.maxTabsCount.Value;
+		if (countToRemove < 0)
+			return;
+		
+		List<Buffer> buffers = new List<Buffer>(nest.buffers.list.History);
+		List<Buffer> buffersToRemove = new List<Buffer>();
+		for (int i = buffers.Count; i-- > 0;)
+		{
+			if (countToRemove <= 0)
+				break;
+			Buffer buffer = buffers[i];
+			if ((buffer.tags & BufferTag.File) == BufferTag.File && !buffer.Changed && !buffer.needSaveAs)
+			{
+				countToRemove--;
+				buffersToRemove.Add(buffer);
+			}
+		}
+		foreach (Buffer buffer in buffersToRemove)
+		{
+			if (buffer.Frame != null)
+				buffer.Frame.RemoveBuffer(buffer);
+		}
     }
 }

@@ -50,6 +50,7 @@ public class Settings
 	public readonly Properties.String f9Command = new Properties.String("f9Command", "", false);
 	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
 	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
+	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
 
 	private Setter onChange;
 
@@ -93,6 +94,7 @@ public class Settings
 		Add(f9Command);
 		Add(f11Command);
 		Add(f12Command);
+		Add(ctrlSpaceCommand);
 		Add(defaultEncoding);
 		Add(shellEncoding);
 		Add(httpEncoding);

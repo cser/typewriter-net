@@ -168,7 +168,7 @@ public class DialogManager
 	{
 		if (info.Dialog == null)
 			info.Open(new InfoDialog(), false);
-		info.Dialog.Name = "Command";
+		info.Dialog.Name = name;
 		info.Dialog.InitText(text);
 	}
 

@@ -11,6 +11,8 @@ namespace MulticaretEditor
 		private readonly List<T> list;
 		private readonly List<T> history;
 		
+		public IEnumerable<T> History { get { return history; } }
+		
 		public SwitchList()
 		{
 			list = new List<T>();

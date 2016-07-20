@@ -87,6 +87,39 @@ public class Commander
 				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
 			}
 		}
+		else if (name.StartsWith("!!!"))
+		{
+			string commandText = text.Substring(3);
+			if (ReplaceVars(ref commandText))
+			{
+				Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+				Process p = new Process();
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.RedirectStandardError = true;
+				p.StartInfo.StandardOutputEncoding = encoding;
+				p.StartInfo.StandardErrorEncoding = encoding;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.FileName = "cmd.exe";
+				p.StartInfo.Arguments = "/C " + commandText;
+				p.Start();
+				string output = p.StandardOutput.ReadToEnd();
+				string errors = p.StandardError.ReadToEnd();
+				p.WaitForExit();
+				
+				string infoText = "";
+				if (!string.IsNullOrEmpty(errors))
+				{
+					infoText += "ERRORS:\n" + errors;
+				}
+				if (!string.IsNullOrEmpty(output))
+				{
+					if (infoText != "")
+						infoText += "\n";
+					infoText += output;
+				}
+				mainForm.Dialogs.ShowInfo(commandText, infoText);
+			}
+		}
 		else if (name.StartsWith("!!"))
 		{
 			string commandText = text.Substring(2);
@@ -167,6 +200,8 @@ public class Commander
 		table.Add("!command").Add("*").Add("Run shell command");
 		table.NewRow();
 		table.Add("!!command").Add("*").Add("Execute without output capture");
+		table.NewRow();
+		table.Add("!!!command").Add("*").Add("Execute with output into info panel");
 		table.NewRow();
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();
