@@ -28,15 +28,17 @@ public class FindDialog : ADialog
 	private Data data;
 	private FindParams findParams;
 	private Getter<string, bool> doFind;
+	private Getter<string, bool> doSelectAllFinded;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public FindDialog(Data data, FindParams findParams, Getter<string, bool> doFind, string name)
+	public FindDialog(Data data, FindParams findParams, Getter<string, bool> doFind, Getter<string, bool> doSelectAllFinded, string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
+		this.doSelectAllFinded = doSelectAllFinded;
 		Name = name;
 	}
 
@@ -61,6 +63,11 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+		}
+		if (doSelectAllFinded != null)
+		{
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
+				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -189,5 +196,16 @@ public class FindDialog : ADialog
 			return true;
 		}
 		return false;
+	}
+	
+	private bool DoSelectAllFinded(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		bool result = doSelectAllFinded(text);
+		if (result)
+			DispatchNeedClose();
+		return result;
 	}
 }

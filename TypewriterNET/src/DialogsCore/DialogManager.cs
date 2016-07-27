@@ -187,7 +187,7 @@ public class DialogManager
 	private bool DoFind(Controller controller)
 	{
 		if (find.SwitchOpen())
-			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText, "Find"), true);
+			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Find"), true);
 		return true;
 	}
 
@@ -195,7 +195,7 @@ public class DialogManager
 	{
 		if (findInFiles.SwitchOpen())
 			findInFiles.Open(
-				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
+				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, "Find in Files"), true);
 		return true;
 	}
 
@@ -261,6 +261,75 @@ public class DialogManager
 		}
 		return true;
 	}
+	
+	private bool DoSelectAllFinded(string text)
+	{
+		// TODO select inside selection
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			string all = lastController.Lines.GetText();
+			List<Selection> selections = new List<Selection>();
+
+			int start = 0;			
+			while (true)
+			{
+				int index;
+				int length;
+				if (tempSettings.FindParams.regex)
+				{
+					string error;
+					Regex regex = ParseRegex(text, out error);
+					if (regex == null || error != null)
+					{
+						ShowInfo("Select all finded", "Error: " + error);
+						return true;
+					}
+					Match match = regex.Match(all, start);
+					index = -1;
+					length = text.Length;
+					if (match.Success)
+					{
+						index = match.Index;
+						length = match.Length;
+					}
+				}
+				else
+				{
+					length = text.Length;
+					CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
+					index = ci != null ?
+						ci.IndexOf(all, text, start, CompareOptions.IgnoreCase) :
+						all.IndexOf(text, start);
+				}
+				if (index == -1)
+				{
+					break;
+				}
+				Selection selection = new Selection();
+				selection.anchor = index;
+				selection.caret = index + length;
+				selections.Add(selection);
+				start = index + length;
+			}
+			if (selections.Count > 0)
+			{
+				lastController.ClearMinorSelections();
+				
+				Selection selection = selections[0];
+				lastController.PutCursor(lastController.Lines.PlaceOf(selection.anchor), false);
+				lastController.PutCursor(lastController.Lines.PlaceOf(selection.caret), true);
+				for (int i = 1; i < selections.Count; i++)
+				{
+					selection = selections[i];
+					lastController.PutNewCursor(lastController.Lines.PlaceOf(selection.anchor));
+					lastController.PutCursor(lastController.Lines.PlaceOf(selection.caret), true);
+				}
+				mainForm.LastFrame.TextBox.MoveToCaret();
+			}
+		}
+		return true;
+	}
 
 	private bool DoFindInFilesDialog(string text)
 	{
@@ -290,7 +359,7 @@ public class DialogManager
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
 			goToLine.Open(new FindDialog(
-				goToLineData, null, DoGoToLine,
+				goToLineData, null, DoGoToLine, null,
 				"Go to line" +
 				(place != null ?
 					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
@@ -431,7 +500,7 @@ public class DialogManager
 		if (input.SwitchOpen())
 		{
 			inputData.oldText = text;
-			input.Open(new FindDialog(inputData, null, doInput, title), true);
+			input.Open(new FindDialog(inputData, null, doInput, null, title), true);
 		}
 		return true;
 	}
