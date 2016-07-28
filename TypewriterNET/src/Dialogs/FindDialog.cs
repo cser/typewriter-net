@@ -206,9 +206,8 @@ public class FindDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		bool result = doSelectAllFinded(text);
-		if (result)
+		if (doSelectAllFinded(text))
 			DispatchNeedClose();
-		return result;
+		return true;
 	}
 }

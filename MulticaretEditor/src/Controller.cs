@@ -904,6 +904,7 @@ namespace MulticaretEditor
 			return lines.SoftNormalizedPlaceOf(index);
 		}
 
+		public int SelectionsCount { get { return selections.Count; } }
 		public IEnumerable<Selection> Selections { get { return selections; } }
 		public Selection LastSelection { get { return lines.LastSelection; } }
 

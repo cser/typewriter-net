@@ -264,12 +264,13 @@ public class DialogManager
 	
 	private bool DoSelectAllFinded(string text)
 	{
-		// TODO select inside selection
+		bool result = true;
 		if (mainForm.LastFrame != null)
 		{
 			Controller lastController = mainForm.LastFrame.Controller;
 			string all = lastController.Lines.GetText();
-			List<Selection> selections = new List<Selection>();
+			int minIndex = 0;
+			int maxIndex = all.Length;
 			
 			Regex regex = null;
 			if (tempSettings.FindParams.regex)
@@ -282,8 +283,30 @@ public class DialogManager
 					return false;
 				}
 			}
+			
+			if (!lastController.LastSelection.Empty && lastController.SelectionsCount == 1)
+			{
+				string selectionText = all.Substring(lastController.LastSelection.Left, lastController.LastSelection.Count);
+				bool useArea = false;
+				if (tempSettings.FindParams.regex)
+				{
+					Match match = regex.Match(selectionText);
+					useArea = !match.Success || match.Length != selectionText.Length;
+				}
+				else
+				{
+					useArea = text != selectionText;
+				}
+				if (useArea)
+				{
+					result = false;
+					minIndex = lastController.LastSelection.Left;
+					maxIndex = lastController.LastSelection.Right;
+				}
+			}
+			List<Selection> selections = new List<Selection>();
 
-			int start = 0;			
+			int start = minIndex;			
 			while (true)
 			{
 				int index;
@@ -307,7 +330,7 @@ public class DialogManager
 						ci.IndexOf(all, text, start, CompareOptions.IgnoreCase) :
 						all.IndexOf(text, start);
 				}
-				if (index == -1)
+				if (index == -1 || index + length > maxIndex)
 				{
 					break;
 				}
@@ -333,7 +356,7 @@ public class DialogManager
 				mainForm.LastFrame.TextBox.MoveToCaret();
 			}
 		}
-		return true;
+		return result;
 	}
 
 	private bool DoFindInFilesDialog(string text)
