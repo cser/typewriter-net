@@ -151,6 +151,7 @@ namespace MulticaretEditor.KeyMapping
 			AddItem(new KeyItem(Keys.Down | Keys.Alt | Keys.Shift, null, KeyAction.PutCursorDown));
 			
 			AddItem(new KeyItem(Keys.Control | Keys.D, null, KeyAction.SelectNextText));
+			AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null, KeyAction.SelectAllMatches));
 			
 			AddItem(new KeyItem(Keys.Tab, null, KeyAction.ShiftRight));
 			AddItem(new KeyItem(Keys.Tab | Keys.Shift, null, KeyAction.ShiftLeft));

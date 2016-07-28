@@ -32,6 +32,7 @@ public class ReplaceDialog : ADialog
 	private Data data;
 	private FindParams findParams;
 	private Getter<string, bool> doFindText;
+	private Getter<string, bool> doSelectAllFinded;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -39,11 +40,12 @@ public class ReplaceDialog : ADialog
 	private MonospaceLabel textLabel;
 	private MonospaceLabel replaceTextLabel;
 
-	public ReplaceDialog(Data data, FindParams findParams, Getter<string, bool> doFindText, string name)
+	public ReplaceDialog(Data data, FindParams findParams, Getter<string, bool> doFindText, Getter<string, bool> doSelectAllFinded, string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFindText = doFindText;
+		this.doSelectAllFinded = doSelectAllFinded;
 		Name = name;
 	}
 
@@ -65,11 +67,19 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+		
+		KeyMap beforeKeyMap = new KeyMap();
+		if (doSelectAllFinded != null)
+		{
+			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
+				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
+		}
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
 		textBox.KeyMap.AddAfter(KeyMap);
+		textBox.KeyMap.AddBefore(beforeKeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
@@ -288,5 +298,16 @@ public class ReplaceDialog : ADialog
 			return true;
 		}
 		return false;
+	}
+	
+	private bool DoSelectAllFinded(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		bool result = doSelectAllFinded(text);
+		if (result)
+			DispatchNeedClose();
+		return result;
 	}
 }

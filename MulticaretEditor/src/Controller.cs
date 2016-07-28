@@ -824,6 +824,46 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public void SelectAllMatches()
+		{
+			Selection lastSelection = lines.LastSelection;
+			if (lastSelection.Empty)
+			{
+				SelectNextText();
+			}
+			if (lastSelection.Empty)
+			{
+				return;
+			}
+			string all = lines.GetText();
+			string text = all.Substring(lastSelection.Left, lastSelection.Count);
+			int start = 0;
+			bool first = true;
+			while (true)
+			{
+				int length = text.Length;
+				int index =  all.IndexOf(text, start);
+				if (index == -1)
+				{
+					break;
+				}
+				if (first)
+				{
+					first = false;
+										
+					ClearMinorSelections();
+					PutCursor(lines.PlaceOf(index), false);
+					PutCursor(lines.PlaceOf(index + length), true);
+				}
+				else
+				{
+					PutNewCursor(lines.PlaceOf(index));
+					PutCursor(lines.PlaceOf(index + length), true);
+				}
+				start = index + length;
+			}
+		}
 
 		public void ChangeCase(bool upper)
 		{

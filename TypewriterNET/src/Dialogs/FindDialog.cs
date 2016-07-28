@@ -64,13 +64,16 @@ public class FindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
+		
+		KeyMap beforeKeyMap = new KeyMap();
 		if (doSelectAllFinded != null)
 		{
-			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
+			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
 				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
+		textBox.KeyMap.AddBefore(beforeKeyMap);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);

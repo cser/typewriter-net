@@ -202,7 +202,7 @@ public class DialogManager
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, "Replace"), true);
+			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Replace"), true);
 		return true;
 	}
 

@@ -231,6 +231,13 @@ namespace MulticaretEditor.KeyMapping
 			controller.SelectNextText();
 			return true;
 		}
+		
+		public static readonly KeyAction SelectAllMatches = Add("&Edit\\Selection\\Select all matches", DoSelectAllMatches, null, true);
+		private static bool DoSelectAllMatches(Controller controller)
+		{
+			controller.SelectAllMatches();
+			return true;
+		}
 
 		public static readonly KeyAction ShiftLeft = Add("&Edit\\Text\\Shift left", DoShiftLeft, null, true);
 		private static bool DoShiftLeft(Controller controller)
