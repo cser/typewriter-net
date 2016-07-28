@@ -270,6 +270,18 @@ public class DialogManager
 			Controller lastController = mainForm.LastFrame.Controller;
 			string all = lastController.Lines.GetText();
 			List<Selection> selections = new List<Selection>();
+			
+			Regex regex = null;
+			if (tempSettings.FindParams.regex)
+			{
+				string error;
+				regex = ParseRegex(text, out error);
+				if (regex == null || error != null)
+				{
+					ShowInfo("Select all finded", "Error: " + error);
+					return false;
+				}
+			}
 
 			int start = 0;			
 			while (true)
@@ -278,13 +290,6 @@ public class DialogManager
 				int length;
 				if (tempSettings.FindParams.regex)
 				{
-					string error;
-					Regex regex = ParseRegex(text, out error);
-					if (regex == null || error != null)
-					{
-						ShowInfo("Select all finded", "Error: " + error);
-						return true;
-					}
 					Match match = regex.Match(all, start);
 					index = -1;
 					length = text.Length;
