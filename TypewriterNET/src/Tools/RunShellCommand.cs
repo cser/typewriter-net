@@ -30,6 +30,7 @@ public class RunShellCommand
 	public const string FileVar = "%f%";
 	public const string LineVar = "%l%";
 	public const string CharVar = "%c%";
+	public const string SelectedVar = "%s%";
 
 	private MainForm mainForm;
 

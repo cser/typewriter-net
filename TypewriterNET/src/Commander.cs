@@ -185,6 +185,29 @@ public class Commander
                 lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
             );
         }
+        if (commandText.Contains(RunShellCommand.SelectedVar))
+        {
+        	Buffer lastBuffer = mainForm.LastBuffer;
+        	if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No buffer with selection for replace " + RunShellCommand.CharVar);
+				return false;
+			}
+			StringBuilder builder = new StringBuilder();
+			foreach (Selection selection in lastBuffer.Controller.Selections)
+			{
+				if (selection.Empty)
+					continue;
+				if (builder.Length > 0)
+					builder.Append("||||");
+				builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
+			}
+			commandText = commandText.Replace(
+				RunShellCommand.SelectedVar,
+				builder.ToString()
+			);
+        }
 		return true;
 	}
 
@@ -210,6 +233,8 @@ public class Commander
 		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
