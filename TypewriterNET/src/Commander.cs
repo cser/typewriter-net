@@ -157,13 +157,23 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath);
 		}
+		if (commandText.Contains(RunShellCommand.FileVarSoftly))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No last selected buffer for " + RunShellCommand.FileVarSoftly);
+				return false;
+			}
+			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath ?? "");
+		}
         if (commandText.Contains(RunShellCommand.LineVar))
         {
 			Buffer lastBuffer = mainForm.LastBuffer;
-			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.LineVar);
+				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.LineVar);
 				return false;
 			}
             commandText = commandText.Replace(
@@ -174,10 +184,9 @@ public class Commander
         if (commandText.Contains(RunShellCommand.CharVar))
         {
 			Buffer lastBuffer = mainForm.LastBuffer;
-			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.CharVar);
+				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.CharVar);
 				return false;
 			}
             commandText = commandText.Replace(
@@ -195,18 +204,32 @@ public class Commander
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
+			bool hasNotEmpty = false;
 			foreach (Selection selection in lastBuffer.Controller.Selections)
 			{
-				if (selection.Empty)
+				if (!selection.Empty)
+				{
+					hasNotEmpty = true;
+					break;
+				}
+			}
+			foreach (Selection selection in lastBuffer.Controller.Selections)
+			{
+				if (selection.Empty && hasNotEmpty)
 					continue;
 				if (builder.Length > 0)
-					builder.Append("||||");
-				builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
+					builder.Append(settings.lineBreak.Value);
+				if (selection.Empty)
+				{
+					Place place = lastBuffer.Controller.Lines.PlaceOf(selection.Left);
+					builder.Append(lastBuffer.Controller.Lines[place.iLine].Text.Replace("\n", "").Replace("\r", ""));
+				}
+				else
+				{
+					builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
+				}	
 			}
-			commandText = commandText.Replace(
-				RunShellCommand.SelectedVar,
-				builder.ToString()
-			);
+			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
         }
 		return true;
 	}
@@ -230,11 +253,13 @@ public class Commander
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file full path");
 		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if file unsaved");
+		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
 		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text");
+		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
@@ -341,5 +366,11 @@ public class Commander
 	private void DoShortcut(string text)
 	{
 		mainForm.Dialogs.ShowInputCommand(text);
+	}
+	
+	public static string EscapeForCommandLine(string text)
+	{
+		return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\\n")
+			.Replace("\\", "\\\\").Replace("\"", "\\\"");
 	}
 }
