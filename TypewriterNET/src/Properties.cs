@@ -298,7 +298,7 @@ public class Properties
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add("regex").Add("");
+			table.Add(name).Add("regex").Add("").Add("(several nodes allowed)");
 		}
 
 		override public void Reset()

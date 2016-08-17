@@ -39,5 +39,6 @@
 	<altChars
 		source="ZCN&lt;"
 		result="Æ¢ÑÇ"/>
-	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/>
+	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
+	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 </config>
