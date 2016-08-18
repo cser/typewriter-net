@@ -204,7 +204,7 @@ public class DialogManager
 	{
 		if (replace.SwitchOpen())
 			replace.Open(
-				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Replace"), true);
+				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Replace"), true);
 		return true;
 	}
 

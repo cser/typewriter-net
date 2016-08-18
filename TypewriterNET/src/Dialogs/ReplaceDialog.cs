@@ -33,6 +33,7 @@ public class ReplaceDialog : ADialog
 	private FindParams findParams;
 	private Getter<string, bool> doFindText;
 	private Getter<string, bool> doSelectAllFinded;
+	private Getter<string, bool> doSelectNextFinded;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -40,12 +41,17 @@ public class ReplaceDialog : ADialog
 	private MonospaceLabel textLabel;
 	private MonospaceLabel replaceTextLabel;
 
-	public ReplaceDialog(Data data, FindParams findParams, Getter<string, bool> doFindText, Getter<string, bool> doSelectAllFinded, string name)
+	public ReplaceDialog(Data data, FindParams findParams,
+		Getter<string, bool> doFindText,
+		Getter<string, bool> doSelectAllFinded,
+		Getter<string, bool> doSelectNextFinded,
+		string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFindText = doFindText;
 		this.doSelectAllFinded = doSelectAllFinded;
+		this.doSelectNextFinded = doSelectNextFinded;
 		Name = name;
 	}
 
@@ -73,6 +79,8 @@ public class ReplaceDialog : ADialog
 		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
 				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
+			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
+				new KeyAction("F&ind\\Select all finded", DoSelectNextFinded, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -307,6 +315,15 @@ public class ReplaceDialog : ADialog
 			data.history.Add(text);
 		if (doSelectAllFinded(text))
 			DispatchNeedClose();
+		return true;
+	}
+	
+	private bool DoSelectNextFinded(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		doSelectAllFinded(text);
 		return true;
 	}
 }
