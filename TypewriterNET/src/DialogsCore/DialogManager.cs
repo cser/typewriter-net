@@ -187,7 +187,8 @@ public class DialogManager
 	private bool DoFind(Controller controller)
 	{
 		if (find.SwitchOpen())
-			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Find"), true);
+			find.Open(
+				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Find"), true);
 		return true;
 	}
 
@@ -195,14 +196,15 @@ public class DialogManager
 	{
 		if (findInFiles.SwitchOpen())
 			findInFiles.Open(
-				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, "Find in Files"), true);
+				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, null, "Find in Files"), true);
 		return true;
 	}
 
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Replace"), true);
+			replace.Open(
+				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, "Replace"), true);
 		return true;
 	}
 
@@ -358,6 +360,77 @@ public class DialogManager
 		}
 		return result;
 	}
+	
+	private bool DoSelectNextFinded(string text)
+	{
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			int index;
+			int length;
+			if (tempSettings.FindParams.regex)
+			{
+				string error;
+				Regex regex = ParseRegex(text, out error);
+				if (regex == null || error != null)
+				{
+					ShowInfo("FindInFiles", "Error: " + error);
+					return true;
+				}
+				Match match = regex.Match(lastController.Lines.GetText(), lastController.Lines.LastSelection.Right);
+				index = -1;
+				length = text.Length;
+				if (match.Success)
+				{
+					index = match.Index;
+					length = match.Length;
+				}
+				else
+				{
+					match = regex.Match(lastController.Lines.GetText(), 0);
+					if (match.Success)
+					{
+						index = match.Index;
+						length = match.Length;
+					}
+				}
+			}
+			else
+			{
+				length = text.Length;
+				CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
+				index = ci != null ?
+					ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
+					lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
+				if (index == -1)
+					index = ci != null ?
+						ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
+						lastController.Lines.IndexOf(text, 0);
+			}
+			if (index != -1)
+			{
+				if (lastController.Lines.LastSelection.Right != index)
+				{
+					lastController.PutNewCursor(lastController.Lines.PlaceOf(index));
+					lastController.PutCursor(lastController.Lines.PlaceOf(index + length), true);
+				}
+				else
+				{
+					lastController.PutNewCursor(lastController.Lines.PlaceOf(index + length));
+					lastController.PutCursor(lastController.Lines.PlaceOf(index), true);
+					Selection lastSelection = lastController.Lines.selections[lastController.Lines.selections.Count - 1];
+					if (lastSelection.anchor == index + length && lastSelection.caret == index)
+					{
+						int temp = lastSelection.anchor;
+						lastSelection.anchor = lastSelection.caret;
+						lastSelection.caret = temp;
+					}
+				}
+				mainForm.LastFrame.TextBox.MoveToCaret();
+			}
+		}
+		return true;
+	}
 
 	private bool DoFindInFilesDialog(string text)
 	{
@@ -387,7 +460,7 @@ public class DialogManager
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
 			goToLine.Open(new FindDialog(
-				goToLineData, null, DoGoToLine, null,
+				goToLineData, null, DoGoToLine, null, null,
 				"Go to line" +
 				(place != null ?
 					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
@@ -528,7 +601,7 @@ public class DialogManager
 		if (input.SwitchOpen())
 		{
 			inputData.oldText = text;
-			input.Open(new FindDialog(inputData, null, doInput, null, title), true);
+			input.Open(new FindDialog(inputData, null, doInput, null, null, title), true);
 		}
 		return true;
 	}

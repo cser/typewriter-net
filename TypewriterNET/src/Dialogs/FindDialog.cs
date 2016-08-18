@@ -29,16 +29,24 @@ public class FindDialog : ADialog
 	private FindParams findParams;
 	private Getter<string, bool> doFind;
 	private Getter<string, bool> doSelectAllFinded;
+	private Getter<string, bool> doSelectNextFinded;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
-	public FindDialog(Data data, FindParams findParams, Getter<string, bool> doFind, Getter<string, bool> doSelectAllFinded, string name)
+	public FindDialog(
+		Data data,
+		FindParams findParams,
+		Getter<string, bool> doFind,
+		Getter<string, bool> doSelectAllFinded,
+		Getter<string, bool> doSelectNextFinded,
+		string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
 		this.doSelectAllFinded = doSelectAllFinded;
+		this.doSelectNextFinded = doSelectNextFinded;
 		Name = name;
 	}
 
@@ -68,6 +76,8 @@ public class FindDialog : ADialog
 		KeyMap beforeKeyMap = new KeyMap();
 		if (doSelectAllFinded != null)
 		{
+			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
+				new KeyAction("F&ind\\Select next finded", DoSelectNextFinded, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
 				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
 		}
@@ -208,6 +218,15 @@ public class FindDialog : ADialog
 			data.history.Add(text);
 		if (doSelectAllFinded(text))
 			DispatchNeedClose();
+		return true;
+	}
+	
+	private bool DoSelectNextFinded(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		doSelectNextFinded(text);
 		return true;
 	}
 }
