@@ -2,7 +2,7 @@
 <!--
 This file was writen for launching with MSBuild
 -->
-<Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 	<Target Name="me">
 		<MakeDir Directories="MulticaretEditor\bin\" />
 		<CSC Sources="MulticaretEditor\src\*.cs; MulticaretEditor\src\Commands\*.cs; MulticaretEditor\src\Highlighting\*.cs; MulticaretEditor\src\KeyMapping\*.cs"
@@ -34,8 +34,14 @@ This file was writen for launching with MSBuild
 	<Target Name="build-tw" DependsOnTargets="me; resources">
 		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml" />
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\ICSharpCode.NRefactory.Cecil.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\ICSharpCode.NRefactory.CSharp.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\ICSharpCode.NRefactory.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\ICSharpCode.NRefactory.Xml.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\Mono.Cecil.dll" DestinationFolder="TypewriterNET\bin" />
+		<Copy SourceFiles="libs\Mono.Cecil.Rocks.dll" DestinationFolder="TypewriterNET\bin" />
 		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Dialogs\*.cs; TypewriterNET\src\DialogsCore\*.cs; TypewriterNET\src\Tools\*.cs;TypewriterNET\src\KlerksSoft\*.cs"
-			References="TypewriterNET\bin\MulticaretEditor.dll"
+			References="TypewriterNET\bin\MulticaretEditor.dll;libs\ICSharpCode.NRefactory.Cecil.dll;libs\ICSharpCode.NRefactory.CSharp.dll;libs\ICSharpCode.NRefactory.dll;libs\ICSharpCode.NRefactory.Xml.dll;libs\Mono.Cecil.dll;libs\Mono.Cecil.Rocks.dll"
 			Resources="TypewriterNET\TypewriterNET.resources"
 			TargetType="winexe"
 			NoStandardLib="False"
