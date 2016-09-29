@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
-using ICSharpCode.NRefactory.CSharp;
 
 public class Commander
 {
@@ -290,7 +289,7 @@ public class Commander
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
-		commands.Add(new Command("parse", "", "for NRefactory", DoParse));
+		commands.Add(new Command("omnisharp", "request", "send to omnisharp server", DoSendToOmnisharpServer));
 	}
 
 	private void DoHelp(string args)
@@ -376,36 +375,11 @@ public class Commander
 			.Replace("\\", "\\\\").Replace("\"", "\\\"");
 	}
 	
-	public void DoParse(string text)
+	public void DoSendToOmnisharpServer(string text)
 	{
-		Controller lastController = mainForm.LastFrame != null ? mainForm.LastFrame.Controller : null;
-		if (lastController == null)
+		if (ReplaceVars(ref text))
 		{
-			mainForm.Dialogs.ShowInfo("Error", "No selected buffer");
-			return;
-		}
-		string code = lastController.Lines.GetText();
-		CSharpParser parser = new CSharpParser();
-		SyntaxTree syntaxTree = parser.Parse(code, mainForm.LastFrame.SelectedBuffer.FullPath);
-		if (parser.HasErrors)
-		{
-			foreach (ICSharpCode.NRefactory.TypeSystem.Error error in parser.Errors)
-			{
-				mainForm.Log.WriteError("Error", error.Message);
-			}
-		}
-		foreach (AstNode element in syntaxTree.Children) {
-			PrintNode(element);
-		}
-		mainForm.Log.Open();
-	}
-		
-	private void PrintNode(AstNode node)
-	{
-		mainForm.Log.WriteInfo("Node", node + "");
-		foreach (AstNode child in node.Children)
-		{
-			PrintNode(child);
+			
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Text;
+using System.IO;
 using System.Globalization;
 using MulticaretEditor;
 
@@ -431,6 +432,72 @@ public class Properties
 		override public void Reset()
 		{
 			value = defaultValue;
+		}
+	}
+	
+	public class PathList : Property
+	{
+		private readonly bool isDir;
+		
+		public PathList(string name, bool isDir) : base(name)
+		{
+			this.isDir = isDir;
+		}
+
+		private readonly RWList<string> value = new RWList<string>();
+		public IRList<string> Value { get { return value; } }
+
+		override public string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (string path in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append(path);
+				}
+				return builder.ToString();
+			}
+		}
+		
+		private static bool IsPathGlobal(string path)
+		{
+			return path.Length > 2 && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+		}
+
+		override public string SetText(string value)
+		{
+			value = value.Trim();
+			if (!IsPathGlobal(value))
+			{
+				value = Path.Combine(Directory.GetCurrentDirectory(), value);
+			}
+			if (isDir)
+			{
+				if (!Directory.Exists(value))
+					return "No directory: " + value;
+			}
+			else
+			{
+				if (!File.Exists(value))
+					return "No file: " + value;
+			}
+			this.value.Add(value);
+			return null;
+		}
+
+		override public void GetHelpText(TextTable table)
+		{
+			table.Add(name).Add(isDir ? "directory" : "file").Add("").Add("(several nodes allowed)");
+		}
+
+		override public void Reset()
+		{
+			value.Clear();
 		}
 	}
 }

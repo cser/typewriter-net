@@ -51,6 +51,8 @@ public class Settings
 	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
 	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
 	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
+	public readonly Properties.PathList src = new Properties.PathList("src", true);
+	public readonly Properties.PathList lib = new Properties.PathList("lib", false);
 
 	private Setter onChange;
 
@@ -99,6 +101,8 @@ public class Settings
 		Add(shellEncoding);
 		Add(httpEncoding);
 		Add(showEncoding);
+		Add(src);
+		Add(lib);
 	}
 
 	public void DispatchChange()

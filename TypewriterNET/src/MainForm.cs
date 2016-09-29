@@ -166,10 +166,11 @@ public class MainForm : Form
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
 
+		sharpManager = new SharpManager(this);
 		syntaxFilesScanner.Rescan();
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
-
+		
 		fileTree = new FileTree(this);
 
 		leftNest.buffers = new BufferList();
@@ -408,6 +409,8 @@ public class MainForm : Form
 			lastFrame = frame;
 		UpdateTitle();
 	}
+	
+	private SharpManager sharpManager;
 
 	private void ApplySettings()
 	{
@@ -417,6 +420,7 @@ public class MainForm : Form
 		TopMost = settings.alwaysOnTop.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
+		sharpManager.UpdateSettings(settings);
 	}
 
 	public void DoResize()
