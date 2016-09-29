@@ -37,6 +37,12 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 4. Info that using for file opening in same application instance
     http://www.codeproject.com/Tips/1017834/How-to-Send-Data-from-One-Process-to-Another-in-Cs
 
+5. OmniSharp server
+	https://github.com/OmniSharp/omnisharp-server
+
+6. JSON parser
+	https://github.com/libla/TinyJSON
+
 Installation without building
 -----------------------------
 

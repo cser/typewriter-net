@@ -268,4 +268,26 @@ public class Frame : AFrame
 	{
 		RemoveBuffer(buffer);
 	}
+	
+	public void ShowAutocomplete(List<string> variants)
+	{
+		Buffer buffer = buffers.list.Selected != null ? buffers.list.Selected : null;
+		if (buffer == null)
+			return;
+		
+		Place place = textBox.Controller.Lines.PlaceOf(textBox.Controller.LastSelection.caret);
+		Point point = textBox.ScreenCoordsOfPlace(place);
+		point.Y += textBox.CharHeight;
+		
+		ToolStripDropDown dropDown = new ToolStripDropDown();
+		ToolStripItem[] items = new ToolStripItem[variants.Count];
+		for (int i = 0; i < variants.Count; i++)
+		{
+			ToolStripButton button = new ToolStripButton();
+			button.Text = variants[i];
+			items[i] = button;
+		}
+		dropDown.Items.AddRange(items);
+		dropDown.Show(textBox, point);
+	}
 }

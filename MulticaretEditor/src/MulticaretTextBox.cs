@@ -759,6 +759,30 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public Point ScreenCoordsOfPlace(Place place)
+		{
+			int valueX = lines.scroller.scrollX.value;
+			int valueY = lines.scroller.scrollY.value;
+			int offsetX = -valueX + GetLeftIndent();
+			int offsetY = -valueY;
+			Line line = lines[place.iLine];
+			int x;
+			int y;
+			if (lines.wordWrap)
+			{
+				int wwILine = lines.wwValidator.GetWWILine(place.iLine);
+				Pos innerPos = line.WWPosOfIndex(place.iChar);
+				x = offsetX + innerPos.ix * charWidth;
+				y = offsetY + (wwILine + innerPos.iy) * charHeight;
+			}
+			else
+			{
+				x = offsetX + line.PosOfIndex(place.iChar) * charWidth;
+				y = offsetY + place.iLine * charHeight;
+			}
+			return new Point(x, y);
+		}
 
 		private PredictableList<DrawingLine> selectionRects = new PredictableList<DrawingLine>();
 

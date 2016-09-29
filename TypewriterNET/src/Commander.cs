@@ -6,8 +6,10 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Net;
+using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
+using TinyJSON;
 
 public class Commander
 {
@@ -415,7 +417,37 @@ public class Commander
 		}
 		if (output != null)
 		{
+			Node node = null;
+			try
+			{
+				node = new Parser().Load(output);
+			}
+			catch (Exception e)
+			{
+				mainForm.Log.WriteError("OmniSharp", "Response parsing error: " + e.Message + "\n" + output);
+				return;
+			}
+			if (!node.IsArray())
+			{
+				mainForm.Log.WriteError("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
 			mainForm.Log.WriteInfo("OmniSharp", output);
+			List<string> variants = new List<string>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					string nodeI = (string)node[i]["CompletionText"] + "|" + (string)node[i]["DisplayText"];
+					variants.Add(nodeI);
+				}
+				catch (Exception e)
+				{
+					variants.Add(e.Message);
+				}
+			}
+			if (mainForm.LastFrame.AsFrame != null)
+				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants);
 		}
 	}
 }
