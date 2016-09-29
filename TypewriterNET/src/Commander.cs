@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Net;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 
@@ -289,7 +290,7 @@ public class Commander
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
-		commands.Add(new Command("omnisharp", "request", "send to omnisharp server", DoSendToOmnisharpServer));
+		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 	}
 
 	private void DoHelp(string args)
@@ -375,11 +376,61 @@ public class Commander
 			.Replace("\\", "\\\\").Replace("\"", "\\\"");
 	}
 	
-	public void DoSendToOmnisharpServer(string text)
+	public void DoOmnisharpAutocomplete(string text)
 	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		string word = "";
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		
+		string httpServer = "http://localhost:" + settings.omnisharpPort.Value + "/autocomplete";
 		if (ReplaceVars(ref text))
 		{
-			
+			string output = null;
+			try
+			{
+				string postData =
+					"FileName=" + lastBuffer.FullPath + "&" +
+					"WordToComplete=" + word + "&" +
+					"Buffer=" + editorText + "&" +
+					"Line=" + place.iLine + "&" +
+					"Column=" + place.iChar;
+				byte[] data = Encoding.ASCII.GetBytes(postData);
+				
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(httpServer);
+				request.Timeout = settings.connectionTimeout.Value;
+				request.Method = "POST";
+				request.ContentType = "application/x-www-form-urlencoded";
+				request.ContentLength = data.Length;
+
+				using (Stream stream = request.GetRequestStream())
+				{
+					stream.Write(data, 0, data.Length);
+				}
+
+				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+				using (StreamReader reader = new StreamReader(
+					response.GetResponseStream(), settings.httpEncoding.Value.encoding))
+				{
+					output = reader.ReadToEnd();
+				}
+			}
+			catch (Exception e)
+			{
+				mainForm.Log.WriteError("http", e.ToString());
+				mainForm.Log.Open();
+			}
+			if (output != null)
+			{
+				mainForm.Log.WriteInfo("OmniSharp", output);
+			}
 		}
 	}
 }

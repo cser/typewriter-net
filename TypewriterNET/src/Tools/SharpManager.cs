@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -18,16 +19,29 @@ public class SharpManager
 	
 	private List<string> srcs = new List<string>();
 	private List<string> libs = new List<string>();
+	private int omnisharpPort;
 	
 	public void UpdateSettings(Settings settings)
 	{
-		if (!AreEquals(srcs, settings.src.Value) || !AreEquals(libs, settings.lib.Value))
+		if (!AreEquals(srcs, settings.src.Value) ||
+			!AreEquals(libs, settings.lib.Value) ||
+			omnisharpPort != settings.omnisharpPort.Value)
 		{
 			srcs.Clear();
 			srcs.AddRange(settings.src.Value);
 			libs.Clear();
 			libs.AddRange(settings.lib.Value);
+			omnisharpPort = settings.omnisharpPort.Value;
 			ApplySettings();
+		}
+	}
+	
+	public void Close()
+	{
+		if (server != null)
+		{
+			server.Close();
+			server = null;
 		}
 	}
 	
@@ -55,6 +69,8 @@ public class SharpManager
 		return true;
 	}
 	
+	private Process server;
+	
 	private void ApplySettings()
 	{
 		mainForm.Log.WriteInfo("SharpManager", "ApplySettings");
@@ -77,11 +93,20 @@ public class SharpManager
 				
 			}
 		}
-		/*
-		Process p = new Process();
-		p.StartInfo.UseShellExecute = true;
-		p.StartInfo.FileName = "cmd.exe";
-		p.StartInfo.Arguments = "/C " + commandText;
-		p.Start();*/
+		
+		if (server != null)
+		{
+			server.Close();
+			server = null;
+		}
+		if (srcs.Count > 0)
+		{
+			mainForm.Log.WriteInfo("OmniSharp", "Connecting to port: " + omnisharpPort);
+			server = new Process();
+			server.StartInfo.UseShellExecute = true;
+			server.StartInfo.FileName = Path.Combine(AppPath.StartupDir, "omnisharp_server/OmniSharp.exe");
+			server.StartInfo.Arguments = "-s " + srcs[0] + " -p=" + omnisharpPort;
+			server.Start();
+		}
 	}
 }

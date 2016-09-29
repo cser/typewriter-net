@@ -386,6 +386,8 @@ public class MainForm : Form
 		}
 		if (!forbidTempSaving)
 			tempSettings.Save(tempFilePostfix);
+		if (sharpManager != null)
+			sharpManager.Close();
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }

@@ -53,6 +53,7 @@ public class Settings
 	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
 	public readonly Properties.PathList src = new Properties.PathList("src", true);
 	public readonly Properties.PathList lib = new Properties.PathList("lib", false);
+	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 
 	private Setter onChange;
 
@@ -103,6 +104,7 @@ public class Settings
 		Add(showEncoding);
 		Add(src);
 		Add(lib);
+		Add(omnisharpPort);
 	}
 
 	public void DispatchChange()
