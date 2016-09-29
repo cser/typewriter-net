@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -391,46 +392,30 @@ public class Commander
 		string editorText = lastBuffer.Controller.Lines.GetText();
 		
 		string httpServer = "http://localhost:" + settings.omnisharpPort.Value + "/autocomplete";
-		if (ReplaceVars(ref text))
+		
+		NameValueCollection parameters = new NameValueCollection();
+		parameters.Add("FileName", lastBuffer.FullPath);
+		parameters.Add("WordToComplete", word);
+		parameters.Add("Buffer", editorText);
+		parameters.Add("Line", (place.iLine + 1) + "");
+		parameters.Add("Column", (place.iChar + 1) + "");
+		string output = null;
+		using (WebClient client = new WebClient())
 		{
-			string output = null;
 			try
 			{
-				string postData =
-					"FileName=" + lastBuffer.FullPath + "&" +
-					"WordToComplete=" + word + "&" +
-					"Buffer=" + editorText + "&" +
-					"Line=" + place.iLine + "&" +
-					"Column=" + place.iChar;
-				byte[] data = Encoding.ASCII.GetBytes(postData);
-				
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(httpServer);
-				request.Timeout = settings.connectionTimeout.Value;
-				request.Method = "POST";
-				request.ContentType = "application/x-www-form-urlencoded";
-				request.ContentLength = data.Length;
-
-				using (Stream stream = request.GetRequestStream())
-				{
-					stream.Write(data, 0, data.Length);
-				}
-
-				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-				using (StreamReader reader = new StreamReader(
-					response.GetResponseStream(), settings.httpEncoding.Value.encoding))
-				{
-					output = reader.ReadToEnd();
-				}
+				byte[] bytes = client.UploadValues(httpServer, "POST", parameters);
+				output = Encoding.UTF8.GetString(bytes);
 			}
 			catch (Exception e)
 			{
 				mainForm.Log.WriteError("http", e.ToString());
 				mainForm.Log.Open();
 			}
-			if (output != null)
-			{
-				mainForm.Log.WriteInfo("OmniSharp", output);
-			}
+		}
+		if (output != null)
+		{
+			mainForm.Log.WriteInfo("OmniSharp", output);
 		}
 	}
 }
