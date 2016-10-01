@@ -381,6 +381,12 @@ public class Commander
 	
 	public void DoOmnisharpAutocomplete(string text)
 	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
 		Buffer lastBuffer = mainForm.LastBuffer;
 		if (lastBuffer == null)
 		{

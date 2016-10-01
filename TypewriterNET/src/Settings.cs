@@ -51,8 +51,7 @@ public class Settings
 	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
 	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
 	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
-	public readonly Properties.PathList src = new Properties.PathList("src", true);
-	public readonly Properties.PathList lib = new Properties.PathList("lib", false);
+	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
 
@@ -103,8 +102,7 @@ public class Settings
 		Add(shellEncoding);
 		Add(httpEncoding);
 		Add(showEncoding);
-		Add(src);
-		Add(lib);
+		Add(omnisharpSln);
 		Add(omnisharpPort);
 		Add(omnisharpConsole);
 	}

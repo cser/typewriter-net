@@ -20,26 +20,21 @@ public class SharpManager
 		this.mainForm = mainForm;
 	}
 	
-	private List<string> srcs = new List<string>();
-	private List<string> libs = new List<string>();
-	
+	private string omnisharpSln;
 	private int omnisharpPort;
 	private int realPort;
 	private bool omnisharpConsole;
 	
+	public bool Started { get { return server != null; } }
 	public string AutocompleteUrl { get { return "http://localhost:" + realPort + "/autocomplete"; } }
 	
 	public void UpdateSettings(Settings settings)
 	{
-		if (!AreEquals(srcs, settings.src.Value) ||
-			!AreEquals(libs, settings.lib.Value) ||
+		if ((omnisharpSln + "") != (settings.omnisharpSln.Value + "") ||
 			omnisharpPort != settings.omnisharpPort.Value ||
 			omnisharpConsole != settings.omnisharpConsole.Value)
 		{
-			srcs.Clear();
-			srcs.AddRange(settings.src.Value);
-			libs.Clear();
-			libs.AddRange(settings.lib.Value);
+			omnisharpSln = settings.omnisharpSln.Value;
 			omnisharpPort = settings.omnisharpPort.Value;
 			realPort = omnisharpPort;
 			omnisharpConsole = settings.omnisharpConsole.Value;
@@ -63,7 +58,8 @@ public class SharpManager
 			}
 			catch (Exception e)
 			{
-				mainForm.Log.WriteInfo("Omnisharp", "Server close error: " + e.Message);
+				mainForm.Log.WriteError("Omnisharp", "Server close error: " + e.Message);
+				mainForm.Log.Open();
 			}
 		}
 	}
@@ -96,40 +92,19 @@ public class SharpManager
 	
 	private void ApplySettings()
 	{
-		mainForm.Log.WriteInfo("SharpManager", "ApplySettings");
-		mainForm.Log.Open();
-		
-		foreach (string src in srcs)
-		{
-			string[] files = null;
-			try
-			{
-				files = Directory.GetFiles(src, "*.cs", SearchOption.AllDirectories);
-			}
-			catch (Exception e)
-			{
-				mainForm.Log.WriteError("SharpManager", "File list reading error: " + e.Message);
-			}
-			List<StyleRange> ranges = new List<StyleRange>();
-			foreach (string file in files)
-			{
-				
-			}
-		}
-		
 		if (server != null)
 		{
 			KillServer();
 		}
-		if (srcs.Count > 0)
+		if (!string.IsNullOrEmpty(omnisharpSln))
 		{
 			realPort = FindFreePort(omnisharpPort);
-			mainForm.Log.WriteInfo("OmniSharp", "Connecting to port: " + realPort);
+			mainForm.Log.WriteInfo("Omnisharp", omnisharpSln + " - connecting to: " + realPort);
 			server = new Process();
 			server.StartInfo.UseShellExecute = omnisharpConsole;
 			server.StartInfo.CreateNoWindow = !omnisharpConsole;
 			server.StartInfo.FileName = Path.Combine(AppPath.StartupDir, "omnisharp_server/OmniSharp.exe");
-			server.StartInfo.Arguments = "-s " + srcs[0] + " -p=" + realPort;
+			server.StartInfo.Arguments = "-s " + omnisharpSln + " -p=" + realPort;
 			server.Start();
 		}
 	}
@@ -146,7 +121,7 @@ public class SharpManager
 				listener.Stop();
 				return port;
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				mainForm.Log.WriteInfo("Omnisharp", "Consumed port: " + port);
 				port++;

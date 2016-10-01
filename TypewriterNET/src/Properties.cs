@@ -435,34 +435,21 @@ public class Properties
 		}
 	}
 	
-	public class PathList : Property
+	public class PathProperty : Property
 	{
-		private readonly bool isDir;
+		private readonly string defaultValue;
+		private readonly string help;
 		
-		public PathList(string name, bool isDir) : base(name)
+		public PathProperty(string name, string defaultValue, string help) : base(name)
 		{
-			this.isDir = isDir;
+			this.defaultValue = defaultValue;
+			this.help = help;
 		}
 
-		private readonly RWList<string> value = new RWList<string>();
-		public IRList<string> Value { get { return value; } }
+		private string value;
+		public string Value { get { return value; } }
 
-		override public string Text
-		{
-			get
-			{
-				StringBuilder builder = new StringBuilder();
-				bool first = true;
-				foreach (string path in value)
-				{
-					if (!first)
-						builder.Append("; ");
-					first = false;
-					builder.Append(path);
-				}
-				return builder.ToString();
-			}
-		}
+		override public string Text { get { return defaultValue; } }
 		
 		private static bool IsPathGlobal(string path)
 		{
@@ -476,28 +463,22 @@ public class Properties
 			{
 				value = Path.Combine(Directory.GetCurrentDirectory(), value);
 			}
-			if (isDir)
+			if (!Directory.Exists(value) && !File.Exists(value))
 			{
-				if (!Directory.Exists(value))
-					return "No directory: " + value;
+				return "No file or directory: " + value;
 			}
-			else
-			{
-				if (!File.Exists(value))
-					return "No file: " + value;
-			}
-			this.value.Add(value);
+			this.value = value;
 			return null;
 		}
 
 		override public void GetHelpText(TextTable table)
 		{
-			table.Add(name).Add(isDir ? "directory" : "file").Add("").Add("(several nodes allowed)");
+			table.Add(name).Add("path").Add(defaultValue).Add(help);
 		}
 
 		override public void Reset()
 		{
-			value.Clear();
+			value = defaultValue;
 		}
 	}
 }
