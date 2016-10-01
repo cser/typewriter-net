@@ -9,5 +9,5 @@
 	<item name="ctrlSpaceCommand" value='omnisharp-autocomplete'/>
 	<item name="src" value="TypewriterNET/src" />
 	<item name="lib" value="MulticaretEditor/bin/MulticaretEditor.dll" />
-	<item name="connectionTimeout" value="5000"/>
+	<item name="omnisharpConsole" value="true"/>
 </config>

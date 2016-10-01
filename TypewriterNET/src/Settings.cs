@@ -54,6 +54,7 @@ public class Settings
 	public readonly Properties.PathList src = new Properties.PathList("src", true);
 	public readonly Properties.PathList lib = new Properties.PathList("lib", false);
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
+	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
 
 	private Setter onChange;
 
@@ -105,6 +106,7 @@ public class Settings
 		Add(src);
 		Add(lib);
 		Add(omnisharpPort);
+		Add(omnisharpConsole);
 	}
 
 	public void DispatchChange()

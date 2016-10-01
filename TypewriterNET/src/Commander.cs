@@ -393,7 +393,7 @@ public class Commander
 		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
 		string editorText = lastBuffer.Controller.Lines.GetText();
 		
-		string httpServer = "http://localhost:" + settings.omnisharpPort.Value + "/autocomplete";
+		string httpServer = mainForm.SharpManager.AutocompleteUrl;
 		
 		NameValueCollection parameters = new NameValueCollection();
 		parameters.Add("FileName", lastBuffer.FullPath);

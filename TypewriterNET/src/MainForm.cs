@@ -413,6 +413,7 @@ public class MainForm : Form
 	}
 	
 	private SharpManager sharpManager;
+	public SharpManager SharpManager { get { return sharpManager; } }
 
 	private void ApplySettings()
 	{
