@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
+using System.Windows.Forms;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
@@ -91,6 +91,7 @@ public class Frame : AFrame
 
 	private bool DoCloseTab(Controller controller)
 	{
+		CloseAutocomplete();
 		RemoveBuffer(buffers.list.Selected);
 		return true;
 	}
@@ -211,6 +212,7 @@ public class Frame : AFrame
 
 	public void RemoveBuffer(Buffer buffer)
 	{
+		CloseAutocomplete();
 		if (buffer == null)
 			return;
 		if (!buffer.softRemove && buffer.onRemove != null && !buffer.onRemove(buffer))
@@ -232,6 +234,7 @@ public class Frame : AFrame
 
 	private void OnTabSelected()
 	{
+		CloseAutocomplete();
 		Buffer buffer = buffers.list.Selected;
 		if (additionKeyMap != null)
 			textBox.KeyMap.RemoveAfter(additionKeyMap);
@@ -269,25 +272,24 @@ public class Frame : AFrame
 		RemoveBuffer(buffer);
 	}
 	
-	public void ShowAutocomplete(List<string> variants)
+	private AutocompleteMode autocomplete;
+	
+	private void CloseAutocomplete()
 	{
+		if (autocomplete != null)
+		{
+			autocomplete.Close();
+			autocomplete = null;
+		}
+	}
+	
+	public void ShowAutocomplete(List<Variant> variants, string leftWord)
+	{
+		CloseAutocomplete();
 		Buffer buffer = buffers.list.Selected != null ? buffers.list.Selected : null;
 		if (buffer == null)
 			return;
-		
-		Place place = textBox.Controller.Lines.PlaceOf(textBox.Controller.LastSelection.caret);
-		Point point = textBox.ScreenCoordsOfPlace(place);
-		point.Y += textBox.CharHeight;
-		
-		ToolStripDropDown dropDown = new ToolStripDropDown();
-		ToolStripItem[] items = new ToolStripItem[variants.Count];
-		for (int i = 0; i < variants.Count; i++)
-		{
-			ToolStripButton button = new ToolStripButton();
-			button.Text = variants[i];
-			items[i] = button;
-		}
-		dropDown.Items.AddRange(items);
-		dropDown.Show(textBox, point);
+		autocomplete = new AutocompleteMode(textBox, buffer);
+		autocomplete.Show(variants, leftWord);
 	}
 }

@@ -444,7 +444,7 @@ public class Commander
 		
 		NameValueCollection parameters = new NameValueCollection();
 		parameters.Add("FileName", lastBuffer.FullPath);
-		parameters.Add("WordToComplete", word);
+		parameters.Add("WordToComplete", "");
 		parameters.Add("Buffer", editorText);
 		parameters.Add("Line", (place.iLine + 1) + "");
 		parameters.Add("Column", (place.iChar + 1) + "");
@@ -458,8 +458,7 @@ public class Commander
 			}
 			catch (Exception e)
 			{
-				mainForm.Log.WriteError("http", e.ToString());
-				mainForm.Log.Open();
+				mainForm.Dialogs.ShowInfo("OmniSharp", "HTTP error: " + e.ToString());
 			}
 		}
 		if (output != null)
@@ -471,30 +470,30 @@ public class Commander
 			}
 			catch (Exception e)
 			{
-				mainForm.Log.WriteError("OmniSharp", "Response parsing error: " + e.Message + "\n" + output);
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: " + e.Message + "\n" + output);
 				return;
 			}
 			if (!node.IsArray())
 			{
-				mainForm.Log.WriteError("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
 				return;
 			}
-			mainForm.Log.WriteInfo("OmniSharp", output);
-			List<string> variants = new List<string>();
+			List<Variant> variants = new List<Variant>();
 			for (int i = 0; i < node.Count; i++)
 			{
 				try
 				{
-					string nodeI = (string)node[i]["CompletionText"] + "|" + (string)node[i]["DisplayText"];
-					variants.Add(nodeI);
+					Variant variant = new Variant();
+					variant.CompletionText = (string)node[i]["CompletionText"];
+					variant.DisplayText = (string)node[i]["DisplayText"];
+					variants.Add(variant);
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
-					variants.Add(e.Message);
 				}
 			}
 			if (mainForm.LastFrame.AsFrame != null)
-				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants);
+				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
 		}
 	}
 }
