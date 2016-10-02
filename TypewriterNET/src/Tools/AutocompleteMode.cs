@@ -45,7 +45,7 @@ public class AutocompleteMode
 		Point point = textBox.ScreenCoordsOfPlace(place);
 		point.Y += textBox.CharHeight;
 		
-		dropDown = new AutocompleteMenu(textBox.Scheme, textBox.FontFamily, textBox.FontSize);
+		dropDown = new AutocompleteMenu(textBox.Scheme, textBox.FontFamily, textBox.FontSize, textBox.ScrollingIndent);
 		UpdateItems();
 		dropDown.Show(textBox, point);
 		
@@ -53,25 +53,27 @@ public class AutocompleteMode
 		textBox.AfterKeyPress += OnKeyPress;
 	}
 	
-	private string completionText;
+	private Variant selectedVariant;
+	private readonly List<Variant> filteredVariants = new List<Variant>();
 	
 	private void UpdateItems()
 	{
 		string word = textBox.Controller.Lines.GetText(startCaret, caret - startCaret).ToLower();
 		List<ToolStripItem> items = new List<ToolStripItem>();
-		List<Variant> variants = new List<Variant>();
-		completionText = null;
-		for (int i = 0; i < this.variants.Count; i++)
+		filteredVariants.Clear();
+		selectedVariant = null;
+		for (int i = 0; i < variants.Count; i++)
 		{
-			Variant variant = this.variants[i];
+			Variant variant = variants[i];
 			if (variant.CompletionText == null || variant.DisplayText == null ||
 				!string.IsNullOrEmpty(word) && !variant.CompletionText.ToLower().Contains(word))
 				continue;
-			if (completionText == null)
-				completionText = variant.CompletionText;
-			variants.Add(variant);
+			if (selectedVariant == null)
+				selectedVariant = variant;
+			filteredVariants.Add(variant);
 		}
-		dropDown.SetVariants(variants);
+		dropDown.SetVariants(filteredVariants);
+		dropDown.SetSelectedVariant(selectedVariant);
 	}
 	
 	public void Close()
@@ -87,11 +89,25 @@ public class AutocompleteMode
 	
 	private bool DoMoveUp(Controller controller)
 	{
+		if (dropDown == null || filteredVariants.Count == 0)
+			return true;
+		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
+			selectedVariant = filteredVariants[filteredVariants.Count - 1];
+		int index = filteredVariants.IndexOf(selectedVariant);
+		selectedVariant = filteredVariants[(index + filteredVariants.Count - 1) % filteredVariants.Count];
+		dropDown.SetSelectedVariant(selectedVariant);
 		return true;
 	}
 	
 	private bool DoMoveDown(Controller controller)
 	{
+		if (dropDown == null || filteredVariants.Count == 0)
+			return true;
+		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
+			selectedVariant = filteredVariants[0];
+		int index = filteredVariants.IndexOf(selectedVariant);
+		selectedVariant = filteredVariants[(index + 1) % filteredVariants.Count];
+		dropDown.SetSelectedVariant(selectedVariant);
 		return true;
 	}
 	
@@ -103,6 +119,7 @@ public class AutocompleteMode
 	
 	private bool DoComplete(Controller controller)
 	{
+		string completionText = selectedVariant != null ? selectedVariant.CompletionText : null;
 		if (completionText != null)
 		{
 			int count = caret - startCaret;

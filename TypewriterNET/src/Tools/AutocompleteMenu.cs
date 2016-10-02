@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
+using Microsoft.Win32;
 
 public class AutocompleteMenu : ToolStripDropDown
 {
@@ -19,10 +20,12 @@ public class AutocompleteMenu : ToolStripDropDown
 	private readonly MenuControl control;
 	private readonly TextStyle defaultStyle;
 	private readonly int maxLinesCount;
+	private readonly int scrollingIndent;
 	
-	public AutocompleteMenu(Scheme scheme, FontFamily family, float emSize)
+	public AutocompleteMenu(Scheme scheme, FontFamily family, float emSize, int scrollingIndent)
 	{
 		this.scheme = scheme;
+		this.scrollingIndent = scrollingIndent;
 		
 		fonts[TextStyle.NoneMask] = new Font(family, emSize);
 
@@ -59,11 +62,14 @@ public class AutocompleteMenu : ToolStripDropDown
 		charWidth = (int)Math.Round(size.Width * 1f) - 1;
 		charHeight = (int)Math.Round(size.Height * 1f) + 1;
 		
-		maxLinesCount = Math.Max(10, Screen.PrimaryScreen.Bounds.Height / (2 * charHeight));
+		maxLinesCount = Math.Max(10, Screen.PrimaryScreen.Bounds.Height / (2 * charHeight) - 2);
 		
 		AutoClose = false;
 		AutoSize = false;
 		DropShadowEnabled = false;
+		
+		Margin = Padding.Empty;
+		Padding = Padding.Empty;
 		
 		control = new MenuControl(this);
 		host = new ToolStripControlHost(control);
@@ -74,6 +80,27 @@ public class AutocompleteMenu : ToolStripDropDown
 		Items.Add(host);
 	}
 	
+	protected override void OnMouseWheel(MouseEventArgs e)
+	{
+		int delta = (int)Math.Round((float)e.Delta / 120f) * GetControlPanelWheelScrollLinesValue();
+		control.Scroll(delta);
+	}
+	
+	private static int GetControlPanelWheelScrollLinesValue()
+	{
+		try
+		{
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", false))
+			{
+				return Convert.ToInt32(key.GetValue("WheelScrollLines"));
+			}
+		}
+		catch
+		{
+			return 3;
+		}
+	}
+	
 	private static SizeF GetCharSize(Font font, char c)
 	{
 		Size sz2 = TextRenderer.MeasureText("<" + c.ToString() + ">", font);
@@ -82,6 +109,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	}
 	
 	private readonly List<Variant> variants = new List<Variant>();
+	private Variant selectedVariant;
 	
 	private int visibleLinesCount;
 	
@@ -111,6 +139,13 @@ public class AutocompleteMenu : ToolStripDropDown
 		control.Invalidate();
 	}
 	
+	public void SetSelectedVariant(Variant variant)
+	{
+		selectedVariant = variant;
+		Invalidate();
+		control.ScrollIfNeed();
+	}
+	
 	protected override void OnPaint(PaintEventArgs e)
 	{
 	}
@@ -119,7 +154,6 @@ public class AutocompleteMenu : ToolStripDropDown
 	{
 		private readonly AutocompleteMenu menu;
 		private readonly ScrollBar vScrollBar;
-		private bool needVScrollFix;
 		
 		public int scrollBarWidth;
 		
@@ -159,13 +193,53 @@ public class AutocompleteMenu : ToolStripDropDown
 			Size = new Size(width, height);
 			vScrollBar.Visible = scrollBarVisible;
 			vScrollBar.Left = width - scrollBarWidth;
-			vScrollBar.Height = height;
+			vScrollBar.Height = height;			
+			vScrollBar.Minimum = 0;
+			vScrollBar.Maximum = menu.variants.Count - 1;
+			vScrollBar.LargeChange = menu.visibleLinesCount;
+		}
+		
+		public void Scroll(int delta)
+		{
+			vScrollBar.Value = CommonHelper.Clamp(
+				vScrollBar.Value - delta,
+				0,
+				menu.variants.Count - menu.visibleLinesCount);
+			Invalidate();
+		}
+		
+		public void ScrollIfNeed()
+		{
+			if (menu.selectedVariant == null)
+				return;
+			int offset = vScrollBar.Value;
+			int index = menu.variants.IndexOf(menu.selectedVariant);
+			if (index == -1)
+				return;
+			int indent = Math.Max(0, Math.Min(menu.visibleLinesCount / 2 - 1, menu.scrollingIndent));
+			if (index - indent < offset)
+			{
+				offset = index - indent;
+			}
+			else if (index > offset + menu.visibleLinesCount - 1 - indent)
+			{
+				offset = index - menu.visibleLinesCount + 1 + indent;
+			}
+			if (offset < 0)
+			{
+				offset = 0;
+			}
+			else if (offset > menu.variants.Count - menu.visibleLinesCount)
+			{
+				offset = menu.variants.Count - menu.visibleLinesCount;
+			}
+			vScrollBar.Value = offset;
+			Invalidate();
 		}
 		
 		private void OnVScroll(object target, ScrollEventArgs args)
 		{
-			if (args.Type == ScrollEventType.EndScroll)
-				needVScrollFix = true;
+			Invalidate();
 		}
 		
 		protected override void OnPaint(PaintEventArgs e)
@@ -173,12 +247,20 @@ public class AutocompleteMenu : ToolStripDropDown
 			List<Variant> variants = menu.variants;
 			
 			Graphics g = e.Graphics;
-			g.FillRectangle(menu.scheme.lineNumberBackground, new Rectangle(0, 0, width, height));
-			for (int i = menu.visibleLinesCount; i-- > 0;)
+			g.FillRectangle(menu.scheme.lineBgBrush, new Rectangle(0, 0, width, height));
+			int offset = vScrollBar.Value;
+			for (int i = variants.Count; i-- > 0;)
 			{
-				//if (i < 0 || i >= variants.Count)
-				//	continue;
-				DrawLineChars(g, new Point(0, i * menu.charHeight), variants[i].DisplayText);
+				if (i >= offset && i < offset + menu.visibleLinesCount)
+				{
+					if (variants[i] == menu.selectedVariant)
+					{
+						g.FillRectangle(
+							menu.scheme.selectionBrush,
+							new Rectangle(0, (i - offset) * menu.charHeight, width, menu.charHeight));
+					}
+					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), variants[i].DisplayText);
+				}
 			}
 		}
 		
