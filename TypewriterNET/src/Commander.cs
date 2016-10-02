@@ -204,7 +204,7 @@ public class Commander
         	if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo(
-					"Error", "No buffer with selection for replace " + RunShellCommand.CharVar);
+					"Error", "No buffer with selection for replace " + RunShellCommand.SelectedVar);
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
@@ -235,6 +235,45 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
         }
+        if (commandText.Contains(RunShellCommand.WordVar))
+        {
+        	Buffer lastBuffer = mainForm.LastBuffer;
+        	if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No buffer with selection for replace " + RunShellCommand.WordVar);
+				return false;
+			}
+			bool hasNotEmpty = false;
+			foreach (Selection selection in lastBuffer.Controller.Selections)
+			{
+				if (!selection.Empty)
+				{
+					hasNotEmpty = true;
+					break;
+				}
+			}
+			string varValue;
+			if (hasNotEmpty)
+			{
+				StringBuilder builder = new StringBuilder();
+				foreach (Selection selection in lastBuffer.Controller.Selections)
+				{
+					if (selection.Empty)
+						continue;
+					if (builder.Length > 0)
+						builder.Append(settings.lineBreak.Value);
+					builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
+				}
+				varValue = builder.ToString();
+			}
+			else
+			{
+				Place place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret);
+				varValue = lastBuffer.Controller.GetWord(place);
+			}
+			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
+        }
 		return true;
 	}
 
@@ -264,6 +303,8 @@ public class Commander
 		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word");
 		foreach (Command command in commands)
 		{
 			table.NewRow();

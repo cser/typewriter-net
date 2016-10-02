@@ -726,7 +726,15 @@ namespace MulticaretEditor
 		{
 			return Execute(new MoveLineCommand(false));
 		}
-
+		
+		public string GetWord(Place place)
+		{
+			int position;
+			int count;
+			GetWordSelection(place, out position, out count);
+			return lines.GetText(position, count);
+		}
+		
 		private void GetWordSelection(Place place, out int position, out int count)
 		{
 			Line line = lines[place.iLine];
