@@ -8,7 +8,7 @@ using MulticaretEditor.KeyMapping;
 
 public class AutocompleteMode
 {
-	private ToolStripDropDown dropDown;
+	private AutocompleteMenu dropDown;
 	private MulticaretTextBox textBox;
 	private Buffer buffer;
 	
@@ -45,7 +45,7 @@ public class AutocompleteMode
 		Point point = textBox.ScreenCoordsOfPlace(place);
 		point.Y += textBox.CharHeight;
 		
-		dropDown = new ToolStripDropDown();
+		dropDown = new AutocompleteMenu(textBox.Scheme, textBox.FontFamily, textBox.FontSize);
 		UpdateItems();
 		dropDown.Show(textBox, point);
 		
@@ -58,23 +58,20 @@ public class AutocompleteMode
 	private void UpdateItems()
 	{
 		string word = textBox.Controller.Lines.GetText(startCaret, caret - startCaret).ToLower();
-		dropDown.AutoClose = false;
 		List<ToolStripItem> items = new List<ToolStripItem>();
-		dropDown.Items.Clear();
+		List<Variant> variants = new List<Variant>();
 		completionText = null;
-		for (int i = 0; i < variants.Count; i++)
+		for (int i = 0; i < this.variants.Count; i++)
 		{
-			Variant variant = variants[i];
+			Variant variant = this.variants[i];
 			if (variant.CompletionText == null || variant.DisplayText == null ||
 				!string.IsNullOrEmpty(word) && !variant.CompletionText.ToLower().Contains(word))
 				continue;
 			if (completionText == null)
 				completionText = variant.CompletionText;
-			ToolStripButton button = new ToolStripButton();
-			button.Text = variant.DisplayText;
-			items.Add(button);
+			variants.Add(variant);
 		}
-		dropDown.Items.AddRange(items.ToArray());
+		dropDown.SetVariants(variants);
 	}
 	
 	public void Close()

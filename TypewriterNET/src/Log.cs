@@ -3,12 +3,16 @@ using MulticaretEditor.Highlighting;
 
 public class Log
 {
+	public static Log DebugLogger;
+	
 	private MainForm mainForm;
 	private Buffer buffer;
 	private Nest consoleNest;
 
 	public Log(MainForm mainForm, Nest consoleNest)
 	{
+		DebugLogger = this;
+		
 		this.mainForm = mainForm;
 		this.consoleNest = consoleNest;
 
