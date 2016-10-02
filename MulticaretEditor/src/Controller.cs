@@ -735,6 +735,34 @@ namespace MulticaretEditor
 			return lines.GetText(position, count);
 		}
 		
+		public string GetLeftWord(Place place)
+		{
+			Line line = lines[place.iLine];
+			int normalCount = line.NormalCount;
+			int left;
+			if (normalCount > 0)
+			{
+				int iChar = place.iChar;
+				if (iChar >= normalCount)
+					iChar = normalCount - 1;
+				left = iChar;
+				while (left > 0 && GetCharType(line.chars[left - 1].c) == CharType.Identifier)
+				{
+					left--;
+				}
+				if (left < iChar)
+				{
+					StringBuilder builder = new StringBuilder();
+					for (int i = left; i < iChar; i++)
+					{
+						builder.Append(line[i].c);
+					}
+					return builder.ToString();
+				}
+			}
+			return "";
+		}
+		
 		private void GetWordSelection(Place place, out int position, out int count)
 		{
 			Line line = lines[place.iLine];

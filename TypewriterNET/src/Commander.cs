@@ -435,10 +435,10 @@ public class Commander
 			return;
 		}
 
-		string word = "";
 		Selection selection = lastBuffer.Controller.LastSelection;
 		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
 		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
 		
 		string httpServer = mainForm.SharpManager.AutocompleteUrl;
 		
