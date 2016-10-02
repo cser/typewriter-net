@@ -80,6 +80,13 @@ public class AutocompleteMenu : ToolStripDropDown
 		Items.Add(host);
 	}
 	
+	private Point screenPoint;
+	
+	public void SetScreenPosition(Point point)
+	{
+		screenPoint = point;
+	}
+	
 	protected override void OnMouseWheel(MouseEventArgs e)
 	{
 		int delta = (int)Math.Round((float)e.Delta / 120f) * GetControlPanelWheelScrollLinesValue();
@@ -137,6 +144,16 @@ public class AutocompleteMenu : ToolStripDropDown
 		Invalidate();
 		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
 		control.Invalidate();
+		
+		Left = screenPoint.X;
+		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y)
+		{
+			Top = screenPoint.Y;
+		}
+		else
+		{
+			Top = screenPoint.Y - height - charHeight;
+		}
 	}
 	
 	public void SetSelectedVariant(Variant variant)

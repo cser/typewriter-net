@@ -46,8 +46,9 @@ public class AutocompleteMode
 		point.Y += textBox.CharHeight;
 		
 		dropDown = new AutocompleteMenu(textBox.Scheme, textBox.FontFamily, textBox.FontSize, textBox.ScrollingIndent);
-		UpdateItems();
+		dropDown.SetScreenPosition(textBox.PointToScreen(point));
 		dropDown.Show(textBox, point);
+		UpdateItems();
 		
 		textBox.KeyMap.AddBefore(keyMap);
 		textBox.AfterKeyPress += OnKeyPress;
@@ -130,6 +131,7 @@ public class AutocompleteMode
 			}
 			textBox.Controller.InsertText(completionText.Substring(count));
 		}
+		Close();
 		return true;
 	}
 	
