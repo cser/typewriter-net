@@ -43,14 +43,14 @@ public class Settings
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.Bool showEncoding = new Properties.Bool("showEncoding", false);
 
-	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
-	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
-	public readonly Properties.String f7Command = new Properties.String("f7Command", "", false);
-	public readonly Properties.String f8Command = new Properties.String("f8Command", "", false);
-	public readonly Properties.String f9Command = new Properties.String("f9Command", "", false);
-	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
-	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
-	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
+	public readonly Properties.Command f5Command = new Properties.Command("f5Command");
+	public readonly Properties.Command f6Command = new Properties.Command("f6Command");
+	public readonly Properties.Command f7Command = new Properties.Command("f7Command");
+	public readonly Properties.Command f8Command = new Properties.Command("f8Command");
+	public readonly Properties.Command f9Command = new Properties.Command("f9Command");
+	public readonly Properties.Command f11Command = new Properties.Command("f11Command");
+	public readonly Properties.Command f12Command = new Properties.Command("f12Command");
+	public readonly Properties.Command ctrlSpaceCommand = new Properties.Command("ctrlSpaceCommand");
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
@@ -142,12 +142,19 @@ public class Settings
 		Properties.AddHeadTo(table);
 		table.AddLine();
 		bool first = true;
+		Properties.Property prev = null;
 		foreach (Properties.Property property in properties)
 		{
 			if (!first)
 				table.NewRow();
 			first = false;
+			if (prev != null && prev.Type != property.Type)
+			{
+				if (prev.GetHelpTypeText(table))
+					table.NewRow();
+			}
 			property.GetHelpText(table);
+			prev = property;
 		}
 		builder.Append(table);
 		builder.AppendLine();

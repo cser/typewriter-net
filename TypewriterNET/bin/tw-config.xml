@@ -41,5 +41,5 @@
 		result="Æ¢ÑÇ"/>
 	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
-	<item name="ctrlSpaceCommand" value='omnisharp-autocomplete'/>
+	<item name="ctrlSpaceCommand:*.cs" value='omnisharp-autocomplete'/>
 </config>

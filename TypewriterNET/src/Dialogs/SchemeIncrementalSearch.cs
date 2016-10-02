@@ -70,7 +70,7 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 	{
 		if (MainForm.Settings.scheme.Value != lineText)
 		{
-			MainForm.Settings.scheme.SetText(lineText);
+			MainForm.Settings.scheme.SetText(lineText, "");
 			MainForm.Settings.DispatchChange();
 		}
 	}

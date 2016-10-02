@@ -47,15 +47,16 @@ public class ConfigParser
 						if (!string.IsNullOrEmpty(value))
 						{
 							string name = element.GetAttribute("name");
-							if (settings[name] != null)
+							string keyName = Properties.NameOfName(name);
+							if (settings[keyName] != null)
 							{
-								string error = settings[name].SetText(value);
+								string error = settings[keyName].SetText(value, Properties.SubvalueOfName(name));
 								if (!string.IsNullOrEmpty(error))
 									errors.AppendLine(error);
 							}
 							else
 							{
-								errors.AppendLine("Unknown name=" + name);
+								errors.AppendLine("Unknown name=" + keyName);
 							}
 						}
 					}

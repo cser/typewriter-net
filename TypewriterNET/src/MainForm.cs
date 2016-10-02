@@ -1559,9 +1559,38 @@ public class MainForm : Form
 		}
 	}
 
-	private bool ExecuteCommand(string command)
+	private bool ExecuteCommand(IRList<Properties.CommandInfo> infos)
 	{
-		commander.Execute(command);
+		string name = LastBuffer != null ? LastBuffer.Name : null;
+		Properties.CommandInfo info = null;
+		if (name != null)
+		{
+			for (int i = infos.Count; i-- > 0;)
+			{
+				Properties.CommandInfo infoI = infos[i];
+				if (infoI.filter != null && infoI.filter.Match(name))
+				{
+					info = infoI;
+					break;
+				}
+			}
+		}
+		if (info == null)
+		{
+			for (int i = infos.Count; i-- > 0;)
+			{
+				Properties.CommandInfo infoI = infos[i];
+				if (infoI.filter == null)
+				{
+					info = infoI;
+					break;
+				}
+			}
+		}
+		if (info != null)
+		{
+			commander.Execute(info.command);
+		}
 		return true;
 	}
 

@@ -77,18 +77,18 @@ public class Commander
 		{
 			command.execute(args);
 		}
-		else if (settings[name] != null)
+		else if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
 		{
 			if (args != "")
 			{
-				string errors = settings[name].SetText(args);
+				string errors = settings[Properties.NameOfName(name)].SetText(args, Properties.SubvalueOfName(name));
 				settings.DispatchChange();
 				if (!string.IsNullOrEmpty(errors))
 					mainForm.Dialogs.ShowInfo("Error assign of \"" + name + "\"", errors);
 			}
 			else
 			{
-				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
+				mainForm.Dialogs.ShowInfo("Value of \"" + Properties.NameOfName(name) + "\"", settings[name].Text);
 			}
 		}
 		else if (name.StartsWith("!!!"))
