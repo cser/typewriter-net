@@ -10,7 +10,7 @@
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>
 	<item name="fontSize" value="10.25"/>
-	<item name="font" value="Courier New"/>
+	<item name="font" value="Consolas"/>
 	<item name="scheme" value="npp"/>
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>
@@ -42,4 +42,5 @@
 	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="ctrlSpaceCommand:*.cs" value='omnisharp-autocomplete'/>
+	<item name="shiftF12Command:*.cs" value='omnisharp-findUsages'/>
 </config>

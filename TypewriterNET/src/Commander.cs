@@ -5,7 +5,6 @@ using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-using System.Net;
 using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
@@ -335,6 +334,7 @@ public class Commander
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
+		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
 	}
 
 	private void DoHelp(string args)
@@ -440,39 +440,15 @@ public class Commander
 		string editorText = lastBuffer.Controller.Lines.GetText();
 		string word = lastBuffer.Controller.GetLeftWord(place);
 		
-		string httpServer = mainForm.SharpManager.AutocompleteUrl;
-		
-		NameValueCollection parameters = new NameValueCollection();
-		parameters.Add("FileName", lastBuffer.FullPath);
-		parameters.Add("WordToComplete", "");
-		parameters.Add("Buffer", editorText);
-		parameters.Add("Line", (place.iLine + 1) + "");
-		parameters.Add("Column", (place.iChar + 1) + "");
-		string output = null;
-		using (WebClient client = new WebClient())
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", "")
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.AutocompleteUrl, false);
+		if (node != null)
 		{
-			try
-			{
-				byte[] bytes = client.UploadValues(httpServer, "POST", parameters);
-				output = Encoding.UTF8.GetString(bytes);
-			}
-			catch (Exception e)
-			{
-				mainForm.Dialogs.ShowInfo("OmniSharp", "HTTP error: " + e.ToString());
-			}
-		}
-		if (output != null)
-		{
-			Node node = null;
-			try
-			{
-				node = new Parser().Load(output);
-			}
-			catch (Exception e)
-			{
-				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: " + e.Message + "\n" + output);
-				return;
-			}
 			if (!node.IsArray())
 			{
 				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
@@ -494,6 +470,68 @@ public class Commander
 			}
 			if (mainForm.LastFrame.AsFrame != null)
 				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
+		}
+	}
+	
+	public void DoOmnisharpFindUsages(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", "")
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/findusages", true);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Table expected, but was:" + node.TypeOf());
+				return;
+			}
+			node = node["QuickFixes"];
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Usage> usages = new List<Usage>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					Usage usage = new Usage();
+					usage.FileName = (string)node[i]["FileName"];
+					usage.Line = (int)node[i]["Line"];
+					usage.Column = (int)node[i]["Column"];
+					usage.Text = (string)node[i]["Text"];
+					usages.Add(usage);
+				}
+				catch (Exception)
+				{
+				}
+			}
+			string errors = new ShowUsages(mainForm).Execute(usages, lastBuffer.Controller.GetWord(place));
+			if (errors != null)
+				mainForm.Dialogs.ShowInfo("FindInFiles", errors);
 		}
 	}
 }

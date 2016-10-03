@@ -572,6 +572,8 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)));
 
@@ -1567,6 +1569,11 @@ public class MainForm : Form
 	private bool DoExecuteF12Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f12Command.Value);
+	}
+	
+	private bool DoExecuteShiftF12Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF12Command.Value);
 	}
 	
 	private bool DoExecuteCtrlSpaceCommand(Controller controller)

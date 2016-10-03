@@ -26,7 +26,8 @@ public class SharpManager
 	private bool omnisharpConsole;
 	
 	public bool Started { get { return server != null; } }
-	public string AutocompleteUrl { get { return "http://localhost:" + realPort + "/autocomplete"; } }
+	public string Url { get { return "http://localhost:" + realPort; } }
+	public string AutocompleteUrl { get { return Url + "/autocomplete"; } }
 	
 	public void UpdateSettings(Settings settings)
 	{
