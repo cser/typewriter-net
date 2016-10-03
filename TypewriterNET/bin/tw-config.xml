@@ -43,4 +43,5 @@
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="ctrlSpaceCommand:*.cs" value='omnisharp-autocomplete'/>
 	<item name="shiftF12Command:*.cs" value='omnisharp-findUsages'/>
+	<item name="f12Command:*.cs" value='omnisharp-goToDefinition'/>
 </config>

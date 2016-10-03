@@ -27,7 +27,6 @@ public class SharpManager
 	
 	public bool Started { get { return server != null; } }
 	public string Url { get { return "http://localhost:" + realPort; } }
-	public string AutocompleteUrl { get { return Url + "/autocomplete"; } }
 	
 	public void UpdateSettings(Settings settings)
 	{

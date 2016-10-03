@@ -335,6 +335,7 @@ public class Commander
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
+		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
 	}
 
 	private void DoHelp(string args)
@@ -446,7 +447,7 @@ public class Commander
 			.Add("Buffer", editorText)
 			.Add("Line", (place.iLine + 1) + "")
 			.Add("Column", (place.iChar + 1) + "")
-			.Send(mainForm.SharpManager.AutocompleteUrl, false);
+			.Send(mainForm.SharpManager.Url + "/autocomplete", false);
 		if (node != null)
 		{
 			if (!node.IsArray())
@@ -491,15 +492,15 @@ public class Commander
 		Selection selection = lastBuffer.Controller.LastSelection;
 		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
 		string editorText = lastBuffer.Controller.Lines.GetText();
-		string word = lastBuffer.Controller.GetLeftWord(place);
+		string word = lastBuffer.Controller.GetWord(place);
 		
 		Node node = new SharpRequest(mainForm)
 			.Add("FileName", lastBuffer.FullPath)
-			.Add("WordToComplete", "")
+			.Add("WordToComplete", word)
 			.Add("Buffer", editorText)
 			.Add("Line", (place.iLine + 1) + "")
 			.Add("Column", (place.iChar + 1) + "")
-			.Send(mainForm.SharpManager.Url + "/findusages", true);
+			.Send(mainForm.SharpManager.Url + "/findusages", false);
 		if (node != null)
 		{
 			if (!node.IsTable())
@@ -529,9 +530,68 @@ public class Commander
 				{
 				}
 			}
-			string errors = new ShowUsages(mainForm).Execute(usages, lastBuffer.Controller.GetWord(place));
+			string errors = new ShowUsages(mainForm).Execute(usages, word);
 			if (errors != null)
-				mainForm.Dialogs.ShowInfo("FindInFiles", errors);
+				mainForm.Dialogs.ShowInfo("Usages", errors);
+		}
+	}
+	
+	public void DoGoToDefinition(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", "")
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/gotodefinition", true);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			string fullPath = null;
+			Place navigationPlace = new Place();
+			try
+			{
+				Variant variant = new Variant();
+				fullPath = !node["FileName"].IsNull() ? (string)node["FileName"] : null;
+				int line = (int)node["Line"];
+				int column = (int)node["Column"];
+				navigationPlace = new Place(column - 1, line - 1);
+			}
+			catch (Exception)
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Error: incorrect format");
+			}
+			if (fullPath != null)
+			{
+				mainForm.NavigateTo(fullPath, navigationPlace, navigationPlace);
+			}
+			else
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Can't navigate to: " + word);
+			}
 		}
 	}
 }
