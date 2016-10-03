@@ -743,8 +743,8 @@ namespace MulticaretEditor
 			if (normalCount > 0)
 			{
 				int iChar = place.iChar;
-				if (iChar >= normalCount)
-					iChar = normalCount - 1;
+				if (iChar > normalCount)
+					iChar = normalCount;
 				left = iChar;
 				while (left > 0 && GetCharType(line.chars[left - 1].c) == CharType.Identifier)
 				{

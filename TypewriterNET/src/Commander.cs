@@ -439,6 +439,7 @@ public class Commander
 		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
 		string editorText = lastBuffer.Controller.Lines.GetText();
 		string word = lastBuffer.Controller.GetLeftWord(place);
+		Log.DebugLogger.WriteInfo("OmniSharp", "word=\"" + word + "\"");
 		
 		string httpServer = mainForm.SharpManager.AutocompleteUrl;
 		
