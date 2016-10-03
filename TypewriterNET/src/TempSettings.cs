@@ -110,11 +110,22 @@ public class TempSettings
 		value["encoding"] = SValue.None;
 	}
 
-	public void ApplyQualities(Buffer buffer)
+	public void ApplyQualities(Buffer buffer, int lineNumber)
 	{
 		int caret = storage.Get(buffer.FullPath)["cursor"].Int;
-		buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
-		buffer.Controller.NeedScrollToCaret();
+		if (lineNumber == 0)
+		{
+            buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
+            buffer.Controller.NeedScrollToCaret();
+        }
+        else
+        {
+            Place place = new Place(0, lineNumber - 1);
+            SValue value = storage.Get(buffer.FullPath);
+            value["cursor"] = SValue.NewInt(buffer.Controller.Lines.IndexOf(place));
+            buffer.Controller.PutCursor(place, false);
+            buffer.Controller.NeedScrollToCaret();
+        }
 	}
 
     public void ApplyQualitiesBeforeLoading(Buffer buffer)

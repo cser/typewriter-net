@@ -132,7 +132,8 @@ public class MainForm : Form
 	private void OnLoad(object sender, EventArgs e)
 	{
 		List<FileArg> filesToLoad;
-		ApplyArgs(args, out filesToLoad, out tempFilePostfix);
+		int lineNumber;
+		ApplyArgs(args, out filesToLoad, out lineNumber, out tempFilePostfix);
 
 		string appDataPath = Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
@@ -184,10 +185,18 @@ public class MainForm : Form
 		tempSettings.Load(tempFilePostfix);
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
 
+        openFileLine = lineNumber;
 		foreach (FileArg fileArg in filesToLoad)
 		{
-			LoadFile(fileArg.file, fileArg.httpServer);
+			Buffer buffer = LoadFile(fileArg.file, fileArg.httpServer);
+			if (openFileLine != 0)
+			{
+			    Place place = new Place(0, openFileLine - 1);
+                buffer.Controller.PutCursor(place, false);
+                buffer.Controller.NeedScrollToCaret();
+			}
 		}
+		openFileLine = 0;
 
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
@@ -225,9 +234,12 @@ public class MainForm : Form
 			this.httpServer = httpServer;
 		}
 	}
+	
+	private int openFileLine = 0;
 
-	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out string tempFilePostfix)
+	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix)
 	{
+	    lineNumber = 0;
 		filesToLoad = new List<FileArg>();
 		tempFilePostfix = null;
 		for (int i = 0; true;)
@@ -267,7 +279,20 @@ public class MainForm : Form
 			}
 			else if (i < args.Length && args[i] == "-help")
 			{
+			    i++;
                 WriteHelp();
+			}
+			else if (i < args.Length && args[i].StartsWith("-line="))
+			{
+				if (int.TryParse(args[i].Substring("-line=".Length), out lineNumber))
+				{
+					i++;
+				}
+				else
+				{
+					Console.Error.WriteLine("-line requires number");
+					break;
+				}
 			}
 			else
 			{
@@ -280,14 +305,19 @@ public class MainForm : Form
 			}
 		}
 	}
+	
+	private string GetExeHelp()
+	{
+	    return "<fileName>\n" +
+            "-connect <fictiveFileName> <httpServer>\n" +
+            "-temp <tempFilePostfix> - for using different temp settings\n" +
+            "-help\n" + 
+            "-line=<line>";
+	}
 
     private void WriteHelp()
     {
-        Console.Write("Typewriter.NET options:\n" +
-            "<fileName>\n" +
-            "-connect <fictiveFileName> <httpServer>\n" +
-            "-temp <tempFilePostfix> - for using different temp settings\n" +
-            "-help");
+        Console.Write("Options: " + GetExeHelp());
     }
 
 	public bool SetCurrentDirectory(string path, out string error)
@@ -742,7 +772,7 @@ public class MainForm : Form
 			buffer.fileInfo = new FileInfo(buffer.FullPath);
 			buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 			buffer.needSaveAs = false;
-			tempSettings.ApplyQualities(buffer);
+			tempSettings.ApplyQualities(buffer, openFileLine);
             if (last)
             {
                 buffer.Controller.DocumentEnd(false);
@@ -1279,6 +1309,10 @@ public class MainForm : Form
 			builder.AppendLine(Application.ProductName);
 			builder.AppendLine("Build " + Application.ProductVersion);
 			builder.AppendLine();
+			builder.AppendLine("# Command line options");
+			builder.AppendLine();
+			builder.AppendLine(GetExeHelp());
+			builder.AppendLine();
 			builder.AppendLine("# Actions");
 			builder.AppendLine();
 			builder.AppendLine("All actions are represented in menu.");
@@ -1621,11 +1655,30 @@ public class MainForm : Form
             if (dataType == 2)
             {
                 string text = Marshal.PtrToStringAnsi(copyData.lpData);
-                string[] files = text.Split('+');
+                string part0 = text;
+                string part1 = "";
+                int index = text.IndexOf("++");
+                if (index != -1)
+                {
+                    part0 = text.Substring(0, index);
+                    part1 = text.Substring(index + 2);
+                }
+                string[] files = part0.Split('+');
+                string[] supportedArgs = part1.Split('+');
+                openFileLine = 0;
+                if (supportedArgs[0].StartsWith("-line="))
+                    int.TryParse(supportedArgs[0].Substring("-line=".Length), out openFileLine);
                 foreach (string file in files)
                 {
-                    LoadFile(file);
+                    Buffer buffer = LoadFile(file);
+                    if (openFileLine != 0)
+                    {
+                        Place place = new Place(0, openFileLine - 1);
+                        buffer.Controller.PutCursor(place, false);
+                        buffer.Controller.NeedScrollToCaret();
+                    }
                 }
+                openFileLine = 0;
             }
             else
             {

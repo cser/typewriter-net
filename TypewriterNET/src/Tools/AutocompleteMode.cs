@@ -164,6 +164,25 @@ public class AutocompleteMode
 				Close();
 				return false;
 			}
+			if (count > 0)
+			{
+			    string leftText = textBox.Controller.Lines.GetText(startCaret, count);
+			    if (leftText != completionText.Substring(0, count))
+			    {
+			        textBox.Controller.ClearMinorSelections();
+			        textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret;
+			        for (int i = 0; i < count; i++)
+			        {
+			            textBox.Controller.Backspace();
+			        }
+			        textBox.Controller.InsertText(completionText);
+			        return true;
+			    }
+			}
+			foreach (Selection selection in textBox.Controller.Selections)
+			{
+			    selection.anchor = selection.caret;
+			}
 			textBox.Controller.InsertText(completionText.Substring(count));
 		}
 		Close();

@@ -18,14 +18,24 @@ public class Program
         using (Mutex singleMutex = new Mutex(true, "3549b015-0564-4e97-b519-2a911a927b45", out isNewInstance))
         {
             List<string> files = new List<string>();
+            bool hasUnsupportedArgs = false;
+            List<string> supportedArgs = new List<string>();
             foreach (string arg in args)
             {
                 if (!arg.StartsWith("-"))
                 {
                     files.Add(arg);
                 }
+                else if (arg.StartsWith("-line="))
+                {
+                    supportedArgs.Add(arg);
+                }
+                else
+                {
+                    hasUnsupportedArgs = true;
+                }
             }
-            if (files.Count < args.Length)
+            if (hasUnsupportedArgs)
             {
                 files.Clear();
             }
@@ -48,7 +58,7 @@ public class Program
                         IntPtr ptrCopyData = IntPtr.Zero;
                         try
                         {
-                            string text = string.Join("+", files.ToArray());
+                            string text = string.Join("+", files.ToArray()) + "++" + string.Join("+", supportedArgs.ToArray());
                             // Create the data structure and fill with data
                             NativeMethods.COPYDATASTRUCT copyData = new NativeMethods.COPYDATASTRUCT();
                             copyData.dwData = new IntPtr(2);    // Just a number to identify the data type
