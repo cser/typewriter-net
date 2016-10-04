@@ -321,12 +321,26 @@ public class FileTree
 		{
 			node.expanded = true;
 			node.childs.Clear();
-			string[] directories = null;
-			string[] files = null;
+			List<string> directories = null;
+			List<string> files = null;
 			try
 			{
-				directories = Directory.GetDirectories(node.fullPath);
-				files = Directory.GetFiles(node.fullPath);
+				string[] rawDirectories = Directory.GetDirectories(node.fullPath);
+				string[] rawFiles = Directory.GetFiles(node.fullPath);
+				directories = new List<string>();
+				files = new List<string>();
+				FileNameFilter filter = !string.IsNullOrEmpty(mainForm.Settings.hideInFileTree.Value) ?
+				    new FileNameFilter(mainForm.Settings.hideInFileTree.Value) : null;
+				foreach (string directory in rawDirectories)
+				{
+				    if (filter == null || !filter.Match(Path.GetFileName(directory)))
+				        directories.Add(directory);
+				}
+				foreach (string file in rawFiles)
+				{
+				    if (filter == null || !filter.Match(Path.GetFileName(file)))
+				        files.Add(file);
+				}
 			}
 			catch (Exception e)
 			{

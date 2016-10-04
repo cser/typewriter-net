@@ -38,6 +38,7 @@ public class Settings
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
 	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false);
 	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false);
+	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false);
 	public readonly Properties.EncodingProperty defaultEncoding = new Properties.EncodingProperty("defaultEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty shellEncoding = new Properties.EncodingProperty("shellEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
@@ -91,6 +92,7 @@ public class Settings
 		Add(rememberCurrentDir);
 		Add(findInFilesDir);
 		Add(findInFilesFilter);
+		Add(hideInFileTree);
 		Add(f5Command);
 		Add(f6Command);
 		Add(f7Command);
