@@ -706,6 +706,18 @@ public class FileTree
 					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 				else if (nodeI.type == NodeType.File)
 					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				string postfix = mainForm.Settings.renamePostfixed.Value;
+				if (!string.IsNullOrEmpty(postfix))
+				{
+				    if (File.Exists(nodeI.fullPath + postfix))
+				    {
+				        File.Move(nodeI.fullPath + postfix, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + postfix);
+				    }
+				    else if (Directory.Exists(nodeI.fullPath + postfix))
+				    {
+				        Directory.Move(nodeI.fullPath + postfix, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + postfix);
+				    }
+				}
 			}
 			catch (Exception e)
 			{
@@ -741,6 +753,18 @@ public class FileTree
 					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
 				else if (nodeI.type == NodeType.File)
 					File.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				string postfix = mainForm.Settings.renamePostfixed.Value;
+				if (!string.IsNullOrEmpty(postfix))
+				{
+				    if (File.Exists(nodeI.fullPath + postfix))
+				    {
+				        File.Move(nodeI.fullPath + postfix, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + postfix));
+				    }
+				    else if (Directory.Exists(nodeI.fullPath + postfix))
+				    {
+				        Directory.Move(nodeI.fullPath + postfix, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + postfix));
+				    }
+				}
 			}
 			catch (Exception e)
 			{
