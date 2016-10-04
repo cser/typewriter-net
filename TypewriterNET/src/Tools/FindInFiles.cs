@@ -50,6 +50,8 @@ public class FindInFiles
 
 	public string Execute(string regexText, FindParams findParams, string directory, string filter)
 	{
+		if (string.IsNullOrEmpty(regexText))
+			return null;
 		Regex regex = null;
 		string pattern = null;
 		if (findParams.regex)
