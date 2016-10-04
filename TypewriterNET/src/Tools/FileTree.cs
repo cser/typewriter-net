@@ -260,7 +260,6 @@ public class FileTree
 
 	public void Reload()
 	{
-	    mainForm.Log.WriteInfo("RELOAD FILETREE", "Reloading!!!!");
 	    wasReloaded = true;
 	    ResetReload();
 		currentDirectory = Directory.GetCurrentDirectory();
@@ -790,7 +789,6 @@ public class FileTree
 	
 	public void ReloadIfNeedForSettings()
 	{
-	    mainForm.Log.WriteInfo("RELOAD FILETREE", "renamePostfixed=" + renamePostfixed + " hideInFileTree=" + hideInFileTree);
 	    if (wasReloaded && (
 	        renamePostfixed != mainForm.Settings.renamePostfixed.Value + "" ||
 	        hideInFileTree != mainForm.Settings.hideInFileTree.Value + ""
@@ -798,7 +796,6 @@ public class FileTree
         {
             renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
 	        hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
-	        mainForm.Log.WriteInfo("RELOAD FILETREE", "NEED: renamePostfixed=" + renamePostfixed + " hideInFileTree=" + hideInFileTree);
             Reload();
         }
 	}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scheme>
+	<defColor name="default" value="#F8F8F2"/>
+	<defColor name="error" value="#FF0000"/>
+	<defColor name="gray" value="#75715E"/>
+	<defColor name="yellow" value="#E6DB74"/>
+	<defColor name="blue" value="#66D9EF"/>
+	<defColor name="crimson" value="#F92672"/>
+	<defColor name="green" value="#A6E22E"/>
+	<defColor name="orange" value="#FD971F"/>
+	<defColor name="violet" value="#AE81FF"/>
+	
+	<color name="bg" value="#1B1D1E"/>
+	<color name="fg" value="default"/>
+	<color name="lineBg" value="#242526"/>
+	<color name="lineNumberBg" value="#242526"/>
+	<color name="lineNumberFg" value="#415457"/>
+	<color name="selectionBrush" value="#59584E"/>
+	<color name="selectionPen" value="#69685E"/>
+	<color name="markPen" value="#C3C4BC"/>
+	<color name="mainCaret" value="#F8F8F0"/>
+	<color name="caret" value="#AAAAAA"/>
+	
+	<color name="tabsLine" value="#808080"/>
+	<color name="tabsBg" value="#161713"/>
+	<color name="tabsFg" value="default"/>
+	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedFg" value="#FFFFFF"/>
+	
+	<width name="mainCaret" value="2"/>
+	<width name="caret" value="2"/>
+	
+	<style name="dsNormal" color="default"/>
+	<style name="dsKeyword" color="crimson" bold="true"/>
+	<style name="dsDataType" color="blue" italic="true"/>
+	<style name="dsDecVal" color="violet"/>
+	<style name="dsBaseN" color="violet" bold="true"/>
+	<style name="dsFloat" color="violet"/>
+	<style name="dsChar" color="violet"/>
+	<style name="dsString" color="yellow"/>
+	<style name="dsComment" color="gray"/>
+	<style name="dsOthers" color="green"/>
+	<style name="dsAlert" color="error" bold="true"/>
+	<style name="dsFunction" color="green"/>
+	<style name="dsRegionMarker" color="violet"/>
+	<style name="dsError" color="error" underline="true"/>
+	
+	<style name="dsOperator" color="default"/>
+	<style name="dsConstructor" color="orange"/>
+	<style name="dsNormal2" color="blue"/>
+	<style name="dsKeyword2" color="crimson"/>
+	<style name="dsString2" color="yellow"/>
+	<style name="dsOthers2" color="green"/>
+	
+	<style name="dsDocHtml1" color="#5FB8AD"/>
+	<style name="dsDocHtml2" color="#5FB8AD" italic="true"/>
+	<style name="dsDocHtml3" color="#5FB8AD" bold="true"/>
+	<style name="dsDocEntities" color="#afaa80" italic="true"/>
+	<style name="dsDocTag" color="#CFCF7C"/>
+	<style name="dsDocWord" color="#CCCCAA" bold="true"/>
+	<style name="dsDocDescription"  color="#aaaa00" bold="true"/>
+	<style name="dsDocCustomTag" color="#afaa80" />
+	<style name="dsDocAlertTag1" color="#e85848"/>
+	<style name="dsDocAlertTag2" color="#ca9219"/>
+	<style name="dsDocAlertTag3" color="#81ca2d"/>
+	<style name="dsDocAlert1" color="#e85848" bold="true"/>
+    <style name="dsDocAlert2" color="#ca9219" bold="true"/>
+    <style name="dsDocAlert3" color="#81ca2d" bold="true"/>
+	<style name="dsDocInner" color="#aaaabb" italic="true"/>
+</scheme>
