@@ -454,6 +454,8 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 		sharpManager.UpdateSettings(settings);
+		if (fileTree != null)
+		    fileTree.ReloadIfNeedForSettings();
 	}
 
 	public void DoResize()

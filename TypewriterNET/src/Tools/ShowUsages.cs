@@ -79,9 +79,9 @@ public class ShowUsages
 				if (index < text.Length)
 				{
 					int length = word.Length;
-					if (length >= text.Length - index)
+					if (length > text.Length - index)
 					{
-						length = text.Length - index - 1;
+						length = text.Length - index;
 					}
 					if (length > 0)
 					{

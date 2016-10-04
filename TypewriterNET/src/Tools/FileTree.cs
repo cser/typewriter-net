@@ -59,7 +59,8 @@ public class FileTree
 	public FileTree(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
-
+        
+        ResetReload();
 		expanded = new Dictionary<int, bool>();
 		selectionDatas = new Dictionary<Selection, SelectionData>();
 		buffer = new Buffer(null, "File tree", SettingsMode.FileTree);
@@ -259,6 +260,9 @@ public class FileTree
 
 	public void Reload()
 	{
+	    mainForm.Log.WriteInfo("RELOAD FILETREE", "Reloading!!!!");
+	    wasReloaded = true;
+	    ResetReload();
 		currentDirectory = Directory.GetCurrentDirectory();
 		string root = currentDirectory;
 		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
@@ -329,8 +333,8 @@ public class FileTree
 				string[] rawFiles = Directory.GetFiles(node.fullPath);
 				directories = new List<string>();
 				files = new List<string>();
-				FileNameFilter filter = !string.IsNullOrEmpty(mainForm.Settings.hideInFileTree.Value) ?
-				    new FileNameFilter(mainForm.Settings.hideInFileTree.Value) : null;
+				FileNameFilter filter = !string.IsNullOrEmpty(hideInFileTree) ?
+				    new FileNameFilter(hideInFileTree) : null;
 				foreach (string directory in rawDirectories)
 				{
 				    if (filter == null || !filter.Match(Path.GetFileName(directory)))
@@ -706,16 +710,15 @@ public class FileTree
 					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 				else if (nodeI.type == NodeType.File)
 					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
-				string postfix = mainForm.Settings.renamePostfixed.Value;
-				if (!string.IsNullOrEmpty(postfix))
+				if (!string.IsNullOrEmpty(renamePostfixed))
 				{
-				    if (File.Exists(nodeI.fullPath + postfix))
+				    if (File.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        File.Move(nodeI.fullPath + postfix, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + postfix);
+				        File.Move(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
 				    }
-				    else if (Directory.Exists(nodeI.fullPath + postfix))
+				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        Directory.Move(nodeI.fullPath + postfix, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + postfix);
+				        Directory.Move(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
 				    }
 				}
 			}
@@ -753,16 +756,15 @@ public class FileTree
 					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
 				else if (nodeI.type == NodeType.File)
 					File.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
-				string postfix = mainForm.Settings.renamePostfixed.Value;
-				if (!string.IsNullOrEmpty(postfix))
+				if (!string.IsNullOrEmpty(renamePostfixed))
 				{
-				    if (File.Exists(nodeI.fullPath + postfix))
+				    if (File.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        File.Move(nodeI.fullPath + postfix, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + postfix));
+				        File.Move(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 				    }
-				    else if (Directory.Exists(nodeI.fullPath + postfix))
+				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        Directory.Move(nodeI.fullPath + postfix, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + postfix));
+				        Directory.Move(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 				    }
 				}
 			}
@@ -774,5 +776,30 @@ public class FileTree
 		}
 		Reload();
 		return true;
+	}
+	
+	private bool wasReloaded;
+	private string renamePostfixed;
+	private string hideInFileTree;
+	
+	private void ResetReload()
+	{
+	    renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	    hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
+	}
+	
+	public void ReloadIfNeedForSettings()
+	{
+	    mainForm.Log.WriteInfo("RELOAD FILETREE", "renamePostfixed=" + renamePostfixed + " hideInFileTree=" + hideInFileTree);
+	    if (wasReloaded && (
+	        renamePostfixed != mainForm.Settings.renamePostfixed.Value + "" ||
+	        hideInFileTree != mainForm.Settings.hideInFileTree.Value + ""
+	    ))
+        {
+            renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	        hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
+	        mainForm.Log.WriteInfo("RELOAD FILETREE", "NEED: renamePostfixed=" + renamePostfixed + " hideInFileTree=" + hideInFileTree);
+            Reload();
+        }
 	}
 }
