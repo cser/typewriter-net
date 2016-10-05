@@ -51,6 +51,7 @@ public class AutocompleteMode
 		UpdateItems();
 		
 		textBox.KeyMap.AddBefore(keyMap);
+		textBox.FocusedChange += OnFocusedChange;
 		textBox.AfterKeyPress += OnKeyPress;
 	}
 	
@@ -113,6 +114,7 @@ public class AutocompleteMode
 		opened = false;
 		
 		textBox.AfterKeyPress -= OnKeyPress;
+		textBox.FocusedChange -= OnFocusedChange;
 		textBox.KeyMap.RemoveBefore(keyMap);
 		dropDown.Close();
 	}
@@ -203,5 +205,10 @@ public class AutocompleteMode
 			}
 			UpdateItems();
 		}
+	}
+	
+	private void OnFocusedChange()
+	{
+		Close();
 	}
 }

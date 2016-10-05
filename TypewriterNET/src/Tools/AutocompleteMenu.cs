@@ -19,6 +19,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	private readonly ToolStripControlHost host;
 	private readonly MenuControl control;
 	private readonly TextStyle defaultStyle;
+	private readonly TextStyle typeStyle;
 	private readonly int maxLinesCount;
 	private readonly int scrollingIndent;
 	
@@ -57,6 +58,7 @@ public class AutocompleteMenu : ToolStripDropDown
 
 		font = fonts[TextStyle.NoneMask];
 		defaultStyle = scheme[Ds.Normal];
+		typeStyle = scheme[Ds.DataType];
 
 		SizeF size = GetCharSize(fonts[0], 'M');
 		charWidth = (int)Math.Round(size.Width * 1f) - 1;
@@ -119,13 +121,14 @@ public class AutocompleteMenu : ToolStripDropDown
 	private Variant selectedVariant;
 	
 	private int visibleLinesCount;
+	private int maxLength;
 	
 	public void SetVariants(List<Variant> variants)
 	{
 		this.variants.Clear();
 		this.variants.AddRange(variants);
 		
-		int maxLength = 0;
+		maxLength = 0;
 		for (int i = this.variants.Count; i-- > 0;)
 		{
 			int length = (this.variants[i].DisplayText ?? "").Length;
@@ -276,12 +279,26 @@ public class AutocompleteMenu : ToolStripDropDown
 							menu.scheme.selectionBrush,
 							new Rectangle(0, (i - offset) * menu.charHeight, width, menu.charHeight));
 					}
-					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), variants[i].DisplayText);
+					string text = variants[i].DisplayText;
+					string text0 = "";
+					string text1 = text;
+					int index = text.IndexOf(" ");
+					if (index != -1)
+					{
+						string temp = text.Substring(0, index);
+						if (temp.IndexOf('(') == -1)
+						{
+							text0 = temp;
+							text1 = text.Substring(index + 1);
+						}
+					}
+					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), menu.defaultStyle, text1);
+					DrawLineChars(g, new Point((menu.maxLength - text0.Length) * menu.charWidth, (i - offset) * menu.charHeight), menu.typeStyle, text0);
 				}
 			}
 		}
 		
-		private void DrawLineChars(Graphics g, Point position, string text)
+		private void DrawLineChars(Graphics g, Point position, TextStyle style, string text)
 		{
 			int count = text.Length;
 			float y = position.Y;
@@ -290,8 +307,8 @@ public class AutocompleteMenu : ToolStripDropDown
 			{
 				g.DrawString(
 					text[i].ToString(),
-					menu.fonts[menu.defaultStyle.fontStyle],
-					menu.defaultStyle.brush,
+					menu.fonts[style.fontStyle],
+					style.brush,
 					x + menu.charWidth * i,
 					y,
 					menu.stringFormat);
