@@ -336,6 +336,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
 		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
+		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
 	}
 
 	private void DoHelp(string args)
@@ -592,6 +593,71 @@ public class Commander
 			{
 				mainForm.Dialogs.ShowInfo("OmniSharp", "Can't navigate to: " + word);
 			}
+		}
+	}
+	
+	public void DoCodeckeck(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", word)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/codecheck", true);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Table expected, but was:" + node.TypeOf());
+				return;
+			}
+			node = node["QuickFixes"];
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Codecheck> codechecks = new List<Codecheck>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					Codecheck codecheck = new Codecheck();
+					codecheck.LogLevel = (string)node[i]["LogLevel"];
+					codecheck.FileName = (string)node[i]["FileName"];
+					codecheck.Line = (int)node[i]["Line"];
+					codecheck.Column = (int)node[i]["Column"];
+					codecheck.EndLine = (int)node[i]["EndLine"];
+					codecheck.EndColumn = (int)node[i]["EndColumn"];
+					codecheck.Text = (string)node[i]["Text"];
+					codechecks.Add(codecheck);
+				}
+				catch (Exception)
+				{
+				}
+			}
+			string errors = new ShowCodecheck(mainForm).Execute(codechecks, word);
+			if (errors != null)
+				mainForm.Dialogs.ShowInfo("Code checking results", errors);
 		}
 	}
 }
