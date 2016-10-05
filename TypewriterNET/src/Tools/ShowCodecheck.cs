@@ -62,6 +62,16 @@ public class ShowCodecheck
 			builder.Append(place.PadRight(maxPlaceLength));
 			ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
 			builder.Append('|');
+			int length = (codecheck.LogLevel + ":").Length;
+			if (codecheck.LogLevel == "Error")
+			{
+				ranges.Add(new StyleRange(builder.Length, length, Ds.Error.index));
+			}
+			else
+			{
+				ranges.Add(new StyleRange(builder.Length, length, Ds.Others.index));
+			}
+			builder.Append(codecheck.LogLevel + ": ");
 			string text = codecheck.Text.Trim();
 			positions.Add(new Position(codecheck.FileName, new Place(codecheck.Column - 1, codecheck.Line - 1)));
 			builder.Append(text);
