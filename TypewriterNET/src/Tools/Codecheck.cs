@@ -4,7 +4,5 @@ public class Codecheck
 	public string FileName;
 	public int Line;
 	public int Column;
-	public int EndLine;
-	public int EndColumn;
 	public string Text;
 }

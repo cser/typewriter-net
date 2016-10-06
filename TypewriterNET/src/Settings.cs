@@ -52,6 +52,12 @@ public class Settings
 	public readonly Properties.Command f9Command = new Properties.Command("f9Command");
 	public readonly Properties.Command f11Command = new Properties.Command("f11Command");
 	public readonly Properties.Command f12Command = new Properties.Command("f12Command");
+	public readonly Properties.Command shiftF5Command = new Properties.Command("shiftF5Command");
+	public readonly Properties.Command shiftF6Command = new Properties.Command("shiftF6Command");
+	public readonly Properties.Command shiftF7Command = new Properties.Command("shiftF7Command");
+	public readonly Properties.Command shiftF8Command = new Properties.Command("shiftF8Command");
+	public readonly Properties.Command shiftF9Command = new Properties.Command("shiftF9Command");
+	public readonly Properties.Command shiftF11Command = new Properties.Command("shiftF11Command");
 	public readonly Properties.Command shiftF12Command = new Properties.Command("shiftF12Command");
 	public readonly Properties.Command ctrlSpaceCommand = new Properties.Command("ctrlSpaceCommand");
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
@@ -102,6 +108,12 @@ public class Settings
 		Add(f9Command);
 		Add(f11Command);
 		Add(f12Command);
+		Add(shiftF5Command);
+		Add(shiftF6Command);
+		Add(shiftF7Command);
+		Add(shiftF8Command);
+		Add(shiftF9Command);
+		Add(shiftF11Command);
 		Add(shiftF12Command);
 		Add(ctrlSpaceCommand);
 		Add(defaultEncoding);

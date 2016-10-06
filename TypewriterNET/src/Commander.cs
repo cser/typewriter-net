@@ -337,6 +337,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
 		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
 		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
+		commands.Add(new Command("omnisharp-syntaxerrors", "", "show syntax errors", DoSyntaxErrors));
 	}
 
 	private void DoHelp(string args)
@@ -598,6 +599,16 @@ public class Commander
 	
 	public void DoCodeckeck(string text)
 	{
+	    ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
+	}
+	
+	public void DoSyntaxErrors(string text)
+	{
+	    ProcessCodeckeck(text, "Syntax errors", "/syntaxerrors", "Errors");
+	}
+	
+	public void ProcessCodeckeck(string text, string name, string uri, string fieldName)
+	{
 		if (!mainForm.SharpManager.Started)
 		{
 			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
@@ -622,7 +633,7 @@ public class Commander
 			.Add("Buffer", editorText)
 			.Add("Line", (place.iLine + 1) + "")
 			.Add("Column", (place.iChar + 1) + "")
-			.Send(mainForm.SharpManager.Url + "/codecheck", true);
+			.Send(mainForm.SharpManager.Url + uri, false);
 		if (node != null)
 		{
 			if (!node.IsTable())
@@ -630,7 +641,7 @@ public class Commander
 				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Table expected, but was:" + node.TypeOf());
 				return;
 			}
-			node = node["QuickFixes"];
+			node = node[fieldName];
 			if (!node.IsArray())
 			{
 				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
@@ -641,23 +652,39 @@ public class Commander
 			{
 				try
 				{
-					Codecheck codecheck = new Codecheck();
-					codecheck.LogLevel = (string)node[i]["LogLevel"];
-					codecheck.FileName = (string)node[i]["FileName"];
-					codecheck.Line = (int)node[i]["Line"];
-					codecheck.Column = (int)node[i]["Column"];
-					codecheck.EndLine = (int)node[i]["EndLine"];
-					codecheck.EndColumn = (int)node[i]["EndColumn"];
-					codecheck.Text = (string)node[i]["Text"];
-					codechecks.Add(codecheck);
+				    if (uri == "/codecheck")
+				    {
+                        Codecheck codecheck = new Codecheck();
+                        codecheck.LogLevel = (string)node[i]["LogLevel"];
+                        codecheck.FileName = (string)node[i]["FileName"];
+                        codecheck.Line = (int)node[i]["Line"];
+                        codecheck.Column = (int)node[i]["Column"];
+                        codecheck.Text = (string)node[i]["Text"];
+                        codechecks.Add(codecheck);
+                    }
+                    else if (uri == "/syntaxerrors")
+                    {
+                        Codecheck codecheck = new Codecheck();
+                        codecheck.LogLevel = "";
+                        codecheck.FileName = (string)node[i]["FileName"];
+                        codecheck.Line = (int)node[i]["Line"];
+                        codecheck.Column = (int)node[i]["Column"];
+                        codecheck.Text = (string)node[i]["Message"];
+                        codechecks.Add(codecheck);
+                    }
 				}
 				catch (Exception)
 				{
 				}
 			}
-			string errors = new ShowCodecheck(mainForm).Execute(codechecks, word);
+			if (uri == "/syntaxerrors" && node.Count == 0)
+			{
+			    mainForm.Dialogs.ShowInfo(name, "No errors");
+			    return;
+			}
+			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
 			if (errors != null)
-				mainForm.Dialogs.ShowInfo("Code checking results", errors);
+				mainForm.Dialogs.ShowInfo(name, errors);
 		}
 	}
 }

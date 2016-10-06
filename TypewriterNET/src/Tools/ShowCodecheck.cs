@@ -26,10 +26,12 @@ public class ShowCodecheck
 	private MainForm mainForm;
 	private List<Position> positions;
 	private Buffer buffer;
+	private string name;
 
-	public ShowCodecheck(MainForm mainForm)
+	public ShowCodecheck(MainForm mainForm, string name)
 	{
 		this.mainForm = mainForm;
+		this.name = name;
 	}
 
 	public string Execute(List<Codecheck> codechecks, string word)
@@ -78,7 +80,7 @@ public class ShowCodecheck
 			builder.Append(mainForm.Settings.lineBreak.Value);
 		}
 
-		buffer = new Buffer(null, "Usages", SettingsMode.Normal);
+		buffer = new Buffer(null, name, SettingsMode.Normal);
 		buffer.showEncoding = false;
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());

@@ -562,16 +562,28 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F5, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F6, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F6, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F7, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F7, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F8, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F8, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F9, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F9, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F11, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F11, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
@@ -1571,6 +1583,36 @@ public class MainForm : Form
 	private bool DoExecuteF12Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f12Command.Value);
+	}
+	
+	private bool DoExecuteShiftF5Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF5Command.Value);
+	}
+	
+	private bool DoExecuteShiftF6Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF6Command.Value);
+	}
+	
+	private bool DoExecuteShiftF7Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF7Command.Value);
+	}
+	
+	private bool DoExecuteShiftF8Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF8Command.Value);
+	}
+	
+	private bool DoExecuteShiftF9Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF9Command.Value);
+	}
+	
+	private bool DoExecuteShiftF11Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF11Command.Value);
 	}
 	
 	private bool DoExecuteShiftF12Command(Controller controller)
