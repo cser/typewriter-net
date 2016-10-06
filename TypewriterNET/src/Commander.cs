@@ -677,7 +677,12 @@ public class Commander
 				{
 				}
 			}
-			if (uri == "/syntaxerrors" && node.Count == 0)
+			if (uri == "/codecheck" && node.Count == 0)
+			{
+			    mainForm.Dialogs.ShowInfo(name, "No tips");
+			    return;
+			}
+			else if (uri == "/syntaxerrors" && node.Count == 0)
 			{
 			    mainForm.Dialogs.ShowInfo(name, "No errors");
 			    return;
