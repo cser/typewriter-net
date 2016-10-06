@@ -285,12 +285,32 @@ public class AutocompleteMenu : ToolStripDropDown
 					int index = text.IndexOf(" ");
 					if (index != -1)
 					{
-						string temp = text.Substring(0, index);
-						if (temp.IndexOf('(') == -1)
-						{
-							text0 = temp;
-							text1 = text.Substring(index + 1);
-						}
+					    if (text.Substring(0, index).IndexOf('(') == -1)
+					    {
+                            index = -1;
+                            int deep = 0;
+                            for (int j = 0; j < text.Length; j++)
+                            {
+                                char c = text[j];
+                                if (c == '<')
+                                {
+                                    ++deep;
+                                }
+                                else if (c == '>')
+                                {
+                                    --deep;
+                                }
+                                else if (deep == 0 && c == ' ')
+                                {
+                                    index = j;
+                                }
+                            }
+                            if (index != -1)
+                            {
+                                text0 = text.Substring(0, index);
+                                text1 = text.Substring(index + 1);
+                            }
+                        }
 					}
 					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), menu.defaultStyle, text1);
 					DrawLineChars(g, new Point((menu.maxLength - text0.Length) * menu.charWidth, (i - offset) * menu.charHeight), menu.typeStyle, text0);
