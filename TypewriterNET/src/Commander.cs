@@ -563,7 +563,7 @@ public class Commander
 			.Add("Buffer", editorText)
 			.Add("Line", (place.iLine + 1) + "")
 			.Add("Column", (place.iChar + 1) + "")
-			.Send(mainForm.SharpManager.Url + "/gotodefinition", true);
+			.Send(mainForm.SharpManager.Url + "/gotodefinition", false);
 		if (node != null)
 		{
 			if (!node.IsTable())
