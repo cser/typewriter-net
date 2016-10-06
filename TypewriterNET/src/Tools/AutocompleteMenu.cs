@@ -282,36 +282,30 @@ public class AutocompleteMenu : ToolStripDropDown
 					string text = variants[i].DisplayText;
 					string text0 = "";
 					string text1 = text;
-					int index = text.IndexOf(" ");
-					if (index != -1)
-					{
-					    if (text.Substring(0, index).IndexOf('(') == -1)
-					    {
-                            index = -1;
-                            int deep = 0;
-                            for (int j = 0; j < text.Length; j++)
-                            {
-                                char c = text[j];
-                                if (c == '<')
-                                {
-                                    ++deep;
-                                }
-                                else if (c == '>')
-                                {
-                                    --deep;
-                                }
-                                else if (deep == 0 && c == ' ')
-                                {
-                                    index = j;
-                                }
-                            }
-                            if (index != -1)
-                            {
-                                text0 = text.Substring(0, index);
-                                text1 = text.Substring(index + 1);
-                            }
+					int index = -1;
+                    int deep = 0;
+                    for (int j = 0; j < text.Length; j++)
+                    {
+                        char c = text[j];
+                        if (c == '<' || c == '{')
+                        {
+                            ++deep;
                         }
-					}
+                        else if (c == '>' || c == '}')
+                        {
+                            --deep;
+                        }
+                        else if (deep == 0 && (c == ' ' || c == '\t'))
+                        {
+                            index = j;
+                            break;
+                        }
+                    }
+                    if (index != -1)
+                    {
+                        text0 = text.Substring(0, index);
+                        text1 = text.Substring(index + 1);
+                    }
 					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), menu.defaultStyle, text1);
 					DrawLineChars(g, new Point((menu.maxLength - text0.Length) * menu.charWidth, (i - offset) * menu.charHeight), menu.typeStyle, text0);
 				}
