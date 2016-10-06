@@ -287,18 +287,26 @@ public class AutocompleteMenu : ToolStripDropDown
                     for (int j = 0; j < text.Length; j++)
                     {
                         char c = text[j];
-                        if (c == '<' || c == '{')
+                        if (c == '<')
                         {
                             ++deep;
                         }
-                        else if (c == '>' || c == '}')
+                        else if (c == '>')
                         {
                             --deep;
                         }
-                        else if (deep == 0 && (c == ' ' || c == '\t'))
+                        else if (c == ' ')
                         {
-                            index = j;
-                            break;
+                        	if (deep == 0)
+                        	{
+                            	index = j;
+                            	break;
+                            }
+                        }
+                        else if (c == '(')
+                        {
+                        	index = -1;
+                        	break;
                         }
                     }
                     if (index != -1)
