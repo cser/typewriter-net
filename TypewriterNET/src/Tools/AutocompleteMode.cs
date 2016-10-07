@@ -22,6 +22,10 @@ public class AutocompleteMode
 		keyMap = new KeyMap();
 		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.PageUp, null, new KeyAction("&View\\Autocomplete\\MovePageUp", DoMovePageUp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.PageDown, null, new KeyAction("&View\\Autocomplete\\MovePageDown", DoMovePageDown, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null, new KeyAction("&View\\Autocomplete\\MoveToFirst", DoMoveToFirst, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null, new KeyAction("&View\\Autocomplete\\MoveToLast", DoMoveToLast, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Autocomplete\\Close", DoClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Autocomplete\\Complete", DoComplete, null, false)));
 	}
@@ -121,20 +125,15 @@ public class AutocompleteMode
 	
 	private bool DoMoveUp(Controller controller)
 	{
-		if (dropDown == null || filteredVariants.Count == 0)
-		{
-			Close();
-			return true;
-		}
-		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
-			selectedVariant = filteredVariants[filteredVariants.Count - 1];
-		int index = filteredVariants.IndexOf(selectedVariant);
-		selectedVariant = filteredVariants[(index + filteredVariants.Count - 1) % filteredVariants.Count];
-		dropDown.SetSelectedVariant(selectedVariant);
-		return true;
+		return ProcessMove(controller, true);
 	}
 	
 	private bool DoMoveDown(Controller controller)
+	{
+		return ProcessMove(controller, false);
+	}
+	
+	private bool ProcessMove(Controller controller, bool isUp)
 	{
 		if (dropDown == null || filteredVariants.Count == 0)
 		{
@@ -142,9 +141,54 @@ public class AutocompleteMode
 			return false;
 		}
 		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
-			selectedVariant = filteredVariants[0];
+			selectedVariant = filteredVariants[filteredVariants.Count - 1];
 		int index = filteredVariants.IndexOf(selectedVariant);
-		selectedVariant = filteredVariants[(index + 1) % filteredVariants.Count];
+		int next = isUp ? index + filteredVariants.Count - 1 : index + 1;
+		selectedVariant = filteredVariants[next % filteredVariants.Count];
+		dropDown.SetSelectedVariant(selectedVariant);
+		return true;
+	}
+	
+	private bool DoMovePageUp(Controller controller)
+	{
+		return ProcessMovePage(controller, -dropDown.maxLinesCount);
+	}
+	
+	private bool DoMovePageDown(Controller controller)
+	{
+		return ProcessMovePage(controller, dropDown.maxLinesCount);
+	}
+	
+	private bool DoMoveToFirst(Controller controller)
+	{
+		return ProcessMovePage(controller, -filteredVariants.Count);
+	}
+	
+	private bool DoMoveToLast(Controller controller)
+	{
+		return ProcessMovePage(controller, filteredVariants.Count);
+	}
+	
+	private bool ProcessMovePage(Controller controller, int offset)
+	{
+		if (dropDown == null || filteredVariants.Count == 0 || dropDown == null)
+		{
+			Close();
+			return false;
+		}
+		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
+			selectedVariant = filteredVariants[filteredVariants.Count - 1];
+		int index = filteredVariants.IndexOf(selectedVariant);
+		int next = index + offset;
+		if (next < 0)
+		{
+			next = 0;
+		}
+		else if (next >= filteredVariants.Count)
+		{
+			next = filteredVariants.Count - 1;
+		}
+		selectedVariant = filteredVariants[next];
 		dropDown.SetSelectedVariant(selectedVariant);
 		return true;
 	}
@@ -202,6 +246,19 @@ public class AutocompleteMode
 			{
 				Close();
 				return;
+			}
+			if (caret > startCaret)
+			{
+				string text = textBox.Controller.Lines.GetText(startCaret, caret - startCaret);
+				for (int i = 0; i < text.Length; i++)
+				{
+					char c = text[i];
+					if (c != '_' && !char.IsLetterOrDigit(c))
+					{
+						Close();
+						return;
+					}
+				}
 			}
 			UpdateItems();
 		}

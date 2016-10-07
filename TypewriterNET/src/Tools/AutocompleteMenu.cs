@@ -20,8 +20,9 @@ public class AutocompleteMenu : ToolStripDropDown
 	private readonly MenuControl control;
 	private readonly TextStyle defaultStyle;
 	private readonly TextStyle typeStyle;
-	private readonly int maxLinesCount;
 	private readonly int scrollingIndent;
+	
+	public readonly int maxLinesCount;
 	
 	public AutocompleteMenu(Scheme scheme, FontFamily family, float emSize, int scrollingIndent)
 	{
