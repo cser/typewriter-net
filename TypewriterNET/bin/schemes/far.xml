@@ -44,6 +44,7 @@
 	<style name="dsChar" color="red"/>
 	<style name="dsString" color="yellow"/>
 	<style name="dsComment" color="comment"/>
+	<style name="dsDocStart" color="comment"/>
 	<style name="dsOthers" color="blue"/>
 	<style name="dsAlert" color="red" bold="true"/>
 	<style name="dsFunction" color="white"/>

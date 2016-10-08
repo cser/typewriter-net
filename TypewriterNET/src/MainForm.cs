@@ -16,9 +16,11 @@ using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
 
-public class MainForm : Form
+public class MainForm : Form//Comment test
 {
+	#region Studio short
 	private const string UntitledTxt = "Untitled.txt";
+	#endregion
 	private readonly string[] args;
 
 	private readonly Settings settings;

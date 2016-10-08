@@ -59,6 +59,10 @@
       <item> using</item>
       <item> virtual</item>
       <item> while</item>
+      <item> const</item>
+      <item> where</item>
+      <item> set</item>
+	  <item> get</item>
       <item> #if</item>
       <item> #else</item>
       <item> #elif</item>
@@ -78,7 +82,6 @@
       <item> bool</item>
       <item> byte</item>
       <item> char</item>
-      <item> const</item>
       <item> decimal</item>
       <item> double</item>
       <item> float</item>
@@ -115,6 +118,7 @@
         </Int>
         <HlCChar attribute="Char" context="#stay"/>
         <DetectChar attribute="String" context="String" char="&quot;"/>
+        <Detect2Chars attribute="String" context="String2" char="@" char1="&quot;"/>
         <IncludeRules context="##Doxygen" />
         <Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
         <Detect2Chars attribute="Comment" context="Commentar 2" char="/" char1="*"/>
@@ -123,21 +127,27 @@
         <RegExpr attribute="Keyword" context="#stay" String="\bpartial(?=\s+(class|struct|interface|void))"/>
         <RegExpr attribute="Data Type" context="#stay" String="\bvar(?=\s+\w+\s*=\s*\w+)"/>
         <RegExpr attribute="Keyword" context="#stay" String="\byield(?=\s+(return|break))"/>
-        <RegExpr attribute="Keyword" context="#stay" String="\b(set|get)(?=\s*[;{])"/>
         <RegExpr attribute="Keyword" context="#stay" String="\bglobal(?=\s*::\s*\w+)"/>
-        <RegExpr attribute="Decimal" context="#stay" String="#region.*$" beginRegion="Region1"/>
-        <RegExpr attribute="Decimal" context="#stay" String="#endregion.*$" endRegion="Region1"/>
-        <RegExpr attribute="Function" context="#stay" String="\b[_\w][_\w\d]*(?=[\s]*[(])" />
+        <RegExpr attribute="Region" context="NormalToLineEnd" String="#region" beginRegion="Region1"/>
+        <RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
+        <RegExpr attribute="Symbol" context="#stay" String="\(">
+        	<RegExpr attribute="Data Type" context="#stay" String="[_\w][_\w\d]*\s*(?=\)[_\w])"/>
+        </RegExpr>
         <RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
         <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
+        <RegExpr attribute="Data Type" context="#stay" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?=[_\w][_\w\d]*)" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="NormalToLineEnd">
       </context>
       <context attribute="String" lineEndContext="#pop" name="String">
         <LineContinue attribute="String" context="#pop"/>
         <HlCStringChar attribute="String Char" context="#stay"/>
         <DetectChar attribute="String" context="#pop" char="&quot;"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#pop" name="Member" fallthrough="true" fallthroughContext="#pop">
-        <!--<RegExpr attribute="Function" context="#pop" String="\b[_\w][_\w\d]*(?=[\s]*)" />-->
+      <context attribute="String" lineEndContext="#stay" name="String2">
+        <LineContinue attribute="String" context="#stay"/>
+        <Detect2Chars attribute="String" context="#stay" char="&quot;" char1="&quot;"/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="Commentar 1"/>
       <context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
@@ -159,6 +169,7 @@
       <itemData name="String Char"  defStyleNum="dsChar"/>
       <itemData name="Comment"      defStyleNum="dsComment"/>
       <itemData name="Symbol"       defStyleNum="dsOperator"/>
+      <itemData name="Region"       defStyleNum="dsRegionMarker"/>
     </itemDatas>
   </highlighting>
   <general>

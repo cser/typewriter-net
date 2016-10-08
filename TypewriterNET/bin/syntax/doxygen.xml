@@ -239,7 +239,7 @@
       TODO Not all commands are handled properly nowadays :( Need few more contexts...
     -->
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-        <RegExpr attribute="Comment" context="LineComment" String="//(!|(/(?=[^/]|$)))&lt;?" />
+        <RegExpr attribute="CommentStart" context="LineComment" String="//(!|(/(?=[^/]|$)))&lt;?" />
         <RegExpr attribute="Comment" context="BlockComment" String="/\*(\*[^*/]|!|[*!]&lt;|\*$)" beginRegion="BlockComment" />
         <RegExpr attribute="Region" context="#stay" String="//\s*@\{\s*$" beginRegion="MemberGroup" />
         <RegExpr attribute="Region" context="#stay" String="//\s*@\}\s*$"   endRegion="MemberGroup" />
@@ -435,7 +435,7 @@
       <context attribute="Comment" name="SL_DetectComment" lineEndContext="#pop">
         <Detect2Chars attribute="Comment" context="#pop#pop" char="*" char1="/" endRegion="BlockComment" />
         <DetectChar attribute="Comment" context="#stay" char="*" />
-        <StringDetect attribute="Comment" context="#stay" String="///" />
+        <StringDetect attribute="CommentStart" context="#stay" String="///" />
       </context>
 
       <context attribute="Code" lineEndContext="#stay" name="Code">
@@ -477,6 +477,7 @@
       <itemData name="Entities"     defStyleNum="dsDocEntities" />
       <itemData name="Description"  defStyleNum="dsDocDescription" />
       <itemData name="Comment"      defStyleNum="dsComment" />
+      <itemData name="CommentStart" defStyleNum="dsDocStart" />
       <itemData name="Region"       defStyleNum="dsRegionMarker" />
       <itemData name="HTML Comment" defStyleNum="dsComment" />
       <itemData name="Code"         defStyleNum="dsComment" />

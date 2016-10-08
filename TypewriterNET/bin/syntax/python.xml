@@ -466,7 +466,7 @@
 			<itemData name="Command Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Flow Control Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Builtin Function" defStyleNum="dsFunction" spellChecking="false"/>
-			<itemData name="Special Variable" defStyleNum="dsKeyword" spellChecking="false"/>
+			<itemData name="Special Variable" defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Extensions" defStyleNum="dsConstructor" spellChecking="false"/>
 			<itemData name="Exceptions" defStyleNum="dsDataType" spellChecking="false"/>
 			<itemData name="Overloaders" defStyleNum="dsOthers" spellChecking="false"/>
@@ -474,8 +474,8 @@
 			<itemData name="String Char" defStyleNum="dsChar" spellChecking="false"/>
 			<itemData name="Float" defStyleNum="dsFloat" spellChecking="false"/>
 			<itemData name="Int" defStyleNum="dsDecVal" spellChecking="false"/>
-			<itemData name="Hex" defStyleNum="dsBaseN" spellChecking="false"/>
-			<itemData name="Octal" defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Hex" defStyleNum="dsDecVal" spellChecking="false"/>
+			<itemData name="Octal" defStyleNum="dsDecVal" spellChecking="false"/>
 			<itemData name="Complex" defStyleNum="dsOthers" spellChecking="false"/>
 			<itemData name="Comment" defStyleNum="dsComment"/>
 			<itemData name="String" defStyleNum="dsString"/>

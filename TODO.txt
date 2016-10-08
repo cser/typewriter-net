@@ -1,0 +1,16 @@
+- VisualStudio scheme
+- %d% - директория, содержащая файл
+- fix autocomplete hiding on scroll
+- fix hiding on mouse scroll of menu
+- spacesInsteadTabs by filename pattern
+- execute on file save by pattern
+- show omnisharp keys in help
+- *.meta hiding by default
+- *.meta renaming by default (show in help)
+- omnisharp rename
+- omnisharp build
+- omnisharp project and files reloading
+- omnisharp server restart
+- omnisharp override completion
+- states (saving, loading, removing from fuzzy search dialog)
+- file history (from fuzzy search)
