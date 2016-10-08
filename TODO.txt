@@ -13,3 +13,4 @@
 - omnisharp override completion
 - states (saving, loading, removing from fuzzy search dialog)
 - file history (from fuzzy search)
+- search break

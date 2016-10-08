@@ -1,8 +1,23 @@
 // from http://www.java2s.com/Code/Java/JDK-6/ArrayReallocation.htm
 import java.util.Arrays;
 
+/**
+ * @param x = 10
+ * @param item = 20
+ * @autor V.Pupkin
+ * laksjdfjasdfj;jasfd
+ * {@code}
+ * @throws exception
+ * <tag value="asdfasfd">
+ * </tag>
+Simple text example
+ */
+@author asdfljljasdf
 public class ArrayReallocationDemo {
 
+  private static int x = 20;
+  private final String text = "alksjdflkjasdf\nlkasjdflkjsf"
+  
   public static void main(String[] args) {
     int[] data1 = new int[] { 1, 3, 5, 7, 9 };
 

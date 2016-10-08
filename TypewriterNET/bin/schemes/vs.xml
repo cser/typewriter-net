@@ -36,7 +36,7 @@
 	<style name="dsComment" color="green"/>
 	<style name="dsOthers" color="red"/>
 	<style name="dsAlert" color="red" bold="true"/>
-	<style name="dsFunction" color="#000000"/>
+	<style name="dsFunction" color="#6F008A"/>
 	<style name="dsRegionMarker" color="blue"/>
 	<style name="dsError" color="red" bold="true" underline="true"/>
 	
