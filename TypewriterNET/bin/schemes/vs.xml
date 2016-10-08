@@ -40,9 +40,9 @@
 	<style name="dsRegionMarker" color="blue"/>
 	<style name="dsError" color="red" bold="true" underline="true"/>
 	
-	<style name="dsOperator" color="darkBlue"/>
+	<style name="dsOperator" color="#000000"/>
 	<style name="dsConstructor" color="moray"/>
-	<style name="dsNormal2" color="darkBlue"/>
+	<style name="dsNormal2" color="#000000"/>
 	<style name="dsKeyword2" color="brown"/>
 	<style name="dsString2" color="blue"/>
 	<style name="dsOthers2" color="red"/>

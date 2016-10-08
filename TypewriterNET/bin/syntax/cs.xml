@@ -98,11 +98,16 @@
 		</list>
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+				<RegExpr attribute="Keyword" context="#stay" String="\bnew\s">
+					<keyword attribute="Data Type" context="#stay" String="types"/>
+					<keyword attribute="Keyword" context="#stay" String="keywords"/>
+					<RegExpr attribute="Data Type2" context="#stay" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)"/>
+				</RegExpr>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Default Values" context="#stay" String="defaultValues"/>
 				<keyword attribute="Data Type" context="#stay" String="types"/>
 				<Float attribute="Float" context="#stay">
-				<AnyChar String="fF" attribute="Float" context="#stay"/>
+					<AnyChar String="fF" attribute="Float" context="#stay"/>
 				</Float>
 				<HlCOct attribute="Octal" context="#stay"/>
 				<HlCHex attribute="Hex" context="#stay"/>
@@ -131,11 +136,14 @@
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<RegExpr attribute="Data Type2" context="#stay" String="[_\w][_\w\d]*\s*(?=\)\s*[_\w])"/>
+					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?=\)\s*[_\w])"/>
 				</RegExpr>
 				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}"/>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
-				<RegExpr attribute="Data Type2" context="#stay" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?=[_\w][_\w\d]*)"/>
+				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?=[_\w][_\w\d]*)"/>
+			</context>
+			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
+				<DetectIdentifier attribute="Normal" context="#pop"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="NormalToLineEnd">
 			</context>

@@ -3830,10 +3830,10 @@
 		<itemDatas>
 			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
 			<itemData name="Keyword"      defStyleNum="dsKeyword"/>
-			<itemData name="Annotation"   defStyleNum="dsFunction"/>
+			<itemData name="Annotation"   defStyleNum="dsOthers"/>
 			<itemData name="Function"     defStyleNum="dsFunction"/>
-			<itemData name="StaticImports"      defStyleNum="dsOther"/>
-			<itemData name="Imports"      defStyleNum="dsOther2"/>
+			<itemData name="StaticImports"      defStyleNum="dsFunction"/>
+			<itemData name="Imports"      defStyleNum="dsFunction"/>
 			<itemData name="Data Type"    defStyleNum="dsDataType"/>
 			<itemData name="Decimal"      defStyleNum="dsDecVal"/>
 			<itemData name="Octal"        defStyleNum="dsBaseN"/>

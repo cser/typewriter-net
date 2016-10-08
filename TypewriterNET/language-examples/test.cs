@@ -13,8 +13,13 @@ namespace MulticaretEditor
 {
 	public class FSBArray<T, TBlock> where TBlock : FSBBlock<T>
 	{
+		#region ASDFASFDASDF
 		private const string text = "Text text text\ntext text"
+		#endregion
+		
+#if ASDFASF_DEFADSF	
 		protected int blockSize;// Size of block
+#endif
 		protected int blocksCount;
 		//! \var Test::TEnum Test::Val1
 		protected TBlock[] blocks;
