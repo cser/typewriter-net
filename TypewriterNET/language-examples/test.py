@@ -9,6 +9,9 @@ def makeitalic(fn):
     def wrapped():
     	x = __new__ Data()
         return "<i>" + fn() + "</i>"
+    x = True
+    y = 10
+	len(asdfsaf)
     return wrapped
  
 @makebold
@@ -17,3 +20,7 @@ def hello():
     return "hello habr"
  
 print hello() ## ������� <b><i>hello habr</i></b>
+
+class Asdflkj:
+	def laskdjflsjdf():
+		sdfsdfsdf()

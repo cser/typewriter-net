@@ -21,8 +21,6 @@
 			<item> as </item>
 		</list>
 		<list name="defs">
-			<item> class </item>
-			<item> def </item>
 			<item> del </item>
 			<item> global </item>
 			<item> lambda </item>
@@ -296,6 +294,12 @@
 				<LineContinue context="CheckForString" attribute="Normal Text"/>
 				<keyword attribute="Preprocessor" String="prep" context="#stay"/>
 				<keyword attribute="Definition Keyword" String="defs" context="#stay"/>
+				<StringDetect attribute="Definition Keyword" String="def" context="#stay">
+					<RegExpr attribute="Function" String="\s*[_\w][_\w\d]*" context="#pop"/>
+				</StringDetect>
+				<StringDetect attribute="Definition Keyword" String="class" context="#stay">
+					<RegExpr attribute="Constructor" String="\s*[_\w][_\w\d]*" context="#pop"/>
+				</StringDetect>
 				<keyword attribute="Operator" String="operators" context="#stay"/>
 				<keyword attribute="Command Keyword" String="commands" context="#stay"/>
 				<keyword attribute="Flow Control Keyword" String="flow" context="#stay"/>
@@ -340,10 +344,10 @@
 				<DetectChar attribute="String" char="&quot;" context="Single Q-string"/>
 				<Detect2Chars attribute="String" char="u" char1="&quot;" context="Single Q-string"/>
 
-				<DetectChar attribute="Normal" char="(" context="parenthesised" beginRegion="parenthesis"/>
-				<DetectChar attribute="Normal" char=")" context="#pop" endRegion="parenthesis"/>
+				<DetectChar attribute="Operator" char="(" context="parenthesised" beginRegion="parenthesis"/>
+				<DetectChar attribute="Operator" char=")" context="#pop" endRegion="parenthesis"/>
 
-				<AnyChar attribute="Operator" String="+*/%\|=;\!&lt;&gt;!^&amp;~-" context="#stay"/>
+				<AnyChar attribute="Operator" String="+*/%\|=;\!&lt;&gt;!^&amp;~-[]" context="#stay"/>
 				<RegExpr attribute="Decorator" String="@[_a-zA-Z][\._a-zA-Z0-9]*" firstNonSpace="true"/>
 			</context>
 			<!-- The context CheckForString only exists to catch LineContinue with \ at end of previous line. So that we don't interpret it as comment.  -->
@@ -465,11 +469,13 @@
 			<itemData name="String Substitution" defStyleNum="dsDataType" spellChecking="false"/>
 			<itemData name="Command Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Flow Control Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
-			<itemData name="Builtin Function" defStyleNum="dsFunction" spellChecking="false"/>
+			<itemData name="Function" defStyleNum="dsFunction" spellChecking="false"/>
+			<itemData name="Builtin Function" defStyleNum="dsDataType2" spellChecking="false"/>
 			<itemData name="Special Variable" defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Extensions" defStyleNum="dsConstructor" spellChecking="false"/>
+			<itemData name="Constructor" defStyleNum="dsConstructor" spellChecking="false"/>
 			<itemData name="Exceptions" defStyleNum="dsDataType" spellChecking="false"/>
-			<itemData name="Overloaders" defStyleNum="dsOthers" spellChecking="false"/>
+			<itemData name="Overloaders" defStyleNum="dsDataType2" spellChecking="false"/>
 			<itemData name="Preprocessor" defStyleNum="dsOthers" spellChecking="false"/>
 			<itemData name="String Char" defStyleNum="dsChar" spellChecking="false"/>
 			<itemData name="Float" defStyleNum="dsFloat" spellChecking="false"/>
