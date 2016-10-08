@@ -10,8 +10,8 @@
 	<color name="bg" value="#FFFFFF"/>
 	<color name="fg" value="#000000"/>
 	<color name="lineBg" value="#EAEAF2"/>
-	<color name="lineNumberBg" value="#E4E4E4"/>
-	<color name="lineNumberFg" value="#808080"/>
+	<color name="lineNumberBg" value="#FFFFFF"/>
+	<color name="lineNumberFg" value="moray"/>
 	<color name="selectionBrush" value="#ADD6FF"/>
 	<color name="selectionPen" value="#ADD6FF"/>
 	<color name="markPen" value="#AAAAAA"/>

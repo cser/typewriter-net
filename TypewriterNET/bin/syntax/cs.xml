@@ -136,13 +136,14 @@
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?=\)\s*[_\w])"/>
+					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*[_\w])"/>
 				</RegExpr>
 				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}"/>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
-				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?=[_\w][_\w\d]*)"/>
+				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\b)(?=[_\w])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
+				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<DetectIdentifier attribute="Normal" context="#pop"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="NormalToLineEnd">
