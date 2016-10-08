@@ -3,6 +3,10 @@
 	<highlighting>
 		<list name="keywords">
 			<item>abstract</item>
+			<item>sealed</item>
+			<item>override</item>
+			<item>readonly</item>
+			<item>virtual</item>
 			<item>as</item>
 			<item>base</item>
 			<item>break</item>
@@ -28,22 +32,15 @@
 			<item>implicit</item>
 			<item>in</item>
 			<item>interface</item>
-			<item>internal</item>
 			<item>is</item>
 			<item>lock</item>
 			<item>namespace</item>
 			<item>new</item>
 			<item>operator</item>
 			<item>out</item>
-			<item>override</item>
 			<item>params</item>
-			<item>private</item>
-			<item>protected</item>
-			<item>public</item>
-			<item>readonly</item>
 			<item>ref</item>
 			<item>return</item>
-			<item>sealed</item>
 			<item>sizeof</item>
 			<item>stackalloc</item>
 			<item>static</item>
@@ -56,7 +53,6 @@
 			<item>unchecked</item>
 			<item>unsafe</item>
 			<item>using</item>
-			<item>virtual</item>
 			<item>while</item>
 			<item>const</item>
 			<item>where</item>
@@ -72,6 +68,12 @@
 			<item>#warning</item>
 			<item>#error</item>
 			<item>#line</item>
+		</list>
+		<list name="keywords2">
+			<item>private</item>
+			<item>protected</item>
+			<item>internal</item>
+			<item>public</item>
 		</list>
 		<list name="defaultValues">
 			<item>null</item>
@@ -104,8 +106,13 @@
 					<RegExpr attribute="Data Type2" context="#stay" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)"/>
 				</RegExpr>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
+				<keyword attribute="Keyword" context="#stay" String="keywords2">
+					<RegExpr attribute="Constructor" context="#pop" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
+				</keyword>
 				<keyword attribute="Default Values" context="#stay" String="defaultValues"/>
-				<keyword attribute="Data Type" context="#stay" String="types"/>
+				<keyword attribute="Data Type" context="#stay" String="types">
+					<RegExpr attribute="Function" context="#stay" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
+				</keyword>
 				<Float attribute="Float" context="#stay">
 					<AnyChar String="fF" attribute="Float" context="#stay"/>
 				</Float>
@@ -143,6 +150,7 @@
 				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\b)(?=[_\w])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
+				<RegExpr attribute="Function" context="#pop" String="[_\w][_\w\d]*(?=\s*\()"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<DetectIdentifier attribute="Normal" context="#pop"/>
 			</context>
@@ -186,6 +194,7 @@
 			<itemData name="CommentNote" defStyleNum="dsDocAlertTag3"/>
 			<itemData name="CommentWarning" defStyleNum="dsDocAlertTag2"/>
 			<itemData name="CommentAttention" defStyleNum="dsDocAlertTag1"/>
+			<itemData name="Constructor" defStyleNum="dsConstructor"/>
 		</itemDatas>
 	</highlighting>
 	<general>
