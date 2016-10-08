@@ -23,6 +23,7 @@
 	<style name="dsNormal" color="#1F1C1B"/>
 	<style name="dsKeyword" color="#1F1C1B" bold="true"/>
 	<style name="dsDataType" color="#0057AE"/>
+	<style name="dsDataType2" color="#0057AE"/>
 	<style name="dsDecVal" color="#B08000"/>
 	<style name="dsBaseN" color="#B08000"/>
 	<style name="dsFloat" color="#B08000"/>

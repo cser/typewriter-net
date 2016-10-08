@@ -1,4 +1,3 @@
-- VisualStudio scheme
 - %d% - директория, содержащая файл
 - fix autocomplete hiding on scroll
 - fix hiding on mouse scroll of menu

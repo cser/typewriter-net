@@ -19,6 +19,7 @@
 	
 	<style name="dsKeyword" color="green"/>
 	<style name="dsDataType" color="yellow"/>
+	<style name="dsDataType2" color="yellow"/>
 	<style name="dsDecVal" color="magenta"/>
 	<style name="dsBaseN" color="magenta"/>
 	<style name="dsFloat" color="magenta"/>
