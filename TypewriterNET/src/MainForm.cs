@@ -215,9 +215,8 @@ public class MainForm : Form
         NativeMethods.CHANGEFILTERSTRUCT changeFilter = new NativeMethods.CHANGEFILTERSTRUCT();
         changeFilter.size = (uint)Marshal.SizeOf(changeFilter);
         changeFilter.info = 0;
-        if (!NativeMethods.ChangeWindowMessageFilterEx
-        (this.Handle, NativeMethods.WM_COPYDATA, 
-        NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
+        if (!NativeMethods.ChangeWindowMessageFilterEx(
+        	this.Handle, NativeMethods.WM_COPYDATA, NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
         {
             int error = Marshal.GetLastWin32Error();
             MessageBox.Show(String.Format("The error {0} occurred.", error));

@@ -100,11 +100,7 @@
 		</list>
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-				<RegExpr attribute="Keyword" context="#stay" String="\bnew\s">
-					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<keyword attribute="Keyword" context="#stay" String="keywords"/>
-					<RegExpr attribute="Data Type2" context="#stay" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)"/>
-				</RegExpr>
+				<RegExpr attribute="Keyword" context="AfterNew" String="\bnew\s"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords2">
 					<RegExpr attribute="Constructor" context="#pop" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
@@ -143,7 +139,7 @@
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*[_\w])"/>
+					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*[_\w\(])"/>
 				</RegExpr>
 				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}"/>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
@@ -171,8 +167,14 @@
 			</context>
 			<context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
 				<IncludeRules context="##Alerts"/>
-			<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/"/>
-		</context>
+				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/"/>
+			</context>
+			<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
+				<keyword attribute="Data Type" context="#stay" String="types"/>
+				<keyword attribute="Keyword" context="#stay" String="keywords"/>
+				<AnyChar attribute="Symbol" context="#stay" String="."/>
+				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?=[\(\{])"/>
+			</context>
 		</contexts>
 			<itemDatas>
 			<itemData name="Normal Text" defStyleNum="dsNormal"/>

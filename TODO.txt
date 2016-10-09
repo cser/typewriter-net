@@ -3,7 +3,7 @@
 - fix hiding on mouse scroll of menu
 - spacesInsteadTabs by filename pattern
 - execute on file save by pattern
-- show omnisharp keys in help
+- show command keys in menu and in menu search
 - *.meta hiding by default
 - *.meta renaming by default (show in help)
 - omnisharp rename
@@ -11,6 +11,7 @@
 - omnisharp project and files reloading
 - omnisharp server restart
 - omnisharp override completion
+- omnisharp move to element in file
 - states (saving, loading, removing from fuzzy search dialog)
 - file history (from fuzzy search)
 - search break
