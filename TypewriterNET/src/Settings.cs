@@ -13,16 +13,16 @@ public class Settings
 	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
 	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
-	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true).SetVariants("\r\n", "\n", "\r");
+	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
 	public readonly Properties.Bool spacesInsteadTabs = new Properties.Bool("spacesInsteadTabs", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
-	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false).SetLoadVariants(SchemeManager.GetAllSchemeNames);
+	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
-	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false);
-	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false);
+	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false, "Chars to input with right Alt");
+	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false, "Output chars with right Alt");
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
@@ -36,10 +36,10 @@ public class Settings
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
-	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false);
-	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false);
-	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false);
-	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false);
+	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "");
+	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
+	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false, "");
+	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false, "");
 	public readonly Properties.EncodingProperty defaultEncoding = new Properties.EncodingProperty("defaultEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty shellEncoding = new Properties.EncodingProperty("shellEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
@@ -171,7 +171,7 @@ public class Settings
 				if (prev.GetHelpTypeText(table))
 					table.NewRow();
 			}
-			property.GetHelpText(table);
+			property.GetHelpText(this, table);
 			prev = property;
 		}
 		builder.Append(table);

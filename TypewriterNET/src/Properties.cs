@@ -11,7 +11,7 @@ public class Properties
 {
 	public static void AddHeadTo(TextTable table)
 	{
-		table.Add("Name").Add("Type").Add("Default value").Add("Possible values");
+		table.Add("Name").Add("Type").Add("Default value").Add("Possible/current values");
 	}
 	
 	public static string NameOfName(string name)
@@ -51,6 +51,7 @@ public class Properties
 		virtual public string Text { get { return ""; } }
 		virtual public string ShowedName { get { return name; } }
 		virtual public string DefaultValue { get { return ""; } }
+		
 		virtual public string PossibleValues { get { return ""; } }
 
 		virtual public string SetText(string value, string subvalue)
@@ -58,7 +59,7 @@ public class Properties
 			return null;
 		}
 
-		public void GetHelpText(TextTable table)
+		public void GetHelpText(Settings settings, TextTable table)
 		{
 			table.Add(ShowedName).Add(Type).Add(DefaultValue).Add(PossibleValues);
 		}
@@ -113,9 +114,9 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text { get { return StringOf(value); } }
+		public override string Text { get { return StringOf(value); } }
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			float temp;
 			if (float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp))
@@ -126,11 +127,11 @@ public class Properties
 			return "Can't parse \"" + value + "\"";
 		}
 		
-		override public string Type { get { return "float"; } }
-		override public string DefaultValue { get { return StringOf(defaultValue); } }
-		override public string PossibleValues { get { return "min: " + StringOf(min) + ", max: " + StringOf(max); } }
+		public override string Type { get { return "float"; } }
+		public override string DefaultValue { get { return StringOf(defaultValue); } }
+		public override string PossibleValues { get { return "min: " + StringOf(min) + ", max: " + StringOf(max); } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -176,9 +177,9 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text { get { return value + ""; } }
+		public override string Text { get { return value + ""; } }
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			int temp;
 			if (int.TryParse(value, out temp))
@@ -189,11 +190,11 @@ public class Properties
 			return "Can't parse \"" + value + "\"";
 		}
 		
-		override public string Type { get { return "int"; } }
-		override public string DefaultValue { get { return defaultValue + ""; } }
-		override public string PossibleValues { get { return "min: " + min + ", max: " + max; } }
+		public override string Type { get { return "int"; } }
+		public override string DefaultValue { get { return defaultValue + ""; } }
+		public override string PossibleValues { get { return "min: " + min + ", max: " + max; } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -203,12 +204,14 @@ public class Properties
 	{
 		private string defaultValue;
 		private bool convertEscape;
+		private string help;
 
-		public String(string name, string value, bool convertEscape) : base(name)
+		public String(string name, string value, bool convertEscape, string help) : base(name)
 		{
 			defaultValue = value;
 			this.value = value ?? "";
 			this.convertEscape = convertEscape;
+			this.help = help;
 		}
 
 		private string value;
@@ -241,11 +244,11 @@ public class Properties
 			return this;
 		}
 
-		override public string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
+		public override string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
+		public override string Type { get { return "string"; } }
+		public override string DefaultValue { get { return ReplaceLineBreaks(defaultValue); } }
 		
-		override public string Type { get { return "string"; } }
-		override public string DefaultValue { get { return ReplaceLineBreaks(defaultValue); } }
-		override public string PossibleValues
+		public override string PossibleValues
 		{
 			get
 			{
@@ -262,11 +265,17 @@ public class Properties
 						text += ReplaceLineBreaks(variant);
 					}
 				}
-				return text;
+				if (!string.IsNullOrEmpty(help))
+				{
+					if (text != "")
+						text += "\n";
+					text += help;
+				}
+				return text != "" ? text : "=\"" + ReplaceLineBreaks(value).Replace("\"", "\"\"") + "\"";
 			}
 		}
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			string newValue = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + "";
 			if (variants != null && variants.Length > 0 && Array.IndexOf(variants, newValue) == -1)
@@ -295,7 +304,7 @@ public class Properties
 			return value;
 		}
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -317,7 +326,7 @@ public class Properties
 		private readonly RWList<CommandInfo> value = new RWList<CommandInfo>();
 		public IRList<CommandInfo> Value { get { return value; } }
 
-		override public string Text
+		public override string Text
 		{
 			get
 			{
@@ -334,7 +343,7 @@ public class Properties
 			}
 		}
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			for (int i = this.value.Count; i-- > 0;)
 			{
@@ -354,12 +363,12 @@ public class Properties
 			return null;
 		}
 
-		override public string Type { get { return "command"; } }		
-		override public string ShowedName { get { return name + "[:<filter>]"; } }
-		override public string PossibleValues { get { return "(several nodes allowed)"; } }
-		override public string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+		public override string Type { get { return "command"; } }		
+		public override string ShowedName { get { return name + "[:<filter>]"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+		public override string PossibleValues { get { return "(several nodes allowed)"; } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value.Clear();
 		}
@@ -374,7 +383,7 @@ public class Properties
 		private readonly RWList<RegexData> value = new RWList<RegexData>();
 		public IRList<RegexData> Value { get { return value; } }
 
-		override public string Text
+		public override string Text
 		{
 			get
 			{
@@ -391,7 +400,7 @@ public class Properties
 			}
 		}
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			string errors;
 			RegexData data = RegexData.Parse(value, out errors);
@@ -402,9 +411,10 @@ public class Properties
 		}
 		
 		public override string Type { get { return "regex"; } }
+		
 		public override string PossibleValues { get { return "(several nodes allowed)"; } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value.Clear();
 		}
@@ -422,9 +432,9 @@ public class Properties
 		private EncodingPair value;
 		public EncodingPair Value { get { return value; } }
 
-		override public string Text { get { return Value.ToString(); } }
+		public override string Text { get { return Value.ToString(); } }
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			string error;
 			EncodingPair newValue = EncodingPair.ParseEncoding(value, out error);
@@ -436,7 +446,7 @@ public class Properties
 		public override string Type { get { return "encoding[ bom]"; } }
 		public override string DefaultValue { get { return defaultValue + ""; } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -459,9 +469,9 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text { get { return value ? "true" : "false"; } }
+		public override string Text { get { return value ? "true" : "false"; } }
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			Value = value != null && (value == "1" || value.ToLowerInvariant() == "true");
 			return null;
@@ -469,8 +479,9 @@ public class Properties
 		
 		public override string Type { get { return "bool"; } }
 		public override string DefaultValue { get { return defaultValue ? "true" : "false"; } }
+		public override string PossibleValues { get { return "=" + (value ? "true" : "false"); } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -493,9 +504,9 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text { get { return StringOf(value); } }
+		public override string Text { get { return StringOf(value); } }
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			if (!IsFamilyInstalled(value))
 			{
@@ -508,6 +519,7 @@ public class Properties
 		
 		public override string Type { get { return "font"; } }
 		public override string DefaultValue { get { return StringOf(defaultValue); } }
+		public override string PossibleValues { get { return "=\"" + Value.Name + "\""; } }
 
 		private string StringOf(FontFamily fontFamily)
 		{
@@ -525,7 +537,7 @@ public class Properties
 			return false;
 		}
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -545,14 +557,14 @@ public class Properties
 		private string value;
 		public string Value { get { return value; } }
 
-		override public string Text { get { return defaultValue; } }
+		public override string Text { get { return defaultValue; } }
 		
 		private static bool IsPathGlobal(string path)
 		{
 			return path.Length > 2 && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
 		}
 
-		override public string SetText(string value, string subvalue)
+		public override string SetText(string value, string subvalue)
 		{
 			value = value.Trim();
 			if (!IsPathGlobal(value))
@@ -567,11 +579,11 @@ public class Properties
 			return null;
 		}
 		
-		override public string Type { get { return "path"; } }
-		override public string DefaultValue { get { return defaultValue; } }
-		override public string PossibleValues { get { return help; } }
+		public override string Type { get { return "path"; } }
+		public override string DefaultValue { get { return defaultValue; } }
+		public override string PossibleValues { get { return help; } }
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}

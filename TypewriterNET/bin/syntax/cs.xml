@@ -115,6 +115,7 @@
 				<HlCOct attribute="Octal" context="#stay"/>
 				<HlCHex attribute="Hex" context="#stay"/>
 				<Int attribute="Decimal" context="#stay">
+					<StringDetect attribute="Decimal" context="#stay" String="F" insensitive="TRUE"/>
 					<StringDetect attribute="Decimal" context="#stay" String="ULL" insensitive="TRUE"/>
 					<StringDetect attribute="Decimal" context="#stay" String="LUL" insensitive="TRUE"/>
 					<StringDetect attribute="Decimal" context="#stay" String="LLU" insensitive="TRUE"/>

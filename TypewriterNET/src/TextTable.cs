@@ -110,17 +110,25 @@ public class TextTable
 					bool allCompleted = true;
 					for (int j = 0; j < colsCount; j++)
 					{
-						if (j > 0)
-							builder.Append(" | ");
+						bool needLine = j > 0;
 						if (lineTexts[j] != null)
 						{
-							Splitted splitted = SplitSubline(lineTexts[j], colSizes[j]);
+							string part = lineTexts[j];
+							if (needLine)
+							{
+								builder.Append(part.StartsWith("=") ? "   " : " | ");
+							}
+							Splitted splitted = SplitSubline(part, colSizes[j]);
 							lineTexts[j] = splitted.tail;
 							allCompleted = splitted.tail == null;
 							builder.Append(splitted.head.PadRight(colSizes[j]));
 						}
 						else
 						{
+							if (needLine)
+							{
+								builder.Append(" | ");
+							}
 							builder.Append(new string(' ', colSizes[j]));
 						}
 					}
