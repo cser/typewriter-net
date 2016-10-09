@@ -171,6 +171,18 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath ?? "");
 		}
+		if (commandText.Contains(RunShellCommand.FileDirVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No opened file in current frame for replace " + RunShellCommand.FileDirVar);
+				return false;
+			}
+			string dir = Path.GetDirectoryName(lastBuffer.FullPath);
+			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
+		}
         if (commandText.Contains(RunShellCommand.LineVar))
         {
 			Buffer lastBuffer = mainForm.LastBuffer;
@@ -293,9 +305,11 @@ public class Commander
 		table.NewRow();
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file full path");
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file dir path");
 		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if file unsaved");
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if no saved file");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
 		table.NewRow();
