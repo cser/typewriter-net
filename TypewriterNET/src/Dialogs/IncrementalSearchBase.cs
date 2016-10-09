@@ -188,7 +188,7 @@ public class IncrementalSearchBase : ADialog
 		InitVariantsText(GetVariantsText());
 	}
 
-	override public bool Focused { get { return textBox.Focused; } }
+	override public bool Focused { get { return textBox.Focused || variantsTextBox.Focused; } }
 
 	override protected void OnResize(EventArgs e)
 	{

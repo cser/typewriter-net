@@ -114,12 +114,12 @@ namespace MulticaretEditor.Highlighting
 
 		private bool GetBool(string value, bool altValue)
 		{
-			return !string.IsNullOrEmpty(value) ? value == "1" || value == "true" : altValue;
+			return !string.IsNullOrEmpty(value) ? value == "1" || value.ToLowerInvariant() == "true" : altValue;
 		}
 
 		private bool GetBool(string value)
 		{
-			return !string.IsNullOrEmpty(value) ? value == "1" || value == "true" : false;
+			return !string.IsNullOrEmpty(value) ? value == "1" || value.ToLowerInvariant() == "true" : false;
 		}
 
 		private bool? GetVariantBool(string value)
