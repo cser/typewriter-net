@@ -1,5 +1,3 @@
-- fix autocomplete hiding on scroll
-- fix hiding on mouse scroll of menu
 - spacesInsteadTabs by filename pattern
 - execute on file save by pattern
 - show command keys in menu and in menu search

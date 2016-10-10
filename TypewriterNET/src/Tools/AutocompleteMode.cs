@@ -29,11 +29,60 @@ public class AutocompleteMode
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Autocomplete\\Close", DoClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Autocomplete\\Complete", DoComplete, null, false)));
 	}
+	
+	public class Handler
+	{
+		private AutocompleteMode mode;
+		
+		public Handler(AutocompleteMode mode)
+		{
+			this.mode = mode;
+		}
+		
+		public MulticaretTextBox TextBox { get { return mode.textBox; } }
+		
+		public void CheckPosition()
+		{
+			if (mode.dropDown != null)
+			{
+				Place place = mode.textBox.Controller.Lines.PlaceOf(mode.textBox.Controller.LastSelection.caret);
+				if (place.iLine != mode.startPlace.iLine || place.iChar < mode.startPlace.iChar)
+				{
+					mode.Close();
+					return;
+				}
+				Point point = mode.textBox.ScreenCoordsOfPlace(mode.startPlace);
+				if (point.Y < -mode.textBox.CharHeight || point.Y > mode.textBox.Height)
+				{
+					mode.Close();
+					return;
+				}
+				point.Y += mode.textBox.CharHeight;
+				mode.dropDown.SetScreenPosition(mode.textBox.PointToScreen(point));
+				mode.dropDown.UpdateScreenPosition();
+			}
+		}
+		
+		public void ProcessSelect(Variant variant)
+		{
+			if (mode.dropDown != null && variant != null)
+			{
+				mode.selectedVariant = variant;
+				mode.dropDown.SetSelectedVariant(mode.selectedVariant);
+			}
+		}
+		
+		public void ProcessComplete()
+		{
+			mode.DoComplete(null);
+		}
+	}
 
 	private List<Variant> variants;	
 	private bool opened;
 	private int startCaret;
 	private int caret;
+	private Place startPlace;
 	
 	public void Show(List<Variant> variants, string leftWord)
 	{
@@ -42,16 +91,16 @@ public class AutocompleteMode
 		opened = true;
 		
 		this.variants = variants;
-		Place place = textBox.Controller.Lines.PlaceOf(textBox.Controller.LastSelection.caret - leftWord.Length);
+		startPlace = textBox.Controller.Lines.PlaceOf(textBox.Controller.LastSelection.caret - leftWord.Length);
 		startCaret = textBox.Controller.LastSelection.caret - leftWord.Length;
 		caret = textBox.Controller.LastSelection.caret;
-		
-		Point point = textBox.ScreenCoordsOfPlace(place);
+		Point point = textBox.ScreenCoordsOfPlace(startPlace);
 		point.Y += textBox.CharHeight;
+		Point screenPoint = textBox.PointToScreen(point);
 		
-		dropDown = new AutocompleteMenu(textBox.Scheme, textBox.FontFamily, textBox.FontSize, textBox.ScrollingIndent);
-		dropDown.SetScreenPosition(textBox.PointToScreen(point));
-		dropDown.Show(textBox, point);
+		dropDown = new AutocompleteMenu(new Handler(this));
+		dropDown.SetScreenPosition(screenPoint);
+		dropDown.Show(textBox, screenPoint);
 		UpdateItems();
 		
 		textBox.KeyMap.AddBefore(keyMap);
@@ -222,6 +271,7 @@ public class AutocompleteMode
 			            textBox.Controller.Backspace();
 			        }
 			        textBox.Controller.InsertText(completionText);
+			        Close();
 			        return true;
 			    }
 			}
@@ -266,6 +316,9 @@ public class AutocompleteMode
 	
 	private void OnFocusedChange()
 	{
-		Close();
+		if (!dropDown.Focused && !textBox.Focused)
+		{
+			Close();
+		}
 	}
 }

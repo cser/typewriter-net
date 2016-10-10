@@ -10,6 +10,7 @@ using Microsoft.Win32;
 
 public class AutocompleteMenu : ToolStripDropDown
 {
+	private readonly AutocompleteMode.Handler handler;
 	private readonly StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 	private readonly Scheme scheme;
 	private readonly int charWidth;
@@ -24,10 +25,13 @@ public class AutocompleteMenu : ToolStripDropDown
 	
 	public readonly int maxLinesCount;
 	
-	public AutocompleteMenu(Scheme scheme, FontFamily family, float emSize, int scrollingIndent)
+	public AutocompleteMenu(AutocompleteMode.Handler handler)
 	{
-		this.scheme = scheme;
-		this.scrollingIndent = scrollingIndent;
+		this.handler = handler;
+		this.scheme = handler.TextBox.Scheme;
+		this.scrollingIndent = handler.TextBox.ScrollingIndent;
+		FontFamily family = handler.TextBox.FontFamily;
+		float emSize = handler.TextBox.FontSize;
 		
 		fonts[TextStyle.NoneMask] = new Font(family, emSize);
 
@@ -81,6 +85,29 @@ public class AutocompleteMenu : ToolStripDropDown
 		host.AutoSize = false;
 		host.AutoToolTip = false;
 		Items.Add(host);
+	}
+	
+	private Timer timer;
+	
+	protected override void OnOpened(EventArgs e)
+	{
+		base.OnOpened(e);
+		timer = new Timer();
+		timer.Tick += OnTimerTick;
+		timer.Interval = 100;
+		timer.Start();
+	}
+	
+	protected override void OnClosed(ToolStripDropDownClosedEventArgs e)
+	{
+		timer.Stop();
+		timer.Dispose();
+		base.OnClosed(e);
+	}
+	
+	private void OnTimerTick(object source, EventArgs e)
+	{
+		handler.CheckPosition();
 	}
 	
 	private Point screenPoint;
@@ -148,7 +175,12 @@ public class AutocompleteMenu : ToolStripDropDown
 		Invalidate();
 		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
 		control.Invalidate();
-		
+		UpdateScreenPosition();
+	}
+	
+	public void UpdateScreenPosition()
+	{
+		int height = visibleLinesCount * charHeight;
 		Left = screenPoint.X;
 		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y)
 		{
@@ -261,6 +293,39 @@ public class AutocompleteMenu : ToolStripDropDown
 		private void OnVScroll(object target, ScrollEventArgs args)
 		{
 			Invalidate();
+		}
+		
+		public int GetLine(Point point)
+		{
+			int line = vScrollBar.Value + point.Y / menu.charHeight;
+			if (line < 0)
+				line = 0;
+			if (line >= menu.variants.Count)
+				line = menu.variants.Count - 1;
+			return line;
+		}
+		
+		private Point lastMouseDownLocation;
+	
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			lastMouseDownLocation = e.Location;
+			int index = GetLine(lastMouseDownLocation);
+			if (index != -1)
+			{
+				menu.handler.ProcessSelect(menu.variants[index]);
+				Invalidate();
+			}
+		}
+		
+		protected override void OnDoubleClick(EventArgs e)
+		{
+			int index = GetLine(lastMouseDownLocation);
+			if (index != -1)
+			{
+				menu.handler.ProcessSelect(menu.variants[index]);
+				menu.handler.ProcessComplete();
+			}
 		}
 		
 		protected override void OnPaint(PaintEventArgs e)
