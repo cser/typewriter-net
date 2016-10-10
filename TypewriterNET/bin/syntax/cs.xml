@@ -175,7 +175,7 @@
 				<keyword attribute="Data Type" context="#stay" String="types"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<AnyChar attribute="Symbol" context="#stay" String="."/>
-				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)(?=[\(\{])"/>
+				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)\s*(?=[\(\{])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterAs">
 				<keyword attribute="Data Type" context="#stay" String="types"/>
