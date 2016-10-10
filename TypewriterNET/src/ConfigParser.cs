@@ -41,23 +41,20 @@ public class ConfigParser
 				XmlElement element = node as XmlElement;
 				if (element != null)
 				{
-					if (element.Name == "item")
+					if (element.Name == "item" && element.HasAttribute("value"))
 					{
 						string value = element.GetAttribute("value");
-						if (!string.IsNullOrEmpty(value))
+						string name = element.GetAttribute("name");
+						string keyName = Properties.NameOfName(name);
+						if (settings[keyName] != null)
 						{
-							string name = element.GetAttribute("name");
-							string keyName = Properties.NameOfName(name);
-							if (settings[keyName] != null)
-							{
-								string error = settings[keyName].SetText(value, Properties.SubvalueOfName(name));
-								if (!string.IsNullOrEmpty(error))
-									errors.AppendLine(error);
-							}
-							else
-							{
-								errors.AppendLine("Unknown name=" + keyName);
-							}
+							string error = settings[keyName].SetText(value, Properties.SubvalueOfName(name));
+							if (!string.IsNullOrEmpty(error))
+								errors.AppendLine(error);
+						}
+						else
+						{
+							errors.AppendLine("Unknown name=" + keyName);
 						}
 					}
 				}
