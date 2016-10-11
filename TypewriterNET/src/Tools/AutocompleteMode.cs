@@ -46,7 +46,8 @@ public class AutocompleteMode
 			if (mode.dropDown != null)
 			{
 				Place place = mode.textBox.Controller.Lines.PlaceOf(mode.textBox.Controller.LastSelection.caret);
-				if (place.iLine != mode.startPlace.iLine || place.iChar < mode.startPlace.iChar)
+				if (place.iLine != mode.startPlace.iLine && (Math.Abs(place.iLine - mode.startPlace.iLine) > 1 || place.iChar > 0) ||
+				    place.iChar < mode.startPlace.iChar)
 				{
 					mode.Close();
 					return;
