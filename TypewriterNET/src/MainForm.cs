@@ -365,7 +365,11 @@ public class MainForm : Form
 			buffer.fileInfo.Refresh();
 			if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
 			{
-				DialogResult result = MessageBox.Show("File was changed:\n" + buffer.FullPath + "\nReload it?", Name, MessageBoxButtons.YesNo);
+				DialogResult result = MessageBox.Show(
+					CommonHelper.GetShortText(buffer.FullPath, 60) + "\n" +
+					"______________________________________________________________________________\n" +
+					"File was changed, reload it?",
+					Name, MessageBoxButtons.YesNo);
 				if (result == DialogResult.Yes)
 					ReloadFile(buffer);
 			}

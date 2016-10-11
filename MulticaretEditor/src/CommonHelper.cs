@@ -41,5 +41,16 @@ namespace MulticaretEditor
 			}
 			return text.Length;
 		}
+		
+		public static string GetShortText(string text, int maxLength)
+		{
+			if (text == null || text.Length <= maxLength)
+				return text;
+			if (maxLength <= 0)
+				return "";
+			int left = maxLength / 2;
+			int right = maxLength - left - 1;
+			return text.Substring(0, left) + "…" + text.Substring(text.Length - right);
+		}
 	}
 }

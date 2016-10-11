@@ -51,5 +51,46 @@ namespace UnitTests
 			Assert.AreEqual("", CommonHelper.GetOneLine("\rAAA\nBBB"));
 			Assert.AreEqual("", CommonHelper.GetOneLine("\r\nAAA\nBBB"));
 		}
+		
+		[Test]
+		public void GetShortText1()
+		{
+			Assert.AreEqual("ab", CommonHelper.GetShortText("ab", 2));
+			Assert.AreEqual("a", CommonHelper.GetShortText("a", 2));
+			Assert.AreEqual("a", CommonHelper.GetShortText("a", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("", 0));
+		}
+		
+		[Test]
+		public void GetShortText2()
+		{
+			Assert.AreEqual("ab…fg", CommonHelper.GetShortText("abcdefg", 5));
+			Assert.AreEqual("ab…ef", CommonHelper.GetShortText("abcdef", 5));
+			Assert.AreEqual("a…g", CommonHelper.GetShortText("abcdefg", 3));
+		}
+		
+		[Test]
+		public void GetShortText3()
+		{
+			Assert.AreEqual("ab…g", CommonHelper.GetShortText("abcdefg", 4));
+			Assert.AreEqual("ab…f", CommonHelper.GetShortText("abcdef", 4));
+			Assert.AreEqual("a…", CommonHelper.GetShortText("abcdefg", 2));
+		}
+		
+		[Test]
+		public void GetShortText4()
+		{
+			Assert.AreEqual("…", CommonHelper.GetShortText("abcdefg", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("a", 0));
+		}
+		
+		[Test]
+		public void GetShortText5()
+		{
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 0));
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 1));
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 2));
+		}
 	}
 }
