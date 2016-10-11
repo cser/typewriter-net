@@ -183,36 +183,36 @@ public class Commander
 			string dir = Path.GetDirectoryName(lastBuffer.FullPath);
 			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
 		}
-        if (commandText.Contains(RunShellCommand.LineVar))
-        {
+		if (commandText.Contains(RunShellCommand.LineVar))
+		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.LineVar);
 				return false;
 			}
-            commandText = commandText.Replace(
-                RunShellCommand.LineVar,
-                (lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
-            );
-        }
-        if (commandText.Contains(RunShellCommand.CharVar))
-        {
+			commandText = commandText.Replace(
+				RunShellCommand.LineVar,
+				(lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
+			);
+		}
+		if (commandText.Contains(RunShellCommand.CharVar))
+		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.CharVar);
 				return false;
 			}
-            commandText = commandText.Replace(
-                RunShellCommand.CharVar,
-                lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
-            );
-        }
-        if (commandText.Contains(RunShellCommand.SelectedVar))
-        {
-        	Buffer lastBuffer = mainForm.LastBuffer;
-        	if (lastBuffer == null)
+			commandText = commandText.Replace(
+				RunShellCommand.CharVar,
+				lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
+			);
+		}
+		if (commandText.Contains(RunShellCommand.SelectedVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo(
 					"Error", "No buffer with selection for replace " + RunShellCommand.SelectedVar);
@@ -245,11 +245,11 @@ public class Commander
 				}	
 			}
 			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
-        }
-        if (commandText.Contains(RunShellCommand.WordVar))
-        {
-        	Buffer lastBuffer = mainForm.LastBuffer;
-        	if (lastBuffer == null)
+		}
+		if (commandText.Contains(RunShellCommand.WordVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo(
 					"Error", "No buffer with selection for replace " + RunShellCommand.WordVar);
@@ -284,7 +284,7 @@ public class Commander
 				varValue = lastBuffer.Controller.GetWord(place);
 			}
 			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
-        }
+		}
 		return true;
 	}
 
@@ -404,8 +404,11 @@ public class Commander
 
 	private void DoEditFile(string file)
 	{
-		Buffer buffer = mainForm.ForcedLoadFile(file);
-		buffer.needSaveAs = false;
+		if (ReplaceVars(ref file))
+		{
+			Buffer buffer = mainForm.ForcedLoadFile(file);
+			buffer.needSaveAs = false;
+		}
 	}
 
 	private void DoOpenFile(string file)
@@ -613,12 +616,12 @@ public class Commander
 	
 	public void DoCodeckeck(string text)
 	{
-	    ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
+		ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
 	}
 	
 	public void DoSyntaxErrors(string text)
 	{
-	    ProcessCodeckeck(text, "Syntax errors", "/syntaxerrors", "Errors");
+		ProcessCodeckeck(text, "Syntax errors", "/syntaxerrors", "Errors");
 	}
 	
 	public void ProcessCodeckeck(string text, string name, string uri, string fieldName)
@@ -666,26 +669,26 @@ public class Commander
 			{
 				try
 				{
-				    if (uri == "/codecheck")
-				    {
-                        Codecheck codecheck = new Codecheck();
-                        codecheck.LogLevel = (string)node[i]["LogLevel"];
-                        codecheck.FileName = (string)node[i]["FileName"];
-                        codecheck.Line = (int)node[i]["Line"];
-                        codecheck.Column = (int)node[i]["Column"];
-                        codecheck.Text = (string)node[i]["Text"];
-                        codechecks.Add(codecheck);
-                    }
-                    else if (uri == "/syntaxerrors")
-                    {
-                        Codecheck codecheck = new Codecheck();
-                        codecheck.LogLevel = "";
-                        codecheck.FileName = (string)node[i]["FileName"];
-                        codecheck.Line = (int)node[i]["Line"];
-                        codecheck.Column = (int)node[i]["Column"];
-                        codecheck.Text = (string)node[i]["Message"];
-                        codechecks.Add(codecheck);
-                    }
+					if (uri == "/codecheck")
+					{
+						Codecheck codecheck = new Codecheck();
+						codecheck.LogLevel = (string)node[i]["LogLevel"];
+						codecheck.FileName = (string)node[i]["FileName"];
+						codecheck.Line = (int)node[i]["Line"];
+						codecheck.Column = (int)node[i]["Column"];
+						codecheck.Text = (string)node[i]["Text"];
+						codechecks.Add(codecheck);
+					}
+					else if (uri == "/syntaxerrors")
+					{
+						Codecheck codecheck = new Codecheck();
+						codecheck.LogLevel = "";
+						codecheck.FileName = (string)node[i]["FileName"];
+						codecheck.Line = (int)node[i]["Line"];
+						codecheck.Column = (int)node[i]["Column"];
+						codecheck.Text = (string)node[i]["Message"];
+						codechecks.Add(codecheck);
+					}
 				}
 				catch (Exception)
 				{
@@ -693,13 +696,13 @@ public class Commander
 			}
 			if (uri == "/codecheck" && node.Count == 0)
 			{
-			    mainForm.Dialogs.ShowInfo(name, "No tips");
-			    return;
+				mainForm.Dialogs.ShowInfo(name, "No tips");
+				return;
 			}
 			else if (uri == "/syntaxerrors" && node.Count == 0)
 			{
-			    mainForm.Dialogs.ShowInfo(name, "No errors");
-			    return;
+				mainForm.Dialogs.ShowInfo(name, "No errors");
+				return;
 			}
 			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
 			if (errors != null)
