@@ -40,6 +40,7 @@ public class Settings
 	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
 	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false, "");
 	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false, "");
+	public readonly Properties.Bool checkContentBeforeReloading = new Properties.Bool("checkContentBeforeReloading", false);
 	public readonly Properties.EncodingProperty defaultEncoding = new Properties.EncodingProperty("defaultEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty shellEncoding = new Properties.EncodingProperty("shellEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
@@ -123,6 +124,7 @@ public class Settings
 		Add(omnisharpSln);
 		Add(omnisharpPort);
 		Add(omnisharpConsole);
+		Add(checkContentBeforeReloading);
 	}
 
 	public void DispatchChange()

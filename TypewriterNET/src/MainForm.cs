@@ -365,15 +365,78 @@ public class MainForm : Form
 			buffer.fileInfo.Refresh();
 			if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
 			{
-				DialogResult result = MessageBox.Show(
-					CommonHelper.GetShortText(buffer.FullPath, 60) + "\n" +
-					"______________________________________________________________________________\n" +
-					"File was changed, reload it?",
-					Name, MessageBoxButtons.YesNo);
-				if (result == DialogResult.Yes)
-					ReloadFile(buffer);
+				if (settings.checkContentBeforeReloading.Value && IsFileEqualToBuffer(buffer))
+				{
+					buffer.Controller.history.MarkAsSaved();
+				}
+				else
+				{
+					DialogResult result = MessageBox.Show(
+						CommonHelper.GetShortText(buffer.FullPath, 60) + "\n" +
+						"______________________________________________________________________________\n" +
+						"File was changed, reload it?",
+						Name, MessageBoxButtons.YesNo);
+					if (result == DialogResult.Yes)
+						ReloadFile(buffer);
+				}
 			}
 		}
+	}
+	
+	private bool IsFileEqualToBuffer(Buffer buffer)
+	{
+		if (buffer.FullPath == null)
+		{
+			return false;
+		}
+		byte[] bytes = null;
+		try
+		{
+			bytes = File.ReadAllBytes(buffer.FullPath);
+		}
+		catch (IOException)
+		{
+			bool needDelete = false;
+			string tempFile = Path.Combine(Path.GetTempPath(), buffer.Name);
+			try
+			{
+				File.Copy(buffer.FullPath, tempFile, true);
+				needDelete = true;
+				bytes = File.ReadAllBytes(tempFile);
+			}
+			catch
+			{
+				return false;
+			}
+			finally
+			{
+				if (needDelete)
+				{
+					try
+					{
+						File.Delete(tempFile);
+					}
+					catch
+					{
+					}
+				}
+			}
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+		string fileText = null;
+		try
+		{
+			fileText = buffer.encodingPair.GetString(bytes);
+		}
+		catch
+		{
+		}
+		if (fileText == null)
+			return false;
+		return buffer.Controller.Lines.GetText() == fileText;
 	}
 
 	private void OpenEmptyIfNeed()

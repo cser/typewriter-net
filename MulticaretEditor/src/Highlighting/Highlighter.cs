@@ -388,12 +388,25 @@ namespace MulticaretEditor.Highlighting
 					stack = null;
 					return changed;
 				}
-				if ((block.valid & LineBlock.ColorValid) != 0 && !lastLineChanged)
 				{
-					if (block.count > 0)
-						state = block.array[block.count - 1].endState;
-					needSetStack = true;
-					continue;
+					bool noChangesInBlock = (block.valid & LineBlock.ColorValid) != 0 && !lastLineChanged;
+					if (noChangesInBlock && block.count > 0)
+					{
+						Rules.Context[] nextState = block.array[block.count - 1].endState;
+						if (nextState == null)
+						{
+							noChangesInBlock = false;
+						}
+						else
+						{
+							state = nextState;
+						}
+					}
+					if (noChangesInBlock)
+					{
+						needSetStack = true;
+						continue;
+					}
 				}
 				block.valid |= LineBlock.ColorValid;
 				for (int j = 0; j < block.count; j++)
