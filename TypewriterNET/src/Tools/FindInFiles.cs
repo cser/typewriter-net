@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Threading;
 using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
@@ -40,8 +41,10 @@ public class FindInFiles
 	private const int MaxPartChars = 150;
 
 	private MainForm mainForm;
+	private AlertForm alert;
 	private List<Position> positions;
-	Buffer buffer;
+	private Buffer buffer;
+	private Thread thread;
 
 	public FindInFiles(MainForm mainForm)
 	{
@@ -65,7 +68,26 @@ public class FindInFiles
 		{
 			pattern = regexText;
 		}
-		return Search(directory, regex, pattern, findParams.ignoreCase, filter);
+		mainForm.Enabled = false;
+		alert = new AlertForm();
+		alert.Show(mainForm);
+		alert.Canceled += OnCanceled;
+		alert.Left = mainForm.Left + mainForm.Width - alert.Width;
+		alert.Top = mainForm.Top + mainForm.Height - alert.Height;
+		thread = new Thread(
+			new ThreadStart(delegate()
+			{
+				Search(directory, regex, pattern, findParams.ignoreCase, filter);
+			})
+		);
+		thread.Start();
+		return null;
+	}
+	
+	private void OnCanceled()
+	{
+		thread.Abort();
+		mainForm.Invoke(new Setter(ShowBuffer));
 	}
 
 	private string Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
@@ -215,8 +237,16 @@ public class FindInFiles
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
+		mainForm.Invoke(new Setter(ShowBuffer));
 		return null;
+	}
+	
+	private void ShowBuffer()
+	{
+		mainForm.Enabled = true;
+		alert.Close();
+		if (buffer != null)
+			mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 	}
 
 	private bool ExecuteEnter(Controller controller)
