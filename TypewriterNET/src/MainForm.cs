@@ -628,35 +628,50 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
+			.SetGetText(GetF5CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F5, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)
+			.SetGetText(GetShiftF5CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F6, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)
+			.SetGetText(GetF6CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F6, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)
+			.SetGetText(GetShiftF6CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F7, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)
+			.SetGetText(GetF7CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F7, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)
+			.SetGetText(GetShiftF7CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F8, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)
+			.SetGetText(GetF8CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F8, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)
+			.SetGetText(GetShiftF8CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F9, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)
+			.SetGetText(GetF9CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F9, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)
+			.SetGetText(GetShiftF9CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F11, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)
+			.SetGetText(GetF11CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F11, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)
+			.SetGetText(GetShiftF11CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			.SetGetText(GetF12CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)
+			.SetGetText(GetShiftF12CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)
+			.SetGetText(GetCtrlSpaceCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -1621,30 +1636,60 @@ public class MainForm : Form
 	{
 		return ExecuteCommand(settings.f5Command.Value);
 	}
+	
+	private string GetF5CommandText()
+	{
+		return GetCommandText(settings.f5Command);
+	}
 
 	private bool DoExecuteF6Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f6Command.Value);
+	}
+	
+	private string GetF6CommandText()
+	{
+		return GetCommandText(settings.f6Command);
 	}
 
 	private bool DoExecuteF7Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f7Command.Value);
 	}
+	
+	private string GetF7CommandText()
+	{
+		return GetCommandText(settings.f7Command);
+	}
 
 	private bool DoExecuteF8Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f8Command.Value);
+	}
+	
+	private string GetF8CommandText()
+	{
+		return GetCommandText(settings.f8Command);
 	}
 
 	private bool DoExecuteF9Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f9Command.Value);
 	}
+	
+	private string GetF9CommandText()
+	{
+		return GetCommandText(settings.f9Command);
+	}
 
 	private bool DoExecuteF11Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f11Command.Value);
+	}
+	
+	private string GetF11CommandText()
+	{
+		return GetCommandText(settings.f11Command);
 	}
 
 	private bool DoExecuteF12Command(Controller controller)
@@ -1652,9 +1697,19 @@ public class MainForm : Form
 		return ExecuteCommand(settings.f12Command.Value);
 	}
 	
+	private string GetF12CommandText()
+	{
+		return GetCommandText(settings.f12Command);
+	}
+	
 	private bool DoExecuteShiftF5Command(Controller controller)
 	{
 		return ExecuteCommand(settings.shiftF5Command.Value);
+	}
+	
+	private string GetShiftF5CommandText()
+	{
+		return GetCommandText(settings.shiftF5Command);
 	}
 	
 	private bool DoExecuteShiftF6Command(Controller controller)
@@ -1662,9 +1717,19 @@ public class MainForm : Form
 		return ExecuteCommand(settings.shiftF6Command.Value);
 	}
 	
+	private string GetShiftF6CommandText()
+	{
+		return GetCommandText(settings.shiftF6Command);
+	}
+	
 	private bool DoExecuteShiftF7Command(Controller controller)
 	{
 		return ExecuteCommand(settings.shiftF7Command.Value);
+	}
+	
+	private string GetShiftF7CommandText()
+	{
+		return GetCommandText(settings.shiftF7Command);
 	}
 	
 	private bool DoExecuteShiftF8Command(Controller controller)
@@ -1672,9 +1737,19 @@ public class MainForm : Form
 		return ExecuteCommand(settings.shiftF8Command.Value);
 	}
 	
+	private string GetShiftF8CommandText()
+	{
+		return GetCommandText(settings.shiftF8Command);
+	}
+	
 	private bool DoExecuteShiftF9Command(Controller controller)
 	{
 		return ExecuteCommand(settings.shiftF9Command.Value);
+	}
+	
+	private string GetShiftF9CommandText()
+	{
+		return GetCommandText(settings.shiftF9Command);
 	}
 	
 	private bool DoExecuteShiftF11Command(Controller controller)
@@ -1682,14 +1757,29 @@ public class MainForm : Form
 		return ExecuteCommand(settings.shiftF11Command.Value);
 	}
 	
+	private string GetShiftF11CommandText()
+	{
+		return GetCommandText(settings.shiftF11Command);
+	}
+	
 	private bool DoExecuteShiftF12Command(Controller controller)
 	{
 		return ExecuteCommand(settings.shiftF12Command.Value);
 	}
 	
+	private string GetShiftF12CommandText()
+	{
+		return GetCommandText(settings.shiftF12Command);
+	}
+	
 	private bool DoExecuteCtrlSpaceCommand(Controller controller)
 	{
 		return ExecuteCommand(settings.ctrlSpaceCommand.Value);
+	}
+	
+	private string GetCtrlSpaceCommandText()
+	{
+		return GetCommandText(settings.ctrlSpaceCommand);
 	}
 
 	private void ReloadSyntaxes()
@@ -1713,7 +1803,23 @@ public class MainForm : Form
 
 	private bool ExecuteCommand(IRList<Properties.CommandInfo> infos)
 	{
-		string name = LastBuffer != null ? LastBuffer.Name : null;
+		Properties.CommandInfo info = GetCommandInfo(infos, LastBuffer);
+		if (info != null)
+		{
+			commander.Execute(info.command);
+		}
+		return true;
+	}
+	
+	private string GetCommandText(Properties.Command command)
+	{
+		Properties.CommandInfo info = GetCommandInfo(command.Value, LastBuffer);
+		return info != null ? ": " + CommonHelper.GetShortText(info.command, 40) : "";
+	}
+	
+	private Properties.CommandInfo GetCommandInfo(IRList<Properties.CommandInfo> infos, Buffer buffer)
+	{
+		string name = buffer != null ? buffer.Name : null;
 		Properties.CommandInfo info = null;
 		if (name != null)
 		{
@@ -1739,11 +1845,7 @@ public class MainForm : Form
 				}
 			}
 		}
-		if (info != null)
-		{
-			commander.Execute(info.command);
-		}
-		return true;
+		return info;
 	}
 
 	private bool MoveDocumentRight(Controller controller)

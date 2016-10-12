@@ -1,6 +1,5 @@
 - spacesInsteadTabs by filename pattern
 - execute on file save by pattern
-- show command keys in menu and in menu search
 - omnisharp rename
 - omnisharp build
 - omnisharp project and files reloading

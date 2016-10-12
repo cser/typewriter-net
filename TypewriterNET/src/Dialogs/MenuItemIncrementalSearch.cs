@@ -70,6 +70,8 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 				continue;
 			Item item = new Item();
 			item.name = action.name.Replace("&", "");
+			if (action != null && action.getText != null)
+				item.name += action.getText();
 			List<KeyItem> keys;
 			keysByAction.TryGetValue(action, out keys);
 			if (keys != null && keys.Count > 0)
@@ -109,8 +111,7 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 			if (!first)
 				builder.AppendLine();
 			first = false;
-			builder.Append(
-				item.text + (item.action != null && item.action.getText != null ? item.action.getText() : ""));
+			builder.Append(item.text);
 		}
 		return builder.ToString();
 	}
