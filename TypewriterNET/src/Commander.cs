@@ -593,7 +593,6 @@ public class Commander
 			Place navigationPlace = new Place();
 			try
 			{
-				Variant variant = new Variant();
 				fullPath = !node["FileName"].IsNull() ? (string)node["FileName"] : null;
 				int line = (int)node["Line"];
 				int column = (int)node["Column"];
@@ -602,6 +601,16 @@ public class Commander
 			catch (Exception)
 			{
 				mainForm.Dialogs.ShowInfo("OmniSharp", "Error: incorrect format");
+			}
+			if (fullPath != null)
+			{
+				try
+				{
+					fullPath = Path.GetFullPath(fullPath);
+				}
+				catch (Exception)
+				{
+				}
 			}
 			if (fullPath != null)
 			{
