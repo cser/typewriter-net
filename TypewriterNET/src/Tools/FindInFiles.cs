@@ -68,12 +68,8 @@ public class FindInFiles
 		{
 			pattern = regexText;
 		}
-		mainForm.Enabled = false;
-		alert = new AlertForm();
-		alert.Show(mainForm);
-		alert.Canceled += OnCanceled;
-		alert.Left = mainForm.Left + mainForm.Width - alert.Width;
-		alert.Top = mainForm.Top + mainForm.Height - alert.Height;
+		alert = new AlertForm(mainForm, OnCanceled);
+		
 		thread = new Thread(
 			new ThreadStart(delegate()
 			{
@@ -81,14 +77,19 @@ public class FindInFiles
 			})
 		);
 		thread.Start();
+				
+		alert.ShowDialog(mainForm);
+		if (buffer != null)
+			mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 		return null;
 	}
 	
 	private void OnCanceled()
 	{
-		thread.Abort();
-		mainForm.Invoke(new Setter(ShowBuffer));
+		isCanceled = true;
 	}
+	
+	private bool isCanceled;
 
 	private string Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
 	{
@@ -119,6 +120,13 @@ public class FindInFiles
 		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 		foreach (string file in files)
 		{
+			if (isCanceled)
+			{
+				if (!first)
+					builder.AppendLine();
+				builder.Append("…");
+				break;
+			}
 			string text = File.ReadAllText(file);
 			indices.Clear();
 			if (regex != null)
@@ -193,15 +201,9 @@ public class FindInFiles
 				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
 				builder.Append("|");
 
-				string lineNumber = (currentLineIndex + 1) + "";
+				string lineNumber = (currentLineIndex + 1) + " " + (index - offset + 1);
 				ranges.Add(new StyleRange(builder.Length, lineNumber.Length, Ds.DecVal.index));
 				builder.Append(lineNumber);
-
-				builder.Append(" ");
-
-				string charNumber = (index - offset + 1) + "";
-				ranges.Add(new StyleRange(builder.Length, charNumber.Length, Ds.DecVal.index));
-				builder.Append(charNumber);
 
 				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
 				builder.Append("| ");
@@ -226,27 +228,33 @@ public class FindInFiles
 			}
 		}
 
-		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
+		Buffer buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
 		buffer.showEncoding = false;
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(builder.ToString());
-		buffer.Controller.SetStyleRanges(ranges);
+		LineArray lines = buffer.Controller.Lines;
+		int counter = 0;
+		foreach (StyleRange range in ranges)
+		{
+			if (isCanceled && counter++ > 54)
+				break;
+			lines.SetStyleRange(range);
+		}
 		buffer.additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		mainForm.Invoke(new Setter(ShowBuffer));
+		this.buffer = buffer;
+		mainForm.Invoke(new Setter(CloseAlert));
 		return null;
 	}
 	
-	private void ShowBuffer()
+	private void CloseAlert()
 	{
-		mainForm.Enabled = true;
+		alert.forcedClosing = true;
 		alert.Close();
-		if (buffer != null)
-			mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 	}
 
 	private bool ExecuteEnter(Controller controller)
