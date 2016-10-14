@@ -86,69 +86,74 @@ public class FindInFiles
 	
 	private void OnCanceled()
 	{
-		isCanceled = true;
+		isStopped = true;
 	}
 	
-	private bool isCanceled;
+	private bool isStopped;
 	private int tabSize;
-	private Line line;
 	private LineArray lines;
 	
-	private void NewLine()
+	private void AddLine(string text, Ds ds)
 	{
-		if (line != null)
-		{
-			line.chars.Add(new Char('\n', 0));
-			lines.AddLineUnsafely(line);
-			line = null;
-		}
-	}
-	
-	private void AddText(string text, Ds ds)
-	{
-		if (line == null)
-		{
-			line = new Line();
-			line.tabSize = tabSize;
-		}
+		Line line = new Line();
+		line.tabSize = tabSize;
+		line.chars.Capacity = text.Length + 1;
 		short style = ds.index;
 		for (int i = 0; i < text.Length; i++)
 		{
 			line.chars.Add(new Char(text[i], style));
 		}
+		line.chars.Add(new Char('\n', 0));
+		lines.AddLineUnsafely(line);
 	}
 	
-	private void AddText(string text, Ds ds, int index, int length, Ds markDs)
+	private void AddLine(string path, string position, string text, int lineIndex, int lineLength, int sublineIndex, int sublineLength)
 	{
-		if (line == null)
+		Line line = new Line();
+		line.tabSize = tabSize;
+		line.chars.Capacity = path.Length + 1 + position.Length + 1 + lineLength + 1;
+		short style;
+		style = Ds.String.index;
+		for (int i = 0; i < path.Length; i++)
 		{
-			line = new Line();
-			line.tabSize = buffer.Controller.Lines.tabSize;
+			line.chars.Add(new Char(path[i], style));
 		}
-		short style = ds.index;
-		if (index > text.Length)
-			index = text.Length;
-		for (int i = 0; i < index; i++)
+		line.chars.Add(new Char('|', Ds.Operator.index));
+		style = Ds.DecVal.index;
+		for (int i = 0; i < position.Length; i++)
+		{
+			line.chars.Add(new Char(position[i], style));
+		}
+		line.chars.Add(new Char('|', Ds.Operator.index));
+		style = Ds.Keyword.index;
+		int index0 = lineIndex;
+		int index1 = lineIndex + sublineIndex;
+		int index2 = lineIndex + sublineIndex + sublineLength;
+		int index3 = lineIndex + lineLength;
+		for (int i = index0; i < index1; i++)
+		{
+			line.chars.Add(new Char(text[i], 0));
+		}
+		for (int i = index1; i < index2; i++)
 		{
 			line.chars.Add(new Char(text[i], style));
 		}
-		short markStyle = markDs.index;
-		int index2 = index + length;
-		if (index2 > text.Length)
-			index2 = text.Length;
-		for (int i = index; i < index2; i++)
+		for (int i = index2; i < index3; i++)
 		{
-			line.chars.Add(new Char(text[i], markStyle));
+			line.chars.Add(new Char(text[i], 0));
 		}
-		for (int i = index2; i < text.Length; i++)
-		{
-			line.chars.Add(new Char(text[i], style));
-		}
+		line.chars.Add(new Char('\n', 0));
+		lines.AddLineUnsafely(line);
 	}
 
-	private string Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
+	private void Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
 	{
 		positions = new List<Position>();
+		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
+		buffer.showEncoding = false;
+		buffer.Controller.isReadonly = true;
+		lines = buffer.Controller.Lines;
+		lines.ClearAllUnsafely();
 
 		bool needCutCurrent = false;
 		if (string.IsNullOrEmpty(filter))
@@ -165,28 +170,40 @@ public class FindInFiles
 		}
 		catch (System.Exception e)
 		{
-			return "Error: File list reading error: " + e.Message;
+			AddLine("Error: File list reading error: " + e.Message, Ds.Error);
+			files = new string[0];
 		}
-		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
-		buffer.showEncoding = false;
-		buffer.Controller.isReadonly = true;
-		lines = buffer.Controller.Lines;
-		lines.ClearAllUnsafely();
+		
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
 		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
-		int matchesCount = 0;
+		int remainsMatchesCount = 10000000;
+		string stopReason = null;
 		foreach (string file in files)
 		{
-			if (isCanceled)
+			if (isStopped)
 			{
-				NewLine();
-				AddText("…", Ds.Normal);
-				NewLine();
-				AddText("STOPPED", Ds.Error);
+				if (stopReason == null)
+					stopReason = "STOPPED";
 				break;
 			}
-			string text = File.ReadAllText(file);
+			string text = null;
+			try
+			{
+				text = File.ReadAllText(file);
+			}
+			catch (IOException e)
+			{
+				--remainsMatchesCount;
+				if (remainsMatchesCount < 0)
+				{
+					isStopped = true;
+					stopReason = "TOO MANY LINES";
+					break;
+				}
+				AddLine(file + ": " + e.Message, Ds.Error);
+				continue;
+			}
 			indices.Clear();
 			if (regex != null)
 			{
@@ -252,22 +269,13 @@ public class FindInFiles
 					}
 				}
 				
-				++matchesCount;
-				if (matchesCount > 200000)
+				--remainsMatchesCount;
+				if (remainsMatchesCount < 0)
 				{
-					NewLine();
-					AddText("…", Ds.Normal);
-					NewLine();
-					AddText("TOO MANY MATCHES", Ds.Error);
-					isCanceled = true;
+					isStopped = true;
+					stopReason =  "TOO MANY MATCHES";
 					break;
 				}
-
-				NewLine();
-				AddText(path, Ds.String);
-				AddText("|", Ds.Operator);
-				AddText((currentLineIndex + 1) + " " + (index - offset + 1), Ds.DecVal);
-				AddText("|", Ds.Operator);
 
 				int trimOffset = 0;
 				int rightTrimOffset = 0;
@@ -279,15 +287,29 @@ public class FindInFiles
 				if (trimOffset == 0)
 				{
 					int whitespaceLength = CommonHelper.GetFirstSpaces(text, offset, lineLength - rightTrimOffset);
-					if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
+					if (whitespaceLength > 0 && whitespaceLength <= index - offset)
 						trimOffset = whitespaceLength;
 				}
-				string line = text.Substring(offset + trimOffset, lineLength - trimOffset - rightTrimOffset);
-				AddText(line, Ds.Normal, index - offset - trimOffset, length, Ds.Keyword);
 				positions.Add(new Position(file, index, index + length));
+				
+				int index0 = offset + trimOffset;
+				int length0 = lineLength - trimOffset - rightTrimOffset;
+				AddLine(path, (currentLineIndex + 1) + " " + (index - offset + 1), text, index0, length0, index - offset - trimOffset, length);
 			}
 		}
-		NewLine();
+		if (isStopped)
+		{
+			AddLine("…", Ds.Normal);
+			AddLine(stopReason, Ds.Error);
+		}
+		if (lines.LinesCount == 0)
+		{
+			lines.AddLineUnsafely(new Line());
+		}
+		else
+		{
+			lines.CutLastLineBreakUnsafely();
+		}
 		buffer.additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
@@ -295,7 +317,6 @@ public class FindInFiles
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 		mainForm.Invoke(new Setter(CloseAlert));
-		return null;
 	}
 	
 	private void CloseAlert()

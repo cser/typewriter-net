@@ -118,6 +118,21 @@ namespace MulticaretEditor
 			AddValue(line);
 			charsCount += line.chars.Count;
 		}
+		
+		public void CutLastLineBreakUnsafely()
+		{
+			Line line = GetValue(LinesCount - 1);
+			if (line.chars[line.chars.Count - 1].c == '\n' || line.chars[line.chars.Count - 1].c == '\r')
+			{
+				line.chars.RemoveAt(line.chars.Count - 1);
+				--charsCount;
+			}
+			if (line.chars[line.chars.Count - 1].c == '\n' || line.chars[line.chars.Count - 1].c == '\r')
+			{
+				line.chars.RemoveAt(line.chars.Count - 1);
+				--charsCount;
+			}
+		}
 
 		public string cachedText;
 
