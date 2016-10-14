@@ -42,6 +42,18 @@ namespace MulticaretEditor
 			return text.Length;
 		}
 		
+		public static int GetFirstSpaces(string text, int start, int length)
+		{
+			int end = start + length;
+			for (int i = start; i < end; i++)
+			{
+				char c = text[i];
+				if (c != ' ' && c != '\t')
+					return i - start;
+			}
+			return length;
+		}
+		
 		public static string GetShortText(string text, int maxLength)
 		{
 			if (text == null || text.Length <= maxLength)

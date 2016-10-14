@@ -37,7 +37,7 @@ public class FindInFiles
 		}
 	}
 
-	private const int MaxPartChars = 150;
+	private const int MaxPartChars = 100;
 
 	private MainForm mainForm;
 	private AlertForm alert;
@@ -69,6 +69,7 @@ public class FindInFiles
 		}
 		alert = new AlertForm(mainForm, OnCanceled);
 		
+		tabSize = mainForm.Settings.tabSize.Value;
 		thread = new Thread(
 			new ThreadStart(delegate()
 			{
@@ -89,7 +90,7 @@ public class FindInFiles
 	}
 	
 	private bool isCanceled;
-	private bool newLine = true;
+	private int tabSize;
 	private Line line;
 	private LineArray lines;
 	
@@ -108,7 +109,7 @@ public class FindInFiles
 		if (line == null)
 		{
 			line = new Line();
-			line.tabSize = buffer.Controller.Lines.tabSize;
+			line.tabSize = tabSize;
 		}
 		short style = ds.index;
 		for (int i = 0; i < text.Length; i++)
@@ -125,12 +126,16 @@ public class FindInFiles
 			line.tabSize = buffer.Controller.Lines.tabSize;
 		}
 		short style = ds.index;
+		if (index > text.Length)
+			index = text.Length;
 		for (int i = 0; i < index; i++)
 		{
 			line.chars.Add(new Char(text[i], style));
 		}
 		short markStyle = markDs.index;
 		int index2 = index + length;
+		if (index2 > text.Length)
+			index2 = text.Length;
 		for (int i = index; i < index2; i++)
 		{
 			line.chars.Add(new Char(text[i], markStyle));
@@ -162,8 +167,6 @@ public class FindInFiles
 		{
 			return "Error: File list reading error: " + e.Message;
 		}
-		bool first = true;
-		StringBuilder builder = new StringBuilder();
 		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
 		buffer.showEncoding = false;
 		buffer.Controller.isReadonly = true;
@@ -248,9 +251,6 @@ public class FindInFiles
 							offset = rIndex + 1;
 					}
 				}
-				if (!first)
-					builder.AppendLine();
-				first = false;
 				
 				++matchesCount;
 				if (matchesCount > 200000)
@@ -276,14 +276,14 @@ public class FindInFiles
 					trimOffset = index - offset - MaxPartChars;
 				if (lineLength - index + offset - length - MaxPartChars > 0)
 					rightTrimOffset = lineLength - index + offset - length - MaxPartChars;
-				string line = text.Substring(offset, lineLength);
 				if (trimOffset == 0)
 				{
-					int whitespaceLength = CommonHelper.GetFirstSpaces(line);
+					int whitespaceLength = CommonHelper.GetFirstSpaces(text, offset, lineLength - rightTrimOffset);
 					if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
 						trimOffset = whitespaceLength;
 				}
-				AddText(line, Ds.Normal, index - offset, length, Ds.Keyword);
+				string line = text.Substring(offset + trimOffset, lineLength - trimOffset - rightTrimOffset);
+				AddText(line, Ds.Normal, index - offset - trimOffset, length, Ds.Keyword);
 				positions.Add(new Position(file, index, index + length));
 			}
 		}
