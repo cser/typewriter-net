@@ -107,6 +107,17 @@ namespace MulticaretEditor
 			cachedText = null;
 			wwSizeX = 0;
 		}
+		
+		public void ClearAllUnsafely()
+		{
+			ClearValues();
+		}
+		
+		public void AddLineUnsafely(Line line)
+		{
+			AddValue(line);
+			charsCount += line.chars.Count;
+		}
 
 		public string cachedText;
 

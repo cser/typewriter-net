@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -90,12 +89,62 @@ public class FindInFiles
 	}
 	
 	private bool isCanceled;
+	private bool newLine = true;
+	private Line line;
+	private LineArray lines;
+	
+	private void NewLine()
+	{
+		if (line != null)
+		{
+			line.chars.Add(new Char('\n', 0));
+			lines.AddLineUnsafely(line);
+			line = null;
+		}
+	}
+	
+	private void AddText(string text, Ds ds)
+	{
+		if (line == null)
+		{
+			line = new Line();
+			line.tabSize = buffer.Controller.Lines.tabSize;
+		}
+		short style = ds.index;
+		for (int i = 0; i < text.Length; i++)
+		{
+			line.chars.Add(new Char(text[i], style));
+		}
+	}
+	
+	private void AddText(string text, Ds ds, int index, int length, Ds markDs)
+	{
+		if (line == null)
+		{
+			line = new Line();
+			line.tabSize = buffer.Controller.Lines.tabSize;
+		}
+		short style = ds.index;
+		for (int i = 0; i < index; i++)
+		{
+			line.chars.Add(new Char(text[i], style));
+		}
+		short markStyle = markDs.index;
+		int index2 = index + length;
+		for (int i = index; i < index2; i++)
+		{
+			line.chars.Add(new Char(text[i], markStyle));
+		}
+		for (int i = index2; i < text.Length; i++)
+		{
+			line.chars.Add(new Char(text[i], style));
+		}
+	}
 
 	private string Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
 	{
 		positions = new List<Position>();
 
-		StringBuilder builder = new StringBuilder();
 		bool needCutCurrent = false;
 		if (string.IsNullOrEmpty(filter))
 			filter = "*";
@@ -109,22 +158,29 @@ public class FindInFiles
 		{
 			files = Directory.GetFiles(directory, filter, SearchOption.AllDirectories);
 		}
-		catch (Exception e)
+		catch (System.Exception e)
 		{
 			return "Error: File list reading error: " + e.Message;
 		}
 		bool first = true;
-		List<StyleRange> ranges = new List<StyleRange>();
+		StringBuilder builder = new StringBuilder();
+		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
+		buffer.showEncoding = false;
+		buffer.Controller.isReadonly = true;
+		lines = buffer.Controller.Lines;
+		lines.ClearAllUnsafely();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
 		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
+		int matchesCount = 0;
 		foreach (string file in files)
 		{
 			if (isCanceled)
 			{
-				if (!first)
-					builder.AppendLine();
-				builder.Append("…");
+				NewLine();
+				AddText("…", Ds.Normal);
+				NewLine();
+				AddText("STOPPED", Ds.Error);
 				break;
 			}
 			string text = File.ReadAllText(file);
@@ -171,7 +227,7 @@ public class FindInFiles
 						lineEnd = text.Length;
 						break;
 					}
-					int nrIndex = Math.Min(nIndex, rIndex);
+					int nrIndex = System.Math.Min(nIndex, rIndex);
 					if (nrIndex == -1)
 						nrIndex = nIndex != -1 ? nIndex : rIndex;
 					if (nrIndex > index)
@@ -195,18 +251,23 @@ public class FindInFiles
 				if (!first)
 					builder.AppendLine();
 				first = false;
+				
+				++matchesCount;
+				if (matchesCount > 200000)
+				{
+					NewLine();
+					AddText("…", Ds.Normal);
+					NewLine();
+					AddText("TOO MANY MATCHES", Ds.Error);
+					isCanceled = true;
+					break;
+				}
 
-				ranges.Add(new StyleRange(builder.Length, path.Length, Ds.String.index));
-				builder.Append(path);
-				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
-				builder.Append("|");
-
-				string lineNumber = (currentLineIndex + 1) + " " + (index - offset + 1);
-				ranges.Add(new StyleRange(builder.Length, lineNumber.Length, Ds.DecVal.index));
-				builder.Append(lineNumber);
-
-				ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
-				builder.Append("| ");
+				NewLine();
+				AddText(path, Ds.String);
+				AddText("|", Ds.Operator);
+				AddText((currentLineIndex + 1) + " " + (index - offset + 1), Ds.DecVal);
+				AddText("|", Ds.Operator);
 
 				int trimOffset = 0;
 				int rightTrimOffset = 0;
@@ -222,31 +283,17 @@ public class FindInFiles
 					if (whitespaceLength > 0 && whitespaceLength <= (index - offset))
 						trimOffset = whitespaceLength;
 				}
-				ranges.Add(new StyleRange(builder.Length + index - offset - trimOffset, length, Ds.Keyword.index));
-				builder.Append(line, trimOffset, line.Length - trimOffset - rightTrimOffset);
+				AddText(line, Ds.Normal, index - offset, length, Ds.Keyword);
 				positions.Add(new Position(file, index, index + length));
 			}
 		}
-
-		Buffer buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
-		buffer.showEncoding = false;
-		buffer.Controller.isReadonly = true;
-		buffer.Controller.InitText(builder.ToString());
-		LineArray lines = buffer.Controller.Lines;
-		int counter = 0;
-		foreach (StyleRange range in ranges)
-		{
-			if (isCanceled && counter++ > 54)
-				break;
-			lines.SetStyleRange(range);
-		}
+		NewLine();
 		buffer.additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("F&ind\\Navigate to finded", ExecuteEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		this.buffer = buffer;
 		mainForm.Invoke(new Setter(CloseAlert));
 		return null;
 	}
