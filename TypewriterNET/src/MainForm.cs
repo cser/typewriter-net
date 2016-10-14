@@ -134,13 +134,14 @@ public class MainForm : Form
 	{
 		List<FileArg> filesToLoad;
 		int lineNumber;
-		ApplyArgs(args, out filesToLoad, out lineNumber, out tempFilePostfix);
+		string configFilePostfix;
+		ApplyArgs(args, out filesToLoad, out lineNumber, out tempFilePostfix, out configFilePostfix);
 
 		string appDataPath = Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
 		if (!Directory.Exists(appDataPath))
 			Directory.CreateDirectory(appDataPath);
-		AppPath.Init(Application.StartupPath, appDataPath);
+		AppPath.Init(Application.StartupPath, appDataPath, configFilePostfix);
 
 		BuildMenu();
 
@@ -237,11 +238,12 @@ public class MainForm : Form
 	
 	private int openFileLine = 0;
 
-	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix)
+	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
 	{
 	    lineNumber = 0;
 		filesToLoad = new List<FileArg>();
 		tempFilePostfix = null;
+		configFilePostfix = null;
 		for (int i = 0; true;)
 		{
 			if (i < args.Length && args[i] == "-connect")
@@ -274,6 +276,20 @@ public class MainForm : Form
 				else
 				{
 					Console.Error.WriteLine("-temp requires tempFilePostfix");
+					break;
+				}
+			}
+			else if (i < args.Length && args[i] == "-config")
+			{
+				i++;
+				if (i < args.Length && !args[i].StartsWith("-"))
+				{
+					configFilePostfix = args[i];
+					i++;
+				}
+				else
+				{
+					Console.Error.WriteLine("-config requires configFilePostfix");
 					break;
 				}
 			}
@@ -310,7 +326,8 @@ public class MainForm : Form
 	{
 	    return "<fileName>\n" +
             "-connect <fictiveFileName> <httpServer>\n" +
-            "-temp <tempFilePostfix> - for using different temp settings\n" +
+            "-temp <tempFilePostfix> - use different temp settings\n" +
+            "-config <tempFilePostfix> - use different config\n" +
             "-help\n" + 
             "-line=<line>";
 	}

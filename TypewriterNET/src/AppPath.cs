@@ -29,25 +29,25 @@ public struct AppPath
 	private static AppPath configPath;
 	public static AppPath ConfigPath { get { return configPath; } }
 
-	public static void Init(string startupDir, string appDataDir)
+	public static void Init(string startupDir, string appDataDir, string postfix)
 	{
 		AppPath.startupDir = startupDir;
 		AppPath.appDataDir = appDataDir;
 		AppPath.templatesDir = Path.Combine(startupDir, Templates);
-		AppPath.syntaxDir = new AppPath(Syntax);
-		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"));
-		AppPath.schemesDir = new AppPath(Schemes);
-		AppPath.configPath = new AppPath("tw-config.xml");
+		AppPath.syntaxDir = new AppPath(Syntax, null);
+		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"), null);
+		AppPath.schemesDir = new AppPath(Schemes, null);
+		AppPath.configPath = new AppPath("tw-config.xml", !string.IsNullOrEmpty(postfix) ? "tw-config-" + postfix + ".xml" : null);
 	}
 
 	public readonly string local;
 	public readonly string appDataPath;
 	public readonly string startupPath;
 
-	public AppPath(string local)
+	public AppPath(string local, string postfixed)
 	{
 		this.local = local;
-		appDataPath = Path.Combine(appDataDir, local);
+		appDataPath = Path.Combine(appDataDir, postfixed != null ? postfixed : local);
 		startupPath = Path.Combine(startupDir, local);
 	}
 
