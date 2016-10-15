@@ -182,8 +182,16 @@ public class FindInFiles
 		lines.ClearAllUnsafely();
 		
 		bool needCutCurrent = false;
+		FileNameFilter hardFilter = null;
 		if (string.IsNullOrEmpty(filter))
+		{
 			filter = "*";
+		}
+		else if (filter.Contains(";"))
+		{
+			hardFilter = new FileNameFilter(filter);
+			filter = "*";
+		}
 		if (string.IsNullOrEmpty(directory))
 		{
 			directory = Directory.GetCurrentDirectory();
@@ -213,6 +221,12 @@ public class FindInFiles
 				if (stopReason == null)
 					stopReason = "STOPPED";
 				break;
+			}
+			if (hardFilter != null)
+			{
+				string name = Path.GetFileName(file);
+				if (!hardFilter.Match(name))
+					continue;
 			}
 			string text = null;
 			try
@@ -355,6 +369,8 @@ public class FindInFiles
 
 	private bool ExecuteEnter(Controller controller)
 	{
+		if (positions.Count == 0)
+			return true;
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Position position = positions[place.iLine];
 		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.position0, position.position1);
