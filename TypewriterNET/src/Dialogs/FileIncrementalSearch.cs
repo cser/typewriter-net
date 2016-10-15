@@ -31,6 +31,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
 
+	private string filter;
 	private Thread thread;
 	private string[] files;
 	private string error;
@@ -39,6 +40,17 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	{
 		files = null;
 		error = null;
+		filter = MainForm.Settings.findInFilesFilter.Value;
+		FileNameFilter hardFilter = null;
+		if (string.IsNullOrEmpty(filter))
+		{
+			filter = "*";
+		}
+		else if (filter.Contains(";"))
+		{
+			hardFilter = new FileNameFilter(filter);
+			filter = "*";
+		}
 		thread = new Thread(new ThreadStart(ScanFiles));
 		thread.Start();
 		thread.Join(new TimeSpan(0, 0, MainForm.Settings.fileIncrementalSearchTimeout.Value));
@@ -59,21 +71,24 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		}
 		filesList.Clear();
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
-		foreach (string file in files)
+		for (int i = 0; i < files.Length; ++i)
 		{
-			string path = file;
-			if (path.StartsWith(currentDirectory))
-				path = file.Substring(currentDirectory.Length);
-			filesList.Add(path);
+			string file = files[i];
+			if (file.StartsWith(currentDirectory))
+				file = file.Substring(currentDirectory.Length);
+			if (hardFilter != null)
+			{
+				string name = Path.GetFileName(file);
+				if (!hardFilter.Match(name))
+					continue;
+			}
+			filesList.Add(file);
 		}
 		return true;
 	}
 	
 	private void ScanFiles()
 	{
-		string filter = MainForm.Settings.findInFilesFilter.Value;
-		if (string.IsNullOrEmpty(filter))
-			filter = "*";
 		try
 		{
 			files = Directory.GetFiles(Directory.GetCurrentDirectory(), filter, SearchOption.AllDirectories);
