@@ -1,4 +1,3 @@
-- spacesInsteadTabs by filename pattern
 - execute on file save by pattern
 - omnisharp rename
 - omnisharp build

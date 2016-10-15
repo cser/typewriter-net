@@ -15,7 +15,7 @@ public class Settings
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
-	public readonly Properties.Bool spacesInsteadTabs = new Properties.Bool("spacesInsteadTabs", false);
+	public readonly Properties.BoolList spacesInsteadTabs = new Properties.BoolList("spacesInsteadTabs", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
@@ -206,7 +206,7 @@ public class Settings
 		set { parsedScheme = value; }
 	}
 
-	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode)
+	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value;
@@ -214,7 +214,7 @@ public class Settings
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.Value;
-		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
@@ -229,7 +229,7 @@ public class Settings
 		textBox.MarkBracket = markBracket.Value;
 	}
 
-	public void ApplySimpleParameters(MulticaretTextBox textBox)
+	public void ApplySimpleParameters(MulticaretTextBox textBox, Buffer buffer)
 	{
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
@@ -237,13 +237,18 @@ public class Settings
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.Value;
-		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+	}
+	
+	public void ApplyOnlyFileParameters(MulticaretTextBox textBox, Buffer buffer)
+	{
+	    textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 	}
 
 	public void ApplyToLabel(MonospaceLabel label)

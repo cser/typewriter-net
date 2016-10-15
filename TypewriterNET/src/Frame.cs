@@ -156,7 +156,7 @@ public class Frame : AFrame
 
 		if (phase == UpdatePhase.Raw)
 		{
-			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None);
+			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None, buffer);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
@@ -172,6 +172,10 @@ public class Frame : AFrame
 		else if (phase == UpdatePhase.HighlighterChange)
 		{
 			UpdateHighlighter();
+		}
+		else if (phase == UpdatePhase.FileSaved)
+		{
+		    settings.ApplyOnlyFileParameters(textBox, buffer);
 		}
 
 		if (buffer != null && buffer.onUpdateSettings != null)
@@ -248,7 +252,7 @@ public class Frame : AFrame
 		if (additionBeforeKeyMap != null)
 			textBox.KeyMap.AddBefore(additionBeforeKeyMap);
 		if (settings != null && buffer != null)
-			settings.ApplyParameters(textBox, buffer.settingsMode);
+			settings.ApplyParameters(textBox, buffer.settingsMode, buffer);
 		UpdateHighlighter();
 		if (buffer != null && buffer.onSelected != null)
 			buffer.onSelected(buffer);

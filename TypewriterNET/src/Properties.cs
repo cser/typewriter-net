@@ -486,6 +486,124 @@ public class Properties
 			value = defaultValue;
 		}
 	}
+	
+	public class BoolInfo
+	{
+		public string pattern;
+		public bool value;
+		public FileNameFilter filter;
+		
+		public BoolInfo(bool value, string pattern)
+		{
+			this.pattern = pattern;
+			this.value = value;
+			if (this.pattern != null)
+			{
+				filter = new FileNameFilter(pattern);
+			}
+		}
+	}
+	
+	public class BoolList : Property
+	{
+		private bool defaultValue;
+		
+		public BoolList(string name, bool value) : base(name)
+		{
+			defaultValue = value;
+			this.value.Add(new BoolInfo(defaultValue, null));
+		}
+
+		private readonly RWList<BoolInfo> value = new RWList<BoolInfo>();
+		public IRList<BoolInfo> Value { get { return value; } }
+		public override string DefaultValue { get { return defaultValue ? "true" : "false"; } }
+		
+		public bool GetValue(Buffer buffer)
+		{
+			string name = buffer != null ? buffer.Name : null;
+			BoolInfo info = null;
+			if (name != null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					BoolInfo infoI = value[i];
+					if (infoI.filter != null && infoI.filter.Match(name))
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			if (info == null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					BoolInfo infoI = value[i];
+					if (infoI.filter == null)
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			return info.value;
+		}
+		
+		public override string PossibleValues
+		{
+			get
+			{
+				string text = "";
+				foreach (BoolInfo info in value)
+				{
+					if (text != "")
+						text += "\n";
+					text += "=" + (info.value ? "true" : "false") + (info.pattern != null ? ":" + info.pattern : "");
+				}
+				return text;
+			}
+		}
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (BoolInfo info in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append((info.value ? "true" : "false") + ":" + info.pattern);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == subvalue)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			this.value.Add(new BoolInfo(value != null && (value == "1" || value.ToLowerInvariant() == "true"), subvalue));
+			return null;
+		}
+
+		public override string Type { get { return "bool"; } }		
+		public override string ShowedName { get { return name + "[:<filter>]"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
+			value.Add(new BoolInfo(defaultValue, null));
+		}
+	}
 
 	public class Font : Property
 	{

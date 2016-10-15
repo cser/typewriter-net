@@ -127,7 +127,7 @@ public class CommandDialog : ADialog
 	{
 		if (phase == UpdatePhase.Raw)
 		{
-			settings.ApplySimpleParameters(textBox);
+			settings.ApplySimpleParameters(textBox, null);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)

@@ -1022,6 +1022,7 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
+		frames.UpdateSettings(settings, UpdatePhase.FileSaved);
 		string fullPath = buffer.FullPath.ToLowerInvariant();
 		string syntaxDir = Path.GetDirectoryName(buffer.FullPath).ToLowerInvariant();
 		if (fullPath == AppPath.ConfigPath.GetCurrentPath().ToLowerInvariant() ||

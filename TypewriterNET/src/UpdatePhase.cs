@@ -5,5 +5,6 @@ public enum UpdatePhase
 	HighlighterChange,
 	TempSettingsLoaded,
 	ChangeCurrentDirectory,
-	FindParams
+	FindParams,
+	FileSaved
 }
