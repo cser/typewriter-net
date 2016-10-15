@@ -64,6 +64,7 @@ public class Settings
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
+	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
 
 	private Setter onChange;
 
@@ -125,6 +126,7 @@ public class Settings
 		Add(omnisharpPort);
 		Add(omnisharpConsole);
 		Add(checkContentBeforeReloading);
+		Add(fileIncrementalSearchTimeout);
 	}
 
 	public void DispatchChange()

@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
@@ -30,19 +31,30 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
 
+	private Thread thread;
+	private string[] files;
+	private string error;
+	
 	override protected bool Prebuild()
 	{
-		string filter = MainForm.Settings.findInFilesFilter.Value;
-		if (string.IsNullOrEmpty(filter))
-			filter = "*";
-		string[] files = null;
-		try
+		files = null;
+		error = null;
+		thread = new Thread(new ThreadStart(ScanFiles));
+		thread.Start();
+		thread.Join(new TimeSpan(0, 0, MainForm.Settings.fileIncrementalSearchTimeout.Value));
+		if (error != null)
 		{
-			files = Directory.GetFiles(Directory.GetCurrentDirectory(), filter, SearchOption.AllDirectories);
+			MainForm.Dialogs.ShowInfo("Error", error);
+			return false;
 		}
-		catch (Exception e)
+		else if (files == null)
 		{
-			MainForm.Dialogs.ShowInfo("Error", "File list reading error: " + e.Message);
+			MainForm.Dialogs.ShowInfo(
+				"Error",
+				"File system scanning timeout (" +
+				MainForm.Settings.fileIncrementalSearchTimeout.name + "=" + MainForm.Settings.fileIncrementalSearchTimeout.Value +
+				")"
+			);
 			return false;
 		}
 		filesList.Clear();
@@ -55,6 +67,21 @@ public class FileIncrementalSearch : IncrementalSearchBase
 			filesList.Add(path);
 		}
 		return true;
+	}
+	
+	private void ScanFiles()
+	{
+		string filter = MainForm.Settings.findInFilesFilter.Value;
+		if (string.IsNullOrEmpty(filter))
+			filter = "*";
+		try
+		{
+			files = Directory.GetFiles(Directory.GetCurrentDirectory(), filter, SearchOption.AllDirectories);
+		}
+		catch (Exception e)
+		{
+			error = "File list reading error: " + e.Message;
+		}
 	}
 
 	override protected string GetVariantsText()
