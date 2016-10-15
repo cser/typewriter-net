@@ -43,6 +43,7 @@ public class FindInFiles
 	private AlertForm alert;
 	private List<Position> positions;
 	private Buffer buffer;
+	private Buffer finishBuffer;
 	private Thread thread;
 
 	public FindInFiles(MainForm mainForm)
@@ -79,17 +80,42 @@ public class FindInFiles
 		thread.Start();
 				
 		alert.ShowDialog(mainForm);
-		if (buffer != null)
-			mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
+		if (finishBuffer != null)
+			mainForm.ShowConsoleBuffer(MainForm.FindResultsId, finishBuffer);
 		return null;
 	}
 	
-	private void OnCanceled()
+	private bool OnCanceled()
 	{
 		isStopped = true;
+		if (!fsScanComplete)
+		{
+			thread.Abort();
+			Buffer buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
+			buffer.showEncoding = false;
+			buffer.Controller.isReadonly = true;
+			buffer.Controller.Lines.ClearAllUnsafely();
+			{
+				string text = "FILE SYSTEM SCANNING STOPPED";
+				Line line = new Line();
+				line.tabSize = tabSize;
+				line.chars.Capacity = text.Length + 1;
+				short style = Ds.Error.index;
+				for (int i = 0; i < text.Length; i++)
+				{
+					line.chars.Add(new Char(text[i], style));
+				}
+				line.chars.Add(new Char('\n', 0));
+				buffer.Controller.Lines.AddLineUnsafely(line);
+			}
+			finishBuffer = buffer;
+			return true;
+		}
+		return false;
 	}
 	
 	private bool isStopped;
+	private bool fsScanComplete;
 	private int tabSize;
 	private LineArray lines;
 	
@@ -154,7 +180,7 @@ public class FindInFiles
 		buffer.Controller.isReadonly = true;
 		lines = buffer.Controller.Lines;
 		lines.ClearAllUnsafely();
-
+		
 		bool needCutCurrent = false;
 		if (string.IsNullOrEmpty(filter))
 			filter = "*";
@@ -173,11 +199,12 @@ public class FindInFiles
 			AddLine("Error: File list reading error: " + e.Message, Ds.Error);
 			files = new string[0];
 		}
+		fsScanComplete = true;
 		
 		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
 		List<IndexAndLength> indices = new List<IndexAndLength>();
 		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
-		int remainsMatchesCount = 10000000;
+		int remainsMatchesCount = 2000000;
 		string stopReason = null;
 		foreach (string file in files)
 		{
@@ -316,6 +343,7 @@ public class FindInFiles
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
+		finishBuffer = buffer;
 		mainForm.Invoke(new Setter(CloseAlert));
 	}
 	

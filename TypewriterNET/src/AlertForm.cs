@@ -4,11 +4,12 @@ using MulticaretEditor;
 
 public partial class AlertForm : Form
 {
-	private Setter onCanceled;
+	private Getter<bool> onCanceled;
 	private MainForm mainForm;
+	private Label label;
 	private Button button;
 	
-	public AlertForm(MainForm mainForm, Setter onCanceled)
+	public AlertForm(MainForm mainForm, Getter<bool> onCanceled)
 	{
 		this.mainForm = mainForm;
 		this.onCanceled = onCanceled;
@@ -19,6 +20,12 @@ public partial class AlertForm : Form
 		Height = 100;
 		ControlBox = false;
 		FormBorderStyle = FormBorderStyle.FixedSingle;
+		
+		label = new Label();
+		label.Text = "Wait...";
+		label.Dock = DockStyle.Fill;
+		label.Visible = false;
+		Controls.Add(label);
 		
 		button = new Button();
 		button.Text = "Stop search";
@@ -44,14 +51,16 @@ public partial class AlertForm : Form
 		if (!forcedClosing)
 			e.Cancel = true;
 		button.Visible = false;
+		label.Visible = true;
 		if (onCanceled != null)
-			onCanceled();
+		{
+			if (onCanceled())
+				e.Cancel = false;
+		}
 	}
 
 	private void OnCancelClick(object sender, EventArgs e)
 	{
-		button.Visible = false;
-		if (onCanceled != null)
-			onCanceled();
+		Close();
 	}
 }
