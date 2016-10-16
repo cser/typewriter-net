@@ -24,7 +24,7 @@ public class SharpRenameAction
 		editorText = lastBuffer.Controller.Lines.GetText();		
 		place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.Left);
 		name = lastBuffer.Controller.GetWord(place);
-		if (!CommonHelper.IsIdentifier(name))
+		if (!CommonHelper.IsIdentifier(name) && place.iChar > 0)
 		{
 			Place place2 = place;
 			--place2.iChar;

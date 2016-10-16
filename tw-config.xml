@@ -5,7 +5,6 @@
 	<item name="f6Command" value="shortcut !C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:"/>
 	<item name="f7Command" value="!!C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release"/>
 	<item name="f8Command" value='!!"C:\Program Files (x86)\Git\bin\sh.exe" --login -i'/>
-	<item name="ctrlSpaceCommand" value='!!!echo "%w%"'/>
+	<item name="ctrlSpaceCommand" value='!!!!echo "%w%"'/>
 	<item name="omnisharpSln" value="." />
-	<item name="omnisharpConsole" value="true"/>
 </config>

@@ -94,6 +94,12 @@ public class Commander
 		else if (name.StartsWith("!!!"))
 		{
 			string commandText = text.Substring(3);
+			bool dontChangeFocus = false;
+			if (commandText.StartsWith("!"))
+			{
+				commandText = commandText.Substring(1);
+				dontChangeFocus = true;
+			}
 			if (ReplaceVars(ref commandText))
 			{
 				Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
@@ -122,6 +128,8 @@ public class Commander
 					infoText += output;
 				}
 				mainForm.Dialogs.ShowInfo(commandText, infoText);
+				if (dontChangeFocus && mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
 			}
 		}
 		else if (name.StartsWith("!!"))
@@ -283,6 +291,15 @@ public class Commander
 			{
 				Place place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret);
 				varValue = lastBuffer.Controller.GetWord(place);
+				if (varValue.Length > 0 && !char.IsLetterOrDigit(varValue[0]) && varValue[0] != '_' && place.iChar > 0)
+				{
+					--place.iChar;
+					string newValue = lastBuffer.Controller.GetWord(place);
+					if (varValue.Length > 0 && (char.IsLetterOrDigit(newValue[0]) || newValue[0] == '_'))
+					{
+						varValue = newValue;
+					}
+				}
 			}
 			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
 		}
@@ -300,9 +317,11 @@ public class Commander
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
 		table.NewRow();
-		table.Add("!!command").Add("*").Add("Execute without output capture");
+		table.Add("!!command").Add("*").Add("Run without output capture");
 		table.NewRow();
-		table.Add("!!!command").Add("*").Add("Execute with output into info panel");
+		table.Add("!!!command").Add("*").Add("Run with output to info panel");
+		table.NewRow();
+		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused");
 		table.NewRow();
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();
