@@ -1516,6 +1516,12 @@ public class MainForm : Form
 			new Frame().Create(nest);
 		nest.Frame.AddBuffer(buffer);
 	}
+	
+	public void MarkShowed(Buffer buffer)
+	{
+		if (buffer.FullPath != null)
+			tempSettings.MarkLoaded(buffer);
+	}
 
 	private Dictionary<string, Buffer> consoleBuffers = new Dictionary<string, Buffer>();
 

@@ -19,6 +19,12 @@ public class TempSettings
 	private MainForm mainForm;
 	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
+	private RecentlyStorage recently = new RecentlyStorage();
+	
+	public List<string> GetRecentlyFiles()
+	{
+		return recently.GetFiles();
+	}
 
 	public TempSettings(MainForm mainForm, Settings settings)
 	{
@@ -46,6 +52,7 @@ public class TempSettings
 		mainForm.Location = new Point(x, y);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
 		storage.Unserialize(state["storage"]);
+		recently.Unserialize(state["recently"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
 			{
@@ -89,6 +96,12 @@ public class TempSettings
 			if (mainForm.MainNest.Frame != null)
 				mainForm.MainNest.Frame.Focus();
 		}
+	}
+	
+	public void MarkLoaded(Buffer buffer)
+	{
+		if (buffer.FullPath != null)
+			recently.Add(buffer.FullPath);
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -197,6 +210,7 @@ public class TempSettings
 			}
 		}
 		state["storage"] = storage.Serialize();
+		state["recently"] = recently.Serialize();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();

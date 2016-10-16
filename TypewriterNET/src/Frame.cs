@@ -258,7 +258,11 @@ public class Frame : AFrame
 		if (buffer != null && buffer.onSelected != null)
 			buffer.onSelected(buffer);
 		if (Nest != null)
+		{
 			Nest.MainForm.UpdateTitle();
+			if (buffer != null && buffer.FullPath != null)
+				Nest.MainForm.MarkShowed(buffer);
+		}
 	}
 
 	public void UpdateHighlighter()

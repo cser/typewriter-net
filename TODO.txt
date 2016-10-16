@@ -3,4 +3,3 @@
 - omnisharp override completion
 - omnisharp move to element in file
 - states (saving, loading, removing from fuzzy search dialog)
-- file history (from fuzzy search)
