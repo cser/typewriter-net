@@ -1041,6 +1041,11 @@ public class MainForm : Form
 		{
 			ReloadSyntaxes();
 		}
+		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
+		if (info != null && !string.IsNullOrEmpty(info.command))
+		{
+			commander.Execute(info.command);
+		}
 	}
 
 	private bool DoExit(Controller controller)

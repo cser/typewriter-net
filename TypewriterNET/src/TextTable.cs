@@ -116,7 +116,15 @@ public class TextTable
 							string part = lineTexts[j];
 							if (needLine)
 							{
-								builder.Append(part.StartsWith("=") ? "   " : " | ");
+								if (part.StartsWith("="))
+								{
+									part = " " + part.Substring(1);
+									builder.Append(" = ");
+								}
+								else
+								{
+									builder.Append(" | ");
+								}
 							}
 							Splitted splitted = SplitSubline(part, colSizes[j]);
 							lineTexts[j] = splitted.tail;
