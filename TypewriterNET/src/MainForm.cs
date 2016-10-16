@@ -87,6 +87,12 @@ public class MainForm : Form
 		string name = buffer != null ? buffer.FullPath : null;
 		Text = Application.ProductName + (string.IsNullOrEmpty(name) ? "" : " - " + name);
 	}
+	
+	public void UpdateAfterFileRenamed()
+	{
+		frames.UpdateSettings(settings, UpdatePhase.FileSaved);
+		UpdateTitle();
+	}
 
 	public Buffer LastBuffer
 	{

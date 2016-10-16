@@ -706,14 +706,18 @@ public class FileTree
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
+				{
 					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				}
 				else if (nodeI.type == NodeType.File)
-					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				{
+					FileMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				}
 				if (!string.IsNullOrEmpty(renamePostfixed))
 				{
 				    if (File.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        File.Move(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
+				        FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
 				    }
 				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 				    {
@@ -721,7 +725,7 @@ public class FileTree
 				    }
 				}
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
 				mainForm.Log.WriteError("Move error", e.Message);
 				mainForm.Log.Open();
@@ -741,6 +745,14 @@ public class FileTree
 		return true;
 	}
 	
+	private void FileMove(string oldFile, string newFile)
+	{
+		File.Move(oldFile, newFile);
+		Buffer fileBuffer = mainForm.GetBuffer(oldFile);
+		if (fileBuffer != null)
+			fileBuffer.SetFile(newFile, Path.GetFileName(newFile));
+	}
+	
 	private bool DoInputNewFileName(string fileName)
 	{
 		if (string.IsNullOrEmpty(fileName))
@@ -752,9 +764,13 @@ public class FileTree
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
+				{
 					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				}
 				else if (nodeI.type == NodeType.File)
-					File.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				{
+					FileMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				}
 				if (!string.IsNullOrEmpty(renamePostfixed))
 				{
 				    if (File.Exists(nodeI.fullPath + renamePostfixed))
@@ -767,12 +783,13 @@ public class FileTree
 				    }
 				}
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
 				mainForm.Log.WriteError("Rename error", e.Message);
 				mainForm.Log.Open();
 			}
 		}
+		mainForm.UpdateAfterFileRenamed();
 		Reload();
 		return true;
 	}

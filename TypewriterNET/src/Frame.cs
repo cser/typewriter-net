@@ -175,6 +175,7 @@ public class Frame : AFrame
 		}
 		else if (phase == UpdatePhase.FileSaved)
 		{
+			tabBar.Invalidate();
 		    settings.ApplyOnlyFileParameters(textBox, buffer);
 		}
 
