@@ -735,7 +735,6 @@ public class Commander
 			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
 			if (errors != null)
 				mainForm.Dialogs.ShowInfo(name, errors);
-			mainForm.CheckFilesChanges();
 		}
 	}
 }

@@ -20,17 +20,30 @@ public class SharpRenameAction
 		this.mainForm = mainForm;
 		this.lastBuffer = lastBuffer;
 		this.tempSettings = tempSettings;
-		
+
+		editorText = lastBuffer.Controller.Lines.GetText();		
 		place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.Left);
-		editorText = lastBuffer.Controller.Lines.GetText();
 		name = lastBuffer.Controller.GetWord(place);
-		if (string.IsNullOrEmpty(name) || name.Trim() == "" || !Regex.IsMatch(name, @"[\w_][\w\d_]*"))
+		if (!IsCorrectName(name))
 		{
-			mainForm.Dialogs.ShowInfo("Error", "Incorrect name: " + name);
-			return;
+			Place place2 = place;
+			--place2.iChar;
+			string name2 = lastBuffer.Controller.GetWord(place2);
+			if (!IsCorrectName(name2))
+			{
+				mainForm.Dialogs.ShowInfo("Error", "Incorrect name: " + name);
+				return;
+			}			
+			place = place2;
+			name = name2;
 		}
 		
 		mainForm.Dialogs.OpenInput("Rename identificator", name, DoInputNewName);
+	}
+	
+	private bool IsCorrectName(string name)
+	{
+		return !string.IsNullOrEmpty(name) && name.Trim() != "" && Regex.IsMatch(name, @"^[\w_][\w\d_]*$");
 	}
 	
 	public class Change
@@ -44,7 +57,8 @@ public class SharpRenameAction
 		if (newName == name)
 			return true;
 		mainForm.Dialogs.CloseInput();
-		if (!Regex.IsMatch(newName, @"[\w_][\w\d_]*"))
+		mainForm.Log.WriteInfo("newName:", newName);
+		if (!IsCorrectName(newName))
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Incorrect new name: " + newName);
 			return true;
@@ -100,6 +114,14 @@ public class SharpRenameAction
 					File.WriteAllText(change.FileName, change.Buffer);
 				else
 					File.WriteAllText(change.FileName, change.Buffer, encodingPair.encoding);
+				Buffer buffer = mainForm.GetBuffer(change.FileName);
+				if (buffer != null)
+				{
+					Place savedPlace = buffer.Controller.Lines.PlaceOf(buffer.Controller.LastSelection.caret);
+					buffer.Controller.SelectAll();
+					buffer.Controller.InsertText(change.Buffer);
+					buffer.Controller.PutCursor(savedPlace, false);
+				}
 			}
 			catch (Exception e)
 			{
@@ -111,6 +133,7 @@ public class SharpRenameAction
 		{
 			mainForm.Dialogs.ShowInfo("OmniSharp", "Errors:\n" + string.Join("\n", errors.ToArray()));
 		}
+		mainForm.CheckFilesChanges();
 		return true;
 	}
 }

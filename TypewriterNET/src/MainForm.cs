@@ -722,6 +722,22 @@ public class MainForm : Form
 	{
 		return LoadFile(file, httpServer, null);
 	}
+	
+	public Buffer GetBuffer(string file)
+	{
+		string name = null;
+		string fullPath = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception)
+		{
+			return null;
+		}
+		return mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
+	}
 
 	public Buffer LoadFile(string file, string httpServer, Nest nest)
 	{
