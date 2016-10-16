@@ -64,5 +64,20 @@ namespace MulticaretEditor
 			int right = maxLength - left - 1;
 			return text.Substring(0, left) + "…" + text.Substring(text.Length - right);
 		}
+		
+		public static bool IsIdentifier(string text)
+		{
+			if (text != null && text != "" && (text[0] == '_' || char.IsLetter(text[0])))
+			{
+				for (int i = 1; i < text.Length; ++i)
+				{
+					char c = text[i];
+					if (c != '_' && !char.IsLetterOrDigit(c))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		}
 	}
 }

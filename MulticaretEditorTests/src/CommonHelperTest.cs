@@ -92,5 +92,35 @@ namespace UnitTests
 			Assert.AreEqual(null, CommonHelper.GetShortText(null, 1));
 			Assert.AreEqual(null, CommonHelper.GetShortText(null, 2));
 		}
+		
+		[Test]
+		public void IsIdentifier0()
+		{
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("_item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("__item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("item2"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("it3em23"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("it3em_23___"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("1item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("0__ite__m102"));
+		}
+		
+		[Test]
+		public void IsIdentifier1()
+		{
+			Assert.AreEqual(false, CommonHelper.IsIdentifier(""));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier(null));
+		}
+		
+		[Test]
+		public void IsIdentifier2()
+		{
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("_+"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("+item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("/item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("i/tem"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("item/"));
+		}
 	}
 }

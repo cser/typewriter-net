@@ -24,12 +24,12 @@ public class SharpRenameAction
 		editorText = lastBuffer.Controller.Lines.GetText();		
 		place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.Left);
 		name = lastBuffer.Controller.GetWord(place);
-		if (!IsCorrectName(name))
+		if (!CommonHelper.IsIdentifier(name))
 		{
 			Place place2 = place;
 			--place2.iChar;
 			string name2 = lastBuffer.Controller.GetWord(place2);
-			if (!IsCorrectName(name2))
+			if (!CommonHelper.IsIdentifier(name2))
 			{
 				mainForm.Dialogs.ShowInfo("Error", "Incorrect name: " + name);
 				return;
@@ -39,11 +39,6 @@ public class SharpRenameAction
 		}
 		
 		mainForm.Dialogs.OpenInput("Rename identificator", name, DoInputNewName);
-	}
-	
-	private bool IsCorrectName(string name)
-	{
-		return !string.IsNullOrEmpty(name) && name.Trim() != "" && Regex.IsMatch(name, @"^[\w_][\w\d_]*$");
 	}
 	
 	public class Change
@@ -57,8 +52,7 @@ public class SharpRenameAction
 		if (newName == name)
 			return true;
 		mainForm.Dialogs.CloseInput();
-		mainForm.Log.WriteInfo("newName:", newName);
-		if (!IsCorrectName(newName))
+		if (!CommonHelper.IsIdentifier(newName))
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Incorrect new name: " + newName);
 			return true;
