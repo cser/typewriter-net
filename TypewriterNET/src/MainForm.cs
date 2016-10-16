@@ -1850,6 +1850,23 @@ public class MainForm : Form
 			}
 		}
 	}
+	
+	public List<Buffer> GetFileBuffers()
+	{
+		List<Buffer> buffers = new List<Buffer>();
+		foreach (Buffer buffer in mainNest.buffers.list)
+		{
+			buffers.Add(buffer);
+		}
+		if (mainNest2.Frame != null)
+		{
+			foreach (Buffer buffer in mainNest2.buffers.list)
+			{
+				buffers.Add(buffer);
+			}
+		}
+		return buffers;
+	}
 
 	private bool ExecuteCommand(IRList<Properties.CommandInfo> infos)
 	{

@@ -707,7 +707,7 @@ public class FileTree
 			{
 				if (nodeI.type == NodeType.Directory)
 				{
-					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+					DirectoryMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 				}
 				else if (nodeI.type == NodeType.File)
 				{
@@ -721,7 +721,7 @@ public class FileTree
 				    }
 				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        Directory.Move(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
+				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
 				    }
 				}
 			}
@@ -748,9 +748,30 @@ public class FileTree
 	private void FileMove(string oldFile, string newFile)
 	{
 		File.Move(oldFile, newFile);
-		Buffer fileBuffer = mainForm.GetBuffer(oldFile);
-		if (fileBuffer != null)
-			fileBuffer.SetFile(newFile, Path.GetFileName(newFile));
+		Buffer buffer = mainForm.GetBuffer(oldFile);
+		if (buffer != null)
+			buffer.SetFile(newFile, Path.GetFileName(newFile));
+	}
+	
+	private void DirectoryMove(string oldDir, string newDir)
+	{
+		Directory.Move(oldDir, newDir);
+		if (oldDir.EndsWith("/"))
+			oldDir = oldDir.Substring(0, oldDir.Length - 1) + "\\";
+		if (!oldDir.EndsWith("\\"))
+			oldDir += "\\";
+		if (newDir.EndsWith("/"))
+			newDir = newDir.Substring(0, newDir.Length - 1) + "\\";
+		if (!newDir.EndsWith("\\"))
+			newDir += "\\";
+		foreach (Buffer buffer in mainForm.GetFileBuffers())
+		{
+			if (!string.IsNullOrEmpty(buffer.FullPath) && buffer.FullPath.StartsWith(oldDir))
+			{
+				string newFile = newDir + buffer.FullPath.Substring(oldDir.Length);
+				buffer.SetFile(newFile, Path.GetFileName(newFile));
+			}
+		}
 	}
 	
 	private bool DoInputNewFileName(string fileName)
@@ -765,7 +786,7 @@ public class FileTree
 			{
 				if (nodeI.type == NodeType.Directory)
 				{
-					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+					DirectoryMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
 				}
 				else if (nodeI.type == NodeType.File)
 				{
@@ -779,7 +800,7 @@ public class FileTree
 				    }
 				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 				    {
-				        Directory.Move(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 				    }
 				}
 			}
