@@ -171,6 +171,14 @@ public class DialogManager
 		info.Dialog.Name = name;
 		info.Dialog.InitText(text);
 	}
+	
+	public void HideInfo(string name, string text)
+	{
+		if (info.Dialog != null && info.Dialog.Name == name && info.Dialog.SettedText == text)
+		{
+			info.Close(true);
+		}
+	}
 
 	private bool DoInputCommand(Controller controller)
 	{

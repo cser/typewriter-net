@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
+using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
@@ -353,6 +354,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
 		commands.Add(new Command("omnisharp-syntaxerrors", "", "show syntax errors", DoSyntaxErrors));
 		commands.Add(new Command("omnisharp-rename", "", "rename", DoOmnisharpRename));
+		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
 	}
 
 	private void DoHelp(string args)
@@ -736,5 +738,65 @@ public class Commander
 			if (errors != null)
 				mainForm.Dialogs.ShowInfo(name, errors);
 		}
+	}
+	
+	public void DoOmnisharpReloadSolution(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading...");
+		if (mainForm.LastFrame != null)
+			mainForm.LastFrame.Focus();
+		Thread thread = new Thread(new ThreadStart(OmnisharpReloadSolution));
+		thread.Start();
+	}
+	
+	private void OmnisharpReloadSolution()
+	{
+		string error;
+		Node node = new SharpRequest(mainForm)
+			.Send(mainForm.SharpManager.Url + "/reloadsolution", out error);
+		if (error != null)
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", error);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		if (node == null || !node.IsBool() || !(bool)node)
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Expected true, was: " + node);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		mainForm.Invoke(new Setter(delegate
+		{
+			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading...");
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}));
 	}
 }

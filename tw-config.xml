@@ -7,5 +7,5 @@
 	<item name="f8Command" value='!!"C:\Program Files (x86)\Git\bin\sh.exe" --login -i'/>
 	<item name="ctrlSpaceCommand" value='!!!echo "%w%"'/>
 	<item name="omnisharpSln" value="." />
-	<item name="omnisharpConsole" value="false"/>
+	<item name="omnisharpConsole" value="true"/>
 </config>

@@ -132,9 +132,13 @@ public class InfoDialog : ADialog
 		DispatchNeedClose();
 		return true;
 	}
+	
+	private string text;
+	public string SettedText { get { return text; } }
 
 	public void InitText(string text)
 	{
+		this.text = text;
 		textBox.Controller.InitText(text);
 		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
 		SetNeedResize();

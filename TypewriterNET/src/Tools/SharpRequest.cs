@@ -52,4 +52,36 @@ public class SharpRequest
 		}
 		return null;
 	}
+	
+	public Node Send(string httpServer, out string error)
+	{
+		error = null;
+		string output = null;
+		using (WebClient client = new WebClient())
+		{
+			try
+			{
+				byte[] bytes = client.UploadValues(httpServer, "POST", parameters);
+				output = Encoding.UTF8.GetString(bytes);
+			}
+			catch (Exception e)
+			{
+				error = "HTTP error: " + e.ToString();
+			}
+		}
+		if (output != null)
+		{
+			Node node = null;
+			try
+			{
+				node = new Parser().Load(output);
+				return node;
+			}
+			catch (Exception e)
+			{
+				error = "Response parsing error: " + e.Message + "\n" + output;
+			}
+		}
+		return null;
+	}
 }
