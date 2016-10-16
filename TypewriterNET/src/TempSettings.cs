@@ -139,6 +139,20 @@ public class TempSettings
         }
         buffer.customSyntax = value["syntax"].String;
     }
+    
+    public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
+    {
+    	SValue value = storage.Get(fullPath);
+        string rawEncoding = value["encoding"].String;
+        if (!string.IsNullOrEmpty(rawEncoding))
+        {
+            string error;
+            EncodingPair pair = EncodingPair.ParseEncoding(rawEncoding, out error);
+            if (string.IsNullOrEmpty(error))
+            	return pair;
+        }
+        return defaultPair;
+    }
 
 	public void Save(string postfix)
 	{

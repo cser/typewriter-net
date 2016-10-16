@@ -363,6 +363,11 @@ public class MainForm : Form
 
 	private void OnActivated(object sender, EventArgs e)
 	{
+		CheckFilesChanges();
+	}
+	
+	public void CheckFilesChanges()
+	{
 		if (activationInProcess)
 			return;
 		activationInProcess = true;

@@ -1,4 +1,3 @@
-- omnisharp rename
 - omnisharp build
 - omnisharp project and files reloading
 - omnisharp server restart

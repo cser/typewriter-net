@@ -352,6 +352,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
 		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
 		commands.Add(new Command("omnisharp-syntaxerrors", "", "show syntax errors", DoSyntaxErrors));
+		commands.Add(new Command("omnisharp-rename", "", "rename", DoOmnisharpRename));
 	}
 
 	private void DoHelp(string args)
@@ -623,6 +624,24 @@ public class Commander
 		}
 	}
 	
+	public void DoOmnisharpRename(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		
+		new SharpRenameAction().Execute(mainForm, tempSettings, lastBuffer);
+	}
+	
 	public void DoCodeckeck(string text)
 	{
 		ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
@@ -716,6 +735,7 @@ public class Commander
 			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
 			if (errors != null)
 				mainForm.Dialogs.ShowInfo(name, errors);
+			mainForm.CheckFilesChanges();
 		}
 	}
 }

@@ -39,6 +39,7 @@
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
+	<item name="f9Command:*.cs" value="omnisharp-rename"/>
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="f11Command:*.cs" value="omnisharp-codecheck"/>
 	<item name="shiftF11Command:*.cs" value="omnisharp-syntaxerrors"/>
