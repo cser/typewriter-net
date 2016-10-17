@@ -164,7 +164,7 @@ public class Settings
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Settings properties");
 		builder.AppendLine();
-		TextTable table = new TextTable().SetMaxColWidth(30);
+		TextTable table = new TextTable().SetMaxColWidth(33);
 		Properties.AddHeadTo(table);
 		table.AddLine();
 		bool first = true;
@@ -212,7 +212,7 @@ public class Settings
 
 	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
-		textBox.WordWrap = settingsMode != SettingsMode.FileTree && wordWrap.Value;
+		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value;
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;

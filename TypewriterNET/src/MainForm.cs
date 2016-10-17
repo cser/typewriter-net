@@ -512,6 +512,8 @@ public class MainForm : Form
 				break;
 			}
 		}
+		if (_helpBuffer != null && _helpBuffer.onRemove != null)
+			_helpBuffer.onRemove(_helpBuffer);
 		if (!forbidTempSaving)
 			tempSettings.Save(tempFilePostfix);
 		if (sharpManager != null)
@@ -1485,13 +1487,19 @@ public class MainForm : Form
 				ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
 				builder.AppendLine(ds.name);
 			}
-			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Normal);
+			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Help);
 			_helpBuffer.tags = BufferTag.Other;
 			_helpBuffer.onRemove = OnHelpBufferRemove;
 			_helpBuffer.Controller.isReadonly = true;
 			_helpBuffer.Controller.InitText(builder.ToString());
 			_helpBuffer.Controller.Lines.ranges = ranges;
+			if (tempSettings.helpPosition < 0)
+				tempSettings.helpPosition = 0;
+			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
+				tempSettings.helpPosition = _helpBuffer.Controller.Lines.charsCount;
 			ShowBuffer(mainNest, _helpBuffer);
+			_helpBuffer.Controller.PutCursor(_helpBuffer.Controller.Lines.PlaceOf(tempSettings.helpPosition), false);
+			_helpBuffer.Controller.NeedScrollToCaret();
 		}
 		else
 		{
@@ -1502,6 +1510,10 @@ public class MainForm : Form
 
 	private bool OnHelpBufferRemove(Buffer buffer)
 	{
+		if (buffer != null)
+		{
+			tempSettings.helpPosition = buffer.Controller.LastSelection.caret;
+		}
 		_helpBuffer = null;
 		return true;
 	}

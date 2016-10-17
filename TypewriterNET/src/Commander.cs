@@ -377,6 +377,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-rename", "", "rename", DoOmnisharpRename));
 		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
+		commands.Add(new Command("omnisharp-currentfilemembers", "", "current file members", DoOmnisharpCurrentFileMembers));
 	}
 
 	private void DoHelp(string args)
@@ -911,6 +912,38 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("OmniSharp", "Response is empty");
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
+		}
+	}
+	
+	private void DoOmnisharpCurrentFileMembers(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", word)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/currentfilemembersflat", true);
+		if (node != null)
+		{
+			mainForm.Dialogs.ShowInfo("OmniSharp", node + "");
 		}
 	}
 }
