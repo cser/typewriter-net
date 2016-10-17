@@ -20,10 +20,16 @@ public class TempSettings
 	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
 	private RecentlyStorage recently = new RecentlyStorage();
+	private RecentlyStorage recentlyDirs = new RecentlyStorage();
 	
 	public List<string> GetRecentlyFiles()
 	{
 		return recently.GetFiles();
+	}
+	
+	public List<string> GetRecentlyDirs()
+	{
+		return recentlyDirs.GetFiles();
 	}
 
 	public TempSettings(MainForm mainForm, Settings settings)
@@ -53,6 +59,7 @@ public class TempSettings
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
 		storage.Unserialize(state["storage"]);
 		recently.Unserialize(state["recently"]);
+		recentlyDirs.Unserialize(state["recentlyDirs"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
 			{
@@ -102,6 +109,14 @@ public class TempSettings
 	{
 		if (buffer.FullPath != null)
 			recently.Add(buffer.FullPath);
+	}
+	
+	public void AddDirectory(string directory)
+	{
+		if (!string.IsNullOrEmpty(directory))
+		{
+			recentlyDirs.Add(directory);
+		}
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -211,6 +226,7 @@ public class TempSettings
 		}
 		state["storage"] = storage.Serialize();
 		state["recently"] = recently.Serialize();
+		state["recentlyDirs"] = recentlyDirs.Serialize();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();

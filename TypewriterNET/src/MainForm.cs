@@ -348,7 +348,8 @@ public class MainForm : Form
 		error = null;
 		if (string.IsNullOrEmpty(path))
 			return false;
-		if (path.ToLowerInvariant() == Directory.GetCurrentDirectory().ToLowerInvariant())
+		string oldDir = Directory.GetCurrentDirectory();
+		if (path.ToLowerInvariant() == oldDir.ToLowerInvariant())
 			return false;
 		try
 		{
@@ -362,6 +363,8 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.ChangeCurrentDirectory);
 		if (hasCurrentConfig || File.Exists(AppPath.ConfigPath.GetCurrentPath()))
 			ReloadConfig();
+		if (tempSettings != null)
+			tempSettings.AddDirectory(oldDir);
 		return true;
 	}
 
