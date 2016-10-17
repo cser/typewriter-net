@@ -55,7 +55,7 @@ public class Commander
 		return first;
 	}
 
-	public void Execute(string text)
+	public void Execute(string text, bool insideCommand)
 	{
 		if (string.IsNullOrEmpty(text))
 			return;
@@ -63,7 +63,8 @@ public class Commander
 		string name = FirstWord(text, out args);
 		if (name == "")
 			return;
-		history.Add(text);
+		if (!insideCommand)
+			history.Add(text);
 		Command command = null;
 		foreach (Command commandI in commands)
 		{
@@ -148,7 +149,7 @@ public class Commander
 		{
 			string commandText = text.Substring(1).Trim();
 			if (ReplaceVars(ref commandText))
-				ExecuteShellCommand(commandText);
+				ExecuteShellCommand(commandText, insideCommand);
 		}
 		else
 		{
@@ -374,6 +375,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-syntaxerrors", "", "show syntax errors", DoSyntaxErrors));
 		commands.Add(new Command("omnisharp-rename", "", "rename", DoOmnisharpRename));
 		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
+		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 	}
 
 	private void DoHelp(string args)
@@ -419,9 +421,9 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", error);
 	}
 
-	private void ExecuteShellCommand(string commandText)
+	private void ExecuteShellCommand(string commandText, bool insideCommand)
 	{
-		new RunShellCommand(mainForm).Execute(commandText, settings.shellRegexList.Value);
+		new RunShellCommand(mainForm).Execute(commandText, insideCommand, settings.shellRegexList.Value);
 	}
 
 	private void DoEditFile(string file)
@@ -759,7 +761,7 @@ public class Commander
 		}
 	}
 	
-	public void DoOmnisharpReloadSolution(string text)
+	private void DoOmnisharpReloadSolution(string text)
 	{
 		if (!mainForm.SharpManager.Started)
 		{
@@ -817,5 +819,37 @@ public class Commander
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}));
+	}
+	
+	private void DoOmnisharpBuildcommand(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		string error;
+		string output = new SharpRequest(mainForm)
+			.SendWithRawOutput(mainForm.SharpManager.Url + "/buildcommand", out error);
+		if (error != null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", error);
+		}
+		else if (output != null)
+		{
+			Execute("!" + output, true);
+		}
+		else
+		{
+			mainForm.Dialogs.ShowInfo("OmniSharp", "Response is empty");
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}
 	}
 }

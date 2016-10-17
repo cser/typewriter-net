@@ -20,6 +20,25 @@ public class SharpRequest
 		return this;
 	}
 	
+	public string SendWithRawOutput(string httpServer, out string error)
+	{
+		error = null;
+		string output = null;
+		using (WebClient client = new WebClient())
+		{
+			try
+			{
+				byte[] bytes = client.UploadValues(httpServer, "POST", parameters);
+				output = Encoding.UTF8.GetString(bytes);
+			}
+			catch (Exception e)
+			{
+				error = "HTTP error: " + e.ToString();
+			}
+		}
+		return output;
+	}
+	
 	public Node Send(string httpServer, bool showOutput)
 	{
 		string output = null;

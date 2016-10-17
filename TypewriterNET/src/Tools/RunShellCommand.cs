@@ -45,7 +45,7 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, List<Position>> positions;
 
-	public string Execute(string commandText, IRList<RegexData> regexList)
+	public string Execute(string commandText, bool insideCommand, IRList<RegexData> regexList)
 	{
 		positions = new Dictionary<int, List<Position>>();
 
@@ -61,7 +61,7 @@ public class RunShellCommand
 		p.Start();
 		string output = p.StandardOutput.ReadToEnd();
 		string errors = p.StandardError.ReadToEnd();
-		string text = output;
+		string text = (insideCommand ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
 
 		List<StyleRange> ranges = new List<StyleRange>();

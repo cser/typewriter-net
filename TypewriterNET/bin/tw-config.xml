@@ -33,16 +33,17 @@
 	<item name="hideInFileTree" value="*.meta"/>
 	<item name="renamePostfixed" value=".meta"/>
 	<item name="checkContentBeforeReloading" value="true"/>
+	<item name="fileIncrementalSearchTimeout" value="10"/>
 	<item name="altCharsSource" value="1234567890-=\qwertyuiop[]asdl;'zcnm,/!$+QWERTYUIOPASDL:ZCN&lt;&quot;"/>
 	<item name="altCharsResult" value="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°Æ¢ÑÇ¨"/>
 	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
-	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
-	<item name="f9Command:*.cs" value="omnisharp-reloadsolution"/>
+	<item name="shiftF5Command:*.cs;*.proj" value="omnisharp-buildcommand"/>
+	<item name="f9Command:*.cs;*.proj" value="omnisharp-reloadsolution"/>
 	<item name="shiftF9Command:*.cs" value="omnisharp-rename"/>
-	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="f11Command:*.cs" value="omnisharp-codecheck"/>
 	<item name="shiftF11Command:*.cs" value="omnisharp-syntaxerrors"/>
-	<item name="fileIncrementalSearchTimeout" value="10"/>
+	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
+	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 </config>

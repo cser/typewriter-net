@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-	<item name="findInFilesFilter" value="*.cs;*.txt;*.md"/>
+	<item name="findInFilesFilter" value="*.cs;*.txt;*.md;*.xml"/>
 	<item name="f5Command" value="!c:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:tw"/>
 	<item name="f6Command" value="shortcut !C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:"/>
 	<item name="f7Command" value="!!C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release"/>
