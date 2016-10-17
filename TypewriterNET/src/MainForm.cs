@@ -703,6 +703,9 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)
 			.SetGetText(GetCtrlSpaceCommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
+			.SetGetText(GetCtrlShiftSpaceCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -1839,6 +1842,16 @@ public class MainForm : Form
 	private string GetCtrlSpaceCommandText()
 	{
 		return GetCommandText(settings.ctrlSpaceCommand);
+	}
+	
+	private bool DoExecuteCtrlShiftSpaceCommand(Controller controller)
+	{
+		return ExecuteCommand(settings.ctrlShiftSpaceCommand.Value);
+	}
+	
+	private string GetCtrlShiftSpaceCommandText()
+	{
+		return GetCommandText(settings.ctrlShiftSpaceCommand);
 	}
 
 	private void ReloadSyntaxes()

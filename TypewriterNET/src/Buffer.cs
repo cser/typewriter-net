@@ -16,7 +16,7 @@ public class Buffer
 		SetFile(fullPath, name);
 		controller = new Controller(new LineArray());
 	}
-
+	
 	public BufferList owner;
 	public bool softRemove;
 

@@ -1,3 +1,2 @@
-- omnisharp project and files reloading
 - omnisharp override completion
 - omnisharp move to element in file

@@ -377,8 +377,12 @@ public class AutocompleteMenu : ToolStripDropDown
                     }
                     if (index != -1)
                     {
-                        text0 = text.Substring(0, index);
-                        text1 = text.Substring(index + 1);
+                    	string newText0 = text.Substring(0, index);
+                    	if (newText0 != "protected" && newText0 != "public" && newText0 != "private" && newText0 != "override")
+                    	{
+							text0 = newText0;
+							text1 = text.Substring(index + 1);
+						}
                     }
 					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), menu.defaultStyle, text1);
 					DrawLineChars(g, new Point((menu.maxLength - text0.Length) * menu.charWidth, (i - offset) * menu.charHeight), menu.typeStyle, text0);

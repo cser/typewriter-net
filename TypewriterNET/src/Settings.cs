@@ -61,6 +61,7 @@ public class Settings
 	public readonly Properties.Command shiftF11Command = new Properties.Command("shiftF11Command");
 	public readonly Properties.Command shiftF12Command = new Properties.Command("shiftF12Command");
 	public readonly Properties.Command ctrlSpaceCommand = new Properties.Command("ctrlSpaceCommand");
+	public readonly Properties.Command ctrlShiftSpaceCommand = new Properties.Command("ctrlShiftSpaceCommand");
 	public readonly Properties.Command afterSaveCommand = new Properties.Command("afterSaveCommand");
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
@@ -119,6 +120,7 @@ public class Settings
 		Add(shiftF11Command);
 		Add(shiftF12Command);
 		Add(ctrlSpaceCommand);
+		Add(ctrlShiftSpaceCommand);
 		Add(afterSaveCommand);
 		Add(defaultEncoding);
 		Add(shellEncoding);

@@ -39,6 +39,7 @@
 	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
+	<item name="ctrlShiftSpaceCommand:*.cs" value="omnisharp-getoverridetargets"/>
 	<item name="shiftF5Command:*.cs;*.proj" value="omnisharp-buildcommand"/>
 	<item name="f9Command:*.cs;*.proj" value="omnisharp-reloadsolution"/>
 	<item name="shiftF9Command:*.cs" value="omnisharp-rename"/>

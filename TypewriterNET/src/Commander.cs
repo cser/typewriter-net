@@ -369,6 +369,7 @@ public class Commander
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
+		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
 		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
 		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
@@ -510,6 +511,66 @@ public class Commander
 				}
 				catch (Exception)
 				{
+				}
+			}
+			if (mainForm.LastFrame.AsFrame != null)
+				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
+		}
+	}
+	
+	public void DoOmnisharpGetOverrideTargets(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/getoverridetargets", true);
+		if (node != null)
+		{
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Variant> variants = new List<Variant>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				string targetName = null;
+				try
+				{
+					targetName = (string)node[i]["OverrideTargetName"];
+				}
+				catch (Exception)
+				{
+				}
+				if (targetName != null)
+				{
+					targetName = targetName.Trim().Replace("virtual", "override").Replace(" (", "(");
+					if (targetName.EndsWith(";"))
+						targetName = targetName.Substring(0, targetName.Length - 1);
+					Variant variant = new Variant();
+					variant.CompletionText = targetName;
+					variant.DisplayText = targetName;
+					variants.Add(variant);
 				}
 			}
 			if (mainForm.LastFrame.AsFrame != null)
