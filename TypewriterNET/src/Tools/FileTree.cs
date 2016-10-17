@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
+using System.Threading;
 
 public class FileTree
 {
@@ -59,7 +60,8 @@ public class FileTree
 	public FileTree(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
-
+        
+        ResetReload();
 		expanded = new Dictionary<int, bool>();
 		selectionDatas = new Dictionary<Selection, SelectionData>();
 		buffer = new Buffer(null, "File tree", SettingsMode.FileTree);
@@ -259,6 +261,8 @@ public class FileTree
 
 	public void Reload()
 	{
+	    wasReloaded = true;
+	    ResetReload();
 		currentDirectory = Directory.GetCurrentDirectory();
 		string root = currentDirectory;
 		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
@@ -321,12 +325,26 @@ public class FileTree
 		{
 			node.expanded = true;
 			node.childs.Clear();
-			string[] directories = null;
-			string[] files = null;
+			List<string> directories = null;
+			List<string> files = null;
 			try
 			{
-				directories = Directory.GetDirectories(node.fullPath);
-				files = Directory.GetFiles(node.fullPath);
+				string[] rawDirectories = Directory.GetDirectories(node.fullPath);
+				string[] rawFiles = Directory.GetFiles(node.fullPath);
+				directories = new List<string>();
+				files = new List<string>();
+				FileNameFilter filter = !string.IsNullOrEmpty(hideInFileTree) ?
+				    new FileNameFilter(hideInFileTree) : null;
+				foreach (string directory in rawDirectories)
+				{
+				    if (filter == null || !filter.Match(Path.GetFileName(directory)))
+				        directories.Add(directory);
+				}
+				foreach (string file in rawFiles)
+				{
+				    if (filter == null || !filter.Match(Path.GetFileName(file)))
+				        files.Add(file);
+				}
 			}
 			catch (Exception e)
 			{
@@ -689,11 +707,26 @@ public class FileTree
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
-					Directory.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				{
+					DirectoryMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				}
 				else if (nodeI.type == NodeType.File)
-					File.Move(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				{
+					FileMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+				}
+				if (!string.IsNullOrEmpty(renamePostfixed))
+				{
+				    if (File.Exists(nodeI.fullPath + renamePostfixed))
+				    {
+				        FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
+				    }
+				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
+				    {
+				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
+				    }
+				}
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
 				mainForm.Log.WriteError("Move error", e.Message);
 				mainForm.Log.Open();
@@ -713,6 +746,35 @@ public class FileTree
 		return true;
 	}
 	
+	private void FileMove(string oldFile, string newFile)
+	{
+		File.Move(oldFile, newFile);
+		Buffer buffer = mainForm.GetBuffer(oldFile);
+		if (buffer != null)
+			buffer.SetFile(newFile, Path.GetFileName(newFile));
+	}
+	
+	private void DirectoryMove(string oldDir, string newDir)
+	{
+		Directory.Move(oldDir, newDir);
+		if (oldDir.EndsWith("/"))
+			oldDir = oldDir.Substring(0, oldDir.Length - 1) + "\\";
+		if (!oldDir.EndsWith("\\"))
+			oldDir += "\\";
+		if (newDir.EndsWith("/"))
+			newDir = newDir.Substring(0, newDir.Length - 1) + "\\";
+		if (!newDir.EndsWith("\\"))
+			newDir += "\\";
+		foreach (Buffer buffer in mainForm.GetFileBuffers())
+		{
+			if (!string.IsNullOrEmpty(buffer.FullPath) && buffer.FullPath.StartsWith(oldDir))
+			{
+				string newFile = newDir + buffer.FullPath.Substring(oldDir.Length);
+				buffer.SetFile(newFile, Path.GetFileName(newFile));
+			}
+		}
+	}
+	
 	private bool DoInputNewFileName(string fileName)
 	{
 		if (string.IsNullOrEmpty(fileName))
@@ -724,17 +786,56 @@ public class FileTree
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
-					Directory.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				{
+					DirectoryMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				}
 				else if (nodeI.type == NodeType.File)
-					File.Move(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				{
+					FileMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+				}
+				if (!string.IsNullOrEmpty(renamePostfixed))
+				{
+				    if (File.Exists(nodeI.fullPath + renamePostfixed))
+				    {
+				        File.Move(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+				    }
+				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
+				    {
+				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+				    }
+				}
 			}
-			catch (Exception e)
+			catch (IOException e)
 			{
 				mainForm.Log.WriteError("Rename error", e.Message);
 				mainForm.Log.Open();
 			}
 		}
+		mainForm.UpdateAfterFileRenamed();
 		Reload();
 		return true;
+	}
+	
+	private bool wasReloaded;
+	private string renamePostfixed;
+	private string hideInFileTree;
+	
+	private void ResetReload()
+	{
+	    renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	    hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
+	}
+	
+	public void ReloadIfNeedForSettings()
+	{
+	    if (wasReloaded && (
+	        renamePostfixed != mainForm.Settings.renamePostfixed.Value + "" ||
+	        hideInFileTree != mainForm.Settings.hideInFileTree.Value + ""
+	    ))
+        {
+            renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	        hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
+            Reload();
+        }
 	}
 }

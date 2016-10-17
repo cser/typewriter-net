@@ -13,16 +13,16 @@ public class Settings
 	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
 	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
-	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true).SetVariants("\r\n", "\n", "\r");
+	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
-	public readonly Properties.Bool spacesInsteadTabs = new Properties.Bool("spacesInsteadTabs", false);
+	public readonly Properties.BoolList spacesInsteadTabs = new Properties.BoolList("spacesInsteadTabs", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
-	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false).SetLoadVariants(SchemeManager.GetAllSchemeNames);
+	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
-	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false);
-	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false);
+	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false, "Chars to input with right Alt");
+	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false, "Output chars with right Alt");
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
 	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
@@ -36,21 +36,37 @@ public class Settings
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
-	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false);
-	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false);
+	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "");
+	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
+	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false, "");
+	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false, "");
+	public readonly Properties.Bool checkContentBeforeReloading = new Properties.Bool("checkContentBeforeReloading", false);
 	public readonly Properties.EncodingProperty defaultEncoding = new Properties.EncodingProperty("defaultEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty shellEncoding = new Properties.EncodingProperty("shellEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.EncodingProperty httpEncoding = new Properties.EncodingProperty("httpEncoding", new EncodingPair(Encoding.UTF8, false));
 	public readonly Properties.Bool showEncoding = new Properties.Bool("showEncoding", false);
 
-	public readonly Properties.String f5Command = new Properties.String("f5Command", "", false);
-	public readonly Properties.String f6Command = new Properties.String("f6Command", "", false);
-	public readonly Properties.String f7Command = new Properties.String("f7Command", "", false);
-	public readonly Properties.String f8Command = new Properties.String("f8Command", "", false);
-	public readonly Properties.String f9Command = new Properties.String("f9Command", "", false);
-	public readonly Properties.String f11Command = new Properties.String("f11Command", "", false);
-	public readonly Properties.String f12Command = new Properties.String("f12Command", "", false);
-	public readonly Properties.String ctrlSpaceCommand = new Properties.String("ctrlSpaceCommand", "", false);
+	public readonly Properties.Command f5Command = new Properties.Command("f5Command");
+	public readonly Properties.Command f6Command = new Properties.Command("f6Command");
+	public readonly Properties.Command f7Command = new Properties.Command("f7Command");
+	public readonly Properties.Command f8Command = new Properties.Command("f8Command");
+	public readonly Properties.Command f9Command = new Properties.Command("f9Command");
+	public readonly Properties.Command f11Command = new Properties.Command("f11Command");
+	public readonly Properties.Command f12Command = new Properties.Command("f12Command");
+	public readonly Properties.Command shiftF5Command = new Properties.Command("shiftF5Command");
+	public readonly Properties.Command shiftF6Command = new Properties.Command("shiftF6Command");
+	public readonly Properties.Command shiftF7Command = new Properties.Command("shiftF7Command");
+	public readonly Properties.Command shiftF8Command = new Properties.Command("shiftF8Command");
+	public readonly Properties.Command shiftF9Command = new Properties.Command("shiftF9Command");
+	public readonly Properties.Command shiftF11Command = new Properties.Command("shiftF11Command");
+	public readonly Properties.Command shiftF12Command = new Properties.Command("shiftF12Command");
+	public readonly Properties.Command ctrlSpaceCommand = new Properties.Command("ctrlSpaceCommand");
+	public readonly Properties.Command ctrlShiftSpaceCommand = new Properties.Command("ctrlShiftSpaceCommand");
+	public readonly Properties.Command afterSaveCommand = new Properties.Command("afterSaveCommand");
+	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
+	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
+	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
+	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
 
 	private Setter onChange;
 
@@ -87,6 +103,8 @@ public class Settings
 		Add(rememberCurrentDir);
 		Add(findInFilesDir);
 		Add(findInFilesFilter);
+		Add(hideInFileTree);
+		Add(renamePostfixed);
 		Add(f5Command);
 		Add(f6Command);
 		Add(f7Command);
@@ -94,11 +112,25 @@ public class Settings
 		Add(f9Command);
 		Add(f11Command);
 		Add(f12Command);
+		Add(shiftF5Command);
+		Add(shiftF6Command);
+		Add(shiftF7Command);
+		Add(shiftF8Command);
+		Add(shiftF9Command);
+		Add(shiftF11Command);
+		Add(shiftF12Command);
 		Add(ctrlSpaceCommand);
+		Add(ctrlShiftSpaceCommand);
+		Add(afterSaveCommand);
 		Add(defaultEncoding);
 		Add(shellEncoding);
 		Add(httpEncoding);
 		Add(showEncoding);
+		Add(omnisharpSln);
+		Add(omnisharpPort);
+		Add(omnisharpConsole);
+		Add(checkContentBeforeReloading);
+		Add(fileIncrementalSearchTimeout);
 	}
 
 	public void DispatchChange()
@@ -132,16 +164,23 @@ public class Settings
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Settings properties");
 		builder.AppendLine();
-		TextTable table = new TextTable().SetMaxColWidth(30);
+		TextTable table = new TextTable().SetMaxColWidth(33);
 		Properties.AddHeadTo(table);
 		table.AddLine();
 		bool first = true;
+		Properties.Property prev = null;
 		foreach (Properties.Property property in properties)
 		{
 			if (!first)
 				table.NewRow();
 			first = false;
-			property.GetHelpText(table);
+			if (prev != null && prev.Type != property.Type)
+			{
+				if (prev.GetHelpTypeText(table))
+					table.NewRow();
+			}
+			property.GetHelpText(this, table);
+			prev = property;
 		}
 		builder.Append(table);
 		builder.AppendLine();
@@ -171,15 +210,15 @@ public class Settings
 		set { parsedScheme = value; }
 	}
 
-	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode)
+	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
-		textBox.WordWrap = settingsMode != SettingsMode.FileTree && wordWrap.Value;
+		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value;
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.Value;
-		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
@@ -194,7 +233,7 @@ public class Settings
 		textBox.MarkBracket = markBracket.Value;
 	}
 
-	public void ApplySimpleParameters(MulticaretTextBox textBox)
+	public void ApplySimpleParameters(MulticaretTextBox textBox, Buffer buffer)
 	{
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
@@ -202,13 +241,18 @@ public class Settings
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.Value;
-		textBox.SpacesInsteadTabs = spacesInsteadTabs.Value;
+		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+	}
+	
+	public void ApplyOnlyFileParameters(MulticaretTextBox textBox, Buffer buffer)
+	{
+	    textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 	}
 
 	public void ApplyToLabel(MonospaceLabel label)

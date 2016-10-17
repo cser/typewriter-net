@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
+using System.Windows.Forms;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
@@ -91,6 +91,7 @@ public class Frame : AFrame
 
 	private bool DoCloseTab(Controller controller)
 	{
+		CloseAutocomplete();
 		RemoveBuffer(buffers.list.Selected);
 		return true;
 	}
@@ -155,7 +156,7 @@ public class Frame : AFrame
 
 		if (phase == UpdatePhase.Raw)
 		{
-			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None);
+			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None, buffer);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
@@ -171,6 +172,11 @@ public class Frame : AFrame
 		else if (phase == UpdatePhase.HighlighterChange)
 		{
 			UpdateHighlighter();
+		}
+		else if (phase == UpdatePhase.FileSaved)
+		{
+			tabBar.Invalidate();
+		    settings.ApplyOnlyFileParameters(textBox, buffer);
 		}
 
 		if (buffer != null && buffer.onUpdateSettings != null)
@@ -211,6 +217,7 @@ public class Frame : AFrame
 
 	public void RemoveBuffer(Buffer buffer)
 	{
+		CloseAutocomplete();
 		if (buffer == null)
 			return;
 		if (!buffer.softRemove && buffer.onRemove != null && !buffer.onRemove(buffer))
@@ -232,6 +239,7 @@ public class Frame : AFrame
 
 	private void OnTabSelected()
 	{
+		CloseAutocomplete();
 		Buffer buffer = buffers.list.Selected;
 		if (additionKeyMap != null)
 			textBox.KeyMap.RemoveAfter(additionKeyMap);
@@ -245,12 +253,16 @@ public class Frame : AFrame
 		if (additionBeforeKeyMap != null)
 			textBox.KeyMap.AddBefore(additionBeforeKeyMap);
 		if (settings != null && buffer != null)
-			settings.ApplyParameters(textBox, buffer.settingsMode);
+			settings.ApplyParameters(textBox, buffer.settingsMode, buffer);
 		UpdateHighlighter();
 		if (buffer != null && buffer.onSelected != null)
 			buffer.onSelected(buffer);
 		if (Nest != null)
+		{
 			Nest.MainForm.UpdateTitle();
+			if (buffer != null && buffer.FullPath != null)
+				Nest.MainForm.MarkShowed(buffer);
+		}
 	}
 
 	public void UpdateHighlighter()
@@ -267,5 +279,26 @@ public class Frame : AFrame
 	private void OnTabDoubleClick(Buffer buffer)
 	{
 		RemoveBuffer(buffer);
+	}
+	
+	private AutocompleteMode autocomplete;
+	
+	private void CloseAutocomplete()
+	{
+		if (autocomplete != null)
+		{
+			autocomplete.Close();
+			autocomplete = null;
+		}
+	}
+	
+	public void ShowAutocomplete(List<Variant> variants, string leftWord)
+	{
+		CloseAutocomplete();
+		Buffer buffer = buffers.list.Selected != null ? buffers.list.Selected : null;
+		if (buffer == null)
+			return;
+		autocomplete = new AutocompleteMode(textBox, buffer);
+		autocomplete.Show(variants, leftWord);
 	}
 }

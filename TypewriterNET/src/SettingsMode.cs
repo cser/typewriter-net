@@ -2,5 +2,6 @@ public enum SettingsMode
 {
 	None,
 	Normal,
-	FileTree
+	FileTree,
+	Help
 }

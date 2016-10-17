@@ -2,7 +2,7 @@
 <!--
 This file was writen for launching with MSBuild
 -->
-<Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 	<Target Name="me">
 		<MakeDir Directories="MulticaretEditor\bin\" />
 		<CSC Sources="MulticaretEditor\src\*.cs; MulticaretEditor\src\Commands\*.cs; MulticaretEditor\src\Highlighting\*.cs; MulticaretEditor\src\KeyMapping\*.cs"
@@ -10,7 +10,8 @@ This file was writen for launching with MSBuild
 			NoStandardLib="False"
 			EmitDebugInformation="False"
 			LangVersion="Default"
-			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll" />
+			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll"
+			Optimize="True"/>
 	</Target>
 	<Target Name="tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\" />

@@ -93,6 +93,8 @@ public class DialogManager
 
 	private DialogOwner<InfoDialog> info;
 	private DialogOwner<FileIncrementalSearch> fileIncrementalSearch;
+	private DialogOwner<RecentlyIncrementalSearch> recentlyIncrementalSearch;
+	private DialogOwner<RecentlyDirsIncrementalSearch> recentlyDirsIncrementalSearch;
 	private DialogOwner<MenuItemIncrementalSearch> menuItemIncrementalSearch;
 	private DialogOwner<SyntaxIncrementalSearch> syntaxIncrementalSearch;
 	private DialogOwner<EncodingIncrementalSearch> saveEncodingIncrementalSearch;
@@ -139,6 +141,10 @@ public class DialogManager
 			new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null,
 			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.O, null,
+			new KeyAction("F&ind\\Recently incremental search...", DoRecentlyIncrementalSearch, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.G, null,
+			new KeyAction("F&ind\\Recently dirs incremental search...", DoRecentlyDirsIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null,
 			new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null,
@@ -146,6 +152,8 @@ public class DialogManager
 
 		info = new DialogOwner<InfoDialog>(this);
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
+		recentlyIncrementalSearch = new DialogOwner<RecentlyIncrementalSearch>(this);
+		recentlyDirsIncrementalSearch = new DialogOwner<RecentlyDirsIncrementalSearch>(this);
 		menuItemIncrementalSearch = new DialogOwner<MenuItemIncrementalSearch>(this);
 		syntaxIncrementalSearch = new DialogOwner<SyntaxIncrementalSearch>(this);
 		saveEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
@@ -170,6 +178,14 @@ public class DialogManager
 			info.Open(new InfoDialog(), false);
 		info.Dialog.Name = name;
 		info.Dialog.InitText(text);
+	}
+	
+	public void HideInfo(string name, string text)
+	{
+		if (info.Dialog != null && info.Dialog.Name == name && info.Dialog.SettedText == text)
+		{
+			info.Close(true);
+		}
 	}
 
 	private bool DoInputCommand(Controller controller)
@@ -497,6 +513,20 @@ public class DialogManager
 	{
 		if (fileIncrementalSearch.SwitchOpen())
 			fileIncrementalSearch.Open(new FileIncrementalSearch(tempSettings), false);
+		return true;
+	}
+	
+	private bool DoRecentlyIncrementalSearch(Controller controller)
+	{
+		if (recentlyIncrementalSearch.SwitchOpen())
+			recentlyIncrementalSearch.Open(new RecentlyIncrementalSearch(tempSettings), false);
+		return true;
+	}
+	
+	private bool DoRecentlyDirsIncrementalSearch(Controller controller)
+	{
+		if (recentlyDirsIncrementalSearch.SwitchOpen())
+			recentlyDirsIncrementalSearch.Open(new RecentlyDirsIncrementalSearch(tempSettings), false);
 		return true;
 	}
 

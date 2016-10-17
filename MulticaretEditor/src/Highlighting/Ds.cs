@@ -50,8 +50,10 @@ namespace MulticaretEditor.Highlighting
 		public static readonly Ds Keyword2 = AddStyle("dsKeyword2");
 		public static readonly Ds String2 = AddStyle("dsString2");
 		public static readonly Ds Others2 = AddStyle("dsOthers2");
+		public static readonly Ds DataType2 = AddStyle("dsDataType2");
 		
 		// And more comments styles
+		public static readonly Ds DocStart = AddStyle("dsDocStart");
 		public static readonly Ds DocHtml1 = AddStyle("dsDocHtml1");
 		public static readonly Ds DocHtml2 = AddStyle("dsDocHtml2");
 		public static readonly Ds DocHtml3 = AddStyle("dsDocHtml3");

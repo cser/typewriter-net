@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
+using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Windows.Forms;
 using MulticaretEditor;
 using MulticaretEditor.Highlighting;
+using TinyJSON;
 
 public class Commander
 {
@@ -51,7 +55,7 @@ public class Commander
 		return first;
 	}
 
-	public void Execute(string text)
+	public void Execute(string text, bool dontPutInHistory, bool showCommandInOutput)
 	{
 		if (string.IsNullOrEmpty(text))
 			return;
@@ -59,7 +63,8 @@ public class Commander
 		string name = FirstWord(text, out args);
 		if (name == "")
 			return;
-		history.Add(text);
+		if (!dontPutInHistory)
+			history.Add(text);
 		Command command = null;
 		foreach (Command commandI in commands)
 		{
@@ -73,23 +78,29 @@ public class Commander
 		{
 			command.execute(args);
 		}
-		else if (settings[name] != null)
+		else if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
 		{
 			if (args != "")
 			{
-				string errors = settings[name].SetText(args);
+				string errors = settings[Properties.NameOfName(name)].SetText(args, Properties.SubvalueOfName(name));
 				settings.DispatchChange();
 				if (!string.IsNullOrEmpty(errors))
 					mainForm.Dialogs.ShowInfo("Error assign of \"" + name + "\"", errors);
 			}
 			else
 			{
-				mainForm.Dialogs.ShowInfo("Value of \"" + name + "\"", settings[name].Text);
+				mainForm.Dialogs.ShowInfo("Value of \"" + Properties.NameOfName(name) + "\"", settings[name].Text);
 			}
 		}
 		else if (name.StartsWith("!!!"))
 		{
 			string commandText = text.Substring(3);
+			bool dontChangeFocus = false;
+			if (commandText.StartsWith("!"))
+			{
+				commandText = commandText.Substring(1);
+				dontChangeFocus = true;
+			}
 			if (ReplaceVars(ref commandText))
 			{
 				Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
@@ -118,6 +129,8 @@ public class Commander
 					infoText += output;
 				}
 				mainForm.Dialogs.ShowInfo(commandText, infoText);
+				if (dontChangeFocus && mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
 			}
 		}
 		else if (name.StartsWith("!!"))
@@ -136,7 +149,7 @@ public class Commander
 		{
 			string commandText = text.Substring(1).Trim();
 			if (ReplaceVars(ref commandText))
-				ExecuteShellCommand(commandText);
+				ExecuteShellCommand(commandText, showCommandInOutput);
 		}
 		else
 		{
@@ -168,39 +181,51 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath ?? "");
 		}
-        if (commandText.Contains(RunShellCommand.LineVar))
-        {
+		if (commandText.Contains(RunShellCommand.FileDirVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No opened file in current frame for replace " + RunShellCommand.FileDirVar);
+				return false;
+			}
+			string dir = Path.GetDirectoryName(lastBuffer.FullPath);
+			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
+		}
+		if (commandText.Contains(RunShellCommand.LineVar))
+		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.LineVar);
 				return false;
 			}
-            commandText = commandText.Replace(
-                RunShellCommand.LineVar,
-                (lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
-            );
-        }
-        if (commandText.Contains(RunShellCommand.CharVar))
-        {
+			commandText = commandText.Replace(
+				RunShellCommand.LineVar,
+				(lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
+			);
+		}
+		if (commandText.Contains(RunShellCommand.CharVar))
+		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.CharVar);
 				return false;
 			}
-            commandText = commandText.Replace(
-                RunShellCommand.CharVar,
-                lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
-            );
-        }
-        if (commandText.Contains(RunShellCommand.SelectedVar))
-        {
-        	Buffer lastBuffer = mainForm.LastBuffer;
-        	if (lastBuffer == null)
+			commandText = commandText.Replace(
+				RunShellCommand.CharVar,
+				lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
+			);
+		}
+		if (commandText.Contains(RunShellCommand.SelectedVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
 			{
 				mainForm.Dialogs.ShowInfo(
-					"Error", "No buffer with selection for replace " + RunShellCommand.CharVar);
+					"Error", "No buffer with selection for replace " + RunShellCommand.SelectedVar);
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
@@ -230,7 +255,55 @@ public class Commander
 				}	
 			}
 			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
-        }
+		}
+		if (commandText.Contains(RunShellCommand.WordVar))
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo(
+					"Error", "No buffer with selection for replace " + RunShellCommand.WordVar);
+				return false;
+			}
+			bool hasNotEmpty = false;
+			foreach (Selection selection in lastBuffer.Controller.Selections)
+			{
+				if (!selection.Empty)
+				{
+					hasNotEmpty = true;
+					break;
+				}
+			}
+			string varValue;
+			if (hasNotEmpty)
+			{
+				StringBuilder builder = new StringBuilder();
+				foreach (Selection selection in lastBuffer.Controller.Selections)
+				{
+					if (selection.Empty)
+						continue;
+					if (builder.Length > 0)
+						builder.Append(settings.lineBreak.Value);
+					builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
+				}
+				varValue = builder.ToString();
+			}
+			else
+			{
+				Place place = lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret);
+				varValue = lastBuffer.Controller.GetWord(place);
+				if (varValue.Length > 0 && !char.IsLetterOrDigit(varValue[0]) && varValue[0] != '_' && place.iChar > 0)
+				{
+					--place.iChar;
+					string newValue = lastBuffer.Controller.GetWord(place);
+					if (varValue.Length > 0 && (char.IsLetterOrDigit(newValue[0]) || newValue[0] == '_'))
+					{
+						varValue = newValue;
+					}
+				}
+			}
+			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
+		}
 		return true;
 	}
 
@@ -245,21 +318,27 @@ public class Commander
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
 		table.NewRow();
-		table.Add("!!command").Add("*").Add("Execute without output capture");
+		table.Add("!!command").Add("*").Add("Run without output capture");
 		table.NewRow();
-		table.Add("!!!command").Add("*").Add("Execute with output into info panel");
+		table.Add("!!!command").Add("*").Add("Run with output to info panel");
+		table.NewRow();
+		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused");
 		table.NewRow();
 		table.Add("").Add("").Add("Variables: ");
 		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file full path");
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file dir path");
 		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if file unsaved");
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if no saved file");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
@@ -289,6 +368,16 @@ public class Commander
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
+		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
+		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
+		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
+		commands.Add(new Command("omnisharp-goToDefinition", "", "go to definition by omnisharp server", DoGoToDefinition));
+		commands.Add(new Command("omnisharp-codecheck", "", "check code", DoCodeckeck));
+		commands.Add(new Command("omnisharp-syntaxerrors", "", "show syntax errors", DoSyntaxErrors));
+		commands.Add(new Command("omnisharp-rename", "", "rename", DoOmnisharpRename));
+		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
+		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
+		commands.Add(new Command("omnisharp-currentfilemembers", "", "current file members", DoOmnisharpCurrentFileMembers));
 	}
 
 	private void DoHelp(string args)
@@ -334,15 +423,18 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", error);
 	}
 
-	private void ExecuteShellCommand(string commandText)
+	private void ExecuteShellCommand(string commandText, bool showCommandInOutput)
 	{
-		new RunShellCommand(mainForm).Execute(commandText, settings.shellRegexList.Value);
+		new RunShellCommand(mainForm).Execute(commandText, showCommandInOutput, settings.shellRegexList.Value);
 	}
 
 	private void DoEditFile(string file)
 	{
-		Buffer buffer = mainForm.ForcedLoadFile(file);
-		buffer.needSaveAs = false;
+		if (ReplaceVars(ref file))
+		{
+			Buffer buffer = mainForm.ForcedLoadFile(file);
+			buffer.needSaveAs = false;
+		}
 	}
 
 	private void DoOpenFile(string file)
@@ -372,5 +464,486 @@ public class Commander
 	{
 		return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\\n")
 			.Replace("\\", "\\\\").Replace("\"", "\\\"");
+	}
+	
+	public void DoOmnisharpAutocomplete(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", "")
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/autocomplete", false);
+		if (node != null)
+		{
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Variant> variants = new List<Variant>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					Variant variant = new Variant();
+					variant.CompletionText = (string)node[i]["CompletionText"];
+					variant.DisplayText = (string)node[i]["DisplayText"];
+					variants.Add(variant);
+				}
+				catch (Exception)
+				{
+				}
+			}
+			if (mainForm.LastFrame.AsFrame != null)
+				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
+		}
+	}
+	
+	public void DoOmnisharpGetOverrideTargets(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/getoverridetargets", true);
+		if (node != null)
+		{
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Variant> variants = new List<Variant>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				string targetName = null;
+				try
+				{
+					targetName = (string)node[i]["OverrideTargetName"];
+				}
+				catch (Exception)
+				{
+				}
+				if (targetName != null)
+				{
+					targetName = targetName.Trim().Replace("virtual", "override").Replace(" (", "(");
+					if (targetName.EndsWith(";"))
+						targetName = targetName.Substring(0, targetName.Length - 1);
+					Variant variant = new Variant();
+					variant.CompletionText = targetName;
+					variant.DisplayText = targetName;
+					variants.Add(variant);
+				}
+			}
+			if (mainForm.LastFrame.AsFrame != null)
+				mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
+		}
+	}
+	
+	public void DoOmnisharpFindUsages(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", word)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/findusages", false);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Table expected, but was:" + node.TypeOf());
+				return;
+			}
+			node = node["QuickFixes"];
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Usage> usages = new List<Usage>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					Usage usage = new Usage();
+					usage.FileName = (string)node[i]["FileName"];
+					usage.Line = (int)node[i]["Line"];
+					usage.Column = (int)node[i]["Column"];
+					usage.Text = (string)node[i]["Text"];
+					usages.Add(usage);
+				}
+				catch (Exception)
+				{
+				}
+			}
+			string errors = new ShowUsages(mainForm).Execute(usages, word);
+			if (errors != null)
+				mainForm.Dialogs.ShowInfo("Usages", errors);
+		}
+	}
+	
+	public void DoGoToDefinition(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", "")
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/gotodefinition", false);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			string fullPath = null;
+			Place navigationPlace = new Place();
+			try
+			{
+				fullPath = !node["FileName"].IsNull() ? (string)node["FileName"] : null;
+				int line = (int)node["Line"];
+				int column = (int)node["Column"];
+				navigationPlace = new Place(column - 1, line - 1);
+			}
+			catch (Exception)
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Error: incorrect format");
+			}
+			if (fullPath != null)
+			{
+				try
+				{
+					fullPath = Path.GetFullPath(fullPath);
+				}
+				catch (Exception)
+				{
+				}
+			}
+			if (fullPath != null)
+			{
+				mainForm.NavigateTo(fullPath, navigationPlace, navigationPlace);
+			}
+			else
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Can't navigate to: " + word);
+			}
+		}
+	}
+	
+	public void DoOmnisharpRename(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		
+		new SharpRenameAction().Execute(mainForm, tempSettings, lastBuffer);
+	}
+	
+	public void DoCodeckeck(string text)
+	{
+		ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
+	}
+	
+	public void DoSyntaxErrors(string text)
+	{
+		ProcessCodeckeck(text, "Syntax errors", "/syntaxerrors", "Errors");
+	}
+	
+	public void ProcessCodeckeck(string text, string name, string uri, string fieldName)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", word)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + uri, false);
+		if (node != null)
+		{
+			if (!node.IsTable())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Table expected, but was:" + node.TypeOf());
+				return;
+			}
+			node = node[fieldName];
+			if (!node.IsArray())
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Response parsing error: Array expected, but was:" + node.TypeOf());
+				return;
+			}
+			List<Codecheck> codechecks = new List<Codecheck>();
+			for (int i = 0; i < node.Count; i++)
+			{
+				try
+				{
+					if (uri == "/codecheck")
+					{
+						Codecheck codecheck = new Codecheck();
+						codecheck.LogLevel = (string)node[i]["LogLevel"];
+						codecheck.FileName = (string)node[i]["FileName"];
+						codecheck.Line = (int)node[i]["Line"];
+						codecheck.Column = (int)node[i]["Column"];
+						codecheck.Text = (string)node[i]["Text"];
+						codechecks.Add(codecheck);
+					}
+					else if (uri == "/syntaxerrors")
+					{
+						Codecheck codecheck = new Codecheck();
+						codecheck.LogLevel = "";
+						codecheck.FileName = (string)node[i]["FileName"];
+						codecheck.Line = (int)node[i]["Line"];
+						codecheck.Column = (int)node[i]["Column"];
+						codecheck.Text = (string)node[i]["Message"];
+						codechecks.Add(codecheck);
+					}
+				}
+				catch (Exception)
+				{
+				}
+			}
+			if (uri == "/codecheck" && node.Count == 0)
+			{
+				mainForm.Dialogs.ShowInfo(name, "No tips");
+				return;
+			}
+			else if (uri == "/syntaxerrors" && node.Count == 0)
+			{
+				mainForm.Dialogs.ShowInfo(name, "No errors");
+				return;
+			}
+			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
+			if (errors != null)
+				mainForm.Dialogs.ShowInfo(name, errors);
+		}
+	}
+	
+	private void DoOmnisharpReloadSolution(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}
+		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading...");
+		if (mainForm.LastFrame != null)
+			mainForm.LastFrame.Focus();
+		Thread thread = new Thread(new ThreadStart(OmnisharpReloadSolution));
+		thread.Start();
+	}
+	
+	private void OmnisharpReloadSolution()
+	{
+		string error;
+		Node node = new SharpRequest(mainForm)
+			.Send(mainForm.SharpManager.Url + "/reloadsolution", out error);
+		if (error != null)
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", error);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		if (node == null || !node.IsBool() || !(bool)node)
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", "Expected true, was: " + node);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		mainForm.Invoke(new Setter(delegate
+		{
+			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading...");
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}));
+	}
+	
+	private void DoOmnisharpBuildcommand(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		string error;
+		string output = new SharpRequest(mainForm)
+			.SendWithRawOutput(mainForm.SharpManager.Url + "/buildcommand", out error);
+		if (error != null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", error);
+		}
+		else if (output != null)
+		{
+			Execute("!" + output, true, true);
+		}
+		else
+		{
+			mainForm.Dialogs.ShowInfo("OmniSharp", "Response is empty");
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}
+	}
+	
+	private void DoOmnisharpCurrentFileMembers(string text)
+	{
+		if (!mainForm.SharpManager.Started)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "OmniSharp server is not started");
+			return;
+		}		
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetWord(place);
+		
+		Node node = new SharpRequest(mainForm)
+			.Add("FileName", lastBuffer.FullPath)
+			.Add("WordToComplete", word)
+			.Add("Buffer", editorText)
+			.Add("Line", (place.iLine + 1) + "")
+			.Add("Column", (place.iChar + 1) + "")
+			.Send(mainForm.SharpManager.Url + "/currentfilemembersflat", true);
+		if (node != null)
+		{
+			mainForm.Dialogs.ShowInfo("OmniSharp", node + "");
+		}
 	}
 }

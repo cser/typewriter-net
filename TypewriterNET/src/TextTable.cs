@@ -38,6 +38,28 @@ public class TextTable
 		rows.Add(new List<string>());
 		return this;
 	}
+	
+	public struct Splitted
+	{
+		public string head;
+		public string tail;
+		
+		public Splitted(string head, string tail)
+		{
+			this.head = head;
+			this.tail = tail;
+		}
+	}
+	
+	private Splitted SplitSubline(string text, int length)
+	{
+		int index = text.IndexOf('\n');
+		if (index != -1 && index <= length)
+			return new Splitted(text.Substring(0, index), text.Substring(index + 1));
+		if (text.Length > length)
+			return new Splitted(text.Substring(0, length), text.Substring(length));
+		return new Splitted(text, null);
+	}
 
 	override public string ToString()
 	{
@@ -72,41 +94,52 @@ public class TextTable
 		{
 			width += colSizes[i];
 		}
+		string[] lineTexts = new string[colsCount];
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < rowsCount; i++)
 		{
 			List<string> list = rows[i];
 			if (list != null)
 			{
-				int k = 0;
+				for (int j = 0; j < colsCount; j++)
+				{
+					lineTexts[j] = j < list.Count ? list[j] : "";
+				}
 				while (true)
 				{
 					bool allCompleted = true;
 					for (int j = 0; j < colsCount; j++)
 					{
-						if (j > 0)
-							builder.Append(" | ");
-						string text = j < list.Count ? list[j] : "";
-						int colSize = colSizes[j];
-						if (k * colSize < text.Length)
+						bool needLine = j > 0;
+						if (lineTexts[j] != null)
 						{
-							if ((k + 1) * colSize < text.Length)
+							string part = lineTexts[j];
+							if (needLine)
 							{
-								allCompleted = false;
-								text = text.Substring(k * colSize, colSize);
+								if (part.StartsWith("="))
+								{
+									part = " " + part.Substring(1);
+									builder.Append(" = ");
+								}
+								else
+								{
+									builder.Append(" | ");
+								}
 							}
-							else
-							{
-								text = text.Substring(k * colSize);
-							}
-							builder.Append(text.PadRight(colSizes[j]));
+							Splitted splitted = SplitSubline(part, colSizes[j]);
+							lineTexts[j] = splitted.tail;
+							allCompleted = splitted.tail == null;
+							builder.Append(splitted.head.PadRight(colSizes[j]));
 						}
 						else
 						{
+							if (needLine)
+							{
+								builder.Append(" | ");
+							}
 							builder.Append(new string(' ', colSizes[j]));
 						}
 					}
-					k++;
 					builder.AppendLine();
 					if (allCompleted)
 						break;

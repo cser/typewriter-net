@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Text;
+using System.IO;
 using System.Globalization;
 using MulticaretEditor;
 
@@ -10,10 +11,32 @@ public class Properties
 {
 	public static void AddHeadTo(TextTable table)
 	{
-		table.Add("Name").Add("Type").Add("Default value").Add("Possible values");
+		table.Add("Name").Add("Type").Add("Default value").Add("Possible/current values");
+	}
+	
+	public static string NameOfName(string name)
+	{
+		if (name != null)
+		{
+			int index = name.IndexOf(":");
+			if (index != -1)
+				return name.Substring(0, index);
+		}
+		return name;
+	}
+	
+	public static string SubvalueOfName(string name)
+	{
+		if (name != null)
+		{
+			int index = name.IndexOf(":");
+			if (index != -1)
+				return name.Substring(index + 1);
+		}
+		return null;
 	}
 
-	public class Property
+	public abstract class Property
 	{
 		public readonly string name;
 
@@ -21,17 +44,34 @@ public class Properties
 		{
 			this.name = name;
 		}
+		
+		abstract public string Type { get; }
+		virtual public string TypeHelp { get { return null; } }
 
 		virtual public string Text { get { return ""; } }
+		virtual public string ShowedName { get { return name; } }
+		virtual public string DefaultValue { get { return ""; } }
+		
+		virtual public string PossibleValues { get { return ""; } }
 
-		virtual public string SetText(string value)
+		virtual public string SetText(string value, string subvalue)
 		{
 			return null;
 		}
 
-		virtual public void GetHelpText(TextTable table)
+		public void GetHelpText(Settings settings, TextTable table)
 		{
-			table.Add(name);
+			table.Add(ShowedName).Add(Type).Add(DefaultValue).Add(PossibleValues);
+		}
+		
+		public bool GetHelpTypeText(TextTable table)
+		{
+			if (TypeHelp != null)
+			{
+				table.Add("").Add("").Add("").Add(TypeHelp);
+				return true;
+			}
+			return false;
 		}
 
 		virtual public void Reset()
@@ -74,9 +114,9 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text { get { return StringOf(value); } }
+		public override string Text { get { return StringOf(value); } }
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			float temp;
 			if (float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out temp))
@@ -86,13 +126,12 @@ public class Properties
 			}
 			return "Can't parse \"" + value + "\"";
 		}
+		
+		public override string Type { get { return "float"; } }
+		public override string DefaultValue { get { return StringOf(defaultValue); } }
+		public override string PossibleValues { get { return "min: " + StringOf(min) + ", max: " + StringOf(max); } }
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("float").Add(StringOf(defaultValue)).Add("min: " + StringOf(min) + ", max: " + StringOf(max));
-		}
-
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -138,9 +177,9 @@ public class Properties
 			set { this.value = Math.Max(min, Math.Min(max, value)); }
 		}
 
-		override public string Text { get { return value + ""; } }
+		public override string Text { get { return value + ""; } }
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			int temp;
 			if (int.TryParse(value, out temp))
@@ -150,13 +189,12 @@ public class Properties
 			}
 			return "Can't parse \"" + value + "\"";
 		}
+		
+		public override string Type { get { return "int"; } }
+		public override string DefaultValue { get { return defaultValue + ""; } }
+		public override string PossibleValues { get { return "min: " + min + ", max: " + max; } }
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("int").Add(defaultValue + "").Add("min: " + min + ", max: " + max);
-		}
-
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -166,12 +204,14 @@ public class Properties
 	{
 		private string defaultValue;
 		private bool convertEscape;
+		private string help;
 
-		public String(string name, string value, bool convertEscape) : base(name)
+		public String(string name, string value, bool convertEscape, string help) : base(name)
 		{
 			defaultValue = value;
 			this.value = value ?? "";
 			this.convertEscape = convertEscape;
+			this.help = help;
 		}
 
 		private string value;
@@ -204,9 +244,38 @@ public class Properties
 			return this;
 		}
 
-		override public string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
+		public override string Text { get { return convertEscape ? value.Replace("\r", "\\r").Replace("\n", "\\n") : value; } }
+		public override string Type { get { return "string"; } }
+		public override string DefaultValue { get { return ReplaceLineBreaks(defaultValue); } }
+		
+		public override string PossibleValues
+		{
+			get
+			{
+				string[] variants = this.variants;
+				if (variants == null && loadVariants != null)
+					variants = loadVariants();
+				string text = "";
+				if (variants != null && variants.Length > 0)
+				{
+					foreach (string variant in variants)
+					{
+						if (text != "")
+							text += "\n";
+						text += ReplaceLineBreaks(variant);
+					}
+				}
+				if (!string.IsNullOrEmpty(help))
+				{
+					if (text != "")
+						text += "\n";
+					text += help;
+				}
+				return text != "" ? text : "=\"" + ReplaceLineBreaks(value).Replace("\"", "\"\"") + "\"";
+			}
+		}
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			string newValue = convertEscape && value != null ? value.Replace("\\r", "\r").Replace("\\n", "\n") : value + "";
 			if (variants != null && variants.Length > 0 && Array.IndexOf(variants, newValue) == -1)
@@ -228,25 +297,6 @@ public class Properties
 			return null;
 		}
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("string").Add(ReplaceLineBreaks(defaultValue));
-			string[] variants = this.variants;
-			if (variants == null && loadVariants != null)
-				variants = loadVariants();
-			if (variants != null && variants.Length > 0)
-			{
-				bool first = true;
-				foreach (string variant in variants)
-				{
-					if (!first)
-						table.NewRow().Add("").Add("").Add("");
-					first = false;
-					table.Add(ReplaceLineBreaks(variant));
-				}
-			}
-		}
-
 		private string ReplaceLineBreaks(string value)
 		{
 			value = value.Replace("\n", "\\n");
@@ -254,9 +304,73 @@ public class Properties
 			return value;
 		}
 
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
+		}
+	}
+	
+	public class CommandInfo
+	{
+		public string pattern;
+		public string command;
+		public FileNameFilter filter;
+	}
+	
+	public class Command : Property
+	{
+		public Command(string name) : base(name)
+		{
+		}
+		
+		private readonly RWList<CommandInfo> value = new RWList<CommandInfo>();
+		public IRList<CommandInfo> Value { get { return value; } }
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (CommandInfo info in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append(info.command + ":" + info.pattern);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == subvalue)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			CommandInfo info = new CommandInfo();
+			info.pattern = subvalue;
+			info.command = value;
+			if (info.pattern != null)
+			{
+				info.filter = new FileNameFilter(info.pattern);
+			}
+			this.value.Add(info);
+			return null;
+		}
+
+		public override string Type { get { return "command"; } }		
+		public override string ShowedName { get { return name + "[:<filter>]"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+		public override string PossibleValues { get { return "(several nodes allowed)"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
 		}
 	}
 
@@ -269,7 +383,7 @@ public class Properties
 		private readonly RWList<RegexData> value = new RWList<RegexData>();
 		public IRList<RegexData> Value { get { return value; } }
 
-		override public string Text
+		public override string Text
 		{
 			get
 			{
@@ -286,7 +400,7 @@ public class Properties
 			}
 		}
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			string errors;
 			RegexData data = RegexData.Parse(value, out errors);
@@ -295,13 +409,12 @@ public class Properties
 			this.value.Add(data);
 			return null;
 		}
+		
+		public override string Type { get { return "regex"; } }
+		
+		public override string PossibleValues { get { return "(several nodes allowed)"; } }
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("regex").Add("").Add("(several nodes allowed)");
-		}
-
-		override public void Reset()
+		public override void Reset()
 		{
 			value.Clear();
 		}
@@ -319,9 +432,9 @@ public class Properties
 		private EncodingPair value;
 		public EncodingPair Value { get { return value; } }
 
-		override public string Text { get { return Value.ToString(); } }
+		public override string Text { get { return Value.ToString(); } }
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			string error;
 			EncodingPair newValue = EncodingPair.ParseEncoding(value, out error);
@@ -329,13 +442,11 @@ public class Properties
 				this.value = newValue;
 			return error;
 		}
+		
+		public override string Type { get { return "encoding[ bom]"; } }
+		public override string DefaultValue { get { return defaultValue + ""; } }
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("encoding[ bom]").Add(defaultValue.ToString());
-		}
-
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
 		}
@@ -358,22 +469,139 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text { get { return value ? "true" : "false"; } }
+		public override string Text { get { return value ? "true" : "false"; } }
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			Value = value != null && (value == "1" || value.ToLowerInvariant() == "true");
 			return null;
 		}
+		
+		public override string Type { get { return "bool"; } }
+		public override string DefaultValue { get { return defaultValue ? "true" : "false"; } }
+		public override string PossibleValues { get { return "=" + (value ? "true" : "false"); } }
 
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("bool").Add(defaultValue ? "true" : "false");
-		}
-
-		override public void Reset()
+		public override void Reset()
 		{
 			value = defaultValue;
+		}
+	}
+	
+	public class BoolInfo
+	{
+		public string pattern;
+		public bool value;
+		public FileNameFilter filter;
+		
+		public BoolInfo(bool value, string pattern)
+		{
+			this.pattern = pattern;
+			this.value = value;
+			if (this.pattern != null)
+			{
+				filter = new FileNameFilter(pattern);
+			}
+		}
+	}
+	
+	public class BoolList : Property
+	{
+		private bool defaultValue;
+		
+		public BoolList(string name, bool value) : base(name)
+		{
+			defaultValue = value;
+			this.value.Add(new BoolInfo(defaultValue, null));
+		}
+
+		private readonly RWList<BoolInfo> value = new RWList<BoolInfo>();
+		public IRList<BoolInfo> Value { get { return value; } }
+		public override string DefaultValue { get { return defaultValue ? "true" : "false"; } }
+		
+		public bool GetValue(Buffer buffer)
+		{
+			string name = buffer != null ? buffer.Name : null;
+			BoolInfo info = null;
+			if (name != null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					BoolInfo infoI = value[i];
+					if (infoI.filter != null && infoI.filter.Match(name))
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			if (info == null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					BoolInfo infoI = value[i];
+					if (infoI.filter == null)
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			return info.value;
+		}
+		
+		public override string PossibleValues
+		{
+			get
+			{
+				string text = "";
+				foreach (BoolInfo info in value)
+				{
+					if (text != "")
+						text += "\n";
+					text += "=" + (info.value ? "true" : "false") + (info.pattern != null ? ":" + info.pattern : "");
+				}
+				return text;
+			}
+		}
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (BoolInfo info in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append((info.value ? "true" : "false") + ":" + info.pattern);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == subvalue)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			this.value.Add(new BoolInfo(value != null && (value == "1" || value.ToLowerInvariant() == "true"), subvalue));
+			return null;
+		}
+
+		public override string Type { get { return "bool"; } }		
+		public override string ShowedName { get { return name + "[:<filter>]"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
+			value.Add(new BoolInfo(defaultValue, null));
 		}
 	}
 
@@ -394,9 +622,9 @@ public class Properties
 			set { this.value = value; }
 		}
 
-		override public string Text { get { return StringOf(value); } }
+		public override string Text { get { return StringOf(value); } }
 
-		override public string SetText(string value)
+		public override string SetText(string value, string subvalue)
 		{
 			if (!IsFamilyInstalled(value))
 			{
@@ -406,11 +634,10 @@ public class Properties
 			Value = new FontFamily(value);
 			return null;
 		}
-
-		override public void GetHelpText(TextTable table)
-		{
-			table.Add(name).Add("font").Add(StringOf(defaultValue));
-		}
+		
+		public override string Type { get { return "font"; } }
+		public override string DefaultValue { get { return StringOf(defaultValue); } }
+		public override string PossibleValues { get { return "=\"" + Value.Name + "\""; } }
 
 		private string StringOf(FontFamily fontFamily)
 		{
@@ -428,7 +655,53 @@ public class Properties
 			return false;
 		}
 
-		override public void Reset()
+		public override void Reset()
+		{
+			value = defaultValue;
+		}
+	}
+	
+	public class PathProperty : Property
+	{
+		private readonly string defaultValue;
+		private readonly string help;
+		
+		public PathProperty(string name, string defaultValue, string help) : base(name)
+		{
+			this.defaultValue = defaultValue;
+			this.help = help;
+		}
+
+		private string value;
+		public string Value { get { return value; } }
+
+		public override string Text { get { return defaultValue; } }
+		
+		private static bool IsPathGlobal(string path)
+		{
+			return path.Length > 2 && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			value = value.Trim();
+			if (!IsPathGlobal(value))
+			{
+				value = Path.Combine(Directory.GetCurrentDirectory(), value);
+			}
+			if (!Directory.Exists(value) && !File.Exists(value))
+			{
+				return "No file or directory: " + value;
+			}
+			this.value = value;
+			return null;
+		}
+		
+		public override string Type { get { return "path"; } }
+		public override string DefaultValue { get { return defaultValue; } }
+		public override string PossibleValues { get { return help; } }
+
+		public override void Reset()
 		{
 			value = defaultValue;
 		}

@@ -51,5 +51,76 @@ namespace UnitTests
 			Assert.AreEqual("", CommonHelper.GetOneLine("\rAAA\nBBB"));
 			Assert.AreEqual("", CommonHelper.GetOneLine("\r\nAAA\nBBB"));
 		}
+		
+		[Test]
+		public void GetShortText1()
+		{
+			Assert.AreEqual("ab", CommonHelper.GetShortText("ab", 2));
+			Assert.AreEqual("a", CommonHelper.GetShortText("a", 2));
+			Assert.AreEqual("a", CommonHelper.GetShortText("a", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("", 0));
+		}
+		
+		[Test]
+		public void GetShortText2()
+		{
+			Assert.AreEqual("ab…fg", CommonHelper.GetShortText("abcdefg", 5));
+			Assert.AreEqual("ab…ef", CommonHelper.GetShortText("abcdef", 5));
+			Assert.AreEqual("a…g", CommonHelper.GetShortText("abcdefg", 3));
+		}
+		
+		[Test]
+		public void GetShortText3()
+		{
+			Assert.AreEqual("ab…g", CommonHelper.GetShortText("abcdefg", 4));
+			Assert.AreEqual("ab…f", CommonHelper.GetShortText("abcdef", 4));
+			Assert.AreEqual("a…", CommonHelper.GetShortText("abcdefg", 2));
+		}
+		
+		[Test]
+		public void GetShortText4()
+		{
+			Assert.AreEqual("…", CommonHelper.GetShortText("abcdefg", 1));
+			Assert.AreEqual("", CommonHelper.GetShortText("a", 0));
+		}
+		
+		[Test]
+		public void GetShortText5()
+		{
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 0));
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 1));
+			Assert.AreEqual(null, CommonHelper.GetShortText(null, 2));
+		}
+		
+		[Test]
+		public void IsIdentifier0()
+		{
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("_item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("__item"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("item2"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("it3em23"));
+			Assert.AreEqual(true, CommonHelper.IsIdentifier("it3em_23___"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("1item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("0__ite__m102"));
+		}
+		
+		[Test]
+		public void IsIdentifier1()
+		{
+			Assert.AreEqual(false, CommonHelper.IsIdentifier(""));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier(null));
+		}
+		
+		[Test]
+		public void IsIdentifier2()
+		{
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("_+"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("+item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("/item"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("i/tem"));
+			Assert.AreEqual(false, CommonHelper.IsIdentifier("item/"));
+		}
 	}
 }

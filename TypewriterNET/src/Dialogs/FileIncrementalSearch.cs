@@ -7,6 +7,7 @@ using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
@@ -30,31 +31,72 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
 
+	private string filter;
+	private Thread thread;
+	private string[] files;
+	private string error;
+	
 	override protected bool Prebuild()
 	{
-		string filter = MainForm.Settings.findInFilesFilter.Value;
+		files = null;
+		error = null;
+		filter = MainForm.Settings.findInFilesFilter.Value;
+		FileNameFilter hardFilter = null;
 		if (string.IsNullOrEmpty(filter))
+		{
 			filter = "*";
-		string[] files = null;
+		}
+		else if (filter.Contains(";"))
+		{
+			hardFilter = new FileNameFilter(filter);
+			filter = "*";
+		}
+		thread = new Thread(new ThreadStart(ScanFiles));
+		thread.Start();
+		thread.Join(new TimeSpan(0, 0, MainForm.Settings.fileIncrementalSearchTimeout.Value));
+		if (error != null)
+		{
+			MainForm.Dialogs.ShowInfo("Error", error);
+			return false;
+		}
+		else if (files == null)
+		{
+			MainForm.Dialogs.ShowInfo(
+				"Error",
+				"File system scanning timeout (" +
+				MainForm.Settings.fileIncrementalSearchTimeout.name + "=" + MainForm.Settings.fileIncrementalSearchTimeout.Value +
+				")"
+			);
+			return false;
+		}
+		filesList.Clear();
+		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
+		for (int i = 0; i < files.Length; ++i)
+		{
+			string file = files[i];
+			if (file.StartsWith(currentDirectory))
+				file = file.Substring(currentDirectory.Length);
+			if (hardFilter != null)
+			{
+				string name = Path.GetFileName(file);
+				if (!hardFilter.Match(name))
+					continue;
+			}
+			filesList.Add(file);
+		}
+		return true;
+	}
+	
+	private void ScanFiles()
+	{
 		try
 		{
 			files = Directory.GetFiles(Directory.GetCurrentDirectory(), filter, SearchOption.AllDirectories);
 		}
 		catch (Exception e)
 		{
-			MainForm.Dialogs.ShowInfo("Error", "File list reading error: " + e.Message);
-			return false;
+			error = "File list reading error: " + e.Message;
 		}
-		filesList.Clear();
-		string currentDirectory = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
-		foreach (string file in files)
-		{
-			string path = file;
-			if (path.StartsWith(currentDirectory))
-				path = file.Substring(currentDirectory.Length);
-			filesList.Add(path);
-		}
-		return true;
 	}
 
 	override protected string GetVariantsText()

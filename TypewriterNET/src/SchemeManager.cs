@@ -46,7 +46,7 @@ public class SchemeManager
 
 	private AppPath GetSchemePath(string schemeName)
 	{
-		return new AppPath(Path.Combine(AppPath.Schemes, schemeName + ".xml"));
+		return new AppPath(Path.Combine(AppPath.Schemes, schemeName + ".xml"), null);
 	}
 	
 	public List<AppPath> GetSchemePaths(string schemeName)

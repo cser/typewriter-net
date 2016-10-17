@@ -19,6 +19,7 @@
 	
 	<style name="dsKeyword" color="green"/>
 	<style name="dsDataType" color="yellow"/>
+	<style name="dsDataType2" color="yellow"/>
 	<style name="dsDecVal" color="magenta"/>
 	<style name="dsBaseN" color="magenta"/>
 	<style name="dsFloat" color="magenta"/>
@@ -68,6 +69,7 @@
 	<style name="dsNormal" color="base1"/>
 	<style name="dsNormal2" color="base1" italic="true"/>
 	<style name="dsComment" color="base00"/>
+	<style name="dsDocStart" color="base00"/>
 	<style name="dsOperator" color="base1" bold="true"/>
 	
 	<style name="dsOthers2" color="base1"/>

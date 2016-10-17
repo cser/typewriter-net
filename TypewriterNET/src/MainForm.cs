@@ -19,6 +19,7 @@ using MulticaretEditor.KeyMapping;
 public class MainForm : Form
 {
 	private const string UntitledTxt = "Untitled.txt";
+
 	private readonly string[] args;
 
 	private readonly Settings settings;
@@ -86,6 +87,12 @@ public class MainForm : Form
 		string name = buffer != null ? buffer.FullPath : null;
 		Text = Application.ProductName + (string.IsNullOrEmpty(name) ? "" : " - " + name);
 	}
+	
+	public void UpdateAfterFileRenamed()
+	{
+		frames.UpdateSettings(settings, UpdatePhase.FileSaved);
+		UpdateTitle();
+	}
 
 	public Buffer LastBuffer
 	{
@@ -132,13 +139,15 @@ public class MainForm : Form
 	private void OnLoad(object sender, EventArgs e)
 	{
 		List<FileArg> filesToLoad;
-		ApplyArgs(args, out filesToLoad, out tempFilePostfix);
+		int lineNumber;
+		string configFilePostfix;
+		ApplyArgs(args, out filesToLoad, out lineNumber, out tempFilePostfix, out configFilePostfix);
 
 		string appDataPath = Path.Combine(
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TypewriterNET");
 		if (!Directory.Exists(appDataPath))
 			Directory.CreateDirectory(appDataPath);
-		AppPath.Init(Application.StartupPath, appDataPath);
+		AppPath.Init(Application.StartupPath, appDataPath, configFilePostfix);
 
 		BuildMenu();
 
@@ -166,10 +175,11 @@ public class MainForm : Form
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
 
+		sharpManager = new SharpManager(this);
 		syntaxFilesScanner.Rescan();
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
-
+		
 		fileTree = new FileTree(this);
 
 		leftNest.buffers = new BufferList();
@@ -183,10 +193,18 @@ public class MainForm : Form
 		tempSettings.Load(tempFilePostfix);
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
 
+        openFileLine = lineNumber;
 		foreach (FileArg fileArg in filesToLoad)
 		{
-			LoadFile(fileArg.file, fileArg.httpServer);
+			Buffer buffer = LoadFile(fileArg.file, fileArg.httpServer);
+			if (openFileLine != 0)
+			{
+			    Place place = new Place(0, openFileLine - 1);
+                buffer.Controller.PutCursor(place, false);
+                buffer.Controller.NeedScrollToCaret();
+			}
 		}
+		openFileLine = 0;
 
 		FormClosing += OnFormClosing;
 		mainNest.buffers.AllRemoved += OpenEmptyIfNeed;
@@ -204,9 +222,8 @@ public class MainForm : Form
         NativeMethods.CHANGEFILTERSTRUCT changeFilter = new NativeMethods.CHANGEFILTERSTRUCT();
         changeFilter.size = (uint)Marshal.SizeOf(changeFilter);
         changeFilter.info = 0;
-        if (!NativeMethods.ChangeWindowMessageFilterEx
-        (this.Handle, NativeMethods.WM_COPYDATA, 
-        NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
+        if (!NativeMethods.ChangeWindowMessageFilterEx(
+        	this.Handle, NativeMethods.WM_COPYDATA, NativeMethods.ChangeWindowMessageFilterExAction.Allow, ref changeFilter))
         {
             int error = Marshal.GetLastWin32Error();
             MessageBox.Show(String.Format("The error {0} occurred.", error));
@@ -224,11 +241,15 @@ public class MainForm : Form
 			this.httpServer = httpServer;
 		}
 	}
+	
+	private int openFileLine = 0;
 
-	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out string tempFilePostfix)
+	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
 	{
+	    lineNumber = 0;
 		filesToLoad = new List<FileArg>();
 		tempFilePostfix = null;
+		configFilePostfix = null;
 		for (int i = 0; true;)
 		{
 			if (i < args.Length && args[i] == "-connect")
@@ -264,9 +285,36 @@ public class MainForm : Form
 					break;
 				}
 			}
+			else if (i < args.Length && args[i] == "-config")
+			{
+				i++;
+				if (i < args.Length && !args[i].StartsWith("-"))
+				{
+					configFilePostfix = args[i];
+					i++;
+				}
+				else
+				{
+					Console.Error.WriteLine("-config requires configFilePostfix");
+					break;
+				}
+			}
 			else if (i < args.Length && args[i] == "-help")
 			{
+			    i++;
                 WriteHelp();
+			}
+			else if (i < args.Length && args[i].StartsWith("-line="))
+			{
+				if (int.TryParse(args[i].Substring("-line=".Length), out lineNumber))
+				{
+					i++;
+				}
+				else
+				{
+					Console.Error.WriteLine("-line requires number");
+					break;
+				}
 			}
 			else
 			{
@@ -279,14 +327,20 @@ public class MainForm : Form
 			}
 		}
 	}
+	
+	private string GetExeHelp()
+	{
+	    return "<fileName>\n" +
+            "-connect <fictiveFileName> <httpServer>\n" +
+            "-temp <tempFilePostfix> - use different temp settings\n" +
+            "-config <tempFilePostfix> - use different config\n" +
+            "-help\n" + 
+            "-line=<line>";
+	}
 
     private void WriteHelp()
     {
-        Console.Write("Typewriter.NET options:\n" +
-            "<fileName>\n" +
-            "-connect <fictiveFileName> <httpServer>\n" +
-            "-temp <tempFilePostfix> - for using different temp settings\n" +
-            "-help");
+        Console.Write("Options: " + GetExeHelp());
     }
 
 	public bool SetCurrentDirectory(string path, out string error)
@@ -294,7 +348,8 @@ public class MainForm : Form
 		error = null;
 		if (string.IsNullOrEmpty(path))
 			return false;
-		if (path.ToLowerInvariant() == Directory.GetCurrentDirectory().ToLowerInvariant())
+		string oldDir = Directory.GetCurrentDirectory();
+		if (path.ToLowerInvariant() == oldDir.ToLowerInvariant())
 			return false;
 		try
 		{
@@ -308,12 +363,19 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.ChangeCurrentDirectory);
 		if (hasCurrentConfig || File.Exists(AppPath.ConfigPath.GetCurrentPath()))
 			ReloadConfig();
+		if (tempSettings != null)
+			tempSettings.AddDirectory(oldDir);
 		return true;
 	}
 
 	private bool activationInProcess = false;
 
 	private void OnActivated(object sender, EventArgs e)
+	{
+		CheckFilesChanges();
+	}
+	
+	public void CheckFilesChanges()
 	{
 		if (activationInProcess)
 			return;
@@ -334,11 +396,78 @@ public class MainForm : Form
 			buffer.fileInfo.Refresh();
 			if (buffer.lastWriteTimeUtc != buffer.fileInfo.LastWriteTimeUtc)
 			{
-				DialogResult result = MessageBox.Show("File was changed. Reload it?", Name, MessageBoxButtons.YesNo);
-				if (result == DialogResult.Yes)
-					ReloadFile(buffer);
+				if (settings.checkContentBeforeReloading.Value && IsFileEqualToBuffer(buffer))
+				{
+					buffer.Controller.history.MarkAsSaved();
+				}
+				else
+				{
+					DialogResult result = MessageBox.Show(
+						CommonHelper.GetShortText(buffer.FullPath, 60) + "\n" +
+						"______________________________________________________________________________\n" +
+						"File was changed, reload it?",
+						Name, MessageBoxButtons.YesNo);
+					if (result == DialogResult.Yes)
+						ReloadFile(buffer);
+				}
 			}
 		}
+	}
+	
+	private bool IsFileEqualToBuffer(Buffer buffer)
+	{
+		if (buffer.FullPath == null)
+		{
+			return false;
+		}
+		byte[] bytes = null;
+		try
+		{
+			bytes = File.ReadAllBytes(buffer.FullPath);
+		}
+		catch (IOException)
+		{
+			bool needDelete = false;
+			string tempFile = Path.Combine(Path.GetTempPath(), buffer.Name);
+			try
+			{
+				File.Copy(buffer.FullPath, tempFile, true);
+				needDelete = true;
+				bytes = File.ReadAllBytes(tempFile);
+			}
+			catch
+			{
+				return false;
+			}
+			finally
+			{
+				if (needDelete)
+				{
+					try
+					{
+						File.Delete(tempFile);
+					}
+					catch
+					{
+					}
+				}
+			}
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+		string fileText = null;
+		try
+		{
+			fileText = buffer.encodingPair.GetString(bytes);
+		}
+		catch
+		{
+		}
+		if (fileText == null)
+			return false;
+		return buffer.Controller.Lines.GetText() == fileText;
 	}
 
 	private void OpenEmptyIfNeed()
@@ -383,8 +512,12 @@ public class MainForm : Form
 				break;
 			}
 		}
+		if (_helpBuffer != null && _helpBuffer.onRemove != null)
+			_helpBuffer.onRemove(_helpBuffer);
 		if (!forbidTempSaving)
 			tempSettings.Save(tempFilePostfix);
+		if (sharpManager != null)
+			sharpManager.Close();
 	}
 
 	public KeyMapNode MenuNode { get { return menu.node; } }
@@ -408,6 +541,9 @@ public class MainForm : Form
 			lastFrame = frame;
 		UpdateTitle();
 	}
+	
+	private SharpManager sharpManager;
+	public SharpManager SharpManager { get { return sharpManager; } }
 
 	private void ApplySettings()
 	{
@@ -417,6 +553,9 @@ public class MainForm : Form
 		TopMost = settings.alwaysOnTop.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
+		sharpManager.UpdateSettings(settings);
+		if (fileTree != null)
+		    fileTree.ReloadIfNeedForSettings();
 	}
 
 	public void DoResize()
@@ -522,21 +661,53 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
+			.SetGetText(GetF5CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F5, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)
+			.SetGetText(GetShiftF5CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F6, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)
+			.SetGetText(GetF6CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F6, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)
+			.SetGetText(GetShiftF6CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F7, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)
+			.SetGetText(GetF7CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F7, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)
+			.SetGetText(GetShiftF7CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F8, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)
+			.SetGetText(GetF8CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F8, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)
+			.SetGetText(GetShiftF8CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F9, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)
+			.SetGetText(GetF9CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F9, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)
+			.SetGetText(GetShiftF9CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F11, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)
+			.SetGetText(GetF11CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F11, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)
+			.SetGetText(GetShiftF11CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			.SetGetText(GetF12CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)
+			.SetGetText(GetShiftF12CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)
+			.SetGetText(GetCtrlSpaceCommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
+			.SetGetText(GetCtrlShiftSpaceCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -564,6 +735,22 @@ public class MainForm : Form
 	public Buffer LoadFile(string file, string httpServer)
 	{
 		return LoadFile(file, httpServer, null);
+	}
+	
+	public Buffer GetBuffer(string file)
+	{
+		string name = null;
+		string fullPath = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception)
+		{
+			return null;
+		}
+		return mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
 	}
 
 	public Buffer LoadFile(string file, string httpServer, Nest nest)
@@ -735,7 +922,7 @@ public class MainForm : Form
 			buffer.fileInfo = new FileInfo(buffer.FullPath);
 			buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 			buffer.needSaveAs = false;
-			tempSettings.ApplyQualities(buffer);
+			tempSettings.ApplyQualities(buffer, openFileLine);
             if (last)
             {
                 buffer.Controller.DocumentEnd(false);
@@ -870,6 +1057,7 @@ public class MainForm : Form
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
+		frames.UpdateSettings(settings, UpdatePhase.FileSaved);
 		string fullPath = buffer.FullPath.ToLowerInvariant();
 		string syntaxDir = Path.GetDirectoryName(buffer.FullPath).ToLowerInvariant();
 		if (fullPath == AppPath.ConfigPath.GetCurrentPath().ToLowerInvariant() ||
@@ -887,6 +1075,11 @@ public class MainForm : Form
 			syntaxDir == AppPath.SyntaxDir.startupPath.ToLowerInvariant()))
 		{
 			ReloadSyntaxes();
+		}
+		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
+		if (info != null && !string.IsNullOrEmpty(info.command))
+		{
+			commander.Execute(info.command, true, false);
 		}
 	}
 
@@ -1272,6 +1465,10 @@ public class MainForm : Form
 			builder.AppendLine(Application.ProductName);
 			builder.AppendLine("Build " + Application.ProductVersion);
 			builder.AppendLine();
+			builder.AppendLine("# Command line options");
+			builder.AppendLine();
+			builder.AppendLine(GetExeHelp());
+			builder.AppendLine();
 			builder.AppendLine("# Actions");
 			builder.AppendLine();
 			builder.AppendLine("All actions are represented in menu.");
@@ -1290,13 +1487,19 @@ public class MainForm : Form
 				ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
 				builder.AppendLine(ds.name);
 			}
-			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Normal);
+			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Help);
 			_helpBuffer.tags = BufferTag.Other;
 			_helpBuffer.onRemove = OnHelpBufferRemove;
 			_helpBuffer.Controller.isReadonly = true;
 			_helpBuffer.Controller.InitText(builder.ToString());
 			_helpBuffer.Controller.Lines.ranges = ranges;
+			if (tempSettings.helpPosition < 0)
+				tempSettings.helpPosition = 0;
+			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
+				tempSettings.helpPosition = _helpBuffer.Controller.Lines.charsCount;
 			ShowBuffer(mainNest, _helpBuffer);
+			_helpBuffer.Controller.PutCursor(_helpBuffer.Controller.Lines.PlaceOf(tempSettings.helpPosition), false);
+			_helpBuffer.Controller.NeedScrollToCaret();
 		}
 		else
 		{
@@ -1307,6 +1510,10 @@ public class MainForm : Form
 
 	private bool OnHelpBufferRemove(Buffer buffer)
 	{
+		if (buffer != null)
+		{
+			tempSettings.helpPosition = buffer.Controller.LastSelection.caret;
+		}
 		_helpBuffer = null;
 		return true;
 	}
@@ -1326,6 +1533,12 @@ public class MainForm : Form
 		if (nest.Frame == null)
 			new Frame().Create(nest);
 		nest.Frame.AddBuffer(buffer);
+	}
+	
+	public void MarkShowed(Buffer buffer)
+	{
+		if (buffer.FullPath != null)
+			tempSettings.MarkLoaded(buffer);
 	}
 
 	private Dictionary<string, Buffer> consoleBuffers = new Dictionary<string, Buffer>();
@@ -1497,30 +1710,60 @@ public class MainForm : Form
 	{
 		return ExecuteCommand(settings.f5Command.Value);
 	}
+	
+	private string GetF5CommandText()
+	{
+		return GetCommandText(settings.f5Command);
+	}
 
 	private bool DoExecuteF6Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f6Command.Value);
+	}
+	
+	private string GetF6CommandText()
+	{
+		return GetCommandText(settings.f6Command);
 	}
 
 	private bool DoExecuteF7Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f7Command.Value);
 	}
+	
+	private string GetF7CommandText()
+	{
+		return GetCommandText(settings.f7Command);
+	}
 
 	private bool DoExecuteF8Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f8Command.Value);
+	}
+	
+	private string GetF8CommandText()
+	{
+		return GetCommandText(settings.f8Command);
 	}
 
 	private bool DoExecuteF9Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f9Command.Value);
 	}
+	
+	private string GetF9CommandText()
+	{
+		return GetCommandText(settings.f9Command);
+	}
 
 	private bool DoExecuteF11Command(Controller controller)
 	{
 		return ExecuteCommand(settings.f11Command.Value);
+	}
+	
+	private string GetF11CommandText()
+	{
+		return GetCommandText(settings.f11Command);
 	}
 
 	private bool DoExecuteF12Command(Controller controller)
@@ -1528,9 +1771,99 @@ public class MainForm : Form
 		return ExecuteCommand(settings.f12Command.Value);
 	}
 	
+	private string GetF12CommandText()
+	{
+		return GetCommandText(settings.f12Command);
+	}
+	
+	private bool DoExecuteShiftF5Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF5Command.Value);
+	}
+	
+	private string GetShiftF5CommandText()
+	{
+		return GetCommandText(settings.shiftF5Command);
+	}
+	
+	private bool DoExecuteShiftF6Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF6Command.Value);
+	}
+	
+	private string GetShiftF6CommandText()
+	{
+		return GetCommandText(settings.shiftF6Command);
+	}
+	
+	private bool DoExecuteShiftF7Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF7Command.Value);
+	}
+	
+	private string GetShiftF7CommandText()
+	{
+		return GetCommandText(settings.shiftF7Command);
+	}
+	
+	private bool DoExecuteShiftF8Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF8Command.Value);
+	}
+	
+	private string GetShiftF8CommandText()
+	{
+		return GetCommandText(settings.shiftF8Command);
+	}
+	
+	private bool DoExecuteShiftF9Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF9Command.Value);
+	}
+	
+	private string GetShiftF9CommandText()
+	{
+		return GetCommandText(settings.shiftF9Command);
+	}
+	
+	private bool DoExecuteShiftF11Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF11Command.Value);
+	}
+	
+	private string GetShiftF11CommandText()
+	{
+		return GetCommandText(settings.shiftF11Command);
+	}
+	
+	private bool DoExecuteShiftF12Command(Controller controller)
+	{
+		return ExecuteCommand(settings.shiftF12Command.Value);
+	}
+	
+	private string GetShiftF12CommandText()
+	{
+		return GetCommandText(settings.shiftF12Command);
+	}
+	
 	private bool DoExecuteCtrlSpaceCommand(Controller controller)
 	{
 		return ExecuteCommand(settings.ctrlSpaceCommand.Value);
+	}
+	
+	private string GetCtrlSpaceCommandText()
+	{
+		return GetCommandText(settings.ctrlSpaceCommand);
+	}
+	
+	private bool DoExecuteCtrlShiftSpaceCommand(Controller controller)
+	{
+		return ExecuteCommand(settings.ctrlShiftSpaceCommand.Value);
+	}
+	
+	private string GetCtrlShiftSpaceCommandText()
+	{
+		return GetCommandText(settings.ctrlShiftSpaceCommand);
 	}
 
 	private void ReloadSyntaxes()
@@ -1551,11 +1884,69 @@ public class MainForm : Form
 			}
 		}
 	}
-
-	private bool ExecuteCommand(string command)
+	
+	public List<Buffer> GetFileBuffers()
 	{
-		commander.Execute(command);
+		List<Buffer> buffers = new List<Buffer>();
+		foreach (Buffer buffer in mainNest.buffers.list)
+		{
+			buffers.Add(buffer);
+		}
+		if (mainNest2.Frame != null)
+		{
+			foreach (Buffer buffer in mainNest2.buffers.list)
+			{
+				buffers.Add(buffer);
+			}
+		}
+		return buffers;
+	}
+
+	private bool ExecuteCommand(IRList<Properties.CommandInfo> infos)
+	{
+		Properties.CommandInfo info = GetCommandInfo(infos, LastBuffer);
+		if (info != null)
+		{
+			commander.Execute(info.command, true, false);
+		}
 		return true;
+	}
+	
+	private string GetCommandText(Properties.Command command)
+	{
+		Properties.CommandInfo info = GetCommandInfo(command.Value, LastBuffer);
+		return info != null ? ": " + CommonHelper.GetShortText(info.command, 40) : "";
+	}
+	
+	private Properties.CommandInfo GetCommandInfo(IRList<Properties.CommandInfo> infos, Buffer buffer)
+	{
+		string name = buffer != null ? buffer.Name : null;
+		Properties.CommandInfo info = null;
+		if (name != null)
+		{
+			for (int i = infos.Count; i-- > 0;)
+			{
+				Properties.CommandInfo infoI = infos[i];
+				if (infoI.filter != null && infoI.filter.Match(name))
+				{
+					info = infoI;
+					break;
+				}
+			}
+		}
+		if (info == null)
+		{
+			for (int i = infos.Count; i-- > 0;)
+			{
+				Properties.CommandInfo infoI = infos[i];
+				if (infoI.filter == null)
+				{
+					info = infoI;
+					break;
+				}
+			}
+		}
+		return info;
 	}
 
 	private bool MoveDocumentRight(Controller controller)
@@ -1585,11 +1976,30 @@ public class MainForm : Form
             if (dataType == 2)
             {
                 string text = Marshal.PtrToStringAnsi(copyData.lpData);
-                string[] files = text.Split('+');
+                string part0 = text;
+                string part1 = "";
+                int index = text.IndexOf("++");
+                if (index != -1)
+                {
+                    part0 = text.Substring(0, index);
+                    part1 = text.Substring(index + 2);
+                }
+                string[] files = part0.Split('+');
+                string[] supportedArgs = part1.Split('+');
+                openFileLine = 0;
+                if (supportedArgs[0].StartsWith("-line="))
+                    int.TryParse(supportedArgs[0].Substring("-line=".Length), out openFileLine);
                 foreach (string file in files)
                 {
-                    LoadFile(file);
+                    Buffer buffer = LoadFile(file);
+                    if (openFileLine != 0)
+                    {
+                        Place place = new Place(0, openFileLine - 1);
+                        buffer.Controller.PutCursor(place, false);
+                        buffer.Controller.NeedScrollToCaret();
+                    }
                 }
+                openFileLine = 0;
             }
             else
             {

@@ -29,9 +29,11 @@ public class RunShellCommand
 
 	public const string FileVar = "%f%";
 	public const string FileVarSoftly = "%f?%";
+	public const string FileDirVar = "%d%";
 	public const string LineVar = "%l%";
 	public const string CharVar = "%c%";
 	public const string SelectedVar = "%s%";
+	public const string WordVar = "%w%";
 
 	private MainForm mainForm;
 
@@ -43,7 +45,7 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, List<Position>> positions;
 
-	public string Execute(string commandText, IRList<RegexData> regexList)
+	public string Execute(string commandText, bool showCommandInOutput, IRList<RegexData> regexList)
 	{
 		positions = new Dictionary<int, List<Position>>();
 
@@ -59,7 +61,7 @@ public class RunShellCommand
 		p.Start();
 		string output = p.StandardOutput.ReadToEnd();
 		string errors = p.StandardError.ReadToEnd();
-		string text = output;
+		string text = (showCommandInOutput ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
 
 		List<StyleRange> ranges = new List<StyleRange>();

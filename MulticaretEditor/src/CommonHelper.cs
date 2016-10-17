@@ -41,5 +41,43 @@ namespace MulticaretEditor
 			}
 			return text.Length;
 		}
+		
+		public static int GetFirstSpaces(string text, int start, int length)
+		{
+			int end = start + length;
+			for (int i = start; i < end; i++)
+			{
+				char c = text[i];
+				if (c != ' ' && c != '\t')
+					return i - start;
+			}
+			return length;
+		}
+		
+		public static string GetShortText(string text, int maxLength)
+		{
+			if (text == null || text.Length <= maxLength)
+				return text;
+			if (maxLength <= 0)
+				return "";
+			int left = maxLength / 2;
+			int right = maxLength - left - 1;
+			return text.Substring(0, left) + "…" + text.Substring(text.Length - right);
+		}
+		
+		public static bool IsIdentifier(string text)
+		{
+			if (text != null && text != "" && (text[0] == '_' || char.IsLetter(text[0])))
+			{
+				for (int i = 1; i < text.Length; ++i)
+				{
+					char c = text[i];
+					if (c != '_' && !char.IsLetterOrDigit(c))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		}
 	}
 }

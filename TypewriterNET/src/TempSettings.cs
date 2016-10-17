@@ -19,6 +19,20 @@ public class TempSettings
 	private MainForm mainForm;
 	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
+	private RecentlyStorage recently = new RecentlyStorage();
+	private RecentlyStorage recentlyDirs = new RecentlyStorage();
+	
+	public int helpPosition;
+	
+	public List<string> GetRecentlyFiles()
+	{
+		return recently.GetFiles();
+	}
+	
+	public List<string> GetRecentlyDirs()
+	{
+		return recentlyDirs.GetFiles();
+	}
 
 	public TempSettings(MainForm mainForm, Settings settings)
 	{
@@ -46,6 +60,8 @@ public class TempSettings
 		mainForm.Location = new Point(x, y);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
 		storage.Unserialize(state["storage"]);
+		recently.Unserialize(state["recently"]);
+		recentlyDirs.Unserialize(state["recentlyDirs"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
 			{
@@ -89,6 +105,21 @@ public class TempSettings
 			if (mainForm.MainNest.Frame != null)
 				mainForm.MainNest.Frame.Focus();
 		}
+		helpPosition = state["helpPosition"].Int;
+	}
+	
+	public void MarkLoaded(Buffer buffer)
+	{
+		if (buffer.FullPath != null)
+			recently.Add(buffer.FullPath);
+	}
+	
+	public void AddDirectory(string directory)
+	{
+		if (!string.IsNullOrEmpty(directory))
+		{
+			recentlyDirs.Add(directory);
+		}
 	}
 
 	public void StorageQualities(Buffer buffer)
@@ -110,11 +141,22 @@ public class TempSettings
 		value["encoding"] = SValue.None;
 	}
 
-	public void ApplyQualities(Buffer buffer)
+	public void ApplyQualities(Buffer buffer, int lineNumber)
 	{
 		int caret = storage.Get(buffer.FullPath)["cursor"].Int;
-		buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
-		buffer.Controller.NeedScrollToCaret();
+		if (lineNumber == 0)
+		{
+            buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
+            buffer.Controller.NeedScrollToCaret();
+        }
+        else
+        {
+            Place place = new Place(0, lineNumber - 1);
+            SValue value = storage.Get(buffer.FullPath);
+            value["cursor"] = SValue.NewInt(buffer.Controller.Lines.IndexOf(place));
+            buffer.Controller.PutCursor(place, false);
+            buffer.Controller.NeedScrollToCaret();
+        }
 	}
 
     public void ApplyQualitiesBeforeLoading(Buffer buffer)
@@ -127,6 +169,20 @@ public class TempSettings
             buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
         }
         buffer.customSyntax = value["syntax"].String;
+    }
+    
+    public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
+    {
+    	SValue value = storage.Get(fullPath);
+        string rawEncoding = value["encoding"].String;
+        if (!string.IsNullOrEmpty(rawEncoding))
+        {
+            string error;
+            EncodingPair pair = EncodingPair.ParseEncoding(rawEncoding, out error);
+            if (string.IsNullOrEmpty(error))
+            	return pair;
+        }
+        return defaultPair;
     }
 
 	public void Save(string postfix)
@@ -172,6 +228,8 @@ public class TempSettings
 			}
 		}
 		state["storage"] = storage.Serialize();
+		state["recently"] = recently.Serialize();
+		state["recentlyDirs"] = recentlyDirs.Serialize();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();
@@ -184,6 +242,7 @@ public class TempSettings
 			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
+		state["helpPosition"] = SValue.NewInt(helpPosition);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 

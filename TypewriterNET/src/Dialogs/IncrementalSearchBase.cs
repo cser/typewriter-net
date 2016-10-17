@@ -188,7 +188,7 @@ public class IncrementalSearchBase : ADialog
 		InitVariantsText(GetVariantsText());
 	}
 
-	override public bool Focused { get { return textBox.Focused; } }
+	override public bool Focused { get { return textBox.Focused || variantsTextBox.Focused; } }
 
 	override protected void OnResize(EventArgs e)
 	{
@@ -209,8 +209,8 @@ public class IncrementalSearchBase : ADialog
 	{
 		if (phase == UpdatePhase.Raw)
 		{
-			settings.ApplySimpleParameters(variantsTextBox);
-			settings.ApplySimpleParameters(textBox);
+			settings.ApplySimpleParameters(variantsTextBox, null);
+			settings.ApplySimpleParameters(textBox, null);
 			SetTextBoxParameters();
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}

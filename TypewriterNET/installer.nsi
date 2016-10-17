@@ -48,6 +48,7 @@ section "install"
 	file /r "bin\schemes"
 	file /r "bin\syntax"
 	file /r "bin\templates"
+	file /r "bin\omnisharp_server"
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
 	writeUninstaller "$INSTDIR\uninstall.exe"
@@ -98,6 +99,7 @@ section "uninstall"
 	rmdir /r /rebootok $INSTDIR\schemes
 	rmdir /r /rebootok $INSTDIR\syntax
 	rmdir /r /rebootok $INSTDIR\templates
+	rmdir /r /rebootok $INSTDIR\omnisharp_server
  
 	# Always delete uninstaller as the last action
 	delete $INSTDIR\uninstall.exe

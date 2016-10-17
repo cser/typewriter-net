@@ -94,12 +94,12 @@
 		</contexts>
 		<itemDatas>
 			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
-			<itemData name="BlockTag"     defStyleNum="dsKeyword" color="#808080" selColor="#FFFFFF" bold="1" italic="0"/>
-			<itemData name="InlineTag"    defStyleNum="dsKeyword" color="#808080" selColor="#FFFFFF" bold="0" italic="0"/>
-			<itemData name="JavadocParam" defStyleNum="dsKeyword" color="#008080" selColor="#FFFFFF" bold="0" italic="1"/>
-			<itemData name="SeeTag"       defStyleNum="dsKeyword" color="#008080" selColor="#FFFFFF" bold="0" italic="1"/>
-			<itemData name="JavadocFS"    defStyleNum="dsComment" color="#008000" selColor="#FFFFFF" bold="1" italic="0"/>
-			<itemData name="Javadoc"      defStyleNum="dsComment" color="#008000" selColor="#FFFFFF"/>
+			<itemData name="BlockTag"     defStyleNum="dsKeyword"/>
+			<itemData name="InlineTag"    defStyleNum="dsKeyword"/>
+			<itemData name="JavadocParam" defStyleNum="dsKeyword"/>
+			<itemData name="SeeTag"       defStyleNum="dsKeyword"/>
+			<itemData name="JavadocFS"    defStyleNum="dsDocStart"/>
+			<itemData name="Javadoc"      defStyleNum="dsDocStart"/>
 		</itemDatas>
 	</highlighting>
 	<general>
