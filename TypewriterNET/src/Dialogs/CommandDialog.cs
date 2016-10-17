@@ -147,7 +147,7 @@ public class CommandDialog : ADialog
 	{
 		Commander commander = MainForm.commander;
 		DispatchNeedClose();
-		commander.Execute(textBox.Text, false);
+		commander.Execute(textBox.Text, false, false);
 		return true;
 	}
 

@@ -55,7 +55,7 @@ public class Commander
 		return first;
 	}
 
-	public void Execute(string text, bool insideCommand)
+	public void Execute(string text, bool dontPutInHistory, bool showCommandInOutput)
 	{
 		if (string.IsNullOrEmpty(text))
 			return;
@@ -63,7 +63,7 @@ public class Commander
 		string name = FirstWord(text, out args);
 		if (name == "")
 			return;
-		if (!insideCommand)
+		if (!dontPutInHistory)
 			history.Add(text);
 		Command command = null;
 		foreach (Command commandI in commands)
@@ -149,7 +149,7 @@ public class Commander
 		{
 			string commandText = text.Substring(1).Trim();
 			if (ReplaceVars(ref commandText))
-				ExecuteShellCommand(commandText, insideCommand);
+				ExecuteShellCommand(commandText, showCommandInOutput);
 		}
 		else
 		{
@@ -422,9 +422,9 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", error);
 	}
 
-	private void ExecuteShellCommand(string commandText, bool insideCommand)
+	private void ExecuteShellCommand(string commandText, bool showCommandInOutput)
 	{
-		new RunShellCommand(mainForm).Execute(commandText, insideCommand, settings.shellRegexList.Value);
+		new RunShellCommand(mainForm).Execute(commandText, showCommandInOutput, settings.shellRegexList.Value);
 	}
 
 	private void DoEditFile(string file)
@@ -904,7 +904,7 @@ public class Commander
 		}
 		else if (output != null)
 		{
-			Execute("!" + output, true);
+			Execute("!" + output, true, true);
 		}
 		else
 		{

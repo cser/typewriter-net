@@ -1077,7 +1077,7 @@ public class MainForm : Form
 		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
 		if (info != null && !string.IsNullOrEmpty(info.command))
 		{
-			commander.Execute(info.command, false);
+			commander.Execute(info.command, true, false);
 		}
 	}
 
@@ -1895,7 +1895,7 @@ public class MainForm : Form
 		Properties.CommandInfo info = GetCommandInfo(infos, LastBuffer);
 		if (info != null)
 		{
-			commander.Execute(info.command, false);
+			commander.Execute(info.command, true, false);
 		}
 		return true;
 	}
