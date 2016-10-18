@@ -615,28 +615,57 @@ public class FileTree
 			return true;
 		mainForm.Dialogs.CloseInput();
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
-		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
+		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
+		List<string> fullPaths = new List<string>();
 		foreach (int index in indices)
 		{
 			Node nodeI = nodes[index];
+			string dir = null;
 			if (nodeI.type == NodeType.Directory)
 			{
-				dirs[nodeI.fullPath] = true;
-				continue;
+				dir = nodeI.fullPath;
 			}
 			else if (nodeI.type == NodeType.File)
 			{
-				dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+				dir = Path.GetDirectoryName(nodeI.fullPath);
+			}
+			if (dir != null && !dirsSet.ContainsKey(dir))
+			{
+				dirsSet[dir] = true;
+				fullPaths.Add(Path.Combine(dir, fileName));
 			}
 		}
-		foreach (KeyValuePair<string, bool> pair in dirs)
+		foreach (string fullPath in fullPaths)
 		{
-			string dir = pair.Key;
-			Buffer buffer = mainForm.ForcedLoadFile(Path.Combine(dir, fileName));
+			Buffer buffer = mainForm.ForcedLoadFile(fullPath);
 			buffer.needSaveAs = false;
 			mainForm.SaveFile(buffer);
 		}
 		Reload();
+		this.buffer.Controller.ClearMinorSelections();
+		bool first = true;
+		foreach (string fullPath in fullPaths)
+		{
+			for (int i = 0, count = nodes.Count; i < count; i++)
+			{
+				Node nodeI = nodes[i];
+				if (nodeI.fullPath == fullPath)
+				{
+					Place place = new Place(0, i);
+					if (first)
+					{
+						first = false;
+						this.buffer.Controller.PutCursor(place, false);
+					}
+					else
+					{
+						this.buffer.Controller.PutNewCursor(place);
+					}
+					break;
+				}
+			}
+		}
+		this.buffer.Controller.NeedScrollToCaret();
 		return true;
 	}
 
