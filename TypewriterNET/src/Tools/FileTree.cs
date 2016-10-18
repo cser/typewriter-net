@@ -277,7 +277,8 @@ public class FileTree
 
 	public void Find(string fullPath)
 	{
-		if (!fullPath.StartsWith(currentDirectory))
+		fullPath = fullPath.ToLowerInvariant();
+		if (!fullPath.StartsWith(currentDirectory.ToLowerInvariant()))
 		{
 			string dir = Path.GetDirectoryName(fullPath);
 			SetCurrentDirectory(dir);
@@ -287,7 +288,7 @@ public class FileTree
 		for (int i = 0, count = nodes.Count; i < count; i++)
 		{
 			Node nodeI = nodes[i];
-			if (nodeI.fullPath == fullPath)
+			if (nodeI.fullPath.ToLowerInvariant() == fullPath)
 			{
 				buffer.Controller.ClearMinorSelections();
 				Place place = new Place(0, i);
@@ -300,18 +301,18 @@ public class FileTree
 
 	private void ExpandTo(Node node, string fullPath)
 	{
-		if (!fullPath.StartsWith(node.fullPath))
+		if (!fullPath.StartsWith(node.fullPath.ToLowerInvariant()))
 			return;
-		if (node.fullPath == fullPath)
+		if (node.fullPath.ToLowerInvariant() == fullPath)
 			return;
 		if (!node.expanded)
 		{
 			Expand(node);
-			return;
 		}
 		foreach (Node nodeI in node.childs)
 		{
-			if (fullPath.StartsWith(nodeI.fullPath))
+			string nodeFullPath = !nodeI.fullPath.EndsWith("\\") ? nodeI.fullPath + "\\" : nodeI.fullPath;
+			if (fullPath.StartsWith(nodeFullPath.ToLowerInvariant()))
 			{
 				ExpandTo(nodeI, fullPath);
 				break;
