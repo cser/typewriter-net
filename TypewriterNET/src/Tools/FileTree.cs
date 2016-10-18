@@ -617,6 +617,8 @@ public class FileTree
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
 		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
 		List<string> fullPaths = new List<string>();
+		Dictionary<string, bool> fullPathsSet = new Dictionary<string, bool>();
+		List<Node> unexpandedNodes = new List<Node>();
 		foreach (int index in indices)
 		{
 			Node nodeI = nodes[index];
@@ -624,6 +626,8 @@ public class FileTree
 			if (nodeI.type == NodeType.Directory)
 			{
 				dir = nodeI.fullPath;
+				if (!nodeI.expanded)
+					unexpandedNodes.Add(nodeI);
 			}
 			else if (nodeI.type == NodeType.File)
 			{
@@ -631,10 +635,17 @@ public class FileTree
 			}
 			if (dir != null && !dirsSet.ContainsKey(dir))
 			{
+				string fullPath = Path.Combine(dir, fileName);
 				dirsSet[dir] = true;
-				fullPaths.Add(Path.Combine(dir, fileName));
+				fullPaths.Add(fullPath);
+				fullPathsSet[NormalizedWithoutSlash(fullPath)] = true;
 			}
 		}
+		foreach (Node node in unexpandedNodes)
+		{
+			Expand(node);
+		}
+		Rebuild();
 		foreach (string fullPath in fullPaths)
 		{
 			Buffer buffer = mainForm.ForcedLoadFile(fullPath);
@@ -644,29 +655,34 @@ public class FileTree
 		Reload();
 		this.buffer.Controller.ClearMinorSelections();
 		bool first = true;
-		foreach (string fullPath in fullPaths)
+		for (int i = 0, count = nodes.Count; i < count; i++)
 		{
-			for (int i = 0, count = nodes.Count; i < count; i++)
+			Node nodeI = nodes[i];
+			if (fullPathsSet.ContainsKey(NormalizedWithoutSlash(nodeI.fullPath)))
 			{
-				Node nodeI = nodes[i];
-				if (nodeI.fullPath == fullPath)
+				Place place = new Place(0, i);
+				if (first)
 				{
-					Place place = new Place(0, i);
-					if (first)
-					{
-						first = false;
-						this.buffer.Controller.PutCursor(place, false);
-					}
-					else
-					{
-						this.buffer.Controller.PutNewCursor(place);
-					}
-					break;
+					first = false;
+					this.buffer.Controller.PutCursor(place, false);
+				}
+				else
+				{
+					this.buffer.Controller.PutNewCursor(place);
 				}
 			}
 		}
 		this.buffer.Controller.NeedScrollToCaret();
 		return true;
+	}
+	
+	private static string NormalizedWithoutSlash(string fullPath)
+	{
+		if (fullPath == null)
+			return null;
+		if (fullPath.EndsWith("\\"))
+			fullPath = fullPath.Substring(0, fullPath.Length);
+		return fullPath.ToLowerInvariant();
 	}
 
 	private bool DoAddDir(Controller controller)
@@ -681,26 +697,42 @@ public class FileTree
 			return true;
 		mainForm.Dialogs.CloseInput();
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
-		Dictionary<string, bool> dirs = new Dictionary<string, bool>();
+		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
+		List<string> fullPaths = new List<string>();
+		Dictionary<string, bool> fullPathsSet = new Dictionary<string, bool>();
+		List<Node> unexpandedNodes = new List<Node>();
 		foreach (int index in indices)
 		{
 			Node nodeI = nodes[index];
+			string dir = null;
 			if (nodeI.type == NodeType.Directory)
 			{
-				dirs[nodeI.fullPath] = true;
-				continue;
+				dir = nodeI.fullPath;
+				if (!nodeI.expanded)
+					unexpandedNodes.Add(nodeI);
 			}
 			else if (nodeI.type == NodeType.File)
 			{
-				dirs[Path.GetDirectoryName(nodeI.fullPath)] = true;
+				dir = Path.GetDirectoryName(nodeI.fullPath);
+			}
+			if (dir != null && !dirsSet.ContainsKey(dir))
+			{
+				string fullPath = Path.Combine(dir, fileName);
+				dirsSet[dir] = true;
+				fullPaths.Add(fullPath);
+				fullPathsSet[NormalizedWithoutSlash(fullPath)] = true;
 			}
 		}
-		foreach (KeyValuePair<string, bool> pair in dirs)
+		foreach (Node node in unexpandedNodes)
+		{
+			Expand(node);
+		}
+		Rebuild();
+		foreach (string fullPath in fullPaths)
 		{
 			try
 			{
-				string dir = pair.Key;
-				Directory.CreateDirectory(Path.Combine(dir, fileName));
+				Directory.CreateDirectory(fullPath);
 			}
 			catch (Exception e)
 			{
@@ -709,6 +741,26 @@ public class FileTree
 			}
 		}
 		Reload();
+		this.buffer.Controller.ClearMinorSelections();
+		bool first = true;
+		for (int i = 0, count = nodes.Count; i < count; i++)
+		{
+			Node nodeI = nodes[i];
+			if (fullPathsSet.ContainsKey(NormalizedWithoutSlash(nodeI.fullPath)))
+			{
+				Place place = new Place(0, i);
+				if (first)
+				{
+					first = false;
+					this.buffer.Controller.PutCursor(place, false);
+				}
+				else
+				{
+					this.buffer.Controller.PutNewCursor(place);
+				}
+			}
+		}
+		this.buffer.Controller.NeedScrollToCaret();
 		return true;
 	}
 
