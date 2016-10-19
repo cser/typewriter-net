@@ -38,12 +38,14 @@ public class RenameDialog : ADialog
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
-			new KeyAction("&View\\File tree\\Cancel renaming", DoCancel, null, false)));
+		KeyItem escape = new KeyItem(Keys.Escape, null,
+			new KeyAction("&View\\File tree\\Cancel renaming", DoCancel, null, false));
+		frameKeyMap.AddItem(escape);
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
 			new KeyAction("&View\\File tree\\Complete renaming", DoComplete, null, false)));
 		
 		KeyMap beforeKeyMap = new KeyMap();
+		beforeKeyMap.AddItem(escape);
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddBefore(beforeKeyMap);

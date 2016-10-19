@@ -79,5 +79,22 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
+		
+		public static int MatchesCount(string text, char c)
+		{
+			int count = 0;
+			int index = 0;
+			while (true)
+			{
+				index = text.IndexOf(c, index);
+				if (index == -1)
+					break;
+				++count;
+				++index;
+				if (index >= text.Length)
+					break;
+			}
+			return count;
+		}
 	}
 }

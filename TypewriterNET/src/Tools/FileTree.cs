@@ -876,39 +876,61 @@ public class FileTree
 			return true;
 		for (int i = 0; i < newFileNames.Length; i++)
 		{
+			if (filesAndDirs[i].fullPath == "..")
+				return true;
 			newFileNames[i] = newFileNames[i].TrimStart();
 			if (string.IsNullOrEmpty(newFileNames[i]))
 				return true;
 		}
 		mainForm.Dialogs.CloseRename();
-		for (int ii = 0; ii < 2; ii++)
+		PathSet oldPostfixed = new PathSet();
+		PathSet newFullPaths = new PathSet();
+		List<KeyValuePair<Node, string>> pairs = new List<KeyValuePair<Node, string>>();
 		for (int i = 0; i < filesAndDirs.Count; i++)
 		{
 			Node nodeI = filesAndDirs[i];
 			string fileName = newFileNames[i];
+			pairs.Add(new KeyValuePair<Node, string>(nodeI, fileName));
+			oldPostfixed.Add(filesAndDirs[i].fullPath + renamePostfixed);
+		}
+		foreach (KeyValuePair<Node, string> pair in pairs)
+		{
+			Node nodeI = pair.Key;
+			string fileName = pair.Value;
+			if (!string.IsNullOrEmpty(renamePostfixed))
+			{
+				oldPostfixed.Remove(nodeI.fullPath);
+			}
+		}
+		pairs.Sort(ComparePairs);
+		foreach (KeyValuePair<Node, string> pair in pairs)
+		{
+			Node nodeI = pair.Key;
+			string fileName = pair.Value;
+			if (nodeI.type == NodeType.File || nodeI.type == NodeType.Directory)
 			try
 			{
-				if (ii == 0 && nodeI.type == NodeType.File ||
-					ii == 1 && nodeI.type == NodeType.Directory)
+				if (nodeI.type == NodeType.File)
 				{
-					if (nodeI.type == NodeType.File)
+					FileMove(nodeI.fullPath,
+						newFullPaths.Add(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName)));
+				}
+				else if (nodeI.type == NodeType.Directory)
+				{
+					DirectoryMove(nodeI.fullPath,
+						newFullPaths.Add(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName)));
+				}
+				if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed))
+				{
+					if (File.Exists(nodeI.fullPath + renamePostfixed))
 					{
-						FileMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+						FileMove(nodeI.fullPath + renamePostfixed,
+							Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 					}
-					else if (nodeI.type == NodeType.Directory)
+					else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
 					{
-						DirectoryMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
-					}
-					if (!string.IsNullOrEmpty(renamePostfixed))
-					{
-						if (File.Exists(nodeI.fullPath + renamePostfixed))
-						{
-							FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-						}
-						else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
-						{
-							DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-						}
+						DirectoryMove(nodeI.fullPath + renamePostfixed,
+							Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 					}
 				}
 			}
@@ -920,7 +942,41 @@ public class FileTree
 		}
 		mainForm.UpdateAfterFileRenamed();
 		Reload();
+		buffer.Controller.ClearMinorSelections();
+		bool first = true;
+		for (int i = 0, count = nodes.Count; i < count; i++)
+		{
+			Node nodeI = nodes[i];
+			if (newFullPaths.Contains(nodeI.fullPath))
+			{
+				if (first)
+				{
+					buffer.Controller.PutCursor(new Place(0, i), false);
+				}
+				else
+				{
+					buffer.Controller.PutNewCursor(new Place(0, i));
+				}
+				first = false;
+			}
+		}
 		return true;
+	}
+	
+	private static int ComparePairs(KeyValuePair<Node, string> a, KeyValuePair<Node, string> b)
+	{
+		return GetPartsIndex(b) - GetPartsIndex(b);
+	}
+	
+	private static int GetPartsIndex(KeyValuePair<Node, string> pair)
+	{
+		string path = pair.Key.fullPath;
+		if (string.IsNullOrEmpty(path))
+			return 0;
+		if (path.EndsWith("\\"))
+			path = path.Substring(0, path.Length - 1);
+		path = path.Replace("/", "\\");
+		return CommonHelper.MatchesCount(path, '\\') + 1;
 	}
 	
 	private bool wasReloaded;
