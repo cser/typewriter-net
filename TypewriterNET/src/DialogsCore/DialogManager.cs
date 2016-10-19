@@ -651,4 +651,9 @@ public class DialogManager
 	{
 		input.Close(true);
 	}
+	
+	public void CloseRename()
+	{
+		rename.Close(true);
+	}
 }

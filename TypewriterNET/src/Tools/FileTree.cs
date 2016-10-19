@@ -820,22 +820,17 @@ public class FileTree
 	
 	private bool DoRenameItem(Controller controller)
 	{
-		/*
-		Place place = controller.Lines.PlaceOf(controller.LastSelection.caret);
-		int index = place.iLine;
-		Node node = nodes[index];
-		string fileName = Path.GetFileName(node.fullPath);
-		mainForm.Dialogs.OpenInput("Rename item", fileName, DoInputNewFileName);
-		*/
-		
 		List<int> indices = GetSelectionIndices(controller);
+		List<Node> nodes = new List<Node>();
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
 		foreach (int index in indices)
 		{
 			if (!first)
 				builder.AppendLine();
-			builder.Append(nodes[index].name);
+			Node node = this.nodes[index];
+			builder.Append(node.name);
+			nodes.Add(node);
 			first = false;
 		}
 		mainForm.Dialogs.OpenRename("Rename item", builder.ToString(), DoInputNewFileName);
@@ -871,34 +866,50 @@ public class FileTree
 		}
 	}
 	
-	private bool DoInputNewFileName(string fileName)
+	private bool DoInputNewFileName(string newText)
 	{
-		if (string.IsNullOrEmpty(fileName))
+		if (string.IsNullOrEmpty(newText))
 			return true;
-		mainForm.Dialogs.CloseInput();
+		string[] newFileNames = newText.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
 		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
-		foreach (Node nodeI in filesAndDirs)
+		if (newFileNames.Length != filesAndDirs.Count)
+			return true;
+		for (int i = 0; i < newFileNames.Length; i++)
 		{
+			newFileNames[i] = newFileNames[i].TrimStart();
+			if (string.IsNullOrEmpty(newFileNames[i]))
+				return true;
+		}
+		mainForm.Dialogs.CloseRename();
+		for (int ii = 0; ii < 2; ii++)
+		for (int i = 0; i < filesAndDirs.Count; i++)
+		{
+			Node nodeI = filesAndDirs[i];
+			string fileName = newFileNames[i];
 			try
 			{
-				if (nodeI.type == NodeType.Directory)
+				if (ii == 0 && nodeI.type == NodeType.File ||
+					ii == 1 && nodeI.type == NodeType.Directory)
 				{
-					DirectoryMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
-				}
-				else if (nodeI.type == NodeType.File)
-				{
-					FileMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
-				}
-				if (!string.IsNullOrEmpty(renamePostfixed))
-				{
-				    if (File.Exists(nodeI.fullPath + renamePostfixed))
-				    {
-				        File.Move(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-				    }
-				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
-				    {
-				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-				    }
+					if (nodeI.type == NodeType.File)
+					{
+						FileMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+					}
+					else if (nodeI.type == NodeType.Directory)
+					{
+						DirectoryMove(nodeI.fullPath, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName));
+					}
+					if (!string.IsNullOrEmpty(renamePostfixed))
+					{
+						if (File.Exists(nodeI.fullPath + renamePostfixed))
+						{
+							FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+						}
+						else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
+						{
+							DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+						}
+					}
 				}
 			}
 			catch (IOException e)
