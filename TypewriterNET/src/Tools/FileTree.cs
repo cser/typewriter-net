@@ -562,6 +562,16 @@ public class FileTree
 		}
 		return result;
 	}
+	
+	private List<Node> GetFilesAndDirsHard(Controller controller)
+	{
+		List<Node> result = new List<Node>();
+		foreach (int index in GetSelectionIndices(controller))
+		{
+			result.Add(nodes[index]);
+		}
+		return result;
+	}
 
 	private bool DoRemoveItem(Controller controller)
 	{
@@ -796,16 +806,9 @@ public class FileTree
 				{
 					FileMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
 				}
-				if (!string.IsNullOrEmpty(renamePostfixed))
+				if (!string.IsNullOrEmpty(renamePostfixed) && File.Exists(nodeI.fullPath + renamePostfixed))
 				{
-				    if (File.Exists(nodeI.fullPath + renamePostfixed))
-				    {
-				        FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
-				    }
-				    else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
-				    {
-				        DirectoryMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
-				    }
+				    FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
 				}
 			}
 			catch (IOException e)
@@ -871,12 +874,12 @@ public class FileTree
 		if (string.IsNullOrEmpty(newText))
 			return true;
 		string[] newFileNames = newText.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
-		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
+		List<Node> filesAndDirs = GetFilesAndDirsHard(buffer.Controller);
 		if (newFileNames.Length != filesAndDirs.Count)
 			return true;
 		for (int i = 0; i < newFileNames.Length; i++)
 		{
-			if (filesAndDirs[i].fullPath == "..")
+			if (filesAndDirs[i].fullPath == ".." || newFileNames[i] == "..")
 				return true;
 			newFileNames[i] = newFileNames[i].TrimStart();
 			if (string.IsNullOrEmpty(newFileNames[i]))
@@ -918,20 +921,13 @@ public class FileTree
 				else if (nodeI.type == NodeType.Directory)
 				{
 					DirectoryMove(nodeI.fullPath,
-						newFullPaths.Add(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName)));
+						newFullPaths.AddDirectory(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName), nodeI.fullPath));
 				}
-				if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed))
+				if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed) &&
+					File.Exists(nodeI.fullPath + renamePostfixed))
 				{
-					if (File.Exists(nodeI.fullPath + renamePostfixed))
-					{
-						FileMove(nodeI.fullPath + renamePostfixed,
-							Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-					}
-					else if (Directory.Exists(nodeI.fullPath + renamePostfixed))
-					{
-						DirectoryMove(nodeI.fullPath + renamePostfixed,
-							Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
-					}
+					FileMove(nodeI.fullPath + renamePostfixed,
+						Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
 				}
 			}
 			catch (IOException e)
@@ -949,6 +945,7 @@ public class FileTree
 			Node nodeI = nodes[i];
 			if (newFullPaths.Contains(nodeI.fullPath))
 			{
+				newFullPaths.Remove(nodeI.fullPath);
 				if (first)
 				{
 					buffer.Controller.PutCursor(new Place(0, i), false);
@@ -960,6 +957,7 @@ public class FileTree
 				first = false;
 			}
 		}
+		buffer.Controller.NeedScrollToCaret();
 		return true;
 	}
 	
