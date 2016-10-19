@@ -820,11 +820,25 @@ public class FileTree
 	
 	private bool DoRenameItem(Controller controller)
 	{
+		/*
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.caret);
 		int index = place.iLine;
 		Node node = nodes[index];
 		string fileName = Path.GetFileName(node.fullPath);
 		mainForm.Dialogs.OpenInput("Rename item", fileName, DoInputNewFileName);
+		*/
+		
+		List<int> indices = GetSelectionIndices(controller);
+		StringBuilder builder = new StringBuilder();
+		bool first = true;
+		foreach (int index in indices)
+		{
+			if (!first)
+				builder.AppendLine();
+			builder.Append(nodes[index].name);
+			first = false;
+		}
+		mainForm.Dialogs.OpenRename("Rename item", builder.ToString(), DoInputNewFileName);
 		return true;
 	}
 	

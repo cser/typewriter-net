@@ -111,6 +111,7 @@ public class DialogManager
 	private DialogOwner<FindDialog> goToLine;
 	private FindDialog.Data goToLineData;
 	private DialogOwner<FindDialog> input;
+	private DialogOwner<RenameDialog> rename;
 	private FindDialog.Data inputData;
 
 	public DialogManager(MainForm mainForm, TempSettings tempSettings)
@@ -170,6 +171,7 @@ public class DialogManager
 		goToLineData = new FindDialog.Data(tempSettings.GoToLineHistory);
 		input = new DialogOwner<FindDialog>(this);
 		inputData = new FindDialog.Data(null);
+		rename = new DialogOwner<RenameDialog>(this);
 	}
 
 	public void ShowInfo(string name, string text)
@@ -632,6 +634,15 @@ public class DialogManager
 		{
 			inputData.oldText = text;
 			input.Open(new FindDialog(inputData, null, doInput, null, null, title), true);
+		}
+		return true;
+	}
+	
+	public bool OpenRename(string title, string text, Getter<string, bool> doInput)
+	{
+		if (rename.SwitchOpen())
+		{
+			rename.Open(new RenameDialog(doInput, title, text), true);
 		}
 		return true;
 	}
