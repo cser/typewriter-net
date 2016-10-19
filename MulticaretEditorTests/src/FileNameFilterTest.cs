@@ -98,5 +98,12 @@ namespace UnitTests
 			
 			Assert.AreEqual(false, Check("*.txt;*.com", "text.md"));
 		}
+		
+		[Test]
+		public void PatternWithoutVariation()
+		{
+			Assert.AreEqual(false, Check("text.txt", "cs.xml"));
+			Assert.AreEqual(true, Check("text.txt", "text.txt"));
+		}
 	}
 }

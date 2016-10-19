@@ -117,7 +117,7 @@ namespace MulticaretEditor
 				}
 				else
 				{
-					if (text.Substring(offset, part.Length) != part)
+					if (length - offset < part.Length || text.Substring(offset, part.Length) != part)
 					{
 						return false;
 					}
