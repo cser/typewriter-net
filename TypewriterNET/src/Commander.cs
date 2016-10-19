@@ -538,6 +538,7 @@ public class Commander
 		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
 		string editorText = lastBuffer.Controller.Lines.GetText();
 		string word = lastBuffer.Controller.GetLeftWord(place);
+		string lineText = lastBuffer.Controller.Lines[place.iLine].Text;
 		
 		Node node = new SharpRequest(mainForm)
 			.Add("FileName", lastBuffer.FullPath)
@@ -565,11 +566,22 @@ public class Commander
 				}
 				if (targetName != null)
 				{
-					targetName = targetName.Trim().Replace("virtual", "override").Replace(" (", "(");
+					string firstSpaces = settings.lineBreak.Value;
+					for (int ii = 0; ii < lineText.Length; ii++)
+					{
+						char c = lineText[ii];
+						if (c != ' ' && c != '\t')
+							break;
+						firstSpaces += c;
+					}
+					targetName = targetName.Trim().Replace(" (", "(");
 					if (targetName.EndsWith(";"))
 						targetName = targetName.Substring(0, targetName.Length - 1);
 					Variant variant = new Variant();
-					variant.CompletionText = targetName;
+					variant.CompletionText = targetName
+						.Replace("virtual", "override")
+						.Replace("abstract", "override")
+						.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", firstSpaces);
 					variant.DisplayText = targetName;
 					variants.Add(variant);
 				}
