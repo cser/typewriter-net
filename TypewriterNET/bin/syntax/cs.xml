@@ -172,7 +172,7 @@
 				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
-				<keyword attribute="Data Type" context="#stay" String="types"/>
+				<keyword attribute="Data Type" context="#pop" String="types"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<AnyChar attribute="Symbol" context="#stay" String="."/>
 				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)\s*(?![\.\w])"/>
