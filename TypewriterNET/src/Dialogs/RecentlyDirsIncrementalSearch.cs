@@ -28,7 +28,6 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 	
 	private const string Dots = "...";
 
-	private char directorySeparator;
 	private List<string> filesList;
 	
 	override protected bool Prebuild()
@@ -60,7 +59,6 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 				}
 			}
 		}
-		directorySeparator = Path.DirectorySeparatorChar;
 		StringBuilder builder = new StringBuilder();
 		bool first = true;
 		foreach (string file in files)

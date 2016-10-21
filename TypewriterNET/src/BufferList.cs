@@ -25,6 +25,16 @@ public class BufferList
 			if (buffer.FullPath == fullPath && buffer.Name == name)
 				return buffer;
 		}
+		if (fullPath != null)
+		{
+			fullPath = fullPath.ToLowerInvariant();
+			for (int i = list.Count; i-- > 0;)
+			{
+				Buffer buffer = list[i];
+				if (buffer.FullPath != null && buffer.FullPath.ToLowerInvariant() == fullPath && buffer.Name == name)
+					return buffer;
+			}
+		}
 		return null;
 	}
 
