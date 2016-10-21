@@ -794,21 +794,28 @@ public class FileTree
 	{
 		mainForm.Dialogs.CloseInput();
 		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
+		PathSet newFullPaths = new PathSet();
 		foreach (Node nodeI in filesAndDirs)
 		{
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
 				{
-					DirectoryMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath));
+					newFullPaths.Add(path);
+					DirectoryMove(nodeI.fullPath, path);
 				}
 				else if (nodeI.type == NodeType.File)
 				{
-					FileMove(nodeI.fullPath, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)));
+					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath));
+					newFullPaths.Add(path);
+					FileMove(nodeI.fullPath, path);
 				}
 				if (!string.IsNullOrEmpty(renamePostfixed) && File.Exists(nodeI.fullPath + renamePostfixed))
 				{
-				    FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed);
+					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed;
+					newFullPaths.Add(path);
+				    FileMove(nodeI.fullPath + renamePostfixed, path);
 				}
 			}
 			catch (IOException e)
@@ -818,6 +825,7 @@ public class FileTree
 			}
 		}
 		Reload();
+		PutCursors(newFullPaths);
 		return true;
 	}
 	
@@ -938,6 +946,33 @@ public class FileTree
 		}
 		mainForm.UpdateAfterFileRenamed();
 		Reload();
+		PutCursors(newFullPaths);
+		return true;
+	}
+	
+	private static int ComparePairs(KeyValuePair<Node, string> a, KeyValuePair<Node, string> b)
+	{
+		return GetPartsIndex(b) - GetPartsIndex(b);
+	}
+	
+	private static int GetPartsIndex(KeyValuePair<Node, string> pair)
+	{
+		string path = pair.Key.fullPath;
+		if (string.IsNullOrEmpty(path))
+			return 0;
+		if (path.EndsWith("\\"))
+			path = path.Substring(0, path.Length - 1);
+		path = path.Replace("/", "\\");
+		return CommonHelper.MatchesCount(path, '\\') + 1;
+	}
+	
+	private void PutCursors(PathSet newFullPaths)
+	{
+		foreach (string pathI in newFullPaths.NormalizedPaths)
+		{
+			ExpandTo(node, pathI);
+		}
+		Rebuild();
 		buffer.Controller.ClearMinorSelections();
 		bool first = true;
 		for (int i = 0, count = nodes.Count; i < count; i++)
@@ -958,23 +993,6 @@ public class FileTree
 			}
 		}
 		buffer.Controller.NeedScrollToCaret();
-		return true;
-	}
-	
-	private static int ComparePairs(KeyValuePair<Node, string> a, KeyValuePair<Node, string> b)
-	{
-		return GetPartsIndex(b) - GetPartsIndex(b);
-	}
-	
-	private static int GetPartsIndex(KeyValuePair<Node, string> pair)
-	{
-		string path = pair.Key.fullPath;
-		if (string.IsNullOrEmpty(path))
-			return 0;
-		if (path.EndsWith("\\"))
-			path = path.Substring(0, path.Length - 1);
-		path = path.Replace("/", "\\");
-		return CommonHelper.MatchesCount(path, '\\') + 1;
 	}
 	
 	private bool wasReloaded;
