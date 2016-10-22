@@ -466,11 +466,11 @@
 			<itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false"/>
 			<itemData name="Definition Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Operator" defStyleNum="dsOperator" spellChecking="false"/>
-			<itemData name="String Substitution" defStyleNum="dsDataType" spellChecking="false"/>
+			<itemData name="String Substitution" defStyleNum="dsDataType2" spellChecking="false"/>
 			<itemData name="Command Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Flow Control Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
 			<itemData name="Function" defStyleNum="dsFunction" spellChecking="false"/>
-			<itemData name="Builtin Function" defStyleNum="dsDataType2" spellChecking="false"/>
+			<itemData name="Builtin Function" defStyleNum="dsDataType" spellChecking="false"/>
 			<itemData name="Special Variable" defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Extensions" defStyleNum="dsConstructor" spellChecking="false"/>
 			<itemData name="Constructor" defStyleNum="dsConstructor" spellChecking="false"/>

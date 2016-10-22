@@ -188,8 +188,8 @@
 			<itemData name="Normal Text" defStyleNum="dsNormal"/>
 			<itemData name="Keyword" defStyleNum="dsKeyword"/>
 			<itemData name="Function" defStyleNum="dsFunction"/>
-			<itemData name="Data Type" defStyleNum="dsDataType"/>
-			<itemData name="Data Type2" defStyleNum="dsDataType2"/>
+			<itemData name="Data Type" defStyleNum="dsDataType2"/>
+			<itemData name="Data Type2" defStyleNum="dsDataType"/>
 			<itemData name="Decimal" defStyleNum="dsDecVal"/>
 			<itemData name="Default Values" defStyleNum="dsBaseN"/>
 			<itemData name="Octal" defStyleNum="dsDecVal"/>

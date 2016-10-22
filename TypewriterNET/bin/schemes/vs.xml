@@ -26,8 +26,8 @@
 	
 	<style name="dsNormal" color="#000000"/>
 	<style name="dsKeyword" color="blue"/>
-	<style name="dsDataType" color="blue"/>
-	<style name="dsDataType2" color="moray"/>
+	<style name="dsDataType" color="moray"/>
+	<style name="dsDataType2" color="blue"/>
 	<style name="dsDecVal" color="#000000"/>
 	<style name="dsBaseN" color="blue"/>
 	<style name="dsFloat" color="#000000"/>
