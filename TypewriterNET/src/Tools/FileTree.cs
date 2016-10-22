@@ -792,30 +792,43 @@ public class FileTree
 
 	private bool DoInputNewDir(string fileName)
 	{
+		if (fileName == "" || fileName == ".")
+			fileName = Directory.GetCurrentDirectory();
+		fileName = Path.GetFullPath(fileName);
 		mainForm.Dialogs.CloseInput();
 		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
 		PathSet newFullPaths = new PathSet();
+		PathSet oldPostfixed = new PathSet();
+		foreach (Node nodeI in filesAndDirs)
+		{
+			if (!string.IsNullOrEmpty(renamePostfixed))
+			{
+				oldPostfixed.Add(nodeI.fullPath + renamePostfixed);
+			}
+		}
+		foreach (Node nodeI in filesAndDirs)
+		{
+			if (!string.IsNullOrEmpty(renamePostfixed))
+			{
+				oldPostfixed.Remove(nodeI.fullPath);
+			}
+		}
 		foreach (Node nodeI in filesAndDirs)
 		{
 			try
 			{
 				if (nodeI.type == NodeType.Directory)
 				{
-					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath));
-					newFullPaths.Add(path);
-					DirectoryMove(nodeI.fullPath, path);
+					DirectoryMove(nodeI.fullPath, newFullPaths.Add(Path.Combine(fileName, Path.GetFileName(nodeI.fullPath))));
 				}
 				else if (nodeI.type == NodeType.File)
 				{
-					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath));
-					newFullPaths.Add(path);
-					FileMove(nodeI.fullPath, path);
+					FileMove(nodeI.fullPath, newFullPaths.Add(Path.Combine(fileName, Path.GetFileName(nodeI.fullPath))));
 				}
-				if (!string.IsNullOrEmpty(renamePostfixed) && File.Exists(nodeI.fullPath + renamePostfixed))
+				if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed) &&
+					File.Exists(nodeI.fullPath + renamePostfixed))
 				{
-					string path = Path.Combine(fileName, Path.GetFileName(nodeI.fullPath)) + renamePostfixed;
-					newFullPaths.Add(path);
-				    FileMove(nodeI.fullPath + renamePostfixed, path);
+				    FileMove(nodeI.fullPath + renamePostfixed, Path.Combine(fileName, Path.GetFileName(nodeI.fullPath) + renamePostfixed));
 				}
 			}
 			catch (IOException e)
@@ -902,7 +915,10 @@ public class FileTree
 			Node nodeI = filesAndDirs[i];
 			string fileName = newFileNames[i];
 			pairs.Add(new KeyValuePair<Node, string>(nodeI, fileName));
-			oldPostfixed.Add(filesAndDirs[i].fullPath + renamePostfixed);
+			if (!string.IsNullOrEmpty(renamePostfixed))
+			{
+				oldPostfixed.Add(filesAndDirs[i].fullPath + renamePostfixed);
+			}
 		}
 		foreach (KeyValuePair<Node, string> pair in pairs)
 		{
@@ -942,6 +958,7 @@ public class FileTree
 			{
 				mainForm.Log.WriteError("Rename error", e.Message);
 				mainForm.Log.Open();
+				break;
 			}
 		}
 		mainForm.UpdateAfterFileRenamed();
@@ -980,7 +997,6 @@ public class FileTree
 			Node nodeI = nodes[i];
 			if (newFullPaths.Contains(nodeI.fullPath))
 			{
-				newFullPaths.Remove(nodeI.fullPath);
 				if (first)
 				{
 					buffer.Controller.PutCursor(new Place(0, i), false);
