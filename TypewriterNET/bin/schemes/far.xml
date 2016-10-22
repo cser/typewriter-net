@@ -20,6 +20,8 @@
 	<color name="lineBg" value="lineBg"/>
 	<color name="lineNumberBg" value="selection"/>
 	<color name="lineNumberFg" value="white"/>
+	<color name="nameBg" value="selection"/>
+	<color name="nameFg" value="white"/>
 	<color name="selectionBrush" value="selection"/>
 	<color name="selectionPen" value="selection"/>
 	<color name="markPen" value="blue"/>

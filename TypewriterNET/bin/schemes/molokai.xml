@@ -15,6 +15,8 @@
 	<color name="lineBg" value="#242526"/>
 	<color name="lineNumberBg" value="#242526"/>
 	<color name="lineNumberFg" value="#415457"/>
+	<color name="nameBg" value="#242526"/>
+	<color name="nameFg" value="#415457"/>
 	<color name="selectionBrush" value="#59584E"/>
 	<color name="selectionPen" value="#69685E"/>
 	<color name="markPen" value="#C3C4BC"/>

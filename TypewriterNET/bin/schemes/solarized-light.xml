@@ -5,6 +5,8 @@
 	<color name="lineBg" value="base2"/>
 	<color name="lineNumberBg" value="base2"/>
 	<color name="lineNumberFg" value="base1"/>
+	<color name="nameBg" value="base2"/>
+	<color name="nameFg" value="base1"/>
 	<color name="selectionBrush" value="base03"/>
 	<color name="selectionPen" value="#052831"/>
 	<color name="markPen" value="base0"/>

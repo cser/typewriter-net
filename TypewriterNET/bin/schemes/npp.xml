@@ -20,6 +20,8 @@
 	<color name="lineBg" value="#E8E8FF"/>
 	<color name="lineNumberBg" value="#E4E4E4"/>
 	<color name="lineNumberFg" value="#808080"/>
+	<color name="nameBg" value="#E4E4E4"/>
+	<color name="nameFg" value="#808080"/>
 	<color name="selectionBrush" value="#C0C0C0"/>
 	<color name="selectionPen" value="#AAAAAA"/>
 	<color name="markPen" value="#AAAAAA"/>

@@ -12,6 +12,8 @@
 	<color name="lineBg" value="#EAEAF2"/>
 	<color name="lineNumberBg" value="#FFFFFF"/>
 	<color name="lineNumberFg" value="moray"/>
+	<color name="nameBg" value="#EEEEEE"/>
+	<color name="nameFg" value="#808080"/>
 	<color name="selectionBrush" value="#ADD6FF"/>
 	<color name="selectionPen" value="#ADD6FF"/>
 	<color name="markPen" value="#AAAAAA"/>

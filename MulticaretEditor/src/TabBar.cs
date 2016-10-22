@@ -281,13 +281,13 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						g.FillRectangle(scheme.lineNumberBackground, rect);
+						g.FillRectangle(scheme.nameBgBrush, rect);
 						g.DrawRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height - 1);
 					}
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
-							tabText[j] + "", font, selected ? scheme.fgBrush : scheme.lineNumberForeground,
+							tabText[j] + "", font, selected ? scheme.fgBrush : scheme.nameFgBrush,
 							rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
 					}
 					rects.Add(rect);

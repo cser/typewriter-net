@@ -20,6 +20,8 @@ namespace MulticaretEditor.Highlighting
 		public Color lineBgColor;
 		public Color lineNumberBgColor;
 		public Color lineNumberFgColor;
+		public Color nameBgColor;
+		public Color nameFgColor;
 		public Color selectionBrushColor;
 		public Color selectionPenColor;
 		public Color markPenColor;
@@ -46,6 +48,8 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
+		public Brush nameBgBrush;
+		public Brush nameFgBrush;
 		public Brush tabsBgBrush;
 		public Brush tabsFgBrush;
 		public Pen tabsFgPen;
@@ -130,6 +134,8 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref lineBgColor, "lineBg", colors);
 			SetColor(ref lineNumberBgColor, "lineNumberBg", colors);
 			SetColor(ref lineNumberFgColor, "lineNumberFg", colors);
+			SetColor(ref nameBgColor, "nameBg", colors);
+			SetColor(ref nameFgColor, "nameFg", colors);
 			SetColor(ref selectionBrushColor, "selectionBrush", colors);
 			SetColor(ref selectionPenColor, "selectionPen", colors);
 			SetColor(ref markPenColor, "markPen", colors);
@@ -174,6 +180,8 @@ namespace MulticaretEditor.Highlighting
 			lineBgColor = Color.FromArgb(230, 230, 240);			
 			lineNumberBgColor = Color.FromArgb(228, 228, 228);
 			lineNumberFgColor = Color.Gray;
+			nameBgColor = Color.FromArgb(230, 230, 240);
+			nameFgColor = Color.Gray;
 			fgColor = Color.Black;
 			selectionBrushColor = Color.FromArgb(220, 220, 255);
 			selectionPenColor = Color.FromArgb(150, 150, 200);
@@ -205,6 +213,8 @@ namespace MulticaretEditor.Highlighting
 			lineNumberBackground = new SolidBrush(lineNumberBgColor);
 			lineNumberForeground = new SolidBrush(lineNumberFgColor);
 			lineNumberFgPen = new Pen(lineNumberFgColor);
+			nameFgBrush = new SolidBrush(nameFgColor);
+			nameBgBrush = new SolidBrush(nameBgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
 			markPen = new Pen(markPenColor, 2);
