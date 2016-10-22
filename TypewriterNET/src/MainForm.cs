@@ -1190,7 +1190,7 @@ public class MainForm : Form
 
 	private bool DoOpenCloseFileTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.AFrame.Focused && leftNest.buffers.list.Selected == fileTree.Buffer)
+		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
 		{
 			leftNest.AFrame.Destroy();
 		}
@@ -1207,6 +1207,12 @@ public class MainForm : Form
 
 	private bool DoFindFileInTree(Controller controller)
 	{
+		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer && leftNest.AFrame.Focused)
+		{
+			leftNest.AFrame.Destroy();
+			return true;
+		}
+		
 		Buffer buffer = LastBuffer;
 		if (buffer == null || buffer.FullPath == null)
 			return false;
