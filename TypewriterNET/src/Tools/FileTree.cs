@@ -929,36 +929,58 @@ public class FileTree
 				oldPostfixed.Remove(nodeI.fullPath);
 			}
 		}
-		pairs.Sort(ComparePairs);
+		List<List<KeyValuePair<Node, string>>> levels = new List<List<KeyValuePair<Node, string>>>();
 		foreach (KeyValuePair<Node, string> pair in pairs)
 		{
-			Node nodeI = pair.Key;
-			string fileName = pair.Value;
-			if (nodeI.type == NodeType.File || nodeI.type == NodeType.Directory)
-			try
+			int level = GetPartsLevel(pair);
+			if (level >= levels.Count)
 			{
-				if (nodeI.type == NodeType.File)
+				while (levels.Count < level + 1)
 				{
-					FileMove(nodeI.fullPath,
-						newFullPaths.Add(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName)));
-				}
-				else if (nodeI.type == NodeType.Directory)
-				{
-					DirectoryMove(nodeI.fullPath,
-						newFullPaths.AddDirectory(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName), nodeI.fullPath));
-				}
-				if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed) &&
-					File.Exists(nodeI.fullPath + renamePostfixed))
-				{
-					FileMove(nodeI.fullPath + renamePostfixed,
-						Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+					levels.Add(null);
 				}
 			}
-			catch (IOException e)
+			if (levels[level] == null)
 			{
-				mainForm.Log.WriteError("Rename error", e.Message);
-				mainForm.Log.Open();
-				break;
+				levels[level] = new List<KeyValuePair<Node, string>>();
+			}
+			levels[level].Add(pair);
+		}
+		for (int i = levels.Count; i-- > 0;)
+		{
+			List<KeyValuePair<Node, string>> pairsI = levels[i];
+			if (pairsI == null)
+				continue;
+			foreach (KeyValuePair<Node, string> pair in pairsI)
+			{
+				Node nodeI = pair.Key;
+				string fileName = pair.Value;
+				if (nodeI.type == NodeType.File || nodeI.type == NodeType.Directory)
+				try
+				{
+					if (nodeI.type == NodeType.File)
+					{
+						FileMove(nodeI.fullPath,
+							newFullPaths.Add(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName)));
+					}
+					else if (nodeI.type == NodeType.Directory)
+					{
+						DirectoryMove(nodeI.fullPath,
+							newFullPaths.AddDirectory(Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName), nodeI.fullPath));
+					}
+					if (!string.IsNullOrEmpty(renamePostfixed) && oldPostfixed.Contains(nodeI.fullPath + renamePostfixed) &&
+						File.Exists(nodeI.fullPath + renamePostfixed))
+					{
+						FileMove(nodeI.fullPath + renamePostfixed,
+							Path.Combine(Path.GetDirectoryName(nodeI.fullPath), fileName + renamePostfixed));
+					}
+				}
+				catch (IOException e)
+				{
+					mainForm.Log.WriteError("Rename error", e.Message);
+					mainForm.Log.Open();
+					break;
+				}
 			}
 		}
 		mainForm.UpdateAfterFileRenamed();
@@ -967,12 +989,7 @@ public class FileTree
 		return true;
 	}
 	
-	private static int ComparePairs(KeyValuePair<Node, string> a, KeyValuePair<Node, string> b)
-	{
-		return GetPartsIndex(b) - GetPartsIndex(b);
-	}
-	
-	private static int GetPartsIndex(KeyValuePair<Node, string> pair)
+	private static int GetPartsLevel(KeyValuePair<Node, string> pair)
 	{
 		string path = pair.Key.fullPath;
 		if (string.IsNullOrEmpty(path))
