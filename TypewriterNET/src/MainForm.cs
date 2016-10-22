@@ -1705,6 +1705,22 @@ public class MainForm : Form
 			}
 		}
 	}
+	
+	public void NavigateTo(string fileName, Place place0, int length)
+	{
+		Buffer buffer = LoadFile(fileName);
+		if (buffer != null)
+		{
+			Place place1 = buffer.Controller.Lines.PlaceOf(buffer.Controller.Lines.IndexOf(place0) + length);
+			buffer.Controller.PutCursor(place0, false);
+			buffer.Controller.PutCursor(place1, true);
+			if (buffer.Frame != null)
+			{
+				buffer.Frame.Focus();
+				buffer.Frame.TextBox.MoveToCaret();
+			}
+		}
+	}
 
 	private bool DoExecuteF5Command(Controller controller)
 	{

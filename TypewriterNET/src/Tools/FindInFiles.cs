@@ -14,14 +14,14 @@ public class FindInFiles
 	public struct Position
 	{
 		public readonly string fileName;
-		public readonly int position0;
-		public readonly int position1;
+		public readonly Place place;
+		public readonly int length;
 
-		public Position(string fileName, int position0, int position1)
+		public Position(string fileName, Place place, int length)
 		{
 			this.fileName = fileName;
-			this.position0 = position0;
-			this.position1 = position1;
+			this.place = place;
+			this.length = length;
 		}
 	}
 
@@ -331,7 +331,7 @@ public class FindInFiles
 					if (whitespaceLength > 0 && whitespaceLength <= index - offset)
 						trimOffset = whitespaceLength;
 				}
-				positions.Add(new Position(file, index, index + length));
+				positions.Add(new Position(file, new Place(index - offset, currentLineIndex), length));
 				
 				int index0 = offset + trimOffset;
 				int length0 = lineLength - trimOffset - rightTrimOffset;
@@ -373,7 +373,7 @@ public class FindInFiles
 			return true;
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		Position position = positions[place.iLine];
-		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.position0, position.position1);
+		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.place, position.length);
 		return true;
 	}
 }
