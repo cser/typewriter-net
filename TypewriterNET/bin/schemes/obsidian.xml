@@ -44,7 +44,7 @@
 	<style name="dsOthers" color="blue"/>
 	<style name="dsAlert" color="red" bold="true"/>
 	<style name="dsFunction" color="violet"/>
-	<style name="dsRegionMarker" color="blue"/>
+	<style name="dsRegionMarker" color="violet2"/>
 	<style name="dsError" color="red" bold="true" underline="true"/>
 	
 	<style name="dsOperator" color="yellow"/>
@@ -58,16 +58,16 @@
 	<style name="dsDocHtml1" color="greenGray"/>
 	<style name="dsDocHtml2" color="greenGray"/>
 	<style name="dsDocHtml3" color="greenGray"/> 
-	<style name="dsDocEntities" color="green" bold="true" italic="true"/>
-	<style name="dsDocTag" color="green" bold="true"/>
-	<style name="dsDocWord" color="green" bold="true"/>
-	<style name="dsDocDescription"  color="green" bold="true"/>
-	<style name="dsDocCustomTag" color="green"/>
-	<style name="dsDocAlertTag1" color="green" bold="true"/>
-	<style name="dsDocAlertTag2" color="green" bold="true"/>
-	<style name="dsDocAlertTag3" color="green" bold="true"/>
-	<style name="dsDocAlert1" color="green" bold="true" italic="true"/>
-    <style name="dsDocAlert2" color="green" bold="true" italic="true"/>
-    <style name="dsDocAlert3" color="green" bold="true" italic="true"/>
-	<style name="dsDocInner" color="green" italic="true"/>
+	<style name="dsDocEntities" color="greenGray" bold="true" italic="true"/>
+	<style name="dsDocTag" color="greenGray" bold="true"/>
+	<style name="dsDocWord" color="greenGray" bold="true"/>
+	<style name="dsDocDescription"  color="greenGray" bold="true"/>
+	<style name="dsDocCustomTag" color="greenGray"/>
+	<style name="dsDocAlertTag1" color="greenGray" bold="true"/>
+	<style name="dsDocAlertTag2" color="greenGray" bold="true"/>
+	<style name="dsDocAlertTag3" color="greenGray" bold="true"/>
+	<style name="dsDocAlert1" color="greenGray" bold="true" italic="true"/>
+    <style name="dsDocAlert2" color="greenGray" bold="true" italic="true"/>
+    <style name="dsDocAlert3" color="greenGray" bold="true" italic="true"/>
+	<style name="dsDocInner" color="greenGray" italic="true"/>
 </scheme>
