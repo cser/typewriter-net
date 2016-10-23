@@ -164,7 +164,7 @@ namespace MulticaretEditor
 		private int leftIndent;
 		private int rightIndent;
 		private int offsetIndex;
-		private bool needScrollToSelected;
+		private bool needScrollToSelected = true;
 
 		private void ScrollToSelectedIfNeed()
 		{
