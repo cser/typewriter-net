@@ -220,6 +220,7 @@ public class IncrementalSearchBase : ADialog
 			variantsTextBox.Scheme = settings.ParsedScheme;
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{

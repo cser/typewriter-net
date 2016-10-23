@@ -134,6 +134,7 @@ public class RenameDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			splitLine.Scheme = settings.ParsedScheme;
 		}
 	}
 

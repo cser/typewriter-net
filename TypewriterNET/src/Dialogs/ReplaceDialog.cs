@@ -264,6 +264,7 @@ public class ReplaceDialog : ADialog
 			tabBar.Scheme = settings.ParsedScheme;
 			settings.ApplySchemeToLabel(textLabel);
 			settings.ApplySchemeToLabel(replaceTextLabel);
+			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{
