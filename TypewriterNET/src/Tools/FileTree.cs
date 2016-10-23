@@ -1050,4 +1050,18 @@ public class FileTree
             Reload();
         }
 	}
+	
+	public string GetCurrentFile()
+	{
+	    if (nodes.Count > 0)
+	    {
+            Place place = buffer.Controller.Lines.PlaceOf(buffer.Controller.LastSelection.anchor);
+            Node node = nodes[place.iLine];
+            if (node.type == NodeType.File || node.type == NodeType.Directory)
+            {
+                return node.fullPath;
+            }
+        }
+		return null;
+	}
 }

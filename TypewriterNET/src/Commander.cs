@@ -162,13 +162,25 @@ public class Commander
 		if (commandText.Contains(RunShellCommand.FileVar))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
+			string file = null;
 			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
 			{
-				mainForm.Dialogs.ShowInfo(
+			    if (mainForm.LeftNest.AFrame != null && mainForm.LeftNest.buffers.list.Selected == mainForm.FileTree.Buffer)
+			    {
+			        file = mainForm.FileTree.GetCurrentFile();
+			    }
+			}
+			else
+			{
+			    file = lastBuffer.FullPath;
+			}
+			if (file == null)
+			{
+			    mainForm.Dialogs.ShowInfo(
 					"Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
 				return false;
 			}
-			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath);
+			commandText = commandText.Replace(RunShellCommand.FileVar, file);
 		}
 		if (commandText.Contains(RunShellCommand.FileVarSoftly))
 		{
