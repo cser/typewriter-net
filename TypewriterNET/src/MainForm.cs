@@ -1187,6 +1187,22 @@ public class MainForm : Form
 		}
 		return false;
 	}
+	
+	public bool FileTreeFocused
+	{
+	    get
+	    {
+	        return leftNest.AFrame != null && leftNest.AFrame.Focused && leftNest.buffers.list.Selected == fileTree.Buffer;
+	    }
+	}
+	
+	public void FileTreeReload()
+	{
+	    if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+		{
+			fileTree.Reload();
+		}
+	}
 
 	private bool DoOpenCloseFileTree(Controller controller)
 	{

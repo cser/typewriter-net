@@ -365,7 +365,7 @@ public class Properties
 
 		public override string Type { get { return "command"; } }		
 		public override string ShowedName { get { return name + "[:<filter>]"; } }
-		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md\ntab names allowed too: File tree"; } }
 		public override string PossibleValues { get { return "(several nodes allowed)"; } }
 
 		public override void Reset()

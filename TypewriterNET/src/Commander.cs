@@ -59,6 +59,7 @@ public class Commander
 	{
 		if (string.IsNullOrEmpty(text))
 			return;
+		bool needFileTreeReload = mainForm.FileTreeFocused;
 		string args;
 		string name = FirstWord(text, out args);
 		if (name == "")
@@ -131,6 +132,8 @@ public class Commander
 				mainForm.Dialogs.ShowInfo(commandText, infoText);
 				if (dontChangeFocus && mainForm.LastFrame != null)
 					mainForm.LastFrame.Focus();
+				if (needFileTreeReload)
+				    mainForm.FileTreeReload();
 			}
 		}
 		else if (name.StartsWith("!!"))
@@ -149,7 +152,11 @@ public class Commander
 		{
 			string commandText = text.Substring(1).Trim();
 			if (ReplaceVars(ref commandText))
+			{
 				ExecuteShellCommand(commandText, showCommandInOutput);
+				if (needFileTreeReload)
+				    mainForm.FileTreeReload();
+		    }
 		}
 		else
 		{
