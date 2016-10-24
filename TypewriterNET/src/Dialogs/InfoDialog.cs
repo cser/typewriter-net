@@ -139,6 +139,7 @@ public class InfoDialog : ADialog
 
 	public void InitText(string text)
 	{
+	    text = text ?? "";
 		this.text = text;
 		textBox.Controller.InitText(text);
 		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);

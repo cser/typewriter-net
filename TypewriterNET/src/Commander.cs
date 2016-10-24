@@ -436,10 +436,25 @@ public class Commander
 	private void DoChangeCurrentDirectory(string path)
 	{
 		string error = "";
-		if (string.IsNullOrEmpty(path) || mainForm.SetCurrentDirectory(path, out error))
-			mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
+		if (string.IsNullOrEmpty(path))
+		{
+		    mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
+		}
+		if (mainForm.SetCurrentDirectory(path, out error))
+		{
+		    if (error != null)
+            {
+                mainForm.Dialogs.ShowInfo("Error", error);
+            }
+            else
+            {
+			    mainForm.Dialogs.ShowInfo("Current directory changed to", Directory.GetCurrentDirectory());
+			}
+		}
 		else
-			mainForm.Dialogs.ShowInfo("Error", error);
+		{
+		    mainForm.Dialogs.ShowInfo("Current directory", Directory.GetCurrentDirectory());
+		}
 	}
 
 	private void ExecuteShellCommand(string commandText, bool showCommandInOutput)
