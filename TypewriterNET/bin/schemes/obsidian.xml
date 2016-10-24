@@ -21,11 +21,11 @@
 	<color name="lineNumberFg" value="#556E69"/>
 	<color name="nameBg" value="#606060"/>
 	<color name="nameFg" value="#E1E2E3"/>
-	<color name="selectionBrush" value="#474747"/>
-	<color name="selectionPen" value="#606060"/>
+	<color name="selectionBrush" value="#39545D"/>
+	<color name="selectionPen" value="#39545D"/>
 	<color name="markPen" value="#AAAAAA"/>
 	<color name="mainCaret" value="#EEEEEE"/>
-	<color name="caret" value="#EEEEEE"/>
+	<color name="caret" value="#7F7F7F"/>
 	
 	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#F5F5F5"/>
@@ -33,7 +33,7 @@
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
-	<width name="mainCaret" value="2"/>
+	<width name="mainCaret" value="1"/>
 	<width name="caret" value="1"/>
 	
 	<style name="dsNormal" color="base"/>
