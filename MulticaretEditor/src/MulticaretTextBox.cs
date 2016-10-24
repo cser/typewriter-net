@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
+using CustomScrollBar;
 
 namespace MulticaretEditor
 {
@@ -1561,20 +1562,20 @@ namespace MulticaretEditor
 			lines.scroller.needScrollToCaret = true;
 		}
 
-		private ScrollBar hScrollBar;
-		private ScrollBar vScrollBar;
+		private ScrollBarEx hScrollBar;
+		private ScrollBarEx vScrollBar;
 		private int scrollBarBreadth;
 
 		private void InitScrollBars()
 		{
 			SuspendLayout();
 
-			hScrollBar = new HScrollBar();
+			hScrollBar = new ScrollBarEx(false);
 			hScrollBar.Cursor = Cursors.Default;
 			hScrollBar.SmallChange = charWidth;
 			Controls.Add(hScrollBar);
 
-			vScrollBar = new VScrollBar();
+			vScrollBar = new ScrollBarEx(true);
 			vScrollBar.Cursor = Cursors.Default;
 			vScrollBar.SmallChange = charHeight;
 			vScrollBar.Scroll += OnVScroll;
@@ -1600,6 +1601,7 @@ namespace MulticaretEditor
 		{
 			if (args.Type == ScrollEventType.EndScroll)
 				lines.scroller.needVScrollFix = true;
+			Invalidate();//Need after scroll bars replacing
 		}
 
 		private void AlignScrollBars()

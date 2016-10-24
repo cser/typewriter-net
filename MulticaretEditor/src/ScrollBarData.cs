@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using CustomScrollBar;
 
 namespace MulticaretEditor
 {
@@ -10,7 +11,7 @@ namespace MulticaretEditor
 		public int contentSize;
 		public bool visible;
 		
-		public void ApplyParamsTo(ScrollBar scrollBar)
+		public void ApplyParamsTo(ScrollBarEx scrollBar)
 		{
 			scrollBar.Minimum = 0;
 			scrollBar.Maximum = contentSize;

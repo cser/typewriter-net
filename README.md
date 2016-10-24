@@ -43,6 +43,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 6. JSON parser
 	https://github.com/libla/TinyJSON
 
+7. Custom scroll bar (modified)
+	http://www.codeproject.com/Articles/41869/Custom-Drawn-Scrollbar
+
 Installation without building
 -----------------------------
 
