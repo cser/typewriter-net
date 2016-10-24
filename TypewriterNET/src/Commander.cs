@@ -579,7 +579,7 @@ public class Commander
 			.Add("Buffer", editorText)
 			.Add("Line", (place.iLine + 1) + "")
 			.Add("Column", (place.iChar + 1) + "")
-			.Send(mainForm.SharpManager.Url + "/getoverridetargets", true);
+			.Send(mainForm.SharpManager.Url + "/getoverridetargets", false);
 		if (node != null)
 		{
 			if (!node.IsArray())
