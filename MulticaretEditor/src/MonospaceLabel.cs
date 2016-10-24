@@ -43,6 +43,8 @@ namespace MulticaretEditor
 			get { return text; }
 			set
 			{
+				if (text == value + "")
+					return;
 				text = value + "";
 				lines.Clear();
 				List<char> line = new List<char>();

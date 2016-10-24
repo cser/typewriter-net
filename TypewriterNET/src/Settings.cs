@@ -265,6 +265,6 @@ public class Settings
 	public void ApplySchemeToLabel(MonospaceLabel label)
 	{
 		label.BackColor = parsedScheme.tabsBgColor;
-		label.TextColor = parsedScheme.fgColor;
+		label.TextColor = parsedScheme.tabsFgColor;
 	}
 }
