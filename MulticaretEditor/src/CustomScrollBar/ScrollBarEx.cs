@@ -5,6 +5,7 @@
 	using System.Drawing;
 	using System.Runtime.InteropServices;
 	using System.Windows.Forms;
+	using MulticaretEditor.Highlighting;
 
 	[DefaultEvent("Scroll")]
 	[DefaultProperty("Value")]
@@ -30,9 +31,9 @@
 		private int smallChange = 20;
 		private int largeChange = 10;
 		private int value;
-		private int thumbWidth = 15;
+		private int thumbWidth = 18;
 		private int thumbHeight;
-		private int arrowWidth = 15;
+		private int arrowWidth = 18;
 		private int arrowHeight = 17;
 		private int thumbBottomLimitBottom;
 		private int thumbBottomLimitTop;
@@ -41,16 +42,17 @@
 		private int trackPosition;
 		private Timer progressTimer = new Timer();
 
-		public ScrollBarEx(bool isVertical)
+		public ScrollBarEx(bool isVertical, Scheme scheme)
 		{
 			this.isVertical = isVertical;
+			this.scheme = scheme;
 			
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			SetStyle(ControlStyles.UserPaint, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 
-			this.Width = 19;
+			this.Width = 18;
 			this.Height = 200;
 			this.SetUpScrollBar();
 			this.progressTimer.Interval = 20;
@@ -58,6 +60,14 @@
 		}
 
 		public event ScrollEventHandler Scroll;
+		
+		private Scheme scheme;
+		
+		public void SetScheme(Scheme scheme)
+		{
+			this.scheme = scheme;
+			Invalidate();
+		}
 
 		[DefaultValue(0)]
 		public int Minimum
@@ -206,23 +216,19 @@
 			Rectangle rect = ClientRectangle;
 			if (isVertical)
 			{
-				rect.X++;
-				rect.Y += this.arrowHeight + 1;
-				rect.Width -= 2;
-				rect.Height -= (this.arrowHeight * 2) + 2;
+				rect.Y += this.arrowHeight;
+				rect.Height -= (this.arrowHeight * 2);
 			}
 			else
 			{
-				rect.X += this.arrowWidth + 1;
-				rect.Y++;
-				rect.Width -= (this.arrowWidth * 2) + 2;
-				rect.Height -= 2;
+				rect.X += this.arrowWidth;
+				rect.Width -= (this.arrowWidth * 2);
 			}
-			ScrollBarExRenderer.DrawBackground(e.Graphics, ClientRectangle, isVertical);
-			ScrollBarExRenderer.DrawTrack(e.Graphics, rect, ScrollBarState.Normal, isVertical);
-			ScrollBarExRenderer.DrawThumb(e.Graphics, this.thumbRectangle, this.thumbState, isVertical);
-			ScrollBarExRenderer.DrawArrowButton(e.Graphics, this.topArrowRectangle, this.topButtonState, true, isVertical);
-			ScrollBarExRenderer.DrawArrowButton(e.Graphics, this.bottomArrowRectangle, this.bottomButtonState, false, isVertical);
+			ScrollBarExRenderer.DrawBackground(e.Graphics, scheme, ClientRectangle, isVertical);
+			ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, rect, ScrollBarState.Normal, isVertical);
+			ScrollBarExRenderer.DrawThumb(e.Graphics, scheme, this.thumbRectangle, this.thumbState, isVertical);
+			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, this.topArrowRectangle, this.topButtonState, true, isVertical);
+			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, this.bottomArrowRectangle, this.bottomButtonState, false, isVertical);
 			if (this.topBarClicked)
 			{
 				if (isVertical)
@@ -235,21 +241,21 @@
 					this.clickedBarRectangle.X = this.thumbTopLimit;
 					this.clickedBarRectangle.Width = this.thumbRectangle.X - this.thumbTopLimit;
 				}
-				ScrollBarExRenderer.DrawTrack(e.Graphics, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
+				ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
 			}
 			else if (this.bottomBarClicked)
 			{
 				if (isVertical)
 				{
-					this.clickedBarRectangle.Y = this.thumbRectangle.Bottom + 1;
-					this.clickedBarRectangle.Height = this.thumbBottomLimitBottom - this.clickedBarRectangle.Y + 1;
+					this.clickedBarRectangle.Y = this.thumbRectangle.Bottom;
+					this.clickedBarRectangle.Height = this.thumbBottomLimitBottom - this.clickedBarRectangle.Y;
 				}
 				else
 				{
-					this.clickedBarRectangle.X = this.thumbRectangle.Right + 1;
-					this.clickedBarRectangle.Width = this.thumbBottomLimitBottom - this.clickedBarRectangle.X + 1;
+					this.clickedBarRectangle.X = this.thumbRectangle.Right;
+					this.clickedBarRectangle.Width = this.thumbBottomLimitBottom - this.clickedBarRectangle.X;
 				}
-				ScrollBarExRenderer.DrawTrack(e.Graphics, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
+				ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
 			}
 		}
 
@@ -447,7 +453,7 @@
 					{
 						height = (2 * this.arrowHeight) + 10;
 					}
-					width = 19;
+					width = 18;
 				}
 				else
 				{
@@ -455,7 +461,7 @@
 					{
 						width = (2 * this.arrowWidth) + 10;
 					}
-					height = 19;
+					height = 18;
 				}
 			}
 			base.SetBoundsCore(x, y, width, height, specified);
@@ -546,74 +552,72 @@
 			if (isVertical)
 			{
 				this.arrowHeight = 17;
-				this.arrowWidth = 15;
-				this.thumbWidth = 15;
+				this.arrowWidth = 18;
+				this.thumbWidth = 18;
 				this.thumbHeight = this.GetThumbSize();
 
 				this.clickedBarRectangle = this.ClientRectangle;
-				this.clickedBarRectangle.Inflate(-1, -1);
 				this.clickedBarRectangle.Y += this.arrowHeight;
 				this.clickedBarRectangle.Height -= this.arrowHeight * 2;
 
 				this.channelRectangle = this.clickedBarRectangle;
 				this.thumbRectangle = new Rectangle(
-					ClientRectangle.X + 2,
-					ClientRectangle.Y + this.arrowHeight + 1,
-					this.thumbWidth - 1,
+					ClientRectangle.X,
+					ClientRectangle.Y + this.arrowHeight,
+					this.thumbWidth,
 					this.thumbHeight
 				);
 				this.topArrowRectangle = new Rectangle(
-					ClientRectangle.X + 2,
-					ClientRectangle.Y + 1,
+					ClientRectangle.X,
+					ClientRectangle.Y,
 					this.arrowWidth,
 					this.arrowHeight
 				);
 				this.bottomArrowRectangle = new Rectangle(
-					ClientRectangle.X + 2,
-					ClientRectangle.Bottom - this.arrowHeight - 1,
+					ClientRectangle.X,
+					ClientRectangle.Bottom - this.arrowHeight,
 					this.arrowWidth,
 					this.arrowHeight
 				);
 				this.thumbPosition = this.thumbRectangle.Height / 2;
-				this.thumbBottomLimitBottom = ClientRectangle.Bottom - this.arrowHeight - 2;
+				this.thumbBottomLimitBottom = ClientRectangle.Bottom - this.arrowHeight;
 				this.thumbBottomLimitTop = this.thumbBottomLimitBottom - this.thumbRectangle.Height;
-				this.thumbTopLimit = ClientRectangle.Y + this.arrowHeight + 1;
+				this.thumbTopLimit = ClientRectangle.Y + this.arrowHeight;
 			}
 			else
 			{
-				this.arrowHeight = 15;
+				this.arrowHeight = 18;
 				this.arrowWidth = 17;
-				this.thumbHeight = 15;
+				this.thumbHeight = 18;
 				this.thumbWidth = this.GetThumbSize();
 
 				this.clickedBarRectangle = this.ClientRectangle;
-				this.clickedBarRectangle.Inflate(-1, -1);
 				this.clickedBarRectangle.X += this.arrowWidth;
 				this.clickedBarRectangle.Width -= this.arrowWidth * 2;
 
 				this.channelRectangle = this.clickedBarRectangle;
 				this.thumbRectangle = new Rectangle(
-					ClientRectangle.X + this.arrowWidth + 1,
-					ClientRectangle.Y + 2,
+					ClientRectangle.X + this.arrowWidth,
+					ClientRectangle.Y,
 					this.thumbWidth,
-					this.thumbHeight - 1
+					this.thumbHeight
 				);
 				this.topArrowRectangle = new Rectangle(
-					ClientRectangle.X + 1,
-					ClientRectangle.Y + 2,
+					ClientRectangle.X,
+					ClientRectangle.Y,
 					this.arrowWidth,
 					this.arrowHeight
 				);
 				this.bottomArrowRectangle = new Rectangle(
-					ClientRectangle.Right - this.arrowWidth - 1,
-					ClientRectangle.Y + 2,
+					ClientRectangle.Right - this.arrowWidth,
+					ClientRectangle.Y,
 					this.arrowWidth,
 					this.arrowHeight
 				);
 				this.thumbPosition = this.thumbRectangle.Width / 2;
-				this.thumbBottomLimitBottom = ClientRectangle.Right - this.arrowWidth - 2;
+				this.thumbBottomLimitBottom = ClientRectangle.Right - this.arrowWidth;
 				this.thumbBottomLimitTop = this.thumbBottomLimitBottom - this.thumbRectangle.Width;
-				this.thumbTopLimit = ClientRectangle.X + this.arrowWidth + 1;
+				this.thumbTopLimit = ClientRectangle.X + this.arrowWidth;
 			}
 			this.ChangeThumbPosition(this.GetThumbPosition());
 			this.Refresh();

@@ -4,52 +4,52 @@
 	using System.Drawing;
 	using System.Drawing.Drawing2D;
 	using System.Drawing.Imaging;
+	using MulticaretEditor.Highlighting;
 	
 	internal static class ScrollBarExRenderer
 	{
-		public static void DrawBackground(Graphics g, Rectangle rect, bool isHorizontal)
+		public static void DrawBackground(Graphics g, Scheme scheme, Rectangle rect, bool isHorizontal)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
-			}			
-			using (SolidBrush brush = new SolidBrush(Color.Gray))
-			{
-				g.FillRectangle(brush, rect);
 			}
+			g.FillRectangle(scheme.scrollBgBrush, rect);
 		}
 		
-		public static void DrawTrack(Graphics g, Rectangle rect, ScrollBarState state, bool isHorizontal)
+		public static void DrawTrack(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool isHorizontal)
 		{
 			if (rect.Width <= 0 || rect.Height <= 0 || state != ScrollBarState.Pressed ||
 				g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
 			}
-			using (SolidBrush brush = new SolidBrush(Color.Gray))
-			{
-				g.FillRectangle(brush, rect);
-			}
+			g.FillRectangle(scheme.scrollTrackBrush, rect);
 		}
 		
-		public static void DrawThumb(Graphics g, Rectangle rect, ScrollBarState state, bool isHorizontal)
+		public static void DrawThumb(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool isHorizontal)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect) ||
 				state == ScrollBarState.Disabled)
 			{
 				return;
 			}
-			using (SolidBrush brush = new SolidBrush(Color.Silver))
-			{
-				g.FillRectangle(brush, rect);
-			}
+			Brush brush =
+				state == ScrollBarState.Hot ||
+				state == ScrollBarState.Pressed ?
+				scheme.scrollThumbHoverBrush : scheme.scrollThumbBrush;
+			g.FillRectangle(brush, rect);
 		}
 		
-		public static void DrawArrowButton(Graphics g, Rectangle rect, ScrollBarArrowButtonState state, bool arrowUp, bool isHorizontal)
+		public static void DrawArrowButton(Graphics g, Scheme scheme, Rectangle rect, ScrollBarArrowButtonState state, bool arrowUp, bool isHorizontal)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
+			}
+			if (state == ScrollBarArrowButtonState.UpHot)
+			{
+				g.FillRectangle(scheme.scrollArrowBgMildHoverBrush, rect);
 			}
 			if (isHorizontal)
 			{
@@ -85,20 +85,19 @@
 					a3 = 0;
 				}
 			}
-			using (Pen pen = new Pen(Color.Black))
-			{
-				lineX = rect.X + rect.Width / 2;
-				lineY = rect.Y + rect.Height / 2;
-				int size = 16;
-				int td = size / 4;
-				int td2 = td * 4 / 6;
-				DrawLine(g, pen, -td, td2, 0, -td2);
-				DrawLine(g, pen, 0, -td2, td, td2);
-				DrawLine(g, pen, -td + 1, td2, 0, -td2 + 1);
-				DrawLine(g, pen, 0, -td2 + 1, td - 1, td2);
-				DrawLine(g, pen, -td + 1, td2 + 1, 0, -td2 + 2);
-				DrawLine(g, pen, 0, -td2 + 2, td - 1, td2 + 1);
-			}
+			Pen pen = state == ScrollBarArrowButtonState.UpActive ?
+				scheme.scrollArrowHoverPen : scheme.scrollArrowPen;
+			lineX = rect.X + rect.Width / 2;
+			lineY = rect.Y + rect.Height / 2;
+			int size = 16;
+			int td = size / 4;
+			int td2 = td * 4 / 6;
+			DrawLine(g, pen, -td, td2, 0, -td2);
+			DrawLine(g, pen, 0, -td2, td, td2);
+			DrawLine(g, pen, -td + 1, td2, 0, -td2 + 1);
+			DrawLine(g, pen, 0, -td2 + 1, td - 1, td2);
+			DrawLine(g, pen, -td + 1, td2 + 1, 0, -td2 + 2);
+			DrawLine(g, pen, 0, -td2 + 2, td - 1, td2 + 1);
 		}
 
 		private static int a0;

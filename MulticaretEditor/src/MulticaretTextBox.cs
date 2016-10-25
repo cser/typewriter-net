@@ -206,6 +206,10 @@ namespace MulticaretEditor
 				scheme = value;
 				styles = highlighter != null ? highlighter.GetStyles(scheme) : Highlighter.GetDefaultStyles(scheme);
 				BackColor = scheme.bgColor;
+				if (vScrollBar != null)
+					vScrollBar.SetScheme(scheme);
+				if (hScrollBar != null)
+					hScrollBar.SetScheme(scheme);
 			}
 		}
 
@@ -534,7 +538,7 @@ namespace MulticaretEditor
 			}
 
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
-				g.FillRectangle(bgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
+				g.FillRectangle(scheme.scrollBgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
 
 			base.OnPaint(e);
 
@@ -1570,12 +1574,12 @@ namespace MulticaretEditor
 		{
 			SuspendLayout();
 
-			hScrollBar = new ScrollBarEx(false);
+			hScrollBar = new ScrollBarEx(false, scheme);
 			hScrollBar.Cursor = Cursors.Default;
 			hScrollBar.SmallChange = charWidth;
 			Controls.Add(hScrollBar);
 
-			vScrollBar = new ScrollBarEx(true);
+			vScrollBar = new ScrollBarEx(true, scheme);
 			vScrollBar.Cursor = Cursors.Default;
 			vScrollBar.SmallChange = charHeight;
 			vScrollBar.Scroll += OnVScroll;

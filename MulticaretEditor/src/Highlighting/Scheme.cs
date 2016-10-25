@@ -33,6 +33,15 @@ namespace MulticaretEditor.Highlighting
 		public Color tabsSelectedBgColor;
 		public Color tabsSelectedFgColor;
 		
+		public Color scrollBgColor;
+		public Color scrollThumbColor;
+		public Color scrollThumbHoverColor;
+		public Color scrollArrowBgMildHoverColor;
+		public Color scrollArrowBgHoverColor;
+		public Color scrollArrowColor;
+		public Color scrollArrowHoverColor;
+		public Color scrollTrackColor;
+		
 		public int mainCaretWidth;
 		public int caretWidth;
 		
@@ -57,6 +66,15 @@ namespace MulticaretEditor.Highlighting
 		public Brush tabsSelectedBgBrush;
 		public Brush tabsSelectedFgBrush;
 		public Pen tabsSelectedFgPen;
+		
+		public Brush scrollBgBrush;
+		public Brush scrollThumbBrush;
+		public Brush scrollThumbHoverBrush;
+		public Brush scrollArrowBgMildHoverBrush;
+		public Brush scrollArrowBgHoverBrush;
+		public Pen scrollArrowPen;
+		public Pen scrollArrowHoverPen;
+		public Brush scrollTrackBrush;
 		
 		public void ParseXml(IEnumerable<XmlDocument> xmls)
 		{
@@ -149,6 +167,15 @@ namespace MulticaretEditor.Highlighting
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
 			
+			SetColor(ref scrollBgColor, "scrollBg", colors);
+			SetColor(ref scrollThumbColor, "scrollThumb", colors);
+			SetColor(ref scrollThumbHoverColor, "scrollThumbHover", colors);
+			SetColor(ref scrollArrowBgMildHoverColor, "scrollArrowBgMildHover", colors);
+			SetColor(ref scrollArrowBgHoverColor, "scrollArrowBgHover", colors);
+			SetColor(ref scrollArrowColor, "scrollArrow", colors);
+			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
+			SetColor(ref scrollTrackColor, "scrollTrack", colors);
+			
 			Update();
 		}
 		
@@ -196,6 +223,15 @@ namespace MulticaretEditor.Highlighting
 			mainCaretWidth = 1;
 			caretWidth = 1;
 			
+			scrollBgColor = Color.WhiteSmoke;
+			scrollThumbColor = Color.FromArgb(180, 180, 180);
+			scrollThumbHoverColor = Color.FromArgb(155, 155, 155);
+			scrollArrowBgMildHoverColor = Color.FromArgb(180, 180, 180);
+			scrollArrowBgHoverColor = Color.FromArgb(155, 155, 155);
+			scrollArrowColor = Color.Black;
+			scrollArrowHoverColor = Color.White;
+			scrollTrackColor = Color.FromArgb(200, 200, 200);
+			
 			Clear();
 			defaultTextStyle.brush = new SolidBrush(fgColor);
 			foreach (Ds ds in Ds.all)
@@ -227,6 +263,15 @@ namespace MulticaretEditor.Highlighting
 			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
 			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
 			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
+			
+			scrollBgBrush = new SolidBrush(scrollBgColor);
+			scrollThumbBrush = new SolidBrush(scrollThumbColor);
+			scrollThumbHoverBrush = new SolidBrush(scrollThumbHoverColor);
+			scrollArrowBgMildHoverBrush = new SolidBrush(scrollArrowBgMildHoverColor);
+			scrollArrowBgHoverBrush = new SolidBrush(scrollArrowBgHoverColor);
+			scrollArrowPen = new Pen(scrollArrowColor, 1);
+			scrollArrowHoverPen = new Pen(scrollArrowHoverColor, 1);
+			scrollTrackBrush = new SolidBrush(scrollTrackColor);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
 		}
