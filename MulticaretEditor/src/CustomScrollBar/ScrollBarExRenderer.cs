@@ -5,124 +5,52 @@
 	using System.Drawing.Drawing2D;
 	using System.Drawing.Imaging;
 	
-	/// <summary>
-	/// The scrollbar renderer class.
-	/// </summary>
 	internal static class ScrollBarExRenderer
 	{
-		/// <summary>
-		/// Draws the background.
-		/// </summary>
-		/// <param name="g">The <see cref="Graphics"/> used to paint.</param>
-		/// <param name="rect">The rectangle in which to paint.</param>
-		/// <param name="orientation">The <see cref="ScrollBarOrientation"/>.</param>
 		public static void DrawBackground(Graphics g, Rectangle rect, bool isHorizontal)
 		{
-			if (g == null)
-			{
-				throw new ArgumentNullException("g");
-			}
-		
-			if (rect.IsEmpty || g.IsVisibleClipEmpty
-			|| !g.VisibleClipBounds.IntersectsWith(rect))
+			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
-			}
-			
+			}			
 			using (SolidBrush brush = new SolidBrush(Color.Gray))
 			{
 				g.FillRectangle(brush, rect);
 			}
 		}
 		
-		/// <summary>
-		/// Draws the channel ( or track ).
-		/// </summary>
-		/// <param name="g">The <see cref="Graphics"/> used to paint.</param>
-		/// <param name="rect">The rectangle in which to paint.</param>
-		/// <param name="state">The scrollbar state.</param>
-		/// <param name="orientation">The <see cref="ScrollBarOrientation"/>.</param>
-		public static void DrawTrack(
-			Graphics g,
-			Rectangle rect,
-			ScrollBarState state,
-			bool isHorizontal)
+		public static void DrawTrack(Graphics g, Rectangle rect, ScrollBarState state, bool isHorizontal)
 		{
-			if (g == null)
-			{
-				throw new ArgumentNullException("g");
-			}
-			
-			if (rect.Width <= 0 || rect.Height <= 0
-			|| state != ScrollBarState.Pressed || g.IsVisibleClipEmpty
-			|| !g.VisibleClipBounds.IntersectsWith(rect))
+			if (rect.Width <= 0 || rect.Height <= 0 || state != ScrollBarState.Pressed ||
+				g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
 			}
-			
 			using (SolidBrush brush = new SolidBrush(Color.Gray))
 			{
 				g.FillRectangle(brush, rect);
 			}
 		}
 		
-		/// <summary>
-		/// Draws the thumb.
-		/// </summary>
-		/// <param name="g">The <see cref="Graphics"/> used to paint.</param>
-		/// <param name="rect">The rectangle in which to paint.</param>
-		/// <param name="state">The <see cref="ScrollBarState"/> of the thumb.</param>
-		/// <param name="orientation">The <see cref="ScrollBarOrientation"/>.</param>
-		public static void DrawThumb(
-			Graphics g,
-			Rectangle rect,
-			ScrollBarState state,
-			bool isHorizontal)
+		public static void DrawThumb(Graphics g, Rectangle rect, ScrollBarState state, bool isHorizontal)
 		{
-			if (g == null)
-			{
-				throw new ArgumentNullException("g");
-			}
-		
-			if (rect.IsEmpty || g.IsVisibleClipEmpty
-			|| !g.VisibleClipBounds.IntersectsWith(rect)
-			|| state == ScrollBarState.Disabled)
+			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect) ||
+				state == ScrollBarState.Disabled)
 			{
 				return;
 			}
-			
 			using (SolidBrush brush = new SolidBrush(Color.Silver))
 			{
 				g.FillRectangle(brush, rect);
 			}
 		}
 		
-		/// <summary>
-		/// Draws an arrow button.
-		/// </summary>
-		/// <param name="g">The <see cref="Graphics"/> used to paint.</param>
-		/// <param name="rect">The rectangle in which to paint.</param>
-		/// <param name="state">The <see cref="ScrollBarArrowButtonState"/> of the arrow button.</param>
-		/// <param name="arrowUp">true for an up arrow, false otherwise.</param>
-		/// <param name="orientation">The <see cref="ScrollBarOrientation"/>.</param>
-		public static void DrawArrowButton(
-			Graphics g,
-			Rectangle rect,
-			ScrollBarArrowButtonState state,
-			bool arrowUp,
-			bool isHorizontal)
+		public static void DrawArrowButton(Graphics g, Rectangle rect, ScrollBarArrowButtonState state, bool arrowUp, bool isHorizontal)
 		{
-			if (g == null)
-			{
-				throw new ArgumentNullException("g");
-			}
-			
-			if (rect.IsEmpty || g.IsVisibleClipEmpty
-			|| !g.VisibleClipBounds.IntersectsWith(rect))
+			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
 			}
-			
 			if (isHorizontal)
 			{
 				if (arrowUp)
