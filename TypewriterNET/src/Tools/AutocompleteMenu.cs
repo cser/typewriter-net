@@ -7,6 +7,7 @@ using MulticaretEditor;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor.KeyMapping;
 using Microsoft.Win32;
+using CustomScrollBar;
 
 public class AutocompleteMenu : ToolStripDropDown
 {
@@ -206,7 +207,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	public class MenuControl : Control
 	{
 		private readonly AutocompleteMenu menu;
-		private readonly ScrollBar vScrollBar;
+		private readonly ScrollBarEx vScrollBar;
 		
 		public int scrollBarWidth;
 		
@@ -225,7 +226,8 @@ public class AutocompleteMenu : ToolStripDropDown
 			
 			SuspendLayout();
 			
-			vScrollBar = new VScrollBar();
+			vScrollBar = new ScrollBarEx(true, menu.scheme);
+			vScrollBar.SmallChange = 1;
 			vScrollBar.Cursor = Cursors.Default;
 			vScrollBar.SmallChange = menu.charHeight;
 			vScrollBar.Scroll += OnVScroll;
@@ -248,7 +250,7 @@ public class AutocompleteMenu : ToolStripDropDown
 			vScrollBar.Left = width - scrollBarWidth;
 			vScrollBar.Height = height;			
 			vScrollBar.Minimum = 0;
-			vScrollBar.Maximum = menu.variants.Count - 1;
+			vScrollBar.Maximum = menu.variants.Count;
 			vScrollBar.LargeChange = menu.visibleLinesCount;
 		}
 		

@@ -17,40 +17,30 @@
 			g.FillRectangle(scheme.scrollBgBrush, rect);
 		}
 		
-		public static void DrawTrack(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool isHorizontal)
-		{
-			if (rect.Width <= 0 || rect.Height <= 0 || state != ScrollBarState.Pressed ||
-				g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
-			{
-				return;
-			}
-			g.FillRectangle(scheme.scrollTrackBrush, rect);
-		}
-		
 		public static void DrawThumb(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool isHorizontal)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect) ||
 				state == ScrollBarState.Disabled)
 			{
 				return;
+			}			
+			if (state == ScrollBarState.Hot || state == ScrollBarState.Pressed)
+			{
+				g.FillRectangle(scheme.scrollThumbHoverBrush, rect);
 			}
-			Brush brush =
-				state == ScrollBarState.Hot ||
-				state == ScrollBarState.Pressed ?
-				scheme.scrollThumbHoverBrush : scheme.scrollThumbBrush;
-			g.FillRectangle(brush, rect);
+			else
+			{
+				g.FillRectangle(scheme.scrollThumbBrush, rect);
+			}
 		}
 		
-		public static void DrawArrowButton(Graphics g, Scheme scheme, Rectangle rect, ScrollBarArrowButtonState state, bool arrowUp, bool isHorizontal)
+		public static void DrawArrowButton(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool arrowUp, bool isHorizontal)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
 			}
-			if (state == ScrollBarArrowButtonState.UpHot)
-			{
-				g.FillRectangle(scheme.scrollArrowBgMildHoverBrush, rect);
-			}
+			offset = state == ScrollBarState.Pressed ? 1 : 0;
 			if (isHorizontal)
 			{
 				if (arrowUp)
@@ -85,7 +75,7 @@
 					a3 = 0;
 				}
 			}
-			Pen pen = state == ScrollBarArrowButtonState.UpActive ?
+			Pen pen = state == ScrollBarState.Hot || state == ScrollBarState.Pressed ?
 				scheme.scrollArrowHoverPen : scheme.scrollArrowPen;
 			lineX = rect.X + rect.Width / 2;
 			lineY = rect.Y + rect.Height / 2;
@@ -100,6 +90,7 @@
 			DrawLine(g, pen, 0, -td2 + 2, td - 1, td2 + 1);
 		}
 
+		private static int offset;
 		private static int a0;
 		private static int a1;
 		private static int a2;
@@ -109,11 +100,14 @@
 		
 		private static void DrawLine(Graphics g, Pen pen, int x0, int y0, int x1, int y1)
 		{
+			int offsetY = -1;
+			y0 += offsetY;
+			y1 += offsetY;
 			int xx0 = x0 * a0 + y0 * a1;
 			int yy0 = x0 * a2 + y0 * a3;
 			int xx1 = x1 * a0 + y1 * a1;
 			int yy1 = x1 * a2 + y1 * a3;
-			g.DrawLine(pen, lineX + xx0, lineY + yy0, lineX + xx1, lineY + yy1);
+			g.DrawLine(pen, lineX + xx0 + offset, lineY + yy0 + offset, lineX + xx1 + offset, lineY + yy1 + offset);
 		}
 	}
 }

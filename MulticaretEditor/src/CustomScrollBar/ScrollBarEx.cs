@@ -7,29 +7,25 @@
 	using System.Windows.Forms;
 	using MulticaretEditor.Highlighting;
 
-	[DefaultEvent("Scroll")]
-	[DefaultProperty("Value")]
 	public class ScrollBarEx : Control
 	{
 		private bool isVertical = true;
 		private ScrollOrientation scrollOrientation = ScrollOrientation.VerticalScroll;
-		private Rectangle clickedBarRectangle;
 		private Rectangle thumbRectangle;
 		private Rectangle topArrowRectangle;
 		private Rectangle bottomArrowRectangle;
-		private Rectangle channelRectangle;
 		private bool topArrowClicked;
 		private bool bottomArrowClicked;
 		private bool topBarClicked;
 		private bool bottomBarClicked;
 		private bool thumbClicked;
 		private ScrollBarState thumbState = ScrollBarState.Normal;
-		private ScrollBarArrowButtonState topButtonState = ScrollBarArrowButtonState.UpNormal;
-		private ScrollBarArrowButtonState bottomButtonState = ScrollBarArrowButtonState.DownNormal;
+		private ScrollBarState topButtonState = ScrollBarState.Normal;
+		private ScrollBarState bottomButtonState = ScrollBarState.Normal;
 		private int minimum;
 		private int maximum = 100;
 		private int smallChange = 20;
-		private int largeChange = 10;
+		private int largeChange = 20;
 		private int value;
 		private int thumbWidth = 18;
 		private int thumbHeight;
@@ -52,11 +48,11 @@
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 
-			this.Width = 18;
-			this.Height = 200;
-			this.SetUpScrollBar();
-			this.progressTimer.Interval = 20;
-			this.progressTimer.Tick += this.ProgressTimerTick;
+			Width = 18;
+			Height = 200;
+			SetUpScrollBar();
+			progressTimer.Interval = 20;
+			progressTimer.Tick += ProgressTimerTick;
 		}
 
 		public event ScrollEventHandler Scroll;
@@ -69,132 +65,86 @@
 			Invalidate();
 		}
 
-		[DefaultValue(0)]
 		public int Minimum
 		{
-			get
-			{
-				return this.minimum;
-			}
+			get { return minimum; }
 			set
 			{
-				if (this.minimum == value || value < 0 || value >= this.maximum)
+				if (minimum != value)
 				{
-					return;
-				}
-				this.minimum = value;
-				if (this.value < value)
-				{
-					this.value = value;
-				}
-				if (this.largeChange > this.maximum - this.minimum)
-				{
-					this.largeChange = this.maximum - this.minimum;
-				}
-				this.SetUpScrollBar();
-				if (this.value < value)
-				{
-					this.Value = value;
-				}
-				else
-				{
-					this.ChangeThumbPosition(this.GetThumbPosition());
-					this.Refresh();
+					minimum = value;
+					SetUpScrollBar();
 				}
 			}
 		}
 
-		[DefaultValue(100)]
 		public int Maximum
 		{
-			get
-			{
-				return this.maximum;
-			}
+			get { return maximum; }
 			set
 			{
-				if (value == this.maximum || value < 1 || value <= this.minimum)
+				if (maximum != value)
 				{
-					return;
-				}
-				this.maximum = value;
-				if (this.largeChange > this.maximum - this.minimum)
-				{
-					this.largeChange = this.maximum - this.minimum;
-				}
-				this.SetUpScrollBar();
-				if (this.value > value)
-				{
-					this.Value = this.maximum;
-				}
-				else
-				{
-					this.ChangeThumbPosition(this.GetThumbPosition());
-					this.Refresh();
+					maximum = value;
+					SetUpScrollBar();
 				}
 			}
 		}
 
-		[DefaultValue(1)]
 		public int SmallChange
 		{
-			get
-			{
-				return this.smallChange;
-			}
+			get { return smallChange; }
 			set
 			{
-				if (value == this.smallChange || value < 1 || value >= this.largeChange)
+				if (value < 1)
 				{
-					return;
+					value = 1;
 				}
-				this.smallChange = value;
-				this.SetUpScrollBar();
+				if (smallChange != value)
+				{
+					smallChange = value;
+					SetUpScrollBar();
+				}
 			}
 		}
 
-		[DefaultValue(10)]
 		public int LargeChange
 		{
-			get
-			{
-				return this.largeChange;
-			}
+			get { return largeChange; }
 			set
 			{
-				if (value == this.largeChange || value < this.smallChange || value < 2)
+				if (value < 1)
 				{
 					return;
 				}
-				if (value > this.maximum - this.minimum)
+				if (largeChange != value)
 				{
-					this.largeChange = this.maximum - this.minimum;
+					largeChange = value;
+					SetUpScrollBar();
 				}
-				else
-				{
-					this.largeChange = value;
-				}
-				this.SetUpScrollBar();
 			}
 		}
 
-		[DefaultValue(0)]
 		public int Value
 		{
-			get
-			{
-				return this.value;
-			}
+			get { return this.value; }
 			set
 			{
-				if (this.value == value || value < this.minimum || value > this.maximum)
+				if (value < minimum)
 				{
-					return;
+					value = minimum;
 				}
-				this.value = value;
-				this.ChangeThumbPosition(this.GetThumbPosition());
-				this.OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, -1, this.value, this.scrollOrientation));
-				this.Refresh();
+				if (value > maximum)
+				{
+					value = maximum;
+				}
+				if (this.value != value)
+				{
+					this.value = value;
+					this.ChangeThumbPosition(this.GetThumbPosition());
+					this.OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, -1, this.value, this.scrollOrientation));
+					this.Refresh();
+				}
 			}
 		}
 
@@ -216,47 +166,18 @@
 			Rectangle rect = ClientRectangle;
 			if (isVertical)
 			{
-				rect.Y += this.arrowHeight;
-				rect.Height -= (this.arrowHeight * 2);
+				rect.Y += arrowHeight;
+				rect.Height -= (arrowHeight * 2);
 			}
 			else
 			{
-				rect.X += this.arrowWidth;
-				rect.Width -= (this.arrowWidth * 2);
+				rect.X += arrowWidth;
+				rect.Width -= (arrowWidth * 2);
 			}
 			ScrollBarExRenderer.DrawBackground(e.Graphics, scheme, ClientRectangle, isVertical);
-			ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, rect, ScrollBarState.Normal, isVertical);
-			ScrollBarExRenderer.DrawThumb(e.Graphics, scheme, this.thumbRectangle, this.thumbState, isVertical);
-			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, this.topArrowRectangle, this.topButtonState, true, isVertical);
-			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, this.bottomArrowRectangle, this.bottomButtonState, false, isVertical);
-			if (this.topBarClicked)
-			{
-				if (isVertical)
-				{
-					this.clickedBarRectangle.Y = this.thumbTopLimit;
-					this.clickedBarRectangle.Height = this.thumbRectangle.Y - this.thumbTopLimit;
-				}
-				else
-				{
-					this.clickedBarRectangle.X = this.thumbTopLimit;
-					this.clickedBarRectangle.Width = this.thumbRectangle.X - this.thumbTopLimit;
-				}
-				ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
-			}
-			else if (this.bottomBarClicked)
-			{
-				if (isVertical)
-				{
-					this.clickedBarRectangle.Y = this.thumbRectangle.Bottom;
-					this.clickedBarRectangle.Height = this.thumbBottomLimitBottom - this.clickedBarRectangle.Y;
-				}
-				else
-				{
-					this.clickedBarRectangle.X = this.thumbRectangle.Right;
-					this.clickedBarRectangle.Width = this.thumbBottomLimitBottom - this.clickedBarRectangle.X;
-				}
-				ScrollBarExRenderer.DrawTrack(e.Graphics, scheme, this.clickedBarRectangle, ScrollBarState.Pressed, isVertical);
-			}
+			ScrollBarExRenderer.DrawThumb(e.Graphics, scheme, thumbRectangle, thumbState, isVertical);
+			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, topArrowRectangle, topButtonState, true, isVertical);
+			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, bottomArrowRectangle, bottomButtonState, false, isVertical);
 		}
 
 		protected override void OnMouseDown(MouseEventArgs e)
@@ -265,44 +186,44 @@
 			if (e.Button == MouseButtons.Left)
 			{
 				Point mouseLocation = e.Location;
-				if (this.thumbRectangle.Contains(mouseLocation))
+				if (thumbRectangle.Contains(mouseLocation))
 				{
-					this.thumbClicked = true;
-					this.thumbPosition = isVertical ? mouseLocation.Y - this.thumbRectangle.Y : mouseLocation.X - this.thumbRectangle.X;
-					this.thumbState = ScrollBarState.Pressed;
-					Invalidate(this.thumbRectangle);
+					thumbClicked = true;
+					thumbPosition = isVertical ? mouseLocation.Y - thumbRectangle.Y : mouseLocation.X - thumbRectangle.X;
+					thumbState = ScrollBarState.Pressed;
+					Invalidate(thumbRectangle);
 				}
-				else if (this.topArrowRectangle.Contains(mouseLocation))
+				else if (topArrowRectangle.Contains(mouseLocation))
 				{
-					this.topArrowClicked = true;
-					this.topButtonState = ScrollBarArrowButtonState.UpPressed;
-					this.Invalidate(this.topArrowRectangle);
-					this.ProgressThumb(true);
+					topArrowClicked = true;
+					topButtonState = ScrollBarState.Pressed;
+					Invalidate(topArrowRectangle);
+					ProgressThumb(true);
 				}
-				else if (this.bottomArrowRectangle.Contains(mouseLocation))
+				else if (bottomArrowRectangle.Contains(mouseLocation))
 				{
-					this.bottomArrowClicked = true;
-					this.bottomButtonState = ScrollBarArrowButtonState.DownPressed;
-					this.Invalidate(this.bottomArrowRectangle);
-					this.ProgressThumb(true);
+					bottomArrowClicked = true;
+					bottomButtonState = ScrollBarState.Pressed;
+					Invalidate(bottomArrowRectangle);
+					ProgressThumb(true);
 				}
 				else
 				{
-					this.trackPosition = isVertical ? mouseLocation.Y : mouseLocation.X;
-					if (this.trackPosition < (isVertical ? this.thumbRectangle.Y : this.thumbRectangle.X))
+					trackPosition = isVertical ? mouseLocation.Y : mouseLocation.X;
+					if (trackPosition < (isVertical ? thumbRectangle.Y : thumbRectangle.X))
 					{
-						this.topBarClicked = true;
+						topBarClicked = true;
 					}
 					else
 					{
-						this.bottomBarClicked = true;
+						bottomBarClicked = true;
 					}
-					this.ProgressThumb(true);
+					ProgressThumb(true);
 				}
 			}
 			else if (e.Button == MouseButtons.Right)
 			{
-				this.trackPosition = isVertical ? e.Y : e.X;
+				trackPosition = isVertical ? e.Y : e.X;
 			}
 		}
 
@@ -312,33 +233,33 @@
 
 			if (e.Button == MouseButtons.Left)
 			{
-				if (this.thumbClicked)
+				if (thumbClicked)
 				{
-					this.thumbClicked = false;
-					this.thumbState = ScrollBarState.Normal;
-					this.OnScroll(new ScrollEventArgs(ScrollEventType.EndScroll, -1, this.value, this.scrollOrientation));
+					thumbClicked = false;
+					thumbState = ScrollBarState.Normal;
+					OnScroll(new ScrollEventArgs(ScrollEventType.EndScroll, -1, value, scrollOrientation));
 				}
-				else if (this.topArrowClicked)
+				else if (topArrowClicked)
 				{
-					this.topArrowClicked = false;
-					this.topButtonState = ScrollBarArrowButtonState.UpNormal;
-					this.StopTimer();
+					topArrowClicked = false;
+					topButtonState = ScrollBarState.Normal;
+					StopTimer();
 				}
-				else if (this.bottomArrowClicked)
+				else if (bottomArrowClicked)
 				{
-					this.bottomArrowClicked = false;
-					this.bottomButtonState = ScrollBarArrowButtonState.DownNormal;
-					this.StopTimer();
+					bottomArrowClicked = false;
+					bottomButtonState = ScrollBarState.Normal;
+					StopTimer();
 				}
-				else if (this.topBarClicked)
+				else if (topBarClicked)
 				{
-					this.topBarClicked = false;
-					this.StopTimer();
+					topBarClicked = false;
+					StopTimer();
 				}
-				else if (this.bottomBarClicked)
+				else if (bottomBarClicked)
 				{
-					this.bottomBarClicked = false;
-					this.StopTimer();
+					bottomBarClicked = false;
+					StopTimer();
 				}
 				Invalidate();
 			}
@@ -347,16 +268,16 @@
 		protected override void OnMouseEnter(EventArgs e)
 		{
 			base.OnMouseEnter(e);
-			this.bottomButtonState = ScrollBarArrowButtonState.DownActive;
-			this.topButtonState = ScrollBarArrowButtonState.UpActive;
-			this.thumbState = ScrollBarState.Active;
+			bottomButtonState = ScrollBarState.Active;
+			topButtonState = ScrollBarState.Active;
+			thumbState = ScrollBarState.Active;
 			Invalidate();
 		}
 
 		protected override void OnMouseLeave(EventArgs e)
 		{
 			base.OnMouseLeave(e);
-			this.ResetScrollStatus();
+			ResetScrollStatus();
 		}
 
 		protected override void OnMouseMove(MouseEventArgs e)
@@ -364,309 +285,234 @@
 			base.OnMouseMove(e);
 			if (e.Button == MouseButtons.Left)
 			{
-				if (this.thumbClicked)
+				if (thumbClicked)
 				{
-					int oldScrollValue = this.value;
-					this.topButtonState = ScrollBarArrowButtonState.UpActive;
-					this.bottomButtonState = ScrollBarArrowButtonState.DownActive;
+					int oldScrollValue = value;
+					topButtonState = ScrollBarState.Active;
+					bottomButtonState = ScrollBarState.Active;
 					int pos = isVertical ? e.Location.Y : e.Location.X;
-					if (pos <= (this.thumbTopLimit + this.thumbPosition))
+					if (pos <= (thumbTopLimit + thumbPosition))
 					{
-						this.ChangeThumbPosition(this.thumbTopLimit);
-						this.value = this.minimum;
+						ChangeThumbPosition(thumbTopLimit);
+						value = minimum;
 					}
-					else if (pos >= (this.thumbBottomLimitTop + this.thumbPosition))
+					else if (pos >= (thumbBottomLimitTop + thumbPosition))
 					{
-						this.ChangeThumbPosition(this.thumbBottomLimitTop);
-						this.value = this.maximum;
+						ChangeThumbPosition(thumbBottomLimitTop);
+						value = maximum;
 					}
 					else
 					{
-						this.ChangeThumbPosition(pos - this.thumbPosition);
+						ChangeThumbPosition(pos - thumbPosition);
 						int pixelRange, thumbPos, arrowSize;
 						if (isVertical)
 						{
-							pixelRange = this.Height - (2 * this.arrowHeight) - this.thumbHeight;
-							thumbPos = this.thumbRectangle.Y;
-							arrowSize = this.arrowHeight;
+							pixelRange = Height - (2 * arrowHeight) - thumbHeight;
+							thumbPos = thumbRectangle.Y;
+							arrowSize = arrowHeight;
 						}
 						else
 						{
-							pixelRange = this.Width - (2 * this.arrowWidth) - this.thumbWidth;
-							thumbPos = this.thumbRectangle.X;
-							arrowSize = this.arrowWidth;
+							pixelRange = Width - (2 * arrowWidth) - thumbWidth;
+							thumbPos = thumbRectangle.X;
+							arrowSize = arrowWidth;
 						}
 						if (pixelRange <= 0)
 						{
-							this.value = 0;
+							value = 0;
 						}
 						else
 						{
-							this.value = (thumbPos - arrowSize) * (this.maximum - this.minimum - this.largeChange) / pixelRange + this.minimum;
+							value = (thumbPos - arrowSize) * (maximum - minimum - largeChange) / pixelRange + minimum;
 						}
 					}
 
-					if (oldScrollValue != this.value)
+					if (oldScrollValue != value)
 					{
-						this.OnScroll(new ScrollEventArgs(ScrollEventType.ThumbTrack, oldScrollValue, this.value, this.scrollOrientation));
-						this.Refresh();
+						OnScroll(new ScrollEventArgs(ScrollEventType.ThumbTrack, oldScrollValue, value, scrollOrientation));
+						Refresh();
 					}
 				}
 			}
-			else if (!this.ClientRectangle.Contains(e.Location))
+			else if (!ClientRectangle.Contains(e.Location))
 			{
-				this.ResetScrollStatus();
+				ResetScrollStatus();
 			}
+			if (topArrowRectangle.Contains(e.Location))
 			{
-				if (this.topArrowRectangle.Contains(e.Location))
-				{
-					this.topButtonState = ScrollBarArrowButtonState.UpHot;
-					this.Invalidate(this.topArrowRectangle);
-				}
-				else if (this.bottomArrowRectangle.Contains(e.Location))
-				{
-					this.bottomButtonState = ScrollBarArrowButtonState.DownHot;
-					Invalidate(this.bottomArrowRectangle);
-				}
-				else if (this.thumbRectangle.Contains(e.Location))
-				{
-					this.thumbState = ScrollBarState.Hot;
-					this.Invalidate(this.thumbRectangle);
-				}
-				else if (this.ClientRectangle.Contains(e.Location))
-				{
-					this.topButtonState = ScrollBarArrowButtonState.UpActive;
-					this.bottomButtonState = ScrollBarArrowButtonState.DownActive;
-					this.thumbState = ScrollBarState.Active;
-					Invalidate();
-				}
+				topButtonState = ScrollBarState.Hot;
+				Invalidate(topArrowRectangle);
+			}
+			else if (bottomArrowRectangle.Contains(e.Location))
+			{
+				bottomButtonState = ScrollBarState.Hot;
+				Invalidate(bottomArrowRectangle);
+			}
+			else if (thumbRectangle.Contains(e.Location))
+			{
+				thumbState = ScrollBarState.Hot;
+				Invalidate(thumbRectangle);
+			}
+			else if (ClientRectangle.Contains(e.Location))
+			{
+				topButtonState = ScrollBarState.Active;
+				bottomButtonState = ScrollBarState.Active;
+				thumbState = ScrollBarState.Active;
+				Invalidate();
 			}
 		}
 
 		protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
 		{
-			if (this.DesignMode)
+			if (DesignMode)
 			{
 				if (isVertical)
 				{
-					if (height < (2 * this.arrowHeight) + 10)
+					if (height < (2 * arrowHeight) + 10)
 					{
-						height = (2 * this.arrowHeight) + 10;
+						height = (2 * arrowHeight) + 10;
 					}
 					width = 18;
 				}
 				else
 				{
-					if (width < (2 * this.arrowWidth) + 10)
+					if (width < (2 * arrowWidth) + 10)
 					{
-						width = (2 * this.arrowWidth) + 10;
+						width = (2 * arrowWidth) + 10;
 					}
 					height = 18;
 				}
 			}
 			base.SetBoundsCore(x, y, width, height, specified);
-			if (this.DesignMode)
+			if (DesignMode)
 			{
-				this.SetUpScrollBar();
+				SetUpScrollBar();
 			}
 		}
 
 		protected override void OnSizeChanged(EventArgs e)
 		{
 			base.OnSizeChanged(e);
-			this.SetUpScrollBar();
-		}
-
-		protected override bool ProcessDialogKey(Keys keyData)
-		{
-			Keys keyUp = Keys.Up;
-			Keys keyDown = Keys.Down;
-			if (!isVertical)
-			{
-				keyUp = Keys.Left;
-				keyDown = Keys.Right;
-			}
-			if (keyData == keyUp)
-			{
-				this.Value -= this.smallChange;
-				return true;
-			}
-			if (keyData == keyDown)
-			{
-				this.Value += this.smallChange;
-				return true;
-			}
-			if (keyData == Keys.PageUp)
-			{
-				this.Value = this.GetValue(false, true);
-				return true;
-			}
-			if (keyData == Keys.PageDown)
-			{
-				if (this.value + this.largeChange > this.maximum)
-				{
-					this.Value = this.maximum;
-				}
-				else
-				{
-					this.Value += this.largeChange;
-				}
-				return true;
-			}
-			if (keyData == Keys.Home)
-			{
-				this.Value = this.minimum;
-				return true;
-			}
-			if (keyData == Keys.End)
-			{
-				this.Value = this.maximum;
-				return true;
-			}
-			return base.ProcessDialogKey(keyData);
+			SetUpScrollBar();
 		}
 
 		protected override void OnEnabledChanged(EventArgs e)
 		{
 			base.OnEnabledChanged(e);
-			if (this.Enabled)
+			if (Enabled)
 			{
-				this.thumbState = ScrollBarState.Normal;
-				this.topButtonState = ScrollBarArrowButtonState.UpNormal;
-				this.bottomButtonState = ScrollBarArrowButtonState.DownNormal;
+				thumbState = ScrollBarState.Normal;
+				topButtonState = ScrollBarState.Normal;
+				bottomButtonState = ScrollBarState.Normal;
 			}
 			else
 			{
-				this.thumbState = ScrollBarState.Disabled;
-				this.topButtonState = ScrollBarArrowButtonState.UpDisabled;
-				this.bottomButtonState = ScrollBarArrowButtonState.DownDisabled;
+				thumbState = ScrollBarState.Disabled;
+				topButtonState = ScrollBarState.Disabled;
+				bottomButtonState = ScrollBarState.Disabled;
 			}
-			this.Refresh();
+			Refresh();
 		}
-
-		[DllImport("user32.dll")]
-		private static extern int SendMessage(IntPtr wnd, int msg, bool param, int lparam);
 
 		private void SetUpScrollBar()
 		{
 			if (isVertical)
 			{
-				this.arrowHeight = 17;
-				this.arrowWidth = 18;
-				this.thumbWidth = 18;
-				this.thumbHeight = this.GetThumbSize();
-
-				this.clickedBarRectangle = this.ClientRectangle;
-				this.clickedBarRectangle.Y += this.arrowHeight;
-				this.clickedBarRectangle.Height -= this.arrowHeight * 2;
-
-				this.channelRectangle = this.clickedBarRectangle;
-				this.thumbRectangle = new Rectangle(
+				arrowHeight = 17;
+				arrowWidth = 18;
+				thumbWidth = 18;
+				thumbHeight = GetThumbSize();
+				thumbRectangle = new Rectangle(
 					ClientRectangle.X,
-					ClientRectangle.Y + this.arrowHeight,
-					this.thumbWidth,
-					this.thumbHeight
+					ClientRectangle.Y + arrowHeight,
+					thumbWidth,
+					thumbHeight
 				);
-				this.topArrowRectangle = new Rectangle(
+				topArrowRectangle = new Rectangle(
 					ClientRectangle.X,
 					ClientRectangle.Y,
-					this.arrowWidth,
-					this.arrowHeight
+					arrowWidth,
+					arrowHeight
 				);
-				this.bottomArrowRectangle = new Rectangle(
+				bottomArrowRectangle = new Rectangle(
 					ClientRectangle.X,
-					ClientRectangle.Bottom - this.arrowHeight,
-					this.arrowWidth,
-					this.arrowHeight
+					ClientRectangle.Bottom - arrowHeight,
+					arrowWidth,
+					arrowHeight
 				);
-				this.thumbPosition = this.thumbRectangle.Height / 2;
-				this.thumbBottomLimitBottom = ClientRectangle.Bottom - this.arrowHeight;
-				this.thumbBottomLimitTop = this.thumbBottomLimitBottom - this.thumbRectangle.Height;
-				this.thumbTopLimit = ClientRectangle.Y + this.arrowHeight;
+				thumbPosition = thumbRectangle.Height / 2;
+				thumbBottomLimitBottom = ClientRectangle.Bottom - arrowHeight;
+				thumbBottomLimitTop = thumbBottomLimitBottom - thumbRectangle.Height;
+				thumbTopLimit = ClientRectangle.Y + arrowHeight;
 			}
 			else
 			{
-				this.arrowHeight = 18;
-				this.arrowWidth = 17;
-				this.thumbHeight = 18;
-				this.thumbWidth = this.GetThumbSize();
-
-				this.clickedBarRectangle = this.ClientRectangle;
-				this.clickedBarRectangle.X += this.arrowWidth;
-				this.clickedBarRectangle.Width -= this.arrowWidth * 2;
-
-				this.channelRectangle = this.clickedBarRectangle;
-				this.thumbRectangle = new Rectangle(
-					ClientRectangle.X + this.arrowWidth,
+				arrowHeight = 18;
+				arrowWidth = 17;
+				thumbHeight = 18;
+				thumbWidth = GetThumbSize();
+				thumbRectangle = new Rectangle(
+					ClientRectangle.X + arrowWidth,
 					ClientRectangle.Y,
-					this.thumbWidth,
-					this.thumbHeight
+					thumbWidth,
+					thumbHeight
 				);
-				this.topArrowRectangle = new Rectangle(
+				topArrowRectangle = new Rectangle(
 					ClientRectangle.X,
 					ClientRectangle.Y,
-					this.arrowWidth,
-					this.arrowHeight
+					arrowWidth,
+					arrowHeight
 				);
-				this.bottomArrowRectangle = new Rectangle(
-					ClientRectangle.Right - this.arrowWidth,
+				bottomArrowRectangle = new Rectangle(
+					ClientRectangle.Right - arrowWidth,
 					ClientRectangle.Y,
-					this.arrowWidth,
-					this.arrowHeight
+					arrowWidth,
+					arrowHeight
 				);
-				this.thumbPosition = this.thumbRectangle.Width / 2;
-				this.thumbBottomLimitBottom = ClientRectangle.Right - this.arrowWidth;
-				this.thumbBottomLimitTop = this.thumbBottomLimitBottom - this.thumbRectangle.Width;
-				this.thumbTopLimit = ClientRectangle.X + this.arrowWidth;
+				thumbPosition = thumbRectangle.Width / 2;
+				thumbBottomLimitBottom = ClientRectangle.Right - arrowWidth;
+				thumbBottomLimitTop = thumbBottomLimitBottom - thumbRectangle.Width;
+				thumbTopLimit = ClientRectangle.X + arrowWidth;
 			}
-			this.ChangeThumbPosition(this.GetThumbPosition());
-			this.Refresh();
+			ChangeThumbPosition(GetThumbPosition());
+			Refresh();
 		}
 
 		private void ProgressTimerTick(object sender, EventArgs e)
 		{
-			this.ProgressThumb(true);
+			ProgressThumb(true);
 		}
 
 		private void ResetScrollStatus()
 		{
-			Point pos = this.PointToClient(Cursor.Position);
-			if (this.ClientRectangle.Contains(pos))
+			Point pos = PointToClient(Cursor.Position);
+			if (ClientRectangle.Contains(pos))
 			{
-				this.bottomButtonState = ScrollBarArrowButtonState.DownActive;
-				this.topButtonState = ScrollBarArrowButtonState.UpActive;
+				bottomButtonState = ScrollBarState.Active;
+				topButtonState = ScrollBarState.Active;
 			}
 			else
 			{
-				this.bottomButtonState = ScrollBarArrowButtonState.DownNormal;
-				this.topButtonState = ScrollBarArrowButtonState.UpNormal;
+				bottomButtonState = ScrollBarState.Normal;
+				topButtonState = ScrollBarState.Normal;
 			}
-			this.thumbState = this.thumbRectangle.Contains(pos) ? ScrollBarState.Hot : ScrollBarState.Normal;
-			this.bottomArrowClicked = this.bottomBarClicked = this.topArrowClicked = this.topBarClicked = false;
-			this.StopTimer();
-			this.Refresh();
+			thumbState = thumbRectangle.Contains(pos) ? ScrollBarState.Hot : ScrollBarState.Normal;
+			bottomArrowClicked = bottomBarClicked = topArrowClicked = topBarClicked = false;
+			StopTimer();
+			Refresh();
 		}
-
-		private int GetValue(bool smallIncrement, bool up)
+		
+		private void SetValue(int value)
 		{
-			int newValue;
-			if (up)
+			if (value < minimum)
 			{
-				newValue = this.value - (smallIncrement ? this.smallChange : this.largeChange);
-				if (newValue < this.minimum)
-				{
-					newValue = this.minimum;
-				}
+				value = minimum;
 			}
-			else
+			if (value > maximum)
 			{
-				newValue = this.value + (smallIncrement ? this.smallChange : this.largeChange);
-				if (newValue > this.maximum)
-				{
-					newValue = this.maximum;
-				}
+				value = maximum;
 			}
-			return newValue;
+			this.value = value;
 		}
 
 		private int GetThumbPosition()
@@ -674,131 +520,132 @@
 			int pixelRange, arrowSize;
 			if (isVertical)
 			{
-				pixelRange = this.Height - (2 * this.arrowHeight) - this.thumbHeight;
-				arrowSize = this.arrowHeight;
+				pixelRange = Height - (2 * arrowHeight) - thumbHeight;
+				arrowSize = arrowHeight;
 			}
 			else
 			{
-				pixelRange = this.Width - (2 * this.arrowWidth) - this.thumbWidth;
-				arrowSize = this.arrowWidth;
+				pixelRange = Width - (2 * arrowWidth) - thumbWidth;
+				arrowSize = arrowWidth;
 			}
-			int realRange = this.maximum - this.minimum - this.largeChange;
+			int realRange = maximum - minimum - largeChange;
 			if (realRange <= 0)
 			{
 				return arrowSize;
 			}			
-			return (this.value - this.minimum) * pixelRange / realRange + arrowSize;
+			return (value - minimum) * pixelRange / realRange + arrowSize;
 		}
 
 		private int GetThumbSize()
 		{
-			int trackSize = isVertical ? this.Height - (2 * this.arrowHeight) : this.Width - (2 * this.arrowWidth);
-			if (this.maximum == 0 || this.largeChange == 0)
+			int trackSize = isVertical ? Height - (2 * arrowHeight) : Width - (2 * arrowWidth);
+			if (maximum == 0 || largeChange == 0)
 			{
 				return trackSize;
 			}
-			int newThumbSize = this.largeChange * trackSize / this.maximum;
+			int newThumbSize = largeChange * trackSize / maximum;
 			return Math.Min(trackSize, Math.Max(newThumbSize, 10));
 		}
 
 		private void EnableTimer()
 		{
-			if (!this.progressTimer.Enabled)
+			if (!progressTimer.Enabled)
 			{
-				this.progressTimer.Interval = 600;
-				this.progressTimer.Start();
+				progressTimer.Interval = 600;
+				progressTimer.Start();
 			}
 			else
 			{
-				this.progressTimer.Interval = 10;
+				progressTimer.Interval = 10;
 			}
 		}
 
 		private void StopTimer()
 		{
-			this.progressTimer.Stop();
+			progressTimer.Stop();
 		}
 
 		private void ChangeThumbPosition(int position)
 		{
 			if (isVertical)
 			{
-				this.thumbRectangle.Y = position;
+				thumbRectangle.Y = position;
 			}
 			else
 			{
-				this.thumbRectangle.X = position;
+				thumbRectangle.X = position;
 			}
 		}
 
 		private void ProgressThumb(bool enableTimer)
 		{
-			int scrollOldValue = this.value;
+			int scrollOldValue = value;
 			ScrollEventType type = ScrollEventType.First;
 			int thumbSize, thumbPos;
 			if (isVertical)
 			{
-				thumbPos = this.thumbRectangle.Y;
-				thumbSize = this.thumbRectangle.Height;
+				thumbPos = thumbRectangle.Y;
+				thumbSize = thumbRectangle.Height;
 			}
 			else
 			{
-				thumbPos = this.thumbRectangle.X;
-				thumbSize = this.thumbRectangle.Width;
+				thumbPos = thumbRectangle.X;
+				thumbSize = thumbRectangle.Width;
 			}
-			if (this.bottomArrowClicked || (this.bottomBarClicked && (thumbPos + thumbSize) < this.trackPosition))
+			if (bottomArrowClicked || (bottomBarClicked && (thumbPos + thumbSize) < trackPosition))
 			{
-				type = this.bottomArrowClicked ? ScrollEventType.SmallIncrement : ScrollEventType.LargeIncrement;
-				this.value = this.GetValue(this.bottomArrowClicked, false);
-				if (this.value == this.maximum)
+				type = bottomArrowClicked ? ScrollEventType.SmallIncrement : ScrollEventType.LargeIncrement;
+				SetValue(value + (bottomArrowClicked ? smallChange : largeChange));
+				if (value == maximum)
 				{
-					this.ChangeThumbPosition(this.thumbBottomLimitTop);
+					ChangeThumbPosition(thumbBottomLimitTop);
 					type = ScrollEventType.Last;
 				}
 				else
 				{
-					this.ChangeThumbPosition(Math.Min(this.thumbBottomLimitTop, this.GetThumbPosition()));
+					ChangeThumbPosition(Math.Min(thumbBottomLimitTop, GetThumbPosition()));
 				}
 			}
-			else if (this.topArrowClicked || (this.topBarClicked && thumbPos > this.trackPosition))
+			else if (topArrowClicked || (topBarClicked && thumbPos > trackPosition))
 			{
-				type = this.topArrowClicked ? ScrollEventType.SmallDecrement : ScrollEventType.LargeDecrement;
-				this.value = this.GetValue(this.topArrowClicked, true);
-				if (this.value == this.minimum)
+				type = topArrowClicked ? ScrollEventType.SmallDecrement : ScrollEventType.LargeDecrement;
+				SetValue(value - (bottomArrowClicked ? smallChange : largeChange));
+				if (value == minimum)
 				{
-					this.ChangeThumbPosition(this.thumbTopLimit);
+					ChangeThumbPosition(thumbTopLimit);
 					type = ScrollEventType.First;
 				}
 				else
 				{
-					this.ChangeThumbPosition(Math.Max(this.thumbTopLimit, this.GetThumbPosition()));
+					ChangeThumbPosition(Math.Max(thumbTopLimit, GetThumbPosition()));
 				}
 			}
-			else if (!((this.topArrowClicked && thumbPos == this.thumbTopLimit) || (this.bottomArrowClicked && thumbPos == this.thumbBottomLimitTop)))
+			else if (!((topArrowClicked && thumbPos == thumbTopLimit) ||
+				(bottomArrowClicked && thumbPos == thumbBottomLimitTop)))
 			{
-				this.ResetScrollStatus();
+				ResetScrollStatus();
 				return;
 			}
-			if (scrollOldValue != this.value)
+			if (scrollOldValue != value)
 			{
-				this.OnScroll(new ScrollEventArgs(type, scrollOldValue, this.value, this.scrollOrientation));
-				this.Invalidate(this.channelRectangle);
+				OnScroll(new ScrollEventArgs(type, scrollOldValue, value, scrollOrientation));
+				Invalidate();
 				if (enableTimer)
 				{
-					this.EnableTimer();
+					EnableTimer();
 				}
 			}
 			else
 			{
-				if (this.topArrowClicked)
+				if (topArrowClicked)
 				{
 					type = ScrollEventType.SmallDecrement;
 				}
-				else if (this.bottomArrowClicked)
+				else if (bottomArrowClicked)
 				{
 					type = ScrollEventType.SmallIncrement;
 				}
-				this.OnScroll(new ScrollEventArgs(type, this.value));
+				OnScroll(new ScrollEventArgs(type, value));
 			}
 		}
 
@@ -807,60 +654,32 @@
 			int thumbSize, thumbPos, arrowSize, size;
 			if (isVertical)
 			{
-				thumbSize = this.thumbHeight;
-				arrowSize = this.arrowHeight;
-				size = this.Height;
-				this.ChangeThumbPosition(Math.Max(this.thumbTopLimit, Math.Min(this.thumbBottomLimitTop, this.trackPosition - (this.thumbRectangle.Height / 2))));
-				thumbPos = this.thumbRectangle.Y;
+				thumbSize = thumbHeight;
+				arrowSize = arrowHeight;
+				size = Height;
+				ChangeThumbPosition(Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, trackPosition - (thumbRectangle.Height / 2))));
+				thumbPos = thumbRectangle.Y;
 			}
 			else
 			{
-				thumbSize = this.thumbWidth;
-				arrowSize = this.arrowWidth;
-				size = this.Width;
-				this.ChangeThumbPosition(Math.Max(this.thumbTopLimit, Math.Min(this.thumbBottomLimitTop, this.trackPosition - (this.thumbRectangle.Width / 2))));
-				thumbPos = this.thumbRectangle.X;
+				thumbSize = thumbWidth;
+				arrowSize = arrowWidth;
+				size = Width;
+				ChangeThumbPosition(Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, trackPosition - (thumbRectangle.Width / 2))));
+				thumbPos = thumbRectangle.X;
 			}
+			int oldValue = value;
 			int pixelRange = size - (2 * arrowSize) - thumbSize;
-			float perc = 0f;
 			if (pixelRange != 0)
 			{
-				perc = (float)(thumbPos - arrowSize) / (float)pixelRange;
+				value = (thumbPos - arrowSize) * (maximum - minimum - largeChange) / pixelRange + minimum;
 			}
-			int oldValue = this.value;
-			this.value = Convert.ToInt32((perc * (this.maximum - this.minimum)) + this.minimum);
-			this.OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, oldValue, this.value, this.scrollOrientation));
-			this.Refresh();
-		}
-
-		private void TopClick(object sender, EventArgs e)
-		{
-			this.Value = this.minimum;
-		}
-
-		private void BottomClick(object sender, EventArgs e)
-		{
-			this.Value = this.maximum;
-		}
-
-		private void LargeUpClick(object sender, EventArgs e)
-		{
-			this.Value = this.GetValue(false, true);
-		}
-
-		private void LargeDownClick(object sender, EventArgs e)
-		{
-			this.Value = this.GetValue(false, false);
-		}
-
-		private void SmallUpClick(object sender, EventArgs e)
-		{
-			this.Value = this.GetValue(true, true);
-		}
-
-		private void SmallDownClick(object sender, EventArgs e)
-		{
-			this.Value = this.GetValue(true, false);
+			else
+			{
+				value = minimum;
+			}
+			OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, oldValue, value, scrollOrientation));
+			Refresh();
 		}
 	}
 }
