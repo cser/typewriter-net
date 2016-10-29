@@ -19,29 +19,29 @@
 	<color name="lineBg" value="#303A3B"/>
 	<color name="lineNumberBg" value="#293134"/>
 	<color name="lineNumberFg" value="#556E69"/>
-	<color name="nameBg" value="#606060"/>
-	<color name="nameFg" value="#E1E2E3"/>
 	<color name="selectionBrush" value="#39545D"/>
 	<color name="selectionPen" value="#39545D"/>
 	<color name="markPen" value="#AAAAAA"/>
 	<color name="mainCaret" value="#EEEEEE"/>
 	<color name="caret" value="#7F7F7F"/>
-	
+
+	<color name="nameBg" value="#293134"/>
+	<color name="nameFg" value="#858E89"/>
 	<color name="tabsLine" value="#808080"/>
-	<color name="tabsBg" value="#F5F5F5"/>
+	<color name="tabsBg" value="#808080"/>
 	<color name="tabsFg" value="#000000"/>
-	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedBg" value="#00556E"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<width name="mainCaret" value="1"/>
 	<width name="caret" value="1"/>
 	
-	<color name="splitterBg" value="#22282A"/>
-	<color name="splitterLine" value="#556E69"/>
+	<color name="splitterBg" value="#293134"/>
+	<color name="splitterLine" value="#22282A"/>
 	<color name="scrollBg" value="#293134"/>
-	<color name="scrollThumb" value="#556E69"/>
+	<color name="scrollThumb" value="#808080"/>
 	<color name="scrollThumbHover" value="orange"/>
-	<color name="scrollArrow" value="#556E69"/>
+	<color name="scrollArrow" value="#808080"/>
 	<color name="scrollArrowHover" value="orange"/>	
 	
 	<style name="dsNormal" color="base"/>
