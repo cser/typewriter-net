@@ -13,7 +13,6 @@ namespace MulticaretEditor
 		
 		public void ApplyParamsTo(ScrollBarEx scrollBar)
 		{
-			scrollBar.Minimum = 0;
 			scrollBar.Maximum = contentSize;
 			scrollBar.LargeChange = Math.Max(0, areaSize);
 			scrollBar.Visible = visible;

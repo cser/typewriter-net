@@ -22,7 +22,6 @@
 		private ScrollBarState thumbState = ScrollBarState.Normal;
 		private ScrollBarState topButtonState = ScrollBarState.Normal;
 		private ScrollBarState bottomButtonState = ScrollBarState.Normal;
-		private int minimum;
 		private int maximum = 100;
 		private int smallChange = 20;
 		private int largeChange = 20;
@@ -31,10 +30,7 @@
 		private int thumbHeight;
 		private int arrowWidth = 18;
 		private int arrowHeight = 17;
-		private int thumbBottomLimitBottom;
-		private int thumbBottomLimitTop;
-		private int thumbTopLimit;
-		private int thumbPosition;
+		private int thumbMouseOffset;
 		private int trackPosition;
 		private Timer progressTimer = new Timer();
 
@@ -63,19 +59,6 @@
 		{
 			this.scheme = scheme;
 			Invalidate();
-		}
-
-		public int Minimum
-		{
-			get { return minimum; }
-			set
-			{
-				if (minimum != value)
-				{
-					minimum = value;
-					SetUpScrollBar();
-				}
-			}
 		}
 
 		public int Maximum
@@ -115,7 +98,7 @@
 			{
 				if (value < 1)
 				{
-					return;
+					value = 1;
 				}
 				if (largeChange != value)
 				{
@@ -130,22 +113,28 @@
 			get { return this.value; }
 			set
 			{
-				if (value < minimum)
+				int newValue = FixValue(value);
+				if (this.value != newValue)
 				{
-					value = minimum;
-				}
-				if (value > maximum)
-				{
-					value = maximum;
-				}
-				if (this.value != value)
-				{
-					this.value = value;
+					this.value = newValue;
 					this.ChangeThumbPosition(this.GetThumbPosition());
 					this.OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, -1, this.value, this.scrollOrientation));
 					this.Refresh();
 				}
 			}
+		}
+		
+		private int FixValue(int value)
+		{
+			if (value < 0)
+			{
+				return 0;
+			}
+			if (value > maximum)
+			{
+				return maximum;
+			}
+			return value;
 		}
 
 		protected virtual void OnScroll(ScrollEventArgs e)
@@ -163,17 +152,6 @@
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-			Rectangle rect = ClientRectangle;
-			if (isVertical)
-			{
-				rect.Y += arrowHeight;
-				rect.Height -= (arrowHeight * 2);
-			}
-			else
-			{
-				rect.X += arrowWidth;
-				rect.Width -= (arrowWidth * 2);
-			}
 			ScrollBarExRenderer.DrawBackground(e.Graphics, scheme, ClientRectangle, isVertical);
 			ScrollBarExRenderer.DrawThumb(e.Graphics, scheme, thumbRectangle, thumbState, isVertical);
 			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, topArrowRectangle, topButtonState, true, isVertical);
@@ -189,7 +167,7 @@
 				if (thumbRectangle.Contains(mouseLocation))
 				{
 					thumbClicked = true;
-					thumbPosition = isVertical ? mouseLocation.Y - thumbRectangle.Y : mouseLocation.X - thumbRectangle.X;
+					thumbMouseOffset = isVertical ? mouseLocation.Y - thumbRectangle.Y : mouseLocation.X - thumbRectangle.X;
 					thumbState = ScrollBarState.Pressed;
 					Invalidate(thumbRectangle);
 				}
@@ -220,10 +198,6 @@
 					}
 					ProgressThumb(true);
 				}
-			}
-			else if (e.Button == MouseButtons.Right)
-			{
-				trackPosition = isVertical ? e.Y : e.X;
 			}
 		}
 
@@ -290,43 +264,9 @@
 					int oldScrollValue = value;
 					topButtonState = ScrollBarState.Active;
 					bottomButtonState = ScrollBarState.Active;
-					int pos = isVertical ? e.Location.Y : e.Location.X;
-					if (pos <= (thumbTopLimit + thumbPosition))
-					{
-						ChangeThumbPosition(thumbTopLimit);
-						value = minimum;
-					}
-					else if (pos >= (thumbBottomLimitTop + thumbPosition))
-					{
-						ChangeThumbPosition(thumbBottomLimitTop);
-						value = maximum;
-					}
-					else
-					{
-						ChangeThumbPosition(pos - thumbPosition);
-						int pixelRange, thumbPos, arrowSize;
-						if (isVertical)
-						{
-							pixelRange = Height - (2 * arrowHeight) - thumbHeight;
-							thumbPos = thumbRectangle.Y;
-							arrowSize = arrowHeight;
-						}
-						else
-						{
-							pixelRange = Width - (2 * arrowWidth) - thumbWidth;
-							thumbPos = thumbRectangle.X;
-							arrowSize = arrowWidth;
-						}
-						if (pixelRange <= 0)
-						{
-							value = 0;
-						}
-						else
-						{
-							value = (thumbPos - arrowSize) * (maximum - minimum - largeChange) / pixelRange + minimum;
-						}
-					}
-
+					ChangeThumbPosition((isVertical ? e.Location.Y : e.Location.X) - thumbMouseOffset);
+					value = GetValue();
+					ChangeThumbPosition(GetThumbPosition());
 					if (oldScrollValue != value)
 					{
 						OnScroll(new ScrollEventArgs(ScrollEventType.ThumbTrack, oldScrollValue, value, scrollOrientation));
@@ -361,6 +301,28 @@
 				Invalidate();
 			}
 		}
+		
+		private int GetValue()
+		{
+			int pixelRange, thumbPos, arrowSize;
+			if (isVertical)
+			{
+				pixelRange = Height - (2 * arrowHeight) - thumbHeight;
+				thumbPos = thumbRectangle.Y;
+				arrowSize = arrowHeight;
+			}
+			else
+			{
+				pixelRange = Width - (2 * arrowWidth) - thumbWidth;
+				thumbPos = thumbRectangle.X;
+				arrowSize = arrowWidth;
+			}
+			if (pixelRange != 0)
+			{
+				return FixValue((thumbPos - arrowSize) * (maximum - largeChange) / pixelRange);
+			}
+			return 0;
+		}
 
 		protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
 		{
@@ -384,10 +346,6 @@
 				}
 			}
 			base.SetBoundsCore(x, y, width, height, specified);
-			if (DesignMode)
-			{
-				SetUpScrollBar();
-			}
 		}
 
 		protected override void OnSizeChanged(EventArgs e)
@@ -440,10 +398,6 @@
 					arrowWidth,
 					arrowHeight
 				);
-				thumbPosition = thumbRectangle.Height / 2;
-				thumbBottomLimitBottom = ClientRectangle.Bottom - arrowHeight;
-				thumbBottomLimitTop = thumbBottomLimitBottom - thumbRectangle.Height;
-				thumbTopLimit = ClientRectangle.Y + arrowHeight;
 			}
 			else
 			{
@@ -469,10 +423,6 @@
 					arrowWidth,
 					arrowHeight
 				);
-				thumbPosition = thumbRectangle.Width / 2;
-				thumbBottomLimitBottom = ClientRectangle.Right - arrowWidth;
-				thumbBottomLimitTop = thumbBottomLimitBottom - thumbRectangle.Width;
-				thumbTopLimit = ClientRectangle.X + arrowWidth;
 			}
 			ChangeThumbPosition(GetThumbPosition());
 			Refresh();
@@ -501,19 +451,6 @@
 			StopTimer();
 			Refresh();
 		}
-		
-		private void SetValue(int value)
-		{
-			if (value < minimum)
-			{
-				value = minimum;
-			}
-			if (value > maximum)
-			{
-				value = maximum;
-			}
-			this.value = value;
-		}
 
 		private int GetThumbPosition()
 		{
@@ -528,12 +465,12 @@
 				pixelRange = Width - (2 * arrowWidth) - thumbWidth;
 				arrowSize = arrowWidth;
 			}
-			int realRange = maximum - minimum - largeChange;
+			int realRange = maximum - largeChange;
 			if (realRange <= 0)
 			{
 				return arrowSize;
 			}			
-			return (value - minimum) * pixelRange / realRange + arrowSize;
+			return value * pixelRange / realRange + arrowSize;
 		}
 
 		private int GetThumbSize()
@@ -592,39 +529,29 @@
 				thumbPos = thumbRectangle.X;
 				thumbSize = thumbRectangle.Width;
 			}
-			if (bottomArrowClicked || (bottomBarClicked && (thumbPos + thumbSize) < trackPosition))
+			if (bottomArrowClicked)
 			{
-				type = bottomArrowClicked ? ScrollEventType.SmallIncrement : ScrollEventType.LargeIncrement;
-				SetValue(value + (bottomArrowClicked ? smallChange : largeChange));
-				if (value == maximum)
-				{
-					ChangeThumbPosition(thumbBottomLimitTop);
-					type = ScrollEventType.Last;
-				}
-				else
-				{
-					ChangeThumbPosition(Math.Min(thumbBottomLimitTop, GetThumbPosition()));
-				}
+				type = ScrollEventType.SmallIncrement;
+				value = FixValue(value + smallChange);
+				ChangeThumbPosition(GetThumbPosition());
 			}
-			else if (topArrowClicked || (topBarClicked && thumbPos > trackPosition))
+			else if (topArrowClicked)
 			{
-				type = topArrowClicked ? ScrollEventType.SmallDecrement : ScrollEventType.LargeDecrement;
-				SetValue(value - (bottomArrowClicked ? smallChange : largeChange));
-				if (value == minimum)
-				{
-					ChangeThumbPosition(thumbTopLimit);
-					type = ScrollEventType.First;
-				}
-				else
-				{
-					ChangeThumbPosition(Math.Max(thumbTopLimit, GetThumbPosition()));
-				}
+				type = ScrollEventType.SmallIncrement;
+				value = FixValue(value - smallChange);
+				ChangeThumbPosition(GetThumbPosition());
 			}
-			else if (!((topArrowClicked && thumbPos == thumbTopLimit) ||
-				(bottomArrowClicked && thumbPos == thumbBottomLimitTop)))
+			else if (bottomBarClicked && thumbPos + thumbSize < trackPosition)
 			{
-				ResetScrollStatus();
-				return;
+				type = ScrollEventType.LargeIncrement;
+				value = FixValue(value + largeChange);
+				ChangeThumbPosition(GetThumbPosition());
+			}
+			else if (topBarClicked && thumbPos > trackPosition)
+			{
+				type = ScrollEventType.LargeDecrement;
+				value = FixValue(value - largeChange);
+				ChangeThumbPosition(GetThumbPosition());
 			}
 			if (scrollOldValue != value)
 			{
@@ -647,39 +574,6 @@
 				}
 				OnScroll(new ScrollEventArgs(type, value));
 			}
-		}
-
-		private void ScrollHereClick(object sender, EventArgs e)
-		{
-			int thumbSize, thumbPos, arrowSize, size;
-			if (isVertical)
-			{
-				thumbSize = thumbHeight;
-				arrowSize = arrowHeight;
-				size = Height;
-				ChangeThumbPosition(Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, trackPosition - (thumbRectangle.Height / 2))));
-				thumbPos = thumbRectangle.Y;
-			}
-			else
-			{
-				thumbSize = thumbWidth;
-				arrowSize = arrowWidth;
-				size = Width;
-				ChangeThumbPosition(Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, trackPosition - (thumbRectangle.Width / 2))));
-				thumbPos = thumbRectangle.X;
-			}
-			int oldValue = value;
-			int pixelRange = size - (2 * arrowSize) - thumbSize;
-			if (pixelRange != 0)
-			{
-				value = (thumbPos - arrowSize) * (maximum - minimum - largeChange) / pixelRange + minimum;
-			}
-			else
-			{
-				value = minimum;
-			}
-			OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, oldValue, value, scrollOrientation));
-			Refresh();
 		}
 	}
 }

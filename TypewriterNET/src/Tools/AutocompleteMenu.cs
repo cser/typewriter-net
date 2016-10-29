@@ -248,8 +248,7 @@ public class AutocompleteMenu : ToolStripDropDown
 			Size = new Size(width, height);
 			vScrollBar.Visible = scrollBarVisible;
 			vScrollBar.Left = width - scrollBarWidth;
-			vScrollBar.Height = height;			
-			vScrollBar.Minimum = 0;
+			vScrollBar.Height = height;
 			vScrollBar.Maximum = menu.variants.Count;
 			vScrollBar.LargeChange = menu.visibleLinesCount;
 		}
