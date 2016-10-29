@@ -34,6 +34,14 @@
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
+	<color name="splitterBg" value="#F5F5F5"/>
+	<color name="splitterLine" value="#808080"/>
+	<color name="scrollBg" value="#F5F5F5"/>
+	<color name="scrollThumb" value="#B4B4B4"/>
+	<color name="scrollThumbHover" value="#6464C8"/>
+	<color name="scrollArrow" value="#000000"/>
+	<color name="scrollArrowHover" value="#3232FF"/>
+	
 	<style name="dsNormal" color="#000000"/>
 	<style name="dsKeyword" color="blue" bold="true"/>
 	<style name="dsDataType" color="violet"/>

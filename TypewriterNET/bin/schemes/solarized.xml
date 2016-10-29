@@ -55,7 +55,7 @@
 	<color name="lineNumberBg" value="base02"/>
 	<color name="lineNumberFg" value="base01"/>
 	<color name="nameBg" value="base02"/>
-	<color name="nameFg" value="base01"/>
+	<color name="nameFg" value="base00"/>
 	<color name="selectionBrush" value="base3"/>
 	<color name="selectionPen" value="#071E26"/>
 	<color name="markPen" value="base00"/>
@@ -80,4 +80,12 @@
 	<style name="dsDocWord" color="base1"/>
 	<style name="dsDocCustomTag" color="base00" bold="true"/>
 	<style name="dsDocInner" color="base00" italic="true"/>
+	
+	<color name="splitterBg" value="base03"/>
+	<color name="splitterLine" value="base00"/>
+	<color name="scrollBg" value="base02"/>
+	<color name="scrollThumb" value="base00"/>
+	<color name="scrollThumbHover" value="#859BA5"/>
+	<color name="scrollArrow" value="base00"/>
+	<color name="scrollArrowHover" value="base1"/>
 </scheme>

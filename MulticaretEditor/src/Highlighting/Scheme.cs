@@ -218,6 +218,7 @@ namespace MulticaretEditor.Highlighting
 			tabsSelectedBgColor = Color.Gray;
 			tabsSelectedFgColor = Color.White;
 			splitterBgColor = Color.WhiteSmoke;
+			splitterLineColor = Color.Gray;
 			mainCaretWidth = 1;
 			caretWidth = 1;
 			

@@ -13,6 +13,14 @@
 	<color name="mainCaret" value="#000000"/>
 	<color name="caret" value="#808080"/>
 	
+	<color name="splitterBg" value="base2"/>
+	<color name="splitterLine" value="#808080"/>
+	<color name="scrollBg" value="base2"/>
+	<color name="scrollThumb" value="#CEC8B5"/>
+	<color name="scrollThumbHover" value="base0"/>
+	<color name="scrollArrow" value="#8E8875"/>
+	<color name="scrollArrowHover" value="#000000"/>
+	
 	<color name="tabsLine" value="base00"/>
 	<color name="tabsBg" value="#C0C0C0"/>
 	<color name="tabsFg" value="#000000"/>

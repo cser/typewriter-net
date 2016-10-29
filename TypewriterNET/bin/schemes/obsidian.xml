@@ -26,18 +26,18 @@
 	<color name="caret" value="#7F7F7F"/>
 
 	<color name="nameBg" value="#293134"/>
-	<color name="nameFg" value="#858E89"/>
+	<color name="nameFg" value="#959E9E"/>
 	<color name="tabsLine" value="#808080"/>
-	<color name="tabsBg" value="#808080"/>
+	<color name="tabsBg" value="#EEEEEE"/>
 	<color name="tabsFg" value="#000000"/>
-	<color name="tabsSelectedBg" value="#00556E"/>
+	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<width name="mainCaret" value="1"/>
 	<width name="caret" value="1"/>
 	
 	<color name="splitterBg" value="#293134"/>
-	<color name="splitterLine" value="#22282A"/>
+	<color name="splitterLine" value="#1A1A1A"/>
 	<color name="scrollBg" value="#293134"/>
 	<color name="scrollThumb" value="#808080"/>
 	<color name="scrollThumbHover" value="orange"/>
