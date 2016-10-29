@@ -229,7 +229,6 @@ public class AutocompleteMenu : ToolStripDropDown
 			vScrollBar = new ScrollBarEx(true, menu.scheme);
 			vScrollBar.SmallChange = 1;
 			vScrollBar.Cursor = Cursors.Default;
-			vScrollBar.SmallChange = menu.charHeight;
 			vScrollBar.Scroll += OnVScroll;
 			vScrollBar.Visible = false;
 			scrollBarWidth = vScrollBar.Width;

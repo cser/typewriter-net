@@ -1577,6 +1577,7 @@ namespace MulticaretEditor
 			hScrollBar = new ScrollBarEx(false, scheme);
 			hScrollBar.Cursor = Cursors.Default;
 			hScrollBar.SmallChange = charWidth;
+			hScrollBar.Scroll += OnHScroll;
 			Controls.Add(hScrollBar);
 
 			vScrollBar = new ScrollBarEx(true, scheme);
@@ -1599,6 +1600,11 @@ namespace MulticaretEditor
 			scrollY.ApplyParamsTo(vScrollBar);
 			hScrollBar.Value = scrollX.ClampValue(scrollX.value);
 			vScrollBar.Value = scrollY.ClampValue(scrollY.value);
+		}
+		
+		private void OnHScroll(object target, ScrollEventArgs args)
+		{
+			Invalidate();//Need after scroll bars replacing
 		}
 
 		private void OnVScroll(object target, ScrollEventArgs args)
