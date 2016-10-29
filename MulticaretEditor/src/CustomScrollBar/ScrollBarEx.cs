@@ -118,15 +118,14 @@
 				{
 					this.value = newValue;
 					ThumbPosition = GetThumbByValue();
-					//OnScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, -1, this.value, scrollOrientation));
-					//Refresh();
+					Refresh();
 				}
 			}
 		}
 		
 		private int FixValue(int value)
 		{
-			return Math.Min(maximum, Math.Max(0, value));
+			return Math.Max(0, Math.Min(maximum - largeChange, value));
 		}
 
 		protected virtual void OnScroll(ScrollEventArgs e)
@@ -253,9 +252,9 @@
 			{
 				if (thumbClicked)
 				{
-					int oldScrollValue = value;
 					topButtonState = ScrollBarState.Active;
 					bottomButtonState = ScrollBarState.Active;
+					int oldScrollValue = value;
 					value = GetValueByThumb((isVertical ? e.Location.Y : e.Location.X) - thumbMouseOffset);
 					ThumbPosition = GetThumbByValue();
 					if (oldScrollValue != value)
@@ -302,8 +301,8 @@
 		
 		private int GetValueByThumb(int thumbPosition)
 		{
-			int pixelRange = size - (2 * arrowSize) - thumbSize;
-			return (pixelRange > 0 ? FixValue((thumbPosition - arrowSize) * (maximum - largeChange) / pixelRange) : 0);
+			int pixelRange = size - 2 * arrowSize - thumbSize;
+			return FixValue(pixelRange > 0 ? (thumbPosition - arrowSize) * (maximum - largeChange) / pixelRange : 0);
 		}
 		
 		private int ThumbPosition
