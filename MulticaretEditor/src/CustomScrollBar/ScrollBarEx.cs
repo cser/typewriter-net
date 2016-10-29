@@ -349,8 +349,8 @@
 		{
 			size = isVertical ? Height : Width;
 			arrowSize = 17;
-			thumbSize = maximum != 0 && largeChange != 0 ?
-				Math.Min(size - arrowSize, Math.Max(largeChange * (size - arrowSize) / maximum, 10)) :
+			thumbSize = maximum > 0 ?
+				Math.Min(size - arrowSize * 2, Math.Max(largeChange * (size - arrowSize * 2) / maximum, 10)) :
 				size - arrowSize;
 			if (isVertical)
 			{

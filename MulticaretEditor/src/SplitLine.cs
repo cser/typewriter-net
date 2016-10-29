@@ -51,8 +51,8 @@ namespace MulticaretEditor
 		{
 			Graphics g = e.Graphics;
 
-			g.FillRectangle(scheme.tabsBgBrush, 0, 0, Width, Height);
-			g.DrawLine(scheme.tabsLinePen, Width - 1, 0, Width - 1, Height);
+			g.FillRectangle(scheme.splitterBgBrush, 0, 0, Width, Height);
+			g.DrawLine(scheme.splitterLinePen, Width - 1, 0, Width - 1, Height);
 
 			base.OnPaint(e);
 		}

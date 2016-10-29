@@ -32,6 +32,8 @@ namespace MulticaretEditor.Highlighting
 		public Color tabsFgColor;
 		public Color tabsSelectedBgColor;
 		public Color tabsSelectedFgColor;
+		public Color splitterBgColor;
+		public Color splitterLineColor;
 		
 		public Color scrollBgColor;
 		public Color scrollThumbColor;
@@ -63,6 +65,8 @@ namespace MulticaretEditor.Highlighting
 		public Brush tabsSelectedBgBrush;
 		public Brush tabsSelectedFgBrush;
 		public Pen tabsSelectedFgPen;
+		public Brush splitterBgBrush;
+		public Pen splitterLinePen;
 		
 		public Brush scrollBgBrush;
 		public Brush scrollThumbBrush;
@@ -154,6 +158,8 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
 			SetColor(ref tabsLineColor, "tabsLine", colors);
+			SetColor(ref splitterBgColor, "splitterBg", colors);
+			SetColor(ref splitterLineColor, "splitterLine", colors);
 			SetColor(ref tabsBgColor, "tabsBg", colors);
 			SetColor(ref tabsFgColor, "tabsFg", colors);
 			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
@@ -163,7 +169,7 @@ namespace MulticaretEditor.Highlighting
 			
 			SetColor(ref scrollBgColor, "scrollBg", colors);
 			SetColor(ref scrollThumbColor, "scrollThumb", colors);
-			SetColor(ref scrollThumbHoverColor, "scrollThumbBorder", colors);
+			SetColor(ref scrollThumbHoverColor, "scrollThumbHover", colors);
 			SetColor(ref scrollArrowColor, "scrollArrow", colors);
 			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
 			
@@ -211,6 +217,7 @@ namespace MulticaretEditor.Highlighting
 			tabsFgColor = Color.Black;
 			tabsSelectedBgColor = Color.Gray;
 			tabsSelectedFgColor = Color.White;
+			splitterBgColor = Color.WhiteSmoke;
 			mainCaretWidth = 1;
 			caretWidth = 1;
 			
@@ -251,6 +258,8 @@ namespace MulticaretEditor.Highlighting
 			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
 			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
 			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
+			splitterBgBrush = new SolidBrush(splitterBgColor);
+			splitterLinePen = new Pen(splitterLineColor);
 			
 			scrollBgBrush = new SolidBrush(scrollBgColor);
 			scrollThumbBrush = new SolidBrush(scrollThumbColor);

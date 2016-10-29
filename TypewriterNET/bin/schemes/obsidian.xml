@@ -36,6 +36,14 @@
 	<width name="mainCaret" value="1"/>
 	<width name="caret" value="1"/>
 	
+	<color name="splitterBg" value="#22282A"/>
+	<color name="splitterLine" value="#556E69"/>
+	<color name="scrollBg" value="#293134"/>
+	<color name="scrollThumb" value="#556E69"/>
+	<color name="scrollThumbHover" value="orange"/>
+	<color name="scrollArrow" value="#556E69"/>
+	<color name="scrollArrowHover" value="orange"/>	
+	
 	<style name="dsNormal" color="base"/>
 	<style name="dsKeyword" color="green"/>
 	<style name="dsDataType" color="blue"/>
