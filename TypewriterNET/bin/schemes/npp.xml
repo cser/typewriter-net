@@ -36,7 +36,7 @@
 	
 	<color name="splitterBg" value="#F5F5F5"/>
 	<color name="splitterLine" value="#808080"/>
-	<color name="scrollBg" value="#F5F5F5"/>
+	<color name="scrollBg" value="#EEEEEE"/>
 	<color name="scrollThumb" value="#B4B4B4"/>
 	<color name="scrollThumbHover" value="#6464C8"/>
 	<color name="scrollArrow" value="#000000"/>
