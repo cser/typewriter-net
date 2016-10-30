@@ -113,7 +113,7 @@ public class MainForm : Form
 		if (needUpdateBorderStyle)
 		{
 			needUpdateBorderStyle = false;
-			if (settings.hideHeaderOnExpanded.Value)
+			if (settings.fullScreenOnMaximized.Value)
 			{
 				if (WindowState == FormWindowState.Maximized)
 				{
@@ -593,7 +593,7 @@ public class MainForm : Form
 			if (Menu != menu)
 				Menu = menu;
 		}
-		if (settings.hideHeaderOnExpanded.Value)
+		if (settings.fullScreenOnMaximized.Value)
 		{
 			if (WindowState == FormWindowState.Maximized)
 			{
