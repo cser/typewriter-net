@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
@@ -181,29 +182,163 @@ public class CommandDialog : ADialog
 	private bool DoAutocomplete(Controller controller)
 	{
 		string text = textBox.Controller.Lines[0].Text;
+		Place place = textBox.Controller.Lines.PlaceOf(textBox.Controller.LastSelection.caret);
+		if (place.iChar < text.Length)
+		{
+			text = text.Substring(0, place.iChar);
+		}
 		if (!text.StartsWith("!"))
 		{
-			AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
-			List<Variant> variants = new List<Variant>();
-			foreach (Commander.Command command in MainForm.commander.Commands)
+			if (text.IndexOf(' ') == -1 && text.IndexOf('\t') == -1)
+			{
+				AutocompleteCommand(text);
+				return true;
+			}
+		}
+		if (text.StartsWith("!!!!"))
+			text = text.Substring(4);
+		else if (text.StartsWith("!!!"))
+			text = text.Substring(3);
+		else if (text.StartsWith("!!"))
+			text = text.Substring(2);
+		else if (text.StartsWith("!"))
+			text = text.Substring(1);
+		int quotesCount = 0;
+		int quotesIndex = 0;
+		while (true)
+		{
+			quotesIndex = text.IndexOf('"', quotesIndex);
+			if (quotesIndex == -1)
+				break;
+			quotesIndex++;
+			if (quotesIndex >= text.Length)
+				break;
+			quotesCount++;
+		}
+		string path = "";
+		int index = text.Length;
+		while (true)
+		{
+			if (index <= 0)
+			{
+				path = text;
+				break;
+			}
+			index--;
+			if (quotesCount % 2 == 0 && (text[index] == ' ' || text[index] == '\t' || text[index] == '"') ||
+				quotesCount % 2 == 1 && text[index] == '"')
+			{
+				path = text.Substring(index + 1);
+				break;
+			}
+		}
+		AutocompletePath(path);
+		return true;
+	}
+	
+	private void AutocompleteCommand(string text)
+	{
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		List<Variant> variants = new List<Variant>();
+		foreach (Commander.Command command in MainForm.commander.Commands)
+		{
+			Variant variant = new Variant();
+			variant.CompletionText = command.name;
+			variant.DisplayText = command.name + (!string.IsNullOrEmpty(command.argNames) ? " <" + command.argNames + ">" : "");
+			variants.Add(variant);
+		}
+		if (MainForm.Settings != null)
+		{
+			foreach (Properties.Property property in MainForm.Settings.GetProperties())
 			{
 				Variant variant = new Variant();
-				variant.CompletionText = command.name;
-				variant.DisplayText = command.name + (!string.IsNullOrEmpty(command.argNames) ? " <" + command.argNames + ">" : "");
+				variant.CompletionText = property.name;
+				variant.DisplayText = property.name + " <new value>";
 				variants.Add(variant);
 			}
-			if (MainForm.Settings != null)
-			{
-				foreach (Properties.Property property in MainForm.Settings.GetProperties())
-				{
-					Variant variant = new Variant();
-					variant.CompletionText = property.name;
-					variant.DisplayText = property.name + " <new value>";
-					variants.Add(variant);
-				}
-			}
-			autocomplete.Show(variants, text);
 		}
-		return true;
+		autocomplete.Show(variants, text);
+	}
+	
+	private string GetFile()
+	{
+		Buffer lastBuffer = MainForm.LastBuffer;
+		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		{
+			if (MainForm.LeftNest.AFrame != null && MainForm.LeftNest.buffers.list.Selected == MainForm.FileTree.Buffer)
+			{
+				return MainForm.FileTree.GetCurrentFile();
+			}
+			return null;
+		}
+		return lastBuffer.FullPath;
+	}
+	
+	private void AutocompletePath(string path)
+	{
+		if (path == null)
+			return;
+		MainForm.Log.WriteInfo("PATH", path);
+		path = path.Replace("/", "\\").Replace("\\\\", "\\");
+		string dir = ".";
+		string name = path;
+		int index = path.LastIndexOf("\\");
+		if (index != -1)
+		{
+			dir = path.Substring(0, index + 1);
+			name = path.Substring(index + 1);
+		}
+		if (dir.Contains(RunShellCommand.FileDirVar))
+		{
+			string file = GetFile();
+			if (file != null)
+			{
+				dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
+			}
+		}
+		MainForm.Log.WriteInfo("", "dir=" + dir + " name=" + name);
+		string[] dirs = null;
+		string[] files = null;
+		try
+		{
+			dirs = Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly);
+		}
+		catch
+		{
+		}
+		try
+		{
+			files = Directory.GetFiles(dir, "*", SearchOption.TopDirectoryOnly);
+		}
+		catch
+		{
+		}
+		if ((files == null || files.Length == 0) && (dirs == null || dirs.Length == 0))
+			return;
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		List<Variant> variants = new List<Variant>();
+		if (dirs != null)
+		{
+			foreach (string file in dirs)
+			{
+				string fileName = Path.GetFileName(file);
+				Variant variant = new Variant();
+				variant.CompletionText = fileName + "\\";
+				variant.DisplayText = fileName + "\\";
+				variants.Add(variant);
+			}
+		}
+		if (files != null)
+		{
+			foreach (string file in files)
+			{
+				string fileName = Path.GetFileName(file);
+				Variant variant = new Variant();
+				variant.CompletionText = fileName;
+				variant.DisplayText = fileName;
+				variants.Add(variant);
+			}
+		}
+		autocomplete.Show(variants, name);
 	}
 }

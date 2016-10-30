@@ -164,24 +164,28 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
 		}
 	}
+	
+	private string GetFile()
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		string file = null;
+		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+		{
+			if (mainForm.LastFrame == mainForm.LeftNest.AFrame)
+			if (mainForm.LeftNest.AFrame != null && mainForm.LeftNest.buffers.list.Selected == mainForm.FileTree.Buffer)
+			{
+				return mainForm.FileTree.GetCurrentFile();
+			}
+			return null;
+		}
+		return lastBuffer.FullPath;
+	}
 
 	private bool ReplaceVars(ref string commandText)
 	{
 		if (commandText.Contains(RunShellCommand.FileVar))
 		{
-			Buffer lastBuffer = mainForm.LastBuffer;
-			string file = null;
-			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
-			{
-			    if (mainForm.LeftNest.AFrame != null && mainForm.LeftNest.buffers.list.Selected == mainForm.FileTree.Buffer)
-			    {
-			        file = mainForm.FileTree.GetCurrentFile();
-			    }
-			}
-			else
-			{
-			    file = lastBuffer.FullPath;
-			}
+			string file = GetFile();
 			if (file == null)
 			{
 			    mainForm.Dialogs.ShowInfo(
@@ -199,18 +203,19 @@ public class Commander
 					"Error", "No last selected buffer for " + RunShellCommand.FileVarSoftly);
 				return false;
 			}
-			commandText = commandText.Replace(RunShellCommand.FileVar, lastBuffer.FullPath ?? "");
+			string file = GetFile();
+			commandText = commandText.Replace(RunShellCommand.FileVarSoftly, file ?? "");
 		}
 		if (commandText.Contains(RunShellCommand.FileDirVar))
 		{
-			Buffer lastBuffer = mainForm.LastBuffer;
-			if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
+			string file = GetFile();
+			if (file == null)
 			{
 				mainForm.Dialogs.ShowInfo(
 					"Error", "No opened file in current frame for replace " + RunShellCommand.FileDirVar);
 				return false;
 			}
-			string dir = Path.GetDirectoryName(lastBuffer.FullPath);
+			string dir = Path.GetDirectoryName(file);
 			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
 		}
 		if (commandText.Contains(RunShellCommand.LineVar))
