@@ -146,6 +146,11 @@ public class Settings
 	private Dictionary<string, Properties.Property> propertyByName = new Dictionary<string, Properties.Property>();
 
 	private RWList<Properties.Property> properties = new RWList<Properties.Property>();
+	
+	public IRList<Properties.Property> GetProperties()
+	{
+		return properties;
+	}
 
 	private void Add(Properties.Property property)
 	{

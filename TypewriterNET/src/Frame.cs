@@ -298,7 +298,7 @@ public class Frame : AFrame
 		Buffer buffer = buffers.list.Selected != null ? buffers.list.Selected : null;
 		if (buffer == null)
 			return;
-		autocomplete = new AutocompleteMode(textBox, buffer);
+		autocomplete = new AutocompleteMode(textBox, false);
 		autocomplete.Show(variants, leftWord);
 	}
 }

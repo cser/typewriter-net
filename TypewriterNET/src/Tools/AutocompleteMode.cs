@@ -10,14 +10,14 @@ public class AutocompleteMode
 {
 	private AutocompleteMenu dropDown;
 	private MulticaretTextBox textBox;
-	private Buffer buffer;
+	private bool rawView;
 	
 	private KeyMap keyMap;
 	
-	public AutocompleteMode(MulticaretTextBox textBox, Buffer buffer)
+	public AutocompleteMode(MulticaretTextBox textBox, bool rawView)
 	{
 		this.textBox = textBox;
-		this.buffer = buffer;
+		this.rawView = rawView;
 		
 		keyMap = new KeyMap();
 		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false)));
@@ -40,6 +40,7 @@ public class AutocompleteMode
 		}
 		
 		public MulticaretTextBox TextBox { get { return mode.textBox; } }
+		public bool RawView { get { return mode.rawView; } }
 		
 		public void CheckPosition()
 		{

@@ -51,6 +51,8 @@ public class CommandDialog : ADialog
 			new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 			new KeyAction("&View\\Next command", DoNextCommand, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
+			new KeyAction("&View\\Autocomplete", DoAutocomplete, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -174,5 +176,34 @@ public class CommandDialog : ADialog
 			return true;
 		}
 		return false;
+	}
+	
+	private bool DoAutocomplete(Controller controller)
+	{
+		string text = textBox.Controller.Lines[0].Text;
+		if (!text.StartsWith("!"))
+		{
+			AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+			List<Variant> variants = new List<Variant>();
+			foreach (Commander.Command command in MainForm.commander.Commands)
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = command.name;
+				variant.DisplayText = command.name + (!string.IsNullOrEmpty(command.argNames) ? " <" + command.argNames + ">" : "");
+				variants.Add(variant);
+			}
+			if (MainForm.Settings != null)
+			{
+				foreach (Properties.Property property in MainForm.Settings.GetProperties())
+				{
+					Variant variant = new Variant();
+					variant.CompletionText = property.name;
+					variant.DisplayText = property.name + " <new value>";
+					variants.Add(variant);
+				}
+			}
+			autocomplete.Show(variants, text);
+		}
+		return true;
 	}
 }

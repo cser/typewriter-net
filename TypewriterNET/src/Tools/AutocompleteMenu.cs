@@ -332,6 +332,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		{
 			List<Variant> variants = menu.variants;
 			
+			bool rawView = menu.handler.RawView;
 			Graphics g = e.Graphics;
 			g.FillRectangle(menu.scheme.lineBgBrush, new Rectangle(0, 0, width, height));
 			int offset = vScrollBar.Value;
@@ -348,42 +349,45 @@ public class AutocompleteMenu : ToolStripDropDown
 					string text = variants[i].DisplayText;
 					string text0 = "";
 					string text1 = text;
-					int index = -1;
-                    int deep = 0;
-                    for (int j = 0; j < text.Length; j++)
-                    {
-                        char c = text[j];
-                        if (c == '<')
-                        {
-                            ++deep;
-                        }
-                        else if (c == '>')
-                        {
-                            --deep;
-                        }
-                        else if (c == ' ')
-                        {
-                        	if (deep == 0)
-                        	{
-                            	index = j;
-                            	break;
-                            }
-                        }
-                        else if (c == '(')
-                        {
-                        	index = -1;
-                        	break;
-                        }
-                    }
-                    if (index != -1)
-                    {
-                    	string newText0 = text.Substring(0, index);
-                    	if (newText0 != "protected" && newText0 != "public" && newText0 != "private" && newText0 != "override")
-                    	{
-							text0 = newText0;
-							text1 = text.Substring(index + 1);
+					if (!rawView)
+					{
+						int index = -1;
+						int deep = 0;
+						for (int j = 0; j < text.Length; j++)
+						{
+							char c = text[j];
+							if (c == '<')
+							{
+								++deep;
+							}
+							else if (c == '>')
+							{
+								--deep;
+							}
+							else if (c == ' ')
+							{
+								if (deep == 0)
+								{
+									index = j;
+									break;
+								}
+							}
+							else if (c == '(')
+							{
+								index = -1;
+								break;
+							}
 						}
-                    }
+						if (index != -1)
+						{
+							string newText0 = text.Substring(0, index);
+							if (newText0 != "protected" && newText0 != "public" && newText0 != "private" && newText0 != "override")
+							{
+								text0 = newText0;
+								text1 = text.Substring(index + 1);
+							}
+						}
+					}
 					DrawLineChars(g, new Point(0, (i - offset) * menu.charHeight), menu.defaultStyle, text1);
 					DrawLineChars(g, new Point((menu.maxLength - text0.Length) * menu.charWidth, (i - offset) * menu.charHeight), menu.typeStyle, text0);
 				}

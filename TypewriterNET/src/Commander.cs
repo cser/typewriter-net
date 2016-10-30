@@ -33,7 +33,8 @@ public class Commander
 	private TempSettings tempSettings;
 	private Settings settings;
 
-	private readonly List<Command> commands = new List<Command>();
+	private readonly RWList<Command> commands = new RWList<Command>();
+	public IRList<Command> Commands { get { return commands; } }
 
 	private StringList history;
 	public StringList History { get { return history; } }
