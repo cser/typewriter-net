@@ -597,20 +597,29 @@ public class MainForm : Form
 		{
 			if (WindowState == FormWindowState.Maximized)
 			{
-				ignoreBorderStyleChanging = true;
-				WindowState = FormWindowState.Normal;
-				FormBorderStyle = FormBorderStyle.None;
-				WindowState = FormWindowState.Maximized;
-				ignoreBorderStyleChanging = false;
+				if (FormBorderStyle != FormBorderStyle.None)
+				{
+					ignoreBorderStyleChanging = true;
+					WindowState = FormWindowState.Normal;
+					FormBorderStyle = FormBorderStyle.None;
+					WindowState = FormWindowState.Maximized;
+					ignoreBorderStyleChanging = false;
+				}
 			}
 			else
 			{
-				FormBorderStyle = FormBorderStyle.Sizable;
+				if (FormBorderStyle == FormBorderStyle.Sizable)
+				{
+					FormBorderStyle = FormBorderStyle.Sizable;
+				}
 			}
 		}
 		else
 		{
-			FormBorderStyle = FormBorderStyle.Sizable;
+			if (FormBorderStyle == FormBorderStyle.Sizable)
+			{
+				FormBorderStyle = FormBorderStyle.Sizable;
+			}
 		}
 	}
 	
