@@ -168,7 +168,6 @@ public class Commander
 	private string GetFile()
 	{
 		Buffer lastBuffer = mainForm.LastBuffer;
-		string file = null;
 		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
 		{
 			if (mainForm.LastFrame == mainForm.LeftNest.AFrame)

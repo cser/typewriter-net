@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Drawing;
@@ -76,6 +77,11 @@ public class Properties
 
 		virtual public void Reset()
 		{
+		}
+		
+		virtual public List<Variant> GetAutocompleteVariants()
+		{
+			return null;
 		}
 	}
 
@@ -227,6 +233,23 @@ public class Properties
 		{
 			this.variants = variants;
 			return this;
+		}
+		
+		override public List<Variant> GetAutocompleteVariants()
+		{
+			string[] raw = loadVariants != null ? loadVariants() : variants;
+			if (raw == null || raw.Length == 0)
+				return null;
+			List<Variant> result = new List<Variant>();
+			foreach (string text in raw)
+			{
+				string variantText = ReplaceLineBreaks(text);
+				Variant variant = new Variant();
+				variant.CompletionText = variantText;
+				variant.DisplayText = variantText;
+				result.Add(variant);
+			}
+			return result;
 		}
 
 		private Getter<string[]> loadVariants;
@@ -468,6 +491,19 @@ public class Properties
 			get { return value; }
 			set { this.value = value; }
 		}
+		
+		override public List<Variant> GetAutocompleteVariants()
+		{
+			List<Variant> result = new List<Variant>();
+			foreach (string variantText in new string[] { "true", "false" })
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = variantText;
+				variant.DisplayText = variantText;
+				result.Add(variant);
+			}
+			return result;
+		}
 
 		public override string Text { get { return value ? "true" : "false"; } }
 
@@ -517,6 +553,19 @@ public class Properties
 		private readonly RWList<BoolInfo> value = new RWList<BoolInfo>();
 		public IRList<BoolInfo> Value { get { return value; } }
 		public override string DefaultValue { get { return defaultValue ? "true" : "false"; } }
+		
+		override public List<Variant> GetAutocompleteVariants()
+		{
+			List<Variant> result = new List<Variant>();
+			foreach (string variantText in new string[] { "true", "false" })
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = variantText;
+				variant.DisplayText = variantText;
+				result.Add(variant);
+			}
+			return result;
+		}
 		
 		public bool GetValue(Buffer buffer)
 		{
@@ -653,6 +702,20 @@ public class Properties
 					return true;
 			}
 			return false;
+		}
+		
+		override public List<Variant> GetAutocompleteVariants()
+		{
+			List<Variant> result = new List<Variant>();
+			InstalledFontCollection installed = new InstalledFontCollection();
+			foreach (FontFamily familyI in installed.Families)
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = familyI.Name;
+				variant.DisplayText = familyI.Name;
+				result.Add(variant);
+			}
+			return result;
 		}
 
 		public override void Reset()

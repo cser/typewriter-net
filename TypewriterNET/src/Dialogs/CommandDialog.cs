@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using MulticaretEditor.KeyMapping;
 using MulticaretEditor.Highlighting;
 using MulticaretEditor;
+using System.Text.RegularExpressions;
 
 public class CommandDialog : ADialog
 {
@@ -197,6 +198,42 @@ public class CommandDialog : ADialog
 				AutocompleteCommand(text);
 				return true;
 			}
+			int index0 = text.IndexOf(' ');
+			int index1 = text.IndexOf('\t');
+			if (index0 != -1 || index1 != -1)
+			{
+				int spaceIndex;
+				if (index0 == -1)
+					spaceIndex = index1;
+				else if (index1 == -1)
+					spaceIndex = index0;
+				else
+					spaceIndex = Math.Min(index0, index1);
+				if (text.IndexOf(' ', spaceIndex + 1) == -1 && text.IndexOf('\t', spaceIndex + 1) == -1)
+				{
+					string command = text.Substring(0, spaceIndex);
+					string word = text.Substring(spaceIndex + 1);
+					if (command == "reset")
+					{
+						AutocompleteProperty(word);
+						return true;
+					}
+					if (MainForm.Settings != null)
+					{
+						Properties.Property property = MainForm.Settings[command];
+						if (property != null)
+						{
+							List<Variant> variants = property.GetAutocompleteVariants();
+							if (variants != null)
+							{
+								AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+								autocomplete.Show(variants, word);
+								return true;
+							}
+						}
+					}
+				}
+			}
 		}
 		if (text.StartsWith("!!!!"))
 			text = text.Substring(4);
@@ -254,13 +291,32 @@ public class CommandDialog : ADialog
 		{
 			foreach (Properties.Property property in MainForm.Settings.GetProperties())
 			{
-				Variant variant = new Variant();
-				variant.CompletionText = property.name;
-				variant.DisplayText = property.name + " <new value>";
-				variants.Add(variant);
+				variants.Add(GetPropertyVariant(property));
 			}
 		}
 		autocomplete.Show(variants, text);
+	}
+	
+	private void AutocompleteProperty(string text)
+	{
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		List<Variant> variants = new List<Variant>();
+		if (MainForm.Settings != null)
+		{
+			foreach (Properties.Property property in MainForm.Settings.GetProperties())
+			{
+				variants.Add(GetPropertyVariant(property));
+			}
+			autocomplete.Show(variants, text);
+		}
+	}
+	
+	private Variant GetPropertyVariant(Properties.Property property)
+	{
+		Variant variant = new Variant();
+		variant.CompletionText = property.name;
+		variant.DisplayText = property.name + " <new value>";
+		return variant;
 	}
 	
 	private string GetFile()
