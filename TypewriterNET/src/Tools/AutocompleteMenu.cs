@@ -183,7 +183,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	{
 		int height = visibleLinesCount * charHeight;
 		Left = screenPoint.X;
-		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y)
+		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y - 30)
 		{
 			Top = screenPoint.Y;
 		}

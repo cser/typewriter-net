@@ -302,13 +302,28 @@ public class AutocompleteMode
 			if (caret > startCaret)
 			{
 				string text = textBox.Controller.Lines.GetText(startCaret, caret - startCaret);
-				for (int i = 0; i < text.Length; i++)
+				if (rawView)
 				{
-					char c = text[i];
-					if (c != '_' && !char.IsLetterOrDigit(c))
+					for (int i = 0; i < text.Length; i++)
 					{
-						Close();
-						return;
+						char c = text[i];
+						if (c != '_' && c != '-' && c != '.' && !char.IsLetterOrDigit(c))
+						{
+							Close();
+							return;
+						}
+					}
+				}
+				else
+				{
+					for (int i = 0; i < text.Length; i++)
+					{
+						char c = text[i];
+						if (c != '_' && !char.IsLetterOrDigit(c))
+						{
+							Close();
+							return;
+						}
 					}
 				}
 			}
