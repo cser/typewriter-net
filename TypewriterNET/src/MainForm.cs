@@ -125,12 +125,18 @@ public class MainForm : Form
 				}
 				else
 				{
-					FormBorderStyle = FormBorderStyle.Sizable;
+					if (FormBorderStyle != FormBorderStyle.Sizable)
+					{
+						FormBorderStyle = FormBorderStyle.Sizable;
+					}
 				}
 			}
 			else
 			{
-				FormBorderStyle = FormBorderStyle.Sizable;
+				if (FormBorderStyle != FormBorderStyle.Sizable)
+				{
+					FormBorderStyle = FormBorderStyle.Sizable;
+				}
 			}
 		}
 	}
@@ -608,7 +614,7 @@ public class MainForm : Form
 			}
 			else
 			{
-				if (FormBorderStyle == FormBorderStyle.Sizable)
+				if (FormBorderStyle != FormBorderStyle.Sizable)
 				{
 					FormBorderStyle = FormBorderStyle.Sizable;
 				}
@@ -616,7 +622,7 @@ public class MainForm : Form
 		}
 		else
 		{
-			if (FormBorderStyle == FormBorderStyle.Sizable)
+			if (FormBorderStyle != FormBorderStyle.Sizable)
 			{
 				FormBorderStyle = FormBorderStyle.Sizable;
 			}
