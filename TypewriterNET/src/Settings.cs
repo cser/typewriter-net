@@ -67,6 +67,8 @@ public class Settings
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
 	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
+	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
+	public readonly Properties.Bool hideHeaderOnExpanded = new Properties.Bool("hideHeaderOnExpanded", false);
 
 	private Setter onChange;
 
@@ -131,6 +133,8 @@ public class Settings
 		Add(omnisharpConsole);
 		Add(checkContentBeforeReloading);
 		Add(fileIncrementalSearchTimeout);
+		Add(hideMenu);
+		Add(hideHeaderOnExpanded);
 	}
 
 	public void DispatchChange()

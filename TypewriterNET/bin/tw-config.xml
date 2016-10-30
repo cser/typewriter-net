@@ -47,4 +47,6 @@
 	<item name="shiftF11Command:*.cs" value="omnisharp-syntaxerrors"/>
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
+	<item name="hideMenu" value="false"/>
+	<item name="hideHeaderOnExpanded" value="false"/>
 </config>

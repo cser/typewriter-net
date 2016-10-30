@@ -29,6 +29,9 @@ public class MainForm : Form
 
 	private readonly MainFormMenu menu;
 	private readonly Timer validationTimer;
+	private FormWindowState windowState;
+	private bool needUpdateBorderStyle;
+	private bool ignoreBorderStyleChanging;
 
 	public readonly FrameList frames;
 	public readonly Commander commander;
@@ -43,6 +46,7 @@ public class MainForm : Form
 	{
 		this.args = args;
 
+		windowState = WindowState;
 		MulticaretTextBox.initMacrosExecutor = new MacrosExecutor(GetFocusedTextBox);
 
 		frames = new FrameList(this);
@@ -105,6 +109,29 @@ public class MainForm : Form
 		{
 			frames.NeedResize = false;
 			DoResize();
+		}
+		if (needUpdateBorderStyle)
+		{
+			needUpdateBorderStyle = false;
+			if (settings.hideHeaderOnExpanded.Value)
+			{
+				if (WindowState == FormWindowState.Maximized)
+				{
+					ignoreBorderStyleChanging = true;
+					WindowState = FormWindowState.Normal;
+					FormBorderStyle = FormBorderStyle.None;
+					WindowState = FormWindowState.Maximized;
+					ignoreBorderStyleChanging = false;
+				}
+				else
+				{
+					FormBorderStyle = FormBorderStyle.Sizable;
+				}
+			}
+			else
+			{
+				FormBorderStyle = FormBorderStyle.Sizable;
+			}
 		}
 	}
 
@@ -556,6 +583,48 @@ public class MainForm : Form
 		sharpManager.UpdateSettings(settings);
 		if (fileTree != null)
 		    fileTree.ReloadIfNeedForSettings();
+		if (settings.hideMenu.Value)
+		{
+			if (Menu != null)
+				Menu = null;
+		}
+		else
+		{
+			if (Menu != menu)
+				Menu = menu;
+		}
+		if (settings.hideHeaderOnExpanded.Value)
+		{
+			if (WindowState == FormWindowState.Maximized)
+			{
+				ignoreBorderStyleChanging = true;
+				WindowState = FormWindowState.Normal;
+				FormBorderStyle = FormBorderStyle.None;
+				WindowState = FormWindowState.Maximized;
+				ignoreBorderStyleChanging = false;
+			}
+			else
+			{
+				FormBorderStyle = FormBorderStyle.Sizable;
+			}
+		}
+		else
+		{
+			FormBorderStyle = FormBorderStyle.Sizable;
+		}
+	}
+	
+	protected override void OnClientSizeChanged(EventArgs e)
+	{
+		if (!ignoreBorderStyleChanging)
+		{
+			if (windowState != WindowState)
+			{
+				windowState = WindowState;
+				needUpdateBorderStyle = true;
+			}
+		}
+		base.OnClientSizeChanged(e);
 	}
 
 	public void DoResize()
@@ -633,6 +702,8 @@ public class MainForm : Form
 			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
+			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
@@ -1265,6 +1336,19 @@ public class MainForm : Form
 			frame.Focus();
 		return true;
 	}
+	
+	private bool DoSwitchWindowMode(Controller controller)
+	{
+		if (WindowState == FormWindowState.Normal)
+		{
+			WindowState = FormWindowState.Maximized;
+		}
+		else
+		{
+			WindowState = FormWindowState.Normal;
+		}
+		return true;
+	}
 
 	private bool DoEditCreateCurrentConfig(Controller controller)
 	{
@@ -1300,7 +1384,7 @@ public class MainForm : Form
 			return true;
 		}
 		LoadFile(AppPath.ConfigPath.startupPath);
-		return true;
+		return true;	
 	}
 
 	private bool DoResetConfig(Controller controller)
