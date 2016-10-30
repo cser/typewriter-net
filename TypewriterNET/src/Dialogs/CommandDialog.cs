@@ -52,8 +52,11 @@ public class CommandDialog : ADialog
 			new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 			new KeyAction("&View\\Next command", DoNextCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
-			new KeyAction("&View\\Autocomplete", DoAutocomplete, null, false)));
+		{
+		    KeyAction action = new KeyAction("&View\\Autocomplete", DoAutocomplete, null, false);
+            frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
+            frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+		}
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
