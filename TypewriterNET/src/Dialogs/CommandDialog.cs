@@ -337,7 +337,6 @@ public class CommandDialog : ADialog
 	{
 		if (path == null)
 			return;
-		MainForm.Log.WriteInfo("PATH", path);
 		path = path.Replace("/", "\\").Replace("\\\\", "\\");
 		string dir = ".";
 		string name = path;
@@ -355,7 +354,6 @@ public class CommandDialog : ADialog
 				dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
 			}
 		}
-		MainForm.Log.WriteInfo("", "dir=" + dir + " name=" + name);
 		string[] dirs = null;
 		string[] files = null;
 		try
