@@ -28,6 +28,7 @@ namespace MulticaretEditor
 		
 		protected void SetValue(int index, T value)
 		{
+			System.Console.WriteLine("ARRAY:SetValue(" + index + ", " + value + ")");
 			if (index >= valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + valuesCount + ")");
 			FSBBlock<T> block = blocks[GetBlockIndex(index)];
@@ -38,6 +39,7 @@ namespace MulticaretEditor
 		
 		protected void ClearValues()
 		{
+			System.Console.WriteLine("ARRAY:ClearValues()");
 			Array.Clear(blocks, 0, blocksCount);
 			blocksCount = 0;
 			valuesCount = 0;
@@ -71,6 +73,7 @@ namespace MulticaretEditor
 		
 		protected void InsertValue(int index, T value)
 		{
+			System.Console.WriteLine("ARRAY:InsertValue(" + index + ", " + value + ")");
 			if (index > valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + valuesCount + "]");
 			int i = GetBlockIndex(index);
@@ -141,6 +144,7 @@ namespace MulticaretEditor
 		
 		protected void RemoveValueAt(int index)
 		{
+			System.Console.WriteLine("ARRAY:RemoveValueAt(" + index + ")");
 			if (index >= valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + valuesCount + ")");
 			int i = GetBlockIndex(index);
@@ -185,6 +189,7 @@ namespace MulticaretEditor
 		
 		protected void RemoveValuesRange(int index, int count)
 		{
+			System.Console.WriteLine("ARRAY:RemoveValuesRange(" + index + ", " + count + ")");
 			if (index + count > this.valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + ", count=" + count + " is out of [0, " + this.valuesCount + ")");
 			if (count == 0)
@@ -241,6 +246,7 @@ namespace MulticaretEditor
 		
 		protected void InsertValuesRange(int index, T[] values)
 		{
+			System.Console.WriteLine("ARRAY:InsertValuesRange(" + index + ", " + values + ")");
 			if (index > this.valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + this.valuesCount + "]");
 			int valuesCount = values.Length;
@@ -397,6 +403,7 @@ namespace MulticaretEditor
 		
 		private void RemoveBlocks(int blockI0, int blockI1)
 		{
+			System.Console.WriteLine("ARRAY:RemoveBlocks(" + blockI0 + ", " + blockI1 + ")");
 			Array.Copy(blocks, blockI1, blocks, blockI0, blocksCount - blockI1);
 			Array.Clear(blocks, blocksCount - blockI1 + blockI0, blockI1 - blockI0);
 			blocksCount += blockI0 - blockI1;
@@ -404,6 +411,7 @@ namespace MulticaretEditor
 		
 		private void UpdateIndices(int blockI)
 		{
+			System.Console.WriteLine("ARRAY:UpdateIndices(" + blockI + ")");
 			int offset = 0;
 			if (blockI > 0)
 			{
@@ -421,6 +429,7 @@ namespace MulticaretEditor
 		
 		protected void AllocateBlocks(int blocksCount)
 		{
+			System.Console.WriteLine("ARRAY:AllocateBlocks(" + blocksCount + ")");
 			this.blocksCount = blocksCount;
 			if (blocksCount > blocks.Length)
 			{
@@ -436,6 +445,7 @@ namespace MulticaretEditor
 		
 		public int GetBlockIndex(int index)
 		{
+			System.Console.WriteLine("ARRAY:GetBlockIndex(" + index + ")");
 			int bra = 0;
 			int ket = blocksCount - 1;
 			if (ket >= 0)

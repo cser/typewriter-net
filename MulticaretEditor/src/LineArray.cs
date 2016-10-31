@@ -169,6 +169,7 @@ namespace MulticaretEditor
 
 		public void InsertText(int index, string text)
 		{
+			System.Console.WriteLine("InsertText(" + index + ", \"" + text + "\")");//TODO remove
 			if (index < 0 || index > charsCount)
 				throw new IndexOutOfRangeException(
 					"text index=" + index + ", count=" + text.Length + " is out of [0, " + charsCount + "]");
@@ -238,6 +239,7 @@ namespace MulticaretEditor
 
 		public void RemoveText(int index, int count)
 		{
+			System.Console.WriteLine("RemoveText(" + index + ", " + count + ")");//TODO remove
 			if (index < 0 || index + count > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)

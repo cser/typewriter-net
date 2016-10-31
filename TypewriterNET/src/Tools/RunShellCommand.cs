@@ -45,7 +45,7 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, List<Position>> positions;
 
-	public string Execute(string commandText, bool showCommandInOutput, IRList<RegexData> regexList)
+	public string Execute(string commandText, bool showCommandInOutput, IRList<RegexData> regexList, bool stayTop)
 	{
 		positions = new Dictionary<int, List<Position>>();
 
@@ -139,7 +139,14 @@ public class RunShellCommand
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		buffer.Controller.DocumentEnd(false);
+		if (stayTop)
+		{
+			buffer.Controller.DocumentStart(false);
+		}
+		else
+		{
+			buffer.Controller.DocumentEnd(false);
+		}
 		buffer.Controller.NeedScrollToCaret();
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		return null;

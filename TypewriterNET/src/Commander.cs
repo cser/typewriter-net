@@ -149,12 +149,22 @@ public class Commander
 				p.Start();
 			}
 		}
+		else if (name.StartsWith("!^"))
+		{
+			string commandText = text.Substring(2).Trim();
+			if (ReplaceVars(ref commandText))
+			{
+				ExecuteShellCommand(commandText, showCommandInOutput, true);
+				if (needFileTreeReload)
+				    mainForm.FileTreeReload();
+		    }
+		}
 		else if (name.StartsWith("!"))
 		{
 			string commandText = text.Substring(1).Trim();
 			if (ReplaceVars(ref commandText))
 			{
-				ExecuteShellCommand(commandText, showCommandInOutput);
+				ExecuteShellCommand(commandText, showCommandInOutput, false);
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 		    }
@@ -342,6 +352,8 @@ public class Commander
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
 		table.NewRow();
+		table.Add("!^command").Add("*").Add("Run shell command, stay output up");
+		table.NewRow();
 		table.Add("!!command").Add("*").Add("Run without output capture");
 		table.NewRow();
 		table.Add("!!!command").Add("*").Add("Run with output to info panel");
@@ -462,9 +474,9 @@ public class Commander
 		}
 	}
 
-	private void ExecuteShellCommand(string commandText, bool showCommandInOutput)
+	private void ExecuteShellCommand(string commandText, bool showCommandInOutput, bool stayTop)
 	{
-		new RunShellCommand(mainForm).Execute(commandText, showCommandInOutput, settings.shellRegexList.Value);
+		new RunShellCommand(mainForm).Execute(commandText, showCommandInOutput, settings.shellRegexList.Value, stayTop);
 	}
 
 	private void DoEditFile(string file)

@@ -241,6 +241,8 @@ public class CommandDialog : ADialog
 			text = text.Substring(3);
 		else if (text.StartsWith("!!"))
 			text = text.Substring(2);
+		else if (text.StartsWith("!^"))
+			text = text.Substring(2);
 		else if (text.StartsWith("!"))
 			text = text.Substring(1);
 		int quotesCount = 0;
