@@ -454,6 +454,30 @@ public class Properties
 
 		private EncodingPair value;
 		public EncodingPair Value { get { return value; } }
+		
+		public override List<Variant> GetAutocompleteVariants()
+		{
+			List<Variant> result = new List<Variant>();
+			foreach (EncodingInfo info in Encoding.GetEncodings())
+			{
+				string variantText;
+				Variant variant;
+				variantText = info.Name;
+				variant = new Variant();
+				variant.CompletionText = variantText;
+				variant.DisplayText = variantText;
+				result.Add(variant);
+				if (info.GetEncoding().GetPreamble().Length > 0)
+				{
+					variantText = info.Name + " bom";
+					variant = new Variant();
+					variant.CompletionText = variantText;
+					variant.DisplayText = variantText;
+					result.Add(variant);
+				}
+			}
+			return result;
+		}
 
 		public override string Text { get { return Value.ToString(); } }
 
