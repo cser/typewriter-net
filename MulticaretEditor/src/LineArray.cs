@@ -169,12 +169,13 @@ namespace MulticaretEditor
 
 		public void InsertText(int index, string text)
 		{
-			System.Console.WriteLine("InsertText(" + index + ", \"" + text + "\")");//TODO remove
+			System.Console.WriteLine("InsertText(" + index + ", \"" + text + "\") {");
 			if (index < 0 || index > charsCount)
 				throw new IndexOutOfRangeException(
 					"text index=" + index + ", count=" + text.Length + " is out of [0, " + charsCount + "]");
 			if (text.Length == 0)
 				return;
+			System.Console.WriteLine("#1" + GetDebugText());
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
@@ -183,6 +184,7 @@ namespace MulticaretEditor
 			Line start = block.array[startJ];
 			if (text.IndexOf("\n") == -1 && text.IndexOf("\r") == -1)
 			{
+				System.Console.WriteLine("#2" + GetDebugText());
 				Char[] chars = new Char[text.Length];
 				for (int i = 0; i < chars.Length; i++)
 				{
@@ -198,6 +200,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
+				System.Console.WriteLine("#3" + GetDebugText());
 				int length = text.Length;
 				int lineStart = 0;
 				List<Line> lines = new List<Line>();
@@ -217,6 +220,7 @@ namespace MulticaretEditor
 						lineStart = i + 1;
 					}
 				}
+				System.Console.WriteLine("#4" + GetDebugText());
 				lines.Add(NewLine(text, lineStart, length - lineStart));
 				Line line0 = lines[0];
 				line0.chars.InsertRange(0, start.chars.GetRange(0, place.iChar));
@@ -230,20 +234,25 @@ namespace MulticaretEditor
 				line1.wwSizeX = 0;
 				RemoveValueAt(place.iLine);
 				InsertValuesRange(place.iLine, lines.ToArray());
+				System.Console.WriteLine("#5" + GetDebugText());
 			}
 			charsCount += text.Length;
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
+			System.Console.WriteLine("}");
 		}
 
 		public void RemoveText(int index, int count)
 		{
-			System.Console.WriteLine("RemoveText(" + index + ", " + count + ")");//TODO remove
+			System.Console.WriteLine("RemoveText(" + index + ", " + count + ") {");
 			if (index < 0 || index + count > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
+			{
+				System.Console.WriteLine("} - count==0");
 				return;
+			}
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
@@ -333,6 +342,7 @@ namespace MulticaretEditor
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
+			System.Console.WriteLine("}");
 		}
 
 		public string GetText(int index, int count)
@@ -420,15 +430,20 @@ namespace MulticaretEditor
 
 		private Place PlaceOf(int index, out int blockI, out int blockIChar)
 		{
+			System.Console.WriteLine("PlaceOf(" + index + ", out, out) {");
+			System.Console.WriteLine("--" + CheckConsistency());
 			if (index < 0 || index > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + " is out of [0, " + charsCount + "]");
+			System.Console.WriteLine("#1 (blocksCount==" + blocksCount + ")");
 			int charOffset = 0;
 			LineBlock block = null;
 			for (int i = 0; i < blocksCount; i++)
 			{
+				System.Console.WriteLine("#1/" + i);
 				block = blocks[i];
 				if ((block.valid & LineBlock.CharsCountValid) == 0)
 				{
+					System.Console.WriteLine("#11 (block.count==" + block.count + ")");
 					block.valid |= LineBlock.CharsCountValid;
 					block.charsCount = 0;
 					for (int j = 0; j < block.count; j++)
@@ -438,6 +453,7 @@ namespace MulticaretEditor
 				}
 				if (index >= charOffset && index < charOffset + block.charsCount)
 				{
+					System.Console.WriteLine("#12");
 					blockIChar = charOffset;
 					int currentJ = 0;
 					for (int j = 0; j < block.count; j++)
@@ -448,13 +464,22 @@ namespace MulticaretEditor
 							break;
 					}
 					blockI = i;
-					return new Place(index - charOffset + block.array[currentJ].chars.Count, block.offset + currentJ);
+					System.Console.WriteLine("#13");
+					Place place = new Place(index - charOffset + block.array[currentJ].chars.Count, block.offset + currentJ);
+					System.Console.WriteLine("#14");
+					System.Console.WriteLine("}");
+					return place;
 				}
 				charOffset += block.charsCount;
 			}
+			System.Console.WriteLine("#2");
 			blockIChar = charOffset;
 			blockI = blocksCount - 1;
-			return new Place(block.array[block.count - 1].chars.Count, block.offset + block.count - 1);
+			{
+				Place place = new Place(block.array[block.count - 1].chars.Count, block.offset + block.count - 1);
+				System.Console.WriteLine("}");
+				return place;
+			}
 		}
 
 		public Place PlaceOf(int index)
@@ -836,5 +861,45 @@ namespace MulticaretEditor
 		public Place markedBracket1;
 
 		public List<StyleRange> ranges;
+		
+		public string GetDebugText()
+		{
+			if (blocksCount > blocks.Length)
+			{
+				return "OVERFLOW: " + blocksCount + " > " + blocks.Length;
+			}
+			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+			for (int i = 0; i < blocksCount; i++)
+			{
+				builder.Append("[");
+				builder.Append(blocks[i].count);
+				builder.Append("/");
+				builder.Append(blocks[i].charsCount);
+				builder.Append("]");
+			}
+			return builder.ToString();
+		}
+		
+		public override string CheckConsistency()
+		{
+			if (blocksCount > blocks.Length)
+			{
+				return "!!OVERFLOW: " + blocksCount + " > " + blocks.Length;
+			}
+			for (int i = 0; i < blocksCount; i++)
+			{
+				if (blocks[i] == null)
+					return "!!BLOCK[" + i + "]==null";
+				if (blocks[i].count > blocks[i].array.Length)
+					return "!!OVERFLOW BLOCKS[" + i + "].count==" + blocks[i].count + "/Length==" + blocks[i].array.Length;
+				for (int j = 0; j < blocks[i].count; j++)
+				{
+					Line line = blocks[i].array[j];
+					if (line == null)
+						return "!!BLOCKS[" + i + "][" + j + "]==null";
+				}
+			}
+			return "!!OK";
+		}
 	}
 }

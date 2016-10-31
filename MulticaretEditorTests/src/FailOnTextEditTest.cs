@@ -26,11 +26,23 @@ namespace UnitTests
 			LineArray lines = new LineArray(200);
 			Controller controller = new Controller(lines);
 			lines.SetText(GetTextExample());
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			controller.PutCursor(new Place(0, 799), false);
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			controller.PutCursor(new Place(0, 798), true);
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			controller.Cut();
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			controller.PutCursor(new Place(0, 805), false);
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			controller.Paste();
+			Console.WriteLine(lines.GetDebugText());
+			Console.WriteLine(lines.CheckConsistency());
 			Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		}
 	}
