@@ -293,6 +293,7 @@ namespace MulticaretEditor
 				return;
 			}
 			blocksBuffer.Clear();
+			System.Console.WriteLine("ARRAY:InsertValuesRange:--Clear()");
 			System.Console.WriteLine("ARRAY:InsertValuesRange:#9" + CheckConsistency());
 			TBlock first;
 			int firstJ;
@@ -315,6 +316,8 @@ namespace MulticaretEditor
 					int leftCount = left.count;
 					first = NewBlock();
 					firstJ = j - (blockSize - leftCount);
+					System.Console.WriteLine("ARRAY:InsertValuesRange: " + CheckBlock(first));
+					System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(first)#1");
 					blocksBuffer.Add(first);
 					Array.Copy(target.array, 0, left.array, leftCount, blockSize - leftCount);
 					Array.Copy(target.array, 0, first.array, blockSize - leftCount, j - (blockSize - leftCount));
@@ -322,7 +325,9 @@ namespace MulticaretEditor
                     left.valid = 0;
                     left.wwSizeX = 0;
                     System.Console.WriteLine("ARRAY:InsertValuesRange: first.count=" + j + "-(" + blockSize + "-" + leftCount + ")");
+                    System.Console.WriteLine("ARRAY:InsertValuesRange:/ " + CheckBlock(first));
 					first.count = j - (blockSize - leftCount);
+					System.Console.WriteLine("ARRAY:InsertValuesRange:\\ " + CheckBlock(first));
 				}
                 first.valid = 0;
                 first.wwSizeX = 0;
@@ -332,6 +337,7 @@ namespace MulticaretEditor
 				System.Console.WriteLine("ARRAY:InsertValuesRange:#11" + CheckConsistency());
 				first = NewBlock();
 				firstJ = j;
+				System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(first)#2");
 				blocksBuffer.Add(first);
 				Array.Copy(target.array, 0, first.array, 0, j);
 				first.count = j;
@@ -354,6 +360,7 @@ namespace MulticaretEditor
 				Array.Copy(values, 0, first.array, first.count, valuesCount);
 				Array.Copy(target.array, j, first.array, first.count + valuesCount, targetRightCount0);
 				TBlock last = NewBlock();
+				System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(last)#1");
 				blocksBuffer.Add(last);
 				Array.Copy(target.array, j + targetRightCount0, last.array, 0, targetRightCount - targetRightCount0);
 				first.count = blockSize;
@@ -371,6 +378,7 @@ namespace MulticaretEditor
 				{
 					System.Console.WriteLine("ARRAY:InsertValuesRange:#14_1" + CheckConsistency());
 					TBlock block = NewBlock();
+					System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(block)");
 					blocksBuffer.Add(block);
 					Array.Copy(values, valuesFirstCount + ii * blockSize, block.array, 0, blockSize);
 					block.count = blockSize;
@@ -379,6 +387,7 @@ namespace MulticaretEditor
 				{
 					System.Console.WriteLine("ARRAY:InsertValuesRange:#14_2" + CheckConsistency());
 					TBlock last = NewBlock();
+					System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(last)#2");
 					blocksBuffer.Add(last);
 					Array.Copy(values, valuesCount - valuesLastCount, last.array, 0, valuesLastCount);
 					if (valuesLastCount + targetRightCount <= blockSize)
@@ -392,6 +401,7 @@ namespace MulticaretEditor
 						System.Console.WriteLine("ARRAY:InsertValuesRange:#14_4" + CheckConsistency());
 						Array.Copy(target.array, j, last.array, valuesLastCount, blockSize - valuesLastCount);
 						TBlock last2 = NewBlock();
+						System.Console.WriteLine("ARRAY:InsertValuesRange:--Add(last2)");
 						blocksBuffer.Add(last2);
 						Array.Copy(target.array, j + (blockSize - valuesLastCount), last2.array, 0, targetRightCount - (blockSize - valuesLastCount));
 						last.count = blockSize;
@@ -408,6 +418,8 @@ namespace MulticaretEditor
 			{
 				System.Console.WriteLine("ARRAY:InsertValuesRange:#16" + CheckConsistency());
 				blocks[i] = blocksBuffer.buffer[0];
+				System.Console.WriteLine("ARRAY:InsertValuesRange:blocks[" + i + "]=buffer[0]");
+				System.Console.WriteLine("ARRAY:InsertValuesRange:#16" + CheckConsistency());
 			}
 			else
 			{
@@ -458,6 +470,18 @@ namespace MulticaretEditor
 			return "";
 		}
 		
+		public string CheckBlock(FSBBlock<T> block)
+		{
+			if (block.count > block.array.Length)
+				return "[BLOCK:count=" + block.count + "/Length=" + block.array.Length + "]";
+			for (int i = 0; i < block.count; i++)
+			{
+				if (block.array[i] == null)
+					return "[BLOCK[" + i + "]==null (count=" + block.count + ")]";
+			}
+			return "[BLOCK:OK]";
+		}
+		
 		protected void AllocateBlocks(int blocksCount)
 		{
 			this.blocksCount = blocksCount;
@@ -475,7 +499,7 @@ namespace MulticaretEditor
 		
 		public int GetBlockIndex(int index)
 		{
-			System.Console.WriteLine("ARRAY:GetBlockIndex(" + index + ")/" + CheckConsistency() + " {");
+			//System.Console.WriteLine("ARRAY:GetBlockIndex(" + index + ")/" + CheckConsistency() + " {");
 			int bra = 0;
 			int ket = blocksCount - 1;
 			if (ket >= 0)
@@ -497,20 +521,20 @@ namespace MulticaretEditor
 						block = blocks[bra];
 						if (index >= block.offset && index < block.offset + block.count)
 						{
-							System.Console.WriteLine("ARRAY:}#1");
+							//System.Console.WriteLine("ARRAY:}#1");
 							return bra;
 						}
 						block = blocks[ket];
 						if (index >= block.offset && index < block.offset + block.count)
 						{
-							System.Console.WriteLine("ARRAY:}#2");
+							//System.Console.WriteLine("ARRAY:}#2");
 							return ket;
 						}
 						break;
 					}
 				}
 			}
-			System.Console.WriteLine("ARRAY:}");
+			//System.Console.WriteLine("ARRAY:}");
 			return -1;
 		}
 		

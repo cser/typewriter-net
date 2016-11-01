@@ -439,11 +439,10 @@ namespace MulticaretEditor
 			LineBlock block = null;
 			for (int i = 0; i < blocksCount; i++)
 			{
-				System.Console.WriteLine("#1/" + i);
 				block = blocks[i];
 				if ((block.valid & LineBlock.CharsCountValid) == 0)
 				{
-					System.Console.WriteLine("#11 (block.count==" + block.count + ")");
+					System.Console.WriteLine("[" + i + "]#11 (block.count==" + block.count + ")");
 					block.valid |= LineBlock.CharsCountValid;
 					block.charsCount = 0;
 					for (int j = 0; j < block.count; j++)
@@ -453,7 +452,7 @@ namespace MulticaretEditor
 				}
 				if (index >= charOffset && index < charOffset + block.charsCount)
 				{
-					System.Console.WriteLine("#12");
+					System.Console.WriteLine("[" + i + "]#12");
 					blockIChar = charOffset;
 					int currentJ = 0;
 					for (int j = 0; j < block.count; j++)
@@ -464,9 +463,9 @@ namespace MulticaretEditor
 							break;
 					}
 					blockI = i;
-					System.Console.WriteLine("#13");
+					System.Console.WriteLine("[" + i + "]#13");
 					Place place = new Place(index - charOffset + block.array[currentJ].chars.Count, block.offset + currentJ);
-					System.Console.WriteLine("#14");
+					System.Console.WriteLine("[" + i + "]#14");
 					System.Console.WriteLine("}");
 					return place;
 				}
@@ -892,12 +891,19 @@ namespace MulticaretEditor
 					return "!!BLOCK[" + i + "]==null";
 				if (blocks[i].count > blocks[i].array.Length)
 					return "!!OVERFLOW BLOCKS[" + i + "].count==" + blocks[i].count + "/Length==" + blocks[i].array.Length;
+				string errors = "";
 				for (int j = 0; j < blocks[i].count; j++)
 				{
 					Line line = blocks[i].array[j];
 					if (line == null)
-						return "!!BLOCKS[" + i + "][" + j + "]==null";
+					{
+						if (errors != "")
+							errors += "\n";
+						errors += "!!BLOCKS[" + i + "][" + j + "]==null (blocks[" + i + "].count=" + blocks[i].count + ")";
+					}
 				}
+				if (errors != "")
+					return errors;
 			}
 			return "!!OK";
 		}
