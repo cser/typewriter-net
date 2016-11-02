@@ -11,4 +11,15 @@ except:
 	pass;
 if index != -1:
 	out = out[index:]
-print out
+if not 'EXEC : 1) Test error : UnitTests.FailOnTextEditTest.MastNotFail' in out:
+	print '!! STATUS CHANGED !!'
+else:
+	try:
+		index = out.index('F....................')
+		out = out[:index]
+	except:
+		pass
+for line in out.split('\n'):
+	if line.startswith('    '):
+		line = line[4:]
+	print line

@@ -23,26 +23,32 @@ namespace UnitTests
 		public void MastNotFail()
 		{
 			Console.WriteLine("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-			LineArray lines = new LineArray(200);
+			LineArray lines = new LineArray(100);
 			Controller controller = new Controller(lines);
+			Console.WriteLine("|                      lines.SetText(GetTextExample())");
 			lines.SetText(GetTextExample());
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
+			Console.WriteLine("|                      controller.PutCursor(new Place(0, 799), false)");
 			controller.PutCursor(new Place(0, 799), false);
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
+			Console.WriteLine("|                      controller.PutCursor(new Place(0, 798), true)");
 			controller.PutCursor(new Place(0, 798), true);
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
+			Console.WriteLine("|                      controller.Cut()");
 			controller.Cut();
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
+			Console.WriteLine("|                      controller.PutCursor(new Place(0, 805), false)");
 			controller.PutCursor(new Place(0, 805), false);
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
+			Console.WriteLine("|                      controller.Paste()");
 			controller.Paste();
-			Console.WriteLine(lines.GetDebugText());
-			Console.WriteLine(lines.CheckConsistency());
+			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		}
 	}
