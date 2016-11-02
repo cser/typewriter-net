@@ -40,6 +40,7 @@ namespace UnitTests
 			Console.WriteLine("|                      controller.Cut()");
 			controller.Cut();
 			Console.WriteLine("|                      " + lines.GetDebugText());
+			Console.WriteLine("|                      " + lines.GetFullDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.PutCursor(new Place(0, 805), false)");
 			controller.PutCursor(new Place(0, 305), false);
@@ -50,6 +51,7 @@ namespace UnitTests
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+			Assert.AreEqual(File.ReadAllText("../test_code.txt"), lines.GetText());
 		}
 	}
 }

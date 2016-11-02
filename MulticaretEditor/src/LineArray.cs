@@ -871,6 +871,24 @@ namespace MulticaretEditor
 			return builder.ToString();
 		}
 		
+		public override string GetFullDebugText()
+		{
+			if (blocksCount > blocks.Length)
+			{
+				return "OVERFLOW: " + blocksCount + " > " + blocks.Length;
+			}
+			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+			builder.Append("[");
+			builder.AppendLine();
+			for (int i = 0; i < blocksCount; i++)
+			{
+				builder.Append("--" + GetDebugText(blocks[i]));
+				builder.AppendLine();
+			}
+			builder.Append("]");
+			return builder.ToString();
+		}
+		
 		public override string CheckConsistency()
 		{
 			if (blocksCount > blocks.Length)
