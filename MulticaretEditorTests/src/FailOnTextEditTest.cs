@@ -30,11 +30,11 @@ namespace UnitTests
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.PutCursor(new Place(0, 799), false)");
-			controller.PutCursor(new Place(0, 799), false);
+			controller.PutCursor(new Place(0, 299), false);
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.PutCursor(new Place(0, 798), true)");
-			controller.PutCursor(new Place(0, 798), true);
+			controller.PutCursor(new Place(0, 298), true);
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.Cut()");
@@ -42,7 +42,7 @@ namespace UnitTests
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.PutCursor(new Place(0, 805), false)");
-			controller.PutCursor(new Place(0, 805), false);
+			controller.PutCursor(new Place(0, 305), false);
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine("|                      controller.Paste()");
