@@ -16,22 +16,6 @@ namespace MulticaretEditor
 		public int wwSizeX = 0;
 		public PredictableList<CutOff> cutOffs = new PredictableList<CutOff>(2);
 		public int lastSublineSizeX;
-		
-		private static int debugIndex;
-		
-		private string debugText;
-		
-		public Line()
-		{
-			debugIndex++;
-			string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-			debugText = chars[debugIndex % chars.Length] + "";
-		}
-		
-		override public string ToString()
-		{
-			return debugText;
-		}
 
 		public void SetStyle(int index, short style)
 		{

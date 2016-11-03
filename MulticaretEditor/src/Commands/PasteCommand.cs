@@ -42,8 +42,6 @@ namespace MulticaretEditor.Commands
 		
 		override public void Redo()
 		{
-			System.Console.WriteLine("Redo() {");
-			System.Console.WriteLine("REDO:" + lines.CheckConsistency());
 			deleted = new string[mementos.Length];
 			int offset = 0;
 			for (int i = 0; i < mementos.Length; i++)
@@ -53,19 +51,14 @@ namespace MulticaretEditor.Commands
 				memento.caret += offset;
 				string deletedI = lines.GetText(memento.Left, memento.Count);
 				string pastedI = pasted[i];
-				System.Console.WriteLine("REDO[" + i + "]#1:" + lines.CheckConsistency());
 				lines.RemoveText(memento.Left, memento.Count);
-				System.Console.WriteLine("REDO[" + i + "]#2:" + lines.CheckConsistency());
 				lines.InsertText(memento.Left, pastedI);
-				System.Console.WriteLine("REDO[" + i + "]#3:" + lines.GetDebugText());
-				System.Console.WriteLine("REDO[" + i + "]#4:" + lines.CheckConsistency());
 				memento.caret += pastedI.Length;
 				memento.anchor += pastedI.Length;
 				offset += -memento.Count + pastedI.Length;
 				mementos[i] = memento;
 				deleted[i] = deletedI;
 			}
-			System.Console.WriteLine("REDO#1");
 			SetSelectionMementos(mementos);
 			foreach (Selection selection in selections)
 			{
@@ -74,9 +67,7 @@ namespace MulticaretEditor.Commands
 				Place place = lines.PlaceOf(selection.caret);
 				lines.SetPreferredPos(selection, place);
 			}
-			System.Console.WriteLine("REDO#2");
 			lines.JoinSelections();
-			System.Console.WriteLine("}");
 		}
 		
 		override public void Undo()
