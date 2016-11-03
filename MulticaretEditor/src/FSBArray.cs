@@ -247,13 +247,18 @@ namespace MulticaretEditor
 		
 		protected void InsertValuesRange(int index, T[] values)
 		{
-			System.Console.WriteLine("RANGE:////////////////////////////////(" + index + ", " + values + ")///////////////");
+			string debugText = "[";
+			foreach (T value in values)
+			{
+				debugText += value;
+			}
+			debugText += "]";
+			System.Console.WriteLine("RANGE:////////////////////////////////(" + index + ", " + debugText + ")///////////////");
 			System.Console.WriteLine("RANGE:" + CheckConsistency());
 			System.Console.WriteLine("RANGE:" + GetFullDebugText());
 			if (index > this.valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + this.valuesCount + "]");
 			int valuesCount = values.Length;
-			System.Console.WriteLine("RANGE:valuesCount=" + valuesCount);
 			int i;
 			if (this.valuesCount == 0)
 			{
@@ -321,21 +326,22 @@ namespace MulticaretEditor
 					firstJ = j - (blockSize - leftCount);
 					System.Console.WriteLine("RANGE:    blocksBuffer.Add(first)");
 					blocksBuffer.Add(first);
-					System.Console.WriteLine("RANGE:    left=" + GetDebugText(left));
-					System.Console.WriteLine("RANGE:    (blockSize=" + blockSize + "-leftCount=" + leftCount + ")=" + (blockSize - leftCount));
+					
+					System.Console.WriteLine("RANGE:    /target=" + GetDebugText(target));
+					System.Console.WriteLine("RANGE:    /left=  " + GetDebugText(left));
 					System.Console.WriteLine("RANGE:    Array.Copy(target.array, 0, left.array, " + leftCount + ", " + (blockSize - leftCount) + ")");
 					Array.Copy(target.array, 0, left.array, leftCount, blockSize - leftCount);
-					System.Console.WriteLine("RANGE:    target=" + GetDebugText(first));
-					System.Console.WriteLine("RANGE:    Array.Copy(target.array, 0, first.array, " + (blockSize - leftCount) + ", " + (j - (blockSize - leftCount)) + ") (j==" + j + ")");
-					Array.Copy(target.array, 0, first.array, 0, j - (blockSize - leftCount));
 					left.count = blockSize;
-                    left.valid = 0;
+					left.valid = 0;
                     left.wwSizeX = 0;
-                    System.Console.WriteLine("RANGE:    left=" + GetDebugText(left));
-					System.Console.WriteLine("RANGE:    target=" + GetDebugText(target));
+					System.Console.WriteLine("RANGE:    \\left=  " + GetDebugText(left));
+					
+					System.Console.WriteLine("RANGE:    /target=" + GetDebugText(target));
+					System.Console.WriteLine("RANGE:    /first= " + GetDebugText(first));
+					System.Console.WriteLine("RANGE:    Array.Copy(target.array, 0, first.array, " + (blockSize - leftCount) + ", " + (j - (blockSize - leftCount)) + ") (j==" + j + ")");
+					Array.Copy(target.array, blockSize - leftCount, first.array, 0, j - (blockSize - leftCount));
 					first.count = j - (blockSize - leftCount);
-					System.Console.WriteLine("RANGE:    first.count=" + j + "-(" + blockSize + "-" + leftCount + ")=" + first.count);
-					System.Console.WriteLine("RANGE:    first=" + GetDebugText(first));
+					System.Console.WriteLine("RANGE:    \\first= " + GetDebugText(first));
 				}
                 first.valid = 0;
                 first.wwSizeX = 0;
@@ -354,15 +360,17 @@ namespace MulticaretEditor
 				System.Console.WriteLine("RANGE:#IF (first.count=" + first.count + ") + (valuesCount=" + valuesCount + ") + (targetRightCount=" + targetRightCount +") <= blockSize");
 				System.Console.WriteLine("RANGE:  #13");
 				// first: [--------|-values-|-targetRight-|---]
-				System.Console.WriteLine("RANGE:  first=" + GetDebugText(first));
+				System.Console.WriteLine("RANGE:  /values=" + debugText);
+				System.Console.WriteLine("RANGE:  /first= " + GetDebugText(first));
 				System.Console.WriteLine("RANGE:  Array.Copy(values, 0, first.array, first.count, valuesCount)");
 				Array.Copy(values, 0, first.array, first.count, valuesCount);
 				first.count += valuesCount;
-				System.Console.WriteLine("RANGE:  first=" + GetDebugText(first));
+				System.Console.WriteLine("RANGE:  \\first= " + GetDebugText(first));
+				System.Console.WriteLine("RANGE:  /first= " + GetDebugText(first));
 				System.Console.WriteLine("RANGE:  Array.Copy(target.array, j, first.array, first.count + valuesCount, targetRightCount)");
 				Array.Copy(target.array, j, first.array, first.count, targetRightCount);
 				first.count += targetRightCount;
-				System.Console.WriteLine("RANGE:  first=" + GetDebugText(first));
+				System.Console.WriteLine("RANGE:  \\first= " + GetDebugText(first));
 			}
 			else if (first.count + valuesCount <= blockSize)
 			{
@@ -497,7 +505,7 @@ namespace MulticaretEditor
 			for (int i = 0; i < block.array.Length; i++)
 			{
 				if (i < block.count)
-					result += block.array[i] != null ? "@" : "_";
+					result += block.array[i] != null ? block.array[i].ToString() : "_";
 				else
 					result += block.array[i] != null ? "." : " ";
 			}

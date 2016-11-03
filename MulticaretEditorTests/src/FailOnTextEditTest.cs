@@ -51,7 +51,7 @@ namespace UnitTests
 			Console.WriteLine("|                      " + lines.GetDebugText());
 			Console.WriteLine("|                      " + lines.CheckConsistency());
 			Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-			Assert.AreEqual(File.ReadAllText("../test_code.txt"), lines.GetText());
+			Assert.AreEqual(File.ReadAllText("../test_code_after.txt"), lines.GetText());
 		}
 	}
 }
