@@ -44,5 +44,19 @@ namespace UnitTests
 			controller.Cut();
 			Assert.AreEqual(File.ReadAllText("../test_code_2_after.txt"), lines.GetText());
 		}
+		
+		[Test]
+		public void MastNotFail_3()
+		{
+			Debug.Log("<<<");
+			LineArray lines = new LineArray(3);
+			Controller controller = new Controller(lines);
+			lines.SetText(File.ReadAllText("../test_code_3.txt"));
+			controller.PutCursor(new Place(1, 45), false);
+			controller.PutCursor(new Place(1, 44), true);
+			controller.EraseSelection();
+			Assert.AreEqual(File.ReadAllText("../test_code_3_after.txt"), lines.GetText());
+			Debug.Log(">>>");
+		}
 	}
 }
