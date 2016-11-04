@@ -1,4 +1,5 @@
 - autocomplete for files moving
+- select file name without extension on rename
 - find in files with custom filter
 - show filter in find dialog
 - show filter in file search dialog
