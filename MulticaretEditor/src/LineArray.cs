@@ -321,7 +321,7 @@ namespace MulticaretEditor
 				}
 				if (needMerge && block.offset + lineJ + 1 < valuesCount)
 				{
-					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[lineJ + 1].array[0];// fails
+					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[blockI + 1].array[0];// fails
 					start.chars.AddRange(next.chars);
 					countToRemove++;
 				}
