@@ -185,12 +185,15 @@ namespace MulticaretEditor
 		
 		protected void RemoveValuesRange(int index, int count)
 		{
+			Debug.Begin("RemoveValuesRange(" + index + ", " + count + ")");
 			if (index + count > this.valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + ", count=" + count + " is out of [0, " + this.valuesCount + ")");
 			if (count == 0)
 			{
+				Debug.End();
 				return;
 			}
+			Debug.Log("#1");
 			int startI = GetBlockIndex(index);
 			int endI = GetBlockIndex(index + count - 1);
 			if (endI == -1)
@@ -203,14 +206,22 @@ namespace MulticaretEditor
 			int endJ = index + count - end.offset;
 			if (blockSize - startJ >= end.count - endJ)
 			{
+				Debug.Log("#3");
 				// joins even if startI == endI
 				Array.Copy(end.array, endJ, start.array, startJ, end.count - endJ);
 				int oldLeftCount = start.count;
 				start.count = startJ + end.count - endJ;
                 start.valid = 0;
                 start.wwSizeX = 0;
-				Array.Clear(start.array, start.count, oldLeftCount - start.count);// FIXME fails here in difficult case
+                Debug.Log("oldLeftCount=" + oldLeftCount + " start.count=" + start.count);
+                Debug.Log("Array.Clear(start.array, " + start.count + ", " + (oldLeftCount - start.count) + ")");
+                if (oldLeftCount > start.count)
+                {
+					Array.Clear(start.array, start.count, oldLeftCount - start.count);
+				}
+				Debug.Log("#31");
 				RemoveBlocks(start.count == 0 ? startI : startI + 1, endI + 1);
+				Debug.Log("#32");
 			}
 			else
 			{
@@ -230,9 +241,11 @@ namespace MulticaretEditor
 			}
 			if (startI - 1 >= 0 && startI < blocksCount)
 			{
+				Debug.Log("#5");
 				start = blocks[startI];
 				if (blockSize - blocks[startI - 1].count >= start.count)
 				{
+					Debug.Log("#6");
 					TBlock prev = blocks[startI - 1];
 					Array.Copy(start.array, 0, prev.array, prev.count, start.count);
 					prev.count += start.count;
@@ -241,7 +254,9 @@ namespace MulticaretEditor
 					RemoveBlocks(startI, startI + 1);
 				}
 			}
+			Debug.Log("#7");
 			UpdateIndices(startI);
+			Debug.End();
 		}
 		
 		private PredictableList<TBlock> blocksBuffer = new PredictableList<TBlock>();
