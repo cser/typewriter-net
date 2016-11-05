@@ -141,6 +141,7 @@ namespace MulticaretEditor
 		
 		protected void RemoveValueAt(int index)
 		{
+			Debug.Begin("RemoveValueAt(" + index + ")");
 			if (index >= valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + valuesCount + ")");
 			int i = GetBlockIndex(index);
@@ -181,6 +182,7 @@ namespace MulticaretEditor
 				}
 			}
 			UpdateIndices(i);
+			Debug.End();
 		}
 		
 		protected void RemoveValuesRange(int index, int count)

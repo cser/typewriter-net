@@ -53,7 +53,8 @@
 			sharpManager.Close();
 	}
 
-	
+	public KeyMapNode MenuNode { get { return menu.node; } }
+
 	private MulticaretTextBox focusedTextBox;
 	public Controller FocusedController { get { return focusedTextBox != null ? focusedTextBox.Controller : null; } }
 
