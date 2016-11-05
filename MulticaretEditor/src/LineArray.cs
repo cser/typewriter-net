@@ -239,6 +239,7 @@ namespace MulticaretEditor
 		public void RemoveText(int index, int count)
 		{
 			Debug.Begin("RemoveText(" + index + ", count=" + count + ")");
+			Debug.Log("/" + Debug_CheckConsistency());
 			if (index < 0 || index + count > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
@@ -251,6 +252,7 @@ namespace MulticaretEditor
 			Place place = PlaceOf(index, out blockI, out blockIChar);
 			Debug.Log("place=" + place);
 			LineBlock block = blocks[blockI];
+			Debug.Log(Debug_GetBlockInfo(block, blockI + ""));
 			int startJ = place.iLine - block.offset;
 			Line start = block.array[startJ];
 			if (place.iChar + count <= start.chars.Count)
@@ -282,22 +284,27 @@ namespace MulticaretEditor
 			}
 			else
 			{
+				block.valid = 0;
+				block.wwSizeX = 0;
 				int lineJ = startJ;
 				int k = start.chars.Count - place.iChar;
 				int countToRemove = -1;
 				Line line = start;
 				while (k < count)
 				{
+					Debug.Begin("WHILE k=" + k + " < count=" + count);
 					lineJ++;
 					countToRemove++;
 					if (lineJ >= block.count)
 					{
 						blockI++;
 						block = blocks[blockI];
+						Debug.Log(Debug_GetBlockInfo(block, blockI + ""));
 						lineJ = 0;
 					}
 					line = block.array[lineJ];
 					k += line.chars.Count;
+					Debug.End();
 				}
 				Line end = line;
 				start.chars.RemoveRange(place.iChar, start.chars.Count - place.iChar);// fails
@@ -336,6 +343,7 @@ namespace MulticaretEditor
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
+			Debug.Log("\\" + Debug_CheckConsistency());
 			Debug.End();
 		}
 
@@ -804,5 +812,41 @@ namespace MulticaretEditor
 		public Place markedBracket1;
 
 		public List<StyleRange> ranges;
+		
+		public string Debug_CheckConsistency()
+		{
+			int offsetChars = 0;
+			for (int i = 0; i < blocksCount; i++)
+			{
+				LineBlock block = blocks[i];
+				if ((block.valid & LineBlock.CharsCountValid) == 0)
+					return "OK [i=" + i + "] (without validation)";
+				offsetChars += block.charsCount;
+				int offsetCharsI = 0;
+				for (int j = 0; j < block.count; j++)
+				{
+					offsetCharsI += block.array[j].chars.Count;
+				}
+				if (offsetCharsI != block.charsCount)
+					return "ERROR [i=" + i + "] (offsetCharsI=" + offsetCharsI + " != block.charsCount=" + block.charsCount + ")\n" + Debug_GetBlockInfo(block, "");
+			}
+			if (offsetChars != charsCount)
+				return "ERROR (offsetChars=" + offsetChars + " != charsCount=" + charsCount + ")";
+			return "OK";
+		}
+		
+		public string Debug_GetBlockInfo(LineBlock block, string name)
+		{
+			string text = "BLOCK[" + name + "]" + ((block.valid & LineBlock.CharsCountValid) != 0 ? " - valid" : "") + " [\n";
+			int charsCount = 0;
+			for (int i = 0; i < block.count; i++)
+			{
+				Line line = block.array[i];
+				text += "\t[" + i + ":" + line.chars.Count + "] " + line.Text.Replace("\n", "\\n").Replace("\r", "\\r") + "\n";
+				charsCount += line.chars.Count;
+			}
+			text += "] expected:" + block.charsCount + ", was:" + charsCount;
+			return text;
+		}
 	}
 }

@@ -198,14 +198,16 @@ namespace MulticaretEditor
 			int startI = GetBlockIndex(index);
 			Debug.Log("startI=GetBlockIndex(" + index + ")=" + startI);
 			int endI = GetBlockIndex(index + count - 1);
+			Debug.Log("endI=GetBlockIndex(" + (index + count - 1) + ")=" + endI);
 			if (endI == -1)
+			{
 				endI = startI;
+				Debug.Log("endI=" + endI);
+			}
 			TBlock start = blocks[startI];
-			Debug.Log("start=" + start);
 			TBlock end = blocks[endI];
 			int startJ = index - start.offset;
 			int endJ = index + count - end.offset;
-			Debug.Log("startI=" + startI + " endI=" + endI);
 			Debug.Log("startJ=" + startJ + " endJ=" + endJ);
 			if (blockSize - startJ >= end.count - endJ)
 			{
