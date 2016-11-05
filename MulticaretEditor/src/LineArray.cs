@@ -238,21 +238,16 @@ namespace MulticaretEditor
 
 		public void RemoveText(int index, int count)
 		{
-			Debug.Begin("RemoveText(" + index + ", count=" + count + ")");
-			Debug.Log("/" + Debug_CheckConsistency());
 			if (index < 0 || index + count > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
 			{
-				Debug.End();
 				return;
 			}
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
-			Debug.Log("place=" + place);
 			LineBlock block = blocks[blockI];
-			Debug.Log(Debug_GetBlockInfo(block, blockI + ""));
 			int startJ = place.iLine - block.offset;
 			Line start = block.array[startJ];
 			if (place.iChar + count <= start.chars.Count)
@@ -292,19 +287,16 @@ namespace MulticaretEditor
 				Line line = start;
 				while (k < count)
 				{
-					Debug.Begin("WHILE k=" + k + " < count=" + count);
 					lineJ++;
 					countToRemove++;
 					if (lineJ >= block.count)
 					{
 						blockI++;
 						block = blocks[blockI];
-						Debug.Log(Debug_GetBlockInfo(block, blockI + ""));
 						lineJ = 0;
 					}
 					line = block.array[lineJ];
 					k += line.chars.Count;
-					Debug.End();
 				}
 				Line end = line;
 				start.chars.RemoveRange(place.iChar, start.chars.Count - place.iChar);// fails
@@ -331,7 +323,7 @@ namespace MulticaretEditor
 				}
 				if (needMerge && block.offset + lineJ + 1 < valuesCount)
 				{
-					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[blockI + 1].array[0];// fails
+					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[blockI + 1].array[0];
 					start.chars.AddRange(next.chars);
 					countToRemove++;
 				}
@@ -343,8 +335,6 @@ namespace MulticaretEditor
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
-			Debug.Log("\\" + Debug_CheckConsistency());
-			Debug.End();
 		}
 
 		public string GetText(int index, int count)

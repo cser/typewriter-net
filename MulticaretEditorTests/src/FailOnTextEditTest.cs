@@ -60,7 +60,6 @@ namespace UnitTests
 		[Test]
 		public void MastNotFail_4()
 		{
-			Debug.Log("<<<");
 			LineArray lines = new LineArray(4);
 			Controller controller = new Controller(lines);
 			lines.SetText(File.ReadAllText("../test_code_4.txt"));
@@ -71,16 +70,9 @@ namespace UnitTests
 			controller.PutNewCursor(new Place(1, 321 - 1));
 			controller.PutCursor(new Place(1, 321 - 0), true);
 			
-			Assert.AreEqual(new Place(1, 321 - 1), lines.PlaceOf(lines.IndexOf(new Place(1, 321 - 1))));
-			Debug.Log("!!" + lines.GetText(
-				lines.IndexOf(new Place(1, 321 - 1)),
-				lines.IndexOf(new Place(1, 321 - 0)) - lines.IndexOf(new Place(1, 321 - 1))
-			));
-			
 			controller.EraseSelection();
 			
 			Assert.AreEqual(File.ReadAllText("../test_code_4_after.txt"), lines.GetText());
-			Debug.Log(">>>");
 		}
 	}
 }

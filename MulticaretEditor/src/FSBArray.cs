@@ -141,7 +141,6 @@ namespace MulticaretEditor
 		
 		protected void RemoveValueAt(int index)
 		{
-			Debug.Begin("RemoveValueAt(" + index + ")");
 			if (index >= valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + " is out of [0, " + valuesCount + ")");
 			int i = GetBlockIndex(index);
@@ -182,48 +181,36 @@ namespace MulticaretEditor
 				}
 			}
 			UpdateIndices(i);
-			Debug.End();
 		}
 		
 		protected void RemoveValuesRange(int index, int count)
 		{
-			Debug.Begin("RemoveValuesRange(" + index + ", " + count + ")");
 			if (index + count > this.valuesCount || index < 0)
 				throw new IndexOutOfRangeException("index=" + index + ", count=" + count + " is out of [0, " + this.valuesCount + ")");
 			if (count == 0)
 			{
-				Debug.End();
 				return;
 			}
 			int startI = GetBlockIndex(index);
-			Debug.Log("startI=GetBlockIndex(" + index + ")=" + startI);
 			int endI = GetBlockIndex(index + count - 1);
-			Debug.Log("endI=GetBlockIndex(" + (index + count - 1) + ")=" + endI);
 			if (endI == -1)
 			{
 				endI = startI;
-				Debug.Log("endI=" + endI);
 			}
 			TBlock start = blocks[startI];
 			TBlock end = blocks[endI];
 			int startJ = index - start.offset;
 			int endJ = index + count - end.offset;
-			Debug.Log("startJ=" + startJ + " endJ=" + endJ);
 			if (blockSize - startJ >= end.count - endJ)
 			{
 				// joins even if startI == endI
-				Debug.Log("#1");
 				Array.Copy(end.array, endJ, start.array, startJ, end.count - endJ);
 				int oldLeftCount = start.count;
 				start.count = startJ + end.count - endJ;
                 start.valid = 0;
                 start.wwSizeX = 0;
-                Debug.Log("start.array=" + (start.array != null ? start.array + "" : "null"));
-                Debug.Log("Array.Clear(start.array, start.count=" + start.count + ", oldLeftCount=" + oldLeftCount + " - start.count=" + start.count + ")");
 				Array.Clear(start.array, start.count, oldLeftCount - start.count);// FIXME fails here in difficult case
-				Debug.Log("RemoveBlocks(" + (start.count == 0 ? startI : startI + 1) + ", " + (endI + 1) + ")");
 				RemoveBlocks(start.count == 0 ? startI : startI + 1, endI + 1);
-				Debug.Log("#12");
 			}
 			else
 			{
@@ -241,14 +228,11 @@ namespace MulticaretEditor
 				
 				RemoveBlocks(startI + 1, endI);
 			}
-			Debug.Log("#3");
 			if (startI - 1 >= 0 && startI < blocksCount)
 			{
 				start = blocks[startI];
-				Debug.Log("start=blocks[startI=" + startI + "]=" + start + "/blocksCount=" + blocksCount);
 				if (blockSize - blocks[startI - 1].count >= start.count)
 				{
-					Debug.Log("#5");
 					TBlock prev = blocks[startI - 1];
 					Array.Copy(start.array, 0, prev.array, prev.count, start.count);
 					prev.count += start.count;
@@ -257,10 +241,7 @@ namespace MulticaretEditor
 					RemoveBlocks(startI, startI + 1);
 				}
 			}
-			Debug.Log("#6");
 			UpdateIndices(startI);
-			Debug.Log("#7");
-			Debug.End();
 		}
 		
 		private PredictableList<TBlock> blocksBuffer = new PredictableList<TBlock>();
