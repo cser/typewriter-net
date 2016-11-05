@@ -65,9 +65,6 @@ namespace UnitTests
 			Controller controller = new Controller(lines);
 			lines.SetText(File.ReadAllText("../test_code_4.txt"));
 			
-			controller.PutCursor(new Place(1, 56 - 1), false);
-			controller.PutCursor(new Place(0, 56 - 0), true);
-			
 			controller.PutCursor(new Place(1, 316 - 1), false);
 			controller.PutCursor(new Place(1, 316 - 0), true);
 			

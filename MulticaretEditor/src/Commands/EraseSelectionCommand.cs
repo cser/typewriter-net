@@ -22,6 +22,13 @@ namespace MulticaretEditor.Commands
 		{
 			deleted = new string[mementos.Length];
 			int offset = 0;
+			for (int i = 0; i < mementos.Length; i++)//TODO remove
+			{
+				SelectionMemento memento = mementos[i];
+				Place place0 = lines.PlaceOf(memento.Left);
+				Place place1 = lines.PlaceOf(memento.Right);
+				Debug.Log("[" + i + "]: (" + memento.caret + ", " + memento.anchor + ") - " + place0 + ", " + place1);
+			}
 			for (int i = 0; i < mementos.Length; i++)
 			{
 				SelectionMemento memento = mementos[i];
@@ -31,6 +38,7 @@ namespace MulticaretEditor.Commands
 				if (!memento.Empty)
 				{
 					deletedI = lines.GetText(memento.Left, memento.Count);
+					Debug.Log("lines.RemoveText(memento.Left, memento.Count)");
 					lines.RemoveText(memento.Left, memento.Count);
 					offset -= memento.Count;
 				}
