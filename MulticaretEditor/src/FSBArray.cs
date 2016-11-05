@@ -203,8 +203,11 @@ namespace MulticaretEditor
 			TBlock end = blocks[endI];
 			int startJ = index - start.offset;
 			int endJ = index + count - end.offset;
+			Debug.Log("startI=" + startI + " endI=" + endI);
+			Debug.Log("startJ=" + startJ + " endJ=" + endJ);
 			if (blockSize - startJ >= end.count - endJ)
 			{
+				// joins even if startI == endI
 				Debug.Log("#1");
 				Array.Copy(end.array, endJ, start.array, startJ, end.count - endJ);
 				int oldLeftCount = start.count;
@@ -214,7 +217,7 @@ namespace MulticaretEditor
                 Debug.Log("start.array=" + (start.array != null ? start.array + "" : "null"));
                 Debug.Log("Array.Clear(start.array, start.count=" + start.count + ", oldLeftCount=" + oldLeftCount + " - start.count=" + start.count + ")");
 				Array.Clear(start.array, start.count, oldLeftCount - start.count);// FIXME fails here in difficult case
-				Debug.Log("#11");
+				Debug.Log("RemoveBlocks(" + (start.count == 0 ? startI : startI + 1) + ", " + (endI + 1) + ")");
 				RemoveBlocks(start.count == 0 ? startI : startI + 1, endI + 1);
 				Debug.Log("#12");
 			}
@@ -235,9 +238,10 @@ namespace MulticaretEditor
 				RemoveBlocks(startI + 1, endI);
 			}
 			Debug.Log("#3");
-			if (startI - 1 >= 0)
+			if (startI - 1 >= 0 && startI < blocksCount)
 			{
 				start = blocks[startI];
+				Debug.Log("start=blocks[startI=" + startI + "]=" + start + "/blocksCount=" + blocksCount);
 				if (blockSize - blocks[startI - 1].count >= start.count)
 				{
 					Debug.Log("#5");

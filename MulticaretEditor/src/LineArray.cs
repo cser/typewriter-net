@@ -238,15 +238,18 @@ namespace MulticaretEditor
 
 		public void RemoveText(int index, int count)
 		{
+			Debug.Begin("RemoveText(" + index + ", count=" + count + ")");
 			if (index < 0 || index + count > charsCount)
 				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
 			{
+				Debug.End();
 				return;
 			}
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
+			Debug.Log("place=" + place);
 			LineBlock block = blocks[blockI];
 			int startJ = place.iLine - block.offset;
 			Line start = block.array[startJ];
@@ -333,6 +336,7 @@ namespace MulticaretEditor
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
+			Debug.End();
 		}
 
 		public string GetText(int index, int count)
