@@ -74,5 +74,33 @@ namespace UnitTests
 			
 			Assert.AreEqual(File.ReadAllText("../test_code_4_after.txt"), lines.GetText());
 		}
+		
+		[Test]
+		public void MastNotFail_4_1()
+		{
+			LineArray lines = new LineArray(4);
+			Controller controller = new Controller(lines);
+			lines.SetText(File.ReadAllText("../test_code_4.txt"));
+			
+			controller.PutCursor(new Place(1, 56 - 1), false);
+			controller.PutNewCursor(new Place(1, 59 - 1));
+			controller.PutNewCursor(new Place(1, 61 - 1));
+			controller.PutNewCursor(new Place(1, 67 - 1));
+			controller.PutNewCursor(new Place(1, 69 - 1));
+			controller.PutNewCursor(new Place(1, 79 - 1));
+			controller.PutNewCursor(new Place(1, 145 - 1));
+			controller.PutNewCursor(new Place(1, 168 - 1));
+			controller.PutNewCursor(new Place(1, 171 - 1));
+			controller.PutNewCursor(new Place(1, 316 - 1));
+			controller.PutNewCursor(new Place(1, 321 - 1));
+			controller.PutNewCursor(new Place(1, 326 - 1));
+			controller.PutNewCursor(new Place(1, 342 - 1));
+			controller.MoveDown(true);
+			controller.MoveDown(true);
+			
+			controller.EraseSelection();
+			
+			Assert.AreEqual(File.ReadAllText("../test_code_4_1_after.txt"), lines.GetText());
+		}
 	}
 }
