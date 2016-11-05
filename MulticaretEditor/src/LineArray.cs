@@ -19,7 +19,7 @@ namespace MulticaretEditor
 			scroller = new Scroller(this);
 		}
 
-		public LineArray() : this(3)
+		public LineArray() : this(4)
 		{
 		}
 

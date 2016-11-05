@@ -48,7 +48,6 @@ namespace UnitTests
 		[Test]
 		public void MastNotFail_3()
 		{
-			Debug.Log("<<<");
 			LineArray lines = new LineArray(3);
 			Controller controller = new Controller(lines);
 			lines.SetText(File.ReadAllText("../test_code_3.txt"));
@@ -56,6 +55,28 @@ namespace UnitTests
 			controller.PutCursor(new Place(1, 44), true);
 			controller.EraseSelection();
 			Assert.AreEqual(File.ReadAllText("../test_code_3_after.txt"), lines.GetText());
+		}
+		
+		[Test]
+		public void MastNotFail_4()
+		{
+			Debug.Log("<<<");
+			LineArray lines = new LineArray(4);
+			Controller controller = new Controller(lines);
+			lines.SetText(File.ReadAllText("../test_code_4.txt"));
+			
+			controller.PutCursor(new Place(1, 56 - 1), false);
+			controller.PutCursor(new Place(0, 56 - 0), true);
+			
+			controller.PutCursor(new Place(1, 316 - 1), false);
+			controller.PutCursor(new Place(1, 316 - 0), true);
+			
+			controller.PutNewCursor(new Place(1, 321 - 1));
+			controller.PutCursor(new Place(1, 321 - 0), true);
+			
+			controller.EraseSelection();
+			
+			Assert.AreEqual(File.ReadAllText("../test_code_4_after.txt"), lines.GetText());
 			Debug.Log(">>>");
 		}
 	}
