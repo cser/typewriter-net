@@ -1,0 +1,377 @@
+		if (fileText == null)
+			return false;
+		return buffer.Controller.Lines.GetText() == fileText;
+	}
+
+	private void OpenEmptyIfNeed()
+	{
+		if (mainNest.Frame == null)
+			new Frame().Create(mainNest);
+		if (mainNest.buffers.list.Count == 0)
+		{
+			Buffer buffer = NewFileBuffer();
+			mainNest.Frame.AddBuffer(buffer);
+		}
+	}
+
+	private void RemoveEmptyIfNeed()
+	{
+		Buffer buffer = null;
+		for (int i = mainNest.buffers.list.Count; i-- > 0;)
+		{
+			Buffer bufferI = mainNest.buffers.list[i];
+			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory &&
+				bufferI.Name == UntitledTxt)
+			{
+				buffer = bufferI;
+				break;
+			}
+		}
+		if (buffer != null)
+			mainNest.buffers.list.Remove(buffer);
+		
+		CloseOldBuffers();
+	}
+
+	private bool forbidTempSaving = false;
+
+	private void OnFormClosing(object sender, FormClosingEventArgs e)
+	{
+		foreach (Buffer buffer in frames.GetBuffers(BufferTag.File))
+		{
+			if (buffer.onRemove != null && !buffer.onRemove(buffer))
+			{
+				e.Cancel = true;
+				break;
+			}
+		}
+		if (_helpBuffer != null && _helpBuffer.onRemove != null)
+			_helpBuffer.onRemove(_helpBuffer);
+		if (!forbidTempSaving)
+			tempSettings.Save(tempFilePostfix);
+		if (sharpManager != null)
+			sharpManager.Close();
+	}
+
+	private MulticaretTextBox focusedTextBox;
+	public MulticaretTextBox GetFocusedTextBox()
+	{
+		return focusedTextBox;
+	}
+
+	private Frame lastFrame;
+	public Frame LastFrame { get { return lastFrame; } }
+
+	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
+	{
+		focusedTextBox = textBox;
+		menu.node = node;
+		if (frame != null)
+			lastFrame = frame;
+		UpdateTitle();
+	}
+	
+	private SharpManager sharpManager;
+	public SharpManager SharpManager { get { return sharpManager; } }
+
+	private void ApplySettings()
+	{
+		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
+		settings.Parsed = true;
+		BackColor = settings.ParsedScheme.bgColor;
+		TopMost = settings.alwaysOnTop.Value;
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
+		frames.UpdateSettings(settings, UpdatePhase.Parsed);
+		sharpManager.UpdateSettings(settings);
+		if (fileTree != null)
+		    fileTree.ReloadIfNeedForSettings();
+		if (settings.hideMenu.Value)
+		{
+			if (Menu != null)
+				Menu = null;
+		}
+		else
+		{
+			if (Menu != menu)
+				Menu = menu;
+		}
+		if (settings.fullScreenOnMaximized.Value)
+		{
+			if (WindowState == FormWindowState.Maximized)
+			{
+				if (FormBorderStyle != FormBorderStyle.None)
+				{
+					ignoreBorderStyleChanging = true;
+					WindowState = FormWindowState.Normal;
+					FormBorderStyle = FormBorderStyle.None;
+					WindowState = FormWindowState.Maximized;
+					ignoreBorderStyleChanging = false;
+				}
+			}
+			else
+			{
+				if (FormBorderStyle != FormBorderStyle.Sizable)
+				{
+					FormBorderStyle = FormBorderStyle.Sizable;
+				}
+			}
+		}
+		else
+		{
+			if (FormBorderStyle != FormBorderStyle.Sizable)
+			{
+				FormBorderStyle = FormBorderStyle.Sizable;
+			}
+		}
+	}
+	
+	protected override void OnClientSizeChanged(EventArgs e)
+	{
+		if (!ignoreBorderStyleChanging)
+		{
+			if (windowState != WindowState)
+			{
+				windowState = WindowState;
+				needUpdateBorderStyle = true;
+			}
+		}
+		base.OnClientSizeChanged(e);
+	}
+
+	public void DoResize()
+	{
+		frames.Resize(0, 0, ClientSize);
+	}
+
+	private Nest AddNest(bool hDivided, bool left, bool isPercents, TempSettingsInt settingsInt)
+	{
+		Nest nest = frames.AddParentNode();
+		nest.hDivided = hDivided;
+		nest.left = left;
+		nest.isPercents = isPercents;
+		nest.size = settingsInt.value;
+		nest.settingsSize = settingsInt;
+		return nest;
+	}
+
+	override protected void OnResize(EventArgs e)
+	{
+		base.OnResize(e);
+		DoResize();
+	}
+
+	private KeyMap keyMap;
+	public KeyMap KeyMap { get { return keyMap; } }
+
+	private KeyMap doNothingKeyMap;
+	public KeyMap DoNothingKeyMap { get { return doNothingKeyMap; } }
+
+	private void BuildMenu()
+	{
+		keyMap = new KeyMap();
+		doNothingKeyMap = new KeyMap();
+
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
+
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
+			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
+		
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
+			new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)
+			.SetGetText(GetFindRegex)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null,
+			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
+			.SetGetText(GetFindIgnoreCase)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null,
+			new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)
+			.SetGetText(GetFindEscape)));
+
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
+			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null,
+			new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null,
+			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
+			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null,
+			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null,
+			new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null,
+			new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null,
+			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
+			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
+			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
+
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
+			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F2, null,
+			new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null,
+			new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
+			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null,
+			new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F4, null,
+			new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F5, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
+			.SetGetText(GetF5CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F5, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)
+			.SetGetText(GetShiftF5CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F6, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)
+			.SetGetText(GetF6CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F6, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)
+			.SetGetText(GetShiftF6CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F7, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)
+			.SetGetText(GetF7CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F7, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)
+			.SetGetText(GetShiftF7CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F8, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)
+			.SetGetText(GetF8CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F8, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)
+			.SetGetText(GetShiftF8CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F9, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)
+			.SetGetText(GetF9CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F9, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)
+			.SetGetText(GetShiftF9CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F11, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)
+			.SetGetText(GetF11CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F11, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)
+			.SetGetText(GetShiftF11CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.F12, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			.SetGetText(GetF12CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)
+			.SetGetText(GetShiftF12CommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)
+			.SetGetText(GetCtrlSpaceCommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
+			.SetGetText(GetCtrlShiftSpaceCommandText)));
+
+		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
+	}
+
+	private bool DoNew(Controller controller)
+	{
+		RemoveEmptyIfNeed();
+		mainNest.Frame.AddBuffer(NewFileBuffer());
+		return true;
+	}
+
+	private bool DoOpen(Controller controller)
+	{
+		OpenFileDialog dialog = new OpenFileDialog();
+		if (dialog.ShowDialog() == DialogResult.OK)
+			LoadFile(dialog.FileName);
+		return true;
+	}
+
+	public Buffer LoadFile(string file)
+	{
+		return LoadFile(file, null);
+	}
+
+	public Buffer LoadFile(string file, string httpServer)
+	{
+		return LoadFile(file, httpServer, null);
+	}
+	
+	public Buffer GetBuffer(string file)
+	{
+		string name = null;
+		string fullPath = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception)
+		{
+			return null;
+		}
+		return mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
+	}
+
+	public Buffer LoadFile(string file, string httpServer, Nest nest)
+	{
+		string fullPath = null;
+		string name = null;
+		try
+		{
+			fullPath = Path.GetFullPath(file);
+			name = Path.GetFileName(file);
+		}
+		catch (Exception e)
+		{
+			Log.WriteWarning("Path", e.Message);
+			Log.Open();
+			return null;
+		}
+		Buffer buffer = mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
+		bool needLoad = false;
+		bool isNew = false;
+		if (buffer == null)
+		{
+			buffer = NewFileBuffer();
+			buffer.httpServer = httpServer;
+			needLoad = true;
+			isNew = true;
+		}
+		buffer.SetFile(fullPath, name);
+		if (nest == null)
+			nest = buffer.Frame != null ? buffer.Frame.Nest : mainNest;
+		ShowBuffer(nest, buffer);
+		if (needLoad && !ReloadFile(buffer))
+		{
+			if (isNew && buffer.Frame != null)
+				buffer.Frame.RemoveBuffer(buffer);
+			return null;
+		}
+		if (buffer.Frame != null)
+			buffer.Frame.UpdateHighlighter();
+		RemoveEmptyIfNeed();
+		return buffer;
+	}

@@ -1,4 +1,4 @@
-
+/*
 public static class Debug
 {
 	private static int tabIndex = 0;
@@ -30,3 +30,4 @@ public static class Debug
 		System.Console.WriteLine(GetTabs() + text.Replace("\n", "\n" + GetTabs()));
 	}
 }
+*/

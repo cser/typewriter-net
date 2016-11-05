@@ -109,14 +109,13 @@ namespace UnitTests
 			LineArray lines = new LineArray(4);
 			Controller controller = new Controller(lines);
 			lines.SetText(File.ReadAllText("../test_code_4.txt"));
-			Debug.Log("<<<");
 			controller.PutCursor(new Place(1, 56 - 1), false);
 			controller.PutNewCursor(new Place(1, 59 - 1));
 			controller.MoveDown(true);
 			controller.MoveDown(true);
 			
 			controller.EraseSelection();
-			Debug.Log(">>>");
+			Assert.AreEqual(File.ReadAllText("../test_code_4_2_after.txt"), lines.GetText());
 		}
 	}
 }
