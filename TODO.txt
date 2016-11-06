@@ -5,3 +5,4 @@
 - show filter in file search dialog
 - fix undo/redo inconsistance- show filter in file search dialog
 - hide current file in recently opened dialog
+- fix scroll bar on > 1000000 lines
