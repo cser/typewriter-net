@@ -34,6 +34,18 @@ public class RecentlyIncrementalSearch : IncrementalSearchBase
 	override protected bool Prebuild()
 	{
 		filesList = tempSettings.GetRecentlyFiles();
+		
+		Buffer lastBuffer = MainForm.LastBuffer;
+		string currentFile = lastBuffer != null ? lastBuffer.FullPath : null;
+		if (currentFile != null)
+		{
+			currentFile = currentFile.ToLowerInvariant();
+			for (int i = filesList.Count; i-- > 0;)
+			{
+				if (filesList[i].ToLowerInvariant() == currentFile)
+					filesList.RemoveAt(i);
+			}
+		}
 		return true;
 	}
 
