@@ -638,11 +638,11 @@ public class DialogManager
 		return true;
 	}
 	
-	public bool OpenRename(string title, string text, Getter<string, bool> doInput)
+	public bool OpenRename(string title, string text, List<bool> isDirectory, Getter<string, bool> doInput)
 	{
 		if (rename.SwitchOpen())
 		{
-			rename.Open(new RenameDialog(doInput, title, text), true);
+			rename.Open(new RenameDialog(doInput, title, text, isDirectory), true);
 		}
 		return true;
 	}

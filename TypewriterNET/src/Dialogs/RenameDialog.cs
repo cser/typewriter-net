@@ -15,14 +15,16 @@ using MulticaretEditor;
 public class RenameDialog : ADialog
 {
 	private Getter<string, bool> doInput;
+	private List<bool> isDirectory;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private string text;
 
-	public RenameDialog(Getter<string, bool> doInput, string name, string text)
+	public RenameDialog(Getter<string, bool> doInput, string name, string text, List<bool> isDirectory)
 	{
 		this.doInput = doInput;
+		this.isDirectory = isDirectory;
 		Name = name;
 		this.text = text;
 	}
@@ -89,7 +91,19 @@ public class RenameDialog : ADialog
 			{
 				textBox.Controller.PutNewCursor(new Place(0, i));
 			}
-			textBox.Controller.PutCursor(new Place(line.chars.Count - line.GetRN().Length, i), true);
+			int right = line.chars.Count - line.GetRN().Length;
+			if (isDirectory != null && i < isDirectory.Count && !isDirectory[i])
+			{
+				for (int j = right; j-- > 1;)
+				{
+					if (line.chars[j].c == '.')
+					{
+						right = j;
+						break;
+					}
+				}
+			}
+			textBox.Controller.PutCursor(new Place(right, i), true);
 		}
 		textBox.Invalidate();
 		Nest.size = tabBar.Height + textBox.CharHeight * (

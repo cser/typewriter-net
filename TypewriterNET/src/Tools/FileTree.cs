@@ -847,17 +847,27 @@ public class FileTree
 		List<int> indices = GetSelectionIndices(controller);
 		List<Node> nodes = new List<Node>();
 		StringBuilder builder = new StringBuilder();
+		List<bool> isDirectory = new List<bool>();
 		bool first = true;
 		foreach (int index in indices)
 		{
-			if (!first)
-				builder.AppendLine();
 			Node node = this.nodes[index];
-			builder.Append(node.name);
-			nodes.Add(node);
-			first = false;
+			if (node.type == NodeType.File || node.type == NodeType.Directory)
+			{
+				if (!first)
+					builder.AppendLine();
+				builder.Append(node.name);
+				nodes.Add(node);
+				isDirectory.Add(node.type == NodeType.Directory);
+				first = false;
+			}
 		}
-		mainForm.Dialogs.OpenRename("Rename item", builder.ToString(), DoInputNewFileName);
+		string text = builder.ToString();
+		if (text == null)
+		{
+			return true;
+		}
+		mainForm.Dialogs.OpenRename("Rename item", text, isDirectory, DoInputNewFileName);
 		return true;
 	}
 	
