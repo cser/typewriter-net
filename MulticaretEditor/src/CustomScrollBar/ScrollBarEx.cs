@@ -296,13 +296,13 @@
 		{
 			int pixelRange = size - 2 * arrowSize - thumbSize;
 			int realRange = maximum - largeChange;
-			return (realRange > 0 ? FixValue(value) * pixelRange / realRange : 0) + arrowSize;
+			return (realRange > 0 ? (int)(((long)FixValue(value) * pixelRange) / realRange) : 0) + arrowSize;
 		}
 		
 		private int GetValueByThumb(int thumbPosition)
 		{
 			int pixelRange = size - 2 * arrowSize - thumbSize;
-			return FixValue(pixelRange > 0 ? (thumbPosition - arrowSize) * (maximum - largeChange) / pixelRange : 0);
+			return FixValue(pixelRange > 0 ? (int)(((long)(thumbPosition - arrowSize)) * (maximum - largeChange) / pixelRange) : 0);
 		}
 		
 		private int ThumbPosition
