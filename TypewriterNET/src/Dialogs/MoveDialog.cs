@@ -32,9 +32,9 @@ public class MoveDialog : ADialog
 	private MulticaretTextBox textBox;
 	private Data data;
 	private string text;
-	private Setter<string> onInput;
+	private Getter<string, bool> onInput;
 
-	public MoveDialog(Data data, Setter<string> onInput, string name, string text)
+	public MoveDialog(Data data, Getter<string, bool> onInput, string name, string text)
 	{
 		this.data = data;
 		this.onInput = onInput;
@@ -56,13 +56,13 @@ public class MoveDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("&View\\File tree\\Cancel path", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-			new KeyAction("&View\\File tree\\Run path", DoRunCommand, null, false)));
+			new KeyAction("&View\\File tree\\Run path", DoInput, null, false)));
 		if (data.history != null)
 		{
 			frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-				new KeyAction("&View\\File tree\\Previous path", DoPrevCommand, null, false)));
+				new KeyAction("&View\\File tree\\Previous path", DoPrevPath, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-				new KeyAction("&View\\File tree\\Next path", DoNextCommand, null, false)));
+				new KeyAction("&View\\File tree\\Next path", DoNextPath, null, false)));
 		}
 		{
 		    KeyAction action = new KeyAction("&View\\File tree\\Autocomplete", DoAutocomplete, null, false);
@@ -162,29 +162,30 @@ public class MoveDialog : ADialog
 		return true;
 	}
 
-	private bool DoRunCommand(Controller controller)
+	private bool DoInput(Controller controller)
 	{
-		Commander commander = MainForm.commander;
-		DispatchNeedClose();
-		if (onInput != null)
-			onInput(textBox.Controller.Lines.GetText());
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		if (onInput(textBox.Controller.Lines.GetText()))
+			DispatchNeedClose();
 		return true;
 	}
 
-	private bool DoPrevCommand(Controller controller)
+	private bool DoPrevPath(Controller controller)
 	{
-		return GetHistoryCommand(true);
+		return GetHistoryPath(true);
 	}
 
-	private bool DoNextCommand(Controller controller)
+	private bool DoNextPath(Controller controller)
 	{
-		return GetHistoryCommand(false);
+		return GetHistoryPath(false);
 	}
 
-	private bool GetHistoryCommand(bool isPrev)
+	private bool GetHistoryPath(bool isPrev)
 	{
 		string text = textBox.Text;
-		string newText = MainForm.commander.History.Get(text, isPrev);
+		string newText = data.history.Get(text, isPrev);
 		if (newText != text)
 		{
 			textBox.Text = newText;
@@ -236,27 +237,6 @@ public class MoveDialog : ADialog
 		return true;
 	}
 	
-	private void AutocompleteCommand(string text)
-	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
-		List<Variant> variants = new List<Variant>();
-		foreach (Commander.Command command in MainForm.commander.Commands)
-		{
-			Variant variant = new Variant();
-			variant.CompletionText = command.name;
-			variant.DisplayText = command.name + (!string.IsNullOrEmpty(command.argNames) ? " <" + command.argNames + ">" : "");
-			variants.Add(variant);
-		}
-		if (MainForm.Settings != null)
-		{
-			foreach (Properties.Property property in MainForm.Settings.GetProperties())
-			{
-				variants.Add(GetPropertyVariant(property));
-			}
-		}
-		autocomplete.Show(variants, text);
-	}
-	
 	private void AutocompleteProperty(string text)
 	{
 		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
@@ -279,20 +259,6 @@ public class MoveDialog : ADialog
 		return variant;
 	}
 	
-	private string GetFile()
-	{
-		Buffer lastBuffer = MainForm.LastBuffer;
-		if (lastBuffer == null || string.IsNullOrEmpty(lastBuffer.FullPath))
-		{
-			if (MainForm.LeftNest.AFrame != null && MainForm.LeftNest.buffers.list.Selected == MainForm.FileTree.Buffer)
-			{
-				return MainForm.FileTree.GetCurrentFile();
-			}
-			return null;
-		}
-		return lastBuffer.FullPath;
-	}
-	
 	private void AutocompletePath(string path)
 	{
 		if (path == null)
@@ -305,14 +271,6 @@ public class MoveDialog : ADialog
 		{
 			dir = path.Substring(0, index + 1);
 			name = path.Substring(index + 1);
-		}
-		if (dir.Contains(RunShellCommand.FileDirVar))
-		{
-			string file = GetFile();
-			if (file != null)
-			{
-				dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
-			}
 		}
 		string[] dirs = null;
 		try

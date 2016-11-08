@@ -651,7 +651,7 @@ public class DialogManager
 		return true;
 	}
 	
-	public bool OpenMove(string title, string text, Setter<string> doInput)
+	public bool OpenMove(string title, string text, Getter<string, bool> doInput)
 	{
 		if (move.SwitchOpen())
 		{

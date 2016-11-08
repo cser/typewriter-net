@@ -790,11 +790,17 @@ public class FileTree
 		return true;
 	}
 
-	private void DoInputNewDir(string fileName)
+	private bool DoInputNewDir(string fileName)
 	{
 		if (fileName == "" || fileName == ".")
 			fileName = Directory.GetCurrentDirectory();
 		fileName = Path.GetFullPath(fileName);
+		if (!Directory.Exists(fileName))
+		{
+			mainForm.Log.WriteError("Move error", "No directory: " + fileName);
+			mainForm.Log.Open();
+			return true;
+		}
 		mainForm.Dialogs.CloseInput();
 		List<Node> filesAndDirs = GetFilesAndDirs(buffer.Controller);
 		PathSet newFullPaths = new PathSet();
@@ -839,6 +845,7 @@ public class FileTree
 		}
 		Reload();
 		PutCursors(newFullPaths);
+		return true;
 	}
 	
 	private bool DoRenameItem(Controller controller)
