@@ -113,6 +113,8 @@ public class DialogManager
 	private DialogOwner<FindDialog> input;
 	private DialogOwner<RenameDialog> rename;
 	private FindDialog.Data inputData;
+	private MoveDialog.Data moveData;
+	private DialogOwner<MoveDialog> move;
 
 	public DialogManager(MainForm mainForm, TempSettings tempSettings)
 	{
@@ -172,6 +174,8 @@ public class DialogManager
 		input = new DialogOwner<FindDialog>(this);
 		inputData = new FindDialog.Data(null);
 		rename = new DialogOwner<RenameDialog>(this);
+		moveData = new MoveDialog.Data(tempSettings.MoveHistory);
+		move = new DialogOwner<MoveDialog>(this);
 	}
 
 	public void ShowInfo(string name, string text)
@@ -643,6 +647,15 @@ public class DialogManager
 		if (rename.SwitchOpen())
 		{
 			rename.Open(new RenameDialog(doInput, title, text, isDirectory), true);
+		}
+		return true;
+	}
+	
+	public bool OpenMove(string title, string text, Setter<string> doInput)
+	{
+		if (move.SwitchOpen())
+		{
+			move.Open(new MoveDialog(moveData, doInput, title, text), true);
 		}
 		return true;
 	}

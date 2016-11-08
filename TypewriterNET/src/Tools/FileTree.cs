@@ -786,11 +786,11 @@ public class FileTree
 		int index = place.iLine;
 		Node node = nodes[index];
 		string path = Path.GetDirectoryName(GetRelativePath(node.fullPath));
-		mainForm.Dialogs.OpenInput("Move item", path, DoInputNewDir);
+		mainForm.Dialogs.OpenMove("Move item", path, DoInputNewDir);
 		return true;
 	}
 
-	private bool DoInputNewDir(string fileName)
+	private void DoInputNewDir(string fileName)
 	{
 		if (fileName == "" || fileName == ".")
 			fileName = Directory.GetCurrentDirectory();
@@ -839,7 +839,6 @@ public class FileTree
 		}
 		Reload();
 		PutCursors(newFullPaths);
-		return true;
 	}
 	
 	private bool DoRenameItem(Controller controller)
