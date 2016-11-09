@@ -55,8 +55,13 @@ public class DialogManager
 
 		public bool SwitchOpen()
 		{
-			if (dialog == null || !dialog.Focused)
+			if (dialog == null)
 				return true;
+			if (!dialog.Focused)
+			{
+				Close(false);
+				return true;
+			}
 			Close(true);
 			return false;
 		}
