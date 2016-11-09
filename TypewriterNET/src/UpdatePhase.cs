@@ -6,5 +6,6 @@ public enum UpdatePhase
 	TempSettingsLoaded,
 	ChangeCurrentDirectory,
 	FindParams,
-	FileSaved
+	FileSaved,
+	Scheme
 }

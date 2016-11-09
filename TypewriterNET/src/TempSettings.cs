@@ -107,6 +107,9 @@ public class TempSettings
 				mainForm.MainNest.Frame.Focus();
 		}
 		helpPosition = state["helpPosition"].Int;
+		scheme = state["scheme"].String;
+		if (string.IsNullOrEmpty(scheme))
+			scheme = "npp";
 	}
 	
 	public void MarkLoaded(Buffer buffer)
@@ -245,6 +248,7 @@ public class TempSettings
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		state["helpPosition"] = SValue.NewInt(helpPosition);
+		state["scheme"] = SValue.NewString(scheme);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 
@@ -333,4 +337,11 @@ public class TempSettings
 
 	private FindParams findParams = new FindParams();
 	public FindParams FindParams { get { return findParams; } }
+	
+	private string scheme;
+	public string Scheme
+	{
+		get { return scheme; }
+		set { scheme = value; }
+	}
 }

@@ -219,11 +219,14 @@ public class MainForm : Form
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
 
-		ApplySettings();
+		//was ApplySettings();
+		
 		ReloadConfig();
 		fileDragger = new FileDragger(this);
 
 		tempSettings.Load(tempFilePostfix);
+		allowApply = true;
+		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
 
         openFileLine = lineNumber;
@@ -577,11 +580,28 @@ public class MainForm : Form
 	
 	private SharpManager sharpManager;
 	public SharpManager SharpManager { get { return sharpManager; } }
-
+	
+	private bool allowApply = false;
+	
 	private void ApplySettings()
 	{
-		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
+		if (!allowApply)
+		{
+			return;
+		}
+		string scheme = "";
+		if (!string.IsNullOrEmpty(settings.scheme.Value))
+		{
+			scheme = settings.scheme.Value ?? "";
+		}
+		else if (!string.IsNullOrEmpty(tempSettings.Scheme))
+		{
+			scheme = tempSettings.Scheme ?? "";
+		}
+		tempSettings.Scheme = scheme;
+		settings.ParsedScheme = schemeManager.LoadScheme(scheme);
 		settings.Parsed = true;
+		
 		BackColor = settings.ParsedScheme.bgColor;
 		TopMost = settings.alwaysOnTop.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
