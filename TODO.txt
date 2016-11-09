@@ -1,6 +1,4 @@
 - find in files with custom filter
-- show filter in find dialog
-- show filter in file search dialog
 - fix undo/redo inconsistance
 - show filter in file search dialog
 - scheme in temp

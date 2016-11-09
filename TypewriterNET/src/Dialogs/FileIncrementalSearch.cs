@@ -23,7 +23,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	
 	override protected string GetSubname()
 	{
-		return Directory.GetCurrentDirectory();
+		return Directory.GetCurrentDirectory() + "\\" + MainForm.Settings.findInFilesFilter.Value;
 	}
 	
 	private const string Dots = "...";

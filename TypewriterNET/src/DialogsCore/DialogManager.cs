@@ -210,7 +210,7 @@ public class DialogManager
 	{
 		if (find.SwitchOpen())
 			find.Open(
-				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Find"), true);
+				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Find", null), true);
 		return true;
 	}
 
@@ -218,8 +218,13 @@ public class DialogManager
 	{
 		if (findInFiles.SwitchOpen())
 			findInFiles.Open(
-				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, null, "Find in Files"), true);
+				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, null, "Find in Files", GetFindInFilesFilter), true);
 		return true;
+	}
+	
+	private string GetFindInFilesFilter()
+	{
+		return mainForm.Settings.findInFilesFilter.Value;
 	}
 
 	private bool DoReplace(Controller controller)
@@ -485,7 +490,8 @@ public class DialogManager
 				goToLineData, null, DoGoToLine, null, null,
 				"Go to line" +
 				(place != null ?
-					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
+					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : ""),
+				null
 			), true);
 		}
 		return true;
@@ -637,7 +643,7 @@ public class DialogManager
 		if (input.SwitchOpen())
 		{
 			inputData.oldText = text;
-			input.Open(new FindDialog(inputData, null, doInput, null, null, title), true);
+			input.Open(new FindDialog(inputData, null, doInput, null, null, title, null), true);
 		}
 		return true;
 	}

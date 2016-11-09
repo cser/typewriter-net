@@ -30,6 +30,7 @@ public class FindDialog : ADialog
 	private Getter<string, bool> doFind;
 	private Getter<string, bool> doSelectAllFinded;
 	private Getter<string, bool> doSelectNextFinded;
+	private Getter<string> getFilterText;
 	private TabBar<string> tabBar;
 	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
@@ -40,20 +41,22 @@ public class FindDialog : ADialog
 		Getter<string, bool> doFind,
 		Getter<string, bool> doSelectAllFinded,
 		Getter<string, bool> doSelectNextFinded,
-		string name)
+		string name,
+		Getter<string> getFilterText)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
 		this.doSelectAllFinded = doSelectAllFinded;
 		this.doSelectNextFinded = doSelectNextFinded;
+		this.getFilterText = getFilterText;
 		Name = name;
 	}
 
 	override protected void DoCreate()
 	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = Name;
+		//tabBar.Text = Name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
@@ -167,6 +170,7 @@ public class FindDialog : ADialog
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 			splitLine.Scheme = settings.ParsedScheme;
+			tabBar.Text = Name + (getFilterText != null ? " - " + getFilterText() : "");
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{
