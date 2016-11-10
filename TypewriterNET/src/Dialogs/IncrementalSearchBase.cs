@@ -161,8 +161,12 @@ public class IncrementalSearchBase : ADialog
 		UpdateSelectionChange();
 	}
 
-	private string pattern;
+	private string pattern = "";
 	private CompareInfo ci;
+	
+	protected string Pattern { get { return pattern; } }
+	
+	virtual protected int StartVariantIndex { get { return -1; } }
 	
 	protected int GetIndex(string text)
 	{
@@ -265,7 +269,16 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.InitText(text);
 		variantsTextBox.Controller.ClearMinorSelections();
 		Selection selection = variantsTextBox.Controller.LastSelection;
-		Place place = new Place(0, variantsTextBox.Controller.Lines.LinesCount - 1);
+		int index = variantsTextBox.Controller.Lines.LinesCount - 1;
+		if (string.IsNullOrEmpty(pattern))
+		{
+			int startIndex = StartVariantIndex;
+			if (startIndex != -1)
+			{
+				index = startIndex;
+			}
+		}
+		Place place = new Place(0, index);
 		selection.anchor = selection.caret = variantsTextBox.Controller.Lines.IndexOf(place);
 		variantsTextBox.Invalidate();
 		Nest.size = tabBar.Height + variantsTextBox.CharHeight * (

@@ -20,17 +20,20 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 
 	override protected bool Prebuild()
 	{
+		currentItem = tempSettings.Scheme;
 		items.Clear();
 		foreach (string item in MainForm.Settings.scheme.GetVariants())
 		{
 			items.Add(item);
 		}
-		currentItem = MainForm.Settings.scheme.Value;
 		oldItem = currentItem;
 		return true;
 	}
 	
 	private List<string> sortedItems = new List<string>();
+	
+	private int _startVariantIndex = -1;
+	override protected int StartVariantIndex { get { return _startVariantIndex; } }
 
 	override protected string GetVariantsText()
 	{
@@ -42,6 +45,8 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 		}
 		sortedItems.Sort(CompareItems);
 		StringBuilder builder = new StringBuilder();
+		_startVariantIndex = -1;
+		int index = 0;
 		bool first = true;
 		foreach (string item in sortedItems)
 		{
@@ -49,16 +54,24 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 				builder.AppendLine();
 			first = false;
 			builder.Append(item);
+			if (item == currentItem)
+			{
+				_startVariantIndex = index;
+			}
+			index++;
 		}
 		return builder.ToString();
 	}
 
 	private int CompareItems(string item0, string item1)
 	{
-		int equals0 = item0 == currentItem ? 1 : 0;
-		int equals1 = item1 == currentItem ? 1 : 0;
-		if (equals0 != equals1)
-			return equals0 - equals1;
+		if (!string.IsNullOrEmpty(Pattern))
+		{
+			int equals0 = item0 == currentItem ? 1 : 0;
+			int equals1 = item1 == currentItem ? 1 : 0;
+			if (equals0 != equals1)
+				return equals0 - equals1;
+		}
 		int index0 = GetIndex(item0);
 		int index1 = GetIndex(item1);
 		if (index0 != index1)
