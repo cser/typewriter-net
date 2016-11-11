@@ -109,8 +109,8 @@ public class DialogManager
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
 	private FindDialog.Data findData;
-	private DialogOwner<FindDialog> findInFiles;
-	private FindDialog.Data findInFilesData;
+	private DialogOwner<FindInFilesDialog> findInFiles;
+	private FindInFilesDialog.Data findInFilesData;
 	private DialogOwner<ReplaceDialog> replace;
 	private ReplaceDialog.Data replaceData;
 	private DialogOwner<FindDialog> goToLine;
@@ -170,8 +170,8 @@ public class DialogManager
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
-		findInFiles = new DialogOwner<FindDialog>(this);
-		findInFilesData = new FindDialog.Data(tempSettings.FindInFilesHistory);
+		findInFiles = new DialogOwner<FindInFilesDialog>(this);
+		findInFilesData = new FindInFilesDialog.Data(tempSettings.FindInFilesHistory);
 		replace = new DialogOwner<ReplaceDialog>(this);
 		replaceData = new ReplaceDialog.Data(tempSettings.ReplacePatternHistory, tempSettings.ReplaceHistory);
 		goToLine = new DialogOwner<FindDialog>(this);
@@ -223,13 +223,8 @@ public class DialogManager
 	{
 		if (findInFiles.SwitchOpen())
 			findInFiles.Open(
-				new FindDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, null, null, "Find in Files", GetFindInFilesFilter), true);
+				new FindInFilesDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
 		return true;
-	}
-	
-	private string GetFindInFilesFilter()
-	{
-		return mainForm.Settings.findInFilesFilter.Value;
 	}
 
 	private bool DoReplace(Controller controller)
@@ -464,11 +459,11 @@ public class DialogManager
 		return true;
 	}
 
-	private bool DoFindInFilesDialog(string text)
+	private bool DoFindInFilesDialog(string text, string filter)
 	{
 		findInFiles.Close(true);
 		string errors = new FindInFiles(mainForm)
-			.Execute(text, tempSettings.FindParams, mainForm.Settings.findInFilesDir.Value, mainForm.Settings.findInFilesFilter.Value);
+			.Execute(text, tempSettings.FindParams, mainForm.Settings.findInFilesDir.Value, filter);
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
 		return true;

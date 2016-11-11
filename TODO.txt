@@ -1,3 +1,2 @@
 - find in files with custom filter
 - fix undo/redo inconsistance
-- selected current scheme in list
