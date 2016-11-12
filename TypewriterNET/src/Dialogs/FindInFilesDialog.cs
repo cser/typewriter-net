@@ -18,10 +18,14 @@ public class FindInFilesDialog : ADialog
 	{
 		public string oldText = "";
 		public readonly StringList history;
+		public readonly StringList filterHistory;
+		public readonly StringValue currentFilter;
 
-		public Data(StringList history)
+		public Data(StringList history, StringList filterHistory, StringValue currentFilter)
 		{
 			this.history = history;
+			this.filterHistory = filterHistory;
+			this.currentFilter = currentFilter;
 		}
 	}
 
@@ -51,12 +55,12 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
-			if (data.history != null)
+			if (data.filterHistory != null)
 			{
 				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
+					new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false)));
 				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+					new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false)));
 			}
 			
 			filterTextBox = new MulticaretTextBox();
@@ -66,8 +70,9 @@ public class FindInFilesDialog : ADialog
 			filterTextBox.KeyMap.AddAfter(frameKeyMap, 1);
 			filterTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 			filterTextBox.FocusedChange += OnTextBoxFocusedChange;
-			filterTextBox.TextChange += OnFilterTextChange;
 			filterTextBox.Visible = false;
+			filterTextBox.Text = data.currentFilter.value;
+			filterTextBox.TextChange += OnFilterTextChange;
 			Controls.Add(filterTextBox);
 		}
 		
@@ -83,7 +88,7 @@ public class FindInFilesDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 				new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-				new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
+				new KeyAction("F&ind\\Find text", DoFindNext, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Switch to temp filter", DoSwitchToTempFilter, null, false)));
 			if (data.history != null)
@@ -110,7 +115,7 @@ public class FindInFilesDialog : ADialog
 
 	private void UpdateFindParams()
 	{
-		tabBar.Text2 = findParams != null ? findParams.GetIndicationText() : "";
+		tabBar.Text2 = "Ctrl+E - filter  " + (findParams != null ? findParams.GetIndicationText() : "");
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -170,11 +175,6 @@ public class FindInFilesDialog : ADialog
 	
 	private void OnFiltersTextBoxFocusedChange()
 	{
-		if (filterTextBox.Focused)
-		{
-			filterTextBox.Controller.DocumentStart(false);
-			filterTextBox.Controller.DocumentEnd(true);
-		}
 		OnTextBoxFocusedChange();
 	}
 
@@ -188,13 +188,13 @@ public class FindInFilesDialog : ADialog
 		textBox.Location = new Point(0, tabBarHeight);
 		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
 		int size = 20;
-		filterTextBox.Location = new Point(Width - (12 + size) * filterTextBox.CharWidth, 0);
+		filterTextBox.Location = new Point(Width - (9 + size) * filterTextBox.CharWidth, 0);
 		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
 	{
-		if (phase == UpdatePhase.Raw)
+		if (phase == UpdatePhase.Raw) 
 		{
 			settings.ApplySimpleParameters(textBox, null);
 			settings.ApplySimpleParameters(filterTextBox, null);
@@ -216,7 +216,9 @@ public class FindInFilesDialog : ADialog
 	
 	private void UpdateFilterText()
 	{
-		tabBar.Text = Name + " - " + GetFilterText();
+		data.currentFilter.value = filterTextBox.Text;
+		string filterText = GetFilterText();
+		tabBar.Text = Name + " - " + (string.IsNullOrEmpty(filterTextBox.Text) ? filterText : "[" + filterText + "]");
 	}
 	
 	private string GetFilterText()
@@ -235,6 +237,9 @@ public class FindInFilesDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
+		if (data.filterHistory != null && !string.IsNullOrEmpty(filterTextBox.Text))
+			data.filterHistory.Add(filterTextBox.Text);
+		data.currentFilter.value = filterTextBox.Text;
 		return doFind(text, GetFilterText());
 	}
 	
@@ -261,6 +266,16 @@ public class FindInFilesDialog : ADialog
 	{
 		return GetHistoryPattern(false);
 	}
+	
+	private bool DoFilterPrevPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(true);
+	}
+	
+	private bool DoFilterNextPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(false);
+	}
 
 	private bool GetHistoryPattern(bool isPrev)
 	{
@@ -271,6 +286,21 @@ public class FindInFilesDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
+			return true;
+		}
+		return false;
+	}
+	
+	private bool GetFilterHistoryPattern(bool isPrev)
+	{
+		string text = filterTextBox.Text;
+		string newText = data.filterHistory.GetOrEmpty(text, isPrev);
+		if (newText != text)
+		{
+			filterTextBox.Text = newText;
+			filterTextBox.Controller.ClearMinorSelections();
+			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
+			UpdateFilterText();
 			return true;
 		}
 		return false;

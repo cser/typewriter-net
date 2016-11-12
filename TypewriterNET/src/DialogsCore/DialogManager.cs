@@ -171,7 +171,7 @@ public class DialogManager
 		find = new DialogOwner<FindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
 		findInFiles = new DialogOwner<FindInFilesDialog>(this);
-		findInFilesData = new FindInFilesDialog.Data(tempSettings.FindInFilesHistory);
+		findInFilesData = new FindInFilesDialog.Data(tempSettings.FindInFilesHistory, tempSettings.FindInFilesTempFilter, tempSettings.FindInFilesTempCurrentFilter);
 		replace = new DialogOwner<ReplaceDialog>(this);
 		replaceData = new ReplaceDialog.Data(tempSettings.ReplacePatternHistory, tempSettings.ReplaceHistory);
 		goToLine = new DialogOwner<FindDialog>(this);

@@ -94,6 +94,8 @@ public class TempSettings
 		commandHistory.Unserialize(state["commandHistory"]);
 		findHistory.Unserialize(state["findHistory"]);
 		findInFilesHistory.Unserialize(state["findInFilesHistory"]);
+		findInFilesTempFilter.Unserialize(state["findInFilesTempFilter"]);
+		findInFilesTempCurrentFilter.value = state["findInFilesTempCurrentFilter"].String;
 		moveHistory.Unserialize(state["moveHistory"]);
 		replacePatternHistory.Unserialize(state["replacePatternHistory"]);
 		replaceHistory.Unserialize(state["replaceHistory"]);
@@ -238,6 +240,8 @@ public class TempSettings
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();
 		state["findInFilesHistory"] = findInFilesHistory.Serialize();
+		state["findInFilesTempFilter"] = findInFilesTempFilter.Serialize();
+		state["findInFilesTempCurrentFilter"] = SValue.NewString(findInFilesTempCurrentFilter.value);
 		state["moveHistory"] = moveHistory.Serialize();
 		state["replacePatternHistory"] = replacePatternHistory.Serialize();
 		state["replaceHistory"] = replaceHistory.Serialize();
@@ -322,6 +326,12 @@ public class TempSettings
 
 	private StringList findInFilesHistory = new StringList();
 	public StringList FindInFilesHistory { get { return findInFilesHistory; } }
+	
+	private StringList findInFilesTempFilter = new StringList();
+	public StringList FindInFilesTempFilter { get { return findInFilesTempFilter; } }
+	
+	private StringValue findInFilesTempCurrentFilter = new StringValue();
+	public StringValue FindInFilesTempCurrentFilter { get { return findInFilesTempCurrentFilter; } }
 	
 	private StringList moveHistory = new StringList();
 	public StringList MoveHistory { get { return moveHistory; } }

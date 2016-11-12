@@ -12,6 +12,23 @@ public class StringList
 	}
 
 	private List<string> list = new List<string>();
+	
+	public string GetOrEmpty(string text, bool isPrev)
+	{
+		int index = list.IndexOf(text);
+		if (index == -1)
+		{
+			index = list.Count;
+		}
+		else if (string.IsNullOrEmpty(text))
+		{
+			index = list.Count;
+		}
+		index += isPrev ? -1 : 1;
+		if (index >= list.Count)
+			return "";
+		return index >= 0 && index < list.Count ? list[index] : text;
+	}
 
 	public string Get(string text, bool isPrev)
 	{
