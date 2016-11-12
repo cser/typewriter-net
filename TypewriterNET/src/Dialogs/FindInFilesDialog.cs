@@ -90,7 +90,7 @@ public class FindInFilesDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
 				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
-				new KeyAction("F&ind\\Switch to temp filter", DoSwitchToTempFilter, null, false)));
+				new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
 			if (data.history != null)
 			{
 				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
@@ -113,11 +113,6 @@ public class FindInFilesDialog : ADialog
 		UpdateFindParams();
 	}
 
-	private void UpdateFindParams()
-	{
-		tabBar.Text2 = "Ctrl+E - filter  " + (findParams != null ? findParams.GetIndicationText() : "");
-	}
-
 	override public bool Focused { get { return textBox.Focused; } }
 
 	private void OnCloseClick()
@@ -131,6 +126,20 @@ public class FindInFilesDialog : ADialog
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
+	
+	override protected void OnResize(EventArgs e)
+	{
+		base.OnResize(e);
+		int tabBarHeight = tabBar.Height;
+		tabBar.Size = new Size(Width, tabBarHeight);
+		splitLine.Location = new Point(Width - 10, tabBarHeight);
+		splitLine.Size = new Size(10, Height - tabBarHeight);
+		textBox.Location = new Point(0, tabBarHeight);
+		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
+		int size = 20;
+		filterTextBox.Location = new Point(Width - 9 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 0);
+		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
+	}
 
 	override public void Focus()
 	{
@@ -171,25 +180,12 @@ public class FindInFilesDialog : ADialog
 		{
 			Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
 		}
+		UpdateFindParams();
 	}
 	
 	private void OnFiltersTextBoxFocusedChange()
 	{
 		OnTextBoxFocusedChange();
-	}
-
-	override protected void OnResize(EventArgs e)
-	{
-		base.OnResize(e);
-		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
-		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
-		int size = 20;
-		filterTextBox.Location = new Point(Width - (9 + size) * filterTextBox.CharWidth, 0);
-		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -212,6 +208,12 @@ public class FindInFilesDialog : ADialog
 		{
 			UpdateFindParams();
 		}
+	}
+	
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = (string.IsNullOrEmpty(filterTextBox.Text) ? " filter  " : "[filter] ") +
+			(findParams != null ? findParams.GetIndicationText() : "");
 	}
 	
 	private void UpdateFilterText()
