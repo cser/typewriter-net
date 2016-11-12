@@ -142,7 +142,7 @@ public class DialogManager
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 			new KeyAction("F&ind\\Find...", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null,
-			new KeyAction("F&ind\\Find in Files...", DoFindInFiles, null, false)));
+			new KeyAction("F&ind\\Find in files...", DoFindInFiles, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null,
 			new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null,
@@ -223,7 +223,7 @@ public class DialogManager
 	{
 		if (findInFiles.SwitchOpen())
 			findInFiles.Open(
-				new FindInFilesDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in Files"), true);
+				new FindInFilesDialog(findInFilesData, tempSettings.FindParams, DoFindInFilesDialog, "Find in files"), true);
 		return true;
 	}
 
