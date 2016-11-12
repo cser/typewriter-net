@@ -52,7 +52,7 @@ public class FindInFilesDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 				new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-				new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
+				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
 			if (data.filterHistory != null)
@@ -88,7 +88,7 @@ public class FindInFilesDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 				new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-				new KeyAction("F&ind\\Find text", DoFindNext, null, false)));
+				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Switch to temp filter", DoSwitchToTempFilter, null, false)));
 			if (data.history != null)
@@ -169,7 +169,7 @@ public class FindInFilesDialog : ADialog
 		}
 		else if (filterTextBox.Focused)
 		{
-			Nest.MainForm.SetFocus(filterTextBox, textBox.KeyMap, null);
+			Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
 		}
 	}
 	
@@ -232,7 +232,7 @@ public class FindInFilesDialog : ADialog
 		return true;
 	}
 
-	private bool DoFindNext(Controller controller)
+	private bool DoFindText(Controller controller)
 	{
 		string text = textBox.Text;
 		if (data.history != null)
