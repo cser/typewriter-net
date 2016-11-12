@@ -189,6 +189,12 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		protected override void OnResize(EventArgs e)
+		{
+			needScrollToSelected = true;
+			base.OnResize(e);
+		}
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
