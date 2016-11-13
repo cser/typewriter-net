@@ -37,15 +37,24 @@ namespace MulticaretEditor
 			history.Reset();
 			history.MarkAsSaved();
 		}
+		
+		private void DoAfterMove()
+		{
+			ResetCommandsBatching();
+		}
 
 		public bool MoveRight(bool shift)
 		{
-			return MoveRight(lines, shift);
+			bool result = MoveRight(lines, shift);
+			DoAfterMove();
+			return result;
 		}
 
 		public bool MoveLeft(bool shift)
 		{
-			return MoveLeft(lines, shift);
+			bool result = MoveLeft(lines, shift);
+			DoAfterMove();
+			return result;
 		}
 
 		public static bool MoveRight(LineArray lines, bool shift)
@@ -169,6 +178,7 @@ namespace MulticaretEditor
 					}
 				}
 			}
+			DoAfterMove();
 			return result;
 		}
 
@@ -219,6 +229,7 @@ namespace MulticaretEditor
 					}
 				}
 			}
+			DoAfterMove();
 			return result;
 		}
 
@@ -242,6 +253,7 @@ namespace MulticaretEditor
 							if (!shift)
 								selection.anchor = selection.caret;
 							lines.SetPreferredPos(selection, newPlace);
+							DoAfterMove();
 							return;
 						}
 					}
@@ -256,6 +268,7 @@ namespace MulticaretEditor
 					selection.anchor = selection.caret;
 				lines.SetPreferredPos(selection, caret);
 			}
+			DoAfterMove();
 		}
 
 		public void MoveHome(bool shift)
@@ -278,6 +291,7 @@ namespace MulticaretEditor
 							if (!shift)
 								selection.anchor = selection.caret;
 							lines.SetPreferredPos(selection, newPlace);
+							DoAfterMove();
 							return;
 						}
 					}
@@ -299,6 +313,7 @@ namespace MulticaretEditor
 					selection.anchor = selection.caret;
 				lines.SetPreferredPos(selection, caret);
 			}
+			DoAfterMove();
 		}
 
 		public void DocumentStart(bool shift)
@@ -311,6 +326,7 @@ namespace MulticaretEditor
 			}
 			lines.JoinSelections();
 			lines.LastSelection.preferredPos = 0;
+			DoAfterMove();
 		}
 
 		public void DocumentEnd(bool shift)
@@ -324,6 +340,7 @@ namespace MulticaretEditor
 			lines.JoinSelections();
 			Place place = lines.PlaceOf(lines.charsCount);
 			lines.SetPreferredPos(lines.LastSelection, place);
+			DoAfterMove();
 		}
 
 		public void PutCursor(Pos pos, bool moving)
@@ -340,6 +357,7 @@ namespace MulticaretEditor
 				selection.anchor = selection.caret;
 			Line line = lines[caret.iLine];
 			lines.SetPreferredPos(selection, caret);
+			DoAfterMove();
 		}
 
 		public enum CharType
@@ -362,11 +380,13 @@ namespace MulticaretEditor
 		public void MoveWordRight(bool shift)
 		{
 			MoveWordRight(lines, shift);
+			DoAfterMove();
 		}
 
 		public void MoveWordLeft(bool shift)
 		{
 			MoveWordLeft(lines, shift);
+			DoAfterMove();
 		}
 
 		public static void MoveWordRight(LineArray lines, bool shift)
@@ -448,6 +468,7 @@ namespace MulticaretEditor
 				if (lines.selections[lines.selections.Count - 2].caret > lines.LastSelection.caret)
 				{
 					lines.selections.RemoveAt(lines.selections.Count - 1);
+					DoAfterMove();
 					return;
 				}
 			}
@@ -462,6 +483,7 @@ namespace MulticaretEditor
 				lines.LastSelection.preferredPos = preferredPos;
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
 			}
+			DoAfterMove();
 		}
 
 		public void PutCursorUp()
@@ -471,6 +493,7 @@ namespace MulticaretEditor
 				if (lines.selections[lines.selections.Count - 2].caret < lines.LastSelection.caret)
 				{
 					lines.selections.RemoveAt(lines.selections.Count - 1);
+					DoAfterMove();
 					return;
 				}
 			}
@@ -485,6 +508,7 @@ namespace MulticaretEditor
 				lines.LastSelection.preferredPos = preferredPos;
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
 			}
+			DoAfterMove();
 		}
 
 		public void PutNewCursor(Pos pos)
@@ -541,6 +565,7 @@ namespace MulticaretEditor
 			Selection selection = lines.LastSelection;
 			selection.anchor = lines.charsCount;
 			selection.caret = 0;
+			DoAfterMove();
 		}
 
 		public void SelectAllToEnd()
@@ -549,6 +574,7 @@ namespace MulticaretEditor
 			Selection selection = lines.LastSelection;
 			selection.anchor = 0;
 			selection.caret = lines.charsCount;
+			DoAfterMove();
 		}
 
 		private CommandType lastCommandType;
@@ -559,6 +585,15 @@ namespace MulticaretEditor
 			lastCommandType = CommandType.None;
 			lastTime = 0;
 		}
+		
+		public long debugNowMilliseconds = -1;
+		
+		public long GetNowMilliseconds()
+		{
+			return debugNowMilliseconds != -1 ?
+				debugNowMilliseconds :
+				(long)(new TimeSpan(DateTime.UtcNow.Ticks).TotalMilliseconds);
+		}
 
 		private bool Execute(Command command)
 		{
@@ -566,7 +601,7 @@ namespace MulticaretEditor
 				return false;
 			command.lines = lines;
 			command.selections = selections;
-			long time = DateTime.UtcNow.Ticks;
+			long time = GetNowMilliseconds();
 			if (command.type != lastCommandType)
 			{
 				if (history.LastCommand != null)
@@ -574,7 +609,7 @@ namespace MulticaretEditor
 				lastCommandType = command.type;
 				lastTime = time;
 			}
-			else if (new TimeSpan(time - lastTime).TotalMilliseconds > 1000)
+			else if (time - lastTime > 1000)
 			{
 				if (history.LastCommand != null)
 					history.LastCommand.marked = true;
