@@ -643,7 +643,6 @@ namespace MulticaretEditor
 			ResetCommandsBatching();
 			while (true)
 			{
-				history.Redo();
 				if (history.NextCommand == null)
 					break;
 				if (history.NextCommand.marked)
@@ -651,6 +650,7 @@ namespace MulticaretEditor
 					history.Redo();
 					break;
 				}
+				history.Redo();
 			}
 		}
 

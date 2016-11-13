@@ -152,5 +152,33 @@ namespace UnitTests
 			controller.debugNowMilliseconds = 2110;
 			AssertWithSelection("01text23456aaa|7890123456789");
 		}
+		
+		[Test]
+		public void Test4()
+		{
+			Init();
+			lines.SetText("01234567890123456789");
+			controller.PutCursor(new Pos(2, 0), false);
+			controller.debugNowMilliseconds = 1000;
+			controller.InsertText("t");
+			controller.debugNowMilliseconds = 1010;
+			controller.MoveRight(false);
+			controller.debugNowMilliseconds = 1020;
+			controller.InsertText("e");
+			controller.debugNowMilliseconds = 2030;
+			AssertWithSelection("01t2e|34567890123456789");
+			controller.debugNowMilliseconds = 2040;
+			controller.Undo();
+			AssertWithSelection("01t2|34567890123456789");
+			controller.debugNowMilliseconds = 2050;
+			controller.Undo();
+			AssertWithSelection("01|234567890123456789");
+			controller.debugNowMilliseconds = 2060;
+			controller.Redo();
+			AssertWithSelection("01t|234567890123456789");
+			controller.debugNowMilliseconds = 2070;
+			controller.Redo();
+			AssertWithSelection("01t2e|34567890123456789");
+		}
 	}
 }
