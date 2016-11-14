@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scheme>
+	<defColor name="bg" value="#282828"/>
+	<defColor name="red" value="#cc241d"/>
+	<defColor name="green" value="#98971a"/>
+	<defColor name="yellow" value="#d79921"/>
+	<defColor name="blue" value="#458588"/>
+	<defColor name="purple" value="#b16286"/>
+	<defColor name="aqua" value="#689d6a"/>
+	<defColor name="gray" value="#a89984"/>
+	
+	<defColor name="_gray" value="#928374"/>
+	<defColor name="_red" value="#fb4934"/>
+	<defColor name="_green" value="#b8bb26"/>
+	<defColor name="_yellow" value="#fabd2f"/>
+	<defColor name="_blue" value="#83a598"/>
+	<defColor name="_purple" value="#d3869b"/>
+	<defColor name="_aqua" value="#8ec07c"/>
+	<defColor name="_fg" value="#ebdbb2"/>
+	
+	<defColor name="bg0_h" value="#1d2021"/>
+	<defColor name="bg0" value="#282828"/>
+	<defColor name="bg1" value="#3c3836"/>
+	<defColor name="bg2" value="#504945"/>
+	<defColor name="bg3" value="#665c54"/>
+	<defColor name="bg4" value="#7c6f64"/>
+	<defColor name="gray_" value="#928374"/>
+	<defColor name="orange" value="#d65d0e"/>
+	
+	<defColor name="_bg0_s" value="#32302f"/>
+	<defColor name="_fg4" value="#a89984"/>
+	<defColor name="_fg3" value="#bdae93"/>
+	<defColor name="_fg2" value="#d5c4a1"/>
+	<defColor name="_fg1" value="#ebdbb2"/>
+	<defColor name="_fg0" value="#fbf1c7"/>
+	<defColor name="_orange" value="#fe8019"/>
+	
+	<color name="bg" value="bg"/>
+	<color name="fg" value="_fg"/>
+	<color name="lineBg" value="bg1"/>
+	<color name="lineNumberBg" value="bg"/>
+	<color name="lineNumberFg" value="bg4"/>
+	<color name="selectionBrush" value="#505050"/>
+	<color name="selectionPen" value="#606060"/>
+	<color name="markPen" value="#909090"/>
+	<color name="mainCaret" value="_fg0"/>
+	<color name="caret" value="#90aec5"/>
+	
+	<color name="tabsLine" value="bg2"/>
+	<color name="tabsBg" value="bg1"/>
+	<color name="tabsFg" value="_fg4"/>
+	<color name="tabsSelectedBg" value="_fg3"/>
+	<color name="tabsSelectedFg" value="bg0"/>
+	<color name="nameBg" value="bg3"/>
+	<color name="nameFg" value="bg0"/>
+	
+	<width name="mainCaret" value="2"/>
+	<width name="caret" value="2"/>
+	
+	<color name="splitterBg" value="bg2"/>
+	<color name="splitterLine" value="bg2"/>
+	<color name="scrollBg" value="bg1"/>
+	<color name="scrollThumb" value="bg3"/>
+	<color name="scrollThumbHover" value="bg4"/>
+	<color name="scrollArrow" value="gray"/>
+	<color name="scrollArrowHover" value="_fg"/>
+	
+	<style name="dsNormal" color="_fg"/>
+	<style name="dsKeyword" color="_red"/>
+	<style name="dsDataType" color="_yellow"/>
+	<style name="dsDataType2" color="_yellow"/>
+	<style name="dsDecVal" color="_purple" bold="true"/>
+	<style name="dsBaseN" color="_purple" bold="true"/>
+	<style name="dsFloat" color="_purple" bold="true"/>
+	<style name="dsChar" color="red"/>
+	<style name="dsString" color="_green"/>
+	<style name="dsComment" color="gray_"/>
+	<style name="dsDocStart" color="gray_"/>
+	<style name="dsOthers" color="_aqua"/>
+	<style name="dsAlert" color="red" bold="true"/>
+	<style name="dsFunction" color="_blue"/>
+	<style name="dsRegionMarker" color="_red"/>
+	<style name="dsError" color="red" underline="true"/>
+	
+	<style name="dsOperator" color="_blue"/>
+	<style name="dsConstructor" color="_aqua"/>
+	<style name="dsNormal2" color="_fg"/>
+	<style name="dsKeyword2" color="_red"/>
+	<style name="dsString2" color="_green"/>
+	<style name="dsOthers2" color="_aqua"/>
+	
+	<style name="dsDocHtml1" color="#8c90c0"/>
+	<style name="dsDocHtml2" color="#8c90c0"/>
+	<style name="dsDocHtml3" color="#8c90c0"/>
+	<style name="dsDocEntities" color="#afaa80" italic="true"/>
+	<style name="dsDocTag" color="gray_" bold="true"/>
+	<style name="dsDocWord" color="gray_"/>
+	<style name="dsDocDescription"  color="#aaaa00" bold="true"/>
+	<style name="dsDocCustomTag" color="gray_"/>
+	<style name="dsDocAlertTag1" color="#e85848"/>
+	<style name="dsDocAlertTag2" color="#ca9219"/>
+	<style name="dsDocAlertTag3" color="blue"/>
+	<style name="dsDocAlert1" color="#e85848" bold="true"/>
+	<style name="dsDocAlert2" color="#ca9219" bold="true"/>
+	<style name="dsDocAlert3" color="blue" bold="true"/>
+	<style name="dsDocInner" color="gray_" italic="true"/>
+</scheme>
