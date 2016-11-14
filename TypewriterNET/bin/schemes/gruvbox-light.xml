@@ -46,7 +46,7 @@
 	<color name="mainCaret" value="_fg0"/>
 	<color name="caret" value="_gray"/>
 	
-	<color name="tabsLine" value="bg"/>
+	<color name="tabsLine" value="bg2"/>
 	<color name="tabsBg" value="bg1"/>
 	<color name="tabsFg" value="_fg4"/>
 	<color name="tabsSelectedBg" value="_fg3"/>

@@ -1466,9 +1466,17 @@ public class MainForm : Form
 		{
 			foreach (AppPath path in paths)
 			{
-				if (!File.Exists(path.appDataPath))
-					File.Copy(path.startupPath, path.appDataPath);
-				LoadFile(path.appDataPath);
+				if (File.Exists(path.startupPath))
+				{
+					if (!File.Exists(path.appDataPath))
+						File.Copy(path.startupPath, path.appDataPath);
+					LoadFile(path.appDataPath);
+				}
+				else
+				{
+					Log.WriteWarning("Missing scheme", path.startupPath);
+					Log.Open();
+				}
 			}
 		}
 		return true;
