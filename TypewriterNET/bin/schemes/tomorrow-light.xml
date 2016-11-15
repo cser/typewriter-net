@@ -35,13 +35,13 @@
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
 	
-	<color name="splitterBg" value=""/>
-	<color name="splitterLine" value="#cccccc"/>
+	<color name="splitterBg" value="#808080"/>
+	<color name="splitterLine" value="#808080"/>
 	<color name="scrollBg" value="currentLine"/>
 	<color name="scrollThumb" value="#cccccc"/>
 	<color name="scrollThumbHover" value="#aaaaaa"/>
-	<color name="scrollArrow" value=""/>
-	<color name="scrollArrowHover" value=""/>
+	<color name="scrollArrow" value="#aaaaaa"/>
+	<color name="scrollArrowHover" value="#808080"/>
 	
 	<style name="dsNormal" color="fg"/>
 	<style name="dsKeyword" color="green"/>

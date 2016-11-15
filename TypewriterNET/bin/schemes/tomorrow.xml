@@ -16,37 +16,37 @@
 	<color name="bg" value="bg"/>
 	<color name="fg" value="fg"/>
 	<color name="lineBg" value="currentLine"/>
-	<color name="lineNumberBg" value=""/>
-	<color name="lineNumberFg" value=""/>
+	<color name="lineNumberBg" value="currentLine"/>
+	<color name="lineNumberFg" value="#888888"/>
 	<color name="selectionBrush" value="selection"/>
 	<color name="selectionPen" value="selection"/>
 	<color name="markPen" value="selection"/>
-	<color name="mainCaret" value="#000000"/>
-	<color name="caret" value="#808080"/>
+	<color name="mainCaret" value="#ffffff"/>
+	<color name="caret" value="#80ffff"/>
 	
-	<color name="tabsLine" value=""/>
-	<color name="tabsBg" value=""/>
-	<color name="tabsFg" value=""/>
-	<color name="tabsSelectedBg" value=""/>
-	<color name="tabsSelectedFg" value=""/>
-	<color name="nameBg" value=""/>
-	<color name="nameFg" value=""/>
+	<color name="tabsLine" value="#808080"/>
+	<color name="tabsBg" value="#505050"/>
+	<color name="tabsFg" value="#eeeeee"/>
+	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedFg" value="#ffffff"/>
+	<color name="nameBg" value="#c0c0c0"/>
+	<color name="nameFg" value="bg"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
 	
-	<color name="splitterBg" value=""/>
-	<color name="splitterLine" value=""/>
-	<color name="scrollBg" value=""/>
-	<color name="scrollThumb" value=""/>
-	<color name="scrollThumbHover" value=""/>
-	<color name="scrollArrow" value=""/>
-	<color name="scrollArrowHover" value=""/>
+	<color name="splitterBg" value="#505050"/>
+	<color name="splitterLine" value="#505050"/>
+	<color name="scrollBg" value="currentLine"/>
+	<color name="scrollThumb" value="#808080"/>
+	<color name="scrollThumbHover" value="#acacac"/>
+	<color name="scrollArrow" value="fg"/>
+	<color name="scrollArrowHover" value="#ffffff"/>
 	
 	<style name="dsNormal" color="fg"/>
 	<style name="dsKeyword" color="purple"/>
 	<style name="dsDataType" color="red"/>
-	<style name="dsDataType2" color="red"/>
+	<style name="dsDataType2" color="purple"/>
 	<style name="dsDecVal" color="orange"/>
 	<style name="dsBaseN" color="orange"/>
 	<style name="dsFloat" color="orange"/>
