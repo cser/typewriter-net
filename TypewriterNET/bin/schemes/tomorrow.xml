@@ -56,7 +56,7 @@
 	<style name="dsDocStart" color="comment"/>
 	<style name="dsOthers" color="yellow"/>
 	<style name="dsAlert" color="red" bold="true"/>
-	<style name="dsFunction" color="aqua"/>
+	<style name="dsFunction" color="blue"/>
 	<style name="dsRegionMarker" color="fg"/>
 	<style name="dsError" color="red" underline="true"/>
 	
@@ -67,19 +67,19 @@
 	<style name="dsString2" color="green"/>
 	<style name="dsOthers2" color="yellow"/>
 	
-	<style name="dsDocHtml1" color="blue"/>
-	<style name="dsDocHtml2" color="blue"/>
-	<style name="dsDocHtml3" color="blue"/>
-	<style name="dsDocEntities" color="blue"/>
+	<style name="dsDocHtml1" color="aqua"/>
+	<style name="dsDocHtml2" color="aqua"/>
+	<style name="dsDocHtml3" color="aqua"/>
+	<style name="dsDocEntities" color="aqua"/>
 	<style name="dsDocTag" color="comment" bold="true"/>
 	<style name="dsDocWord" color="comment"/>
 	<style name="dsDocDescription"  color="comment" bold="true"/>
 	<style name="dsDocCustomTag" color="comment"/>
-	<style name="dsDocAlertTag1" color="comment" bold="true"/>
-	<style name="dsDocAlertTag2" color="comment" bold="true"/>
-	<style name="dsDocAlertTag3" color="comment" bold="true"/>
-	<style name="dsDocAlert1" color="blue" bold="true"/>
-	<style name="dsDocAlert2" color="blue" bold="true"/>
-	<style name="dsDocAlert3" color="blue" bold="true"/>
+	<style name="dsDocAlertTag1" color="aqua" bold="true"/>
+	<style name="dsDocAlertTag2" color="aqua" bold="true"/>
+	<style name="dsDocAlertTag3" color="aqua" bold="true"/>
+	<style name="dsDocAlert1" color="aqua" bold="true"/>
+	<style name="dsDocAlert2" color="aqua" bold="true"/>
+	<style name="dsDocAlert3" color="aqua" bold="true"/>
 	<style name="dsDocInner" color="comment" italic="true"/>
 </scheme>
