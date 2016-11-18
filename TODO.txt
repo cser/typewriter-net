@@ -1,1 +1,2 @@
-- fix undo/redo inconsistance
+- goto line mast be hided after Enter
+- fix fail on new item file name with slash
