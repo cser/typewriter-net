@@ -499,6 +499,9 @@ public class DialogManager
 
 	private bool DoGoToLine(string text)
 	{
+		if (string.IsNullOrEmpty(text))
+			return true;
+		goToLine.Close(false);
 		int iLine;
 		try
 		{
