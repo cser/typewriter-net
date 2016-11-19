@@ -294,12 +294,12 @@
 				<LineContinue context="CheckForString" attribute="Normal Text"/>
 				<keyword attribute="Preprocessor" String="prep" context="#stay"/>
 				<keyword attribute="Definition Keyword" String="defs" context="#stay"/>
-				<StringDetect attribute="Definition Keyword" String="def" context="#stay">
+				<RegExpr attribute="Definition Keyword" String="def\b" context="#stay">
 					<RegExpr attribute="Function" String="\s*[_\w][_\w\d]*" context="#pop"/>
-				</StringDetect>
-				<StringDetect attribute="Definition Keyword" String="class" context="#stay">
+				</RegExpr>
+				<RegExpr attribute="Definition Keyword" String="class\b" context="#stay">
 					<RegExpr attribute="Constructor" String="\s*[_\w][_\w\d]*" context="#pop"/>
-				</StringDetect>
+				</RegExpr>
 				<keyword attribute="Operator" String="operators" context="#stay"/>
 				<keyword attribute="Command Keyword" String="commands" context="#stay"/>
 				<keyword attribute="Flow Control Keyword" String="flow" context="#stay"/>
