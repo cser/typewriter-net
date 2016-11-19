@@ -626,7 +626,7 @@ public class FileTree
 		mainForm.Dialogs.CloseInput();
 		if (fileName.EndsWith("\\") || fileName.EndsWith("/"))
 		{
-			return DoInputDirName(fileName);
+			return DoInputDirName(fileName.Substring(0, fileName.Length - 1));
 		}
 		if (fileName.Contains("\\") || fileName.Contains("/"))
 		{
