@@ -624,6 +624,15 @@ public class FileTree
 		if (string.IsNullOrEmpty(fileName))
 			return true;
 		mainForm.Dialogs.CloseInput();
+		if (fileName.EndsWith("\\") || fileName.EndsWith("/"))
+		{
+			return DoInputDirName(fileName);
+		}
+		if (fileName.Contains("\\") || fileName.Contains("/"))
+		{
+			mainForm.Dialogs.ShowInfo("Error", "Slashes unsupported");
+			return true;
+		}
 		List<int> indices = GetSelectionIndices(this.buffer.Controller);
 		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
 		List<string> fullPaths = new List<string>();
