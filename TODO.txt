@@ -1,0 +1,14 @@
+System.ArgumentOutOfRangeException: Индекс за пределами диапазона. Индекс должен быть положительным числом, а его размер не должен превышать размер коллекции.
+Имя параметра: index
+   в System.ThrowHelper.ThrowArgumentOutOfRangeException()
+   в MulticaretEditor.Line.WWPosOfIndex(Int32 index)
+   в MulticaretEditor.MulticaretTextBox.DrawText(Graphics g, Int32 valueX, Int32 valueY, Int32 leftIndent, Int32 clientWidth, Int32 clientHeight)
+   в MulticaretEditor.MulticaretTextBox.OnPaint(PaintEventArgs e)
+   в System.Windows.Forms.Control.PaintWithErrorHandling(PaintEventArgs e, Int16 layer)
+   в System.Windows.Forms.Control.WmPaint(Message& m)
+   в System.Windows.Forms.Control.WndProc(Message& m)
+   в MulticaretEditor.MulticaretTextBox.WndProc(Message& m)
+   в System.Windows.Forms.Control.ControlNativeWindow.WndProc(Message& m)
+   в System.Windows.Forms.NativeWindow.Callback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
+
+Fix position by mouse on half-tab

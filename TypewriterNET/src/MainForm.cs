@@ -766,6 +766,8 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
+			new KeyAction("Prefere&nces\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
 			.SetGetText(GetF5CommandText)));
@@ -816,6 +818,12 @@ public class MainForm : Form
 			.SetGetText(GetCtrlShiftSpaceCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
+	}
+	
+	private bool DoPasteInOutput(Controller controller)
+	{
+		new RunShellCommand(this).ShowInOutput(ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false);
+		return true;
 	}
 
 	private bool DoNew(Controller controller)

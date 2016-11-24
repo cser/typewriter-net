@@ -63,7 +63,18 @@ public class RunShellCommand
 		string errors = p.StandardError.ReadToEnd();
 		string text = (showCommandInOutput ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
-
+		return ShowInOutput(output, errors, text, regexList, stayTop);
+	}
+	
+	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop)
+	{
+		positions = new Dictionary<int, List<Position>>();
+		ShowInOutput(null, null, text, regexList, stayTop);
+	}
+	
+	private string ShowInOutput(string output, string errors, string text, IRList<RegexData> regexList, bool stayTop)
+	{
+		Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 		List<StyleRange> ranges = new List<StyleRange>();
 		if (!string.IsNullOrEmpty(errors))
 		{
