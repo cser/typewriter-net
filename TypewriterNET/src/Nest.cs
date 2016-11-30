@@ -183,4 +183,20 @@ public class Nest
 		if (AFrame != null)
 			AFrame.UpdateSettings(settings, phase);
 	}
+	
+	public bool HasRight()
+	{
+		Nest child = GetFilledNest(this.child);
+		if (child != null && left && hDivided)
+		{
+			return true;
+		}
+		Nest parent = this.parent;
+		for (; parent != null; parent = parent.parent)
+		{
+			if (parent.AFrame != null && parent.hDivided && !parent.left)
+				return true;
+		}
+		return false;
+	}
 }

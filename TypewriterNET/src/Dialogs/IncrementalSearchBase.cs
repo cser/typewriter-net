@@ -18,7 +18,6 @@ public class IncrementalSearchBase : ADialog
 {
 	private SwitchList<string> list;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox variantsTextBox;
 	private MulticaretTextBox textBox;
 
@@ -40,9 +39,6 @@ public class IncrementalSearchBase : ADialog
 		tabBar.Text = name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap textKeyMap = new KeyMap();
 		KeyMap variantsKeyMap = new KeyMap();
@@ -101,7 +97,7 @@ public class IncrementalSearchBase : ADialog
 		SetTextBoxParameters();
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 
 		Name = GetSubname();
@@ -200,13 +196,11 @@ public class IncrementalSearchBase : ADialog
 		int tabBarHeight = tabBar.Height;
 		int width = Width < 50 ? MainForm.Width - 20 : Width;
 		tabBar.Size = new Size(width, tabBarHeight);
-		splitLine.Location = new Point(width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		variantsTextBox.Location = new Point(0, tabBarHeight);
-		variantsTextBox.Size = new Size(width - 10, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
+		variantsTextBox.Size = new Size(width, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
 		variantsTextBox.Controller.NeedScrollToCaret();
 		textBox.Location = new Point(0, Height - variantsTextBox.CharHeight);
-		textBox.Size = new Size(width - 10, variantsTextBox.CharHeight + 1);
+		textBox.Size = new Size(width, variantsTextBox.CharHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -224,7 +218,6 @@ public class IncrementalSearchBase : ADialog
 			variantsTextBox.Scheme = settings.ParsedScheme;
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{

@@ -135,16 +135,24 @@ public class Frame : AFrame
 		get { return tabBar.Text; }
 		set { tabBar.Text = value; }
 	}
+	
+	private bool splitLineVisible = true;
 
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
+		splitLine.Location = new Point(Width - 8, tabBarHeight);
+		splitLine.Size = new Size(8, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
+		bool splitLineVisible = Nest.HasRight();
+		if (this.splitLineVisible != splitLineVisible)
+		{
+			this.splitLineVisible = splitLineVisible;
+			splitLine.Visible = splitLineVisible;
+		}
+		textBox.Size = new Size(Width - (splitLineVisible ? 8 : 0), Height - tabBarHeight);
 	}
 
 	private Settings settings;

@@ -35,7 +35,6 @@ public class ReplaceDialog : ADialog
 	private Getter<string, bool> doSelectAllFinded;
 	private Getter<string, bool> doSelectNextFinded;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
 	private MonospaceLabel textLabel;
@@ -61,9 +60,6 @@ public class ReplaceDialog : ADialog
 		tabBar.Text = Name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
@@ -109,7 +105,7 @@ public class ReplaceDialog : ADialog
 		Controls.Add(replaceTextLabel);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 		UpdateFindParams();
 	}
@@ -235,8 +231,6 @@ public class ReplaceDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textLabel.Location = new Point(0, tabBarHeight);
 		replaceTextLabel.Location = new Point(0, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
 
@@ -264,7 +258,6 @@ public class ReplaceDialog : ADialog
 			tabBar.Scheme = settings.ParsedScheme;
 			settings.ApplySchemeToLabel(textLabel);
 			settings.ApplySchemeToLabel(replaceTextLabel);
-			splitLine.Scheme = settings.ParsedScheme;
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{

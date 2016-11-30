@@ -22,6 +22,7 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 
+			Cursor = Cursors.VSplit;
 			TabStop = false;
 		}
 

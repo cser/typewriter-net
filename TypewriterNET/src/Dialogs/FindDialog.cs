@@ -32,7 +32,6 @@ public class FindDialog : ADialog
 	private Getter<string, bool> doSelectNextFinded;
 	private Getter<string> getFilterText;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
 	public FindDialog(
@@ -56,12 +55,8 @@ public class FindDialog : ADialog
 	override protected void DoCreate()
 	{
 		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		//tabBar.Text = Name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
@@ -94,7 +89,7 @@ public class FindDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 		UpdateFindParams();
 	}
@@ -152,10 +147,8 @@ public class FindDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -169,7 +162,6 @@ public class FindDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 			tabBar.Text = Name + (getFilterText != null ? " - " + getFilterText() : "");
 		}
 		else if (phase == UpdatePhase.FindParams)

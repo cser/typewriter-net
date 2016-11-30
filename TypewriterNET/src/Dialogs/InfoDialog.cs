@@ -16,7 +16,6 @@ public class InfoDialog : ADialog
 {
 	private SwitchList<string> list;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 
 	public InfoDialog()
@@ -30,9 +29,6 @@ public class InfoDialog : ADialog
 		tabBar.Text = "Info";
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close info", DoClose, null, false)));
@@ -48,7 +44,7 @@ public class InfoDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 	}
 
@@ -99,10 +95,8 @@ public class InfoDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight);
+		textBox.Size = new Size(Width, Height - tabBarHeight);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -117,7 +111,6 @@ public class InfoDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 		}
 	}
 

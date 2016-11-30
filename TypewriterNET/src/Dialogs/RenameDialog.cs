@@ -17,7 +17,6 @@ public class RenameDialog : ADialog
 	private Getter<string, bool> doInput;
 	private List<bool> isDirectory;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private string text;
 
@@ -35,9 +34,6 @@ public class RenameDialog : ADialog
 		tabBar.Text = Name;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		KeyItem escape = new KeyItem(Keys.Escape, null,
@@ -58,7 +54,7 @@ public class RenameDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -131,10 +127,8 @@ public class RenameDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -148,7 +142,6 @@ public class RenameDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 		}
 	}
 

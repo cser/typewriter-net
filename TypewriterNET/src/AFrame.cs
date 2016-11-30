@@ -80,8 +80,11 @@ public class AFrame : Control
 		this.right = right;
 		top.MouseDown += OnTabBarMouseDown;
 		top.MouseUp += OnTabBarMouseUp;
-		right.MouseDown += OnSplitLineMouseDown;
-		right.MouseUp += OnSplitLineMouseUp;
+		if (right != null)
+		{
+			right.MouseDown += OnSplitLineMouseDown;
+			right.MouseUp += OnSplitLineMouseUp;
+		}
 	}
 
 	virtual public Size MinSize { get { return new Size(100, 100); } }
@@ -127,7 +130,10 @@ public class AFrame : Control
 			startX = Control.MousePosition.X;
 			startSizeX = target.size;
 			startWidth = target.frameSize.Width;
-			right.MouseMove += OnSplitLineMouseMove;
+			if (right != null)
+			{
+				right.MouseMove += OnSplitLineMouseMove;
+			}
 		}
 	}
 

@@ -33,7 +33,6 @@ public class FindInFilesDialog : ADialog
 	private FindParams findParams;
 	private Getter<string, string, bool> doFind;
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox filterTextBox;
 
@@ -80,9 +79,6 @@ public class FindInFilesDialog : ADialog
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
-
 		{
 			KeyMap frameKeyMap = new KeyMap();
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
@@ -108,7 +104,7 @@ public class FindInFilesDialog : ADialog
 		}
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 		UpdateFindParams();
 	}
@@ -132,10 +128,8 @@ public class FindInFilesDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 		int size = 20;
 		filterTextBox.Location = new Point(Width - 9 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 0);
 		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
@@ -201,7 +195,6 @@ public class FindInFilesDialog : ADialog
 			textBox.Scheme = settings.ParsedScheme;
 			filterTextBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 			UpdateFilterText();
 		}
 		else if (phase == UpdatePhase.FindParams)

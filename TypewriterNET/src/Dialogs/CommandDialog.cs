@@ -22,7 +22,6 @@ public class CommandDialog : ADialog
 	}
 
 	private TabBar<string> tabBar;
-	private SplitLine splitLine;
 	private MulticaretTextBox textBox;
 	private Data data;
 	private string text;
@@ -40,9 +39,6 @@ public class CommandDialog : ADialog
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.Text = Name;
 		Controls.Add(tabBar);
-
-		splitLine = new SplitLine();
-		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
@@ -67,7 +63,7 @@ public class CommandDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, splitLine);
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 	}
 
@@ -124,10 +120,8 @@ public class CommandDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 10, tabBarHeight);
-		splitLine.Size = new Size(10, Height - tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width - 10, Height - tabBarHeight + 1);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -141,7 +135,6 @@ public class CommandDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			splitLine.Scheme = settings.ParsedScheme;
 		}
 	}
 
