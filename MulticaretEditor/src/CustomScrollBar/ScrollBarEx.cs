@@ -48,13 +48,13 @@
 
 			if (isVertical)
 			{
-				Width = 18;
+				Width = 16;
 				Height = 200;
 			}
 			else
 			{
 				Width = 200;
-				Height = 18;
+				Height = 16;
 			}
 			SetUpScrollBar();
 			progressTimer.Interval = 20;
@@ -354,15 +354,15 @@
 				size - arrowSize;
 			if (isVertical)
 			{
-				thumbRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y + arrowSize, 18, thumbSize);
-				topArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, 18, arrowSize);
-				bottomArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Bottom - arrowSize, 18, arrowSize);
+				thumbRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y + arrowSize, 16, thumbSize);
+				topArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, 16, arrowSize);
+				bottomArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Bottom - arrowSize, 16, arrowSize);
 			}
 			else
 			{
-				thumbRectangle = new Rectangle(ClientRectangle.X + arrowSize, ClientRectangle.Y, thumbSize, 18);
-				topArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, arrowSize, 18);
-				bottomArrowRectangle = new Rectangle(ClientRectangle.Right - arrowSize, ClientRectangle.Y, arrowSize, 18);
+				thumbRectangle = new Rectangle(ClientRectangle.X + arrowSize, ClientRectangle.Y, thumbSize, 16);
+				topArrowRectangle = new Rectangle(ClientRectangle.X, ClientRectangle.Y, arrowSize, 16);
+				bottomArrowRectangle = new Rectangle(ClientRectangle.Right - arrowSize, ClientRectangle.Y, arrowSize, 16);
 			}
 			ThumbPosition = GetThumbByValue();
 			Refresh();
