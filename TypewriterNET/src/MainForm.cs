@@ -1469,7 +1469,10 @@ public class MainForm : Form
 	private bool DoEditCurrentScheme(Controller controller)
 	{
 		CreateAppDataFolders();
-		List<AppPath> paths = schemeManager.GetSchemePaths(settings.scheme.Value);
+		string scheme = settings.scheme.Value;
+		if (string.IsNullOrEmpty(scheme))
+			scheme = tempSettings.Scheme;
+		List<AppPath> paths = schemeManager.GetSchemePaths(scheme);
 		if (paths.Count > 0)
 		{
 			foreach (AppPath path in paths)
