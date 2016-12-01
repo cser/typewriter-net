@@ -699,12 +699,13 @@ namespace MulticaretEditor
 				LineIterator iterator = lines.GetLineRange(lineMin.iLine, lineMax.iLine - lineMin.iLine + 1);
 				if (iterator.MoveNext())
 				{
-					int y = offsetY + (wwILineMin - lineMin.iSubline) * charHeight;
+					int index = wwILineMin - lineMin.iSubline;
 					do
 					{
-						DrawLineCharsWrapped(g, new Point(offsetX, y), iterator.current, iterator.Index);
+						int y = offsetY + index * charHeight;
+						DrawLineCharsWrapped(g, new Point(offsetX, y), iterator.current, iterator.Index, index, wwILineMin, wwILineMax);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
-						y += (iterator.current.cutOffs.count + 1) * charHeight;
+						index += iterator.current.cutOffs.count + 1;
 					}
 					while (iterator.MoveNext());
 				}
@@ -1060,10 +1061,10 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private void DrawLineCharsWrapped(Graphics g, Point position, Line line, int iLine)
+		private void DrawLineCharsWrapped(Graphics g, Point position, Line line, int iLine, int iiLine, int iiMin, int iiMax)
 		{
 			int tabSize = lines.tabSize;
-			float y = position.Y + lineInterval / 2;
+			float y0 = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
 
 			int[] indices = null;
@@ -1074,8 +1075,23 @@ namespace MulticaretEditor
 				if (indices != null)
 					markI = 0;
 			}
-			for (int iCutOff = 0; iCutOff <= line.cutOffs.count; iCutOff++)
+			int iCutOff0 = 0;
+			if (iCutOff0 < iiMin - iiLine)
+				iCutOff0 = iiMin - iiLine;
+			int iCutOff1 = line.cutOffs.count;
+			if (iCutOff1 > iiMax - iiLine)
+				iCutOff1 = iiMax - iiLine;
+			if (markI != -1 && iCutOff0 < line.cutOffs.count)
 			{
+				CutOff cutOff = line.cutOffs.buffer[iCutOff0];
+				while (markI < indices.Length - 1 && indices[markI] < cutOff.iChar)
+				{
+					markI++;
+				}
+			}
+			for (int iCutOff = iCutOff0; iCutOff <= iCutOff1; iCutOff++)
+			{
+				float y = y0 + iCutOff * charHeight;
 				int pos = 0;
 				int i0 = 0;
 				if (iCutOff > 0)
@@ -1180,7 +1196,6 @@ namespace MulticaretEditor
 						pos++;
 					}
 				}
-				y += charHeight;
 			}
 		}
 
