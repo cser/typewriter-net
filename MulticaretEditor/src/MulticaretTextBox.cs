@@ -702,7 +702,7 @@ namespace MulticaretEditor
 					int y = offsetY + (wwILineMin - lineMin.iSubline) * charHeight;
 					do
 					{
-						DrawLineChars(g, new Point(offsetX, y), iterator.current, iterator.Index, minPos, maxPos);
+						DrawLineCharsWrapped(g, new Point(offsetX, y), iterator.current, iterator.Index);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += (iterator.current.cutOffs.count + 1) * charHeight;
 					}
@@ -990,10 +990,7 @@ namespace MulticaretEditor
 
 		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos)
 		{
-			int size = line.Size;
 			int count = line.chars.Count;
-			int start = Math.Min(minPos, size);
-			int end = Math.Min(maxPos, size);
 			int tabSize = lines.tabSize;
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
@@ -1006,154 +1003,163 @@ namespace MulticaretEditor
 				if (indices != null)
 					markI = 0;
 			}
-			if (lines.wordWrap)
+			int pos = 0;
+			for (int i = 0; i < count; i++)
 			{
-				for (int iCutOff = 0; iCutOff <= line.cutOffs.count; iCutOff++)
+				if (pos > maxPos)
+					break;
+				if (markI != -1 && i == indices[markI])
 				{
-					int pos = 0;
-					int i0 = 0;
-					if (iCutOff > 0)
+					int length = lines.markedWord.Length;
+					g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+					g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+					if (markI < indices.Length - 1)
+						markI++;
+				}
+				Char c = line.chars[i];
+				if (pos >= minPos)
+				{
+					if (showLineBreaks && c.c == '\r')
 					{
-						CutOff cutOff = line.cutOffs.buffer[iCutOff - 1];
-						pos = cutOff.left;
-						i0 = cutOff.iChar;
+						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
+						g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.chars.Count;
-					for (int i = i0; i < i1; i++)
+					else if (showLineBreaks && c.c == '\n')
 					{
-						if (markI != -1 && i == indices[markI])
-						{
-							int length = lines.markedWord.Length;
-							if (i + length <= i1)
-							{
-								g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-								g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-								if (markI < indices.Length - 1)
-									markI++;
-							}
-							else
-							{
-								selectionRects.Clear();
-								selectionRects.Add(new DrawingLine(pos, (int)(y + lineInterval / 2), line.GetSublineSize(iCutOff) - pos));
-								for (int k = iCutOff + 1; k <= line.cutOffs.count; k++)
-								{
-									int left = line.cutOffs.buffer[k - 1].left;
-									int ii0 = line.cutOffs.buffer[k - 1].iChar;
-									int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
-									int top = (int)(y + (k - iCutOff) * charHeight + lineInterval / 2);
-									if (i + length <= ii1)
-									{
-										int offsetX = left;
-										for (int ii = ii0; ii < i + length; ii++)
-										{
-											if (line.chars[ii].c == '\t')
-											{
-												offsetX = ((offsetX + tabSize) / tabSize) * tabSize;
-											}
-											else
-											{
-												offsetX++;
-											}
-										}
-										selectionRects.Add(new DrawingLine(left, top, offsetX));
-										break;
-									}
-									selectionRects.Add(new DrawingLine(left, top, line.GetSublineSize(k)));
-								}
-								for (int k = 0; k < selectionRects.count; k++)
-								{
-									DrawingLine rect = selectionRects.buffer[k];
-									g.DrawRectangle(scheme.markPen, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
-								}
-								for (int k = 0; k < selectionRects.count; k++)
-								{
-									DrawingLine rect = selectionRects.buffer[k];
-									g.FillRectangle(scheme.bgBrush, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
-								}
-								if (markI < indices.Length - 1)
-									markI++;
-							}
-						}
-
-						Char c = line.chars[i];
-						if (showLineBreaks && c.c == '\r')
-						{
-							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-							g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-						}
-						else if (showLineBreaks && c.c == '\n')
-						{
-							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-						}
-						else if (showSpaceCharacters && c.c == ' ')
-						{
-							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
-						}
-						else
-						{
-							TextStyle style = styles[c.style];
-							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
-						}
-						if (c.c == '\t')
-						{
-							int newPos = ((pos + tabSize) / tabSize) * tabSize;
-							if (showSpaceCharacters)
-							{
-								float x1 = x + charWidth * pos + charWidth * (newPos - pos) - 2;
-								float y1 = y + charHeight / 2;
-								float arrowSize = charWidth * .4f;
-								g.DrawLine(scheme.lineNumberFgPen, x + charWidth * pos + 1, y + charHeight / 2, x1, y1);
-								g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 - arrowSize);
-								g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 + arrowSize);
-							}
-							pos = newPos;
-						}
-						else
-						{
-							pos++;
-						}
+						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
+						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					y += charHeight;
+					else if (showSpaceCharacters && c.c == ' ')
+					{
+						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+					}
+					else
+					{
+						TextStyle style = styles[c.style];
+						g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+					}
+				}
+				if (c.c == '\t')
+				{
+					int newPos = ((pos + tabSize) / tabSize) * tabSize;
+					if (showSpaceCharacters)
+					{
+						float x1 = x + charWidth * pos + charWidth * (newPos - pos) - 2;
+						float y1 = y + charHeight / 2;
+						float arrowSize = charWidth * .4f;
+						g.DrawLine(scheme.lineNumberFgPen, x + charWidth * pos + 1, y + charHeight / 2, x1, y1);
+						g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 - arrowSize);
+						g.DrawLine(scheme.lineNumberFgPen, x1, y1, x1 - arrowSize, y1 + arrowSize);
+					}
+					pos = newPos;
+				}
+				else
+				{
+					pos++;
 				}
 			}
-			else
+		}
+		
+		private void DrawLineCharsWrapped(Graphics g, Point position, Line line, int iLine)
+		{
+			int tabSize = lines.tabSize;
+			float y = position.Y + lineInterval / 2;
+			float x = position.X - charWidth / 3;
+
+			int[] indices = null;
+			int markI = -1;
+			if (lines.markedWord != null)
+			{
+				lines.marksByLine.TryGetValue(iLine, out indices);
+				if (indices != null)
+					markI = 0;
+			}
+			for (int iCutOff = 0; iCutOff <= line.cutOffs.count; iCutOff++)
 			{
 				int pos = 0;
-				for (int i = 0; i < count; i++)
+				int i0 = 0;
+				if (iCutOff > 0)
 				{
-					if (pos > maxPos)
-						break;
+					CutOff cutOff = line.cutOffs.buffer[iCutOff - 1];
+					pos = cutOff.left;
+					i0 = cutOff.iChar;
+				}
+				int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.chars.Count;
+				for (int i = i0; i < i1; i++)
+				{
 					if (markI != -1 && i == indices[markI])
 					{
 						int length = lines.markedWord.Length;
-						g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-						g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-						if (markI < indices.Length - 1)
-							markI++;
-					}
-					Char c = line.chars[i];
-					if (pos >= minPos)
-					{
-						if (showLineBreaks && c.c == '\r')
+						if (i + length <= i1)
 						{
-							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-							g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-						}
-						else if (showLineBreaks && c.c == '\n')
-						{
-							g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
-							g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
-						}
-						else if (showSpaceCharacters && c.c == ' ')
-						{
-							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+							g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+							g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+							if (markI < indices.Length - 1)
+								markI++;
 						}
 						else
 						{
-							TextStyle style = styles[c.style];
-							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							selectionRects.Clear();
+							selectionRects.Add(new DrawingLine(pos, (int)(y + lineInterval / 2), line.GetSublineSize(iCutOff) - pos));
+							for (int k = iCutOff + 1; k <= line.cutOffs.count; k++)
+							{
+								int left = line.cutOffs.buffer[k - 1].left;
+								int ii0 = line.cutOffs.buffer[k - 1].iChar;
+								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
+								int top = (int)(y + (k - iCutOff) * charHeight + lineInterval / 2);
+								if (i + length <= ii1)
+								{
+									int offsetX = left;
+									for (int ii = ii0; ii < i + length; ii++)
+									{
+										if (line.chars[ii].c == '\t')
+										{
+											offsetX = ((offsetX + tabSize) / tabSize) * tabSize;
+										}
+										else
+										{
+											offsetX++;
+										}
+									}
+									selectionRects.Add(new DrawingLine(left, top, offsetX));
+									break;
+								}
+								selectionRects.Add(new DrawingLine(left, top, line.GetSublineSize(k)));
+							}
+							for (int k = 0; k < selectionRects.count; k++)
+							{
+								DrawingLine rect = selectionRects.buffer[k];
+								g.DrawRectangle(scheme.markPen, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
+							}
+							for (int k = 0; k < selectionRects.count; k++)
+							{
+								DrawingLine rect = selectionRects.buffer[k];
+								g.FillRectangle(scheme.bgBrush, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
+							}
+							if (markI < indices.Length - 1)
+								markI++;
 						}
+					}
+
+					Char c = line.chars[i];
+					if (showLineBreaks && c.c == '\r')
+					{
+						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
+						g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
+					}
+					else if (showLineBreaks && c.c == '\n')
+					{
+						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
+						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
+					}
+					else if (showSpaceCharacters && c.c == ' ')
+					{
+						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+					}
+					else
+					{
+						TextStyle style = styles[c.style];
+						g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
 					}
 					if (c.c == '\t')
 					{
@@ -1174,6 +1180,7 @@ namespace MulticaretEditor
 						pos++;
 					}
 				}
+				y += charHeight;
 			}
 		}
 
