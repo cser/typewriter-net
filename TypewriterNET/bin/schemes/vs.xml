@@ -12,18 +12,18 @@
 	<color name="lineBg" value="#EAEAF2"/>
 	<color name="lineNumberBg" value="#FFFFFF"/>
 	<color name="lineNumberFg" value="moray"/>
-	<color name="nameBg" value="#EEEEEE"/>
-	<color name="nameFg" value="#808080"/>
 	<color name="selectionBrush" value="#ADD6FF"/>
 	<color name="selectionPen" value="#ADD6FF"/>
 	<color name="markPen" value="#AAAAAA"/>
 	<color name="mainCaret" value="#8000FF"/>
 	<color name="caret" value="#7F7F7F"/>
 	
+	<color name="nameBg" value="#FFFFFF"/>
+	<color name="nameFg" value="moray"/>
 	<color name="tabsLine" value="#808080"/>
 	<color name="tabsBg" value="#F5F5F5"/>
 	<color name="tabsFg" value="#000000"/>
-	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsSelectedBg" value="#60608E"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
 	
 	<color name="splitterBg" value="#EEEEEE"/>
