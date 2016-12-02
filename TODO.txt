@@ -12,3 +12,5 @@ System.ArgumentOutOfRangeException: Индекс за пределами диа�
    в System.Windows.Forms.NativeWindow.Callback(IntPtr hWnd, Int32 msg, IntPtr wparam, IntPtr lparam)
 
 Fix position by mouse on half-tab
+
+- Fuzzy search caching, update new version in background

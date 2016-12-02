@@ -348,7 +348,7 @@
 		private void SetUpScrollBar()
 		{
 			size = isVertical ? Height : Width;
-			arrowSize = 17;
+			arrowSize = 16;
 			thumbSize = maximum > 0 ?
 				Math.Min(size - arrowSize * 2, Math.Max(largeChange * (size - arrowSize * 2) / maximum, 10)) :
 				size - arrowSize;

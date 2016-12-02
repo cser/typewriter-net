@@ -306,13 +306,15 @@ namespace MulticaretEditor
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
 			{
-				int tx = closeRect.X + closeRect.Width / 2;
+				int tx = closeRect.X + closeRect.Width / 2 + 1;
 				int ty = charHeight / 2;
-				int td = charHeight / 5;
-				g.DrawLine(tabsFgPen, tx - td, ty - td, tx + td, ty + td);
-				g.DrawLine(tabsFgPen, tx + td, ty - td, tx - td, ty + td);
+				int td = 3;
+				g.DrawLine(tabsFgPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
 				g.DrawLine(tabsFgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
+				g.DrawLine(tabsFgPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
+				g.DrawLine(tabsFgPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
 				g.DrawLine(tabsFgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
+				g.DrawLine(tabsFgPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
 			}
 
 			if (leftRect != null)
