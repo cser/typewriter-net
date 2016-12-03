@@ -1871,7 +1871,12 @@ public class MainForm : Form
 		Buffer buffer = LoadFile(fileName);
 		if (buffer != null)
 		{
-			Place place1 = buffer.Controller.Lines.PlaceOf(buffer.Controller.Lines.IndexOf(place0) + length);
+			int position = buffer.Controller.Lines.IndexOf(place0) + length;
+			if (position < 0)
+				position = 0;
+			if (position > buffer.Controller.Lines.charsCount)
+				position = buffer.Controller.Lines.charsCount;
+			Place place1 = buffer.Controller.Lines.PlaceOf(position);
 			buffer.Controller.PutCursor(place0, false);
 			buffer.Controller.PutCursor(place1, true);
 			if (buffer.Frame != null)
