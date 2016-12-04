@@ -15,3 +15,7 @@ Fix position by mouse on half-tab
 
 - Fuzzy search caching, update new version in background
 - Fix unfocus on reloading undo
+- Fix font and right indents in replace dialog
+- Fix floating top indents
+- Hide line numbers in FileTree parameter
+- Fix color changing on save

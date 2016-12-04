@@ -171,6 +171,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref splitterLineColor, "splitterLine", colors);
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
+			SetColor(ref printMarginColor, "printMargin", colors);
 			
 			SetColor(ref headerOnBg, "headerOnBg", colors);
 			SetColor(ref headerOnFg, "headerOnFg", colors);
