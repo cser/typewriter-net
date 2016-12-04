@@ -203,22 +203,43 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth / 2;
 
-			Brush bgBrush = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
-			Brush tabsFgBrush = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
-			Pen tabsFgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
-			Pen linePen = scheme.tabsLinePen;
+			Brush bg;
+			Brush fg;
+			Pen fgPen;
+			Brush tabBg;
+			Pen tabBgPen;
+			Brush tabFg;
+			Pen tabFgPen;
+			if (_selected)
+			{
+				bg = scheme.headerOnBg_Brush;
+				fg = scheme.headerOnFg_Brush;
+				fgPen = scheme.headerOnFg_Pen;
+				tabBg = scheme.headerOnTabBg_Brush;
+				tabBgPen = scheme.headerOnTabBg_Pen;
+				tabFg = scheme.headerOnTabFg_Brush;
+				tabFgPen = scheme.headerOnTabFg_Pen;
+			}
+			else
+			{
+				bg = scheme.headerOffBg_Brush;
+				fg = scheme.headerOffFg_Brush;
+				fgPen = scheme.headerOffFg_Pen;
+				tabBg = scheme.headerOffTabBg_Brush;
+				tabBgPen = scheme.headerOffTabBg_Pen;
+				tabFg = scheme.headerOffTabFg_Brush;
+				tabFgPen = scheme.headerOffTabFg_Pen;
+			}
 
-			g.FillRectangle(bgBrush, 0, 0, width - charWidth, charHeight - 1);
-			g.DrawLine(linePen, 0, charHeight - 1, width, charHeight - 1);
+			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight - 2);
+			g.FillRectangle(tabBg, 0, charHeight - 2, width, 2);
 
 			leftIndent = charWidth;
 			if (text != null)
 			{
 				for (int j = 0; j < text.Length; j++)
 				{
-					g.DrawString(
-						text[j] + "", font, tabsFgBrush,
-						10 - charWidth / 3 + j * charWidth, 0, stringFormat);
+					g.DrawString(text[j] + "", font, fg, 10 - charWidth / 3 + j * charWidth, 0, stringFormat);
 				}
 				leftIndent += (charWidth + 1) * text.Length;
 			}
@@ -270,6 +291,7 @@ namespace MulticaretEditor
 			if (list != null)
 			{
 				int offsetX = GetOffsetX(offsetIndex);
+				bool prevSelected = false;
 				for (int i = Math.Max(0, offsetIndex); i < list.Count; i++)
 				{
 					T value = list[i];
@@ -282,39 +304,44 @@ namespace MulticaretEditor
 
 					if (selected)
 					{
-						g.FillRectangle(scheme.bgBrush, rect);
-						g.DrawRectangle(linePen, rect);
+						g.FillRectangle(tabBg, rect);
 					}
 					else
 					{
-						g.FillRectangle(scheme.nameBgBrush, rect);
-						g.DrawRectangle(linePen, rect.X, rect.Y, rect.Width, rect.Height - 1);
+						if (!prevSelected)
+						{
+							g.DrawLine(tabBgPen, rect.X, rect.Y, rect.X, rect.Y + rect.Height - 2);
+						}
+						if (i == list.Count - 1)
+						{
+							g.DrawLine(tabBgPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
+						}
 					}
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
-							tabText[j] + "", font, selected ? scheme.fgBrush : scheme.nameFgBrush,
+							tabText[j] + "", font, selected ? tabFg : fg,
 							rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
 					}
 					rects.Add(rect);
+					prevSelected = selected;
 				}
 			}
 
-			g.FillRectangle(bgBrush, width - rightIndent, 0, rightIndent, charHeight - 1);
-			g.DrawLine(linePen, width - rightIndent, charHeight - 1, width, charHeight - 1);
+			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight - 2);
 
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
 			{
 				int tx = closeRect.X + closeRect.Width / 2 + 1;
-				int ty = charHeight / 2;
+				int ty = charHeight / 2 - 1;
 				int td = 3;
-				g.DrawLine(tabsFgPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
-				g.DrawLine(tabsFgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
-				g.DrawLine(tabsFgPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
-				g.DrawLine(tabsFgPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
-				g.DrawLine(tabsFgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
-				g.DrawLine(tabsFgPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
+				g.DrawLine(fgPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
+				g.DrawLine(fgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
+				g.DrawLine(fgPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
+				g.DrawLine(fgPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
+				g.DrawLine(fgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
+				g.DrawLine(fgPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
 			}
 
 			if (leftRect != null)
@@ -325,7 +352,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx - td, ty);
 				tempPoints[1] = new Point(tx + td, ty - td * 2);
 				tempPoints[2] = new Point(tx + td, ty + td * 2);
-				g.FillPolygon(tabsFgBrush, tempPoints);
+				g.FillPolygon(fg, tempPoints);
 			}
 			if (rightRect != null)
 			{
@@ -335,7 +362,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx + td, ty);
 				tempPoints[1] = new Point(tx - td, ty - td * 2);
 				tempPoints[2] = new Point(tx - td, ty + td * 2);
-				g.FillPolygon(tabsFgBrush, tempPoints);
+				g.FillPolygon(fg, tempPoints);
 			}
 
 			if (text2 != null)
@@ -344,7 +371,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < text2.Length; j++)
 				{
 					g.DrawString(
-						text2[j] + "", font, tabsFgBrush,
+						text2[j] + "", font, fg,
 						left + charWidth * 2 / 3 + j * charWidth, 0, stringFormat);
 				}
 			}

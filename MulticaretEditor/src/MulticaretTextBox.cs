@@ -691,7 +691,7 @@ namespace MulticaretEditor
 			if (printMargin)
 			{
 				float x = leftIndent + charWidth * printMarginSize - valueX;
-				g.DrawLine(scheme.tabsLinePen, x, 0, x, clientHeight);
+				g.DrawLine(scheme.printMarginPen, x, 0, x, clientHeight);
 			}
 			lineNumberInfos.Clear();
 			if (lines.wordWrap)
