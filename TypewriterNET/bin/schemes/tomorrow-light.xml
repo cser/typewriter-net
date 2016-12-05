@@ -24,13 +24,11 @@
 	<color name="mainCaret" value="#000000"/>
 	<color name="caret" value="#808080"/>
 	
-	<color name="tabsLine" value="#cccccc"/>
+	<color name="printMargin" value="#cccccc"/>
 	<color name="tabsBg" value="#dfdfdf"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#ffffff"/>
 	<color name="tabsSelectedFg" value="#000000"/>
-	<color name="nameBg" value="#ffffff"/>
-	<color name="nameFg" value="#808080"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

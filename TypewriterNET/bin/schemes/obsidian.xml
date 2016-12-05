@@ -25,9 +25,7 @@
 	<color name="mainCaret" value="#EEEEEE"/>
 	<color name="caret" value="#7F7F7F"/>
 
-	<color name="nameBg" value="#293134"/>
-	<color name="nameFg" value="#959E9E"/>
-	<color name="tabsLine" value="#808080"/>
+	<color name="printMargin" value="#808080"/>
 	<color name="tabsBg" value="#EEEEEE"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#808080"/>

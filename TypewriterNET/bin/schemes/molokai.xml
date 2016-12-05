@@ -15,16 +15,14 @@
 	<color name="lineBg" value="#242526"/>
 	<color name="lineNumberBg" value="#242526"/>
 	<color name="lineNumberFg" value="#415457"/>
-	<color name="nameBg" value="#242526"/>
-	<color name="nameFg" value="#415457"/>
 	<color name="selectionBrush" value="#59584E"/>
 	<color name="selectionPen" value="#69685E"/>
 	<color name="markPen" value="#C3C4BC"/>
 	<color name="mainCaret" value="#F8F8F0"/>
 	<color name="caret" value="#AAAAAA"/>
 	
-	<color name="tabsLine" value="#808080"/>
-	<color name="tabsBg" value="#161713"/>
+	<color name="printMargin" value="#808080"/>
+	<color name="tabsBg" value="#494949"/>
 	<color name="tabsFg" value="default"/>
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>

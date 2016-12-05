@@ -5,15 +5,13 @@
 	<color name="lineBg" value="#F8F7F6"/>
 	<color name="lineNumberBg" value="#E4E4E4"/>
 	<color name="lineNumberFg" value="#808080"/>
-	<color name="nameBg" value="#E4E4E4"/>
-	<color name="nameFg" value="#808080"/>
 	<color name="selectionBrush" value="#94CAEF"/>
 	<color name="selectionPen" value="#FFFFFF"/>
 	<color name="markPen" value="#94CAEF"/>
 	<color name="mainCaret" value="#1F1C1B"/>
 	<color name="caret" value="#808080"/>
 	
-	<color name="tabsLine" value="#808080"/>
+	<color name="printMargin" value="#808080"/>
 	<color name="tabsBg" value="#F5F5F5"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#808080"/>

@@ -5,8 +5,6 @@
 	<color name="lineBg" value="base2"/>
 	<color name="lineNumberBg" value="base2"/>
 	<color name="lineNumberFg" value="base1"/>
-	<color name="nameBg" value="base2"/>
-	<color name="nameFg" value="base1"/>
 	<color name="selectionBrush" value="base03"/>
 	<color name="selectionPen" value="#052831"/>
 	<color name="markPen" value="base0"/>
@@ -21,7 +19,7 @@
 	<color name="scrollArrow" value="#8E8875"/>
 	<color name="scrollArrowHover" value="#000000"/>
 	
-	<color name="tabsLine" value="base00"/>
+	<color name="printMargin" value="base00"/>
 	<color name="tabsBg" value="#C0C0C0"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#base01"/>

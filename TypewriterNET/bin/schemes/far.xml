@@ -20,15 +20,13 @@
 	<color name="lineBg" value="lineBg"/>
 	<color name="lineNumberBg" value="selection"/>
 	<color name="lineNumberFg" value="white"/>
-	<color name="nameBg" value="selection"/>
-	<color name="nameFg" value="white"/>
 	<color name="selectionBrush" value="selection"/>
 	<color name="selectionPen" value="selection"/>
 	<color name="markPen" value="blue"/>
 	<color name="mainCaret" value="white"/>
 	<color name="caret" value="blue"/>
 	
-	<color name="tabsLine" value="bg"/>
+	<color name="printMargin" value="selection"/>
 	<color name="tabsBg" value="selection"/>
 	<color name="tabsFg" value="black"/>
 	<color name="tabsSelectedBg" value="selection"/>

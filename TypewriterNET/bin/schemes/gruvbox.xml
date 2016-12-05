@@ -46,13 +46,11 @@
 	<color name="mainCaret" value="_fg0"/>
 	<color name="caret" value="#90aec5"/>
 	
-	<color name="tabsLine" value="bg2"/>
+	<color name="printMargin" value="bg2"/>
 	<color name="tabsBg" value="bg1"/>
 	<color name="tabsFg" value="_fg4"/>
 	<color name="tabsSelectedBg" value="_fg3"/>
 	<color name="tabsSelectedFg" value="bg0"/>
-	<color name="nameBg" value="bg3"/>
-	<color name="nameFg" value="bg0"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

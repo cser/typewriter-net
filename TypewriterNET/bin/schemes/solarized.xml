@@ -54,8 +54,6 @@
 	<color name="lineBg" value="base02"/>
 	<color name="lineNumberBg" value="base02"/>
 	<color name="lineNumberFg" value="base01"/>
-	<color name="nameBg" value="base02"/>
-	<color name="nameFg" value="base00"/>
 	<color name="selectionBrush" value="base3"/>
 	<color name="selectionPen" value="#071E26"/>
 	<color name="markPen" value="base00"/>
