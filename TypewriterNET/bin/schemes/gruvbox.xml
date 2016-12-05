@@ -45,16 +45,14 @@
 	<color name="markPen" value="#909090"/>
 	<color name="mainCaret" value="_fg0"/>
 	<color name="caret" value="#90aec5"/>
-	<color name="printMargin" value="bg3"/>
 	
-	<color name="headerOnBg" value="bg4"/>
-	<color name="headerOnFg" value="_fg"/>
-	<color name="headerOnTabBg" value="_fg"/>
-	<color name="headerOnTabFg" value="_bg0_s"/>
-	<color name="headerOffBg" value="bg4"/>
-	<color name="headerOffFg" value="_fg"/>
-	<color name="headerOffTabBg" value="_fg"/>
-	<color name="headerOffTabFg" value="_bg0_s"/>
+	<color name="tabsLine" value="bg2"/>
+	<color name="tabsBg" value="bg1"/>
+	<color name="tabsFg" value="_fg4"/>
+	<color name="tabsSelectedBg" value="_fg3"/>
+	<color name="tabsSelectedFg" value="bg0"/>
+	<color name="nameBg" value="bg3"/>
+	<color name="nameFg" value="bg0"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

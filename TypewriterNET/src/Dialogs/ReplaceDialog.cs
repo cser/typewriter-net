@@ -252,7 +252,7 @@ public class ReplaceDialog : ADialog
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
-			BackColor = settings.ParsedScheme.headerOffBg;
+			BackColor = settings.ParsedScheme.tabsBgColor;
 			textBox.Scheme = settings.ParsedScheme;
 			replaceTextBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;

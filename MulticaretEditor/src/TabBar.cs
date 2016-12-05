@@ -203,33 +203,12 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth;
 
-			Brush bg;
-			Brush fg;
-			Pen fgPen;
-			Brush tabBg;
-			Pen tabBgPen;
-			Brush tabFg;
-			Pen tabFgPen;
-			if (_selected)
-			{
-				bg = scheme.headerOnBg_Brush;
-				fg = scheme.headerOnFg_Brush;
-				fgPen = scheme.headerOnFg_Pen;
-				tabBg = scheme.headerOnTabBg_Brush;
-				tabBgPen = scheme.headerOnTabBg_Pen;
-				tabFg = scheme.headerOnTabFg_Brush;
-				tabFgPen = scheme.headerOnTabFg_Pen;
-			}
-			else
-			{
-				bg = scheme.headerOffBg_Brush;
-				fg = scheme.headerOffFg_Brush;
-				fgPen = scheme.headerOffFg_Pen;
-				tabBg = scheme.headerOffTabBg_Brush;
-				tabBgPen = scheme.headerOffTabBg_Pen;
-				tabFg = scheme.headerOffTabFg_Brush;
-				tabFgPen = scheme.headerOffTabFg_Pen;
-			}
+			Brush tabBg = scheme.bgBrush;
+			Brush tabFg = scheme.fgBrush;
+			Brush bg = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
+			Brush fg = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
+			Pen fgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
+			Pen separatorPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
 
 			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
 
@@ -309,11 +288,11 @@ namespace MulticaretEditor
 					{
 						if (!prevSelected)
 						{
-							g.DrawLine(tabBgPen, rect.X, rect.Y, rect.X, rect.Y + rect.Height - 2);
+							g.DrawLine(separatorPen, rect.X, rect.Y, rect.X, rect.Y + rect.Height - 2);
 						}
 						if (i == list.Count - 1)
 						{
-							g.DrawLine(tabBgPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
+							g.DrawLine(separatorPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
 						}
 					}
 					for (int j = 0; j < tabText.Length; j++)

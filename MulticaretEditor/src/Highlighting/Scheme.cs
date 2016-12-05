@@ -20,11 +20,18 @@ namespace MulticaretEditor.Highlighting
 		public Color lineBgColor;
 		public Color lineNumberBgColor;
 		public Color lineNumberFgColor;
+		public Color nameBgColor;
+		public Color nameFgColor;
 		public Color selectionBrushColor;
 		public Color selectionPenColor;
 		public Color markPenColor;
 		public Color mainCaretColor;
 		public Color caretColor;
+		public Color tabsLineColor;
+		public Color tabsBgColor;
+		public Color tabsFgColor;
+		public Color tabsSelectedBgColor;
+		public Color tabsSelectedFgColor;
 		public Color splitterBgColor;
 		public Color splitterLineColor;
 		
@@ -49,7 +56,15 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
-		
+		public Brush nameBgBrush;
+		public Brush nameFgBrush;
+		public Brush tabsBgBrush;
+		public Brush tabsFgBrush;
+		public Pen tabsFgPen;
+		public Pen tabsLinePen;
+		public Brush tabsSelectedBgBrush;
+		public Brush tabsSelectedFgBrush;
+		public Pen tabsSelectedFgPen;
 		public Brush splitterBgBrush;
 		public Pen splitterLinePen;
 		
@@ -58,33 +73,6 @@ namespace MulticaretEditor.Highlighting
 		public Brush scrollThumbHoverBrush;
 		public Pen scrollArrowPen;
 		public Pen scrollArrowHoverPen;
-		
-		public Color printMarginColor;
-		public Pen printMarginPen;
-		
-		public Color headerOnBg;
-		public Color headerOnFg;
-		public Color headerOnTabBg;
-		public Color headerOnTabFg;
-		public Color headerOffBg;
-		public Color headerOffFg;
-		public Color headerOffTabBg;
-		public Color headerOffTabFg;
-		
-		public Brush headerOnBg_Brush;
-		public Brush headerOnFg_Brush;
-		public Pen headerOnFg_Pen;
-		public Brush headerOnTabBg_Brush;
-		public Pen headerOnTabBg_Pen;
-		public Brush headerOnTabFg_Brush;
-		public Pen headerOnTabFg_Pen;
-		public Brush headerOffBg_Brush;
-		public Brush headerOffFg_Brush;
-		public Pen headerOffFg_Pen;
-		public Brush headerOffTabBg_Brush;
-		public Pen headerOffTabBg_Pen;
-		public Brush headerOffTabFg_Brush;
-		public Pen headerOffTabFg_Pen;
 		
 		public void ParseXml(IEnumerable<XmlDocument> xmls)
 		{
@@ -162,25 +150,22 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref lineBgColor, "lineBg", colors);
 			SetColor(ref lineNumberBgColor, "lineNumberBg", colors);
 			SetColor(ref lineNumberFgColor, "lineNumberFg", colors);
+			SetColor(ref nameBgColor, "nameBg", colors);
+			SetColor(ref nameFgColor, "nameFg", colors);
 			SetColor(ref selectionBrushColor, "selectionBrush", colors);
 			SetColor(ref selectionPenColor, "selectionPen", colors);
 			SetColor(ref markPenColor, "markPen", colors);
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
+			SetColor(ref tabsLineColor, "tabsLine", colors);
 			SetColor(ref splitterBgColor, "splitterBg", colors);
 			SetColor(ref splitterLineColor, "splitterLine", colors);
+			SetColor(ref tabsBgColor, "tabsBg", colors);
+			SetColor(ref tabsFgColor, "tabsFg", colors);
+			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
+			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
-			SetColor(ref printMarginColor, "printMargin", colors);
-			
-			SetColor(ref headerOnBg, "headerOnBg", colors);
-			SetColor(ref headerOnFg, "headerOnFg", colors);
-			SetColor(ref headerOnTabBg, "headerOnTabBg", colors);
-			SetColor(ref headerOnTabFg, "headerOnTabFg", colors);
-			SetColor(ref headerOffBg, "headerOffBg", colors);
-			SetColor(ref headerOffFg, "headerOffFg", colors);
-			SetColor(ref headerOffTabBg, "headerOffTabBg", colors);
-			SetColor(ref headerOffTabFg, "headerOffTabFg", colors);
 			
 			SetColor(ref scrollBgColor, "scrollBg", colors);
 			SetColor(ref scrollThumbColor, "scrollThumb", colors);
@@ -219,12 +204,19 @@ namespace MulticaretEditor.Highlighting
 			lineBgColor = Color.FromArgb(230, 230, 240);			
 			lineNumberBgColor = Color.FromArgb(228, 228, 228);
 			lineNumberFgColor = Color.Gray;
+			nameBgColor = Color.FromArgb(230, 230, 240);
+			nameFgColor = Color.Gray;
 			fgColor = Color.Black;
 			selectionBrushColor = Color.FromArgb(220, 220, 255);
 			selectionPenColor = Color.FromArgb(150, 150, 200);
 			markPenColor = Color.FromArgb(150, 150, 200);
 			mainCaretColor = Color.Black;
 			caretColor = Color.Gray;
+			tabsLineColor = Color.Gray;
+			tabsBgColor = Color.WhiteSmoke;
+			tabsFgColor = Color.Black;
+			tabsSelectedBgColor = Color.Gray;
+			tabsSelectedFgColor = Color.White;
 			splitterBgColor = Color.WhiteSmoke;
 			splitterLineColor = Color.Gray;
 			mainCaretWidth = 1;
@@ -235,18 +227,6 @@ namespace MulticaretEditor.Highlighting
 			scrollThumbHoverColor = Color.FromArgb(100, 100, 200);
 			scrollArrowColor = Color.Black;
 			scrollArrowHoverColor = Color.FromArgb(50, 50, 255);
-			
-			headerOnBg = Color.FromArgb(228, 228, 228);
-			headerOnFg = Color.FromArgb(0, 0, 0);
-			headerOnTabBg = Color.FromArgb(128, 128, 128);
-			headerOnTabFg = Color.FromArgb(255, 255, 255);
-			
-			headerOffBg = Color.FromArgb(228, 228, 228);
-			headerOffFg = Color.FromArgb(0, 0, 0);
-			headerOffTabBg = Color.FromArgb(128, 128, 128);
-			headerOffTabFg = Color.FromArgb(255, 255, 255);
-			
-			printMarginColor = Color.FromArgb(228, 228, 228);
 			
 			Clear();
 			defaultTextStyle.brush = new SolidBrush(fgColor);
@@ -265,11 +245,20 @@ namespace MulticaretEditor.Highlighting
 			lineNumberBackground = new SolidBrush(lineNumberBgColor);
 			lineNumberForeground = new SolidBrush(lineNumberFgColor);
 			lineNumberFgPen = new Pen(lineNumberFgColor);
+			nameFgBrush = new SolidBrush(nameFgColor);
+			nameBgBrush = new SolidBrush(nameBgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
 			markPen = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
+			tabsBgBrush = new SolidBrush(tabsBgColor);
+			tabsFgBrush = new SolidBrush(tabsFgColor);
+			tabsFgPen = new Pen(tabsFgColor);
+			tabsLinePen = new Pen(tabsLineColor);
+			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
+			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
+			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
 			splitterBgBrush = new SolidBrush(splitterBgColor);
 			splitterLinePen = new Pen(splitterLineColor);
 			
@@ -278,23 +267,6 @@ namespace MulticaretEditor.Highlighting
 			scrollThumbHoverBrush = new SolidBrush(scrollThumbHoverColor);
 			scrollArrowPen = new Pen(scrollArrowColor, 1);
 			scrollArrowHoverPen = new Pen(scrollArrowHoverColor, 1);
-			
-			headerOnBg_Brush = new SolidBrush(headerOnBg);
-			headerOnFg_Brush = new SolidBrush(headerOnFg);
-			headerOnFg_Pen = new Pen(headerOnFg);
-			headerOnTabBg_Brush = new SolidBrush(headerOnTabBg);
-			headerOnTabBg_Pen = new Pen(headerOnTabBg);
-			headerOnTabFg_Brush = new SolidBrush(headerOnTabFg);
-			headerOnTabFg_Pen = new Pen(headerOnTabFg, 1);
-			headerOffBg_Brush = new SolidBrush(headerOffBg);
-			headerOffFg_Brush = new SolidBrush(headerOffFg);
-			headerOffFg_Pen = new Pen(headerOffFg, 1);
-			headerOffTabBg_Brush = new SolidBrush(headerOffTabBg);
-			headerOffTabBg_Pen = new Pen(headerOffTabBg);
-			headerOffTabFg_Brush = new SolidBrush(headerOffTabFg);
-			headerOffTabFg_Pen = new Pen(headerOffTabFg, 1);
-			
-			printMarginPen = new Pen(printMarginColor, 1);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
 		}

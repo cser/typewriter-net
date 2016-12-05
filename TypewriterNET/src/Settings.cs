@@ -273,7 +273,7 @@ public class Settings
 
 	public void ApplySchemeToLabel(MonospaceLabel label)
 	{
-		label.BackColor = parsedScheme.headerOffBg;
-		label.TextColor = parsedScheme.headerOffFg;
+		label.BackColor = parsedScheme.tabsBgColor;
+		label.TextColor = parsedScheme.tabsFgColor;
 	}
 }
