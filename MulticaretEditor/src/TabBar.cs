@@ -201,7 +201,7 @@ namespace MulticaretEditor
 			Graphics g = e.Graphics;
 			int width = Width;
 			int x = charWidth;
-			int indent = charWidth / 2;
+			int indent = charWidth;
 
 			Brush bg;
 			Brush fg;
@@ -231,8 +231,7 @@ namespace MulticaretEditor
 				tabFgPen = scheme.headerOffTabFg_Pen;
 			}
 
-			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight - 2);
-			g.FillRectangle(tabBg, 0, charHeight - 2, width, 2);
+			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
 
 			leftIndent = charWidth;
 			if (text != null)
@@ -252,7 +251,7 @@ namespace MulticaretEditor
 					T value = list[i];
 					string tabText = stringOf(value);
 					Rectangle rect = new Rectangle(x - indent, 0, tabText.Length * charWidth + indent * 2, charHeight);
-					x += (tabText.Length + 1) * charWidth;
+					x += tabText.Length * charWidth + indent * 2;
 					rects.Add(rect);
 				}
 			}
@@ -304,7 +303,7 @@ namespace MulticaretEditor
 
 					if (selected)
 					{
-						g.FillRectangle(tabBg, rect);
+						g.FillRectangle(scheme.bgBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
 					}
 					else
 					{
@@ -320,21 +319,21 @@ namespace MulticaretEditor
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
-							tabText[j] + "", font, selected ? tabFg : fg,
-							rect.X - charWidth / 3 + j * charWidth + charWidth / 2, 0, stringFormat);
+							tabText[j] + "", font, selected ? scheme.fgBrush : fg,
+							rect.X - charWidth / 3 + j * charWidth + indent, 0, stringFormat);
 					}
 					rects.Add(rect);
 					prevSelected = selected;
 				}
 			}
 
-			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight - 2);
+			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight);
 
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
 			{
 				int tx = closeRect.X + closeRect.Width / 2 + 1;
-				int ty = charHeight / 2 - 1;
+				int ty = charHeight / 2;
 				int td = 3;
 				g.DrawLine(fgPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
 				g.DrawLine(fgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);

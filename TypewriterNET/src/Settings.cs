@@ -222,7 +222,7 @@ public class Settings
 	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
-		textBox.ShowLineNumbers = showLineNumbers.Value;
+		textBox.ShowLineNumbers = showLineNumbers.Value && settingsMode != SettingsMode.FileTree;
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
