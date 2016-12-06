@@ -208,7 +208,7 @@ namespace MulticaretEditor
 			Brush bg = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
 			Brush fg = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
 			Pen fgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
-			Pen separatorPen = scheme.bgPen;//_selected ? scheme.selectedSeparatorPen : scheme.separatorPen;
+			Pen separatorPen = _selected && scheme.tabsLineWidth > 0 ? scheme.lineSeparatorPen : scheme.bgPen;
 
 			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
 
