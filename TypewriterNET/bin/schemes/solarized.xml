@@ -50,7 +50,7 @@
 	<!-- dark -->
 	
 	<color name="bg" value="base03"/>
-	<color name="fg" value="base00"/>
+	<color name="fg" value="base1"/>
 	<color name="lineBg" value="base02"/>
 	<color name="lineNumberBg" value="base02"/>
 	<color name="lineNumberFg" value="base01"/>

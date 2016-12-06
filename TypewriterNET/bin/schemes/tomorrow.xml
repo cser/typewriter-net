@@ -23,15 +23,19 @@
 	<color name="markPen" value="selection"/>
 	<color name="mainCaret" value="#ffffff"/>
 	<color name="caret" value="#80ffff"/>
-	
 	<color name="printMargin" value="#808080"/>
-	<color name="tabsBg" value="#505050"/>
-	<color name="tabsFg" value="#eeeeee"/>
-	<color name="tabsSelectedBg" value="#808080"/>
-	<color name="tabsSelectedFg" value="#ffffff"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
+	
+	<color name="tabsBg" value="#808080"/>
+	<color name="tabsFg" value="#eeeeee"/>
+	<color name="tabsSelectedBg" value="#EEEEEE"/>
+	<color name="tabsSelectedFg" value="#000000"/>
+	<width name="tabsLine" value=""/>
+	<color name="tabsLine" value=""/>
+	<color name="tabsLineFg" value=""/>
+	<color name="lineSeparator" value=""/>
 	
 	<color name="splitterBg" value="#505050"/>
 	<color name="splitterLine" value="#505050"/>
