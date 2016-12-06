@@ -36,6 +36,7 @@ namespace MulticaretEditor.Highlighting
 		public Color scrollArrowColor;
 		public Color scrollArrowHoverColor;
 		
+		public Color splitterBgColor;
 		public Color splitterLineColor;
 		
 		public int mainCaretWidth;
@@ -56,6 +57,7 @@ namespace MulticaretEditor.Highlighting
 		public Pen lineNumberFgPen;
 		public Pen printMarginPen;
 		
+		public Brush splitterBgBrush;
 		public Pen splitterLinePen;
 		public Brush scrollBgBrush;
 		public Brush scrollThumbBrush;
@@ -151,6 +153,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref separatorColor, "separator", colors);
 			SetColor(ref selectedSeparatorColor, "selectedSeparator", colors);
 			
+			SetColor(ref splitterBgColor, "splitterBg", colors);
 			SetColor(ref splitterLineColor, "splitterLine", colors);
 			SetColor(ref scrollBgColor, "scrollBg", colors);
 			SetColor(ref scrollThumbColor, "scrollThumb", colors);
@@ -204,6 +207,7 @@ namespace MulticaretEditor.Highlighting
 			separatorColor = Color.Gray;
 			selectedSeparatorColor = Color.White;
 			
+			splitterBgColor = Color.WhiteSmoke;
 			splitterLineColor = Color.Gray;
 			scrollBgColor = Color.WhiteSmoke;
 			scrollThumbColor = Color.FromArgb(180, 180, 180);
@@ -238,6 +242,7 @@ namespace MulticaretEditor.Highlighting
 			caretPen = new Pen(caretColor, caretWidth);
 			printMarginPen = new Pen(printMarginColor);
 			
+			splitterBgBrush = new SolidBrush(splitterBgColor);
 			splitterLinePen = new Pen(splitterLineColor, 1);
 			scrollBgBrush = new SolidBrush(scrollBgColor);
 			scrollThumbBrush = new SolidBrush(scrollThumbColor);
