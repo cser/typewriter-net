@@ -208,7 +208,7 @@ namespace MulticaretEditor
 			Brush bg = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
 			Brush fg = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
 			Pen fgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
-			Pen separatorPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
+			Pen separatorPen = scheme.bgPen;//_selected ? scheme.selectedSeparatorPen : scheme.separatorPen;
 
 			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
 
@@ -282,7 +282,14 @@ namespace MulticaretEditor
 
 					if (selected)
 					{
-						g.FillRectangle(scheme.bgBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+						if (_selected && scheme.tabsLineWidth > 0)
+						{
+							g.FillRectangle(scheme.tabsLineBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+						}
+						else
+						{
+							g.FillRectangle(scheme.bgBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+						}
 					}
 					else
 					{
@@ -295,10 +302,11 @@ namespace MulticaretEditor
 							g.DrawLine(separatorPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
 						}
 					}
+					Brush selectedFg = _selected && scheme.tabsLineWidth > 0 ? scheme.tabsLineFgBrush : scheme.fgBrush;
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
-							tabText[j] + "", font, selected ? scheme.fgBrush : fg,
+							tabText[j] + "", font, selected ? selectedFg : fg,
 							rect.X - charWidth / 3 + j * charWidth + indent, 0, stringFormat);
 					}
 					rects.Add(rect);
@@ -307,6 +315,10 @@ namespace MulticaretEditor
 			}
 
 			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight);
+			if (_selected && scheme.tabsLineWidth > 0)
+			{
+				g.FillRectangle(scheme.tabsLineBrush, 0, charHeight - 2, width, 2);
+			}
 
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);

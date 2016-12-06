@@ -26,12 +26,9 @@ namespace MulticaretEditor.Highlighting
 		public Color mainCaretColor;
 		public Color caretColor;
 		public Color printMarginColor;
-		public Color tabsBgColor;
-		public Color tabsFgColor;
-		public Color tabsSelectedBgColor;
-		public Color tabsSelectedFgColor;
-		public Color splitterBgColor;
-		public Color splitterLineColor;
+		
+		public Color separatorColor;
+		public Color selectedSeparatorColor;
 		
 		public Color scrollBgColor;
 		public Color scrollThumbColor;
@@ -43,6 +40,7 @@ namespace MulticaretEditor.Highlighting
 		public int caretWidth;
 		
 		public Brush bgBrush;
+		public Pen bgPen;
 		public Brush fgBrush;
 		public Pen fgPen;
 		public Brush lineBgBrush;
@@ -54,17 +52,10 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
-		public Brush nameBgBrush;
-		public Brush nameFgBrush;
-		public Brush tabsBgBrush;
-		public Brush tabsFgBrush;
-		public Pen tabsFgPen;
 		public Pen printMarginPen;
-		public Brush tabsSelectedBgBrush;
-		public Brush tabsSelectedFgBrush;
-		public Pen tabsSelectedFgPen;
-		public Brush splitterBgBrush;
-		public Pen splitterLinePen;
+		
+		public Pen separatorPen;
+		public Pen selectedSeparatorPen;
 		
 		public Brush scrollBgBrush;
 		public Brush scrollThumbBrush;
@@ -154,20 +145,19 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
 			SetColor(ref printMarginColor, "printMargin", colors);
-			SetColor(ref splitterBgColor, "splitterBg", colors);
-			SetColor(ref splitterLineColor, "splitterLine", colors);
-			SetColor(ref tabsBgColor, "tabsBg", colors);
-			SetColor(ref tabsFgColor, "tabsFg", colors);
-			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
-			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
 			SetWidth(ref mainCaretWidth, "mainCaret", widths);
 			SetWidth(ref caretWidth, "caret", widths);
+			
+			SetColor(ref separatorColor, "separator", colors);
+			SetColor(ref selectedSeparatorColor, "selectedSeparator", colors);
 			
 			SetColor(ref scrollBgColor, "scrollBg", colors);
 			SetColor(ref scrollThumbColor, "scrollThumb", colors);
 			SetColor(ref scrollThumbHoverColor, "scrollThumbHover", colors);
 			SetColor(ref scrollArrowColor, "scrollArrow", colors);
 			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
+			
+			Tabs_ParseXml(colors, widths);
 			
 			Update();
 		}
@@ -207,20 +197,19 @@ namespace MulticaretEditor.Highlighting
 			mainCaretColor = Color.Black;
 			caretColor = Color.Gray;
 			printMarginColor = Color.Gray;
-			tabsBgColor = Color.WhiteSmoke;
-			tabsFgColor = Color.Black;
-			tabsSelectedBgColor = Color.Gray;
-			tabsSelectedFgColor = Color.White;
-			splitterBgColor = Color.WhiteSmoke;
-			splitterLineColor = Color.Gray;
 			mainCaretWidth = 1;
 			caretWidth = 1;
+			
+			separatorColor = Color.Gray;
+			selectedSeparatorColor = Color.White;
 			
 			scrollBgColor = Color.WhiteSmoke;
 			scrollThumbColor = Color.FromArgb(180, 180, 180);
 			scrollThumbHoverColor = Color.FromArgb(100, 100, 200);
 			scrollArrowColor = Color.Black;
 			scrollArrowHoverColor = Color.FromArgb(50, 50, 255);
+			
+			Tabs_Reset();
 			
 			Clear();
 			defaultTextStyle.brush = new SolidBrush(fgColor);
@@ -233,6 +222,7 @@ namespace MulticaretEditor.Highlighting
 		public void Update()
 		{
 			bgBrush = new SolidBrush(bgColor);
+			bgPen = new Pen(bgColor);
 			fgPen = new Pen(fgColor);
 			fgBrush = new SolidBrush(fgColor);
 			lineBgBrush = new SolidBrush(lineBgColor);
@@ -244,15 +234,10 @@ namespace MulticaretEditor.Highlighting
 			markPen = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
-			tabsBgBrush = new SolidBrush(tabsBgColor);
-			tabsFgBrush = new SolidBrush(tabsFgColor);
-			tabsFgPen = new Pen(tabsFgColor);
 			printMarginPen = new Pen(printMarginColor);
-			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
-			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
-			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
-			splitterBgBrush = new SolidBrush(splitterBgColor);
-			splitterLinePen = new Pen(splitterLineColor);
+			
+			separatorPen = new Pen(separatorColor);
+			selectedSeparatorPen = new Pen(selectedSeparatorColor);
 			
 			scrollBgBrush = new SolidBrush(scrollBgColor);
 			scrollThumbBrush = new SolidBrush(scrollThumbColor);
@@ -261,6 +246,69 @@ namespace MulticaretEditor.Highlighting
 			scrollArrowHoverPen = new Pen(scrollArrowHoverColor, 1);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
+			
+			Tabs_Update();
+		}
+		
+		public Color tabsBgColor;
+		public Color tabsFgColor;
+		public Color tabsSelectedBgColor;
+		public Color tabsSelectedFgColor;
+		public Color tabsLineColor;
+		public Color tabsLineFgColor;
+		public Color splitterBgColor;
+		public Color splitterLineColor;
+		public int tabsLineWidth;
+		
+		public Brush tabsBgBrush;
+		public Brush tabsFgBrush;
+		public Pen tabsFgPen;		
+		public Brush tabsSelectedBgBrush;
+		public Brush tabsSelectedFgBrush;
+		public Pen tabsSelectedFgPen;
+		public Brush tabsLineBrush;
+		public Brush tabsLineFgBrush;
+		public Brush splitterBgBrush;
+		public Pen splitterLinePen;
+		
+		private void Tabs_Reset()
+		{
+			tabsBgColor = Color.WhiteSmoke;
+			tabsFgColor = Color.Black;
+			tabsSelectedBgColor = Color.Gray;
+			tabsSelectedFgColor = Color.White;
+			tabsLineColor = Color.Black;
+			tabsLineFgColor = Color.White;
+			splitterBgColor = Color.WhiteSmoke;
+			splitterLineColor = Color.Gray;
+			tabsLineWidth = 0;
+		}
+		
+		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, int> widths)
+		{
+			SetColor(ref tabsBgColor, "tabsBg", colors);
+			SetColor(ref tabsFgColor, "tabsFg", colors);
+			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
+			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
+			SetColor(ref tabsLineColor, "tabsLine", colors);
+			SetColor(ref tabsLineFgColor, "tabsLineFg", colors);
+			SetColor(ref splitterBgColor, "splitterBg", colors);
+			SetColor(ref splitterLineColor, "splitterLine", colors);
+			SetWidth(ref tabsLineWidth, "tabsLine", widths);
+		}
+		
+		private void Tabs_Update()
+		{
+			tabsBgBrush = new SolidBrush(tabsBgColor);
+			tabsFgBrush = new SolidBrush(tabsFgColor);
+			tabsFgPen = new Pen(tabsFgColor);
+			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
+			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
+			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
+			tabsLineBrush = new SolidBrush(tabsLineColor);
+			tabsLineFgBrush = new SolidBrush(tabsLineFgColor);
+			splitterBgBrush = new SolidBrush(splitterBgColor);
+			splitterLinePen = new Pen(splitterLineColor);
 		}
 	}
 }

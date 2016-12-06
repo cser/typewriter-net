@@ -31,6 +31,8 @@
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
+	<color name="separator" value="#808080"/>
+	<color name="selectedSeparator" value="#AAAAAA"/>
 	
 	<color name="splitterBg" value="#F5F5F5"/>
 	<color name="splitterLine" value="#808080"/>

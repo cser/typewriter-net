@@ -29,6 +29,7 @@
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#ffffff"/>
 	<color name="tabsSelectedFg" value="#000000"/>
+	<width name="tabsLine" value="2"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
