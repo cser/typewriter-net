@@ -236,9 +236,9 @@ public class ReplaceDialog : ADialog
 
 		int left = Math.Max(textLabel.Width, replaceTextLabel.Width) + 10;
 		textBox.Location = new Point(left, tabBarHeight);
-		textBox.Size = new Size(Width - left - 10, (Height - tabBarHeight) / 2);
+		textBox.Size = new Size(Width - left, (Height - tabBarHeight) / 2);
 		replaceTextBox.Location = new Point(left, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
-		replaceTextBox.Size = new Size(Width - left - 10, (Height - tabBarHeight) / 2);
+		replaceTextBox.Size = new Size(Width - left, (Height - tabBarHeight) / 2);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)

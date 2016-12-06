@@ -1180,7 +1180,7 @@ public class MainForm : Form
 		{
 			ReloadConfig();
 		}
-		else if (schemeManager.IsActiveSchemePath(settings.scheme.Value, buffer.FullPath))
+		else if (schemeManager.IsActiveSchemePath(GetCurrentScheme(), buffer.FullPath))
 		{
 			ApplySettings();
 		}
@@ -1195,6 +1195,14 @@ public class MainForm : Form
 		{
 			commander.Execute(info.command, true, false);
 		}
+	}
+	
+	private string GetCurrentScheme()
+	{
+		string scheme = settings.scheme.Value;
+		if (string.IsNullOrEmpty(scheme))
+			scheme = tempSettings.Scheme;
+		return scheme;
 	}
 
 	private bool DoExit(Controller controller)
@@ -1469,10 +1477,7 @@ public class MainForm : Form
 	private bool DoEditCurrentScheme(Controller controller)
 	{
 		CreateAppDataFolders();
-		string scheme = settings.scheme.Value;
-		if (string.IsNullOrEmpty(scheme))
-			scheme = tempSettings.Scheme;
-		List<AppPath> paths = schemeManager.GetSchemePaths(scheme);
+		List<AppPath> paths = schemeManager.GetSchemePaths(GetCurrentScheme());
 		if (paths.Count > 0)
 		{
 			foreach (AppPath path in paths)

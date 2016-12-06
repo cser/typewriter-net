@@ -317,7 +317,7 @@ namespace MulticaretEditor
 			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight);
 			if (_selected && scheme.tabsLineWidth > 0)
 			{
-				g.FillRectangle(scheme.tabsLineBrush, 0, charHeight - 2, width, 2);
+				g.FillRectangle(scheme.tabsLineBrush, 0, charHeight - scheme.tabsLineWidth, width, scheme.tabsLineWidth);
 			}
 
 			int closeWidth = charHeight * 12 / 10;
