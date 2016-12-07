@@ -59,12 +59,16 @@
 	<color name="markPen" value="base00"/>
 	<color name="mainCaret" value="#AFAFAF"/>
 	<color name="caret" value="#708080"/>
+	<color name="printMargin" value="base01"/>
 	
-	<color name="tabsLine" value="base00"/>
 	<color name="tabsBg" value="#021318"/>
 	<color name="tabsFg" value="base00"/>
 	<color name="tabsSelectedBg" value="base00"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
+	<width name="tabsLine" value=""/>
+	<color name="tabsLine" value=""/>
+	<color name="tabsLineFg" value=""/>
+	<color name="lineSeparator" value=""/>
 	
 	<style name="dsNormal" color="base1"/>
 	<style name="dsNormal2" color="base1" italic="true"/>

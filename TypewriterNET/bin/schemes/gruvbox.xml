@@ -50,7 +50,7 @@
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
 	
-	<color name="tabsBg" value="bg3"/>
+	<color name="tabsBg" value="bg2"/>
 	<color name="tabsFg" value="_fg2"/>
 	<color name="tabsSelectedBg" value="_fg3"/>
 	<color name="tabsSelectedFg" value="bg0"/>

@@ -17,4 +17,3 @@ Fix position by mouse on half-tab
 - Fix unfocus on reloading undo
 - Fix font and right indents in replace dialog
 - Fix floating top indents
-- Fix color changing on save

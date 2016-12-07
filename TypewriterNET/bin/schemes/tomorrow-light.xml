@@ -23,8 +23,8 @@
 	<color name="markPen" value="#eab700"/>
 	<color name="mainCaret" value="#000000"/>
 	<color name="caret" value="#808080"/>
-	
 	<color name="printMargin" value="#cccccc"/>
+	
 	<color name="tabsBg" value="#dfdfdf"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#ffffff"/>

@@ -20,12 +20,16 @@
 	<color name="markPen" value="#C3C4BC"/>
 	<color name="mainCaret" value="#F8F8F0"/>
 	<color name="caret" value="#AAAAAA"/>
-	
 	<color name="printMargin" value="#808080"/>
+	
 	<color name="tabsBg" value="#49483F"/>
 	<color name="tabsFg" value="default"/>
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
+	<width name="tabsLine" value=""/>
+	<color name="tabsLine" value=""/>
+	<color name="tabsLineFg" value=""/>
+	<color name="lineSeparator" value=""/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
