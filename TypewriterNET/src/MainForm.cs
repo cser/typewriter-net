@@ -408,7 +408,9 @@ public class MainForm : Form
 
 	private void OnActivated(object sender, EventArgs e)
 	{
+		Log.WriteInfo("OnActivated", "{");
 		CheckFilesChanges();
+		Log.WriteInfo("OnActivated", "}");
 	}
 	
 	public void CheckFilesChanges()
@@ -424,7 +426,7 @@ public class MainForm : Form
 
 		activationInProcess = false;
 	}
-
+	
 	private void CheckFileChange(Buffer buffer)
 	{
 		if (buffer.fileInfo != null)
@@ -444,7 +446,14 @@ public class MainForm : Form
 						"File was changed, reload it?",
 						Name, MessageBoxButtons.YesNo);
 					if (result == DialogResult.Yes)
+					{
 						ReloadFile(buffer);
+					}
+					else
+					{
+						buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
+						buffer.Controller.history.MarkAsFullyUnsaved();
+					}
 				}
 			}
 		}

@@ -250,6 +250,12 @@ namespace MulticaretEditor.Commands
 			savedNode = head.Prev;
 			SetChanged(false);
 		}
+		
+		public void MarkAsFullyUnsaved()
+		{
+			savedNode = null;
+			SetChanged(true);
+		}
 
 		private void SetChanged(bool value)
 		{
