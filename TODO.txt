@@ -17,3 +17,4 @@ Fix position by mouse on half-tab
 - Fix unfocus on reloading undo
 - Fix font and right indents in replace dialog
 - Fix floating top indents
+- Fix performance bug with long word selection
