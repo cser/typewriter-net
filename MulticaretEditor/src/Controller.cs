@@ -1065,7 +1065,10 @@ namespace MulticaretEditor
 				return;
 			}
 			lines.markedWord = word;
-			Regex regex = new Regex("\\b" + word + "\\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+			RegexOptions regexOptions = RegexOptions.CultureInvariant;
+			if (word.Length < 50)
+				regexOptions |= RegexOptions.Compiled;
+			Regex regex = new Regex("\\b" + word + "\\b", regexOptions);
 
 			Dictionary<int, bool> selectionLefts = new Dictionary<int, bool>();
 			PredictableList<int> indexList = new PredictableList<int>();
