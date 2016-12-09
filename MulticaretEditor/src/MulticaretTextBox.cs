@@ -506,7 +506,7 @@ namespace MulticaretEditor
 			g.SmoothingMode = SmoothingMode.None;
 			g.Clear(scheme.bgColor);
 
-			DrawText(g, valueX, valueY, leftIndent, clientWidth, clientHeight);
+			DrawText(g, valueX, valueY, leftIndent, clientWidth, clientHeight, false);
 			g.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
 			if (showLineNumbers)
 			{
@@ -533,7 +533,7 @@ namespace MulticaretEditor
 				int mapValueY = GetMapValueY();
 				mapRectangle = new RectangleF(clientWidth + leftIndent, (valueY - mapValueY) * mapScale, clientWidth * mapScale, clientHeight * mapScale);
 				g.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth + (lines.scroller.scrollY.visible ? scrollBarBreadth : 0), clientHeight);
-				DrawText(g, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale));
+				DrawText(g, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale), true);
 				g.ScaleTransform(1, 1);
 			}
 
@@ -621,7 +621,7 @@ namespace MulticaretEditor
 			return valueY;
 		}
 
-		private void DrawText(Graphics g, int valueX, int valueY, int leftIndent, int clientWidth, int clientHeight)
+		private void DrawText(Graphics g, int valueX, int valueY, int leftIndent, int clientWidth, int clientHeight, bool symbolic)
 		{
 			int offsetX = -valueX + leftIndent;
 			int offsetY = -valueY;
@@ -703,7 +703,7 @@ namespace MulticaretEditor
 					do
 					{
 						int y = offsetY + index * charHeight;
-						DrawLineCharsWrapped(g, new Point(offsetX, y), iterator.current, iterator.Index, index, wwILineMin, wwILineMax);
+						DrawLineCharsWrapped(g, new Point(offsetX, y), iterator.current, iterator.Index, index, wwILineMin, wwILineMax, symbolic);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						index += iterator.current.cutOffs.count + 1;
 					}
@@ -718,7 +718,7 @@ namespace MulticaretEditor
 					int y = offsetY + iterator.Index * charHeight;
 					do
 					{
-						DrawLineChars(g, new Point(offsetX, y), iterator.current, iterator.Index, minPos, maxPos);
+						DrawLineChars(g, new Point(offsetX, y), iterator.current, iterator.Index, minPos, maxPos, symbolic);
 						lineNumberInfos.Add(new LineNumberInfo(iterator.Index, y));
 						y += charHeight;
 					}
@@ -989,7 +989,8 @@ namespace MulticaretEditor
 			return result;
 		}
 
-		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos)
+		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos,
+			bool symbolic)
 		{
 			int count = line.chars.Count;
 			int tabSize = lines.tabSize;
@@ -1036,8 +1037,7 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						TextStyle style = styles[c.style];
-						g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+						DrawChar(g, c, x + charWidth * pos, y, symbolic);
 					}
 				}
 				if (c.c == '\t')
@@ -1061,7 +1061,8 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private void DrawLineCharsWrapped(Graphics g, Point position, Line line, int iLine, int iiLine, int iiMin, int iiMax)
+		private void DrawLineCharsWrapped(Graphics g, Point position, Line line,
+			int iLine, int iiLine, int iiMin, int iiMax, bool symbolic)
 		{
 			int tabSize = lines.tabSize;
 			float y0 = position.Y + lineInterval / 2;
@@ -1174,8 +1175,7 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						TextStyle style = styles[c.style];
-						g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+						DrawChar(g, c, x + charWidth * pos, y, symbolic);
 					}
 					if (c.c == '\t')
 					{
@@ -1196,6 +1196,31 @@ namespace MulticaretEditor
 						pos++;
 					}
 				}
+			}
+		}
+		
+		private void DrawChar(Graphics g, Char c, float x, float y, bool symbolic)
+		{
+			TextStyle style = styles[c.style];
+			if (symbolic)
+			{
+				if (!char.IsWhiteSpace(c.c))
+				{
+					if (char.IsUpper(c.c))
+					{
+						g.FillRectangle(style.brush, x, y + charHeight * .2f,
+							charWidth * .8f, charHeight * .8f);
+					}
+					else
+					{
+						g.FillRectangle(style.brush, x, y + charHeight * .6f,
+							charWidth * .8f, charHeight * .4f);
+					}
+				}
+			}
+			else
+			{
+				g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x, y, stringFormat);
 			}
 		}
 

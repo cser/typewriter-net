@@ -18,7 +18,7 @@
 	<item name="alwaysOnTop" value="false"/>
 	<item name="connectionTimeout" value="1000"/>
 	<item name="miniMap" value="false"/>
-	<item name="miniMapScale" value=".3"/>
+	<item name="miniMapScale" value=".2"/>
 	<item name="printMargin" value="false"/>
 	<item name="printMarginSize" value="80"/>
 	<item name="markWord" value="true"/>
