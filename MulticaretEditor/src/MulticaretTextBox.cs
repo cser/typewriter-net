@@ -655,11 +655,11 @@ namespace MulticaretEditor
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].chars.Count, lineMax.iLine));
 			if (lines.wordWrap)
 			{
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
 			}
 			else
 			{
-				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight, symbolic);
 			}
 			if (lines.markedBracket)
 			{
@@ -794,9 +794,11 @@ namespace MulticaretEditor
 
 		private void DrawSelections_Fixed(
 			int leftIndent,
-			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY,
+			int clientWidth, int clientHeight, bool symbolic)
 		{
-			if (lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
+			if (!symbolic &&
+				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
 			{
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + caret.iLine * charHeight, clientWidth, charHeight);
@@ -852,9 +854,10 @@ namespace MulticaretEditor
 
 		private void DrawSelections_WordWrap(
 			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic)
 		{
-			if (lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
+			if (!symbolic &&
+				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
 			{
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
 				Line line = lines[caret.iLine];
@@ -1037,7 +1040,27 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						DrawChar(g, c, x + charWidth * pos, y, symbolic);
+						TextStyle style = styles[c.style];
+						if (symbolic)
+						{
+							if (!char.IsWhiteSpace(c.c))
+							{
+								if (char.IsUpper(c.c))
+								{
+									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .2f,
+										charWidth * .8f, charHeight * .8f);
+								}
+								else
+								{
+									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .6f,
+										charWidth * .8f, charHeight * .4f);
+								}
+							}
+						}
+						else
+						{
+							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+						}
 					}
 				}
 				if (c.c == '\t')
@@ -1175,7 +1198,27 @@ namespace MulticaretEditor
 					}
 					else
 					{
-						DrawChar(g, c, x + charWidth * pos, y, symbolic);
+						TextStyle style = styles[c.style];
+						if (symbolic)
+						{
+							if (!char.IsWhiteSpace(c.c))
+							{
+								if (char.IsUpper(c.c))
+								{
+									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .2f,
+										charWidth * .8f, charHeight * .8f);
+								}
+								else
+								{
+									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .6f,
+										charWidth * .8f, charHeight * .4f);
+								}
+							}
+						}
+						else
+						{
+							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+						}
 					}
 					if (c.c == '\t')
 					{
@@ -1196,31 +1239,6 @@ namespace MulticaretEditor
 						pos++;
 					}
 				}
-			}
-		}
-		
-		private void DrawChar(Graphics g, Char c, float x, float y, bool symbolic)
-		{
-			TextStyle style = styles[c.style];
-			if (symbolic)
-			{
-				if (!char.IsWhiteSpace(c.c))
-				{
-					if (char.IsUpper(c.c))
-					{
-						g.FillRectangle(style.brush, x, y + charHeight * .2f,
-							charWidth * .8f, charHeight * .8f);
-					}
-					else
-					{
-						g.FillRectangle(style.brush, x, y + charHeight * .6f,
-							charWidth * .8f, charHeight * .4f);
-					}
-				}
-			}
-			else
-			{
-				g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x, y, stringFormat);
 			}
 		}
 
