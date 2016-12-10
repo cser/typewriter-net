@@ -408,9 +408,7 @@ public class MainForm : Form
 
 	private void OnActivated(object sender, EventArgs e)
 	{
-		Log.WriteInfo("OnActivated", "{");
 		CheckFilesChanges();
-		Log.WriteInfo("OnActivated", "}");
 	}
 	
 	public void CheckFilesChanges()
