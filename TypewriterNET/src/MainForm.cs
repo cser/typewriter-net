@@ -1495,9 +1495,13 @@ public class MainForm : Form
 						File.Copy(path.startupPath, path.appDataPath);
 					LoadFile(path.appDataPath);
 				}
+				else if (File.Exists(path.appDataPath))
+				{
+					LoadFile(path.appDataPath);
+				}
 				else
 				{
-					Log.WriteWarning("Missing scheme", path.startupPath);
+					Log.WriteWarning("Missing scheme", path.startupPath + "\nand missing in: " + path.appDataPath);
 					Log.Open();
 				}
 			}
