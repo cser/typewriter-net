@@ -246,6 +246,7 @@ public class ReplaceDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			settings.ApplySimpleParameters(replaceTextBox, null);
 			settings.ApplyToLabel(textLabel);
 			settings.ApplyToLabel(replaceTextLabel);
 			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
