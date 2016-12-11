@@ -226,19 +226,18 @@ public class ReplaceDialog : ADialog
 
 	override public bool Focused { get { return textBox.Focused || replaceTextBox.Focused; } }
 
-	override protected void OnResize(EventArgs e)
+	override public void DoAfterResize(Size size)
 	{
-		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
+		tabBar.Size = new Size(size.Width, tabBarHeight);
 		textLabel.Location = new Point(0, tabBarHeight);
-		replaceTextLabel.Location = new Point(0, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
+		replaceTextLabel.Location = new Point(0, tabBarHeight + (size.Height - tabBarHeight) / 2 + 2);
 
 		int left = Math.Max(textLabel.Width, replaceTextLabel.Width) + 10;
 		textBox.Location = new Point(left, tabBarHeight);
-		textBox.Size = new Size(Width - left, (Height - tabBarHeight) / 2);
-		replaceTextBox.Location = new Point(left, tabBarHeight + (Height - tabBarHeight) / 2 + 2);
-		replaceTextBox.Size = new Size(Width - left, (Height - tabBarHeight) / 2);
+		textBox.Size = new Size(size.Width - left, (size.Height - tabBarHeight) / 2);
+		replaceTextBox.Location = new Point(left, tabBarHeight + (size.Height - tabBarHeight) / 2 + 2);
+		replaceTextBox.Size = new Size(size.Width - left, (size.Height - tabBarHeight) / 2);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)

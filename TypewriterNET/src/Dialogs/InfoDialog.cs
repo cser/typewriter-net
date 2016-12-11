@@ -90,13 +90,12 @@ public class InfoDialog : ADialog
 
 	override public bool Focused { get { return textBox.Focused; } }
 
-	override protected void OnResize(EventArgs e)
+	override public void DoAfterResize(Size size)
 	{
-		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
+		tabBar.Size = new Size(size.Width, tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width, Height - tabBarHeight);
+		textBox.Size = new Size(size.Width, size.Height - tabBarHeight);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)

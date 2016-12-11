@@ -123,16 +123,15 @@ public class FindInFilesDialog : ADialog
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
 	
-	override protected void OnResize(EventArgs e)
+	override public void DoAfterResize(Size size)
 	{
-		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
+		tabBar.Size = new Size(size.Width, tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
-		int size = 20;
-		filterTextBox.Location = new Point(Width - 9 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 0);
-		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
+		textBox.Size = new Size(size.Width, size.Height - tabBarHeight + 1);
+		int sizeInChars = 20;
+		filterTextBox.Location = new Point(size.Width - 9 * filterTextBox.CharWidth - sizeInChars * filterTextBox.CharWidth, 0);
+		filterTextBox.Size = new Size(sizeInChars * filterTextBox.CharWidth, tabBarHeight + 1);
 	}
 
 	override public void Focus()

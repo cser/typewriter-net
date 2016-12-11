@@ -190,16 +190,15 @@ public class IncrementalSearchBase : ADialog
 
 	override public bool Focused { get { return textBox.Focused || variantsTextBox.Focused; } }
 
-	override protected void OnResize(EventArgs e)
+	override public void DoAfterResize(Size size)
 	{
-		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
-		int width = Width < 50 ? MainForm.Width - 20 : Width;
+		int width = size.Width < 50 ? MainForm.Width - 20 : size.Width;
 		tabBar.Size = new Size(width, tabBarHeight);
 		variantsTextBox.Location = new Point(0, tabBarHeight);
-		variantsTextBox.Size = new Size(width, Height - tabBarHeight - variantsTextBox.CharHeight - 2);
+		variantsTextBox.Size = new Size(width, size.Height - tabBarHeight - variantsTextBox.CharHeight - 2);
 		variantsTextBox.Controller.NeedScrollToCaret();
-		textBox.Location = new Point(0, Height - variantsTextBox.CharHeight);
+		textBox.Location = new Point(0, size.Height - variantsTextBox.CharHeight);
 		textBox.Size = new Size(width, variantsTextBox.CharHeight + 1);
 	}
 
