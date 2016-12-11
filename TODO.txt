@@ -15,3 +15,4 @@ Fix position by mouse on half-tab
 
 - Fuzzy search caching, update new version in background
 - Fix unfocus on reloading undo
+- Fix floating top indents

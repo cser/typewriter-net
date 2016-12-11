@@ -126,12 +126,13 @@ public class MoveDialog : ADialog
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 	}
 
-	override public void DoAfterResize(Size size)
+	override protected void OnResize(EventArgs e)
 	{
+		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(size.Width, tabBarHeight);
+		tabBar.Size = new Size(Width, tabBarHeight);
 		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(size.Width, size.Height - tabBarHeight + 1);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)

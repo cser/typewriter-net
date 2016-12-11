@@ -68,11 +68,10 @@ public class Nest
 		return isPercents ? nestSize * size / 100 : size;
 	}
 
-	private void SetFrameSize(Size size)
+	public void SetFrameSize(Size size)
 	{
 		this.frameSize = size;
 		frame.Size = size;
-		frame.DoAfterResize(size);
 	}
 
 	public void Update()
@@ -126,16 +125,15 @@ public class Nest
 					size = selfMinSize.Width;
 				else if (width - size < child.minSize.Width)
 					size = width - child.minSize.Width;
+				SetFrameSize(new Size(size, height));
 				if (left)
 				{
 					frame.Location = new Point(x, y);
-					SetFrameSize(new Size(size, height));
 					child.PrivateResize(x + size, y, width - size, height);
 				}
 				else
 				{
 					frame.Location = new Point(x + (width - size), y);
-					SetFrameSize(new Size(size, height));
 					child.PrivateResize(x, y, width - size, height);
 				}
 			}
@@ -146,16 +144,15 @@ public class Nest
 					size = selfMinSize.Height;
 				else if (height - size < child.minSize.Height)
 					size = height - child.minSize.Height;
+				SetFrameSize(new Size(width, size));
 				if (left)
 				{
 					frame.Location = new Point(x, y);
-					SetFrameSize(new Size(width, size));
 					child.PrivateResize(x, y + size, width, height - size);
 				}
 				else
 				{
 					frame.Location = new Point(x, y + (height - size));
-					SetFrameSize(new Size(width, size));
 					child.PrivateResize(x, y, width, height - size);
 				}
 			}

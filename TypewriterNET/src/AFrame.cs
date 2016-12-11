@@ -20,7 +20,6 @@ public class AFrame : Control
 	public AFrame()
 	{
 		TabStop = false;
-		ResizeRedraw = false;
 	}
 
 	public MainForm MainForm { get { return nest.MainForm; } }
@@ -69,10 +68,6 @@ public class AFrame : Control
 	}
 
 	virtual protected void DoCreate()
-	{
-	}
-	
-	protected override void OnResize(EventArgs e)
 	{
 	}
 
@@ -246,8 +241,4 @@ public class AFrame : Control
 	//--------------------------------------------------------------------------
 	//
 	//--------------------------------------------------------------------------
-	
-	public virtual void DoAfterResize(Size size)
-	{
-	}
 }
