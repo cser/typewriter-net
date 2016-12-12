@@ -205,10 +205,10 @@ namespace MulticaretEditor
 
 			Brush tabBg = scheme.bgBrush;
 			Brush tabFg = scheme.fgBrush;
-			Brush bg = _selected ? scheme.tabsSelectedBgBrush : scheme.tabsBgBrush;
-			Brush fg = _selected ? scheme.tabsSelectedFgBrush : scheme.tabsFgBrush;
-			Pen fgPen = _selected ? scheme.tabsSelectedFgPen : scheme.tabsFgPen;
-			Pen separatorPen = _selected && scheme.tabsLineWidth > 0 ? scheme.lineSeparatorPen : scheme.bgPen;
+			Brush bg = scheme.tabsBg.GetBrush(_selected);
+			Brush fg = scheme.tabsFg.GetBrush(_selected);
+			Pen fgPen = scheme.tabsFg.GetPen(_selected);
+			Pen separatorPen = scheme.tabsSeparator.GetPen(_selected);
 
 			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
 
@@ -282,13 +282,15 @@ namespace MulticaretEditor
 
 					if (selected)
 					{
-						if (_selected && scheme.tabsLineWidth > 0)
+						if (scheme.tabsLineWidth > 0)
 						{
-							g.FillRectangle(scheme.tabsLineBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+							g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
+								rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
 						}
 						else
 						{
-							g.FillRectangle(scheme.bgBrush, rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+							g.FillRectangle(scheme.bgBrush,
+								rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
 						}
 					}
 					else
@@ -302,7 +304,7 @@ namespace MulticaretEditor
 							g.DrawLine(separatorPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
 						}
 					}
-					Brush selectedFg = _selected && scheme.tabsLineWidth > 0 ? scheme.tabsLineFgBrush : scheme.fgBrush;
+					Brush selectedFg = scheme.tabsFg.GetBrush(_selected);
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
@@ -315,9 +317,10 @@ namespace MulticaretEditor
 			}
 
 			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight);
-			if (_selected && scheme.tabsLineWidth > 0)
+			if (scheme.tabsLineWidth > 0)
 			{
-				g.FillRectangle(scheme.tabsLineBrush, 0, charHeight - scheme.tabsLineWidth, width, scheme.tabsLineWidth);
+				g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
+					0, charHeight - scheme.tabsLineWidth, width, scheme.tabsLineWidth);
 			}
 
 			int closeWidth = charHeight * 12 / 10;

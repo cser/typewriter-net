@@ -732,7 +732,7 @@ public class MainForm : Form
 			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
 			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null,
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, 
 			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));

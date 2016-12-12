@@ -214,7 +214,7 @@ public class IncrementalSearchBase : ADialog
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
-			BackColor = settings.ParsedScheme.tabsBgColor;
+			BackColor = settings.ParsedScheme.tabsBg.color;
 			variantsTextBox.Scheme = settings.ParsedScheme;
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;

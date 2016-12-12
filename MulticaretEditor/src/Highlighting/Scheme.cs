@@ -71,7 +71,9 @@ namespace MulticaretEditor.Highlighting
 			
 			Dictionary<string, Color> defColors = new Dictionary<string, Color>();
 			Dictionary<string, Color> colors = new Dictionary<string, Color>();
+			Dictionary<string, Color> colors2 = new Dictionary<string, Color>();
 			Dictionary<string, int> widths = new Dictionary<string, int>();
+			Dictionary<string, int> widths2 = new Dictionary<string, int>();
 			
 			foreach (XmlDocument xml in xmls)
 			{
@@ -113,22 +115,42 @@ namespace MulticaretEditor.Highlighting
 						{
 							string name = elementI.GetAttribute("name");
 							string value = elementI.GetAttribute("value");
-							if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
+							string value2 = elementI.GetAttribute("value2");
+							if (!string.IsNullOrEmpty(name))
 							{
-								Color? color = ParseColorWithDefs(value, defColors);
-								if (color != null)
-									colors[name] = color.Value;
+								if (!string.IsNullOrEmpty(value))
+								{
+									Color? color = ParseColorWithDefs(value, defColors);
+									if (color != null)
+										colors[name] = color.Value;
+								}
+								if (!string.IsNullOrEmpty(value2))
+								{
+									Color? color = ParseColorWithDefs(value2, defColors);
+									if (color != null)
+										colors2[name] = color.Value;
+								}
 							}
 						}
 						else if (elementI.Name == "width")
 						{
 							string name = elementI.GetAttribute("name");
 							string value = elementI.GetAttribute("value");
-							if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
+							string value2 = elementI.GetAttribute("value2");
+							if (!string.IsNullOrEmpty(name))
 							{
-								int intValue;
-								if (int.TryParse(value, out intValue))
-									widths[name] = intValue;
+								if (!string.IsNullOrEmpty(value))
+								{
+									int intValue;
+									if (int.TryParse(value, out intValue))
+										widths[name] = intValue;
+								}
+								if (!string.IsNullOrEmpty(value2))
+								{
+									int intValue;
+									if (int.TryParse(value2, out intValue))
+										widths[name] = intValue;
+								}
 							}
 						}
 					}
@@ -161,7 +183,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref scrollArrowColor, "scrollArrow", colors);
 			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
 			
-			Tabs_ParseXml(colors, widths);
+			Tabs_ParseXml(colors, colors2, widths, widths2);
 			
 			Update();
 		}
@@ -255,60 +277,93 @@ namespace MulticaretEditor.Highlighting
 			Tabs_Update();
 		}
 		
-		public Color tabsBgColor;
-		public Color tabsFgColor;
-		public Color tabsSelectedBgColor;
-		public Color tabsSelectedFgColor;
-		public Color tabsLineColor;
-		public Color tabsLineFgColor;
-		public Color lineSeparatorColor;
-		public int tabsLineWidth;
+		public class ColorItem
+		{
+			public readonly string name;
+			
+			public Color color;
+			public Color color2;
+			public Brush brush;
+			public Brush brush2;
+			public Pen pen;
+			public Pen pen2;
+			
+			public ColorItem(string name)
+			{
+				this.name = name;
+			}
+			
+			public void SetColor(Color color, Color color2)
+			{
+				this.color = color;
+				this.color2 = color;
+			}
+			
+			public Color GetColor(bool selected)
+			{
+				return selected ? color : color2;
+			}
+			
+			public Brush GetBrush(bool selected)
+			{
+				return selected ? brush : brush2;
+			}
+			
+			public Pen GetPen(bool selected)
+			{
+				return selected ? pen : pen2;
+			}
+			
+			public void Update()
+			{
+				brush = new SolidBrush(color);
+				brush2 = new SolidBrush(color2);
+				pen = new Pen(color);
+				pen2 = new Pen(color2);
+			}
+		}
 		
-		public Brush tabsBgBrush;
-		public Brush tabsFgBrush;
-		public Pen tabsFgPen;		
-		public Brush tabsSelectedBgBrush;
-		public Brush tabsSelectedFgBrush;
-		public Pen tabsSelectedFgPen;
-		public Brush tabsLineBrush;
-		public Brush tabsLineFgBrush;
-		public Pen lineSeparatorPen;
+		private static void SetColor(ColorItem item,
+			Dictionary<string, Color> colors, Dictionary<string, Color> colors2)
+		{
+			Color value;
+			if (colors.TryGetValue(item.name, out value))
+				item.color = value;
+			if (colors.TryGetValue(item.name, out value))
+				item.color2 = value;
+		}
+		
+		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
+		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
+		public readonly ColorItem tabsLine = new ColorItem("tabsLine");
+		public readonly ColorItem tabsSeparator = new ColorItem("tabsSeparator");
+		public int tabsLineWidth;
 		
 		private void Tabs_Reset()
 		{
-			tabsBgColor = Color.WhiteSmoke;
-			tabsFgColor = Color.Black;
-			tabsSelectedBgColor = Color.Gray;
-			tabsSelectedFgColor = Color.White;
-			tabsLineColor = Color.Black;
-			tabsLineFgColor = Color.White;
-			lineSeparatorColor = Color.Gray;
+			tabsBg.SetColor(Color.WhiteSmoke, Color.Gray);
+			tabsFg.SetColor(Color.Black, Color.White);
+			tabsLine.SetColor(Color.Black, Color.Black);
+			tabsSeparator.SetColor(Color.Gray, Color.Gray);
 			tabsLineWidth = 0;
 		}
 		
-		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, int> widths)
+		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
+			Dictionary<string, int> widths, Dictionary<string, int> widths2)
 		{
-			SetColor(ref tabsBgColor, "tabsBg", colors);
-			SetColor(ref tabsFgColor, "tabsFg", colors);
-			SetColor(ref tabsSelectedBgColor, "tabsSelectedBg", colors);
-			SetColor(ref tabsSelectedFgColor, "tabsSelectedFg", colors);
-			SetColor(ref tabsLineColor, "tabsLine", colors);
-			SetColor(ref tabsLineFgColor, "tabsLineFg", colors);
-			SetColor(ref lineSeparatorColor, "lineSeparator", colors);
+			SetColor(tabsBg, colors, colors2);
+			SetColor(tabsFg, colors, colors2);
+			SetColor(tabsLine, colors, colors2);
+			SetColor(tabsSeparator, colors, colors2);
 			SetWidth(ref tabsLineWidth, "tabsLine", widths);
 		}
 		
 		private void Tabs_Update()
 		{
-			tabsBgBrush = new SolidBrush(tabsBgColor);
-			tabsFgBrush = new SolidBrush(tabsFgColor);
-			tabsFgPen = new Pen(tabsFgColor);
-			tabsSelectedBgBrush = new SolidBrush(tabsSelectedBgColor);
-			tabsSelectedFgPen = new Pen(tabsSelectedFgColor);
-			tabsSelectedFgBrush = new SolidBrush(tabsSelectedFgColor);
-			tabsLineBrush = new SolidBrush(tabsLineColor);
-			tabsLineFgBrush = new SolidBrush(tabsLineFgColor);
-			lineSeparatorPen = new Pen(lineSeparatorColor);
+			tabsBg.Update();
+			tabsFg.Update();
+			tabsLine.Update();
+			tabsSeparator.Update();
 		}
 	}
 }
