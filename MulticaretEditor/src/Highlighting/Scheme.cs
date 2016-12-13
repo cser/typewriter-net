@@ -116,6 +116,8 @@ namespace MulticaretEditor.Highlighting
 							string name = elementI.GetAttribute("name");
 							string value = elementI.GetAttribute("value");
 							string value2 = elementI.GetAttribute("value2");
+							string width = elementI.GetAttribute("width");
+							string width2 = elementI.GetAttribute("width2");
 							if (!string.IsNullOrEmpty(name))
 							{
 								if (!string.IsNullOrEmpty(value))
@@ -130,27 +132,29 @@ namespace MulticaretEditor.Highlighting
 									if (color != null)
 										colors2[name] = color.Value;
 								}
+								if (!string.IsNullOrEmpty(width))
+								{
+									int intValue;
+									if (int.TryParse(width, out intValue))
+										widths[name] = intValue;
+								}
+								if (!string.IsNullOrEmpty(width2))
+								{
+									int intValue;
+									if (int.TryParse(width2, out intValue))
+										widths[name] = intValue;
+								}
 							}
 						}
 						else if (elementI.Name == "width")
 						{
 							string name = elementI.GetAttribute("name");
 							string value = elementI.GetAttribute("value");
-							string value2 = elementI.GetAttribute("value2");
-							if (!string.IsNullOrEmpty(name))
+							if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
 							{
-								if (!string.IsNullOrEmpty(value))
-								{
-									int intValue;
-									if (int.TryParse(value, out intValue))
-										widths[name] = intValue;
-								}
-								if (!string.IsNullOrEmpty(value2))
-								{
-									int intValue;
-									if (int.TryParse(value2, out intValue))
-										widths[name] = intValue;
-								}
+								int intValue;
+								if (int.TryParse(value, out intValue))
+									widths[name] = intValue;
 							}
 						}
 					}
@@ -287,16 +291,20 @@ namespace MulticaretEditor.Highlighting
 			public Brush brush2;
 			public Pen pen;
 			public Pen pen2;
+			public int width;
+			public int width2;
 			
 			public ColorItem(string name)
 			{
 				this.name = name;
 			}
 			
-			public void SetColor(Color color, Color color2)
+			public void Set(Color color, Color color2, int width, int width2)
 			{
 				this.color = color;
 				this.color2 = color;
+				this.width = width;
+				this.width2 = width2;
 			}
 			
 			public Color GetColor(bool selected)
@@ -314,54 +322,70 @@ namespace MulticaretEditor.Highlighting
 				return selected ? pen : pen2;
 			}
 			
+			public int GetWidth(bool selected)
+			{
+				return selected ? width : width2;
+			}
+			
 			public void Update()
 			{
 				brush = new SolidBrush(color);
 				brush2 = new SolidBrush(color2);
-				pen = new Pen(color);
-				pen2 = new Pen(color2);
+				pen = new Pen(color, Math.Max(1, width));
+				pen2 = new Pen(color2, Math.Max(1, width2));
 			}
 		}
 		
 		private static void SetColor(ColorItem item,
-			Dictionary<string, Color> colors, Dictionary<string, Color> colors2)
+			Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
+			Dictionary<string, int> widths, Dictionary<string, int> widths2)
 		{
 			Color value;
 			if (colors.TryGetValue(item.name, out value))
 				item.color = value;
-			if (colors.TryGetValue(item.name, out value))
+			if (colors2.TryGetValue(item.name, out value))
 				item.color2 = value;
+			int width;
+			if (widths.TryGetValue(item.name, out width))
+				item.width = width;
+			if (widths2.TryGetValue(item.name, out width))
+				item.width2 = width;
 		}
 		
 		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
 		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
+		public readonly ColorItem tabsCurrentBg = new ColorItem("tabsCurrentBg");
+		public readonly ColorItem tabsCurrentFg = new ColorItem("tabsCurrentFg");
 		public readonly ColorItem tabsLine = new ColorItem("tabsLine");
 		public readonly ColorItem tabsSeparator = new ColorItem("tabsSeparator");
-		public int tabsLineWidth;
 		
 		private void Tabs_Reset()
 		{
-			tabsBg.SetColor(Color.WhiteSmoke, Color.Gray);
-			tabsFg.SetColor(Color.Black, Color.White);
-			tabsLine.SetColor(Color.Black, Color.Black);
-			tabsSeparator.SetColor(Color.Gray, Color.Gray);
-			tabsLineWidth = 0;
+			tabsBg.Set(Color.WhiteSmoke, Color.Gray, 1, 1);
+			tabsFg.Set(Color.Black, Color.White, 1, 1);
+			tabsCurrentBg.Set(Color.Gray, Color.White, 1, 1);
+			tabsCurrentFg.Set(Color.White, Color.White, 1, 1);
+			tabsLine.Set(Color.Gray, Color.Gray, 1, 1);
+			tabsSeparator.Set(Color.Gray, Color.Gray, 1, 1);
 		}
 		
 		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
 			Dictionary<string, int> widths, Dictionary<string, int> widths2)
 		{
-			SetColor(tabsBg, colors, colors2);
-			SetColor(tabsFg, colors, colors2);
-			SetColor(tabsLine, colors, colors2);
-			SetColor(tabsSeparator, colors, colors2);
-			SetWidth(ref tabsLineWidth, "tabsLine", widths);
+			SetColor(tabsBg, colors, colors2, widths, widths2);
+			SetColor(tabsFg, colors, colors2, widths, widths2);
+			SetColor(tabsCurrentBg, colors, colors2, widths, widths2);
+			SetColor(tabsCurrentFg, colors, colors2, widths, widths2);
+			SetColor(tabsLine, colors, colors2, widths, widths2);
+			SetColor(tabsSeparator, colors, colors2, widths, widths2);
 		}
 		
 		private void Tabs_Update()
 		{
 			tabsBg.Update();
 			tabsFg.Update();
+			tabsCurrentBg.Update();
+			tabsCurrentFg.Update();
 			tabsLine.Update();
 			tabsSeparator.Update();
 		}

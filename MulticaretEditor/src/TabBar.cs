@@ -203,14 +203,12 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth;
 
-			Brush tabBg = scheme.bgBrush;
-			Brush tabFg = scheme.fgBrush;
-			Brush bg = scheme.tabsBg.GetBrush(_selected);
 			Brush fg = scheme.tabsFg.GetBrush(_selected);
+			Brush currentFg = scheme.tabsCurrentFg.GetBrush(_selected);
 			Pen fgPen = scheme.tabsFg.GetPen(_selected);
 			Pen separatorPen = scheme.tabsSeparator.GetPen(_selected);
 
-			g.FillRectangle(bg, 0, 0, width - charWidth, charHeight);
+			g.FillRectangle(scheme.tabsBg.GetBrush(_selected), 0, 0, width - charWidth, charHeight);
 
 			leftIndent = charWidth;
 			if (text != null)
@@ -266,6 +264,8 @@ namespace MulticaretEditor
 				rightRect = null;
 				offsetIndex = 0;
 			}
+			int selectedX0 = 0;
+			int selectedX1 = 0;
 			if (list != null)
 			{
 				int offsetX = GetOffsetX(offsetIndex);
@@ -274,24 +274,27 @@ namespace MulticaretEditor
 				{
 					T value = list[i];
 					string tabText = stringOf(value);
-					bool selected = object.Equals(list.Selected, value);
+					bool isCurrent = object.Equals(list.Selected, value);
 					Rectangle rect = rects.buffer[i];
 					rect.X += offsetX;
 					if (rect.X > width)
 						break;
 
-					if (selected)
+					if (isCurrent)
 					{
-						if (scheme.tabsLineWidth > 0)
+						g.FillRectangle(scheme.tabsCurrentBg.GetBrush(_selected),
+							rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+						if (scheme.tabsLine.GetWidth(_selected) > 0)
 						{
-							g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
-								rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
+							g.DrawLine(scheme.tabsLine.GetPen(_selected),
+								rect.X, rect.Y + 1, rect.X, rect.Y + rect.Height - 1);
+							g.DrawLine(scheme.tabsLine.GetPen(_selected),
+								rect.X + rect.Width, rect.Y + 1, rect.X + rect.Width, rect.Y + rect.Height - 1);
+							g.DrawLine(scheme.tabsLine.GetPen(_selected),
+								rect.X, rect.Y, rect.X + rect.Width, rect.Y);
 						}
-						else
-						{
-							g.FillRectangle(scheme.bgBrush,
-								rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
-						}
+						selectedX0 = rect.X;
+						selectedX1 = rect.X + rect.Width;
 					}
 					else
 					{
@@ -308,19 +311,32 @@ namespace MulticaretEditor
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						g.DrawString(
-							tabText[j] + "", font, selected ? selectedFg : fg,
+							tabText[j] + "", font, isCurrent ? currentFg : fg,
 							rect.X - charWidth / 3 + j * charWidth + indent, 0, stringFormat);
 					}
 					rects.Add(rect);
-					prevSelected = selected;
+					prevSelected = isCurrent;
 				}
 			}
 
-			g.FillRectangle(bg, width - rightIndent, 0, rightIndent, charHeight);
-			if (scheme.tabsLineWidth > 0)
+			g.FillRectangle(scheme.tabsBg.GetBrush(_selected), width - rightIndent, 0, rightIndent, charHeight);
+			if (scheme.tabsLine.GetWidth(_selected) > 0)
 			{
-				g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
-					0, charHeight - scheme.tabsLineWidth, width, scheme.tabsLineWidth);
+				if (selectedX0 == 0)
+				{
+					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
+						0, charHeight - scheme.tabsLine.GetWidth(_selected),
+						width, scheme.tabsLine.GetWidth(_selected));
+				}
+				else
+				{
+					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
+						0, charHeight - scheme.tabsLine.GetWidth(_selected),
+						selectedX0, scheme.tabsLine.GetWidth(_selected));
+					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
+						selectedX1, charHeight - scheme.tabsLine.GetWidth(_selected),
+						width - selectedX1, scheme.tabsLine.GetWidth(_selected));
+				}
 			}
 
 			int closeWidth = charHeight * 12 / 10;
