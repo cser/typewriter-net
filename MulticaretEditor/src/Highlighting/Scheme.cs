@@ -302,7 +302,7 @@ namespace MulticaretEditor.Highlighting
 			public void Set(Color color, Color color2, int width, int width2)
 			{
 				this.color = color;
-				this.color2 = color;
+				this.color2 = color2;
 				this.width = width;
 				this.width2 = width2;
 			}
@@ -340,16 +340,38 @@ namespace MulticaretEditor.Highlighting
 			Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
 			Dictionary<string, int> widths, Dictionary<string, int> widths2)
 		{
+			bool hasValue = false;
 			Color value;
 			if (colors.TryGetValue(item.name, out value))
+			{
+				hasValue = true;
 				item.color = value;
-			if (colors2.TryGetValue(item.name, out value))
-				item.color2 = value;
+			}
+			Color value2;
+			if (colors2.TryGetValue(item.name, out value2))
+			{
+				item.color2 = value2;
+			}
+			else if (hasValue)
+			{
+				item.color = value;
+			}
+			bool hasWidth = false;
 			int width;
 			if (widths.TryGetValue(item.name, out width))
+			{
+				hasWidth = true;
 				item.width = width;
-			if (widths2.TryGetValue(item.name, out width))
+			}
+			int width2;
+			if (widths2.TryGetValue(item.name, out width2))
+			{
+				item.width2 = width2;
+			}
+			else if (hasWidth)
+			{
 				item.width2 = width;
+			}
 		}
 		
 		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
@@ -361,12 +383,12 @@ namespace MulticaretEditor.Highlighting
 		
 		private void Tabs_Reset()
 		{
-			tabsBg.Set(Color.WhiteSmoke, Color.Gray, 1, 1);
-			tabsFg.Set(Color.Black, Color.White, 1, 1);
-			tabsCurrentBg.Set(Color.Gray, Color.White, 1, 1);
-			tabsCurrentFg.Set(Color.White, Color.White, 1, 1);
+			tabsBg.Set(Color.WhiteSmoke, Color.WhiteSmoke, 1, 1);
+			tabsFg.Set(Color.Black, Color.Gray, 1, 1);
+			tabsCurrentBg.Set(Color.White, Color.White, 1, 1);
+			tabsCurrentFg.Set(Color.Black, Color.Black, 1, 1);
 			tabsLine.Set(Color.Gray, Color.Gray, 1, 1);
-			tabsSeparator.Set(Color.Gray, Color.Gray, 1, 1);
+			tabsSeparator.Set(Color.Silver, Color.Silver, 1, 1);
 		}
 		
 		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
