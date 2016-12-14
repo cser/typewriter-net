@@ -383,8 +383,8 @@ namespace MulticaretEditor.Highlighting
 		
 		private void Tabs_Reset()
 		{
-			tabsBg.Set(Color.WhiteSmoke, Color.WhiteSmoke, 1, 1);
-			tabsFg.Set(Color.Black, Color.Gray, 1, 1);
+			tabsBg.Set(Color.Gray, Color.WhiteSmoke, 1, 1);
+			tabsFg.Set(Color.White, Color.Black, 1, 1);
 			tabsCurrentBg.Set(Color.White, Color.White, 1, 1);
 			tabsCurrentFg.Set(Color.Black, Color.Black, 1, 1);
 			tabsLine.Set(Color.Gray, Color.Gray, 1, 1);

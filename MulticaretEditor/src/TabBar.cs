@@ -203,12 +203,13 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth;
 
-			Brush fg = scheme.tabsFg.GetBrush(_selected);
+			Brush fg = scheme.tabsFg.GetBrush(false);
 			Brush currentFg = scheme.tabsCurrentFg.GetBrush(_selected);
 			Pen fgPen = scheme.tabsFg.GetPen(_selected);
 			Pen separatorPen = scheme.tabsSeparator.GetPen(_selected);
+			Brush selectedFg = scheme.tabsFg.GetBrush(_selected);
 
-			g.FillRectangle(scheme.tabsBg.GetBrush(_selected), 0, 0, width - charWidth, charHeight);
+			g.FillRectangle(scheme.tabsBg.GetBrush(false), 0, 0, width - charWidth, charHeight);
 
 			leftIndent = charWidth;
 			if (text != null)
@@ -307,19 +308,40 @@ namespace MulticaretEditor
 							g.DrawLine(separatorPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
 						}
 					}
-					Brush selectedFg = scheme.tabsFg.GetBrush(_selected);
 					for (int j = 0; j < tabText.Length; j++)
 					{
-						g.DrawString(
-							tabText[j] + "", font, isCurrent ? currentFg : fg,
-							rect.X - charWidth / 3 + j * charWidth + indent, 0, stringFormat);
+						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
+						if (charX > 0 && charX < width - rightIndent - charWidth * 2)
+						{
+							g.DrawString(
+								tabText[j] + "", font, isCurrent ? currentFg : fg,
+								charX, 0, stringFormat);
+						}
 					}
 					rects.Add(rect);
 					prevSelected = isCurrent;
 				}
 			}
 
-			g.FillRectangle(scheme.tabsBg.GetBrush(_selected), width - rightIndent, 0, rightIndent, charHeight);
+			{
+				int fictiveIndent = rightIndent - charHeight / 4;
+				Point[] points = new Point[5];
+				points[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
+				points[1] = new Point(width - fictiveIndent, 0);
+				points[2] = new Point(width, 0);
+				points[3] = new Point(width, charHeight);
+				points[4] = new Point(width - fictiveIndent, charHeight);
+				g.FillPolygon(scheme.tabsBg.GetBrush(_selected), points);
+				if (!_selected)
+				{
+					g.DrawLine(scheme.tabsBg.GetPen(true),
+						new Point(width - fictiveIndent, 0),
+						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2));
+					g.DrawLine(scheme.tabsBg.GetPen(true),
+						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2),
+						new Point(width - fictiveIndent, charHeight));
+				}
+			}
 			if (scheme.tabsLine.GetWidth(_selected) > 0)
 			{
 				if (selectedX0 == 0)
@@ -361,7 +383,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx - td, ty);
 				tempPoints[1] = new Point(tx + td, ty - td * 2);
 				tempPoints[2] = new Point(tx + td, ty + td * 2);
-				g.FillPolygon(fg, tempPoints);
+				g.FillPolygon(selectedFg, tempPoints);
 			}
 			if (rightRect != null)
 			{
@@ -371,7 +393,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx + td, ty);
 				tempPoints[1] = new Point(tx - td, ty - td * 2);
 				tempPoints[2] = new Point(tx - td, ty + td * 2);
-				g.FillPolygon(fg, tempPoints);
+				g.FillPolygon(selectedFg, tempPoints);
 			}
 
 			if (text2 != null)
@@ -380,7 +402,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < text2.Length; j++)
 				{
 					g.DrawString(
-						text2[j] + "", font, fg,
+						text2[j] + "", font, selectedFg,
 						left + charWidth * 2 / 3 + j * charWidth, 0, stringFormat);
 				}
 			}
