@@ -71,9 +71,7 @@ namespace MulticaretEditor.Highlighting
 			
 			Dictionary<string, Color> defColors = new Dictionary<string, Color>();
 			Dictionary<string, Color> colors = new Dictionary<string, Color>();
-			Dictionary<string, Color> colors2 = new Dictionary<string, Color>();
 			Dictionary<string, int> widths = new Dictionary<string, int>();
-			Dictionary<string, int> widths2 = new Dictionary<string, int>();
 			
 			foreach (XmlDocument xml in xmls)
 			{
@@ -126,22 +124,10 @@ namespace MulticaretEditor.Highlighting
 									if (color != null)
 										colors[name] = color.Value;
 								}
-								if (!string.IsNullOrEmpty(value2))
-								{
-									Color? color = ParseColorWithDefs(value2, defColors);
-									if (color != null)
-										colors2[name] = color.Value;
-								}
 								if (!string.IsNullOrEmpty(width))
 								{
 									int intValue;
 									if (int.TryParse(width, out intValue))
-										widths[name] = intValue;
-								}
-								if (!string.IsNullOrEmpty(width2))
-								{
-									int intValue;
-									if (int.TryParse(width2, out intValue))
 										widths[name] = intValue;
 								}
 							}
@@ -187,7 +173,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref scrollArrowColor, "scrollArrow", colors);
 			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
 			
-			Tabs_ParseXml(colors, colors2, widths, widths2);
+			Tabs_ParseXml(colors, widths);
 			
 			Update();
 		}
@@ -286,128 +272,83 @@ namespace MulticaretEditor.Highlighting
 			public readonly string name;
 			
 			public Color color;
-			public Color color2;
 			public Brush brush;
-			public Brush brush2;
 			public Pen pen;
-			public Pen pen2;
 			public int width;
-			public int width2;
 			
 			public ColorItem(string name)
 			{
 				this.name = name;
 			}
 			
-			public void Set(Color color, Color color2, int width, int width2)
+			public void Set(Color color, int width)
 			{
 				this.color = color;
-				this.color2 = color2;
 				this.width = width;
-				this.width2 = width2;
-			}
-			
-			public Color GetColor(bool selected)
-			{
-				return selected ? color : color2;
-			}
-			
-			public Brush GetBrush(bool selected)
-			{
-				return selected ? brush : brush2;
-			}
-			
-			public Pen GetPen(bool selected)
-			{
-				return selected ? pen : pen2;
-			}
-			
-			public int GetWidth(bool selected)
-			{
-				return selected ? width : width2;
 			}
 			
 			public void Update()
 			{
 				brush = new SolidBrush(color);
-				brush2 = new SolidBrush(color2);
 				pen = new Pen(color, Math.Max(1, width));
-				pen2 = new Pen(color2, Math.Max(1, width2));
 			}
 		}
 		
-		private static void SetColor(ColorItem item,
-			Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
-			Dictionary<string, int> widths, Dictionary<string, int> widths2)
+		private static void SetColor(ColorItem item, Dictionary<string, Color> colors, Dictionary<string, int> widths)
 		{
-			bool hasValue = false;
 			Color value;
 			if (colors.TryGetValue(item.name, out value))
 			{
-				hasValue = true;
 				item.color = value;
 			}
-			Color value2;
-			if (colors2.TryGetValue(item.name, out value2))
-			{
-				item.color2 = value2;
-			}
-			else if (hasValue)
-			{
-				item.color = value;
-			}
-			bool hasWidth = false;
 			int width;
 			if (widths.TryGetValue(item.name, out width))
 			{
-				hasWidth = true;
 				item.width = width;
-			}
-			int width2;
-			if (widths2.TryGetValue(item.name, out width2))
-			{
-				item.width2 = width2;
-			}
-			else if (hasWidth)
-			{
-				item.width2 = width;
 			}
 		}
 		
 		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
 		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
-		public readonly ColorItem tabsCurrentBg = new ColorItem("tabsCurrentBg");
-		public readonly ColorItem tabsCurrentFg = new ColorItem("tabsCurrentFg");
+		public readonly ColorItem tabsSelectedBg = new ColorItem("tabsSelectedBg");
+		public readonly ColorItem tabsSelectedFg = new ColorItem("tabsSelectedFg");
+		public readonly ColorItem tabsInfoBg = new ColorItem("tabsInfoBg");
+		public readonly ColorItem tabsInfoFg = new ColorItem("tabsInfoFg");
 		public readonly ColorItem tabsLine = new ColorItem("tabsLine");
 		public readonly ColorItem tabsSeparator = new ColorItem("tabsSeparator");
 		
 		private void Tabs_Reset()
 		{
-			tabsBg.Set(Color.Gray, Color.WhiteSmoke, 1, 1);
-			tabsFg.Set(Color.White, Color.Black, 1, 1);
-			tabsCurrentBg.Set(Color.White, Color.White, 1, 1);
-			tabsCurrentFg.Set(Color.Black, Color.Black, 1, 1);
-			tabsLine.Set(Color.Gray, Color.Gray, 1, 1);
-			tabsSeparator.Set(Color.Silver, Color.Silver, 1, 1);
+			tabsBg.Set(Color.WhiteSmoke, 1);
+			tabsFg.Set(Color.Black, 1);
+			tabsSelectedBg.Set(Color.White, 1);
+			tabsSelectedFg.Set(Color.Black, 1);
+			tabsInfoBg.Set(Color.Gray, 1);
+			tabsInfoFg.Set(Color.White, 1);
+			tabsLine.Set(Color.Gray, 1);
+			tabsSeparator.Set(Color.Silver, 1);
 		}
 		
-		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, Color> colors2,
-			Dictionary<string, int> widths, Dictionary<string, int> widths2)
+		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, int> widths)
 		{
-			SetColor(tabsBg, colors, colors2, widths, widths2);
-			SetColor(tabsFg, colors, colors2, widths, widths2);
-			SetColor(tabsCurrentBg, colors, colors2, widths, widths2);
-			SetColor(tabsCurrentFg, colors, colors2, widths, widths2);
-			SetColor(tabsLine, colors, colors2, widths, widths2);
-			SetColor(tabsSeparator, colors, colors2, widths, widths2);
+			SetColor(tabsBg, colors, widths);
+			SetColor(tabsFg, colors, widths);
+			SetColor(tabsSelectedBg, colors, widths);
+			SetColor(tabsSelectedFg, colors, widths);
+			SetColor(tabsInfoBg, colors, widths);
+			SetColor(tabsInfoFg, colors, widths);
+			SetColor(tabsLine, colors, widths);
+			SetColor(tabsSeparator, colors, widths);
 		}
 		
 		private void Tabs_Update()
 		{
 			tabsBg.Update();
 			tabsFg.Update();
-			tabsCurrentBg.Update();
-			tabsCurrentFg.Update();
+			tabsSelectedBg.Update();
+			tabsSelectedFg.Update();
+			tabsInfoBg.Update();
+			tabsInfoFg.Update();
 			tabsLine.Update();
 			tabsSeparator.Update();
 		}

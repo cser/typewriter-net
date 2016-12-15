@@ -203,17 +203,12 @@ namespace MulticaretEditor
 			int x = charWidth;
 			int indent = charWidth;
 
-			Brush fg = scheme.tabsFg.GetBrush(false);
-			Brush currentFg = scheme.tabsCurrentFg.GetBrush(_selected);
-			Pen fgPen = scheme.tabsFg.GetPen(_selected);
-			Pen separatorPen = scheme.tabsSeparator.GetPen(_selected);
-			Brush selectedFg = scheme.tabsFg.GetBrush(_selected);
-
-			g.FillRectangle(scheme.tabsBg.GetBrush(false), 0, 0, width - charWidth, charHeight);
+			g.FillRectangle(scheme.tabsBg.brush, 0, 0, width - charWidth, charHeight);
 
 			leftIndent = charWidth;
 			if (text != null)
 			{
+				Brush fg = scheme.tabsFg.brush;
 				for (int j = 0; j < text.Length; j++)
 				{
 					g.DrawString(text[j] + "", font, fg, 10 - charWidth / 3 + j * charWidth, 0, stringFormat);
@@ -238,10 +233,10 @@ namespace MulticaretEditor
 				text2 = text2Of(list.Selected);
 			else
 				text2 = this.text2;
-			rightIndent = charHeight + (text2 != null ? text2.Length * charWidth : 0);
+			rightIndent = charHeight * 5 / 4 + (text2 != null ? text2.Length * charWidth : 0);
 			if (x > width - leftIndent - rightIndent)
 			{
-				rightIndent += charHeight * 3 / 2;
+				rightIndent += charHeight * 5 / 4;
 				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 3 / 2, charHeight);
 				rightRect = new Rectangle(width - rightIndent + charWidth * 3 / 2, 0, charWidth * 3 / 2, charHeight);
 				ScrollToSelectedIfNeed();
@@ -283,39 +278,45 @@ namespace MulticaretEditor
 
 					if (isCurrent)
 					{
-						g.FillRectangle(scheme.tabsCurrentBg.GetBrush(_selected),
+						g.FillRectangle(scheme.tabsSelectedBg.brush,
 							rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
-						if (scheme.tabsLine.GetWidth(_selected) > 0)
+						if (scheme.tabsLine.width > 0)
 						{
-							g.DrawLine(scheme.tabsLine.GetPen(_selected),
-								rect.X, rect.Y + 1, rect.X, rect.Y + rect.Height - 1);
-							g.DrawLine(scheme.tabsLine.GetPen(_selected),
-								rect.X + rect.Width, rect.Y + 1, rect.X + rect.Width, rect.Y + rect.Height - 1);
-							g.DrawLine(scheme.tabsLine.GetPen(_selected),
-								rect.X, rect.Y, rect.X + rect.Width, rect.Y);
+							g.DrawLine(scheme.tabsLine.pen,
+								rect.X, rect.Y + 1,
+								rect.X, rect.Y + rect.Height - 1);
+							g.DrawLine(scheme.tabsLine.pen,
+								rect.X + rect.Width, rect.Y + 1,
+								rect.X + rect.Width, rect.Y + rect.Height - 1);
+							g.DrawLine(scheme.tabsLine.pen,
+								rect.X, rect.Y,
+								rect.X + rect.Width, rect.Y);
 						}
 						selectedX0 = rect.X;
 						selectedX1 = rect.X + rect.Width;
 					}
-					else
+					else if (scheme.tabsSeparator.width > 0)
 					{
 						if (!prevSelected)
 						{
-							g.DrawLine(separatorPen, rect.X, rect.Y, rect.X, rect.Y + rect.Height - 2);
+							g.DrawLine(scheme.tabsSeparator.pen,
+								rect.X, rect.Y,
+								rect.X, rect.Y + rect.Height - 2);
 						}
 						if (i == list.Count - 1)
 						{
-							g.DrawLine(separatorPen, rect.X + rect.Width, rect.Y, rect.X + rect.Width, rect.Y + rect.Height - 2);
+							g.DrawLine(scheme.tabsSeparator.pen,
+								rect.X + rect.Width, rect.Y,
+								rect.X + rect.Width, rect.Y + rect.Height - 2);
 						}
 					}
+					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsFg.brush;
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
 						if (charX > 0 && charX < width - rightIndent - charWidth * 2)
 						{
-							g.DrawString(
-								tabText[j] + "", font, isCurrent ? currentFg : fg,
-								charX, 0, stringFormat);
+							g.DrawString(tabText[j] + "", font, currentFg, charX, 0, stringFormat);
 						}
 					}
 					rects.Add(rect);
@@ -323,43 +324,50 @@ namespace MulticaretEditor
 				}
 			}
 
+			int fictiveIndent = rightIndent - charHeight / 4;
 			{
-				int fictiveIndent = rightIndent - charHeight / 4;
 				Point[] points = new Point[5];
 				points[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
 				points[1] = new Point(width - fictiveIndent, 0);
 				points[2] = new Point(width, 0);
 				points[3] = new Point(width, charHeight);
 				points[4] = new Point(width - fictiveIndent, charHeight);
-				g.FillPolygon(scheme.tabsBg.GetBrush(_selected), points);
+				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, points);
 				if (!_selected)
 				{
-					g.DrawLine(scheme.tabsBg.GetPen(true),
+					g.DrawLine(scheme.tabsInfoBg.pen,
 						new Point(width - fictiveIndent, 0),
 						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2));
-					g.DrawLine(scheme.tabsBg.GetPen(true),
+					g.DrawLine(scheme.tabsInfoBg.pen,
 						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2),
 						new Point(width - fictiveIndent, charHeight));
 				}
 			}
-			if (scheme.tabsLine.GetWidth(_selected) > 0)
+			if (scheme.tabsLine.width > 0)
 			{
-				if (selectedX0 == 0)
+				if (selectedX0 == 0 || selectedX0 > width - rightIndent)
 				{
-					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
-						0, charHeight - scheme.tabsLine.GetWidth(_selected),
-						width, scheme.tabsLine.GetWidth(_selected));
+					g.FillRectangle(scheme.tabsLine.brush,
+						0, charHeight - scheme.tabsLine.width,
+						width, scheme.tabsLine.width);
 				}
 				else
 				{
-					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
-						0, charHeight - scheme.tabsLine.GetWidth(_selected),
-						selectedX0, scheme.tabsLine.GetWidth(_selected));
-					g.FillRectangle(scheme.tabsLine.GetBrush(_selected),
-						selectedX1, charHeight - scheme.tabsLine.GetWidth(_selected),
-						width - selectedX1, scheme.tabsLine.GetWidth(_selected));
+					if (selectedX1 > width - fictiveIndent)
+					{
+						selectedX1 = width - fictiveIndent;
+					}
+					g.FillRectangle(scheme.tabsLine.brush,
+						0, charHeight - scheme.tabsLine.width,
+						selectedX0, scheme.tabsLine.width);
+					g.FillRectangle(scheme.tabsLine.brush,
+						selectedX1, charHeight - scheme.tabsLine.width,
+						width - selectedX1, scheme.tabsLine.width);
 				}
 			}
+			
+			Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
+			Pen infoPen = _selected ? scheme.tabsInfoFg.pen : scheme.tabsFg.pen;
 
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
@@ -367,12 +375,12 @@ namespace MulticaretEditor
 				int tx = closeRect.X + closeRect.Width / 2 + 1;
 				int ty = charHeight / 2;
 				int td = 3;
-				g.DrawLine(fgPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
-				g.DrawLine(fgPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
-				g.DrawLine(fgPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
-				g.DrawLine(fgPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
-				g.DrawLine(fgPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
-				g.DrawLine(fgPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
+				g.DrawLine(infoPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
+				g.DrawLine(infoPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
+				g.DrawLine(infoPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
+				g.DrawLine(infoPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
+				g.DrawLine(infoPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
+				g.DrawLine(infoPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
 			}
 
 			if (leftRect != null)
@@ -383,7 +391,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx - td, ty);
 				tempPoints[1] = new Point(tx + td, ty - td * 2);
 				tempPoints[2] = new Point(tx + td, ty + td * 2);
-				g.FillPolygon(selectedFg, tempPoints);
+				g.FillPolygon(infoBrush, tempPoints);
 			}
 			if (rightRect != null)
 			{
@@ -393,7 +401,7 @@ namespace MulticaretEditor
 				tempPoints[0] = new Point(tx + td, ty);
 				tempPoints[1] = new Point(tx - td, ty - td * 2);
 				tempPoints[2] = new Point(tx - td, ty + td * 2);
-				g.FillPolygon(selectedFg, tempPoints);
+				g.FillPolygon(infoBrush, tempPoints);
 			}
 
 			if (text2 != null)
@@ -402,7 +410,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < text2.Length; j++)
 				{
 					g.DrawString(
-						text2[j] + "", font, selectedFg,
+						text2[j] + "", font, infoBrush,
 						left + charWidth * 2 / 3 + j * charWidth, 0, stringFormat);
 				}
 			}
