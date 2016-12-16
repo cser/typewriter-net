@@ -266,7 +266,7 @@ namespace MulticaretEditor
 			{
 				int offsetX = GetOffsetX(offsetIndex);
 				bool prevSelected = false;
-				for (int i = Math.Max(0, offsetIndex); i < list.Count; i++)
+				for (int i = Math.Max(0, offsetIndex - 1); i < list.Count; i++)
 				{
 					T value = list[i];
 					string tabText = stringOf(value);
@@ -279,38 +279,43 @@ namespace MulticaretEditor
 					if (isCurrent)
 					{
 						g.FillRectangle(scheme.tabsSelectedBg.brush,
-							rect.X, rect.Y + 1, rect.Width, rect.Height - 1);
-						if (scheme.tabsLine.width > 0)
-						{
-							g.DrawLine(scheme.tabsLine.pen,
-								rect.X, rect.Y + 1,
-								rect.X, rect.Y + rect.Height - 1);
-							g.DrawLine(scheme.tabsLine.pen,
-								rect.X + rect.Width, rect.Y + 1,
-								rect.X + rect.Width, rect.Y + rect.Height - 1);
-							g.DrawLine(scheme.tabsLine.pen,
-								rect.X, rect.Y,
-								rect.X + rect.Width, rect.Y);
-						}
+							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 1);
+						//if (scheme.tabsLine.width > 0)
+						//{
+						//	g.DrawLine(scheme.tabsLine.pen,
+						//		rect.X, rect.Y + 1,
+						//		rect.X, rect.Y + rect.Height - 1);
+						//	g.DrawLine(scheme.tabsLine.pen,
+						//		rect.X + rect.Width, rect.Y + 1,
+						//		rect.X + rect.Width, rect.Y + rect.Height - 1);
+						//	g.DrawLine(scheme.tabsLine.pen,
+						//		rect.X, rect.Y,
+						//		rect.X + rect.Width, rect.Y);
+						//}
 						selectedX0 = rect.X;
 						selectedX1 = rect.X + rect.Width;
 					}
-					else if (scheme.tabsSeparator.width > 0)
+					//else if (scheme.tabsSeparator.width > 0)
+					//{
+					//	if (!prevSelected)
+					//	{
+					//		g.DrawLine(scheme.tabsSeparator.pen,
+					//			rect.X, rect.Y,
+					//			rect.X, rect.Y + rect.Height);
+					//	}
+					//	if (i == list.Count - 1)
+					//	{
+					//		g.DrawLine(scheme.tabsSeparator.pen,
+					//			rect.X + rect.Width, rect.Y,
+					//			rect.X + rect.Width, rect.Y + rect.Height);
+					//	}
+					//}
+					if (!isCurrent)
 					{
-						if (!prevSelected)
-						{
-							g.DrawLine(scheme.tabsSeparator.pen,
-								rect.X, rect.Y,
-								rect.X, rect.Y + rect.Height - 2);
-						}
-						if (i == list.Count - 1)
-						{
-							g.DrawLine(scheme.tabsSeparator.pen,
-								rect.X + rect.Width, rect.Y,
-								rect.X + rect.Width, rect.Y + rect.Height - 2);
-						}
+						g.FillRectangle(scheme.tabsUnselectedBg.brush,
+							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
 					}
-					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsFg.brush;
+					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsUnselectedFg.brush;
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
@@ -341,28 +346,28 @@ namespace MulticaretEditor
 					new Point(width - fictiveIndent - charHeight / 2, charHeight / 2),
 					new Point(width - fictiveIndent + (charHeight % 2), charHeight));
 			}
-			if (scheme.tabsLine.width > 0)
-			{
-				if (selectedX0 == 0 || selectedX0 > width - fictiveIndent)
-				{
-					g.FillRectangle(scheme.tabsLine.brush,
-						0, charHeight - scheme.tabsLine.width,
-						width, scheme.tabsLine.width);
-				}
-				else
-				{
-					if (selectedX1 > width - fictiveIndent)
-					{
-						selectedX1 = width - fictiveIndent;
-					}
-					g.FillRectangle(scheme.tabsLine.brush,
-						0, charHeight - scheme.tabsLine.width,
-						selectedX0, scheme.tabsLine.width);
-					g.FillRectangle(scheme.tabsLine.brush,
-						selectedX1, charHeight - scheme.tabsLine.width,
-						width - selectedX1, scheme.tabsLine.width);
-				}
-			}
+			//if (scheme.tabsLine.width > 0)
+			//{
+			//	if (selectedX0 == 0 || selectedX0 > width - fictiveIndent)
+			//	{
+			//		g.FillRectangle(scheme.tabsLine.brush,
+			//			0, charHeight - scheme.tabsLine.width,
+			//			width, scheme.tabsLine.width);
+			//	}
+			//	else
+			//	{
+			//		if (selectedX1 > width - fictiveIndent)
+			//		{
+			//			selectedX1 = width - fictiveIndent;
+			//		}
+			//		g.FillRectangle(scheme.tabsLine.brush,
+			//			0, charHeight - scheme.tabsLine.width,
+			//			selectedX0, scheme.tabsLine.width);
+			//		g.FillRectangle(scheme.tabsLine.brush,
+			//			selectedX1, charHeight - scheme.tabsLine.width,
+			//			width - selectedX1, scheme.tabsLine.width);
+			//	}
+			//}
 			
 			Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
 			Pen infoPen = _selected ? scheme.tabsInfoFg.pen : scheme.tabsFg.pen;

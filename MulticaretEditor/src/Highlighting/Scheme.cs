@@ -310,6 +310,8 @@ namespace MulticaretEditor.Highlighting
 		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
 		public readonly ColorItem tabsSelectedBg = new ColorItem("tabsSelectedBg");
 		public readonly ColorItem tabsSelectedFg = new ColorItem("tabsSelectedFg");
+		public readonly ColorItem tabsUnselectedBg = new ColorItem("tabsUnselectedBg");
+		public readonly ColorItem tabsUnselectedFg = new ColorItem("tabsUnselectedFg");
 		public readonly ColorItem tabsInfoBg = new ColorItem("tabsInfoBg");
 		public readonly ColorItem tabsInfoFg = new ColorItem("tabsInfoFg");
 		public readonly ColorItem tabsLine = new ColorItem("tabsLine");
@@ -321,6 +323,8 @@ namespace MulticaretEditor.Highlighting
 			tabsFg.Set(Color.Black, 1);
 			tabsSelectedBg.Set(Color.White, 1);
 			tabsSelectedFg.Set(Color.Black, 1);
+			tabsUnselectedBg.Set(Color.Gray, 1);
+			tabsUnselectedFg.Set(Color.White, 1);
 			tabsInfoBg.Set(Color.Gray, 1);
 			tabsInfoFg.Set(Color.White, 1);
 			tabsLine.Set(Color.Gray, 1);
@@ -333,6 +337,8 @@ namespace MulticaretEditor.Highlighting
 			SetColor(tabsFg, colors, widths);
 			SetColor(tabsSelectedBg, colors, widths);
 			SetColor(tabsSelectedFg, colors, widths);
+			SetColor(tabsUnselectedBg, colors, widths);
+			SetColor(tabsUnselectedFg, colors, widths);
 			SetColor(tabsInfoBg, colors, widths);
 			SetColor(tabsInfoFg, colors, widths);
 			SetColor(tabsLine, colors, widths);
@@ -345,6 +351,8 @@ namespace MulticaretEditor.Highlighting
 			tabsFg.Update();
 			tabsSelectedBg.Update();
 			tabsSelectedFg.Update();
+			tabsUnselectedBg.Update();
+			tabsUnselectedFg.Update();
 			tabsInfoBg.Update();
 			tabsInfoFg.Update();
 			tabsLine.Update();

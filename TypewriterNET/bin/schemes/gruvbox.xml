@@ -50,14 +50,16 @@
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>
 	
-	<color name="tabsBg" value="bg2"/>
-	<color name="tabsFg" value="_fg2"/>
-	<color name="tabsSelectedBg" value="_fg3"/>
-	<color name="tabsSelectedFg" value="bg0"/>
-	<width name="tabsLine" value=""/>
-	<color name="tabsLine" value=""/>
-	<color name="tabsLineFg" value=""/>
-	<color name="lineSeparator" value=""/>
+	<color name="tabsBg" value="bg3"/>
+	<color name="tabsFg" value="_fg1"/>
+	<color name="tabsSelectedBg" value="bg"/>
+	<color name="tabsSelectedFg" value="_fg1"/>
+	<color name="tabsUnselectedBg" value="_fg3"/>
+	<color name="tabsUnselectedFg" value="bg"/>
+	<color name="tabsLine" value="" width="0"/>
+	<color name="tabsSeparator" value="bg" width="1"/>
+	<color name="tabsInfoBg" value="_fg2"/>
+	<color name="tabsInfoFg" value="bg"/>
 	
 	<color name="splitterBg" value="bg2"/>
 	<color name="splitterLine" value="bg2"/>

@@ -25,12 +25,16 @@
 	<color name="markPen" value="blue"/>
 	<color name="mainCaret" value="white"/>
 	<color name="caret" value="blue"/>
-	
 	<color name="printMargin" value="selection"/>
+	
 	<color name="tabsBg" value="selection"/>
-	<color name="tabsFg" value="black"/>
-	<color name="tabsSelectedBg" value="selection"/>
+	<color name="tabsFg" value="white"/>
+	<color name="tabsUnselectedBg" value="lineBg"/>
+	<color name="tabsUnselectedFg" value="white"/>
+	<color name="tabsSelectedBg" value="bg"/>
 	<color name="tabsSelectedFg" value="blue"/>
+	<color name="tabsInfoBg" value="white"/>
+	<color name="tabsInfoFg" value="selection"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

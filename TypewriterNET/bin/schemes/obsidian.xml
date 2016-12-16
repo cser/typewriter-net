@@ -30,7 +30,7 @@
 	<color name="tabsFg" value="base"/>
 	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#ffffff"/>
-	<color name="tabsLine" value="#808080" width="1"/>
+	<color name="tabsLine" value="blue" width="1"/>
 	<color name="tabsSeparator" value="#808080" width="1"/>
 	<color name="tabsInfoBg" value="orange"/>
 	<color name="tabsInfoFg" value="#000000"/>
