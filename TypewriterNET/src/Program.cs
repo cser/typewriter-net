@@ -30,6 +30,10 @@ public class Program
                 {
                     supportedArgs.Add(arg);
                 }
+                else if (arg.StartsWith("-column="))
+                {
+                    supportedArgs.Add(arg);
+                }
                 else
                 {
                     hasUnsupportedArgs = true;

@@ -331,21 +331,19 @@ namespace MulticaretEditor
 				points[1] = new Point(width - fictiveIndent, 0);
 				points[2] = new Point(width, 0);
 				points[3] = new Point(width, charHeight);
-				points[4] = new Point(width - fictiveIndent, charHeight);
+				points[4] = new Point(width - fictiveIndent + (charHeight % 2), charHeight);
 				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, points);
-				if (!_selected)
-				{
-					g.DrawLine(scheme.tabsInfoBg.pen,
-						new Point(width - fictiveIndent, 0),
-						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2));
-					g.DrawLine(scheme.tabsInfoBg.pen,
-						new Point(width - fictiveIndent - charHeight / 2, charHeight / 2),
-						new Point(width - fictiveIndent, charHeight));
-				}
+				Pen pen = _selected ? scheme.tabsBg.pen : scheme.tabsInfoBg.pen;
+				g.DrawLine(pen,
+					new Point(width - fictiveIndent, 0),
+					new Point(width - fictiveIndent - charHeight / 2, charHeight / 2));
+				g.DrawLine(pen,
+					new Point(width - fictiveIndent - charHeight / 2, charHeight / 2),
+					new Point(width - fictiveIndent + (charHeight % 2), charHeight));
 			}
 			if (scheme.tabsLine.width > 0)
 			{
-				if (selectedX0 == 0 || selectedX0 > width - rightIndent)
+				if (selectedX0 == 0 || selectedX0 > width - fictiveIndent)
 				{
 					g.FillRectangle(scheme.tabsLine.brush,
 						0, charHeight - scheme.tabsLine.width,

@@ -113,9 +113,7 @@ namespace MulticaretEditor.Highlighting
 						{
 							string name = elementI.GetAttribute("name");
 							string value = elementI.GetAttribute("value");
-							string value2 = elementI.GetAttribute("value2");
 							string width = elementI.GetAttribute("width");
-							string width2 = elementI.GetAttribute("width2");
 							if (!string.IsNullOrEmpty(name))
 							{
 								if (!string.IsNullOrEmpty(value))
