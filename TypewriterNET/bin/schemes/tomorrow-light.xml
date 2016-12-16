@@ -29,9 +29,9 @@
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#ffffff"/>
 	<color name="tabsSelectedFg" value="#000000"/>
+	<color name="tabsInfoBg" value="#808080"/>
+	<color name="tabsInfoFg" value="#ffffff"/>
 	<color name="tabsLine" value="#808080"/>
-	<color name="tabsLineFg" value="#ffffff"/>
-	<width name="tabsLine" value="1"/>
 	<color name="lineSeparator" value="#e0e0e0"/>
 	
 	<width name="mainCaret" value="2"/>
