@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using CustomScrollBar;
 
 namespace MulticaretEditor
@@ -25,6 +23,7 @@ namespace MulticaretEditor
 
 		private LineArray lines;
 		private Controller controller;
+		private Receiver receiver;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private StringFormat rightAlignFormat= new StringFormat(StringFormatFlags.DirectionRightToLeft);
 		private int lineInterval = 0;
@@ -101,6 +100,7 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
+						receiver = new Receiver(controller);
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -112,6 +112,7 @@ namespace MulticaretEditor
 					else
 					{
 						lines = null;
+						receiver = null;
 					}
 					Invalidate();
 				}
@@ -1379,24 +1380,9 @@ namespace MulticaretEditor
 
 		private void ExecuteKeyPress(char code)
 		{
-			switch (code)
+			if (receiver != null)
 			{
-				case '\b':
-					if (lines.AllSelectionsEmpty)
-					{
-						controller.Backspace();
-					}
-					else
-					{
-						controller.EraseSelection();
-					}
-					break;
-				case '\r':
-					controller.InsertLineBreak();
-					break;
-				default:
-					controller.InsertText(code + "");
-					break;
+				receiver.DoKeyPress(code);
 			}
 			if (highlighter != null && !highlighter.LastParsingChanged)
 				highlighter.Parse(lines, 100);
@@ -1420,8 +1406,16 @@ namespace MulticaretEditor
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
-			actionProcessed = false;
-			keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			if (receiver.DoKeyDown(keyData))
+			{
+				UnblinkCursor();
+				ScrollIfNeedToCaret();
+			}
+			else
+			{
+				actionProcessed = false;
+				keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			}
 		}
 
 		private bool IsMacrosKeys(KeyMap keyMap, Keys keyData)

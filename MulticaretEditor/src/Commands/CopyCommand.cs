@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class CopyCommand : Command
 	{

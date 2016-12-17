@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public struct Range
 	{

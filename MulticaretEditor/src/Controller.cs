@@ -5,8 +5,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
-using MulticaretEditor.Commands;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {

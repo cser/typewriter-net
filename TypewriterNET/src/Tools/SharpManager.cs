@@ -8,8 +8,6 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 public class SharpManager
 {

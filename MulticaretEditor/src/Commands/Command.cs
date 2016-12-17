@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public abstract class Command
 	{

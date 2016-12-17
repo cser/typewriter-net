@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public static class Rules
 	{

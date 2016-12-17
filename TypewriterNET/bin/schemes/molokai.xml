@@ -27,7 +27,7 @@
 	<color name="tabsSelectedFg" value="default"/>
 	<color name="tabsUnselectedBg" value="#eeeeee"/>
 	<color name="tabsUnselectedFg" value="#303030"/>
-	<color name="tabsInfoBg" value="crimson"/>
+	<color name="tabsInfoBg" value="#505050"/>
 	<color name="tabsInfoFg" value="default"/>
 	
 	<width name="mainCaret" value="2"/>

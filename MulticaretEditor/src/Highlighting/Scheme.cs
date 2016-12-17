@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Drawing;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class Scheme : Dictionary<Ds, TextStyle>
 	{

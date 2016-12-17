@@ -5,7 +5,7 @@
 	using System.Drawing;
 	using System.Runtime.InteropServices;
 	using System.Windows.Forms;
-	using MulticaretEditor.Highlighting;
+	using MulticaretEditor;
 
 	public class ScrollBarEx : Control
 	{

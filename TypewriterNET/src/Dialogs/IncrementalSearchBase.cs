@@ -10,8 +10,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class IncrementalSearchBase : ADialog

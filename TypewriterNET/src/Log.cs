@@ -1,5 +1,4 @@
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 
 public class Log
 {

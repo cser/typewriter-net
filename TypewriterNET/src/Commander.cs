@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 using TinyJSON;
 
 public class Commander

@@ -13,8 +13,6 @@ using System.Resources;
 using System.Xml;
 using System.Net;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 
 public class MainForm : Form
 {

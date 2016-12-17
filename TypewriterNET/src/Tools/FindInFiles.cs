@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Threading;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 public class FindInFiles
 {

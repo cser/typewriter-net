@@ -11,8 +11,6 @@ using System.Text;
 using System.Resources;
 using System.Xml;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 
 public class FileDragger
 {

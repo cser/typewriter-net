@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class StyleRange
 	{		
