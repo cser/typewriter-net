@@ -17,7 +17,6 @@
 	<color name="tabsUnselectedBg" value="#F5F5F5"/>
 	<color name="tabsUnselectedFg" value="#000000"/>
 	<color name="tabsSelectedBg" value="#ffffff"/>
-	<color name="tabsSelectedFg" value="#000000"/>
 	<color name="tabsInfoBg" value="#808080"/>
 	<color name="tabsInfoFg" value="#FFFFFF"/>
 	

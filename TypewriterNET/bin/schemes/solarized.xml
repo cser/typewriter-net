@@ -61,14 +61,13 @@
 	<color name="caret" value="#708080"/>
 	<color name="printMargin" value="base01"/>
 	
-	<color name="tabsBg" value="#021318"/>
-	<color name="tabsFg" value="base00"/>
-	<color name="tabsSelectedBg" value="base00"/>
-	<color name="tabsSelectedFg" value="#FFFFFF"/>
-	<width name="tabsLine" value=""/>
-	<color name="tabsLine" value=""/>
-	<color name="tabsLineFg" value=""/>
-	<color name="lineSeparator" value=""/>
+	<color name="tabsBg" value="base01"/>
+	<color name="tabsFg" value="#ffffff"/>
+	<color name="tabsUnselectedBg" value="base1"/>
+	<color name="tabsUnselectedFg" value="base03"/>
+	<color name="tabsSelectedFg" value="base3"/>
+	<color name="tabsInfoBg" value="base2"/>
+	<color name="tabsInfoFg" value="base02"/>
 	
 	<style name="dsNormal" color="base1"/>
 	<style name="dsNormal2" color="base1" italic="true"/>

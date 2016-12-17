@@ -24,12 +24,11 @@
 	
 	<color name="tabsBg" value="#49483F"/>
 	<color name="tabsFg" value="default"/>
-	<color name="tabsSelectedBg" value="#808080"/>
+	<color name="tabsUnselectedBg" value="gray"/>
+	<color name="tabsUnselectedFg" value="#ffffff"/>
 	<color name="tabsSelectedFg" value="#FFFFFF"/>
-	<width name="tabsLine" value=""/>
-	<color name="tabsLine" value=""/>
-	<color name="tabsLineFg" value=""/>
-	<color name="lineSeparator" value=""/>
+	<color name="tabsInfoBg" value="#C6BB74"/>
+	<color name="tabsInfoFg" value="#272822"/>
 	
 	<width name="mainCaret" value="2"/>
 	<width name="caret" value="2"/>

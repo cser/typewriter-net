@@ -20,14 +20,13 @@
 	<color name="scrollArrowHover" value="#000000"/>
 	<color name="printMargin" value="base00"/>
 	
-	<color name="tabsBg" value="#C0C0C0"/>
-	<color name="tabsFg" value="#000000"/>
-	<color name="tabsSelectedBg" value="#base01"/>
-	<color name="tabsSelectedFg" value="#FFFFFF"/>
-	<width name="tabsLine" value=""/>
-	<color name="tabsLine" value=""/>
-	<color name="tabsLineFg" value=""/>
-	<color name="lineSeparator" value=""/>
+	<color name="tabsBg" value="base1"/>
+	<color name="tabsFg" value="#ffffff"/>
+	<color name="tabsUnselectedBg" value="base2"/>
+	<color name="tabsUnselectedFg" value="base01"/>
+	<color name="tabsSelectedFg" value="base03"/>
+	<color name="tabsInfoBg" value="base02"/>
+	<color name="tabsInfoFg" value="#ffffff"/>
 	
 	<style name="dsNormal" color="base01"/>
 	<style name="dsNormal2" color="base01" italic="true"/>

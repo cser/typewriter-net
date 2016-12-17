@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <scheme>
+	<defColor name="bg" value="#22282A"/>
 	<defColor name="base" value="#F1F2F3"/>
 	<defColor name="green" value="#93C763"/>
 	<defColor name="violet" value="#A082BD"/>
@@ -14,7 +15,7 @@
 	<defColor name="violet2" value="#8C8CB4"/>
 	<defColor name="red" value="#FF4436"/>
 	
-	<color name="bg" value="#22282A"/>
+	<color name="bg" value="bg"/>
 	<color name="fg" value="base"/>
 	<color name="lineBg" value="#303A3B"/>
 	<color name="lineNumberBg" value="#293134"/>
@@ -26,12 +27,11 @@
 	<color name="caret" value="#7F7F7F"/>
 	<color name="printMargin" value="#808080"/>
 
-	<color name="tabsBg" value="#293134"/>
+	<color name="tabsBg" value="blue"/>
 	<color name="tabsFg" value="base"/>
-	<color name="tabsSelectedBg" value="#808080"/>
 	<color name="tabsSelectedFg" value="#ffffff"/>
-	<color name="tabsLine" value="blue" width="1"/>
-	<color name="tabsSeparator" value="#808080" width="1"/>
+	<color name="tabsUnselectedBg" value="#eeeeee"/>
+	<color name="tabsUnselectedFg" value="#000000"/>
 	<color name="tabsInfoBg" value="orange"/>
 	<color name="tabsInfoFg" value="#000000"/>
 	

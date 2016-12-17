@@ -272,23 +272,21 @@ namespace MulticaretEditor.Highlighting
 			public Color color;
 			public Brush brush;
 			public Pen pen;
-			public int width;
 			
 			public ColorItem(string name)
 			{
 				this.name = name;
 			}
 			
-			public void Set(Color color, int width)
+			public void Set(Color color)
 			{
 				this.color = color;
-				this.width = width;
 			}
 			
 			public void Update()
 			{
 				brush = new SolidBrush(color);
-				pen = new Pen(color, Math.Max(1, width));
+				pen = new Pen(color, 1);
 			}
 		}
 		
@@ -299,64 +297,47 @@ namespace MulticaretEditor.Highlighting
 			{
 				item.color = value;
 			}
-			int width;
-			if (widths.TryGetValue(item.name, out width))
-			{
-				item.width = width;
-			}
 		}
 		
 		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
 		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
-		public readonly ColorItem tabsSelectedBg = new ColorItem("tabsSelectedBg");
 		public readonly ColorItem tabsSelectedFg = new ColorItem("tabsSelectedFg");
 		public readonly ColorItem tabsUnselectedBg = new ColorItem("tabsUnselectedBg");
 		public readonly ColorItem tabsUnselectedFg = new ColorItem("tabsUnselectedFg");
 		public readonly ColorItem tabsInfoBg = new ColorItem("tabsInfoBg");
 		public readonly ColorItem tabsInfoFg = new ColorItem("tabsInfoFg");
-		public readonly ColorItem tabsLine = new ColorItem("tabsLine");
-		public readonly ColorItem tabsSeparator = new ColorItem("tabsSeparator");
 		
 		private void Tabs_Reset()
 		{
-			tabsBg.Set(Color.WhiteSmoke, 1);
-			tabsFg.Set(Color.Black, 1);
-			tabsSelectedBg.Set(Color.White, 1);
-			tabsSelectedFg.Set(Color.Black, 1);
-			tabsUnselectedBg.Set(Color.Gray, 1);
-			tabsUnselectedFg.Set(Color.White, 1);
-			tabsInfoBg.Set(Color.Gray, 1);
-			tabsInfoFg.Set(Color.White, 1);
-			tabsLine.Set(Color.Gray, 1);
-			tabsSeparator.Set(Color.Silver, 1);
+			tabsBg.Set(Color.FromArgb(0xFF, 0xA1, 0xA1, 0xA1));
+			tabsFg.Set(Color.White);
+			tabsUnselectedBg.Set(Color.FromArgb(0xF0, 0xF0, 0xF0));
+			tabsUnselectedFg.Set(Color.FromArgb(0x60, 0x60, 0x60));
+			tabsSelectedFg.Set(Color.Black);
+			tabsInfoBg.Set(Color.FromArgb(0x50, 0x50, 0x50));
+			tabsInfoFg.Set(Color.White);
 		}
 		
 		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, int> widths)
 		{
 			SetColor(tabsBg, colors, widths);
 			SetColor(tabsFg, colors, widths);
-			SetColor(tabsSelectedBg, colors, widths);
 			SetColor(tabsSelectedFg, colors, widths);
 			SetColor(tabsUnselectedBg, colors, widths);
 			SetColor(tabsUnselectedFg, colors, widths);
 			SetColor(tabsInfoBg, colors, widths);
 			SetColor(tabsInfoFg, colors, widths);
-			SetColor(tabsLine, colors, widths);
-			SetColor(tabsSeparator, colors, widths);
 		}
 		
 		private void Tabs_Update()
 		{
 			tabsBg.Update();
 			tabsFg.Update();
-			tabsSelectedBg.Update();
 			tabsSelectedFg.Update();
 			tabsUnselectedBg.Update();
 			tabsUnselectedFg.Update();
 			tabsInfoBg.Update();
 			tabsInfoFg.Update();
-			tabsLine.Update();
-			tabsSeparator.Update();
 		}
 	}
 }
