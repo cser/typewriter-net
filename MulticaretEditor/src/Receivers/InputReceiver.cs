@@ -31,10 +31,11 @@ namespace MulticaretEditor
 		
 		public override bool DoKeyDown(Keys keysData)
 		{
-			if ((keysData & Keys.Control) > 0 && (keysData & Keys.OemCloseBrackets) > 0)
+			if (((keysData & Keys.Control) == Keys.Control) &&
+				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
 				receiver.SetState(new AltReceiver());
-				return false;
+				return true;
 			}
 			return false;
 		}

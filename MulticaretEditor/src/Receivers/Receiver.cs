@@ -11,6 +11,8 @@ namespace MulticaretEditor
 		
 		private AReceiver state;
 		
+		public bool altMode;
+		
 		public Receiver(Controller controller)
 		{
 			this.controller = controller;
@@ -25,6 +27,7 @@ namespace MulticaretEditor
 			{
 				this.state = state;
 				this.state.Init(controller, this);
+				altMode = this.state.AltMode;
 			}
 		}
 		

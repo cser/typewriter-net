@@ -6,6 +6,8 @@ namespace MulticaretEditor
 {
 	public class AReceiver
 	{
+		public virtual bool AltMode { get { return false; } }
+		
 		protected Controller controller;
 		protected LineArray lines;
 		protected Receiver receiver;

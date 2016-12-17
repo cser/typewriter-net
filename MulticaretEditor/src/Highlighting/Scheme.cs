@@ -52,6 +52,9 @@ namespace MulticaretEditor
 		public Pen markPen;
 		public Pen mainCaretPen;
 		public Pen caretPen;
+		public Brush mainCaretBrush;
+		public Brush caretBrush;
+		public Brush mainCaretBrush2;
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
@@ -250,6 +253,9 @@ namespace MulticaretEditor
 			markPen = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
+			mainCaretBrush = new SolidBrush(Color.FromArgb(152, mainCaretColor.R, mainCaretColor.G, mainCaretColor.B));
+			caretBrush = new SolidBrush(Color.FromArgb(128, caretColor.R, caretColor.G, caretColor.B));
+			mainCaretBrush2 = new SolidBrush(Color.FromArgb(64, mainCaretColor.R, mainCaretColor.G, mainCaretColor.B));
 			printMarginPen = new Pen(printMarginColor);
 			
 			splitterBgBrush = new SolidBrush(splitterBgColor);

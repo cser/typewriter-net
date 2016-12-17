@@ -761,8 +761,28 @@ namespace MulticaretEditor
 						}
 					}
 
-					if (isCursorTick && Focused)
-						g.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
+					if (Focused)
+					{
+						if (receiver != null && receiver.altMode)
+						{
+							Brush brush;
+							if (i == selectionsCount - 1)
+							{
+								brush = isCursorTick ? scheme.mainCaretBrush : scheme.mainCaretBrush2;
+							}
+							else
+							{
+								brush = scheme.caretBrush;
+							}
+							g.FillRectangle(brush, x, y, charWidth, charHeight);
+						}
+						else if (isCursorTick)
+						{
+							g.DrawLine(i == selectionsCount - 1 ?
+								scheme.mainCaretPen :
+								scheme.caretPen, x, y, x, y + charHeight);
+						}
+					}
 				}
 			}
 		}
