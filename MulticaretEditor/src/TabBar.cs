@@ -27,6 +27,7 @@ namespace MulticaretEditor
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly StringOfDelegate<T> stringOf;
 		private readonly Point[] tempPoints;
+		private readonly Point[] tempPoints2;
 
 		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf)
 		{
@@ -39,6 +40,7 @@ namespace MulticaretEditor
 			TabStop = false;
 
 			tempPoints = new Point[3];
+			tempPoints2 = new Point[5];
 			SetFont(FontFamily.GenericMonospace, 10.25f);
 
 			arrowTimer = new Timer();
@@ -304,13 +306,12 @@ namespace MulticaretEditor
 
 			int fictiveIndent = rightIndent - charHeight / 4;
 			{
-				Point[] points = new Point[5];
-				points[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
-				points[1] = new Point(width - fictiveIndent, 0);
-				points[2] = new Point(width, 0);
-				points[3] = new Point(width, charHeight);
-				points[4] = new Point(width - fictiveIndent + (charHeight % 2), charHeight);
-				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, points);
+				tempPoints2[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
+				tempPoints2[1] = new Point(width - fictiveIndent, 0);
+				tempPoints2[2] = new Point(width, 0);
+				tempPoints2[3] = new Point(width, charHeight);
+				tempPoints2[4] = new Point(width - fictiveIndent + (charHeight % 2), charHeight);
+				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, tempPoints2);
 				Pen pen = _selected ? scheme.tabsBg.pen : scheme.tabsInfoBg.pen;
 				g.DrawLine(pen,
 					new Point(width - fictiveIndent, 0),
