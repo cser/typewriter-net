@@ -765,16 +765,27 @@ namespace MulticaretEditor
 					{
 						if (receiver != null && receiver.altMode)
 						{
-							Brush brush;
 							if (i == selectionsCount - 1)
 							{
-								brush = isCursorTick ? scheme.mainCaretBrush : scheme.mainCaretBrush2;
+								if (isCursorTick)
+								{
+									g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
+									if (caret.iChar < line.chars.Count)
+									{
+										char c = line.chars[caret.iChar].c;
+										g.DrawString(c + "", font, scheme.bgBrush,
+											x - charWidth / 3, y + lineInterval / 2, stringFormat);
+									}
+								}
+								else
+								{
+									g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
+								}
 							}
 							else
 							{
-								brush = scheme.caretBrush;
+								g.FillRectangle(scheme.caretBrush, x, y, charWidth, charHeight);
 							}
-							g.FillRectangle(brush, x, y, charWidth, charHeight);
 						}
 						else if (isCursorTick)
 						{
