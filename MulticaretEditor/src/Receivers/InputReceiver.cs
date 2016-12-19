@@ -6,12 +6,12 @@ namespace MulticaretEditor
 {
 	public class InputReceiver : AReceiver
 	{
-		public override void DoKeyPress(char code)
+		public override void DoKeyPress(Controller controller, char code)
 		{
 			switch (code)
 			{
 				case '\b':
-					if (lines.AllSelectionsEmpty)
+					if (controller.Lines.AllSelectionsEmpty)
 					{
 						controller.Backspace();
 					}
@@ -29,7 +29,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public override bool DoKeyDown(Keys keysData)
+		public override bool DoKeyDown(Controller controller, Keys keysData)
 		{
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))

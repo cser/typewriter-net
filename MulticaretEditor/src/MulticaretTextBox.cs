@@ -100,7 +100,7 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
-						receiver = new Receiver(controller);
+						receiver = macrosExecutor.receiver;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -1413,7 +1413,7 @@ namespace MulticaretEditor
 		{
 			if (receiver != null)
 			{
-				receiver.DoKeyPress(code);
+				receiver.DoKeyPress(controller, code);
 			}
 			if (highlighter != null && !highlighter.LastParsingChanged)
 				highlighter.Parse(lines, 100);
@@ -1437,7 +1437,7 @@ namespace MulticaretEditor
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
-			if (receiver.DoKeyDown(keyData))
+			if (receiver.DoKeyDown(controller, keyData))
 			{
 				UnblinkCursor();
 				ScrollIfNeedToCaret();

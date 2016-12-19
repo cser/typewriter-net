@@ -6,18 +6,12 @@ namespace MulticaretEditor
 {
 	public class Receiver
 	{
-		private readonly Controller controller;
-		private readonly LineArray lines;
-		
 		private AReceiver state;
 		
 		public bool altMode;
 		
-		public Receiver(Controller controller)
+		public Receiver()
 		{
-			this.controller = controller;
-			this.lines = controller.Lines;
-			
 			SetState(new InputReceiver());
 		}
 		
@@ -26,19 +20,19 @@ namespace MulticaretEditor
 			if (this.state != state)
 			{
 				this.state = state;
-				this.state.Init(controller, this);
+				this.state.Init(this);
 				altMode = this.state.AltMode;
 			}
 		}
 		
-		public void DoKeyPress(char code)
+		public void DoKeyPress(Controller controller, char code)
 		{
-			state.DoKeyPress(code);
+			state.DoKeyPress(controller, code);
 		}
 		
-		public bool DoKeyDown(Keys keysData)
+		public bool DoKeyDown(Controller controller, Keys keysData)
 		{
-			return state.DoKeyDown(keysData);
+			return state.DoKeyDown(controller, keysData);
 		}
 	}
 }
