@@ -25,10 +25,11 @@
 	<color name="caret" value="#808080"/>
 	<color name="printMargin" value="#cccccc"/>
 	
-	<color name="tabsBg" value="#dfdfdf"/>
+	<color name="tabsBg" value="#c0c0c0"/>
 	<color name="tabsFg" value="#000000"/>
 	<color name="tabsSelectedFg" value="#000000"/>
-	<color name="tabsUnselectedBg" value="#F0F0F0"/>
+	<color name="tabsSelectedBg" value="#ffffff"/>
+	<color name="tabsUnselectedBg" value="#eaeaea"/>
 	<color name="tabsUnselectedFg" value="#606060"/>
 	<color name="tabsInfoBg" value="#808080"/>
 	<color name="tabsInfoFg" value="#ffffff"/>
