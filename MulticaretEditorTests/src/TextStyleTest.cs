@@ -1,5 +1,5 @@
 ﻿using System;
-using MulticaretEditor.Highlighting;
+using MulticaretEditor;
 using NUnit.Framework;
 
 namespace UnitTests

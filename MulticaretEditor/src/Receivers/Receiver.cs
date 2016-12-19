@@ -9,25 +9,53 @@ namespace MulticaretEditor
 		private readonly Controller controller;
 		private readonly LineArray lines;
 		
+		private Context context;
 		private AReceiver state;
 		
-		public bool altMode;
+		public bool viMode;
 		
 		public Receiver(Controller controller)
 		{
 			this.controller = controller;
 			this.lines = controller.Lines;
 			
-			SetState(new InputReceiver());
+			context = new Context(this);
+			context.SetState(new InputReceiver());
 		}
 		
-		public void SetState(AReceiver state)
+		public void SetViMode(bool value)
 		{
-			if (this.state != state)
+			if (viMode != value)
 			{
-				this.state = state;
-				this.state.Init(controller, this);
-				altMode = this.state.AltMode;
+				if (value)
+				{
+					context.SetState(new ViReceiver());
+				}
+				else
+				{
+					context.SetState(new InputReceiver());
+				}
+			}
+		}
+		
+		public class Context
+		{
+			private Receiver receiver;
+			
+			public Context(Receiver receiver)
+			{
+				this.receiver = receiver;
+			}
+			
+			public void SetState(AReceiver state)
+			{
+				if (receiver.state != state)
+				{
+					receiver.state = state;
+					receiver.state.Init(receiver.controller, this);
+					receiver.state.DoOn();
+					receiver.viMode = receiver.state.AltMode;
+				}
 			}
 		}
 		

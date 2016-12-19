@@ -467,6 +467,19 @@ namespace MulticaretEditor
 
 		protected override void OnGotFocus(EventArgs e)
 		{
+			if (macrosExecutor.currentReceiver != receiver)
+			{
+				if (macrosExecutor.currentReceiver != null)
+				{
+					bool oldViMode = macrosExecutor.currentReceiver.viMode;
+					macrosExecutor.currentReceiver = receiver;
+					receiver.SetViMode(oldViMode);
+				}
+				else
+				{
+					macrosExecutor.currentReceiver = receiver;
+				}
+			}
 			UnblinkCursor();
 			base.OnGotFocus(e);
 			if (FocusedChange != null)
@@ -763,7 +776,7 @@ namespace MulticaretEditor
 
 					if (Focused)
 					{
-						if (receiver != null && receiver.altMode)
+						if (receiver != null && receiver.viMode)
 						{
 							if (i == selectionsCount - 1)
 							{

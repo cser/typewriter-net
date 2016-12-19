@@ -10,13 +10,17 @@ namespace MulticaretEditor
 		
 		protected Controller controller;
 		protected LineArray lines;
-		protected Receiver receiver;
+		protected Receiver.Context context;
 		
-		public void Init(Controller controller, Receiver receiver)
+		public void Init(Controller controller, Receiver.Context context)
 		{
 			this.controller = controller;
 			this.lines = controller.Lines;
-			this.receiver = receiver;
+			this.context = context;
+		}
+		
+		public virtual void DoOn()
+		{
 		}
 		
 		public virtual void DoKeyPress(char code)

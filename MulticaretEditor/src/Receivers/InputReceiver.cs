@@ -34,7 +34,7 @@ namespace MulticaretEditor
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
-				receiver.SetState(new AltReceiver());
+				context.SetState(new ViReceiver());
 				return true;
 			}
 			return false;

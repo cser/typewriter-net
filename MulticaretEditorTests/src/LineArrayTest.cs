@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 using NUnit.Framework;
 
 namespace UnitTests

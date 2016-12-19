@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
-using MulticaretEditor.Highlighting;
+using MulticaretEditor;
 
 namespace UnitTests
 {

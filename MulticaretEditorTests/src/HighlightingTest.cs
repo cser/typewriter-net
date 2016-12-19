@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 using System.Xml;
 using System.Text;
 using System.Text.RegularExpressions;

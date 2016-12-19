@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using MulticaretEditor;
-using MulticaretEditor.Commands;
 
 namespace UnitTests
 {
