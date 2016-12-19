@@ -8,18 +8,22 @@ namespace MulticaretEditor
 	{
 		public virtual bool AltMode { get { return false; } }
 		
+		protected Controller controller;
+		protected LineArray lines;
 		protected Receiver receiver;
 		
-		public void Init(Receiver receiver)
+		public void Init(Controller controller, Receiver receiver)
 		{
+			this.controller = controller;
+			this.lines = controller.Lines;
 			this.receiver = receiver;
 		}
 		
-		public virtual void DoKeyPress(Controller controller, char code)
+		public virtual void DoKeyPress(char code)
 		{
 		}
 		
-		public virtual bool DoKeyDown(Controller controller, Keys keysData)
+		public virtual bool DoKeyDown(Keys keysData)
 		{
 			return false;
 		}

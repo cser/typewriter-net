@@ -33,8 +33,6 @@ namespace MulticaretEditor
 				this.mode = mode;
 			}
 		}
-		
-		public readonly Receiver receiver = new Receiver();
 
 		private Getter<MulticaretTextBox> getTextBox;
 

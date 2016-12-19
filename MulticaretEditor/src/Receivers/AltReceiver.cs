@@ -8,7 +8,7 @@ namespace MulticaretEditor
 	{
 		public override bool AltMode { get { return true; } }
 		
-		public override void DoKeyPress(Controller controller, char code)
+		public override void DoKeyPress(char code)
 		{
 			switch (code)
 			{
@@ -18,7 +18,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public override bool DoKeyDown(Controller controller, Keys keysData)
+		public override bool DoKeyDown(Keys keysData)
 		{
 			return false;
 		}
