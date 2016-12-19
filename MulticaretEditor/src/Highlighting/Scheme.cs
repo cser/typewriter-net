@@ -171,7 +171,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref scrollArrowColor, "scrollArrow", colors);
 			SetColor(ref scrollArrowHoverColor, "scrollArrowHover", colors);
 			
-			Tabs_ParseXml(colors, widths);
+			Tabs_ParseXml(colors);
 			
 			Update();
 		}
@@ -290,7 +290,7 @@ namespace MulticaretEditor.Highlighting
 			}
 		}
 		
-		private static void SetColor(ColorItem item, Dictionary<string, Color> colors, Dictionary<string, int> widths)
+		private static void SetColor(ColorItem item, Dictionary<string, Color> colors)
 		{
 			Color value;
 			if (colors.TryGetValue(item.name, out value))
@@ -301,6 +301,7 @@ namespace MulticaretEditor.Highlighting
 		
 		public readonly ColorItem tabsBg = new ColorItem("tabsBg");
 		public readonly ColorItem tabsFg = new ColorItem("tabsFg");
+		public readonly ColorItem tabsSelectedBg = new ColorItem("tabsSelectedBg");
 		public readonly ColorItem tabsSelectedFg = new ColorItem("tabsSelectedFg");
 		public readonly ColorItem tabsUnselectedBg = new ColorItem("tabsUnselectedBg");
 		public readonly ColorItem tabsUnselectedFg = new ColorItem("tabsUnselectedFg");
@@ -313,20 +314,26 @@ namespace MulticaretEditor.Highlighting
 			tabsFg.Set(Color.White);
 			tabsUnselectedBg.Set(Color.FromArgb(0xF0, 0xF0, 0xF0));
 			tabsUnselectedFg.Set(Color.FromArgb(0x60, 0x60, 0x60));
+			tabsSelectedBg.Set(Color.White);
 			tabsSelectedFg.Set(Color.Black);
 			tabsInfoBg.Set(Color.FromArgb(0x50, 0x50, 0x50));
 			tabsInfoFg.Set(Color.White);
 		}
 		
-		private void Tabs_ParseXml(Dictionary<string, Color> colors, Dictionary<string, int> widths)
+		private void Tabs_ParseXml(Dictionary<string, Color> colors)
 		{
-			SetColor(tabsBg, colors, widths);
-			SetColor(tabsFg, colors, widths);
-			SetColor(tabsSelectedFg, colors, widths);
-			SetColor(tabsUnselectedBg, colors, widths);
-			SetColor(tabsUnselectedFg, colors, widths);
-			SetColor(tabsInfoBg, colors, widths);
-			SetColor(tabsInfoFg, colors, widths);
+			SetColor(tabsBg, colors);
+			SetColor(tabsFg, colors);
+			if (!colors.ContainsKey(tabsSelectedBg.name) && colors.ContainsKey("bg"))
+			{
+				colors[tabsSelectedBg.name] = colors["bg"];
+			}
+			SetColor(tabsSelectedBg, colors);
+			SetColor(tabsSelectedFg, colors);
+			SetColor(tabsUnselectedBg, colors);
+			SetColor(tabsUnselectedFg, colors);
+			SetColor(tabsInfoBg, colors);
+			SetColor(tabsInfoFg, colors);
 		}
 		
 		private void Tabs_Update()
@@ -334,6 +341,7 @@ namespace MulticaretEditor.Highlighting
 			tabsBg.Update();
 			tabsFg.Update();
 			tabsSelectedFg.Update();
+			tabsSelectedBg.Update();
 			tabsUnselectedBg.Update();
 			tabsUnselectedFg.Update();
 			tabsInfoBg.Update();

@@ -280,7 +280,7 @@ namespace MulticaretEditor
 
 					if (isCurrent)
 					{
-						g.FillRectangle(scheme.bgBrush,
+						g.FillRectangle(scheme.tabsSelectedBg.brush,
 							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 1);
 						selectedX0 = rect.X;
 						selectedX1 = rect.X + rect.Width;
