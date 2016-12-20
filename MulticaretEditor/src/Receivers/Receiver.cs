@@ -12,6 +12,8 @@ namespace MulticaretEditor
 		private Context context;
 		private AReceiver state;
 		
+		public Dictionary<char, char> map;
+		
 		public bool viMode;
 		
 		public Receiver(Controller controller)
@@ -56,6 +58,17 @@ namespace MulticaretEditor
 					receiver.state.DoOn();
 					receiver.viMode = receiver.state.AltMode;
 				}
+			}
+			
+			public char GetMapped(char c)
+			{
+				if (receiver.map != null)
+				{
+					char result;
+					if (receiver.map.TryGetValue(c, out result))
+						return result;
+				}
+				return c;
 			}
 		}
 		

@@ -28,6 +28,7 @@ namespace MulticaretEditor
 		
 		public override void DoKeyPress(char code)
 		{
+			code = context.GetMapped(code);
 			switch (code)
 			{
 				case 'i':

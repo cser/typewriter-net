@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using MulticaretEditor;
 using System.Windows.Forms;
@@ -8,6 +9,23 @@ namespace UnitTests
 	[TestFixture]
 	public class ReceiverTest : ControllerTestBase
 	{
+		private static Dictionary<char, char> ruMap;
+		
+		private static Dictionary<char, char> GetRuMap()
+		{
+			if (ruMap == null)
+			{
+				ruMap = new Dictionary<char, char>();
+				string en = "abcdefghijklmnopqastuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ";
+				string ru = "фисвуапршолдьтщзйфыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ";
+				for (int i = 0; i < en.Length; i++)
+				{
+					ruMap[ru[i]] = en[i];
+				}
+			}
+			return ruMap;
+		}
+		
 		private Receiver receiver;
 		
 		[SetUp]
@@ -159,6 +177,26 @@ namespace UnitTests
 			DoKeyDown(Keys.Down);
 			AssertSelection().Both(1, 2).NoNext();
 			DoKeyDown(Keys.Up);
+			AssertSelection().Both(1, 1).NoNext();
+		}
+		
+		[Test]
+		public void StateEnter_hjkl_mapped()
+		{
+			receiver.map = GetRuMap();
+			SetViMode(false);
+			lines.SetText("line0\nline1\nline2\nline3");
+			controller.PutCursor(new Place(2, 1), false);
+			SetViMode(true);
+			AssertSelection().Both(1, 1).NoNext();
+			
+			DoKeyPress('р');
+			AssertSelection().Both(0, 1).NoNext();
+			DoKeyPress('д');
+			AssertSelection().Both(1, 1).NoNext();
+			DoKeyPress('о');
+			AssertSelection().Both(1, 2).NoNext();
+			DoKeyPress('л');
 			AssertSelection().Both(1, 1).NoNext();
 		}
 	}
