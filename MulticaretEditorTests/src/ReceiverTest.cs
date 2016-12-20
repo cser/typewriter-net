@@ -44,7 +44,7 @@ namespace UnitTests
 			AssertSelection().Both(1, 1).NoNext();
 			
 			SetViMode(true);
-			AssertSelection().Both(1, 1).NoNext();
+			AssertSelection().Both(0, 1).NoNext();
 		}
 		
 		[Test]
@@ -57,20 +57,22 @@ namespace UnitTests
 			AssertSelection().Both(1, 1).NoNext();
 			
 			SetViMode(true);
-			AssertSelection().Both(1, 1).NoNext();
+			AssertSelection().Both(0, 1).NoNext();
 			
 			SetViMode(false);
-			AssertSelection().Both(1, 1).NoNext();
+			AssertSelection().Both(0, 1).NoNext();
+			controller.MoveRight(false);
 			controller.MoveRight(false);
 			controller.MoveRight(false);
 			controller.MoveRight(false);
 			AssertSelection().Both(4, 1).NoNext();
 			
 			SetViMode(true);
-			AssertSelection().Both(4, 1).NoNext();
+			AssertSelection().Both(3, 1).NoNext();
 			
 			SetViMode(false);
-			AssertSelection().Both(4, 1).NoNext();
+			AssertSelection().Both(3, 1).NoNext();
+			controller.MoveRight(false);
 			controller.MoveRight(false);
 			AssertSelection().Both(5, 1).NoNext();
 			
@@ -78,6 +80,13 @@ namespace UnitTests
 			AssertSelection().Both(4, 1).NoNext();
 			SetViMode(false);
 			AssertSelection().Both(4, 1).NoNext();
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			AssertSelection().Both(0, 1).NoNext();
+			SetViMode(true);
+			AssertSelection().Both(0, 1).NoNext();
 		}
 		
 		[Test]
@@ -91,10 +100,11 @@ namespace UnitTests
 			
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
 			Assert.AreEqual(true, receiver.viMode);
-			AssertSelection().Both(1, 1).NoNext();
+			AssertSelection().Both(0, 1).NoNext();
 			
 			DoKeyPress('i');
-			AssertSelection().Both(1, 1).NoNext();
+			AssertSelection().Both(0, 1).NoNext();
+			controller.MoveRight(false);
 			controller.MoveRight(false);
 			controller.MoveRight(false);
 			controller.MoveRight(false);
@@ -102,10 +112,11 @@ namespace UnitTests
 			
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
 			Assert.AreEqual(true, receiver.viMode);
-			AssertSelection().Both(4, 1).NoNext();
+			AssertSelection().Both(3, 1).NoNext();
 			
 			DoKeyPress('i');
-			AssertSelection().Both(4, 1).NoNext();
+			AssertSelection().Both(3, 1).NoNext();
+			controller.MoveRight(false);
 			controller.MoveRight(false);
 			AssertSelection().Both(5, 1).NoNext();
 			
@@ -114,6 +125,13 @@ namespace UnitTests
 			AssertSelection().Both(4, 1).NoNext();
 			DoKeyPress('i');
 			AssertSelection().Both(4, 1).NoNext();
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			controller.MoveLeft(false);
+			AssertSelection().Both(0, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertSelection().Both(0, 1).NoNext();
 		}
 		
 		[Test]
@@ -121,7 +139,7 @@ namespace UnitTests
 		{
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
-			controller.PutCursor(new Place(1, 1), false);
+			controller.PutCursor(new Place(2, 1), false);
 			SetViMode(true);
 			AssertSelection().Both(1, 1).NoNext();
 			

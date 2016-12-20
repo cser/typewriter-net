@@ -17,12 +17,10 @@ namespace MulticaretEditor
 				if (selection.Empty)
 				{
 					Place place = lines.PlaceOf(selection.caret);
-					Line line = lines[place.iLine];
-					int count = line.NormalCount;
-					if (place.iChar >= count)
+					if (place.iChar > 0)
 					{
-						selection.anchor -= place.iChar - count + 1;
-						selection.caret -= place.iChar - count + 1;
+						selection.anchor--;
+						selection.caret--;
 					}
 				}
 			}
