@@ -31,7 +31,8 @@ namespace MulticaretEditor
 		private Timer keyTimer;
 		private Timer highlightingTimer;
 		private bool isCursorTick = true;
-		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly Dictionary<char, char> viMap = new Dictionary<char, char>();
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
 		private MacrosExecutor macrosExecutor;
@@ -101,6 +102,7 @@ namespace MulticaretEditor
 					{
 						controller.macrosExecutor = macrosExecutor;
 						receiver = new Receiver(controller);
+						receiver.viMap = viMap;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -434,6 +436,19 @@ namespace MulticaretEditor
 				{
 					map = value;
 					Invalidate();
+				}
+			}
+		}
+		
+		public void SetViMap(string source, string result)
+		{
+			viMap.Clear();
+			if (source != null && result != null)
+			{
+				int count = Math.Min(source.Length, result.Length);
+				for (int i = 0; i < count; i++)
+				{
+					viMap[source[i]] = result[i];
 				}
 			}
 		}

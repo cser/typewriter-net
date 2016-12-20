@@ -12,7 +12,7 @@ namespace MulticaretEditor
 		private Context context;
 		private AReceiver state;
 		
-		public Dictionary<char, char> map;
+		public Dictionary<char, char> viMap;
 		
 		public bool viMode;
 		
@@ -62,10 +62,10 @@ namespace MulticaretEditor
 			
 			public char GetMapped(char c)
 			{
-				if (receiver.map != null)
+				if (receiver.viMap != null)
 				{
 					char result;
-					if (receiver.map.TryGetValue(c, out result))
+					if (receiver.viMap.TryGetValue(c, out result))
 						return result;
 				}
 				return c;
