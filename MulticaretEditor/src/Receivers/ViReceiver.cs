@@ -69,4 +69,50 @@ namespace MulticaretEditor
 			return false;
 		}
 	}
+	
+	/*
+	NORMAL
+	COMMAND
+	VISUAL
+	LINE_VISUAL
+	
+	10w 
+	10{move{WORD}}
+	10W
+	10{move{LONG_WORD}}
+	10.
+	10{replay}
+	10i
+	switch{INPUT}, wait_switch_out, (10-1){replay}
+	i
+	switch{INPUT}, wait_switch_out
+	a
+	move{RIGHT}, switch{INPUT}, wait_switch_out
+	10dw
+	10{delete{move{WORD}}}
+	10diw
+	10{delete{object{WORD}}}
+	10v
+	10{select{move{RIGHT}}}
+	v
+	switch{VISUAL}
+	
+	COMMAND
+	10w
+	Do(10, Move(WORD, false))
+	10dw
+	Do(10, And(Move(WORD, true), Delete()))
+	10diw
+	Do(10, And(Select(WORD), Delete()))
+	10W
+	Do(10, Move(BIG_WORD, false))
+	10fa
+	Do(10, Move(Find('a'), false))
+	%
+	Move(BRACKET, false)
+	di%
+	And(Select(BRACKET_INSIDE, true), Delete())
+	da%
+	And(Select(BRACKET_OUTSIDE, true), Delete())
+	*/
 }
