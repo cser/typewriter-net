@@ -30,42 +30,38 @@ namespace MulticaretEditor
 		
 		public override void DoKeyPress(char code)
 		{
-			Console.WriteLine("!!DoKeyPress(" + (short)code + ")");
 			code = context.GetMapped(code);
-			parser.AddKey(new ViChar(code, false));
-			ProcessKey();
+			ProcessKey(new ViChar(code, false));
 		}
 		
 		public override bool DoKeyDown(Keys keysData)
 		{
-			Console.WriteLine("!!DoKeyDown(" + keysData + "/" + (short)keysData + ")");
 			switch (keysData)
 			{
 				case Keys.Left:
-					parser.AddKey(new ViChar('h', false));
+					ProcessKey(new ViChar('h', false));
 					break;
 				case Keys.Right:
-					parser.AddKey(new ViChar('l', false));
+					ProcessKey(new ViChar('l', false));
 					break;
 				case Keys.Down:
-					parser.AddKey(new ViChar('j', false));
+					ProcessKey(new ViChar('j', false));
 					break;
 				case Keys.Up:
-					parser.AddKey(new ViChar('k', false));
+					ProcessKey(new ViChar('k', false));
 					break;
 				case Keys.Control | Keys.R:
-					parser.AddKey(new ViChar('r', true));
+					ProcessKey(new ViChar('r', true));
 					break;
 				default:
 					return false;
 			}
-			ProcessKey();
 			return true;
 		}
 		
-		private void ProcessKey()
+		private void ProcessKey(ViChar code)
 		{
-			if (!parser.TryComplete())
+			if (!parser.AddKey(code))
 			{
 				return;
 			}
@@ -108,7 +104,7 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
+			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
 			ViCommand command = null;
 			if (move != null)
 			{
@@ -305,50 +301,4 @@ namespace MulticaretEditor
 			}
 		}
 	}
-	
-	/*
-	NORMAL
-	COMMAND
-	VISUAL
-	LINE_VISUAL
-	
-	10w 
-	10{move{WORD}}
-	10W
-	10{move{LONG_WORD}}
-	10.
-	10{replay}
-	10i
-	switch{INPUT}, wait_switch_out, (10-1){replay}
-	i
-	switch{INPUT}, wait_switch_out
-	a
-	move{RIGHT}, switch{INPUT}, wait_switch_out
-	10dw
-	10{delete{move{WORD}}}
-	10diw
-	10{delete{object{WORD}}}
-	10v
-	10{select{move{RIGHT}}}
-	v
-	switch{VISUAL}
-	
-	COMMAND
-	10w
-	Do(10, Move(WORD, false))
-	10dw
-	Do(10, And(Move(WORD, true), Delete()))
-	10diw
-	Do(10, And(Select(WORD), Delete()))
-	10W
-	Do(10, Move(BIG_WORD, false))
-	10fa
-	Do(10, Move(Find('a'), false))
-	%
-	Move(BRACKET, false)
-	di%
-	And(Select(BRACKET_INSIDE, true), Delete())
-	da%
-	And(Select(BRACKET_OUTSIDE, true), Delete())
-	*/
 }

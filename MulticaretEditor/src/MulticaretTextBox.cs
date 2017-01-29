@@ -1437,18 +1437,6 @@ namespace MulticaretEditor
 			}
 		}
 
-		private void ExecuteKeyPress(char code)
-		{
-			if (receiver != null)
-			{
-				receiver.DoKeyPress(code);
-			}
-			if (highlighter != null && !highlighter.LastParsingChanged)
-				highlighter.Parse(lines, 100);
-			UnblinkCursor();
-			ScrollIfNeedToCaret();
-		}
-
 		private bool actionProcessed = false;
 
 		protected override void OnKeyDown(KeyEventArgs e)
@@ -1461,6 +1449,18 @@ namespace MulticaretEditor
 			ExecuteKeyDown(e.KeyData);
 			if (AfterKeyPress != null)
 				AfterKeyPress();
+		}
+		
+		private void ExecuteKeyPress(char code)
+		{
+			if (receiver != null)
+			{
+				receiver.DoKeyPress(code);
+			}
+			if (highlighter != null && !highlighter.LastParsingChanged)
+				highlighter.Parse(lines, 100);
+			UnblinkCursor();
+			ScrollIfNeedToCaret();
 		}
 
 		private void ExecuteKeyDown(Keys keyData)

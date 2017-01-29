@@ -18,8 +18,8 @@ namespace MulticaretEditor
 		override public string ToString()
 		{
 			if (c == '\0')
-				return control ? "<Ctrl-\\0>" : "\\0";
-			return control ? "<Ctrl-" + c + ">" : c + "";
+				return control ? "<C-\\0>" : "\\0";
+			return control ? "<C-" + c + ">" : c + "";
 		}
 	}
 }
