@@ -1197,5 +1197,43 @@ namespace MulticaretEditor
 		{
 			return Execute(new FixLineBreaksCommand());
 		}
+		
+		public void ViResetCommandsBatching()
+		{
+			ResetCommandsBatching();
+		}
+		
+		public void ViMoveToChar(char charToFind, bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				int iChar = line.IndexOfChar(charToFind, place.iChar + 1);
+				if (iChar != -1)
+				{
+					if (shift)
+					{
+						iChar++;
+					}
+					place.iChar = iChar;
+					selection.caret = lines.IndexOf(place);
+					lines.SetPreferredPos(selection, place);
+				}
+				if (!shift)
+				{
+					selection.anchor = selection.caret;
+				}
+			}
+		}
+		
+		public void ViCollapseSelections()
+		{
+			foreach (Selection selection in selections)
+			{
+				selection.caret = selection.anchor;
+			}
+			JoinSelections();
+		}
 	}
 }

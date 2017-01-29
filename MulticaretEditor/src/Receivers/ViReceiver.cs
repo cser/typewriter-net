@@ -30,45 +30,120 @@ namespace MulticaretEditor
 		
 		public override void DoKeyPress(char code)
 		{
+			Console.WriteLine("!!DoKeyPress(" + (short)code + ")");
 			code = context.GetMapped(code);
-			parser.AddKey(code);
+			parser.AddKey(new ViChar(code, false));
+			ProcessKey();
+		}
+		
+		public override bool DoKeyDown(Keys keysData)
+		{
+			Console.WriteLine("!!DoKeyDown(" + keysData + "/" + (short)keysData + ")");
+			switch (keysData)
+			{
+				case Keys.Left:
+					parser.AddKey(new ViChar('h', false));
+					break;
+				case Keys.Right:
+					parser.AddKey(new ViChar('l', false));
+					break;
+				case Keys.Down:
+					parser.AddKey(new ViChar('j', false));
+					break;
+				case Keys.Up:
+					parser.AddKey(new ViChar('k', false));
+					break;
+				case Keys.Control | Keys.R:
+					parser.AddKey(new ViChar('r', true));
+					break;
+				default:
+					return false;
+			}
+			ProcessKey();
+			return true;
+		}
+		
+		private void ProcessKey()
+		{
 			if (!parser.TryComplete())
 			{
 				return;
 			}
-			if (parser.action == 'i')
+			if (parser.action.c == 'i')
 			{
 				context.SetState(new InputReceiver());
 				return;
 			}
-			ViMove move = null;
-			switch (parser.move)
+			if (parser.action.c == 'a')
 			{
-				case 'h':
-					move = new ViMoveStep(Direction.Left);
-					break;
-				case 'l':
-					move = new ViMoveStep(Direction.Right);
-					break;
-				case 'j':
-					move = new ViMoveStep(Direction.Down);
-					break;
-				case 'k':
-					move = new ViMoveStep(Direction.Up);
-					break;
+				controller.MoveRight(false);
+				context.SetState(new InputReceiver());
+				return;
 			}
-			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move);
+			ViMove move = null;
+			if (!parser.move.control)
+			{
+				switch (parser.move.c)
+				{
+					case 'h':
+						move = new ViMoveStep(Direction.Left);
+						break;
+					case 'l':
+						move = new ViMoveStep(Direction.Right);
+						break;
+					case 'j':
+						move = new ViMoveStep(Direction.Down);
+						break;
+					case 'k':
+						move = new ViMoveStep(Direction.Up);
+						break;
+					case 'w':
+						move = new ViMoveWord(Direction.Right);
+						break;
+					case 'b':
+						move = new ViMoveWord(Direction.Left);
+						break;
+					case 'f':
+						move = new ViFind(parser.moveChar.c);
+						break;
+				}
+			}
+			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
 			ViCommand command = null;
 			if (move != null)
 			{
-				switch (parser.action)
+				if (!parser.action.control)
 				{
-					case 'd':
-						command = new ViDelete(move);
-						break;
-					default:
-						command = new ViEmpty(move, parser.count);
-						break;
+					switch (parser.action.c)
+					{
+						case 'd':
+							command = new ViDelete(move);
+							break;
+						default:
+							command = new ViEmpty(move, parser.count);
+							break;
+					}
+				}
+			}
+			else
+			{
+				if (!parser.action.control)
+				{
+					switch (parser.action.c)
+					{
+						case 'u':
+							command = new ViUndo();
+							break;
+					}
+				}
+				else
+				{
+					switch (parser.action.c)
+					{
+						case 'r':
+							command = new ViRedo();
+							break;
+					}
 				}
 			}
 			if (command != null && parser.count != 1)
@@ -78,27 +153,8 @@ namespace MulticaretEditor
 			if (command != null)
 			{
 				command.Execute(controller);
+				controller.ViResetCommandsBatching();
 			}
-		}
-		
-		public override bool DoKeyDown(Keys keysData)
-		{
-			switch (keysData)
-			{
-				case Keys.Left:
-					controller.MoveLeft(false);
-					return true;
-				case Keys.Right:
-					controller.MoveRight(false);
-					return true;
-				case Keys.Down:
-					controller.MoveDown(false);
-					return true;
-				case Keys.Up:
-					controller.MoveUp(false);
-					return true;
-			}
-			return false;
 		}
 		
 		public abstract class ViCommand
@@ -159,6 +215,24 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class ViUndo : ViCommand
+		{
+			public override void Execute(Controller controller)
+			{
+				controller.Undo();
+				controller.ViCollapseSelections();
+			}
+		}
+		
+		public class ViRedo : ViCommand
+		{
+			public override void Execute(Controller controller)
+			{
+				controller.Redo();
+				controller.ViCollapseSelections();
+			}
+		}
+		
 		public abstract class ViMove
 		{
 			public abstract void Move(Controller controller, bool shift);
@@ -190,6 +264,44 @@ namespace MulticaretEditor
 						controller.MoveDown(shift);
 						break;
 				}
+			}
+		}
+		
+		public class ViMoveWord : ViMove
+		{
+			private Direction direction;
+			
+			public ViMoveWord(Direction direction)
+			{
+				this.direction = direction;
+			}
+			
+			public override void Move(Controller controller, bool shift)
+			{
+				switch (direction)
+				{
+					case Direction.Left:
+						controller.MoveWordLeft(shift);
+						break;
+					case Direction.Right:
+						controller.MoveWordRight(shift);
+						break;
+				}
+			}
+		}
+		
+		public class ViFind : ViMove
+		{
+			private char charToFind;
+			
+			public ViFind(char charToFind)
+			{
+				this.charToFind = charToFind;
+			}
+			
+			public override void Move(Controller controller, bool shift)
+			{
+				controller.ViMoveToChar(charToFind, shift);
 			}
 		}
 	}

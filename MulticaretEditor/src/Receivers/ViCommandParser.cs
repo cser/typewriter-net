@@ -7,101 +7,48 @@ namespace MulticaretEditor
 {
 	public class ViCommandParser
 	{
+		private const int INIT = 0;
+		private const int COUNT = 1;
+		private const int ACTION = 2;
+		private const int WAIT_CHAR = 3;
+		
 		private bool _ready;
 		private bool _complete;
+		private int _state;
+		private string _stateText;
+		
+		public int count;
+		public ViChar move;
+		public ViChar moveChar;
+		public ViChar action;
 		
 		public ViCommandParser()
 		{
 			Reset();
 		}
 		
-		private const int INIT = 0;
-		private const int COUNT = 1;
-		private const int MOVE = 2;
-		private const int ACTION = 3;
-		
-		private int _state;
-		private string _stateText;
-		
-		public void AddKey(char code)
+		public void Reset()
 		{
+			Console.WriteLine("    Reset()");
+			_ready = false;
+			_complete = false;
+			_state = INIT;
+			_stateText = "";
+			
+			count = 1;
+			move = new ViChar('\0', false);
+			moveChar = new ViChar('\0', false);
+			action = new ViChar('\0', false);
+		}
+		
+		public void AddKey(ViChar code)
+		{
+			Console.WriteLine("    AddKey(" + code + ")");
 			if (_complete)
 			{
 				Reset();
 			}
 			Parse(code);
-		}
-		
-		private bool IsMove(char code)
-		{
-			switch (code)
-			{
-				case 'j':
-				case 'k':
-				case 'h':
-				case 'l':
-					return true;
-			}
-			return false;
-		}
-		
-		private bool IsNeedMove(char code)
-		{
-			switch (code)
-			{
-				case 'i':
-				case 'a':
-					return false;
-			}
-			return true;
-		}
-		
-		private void Parse(char code)
-		{
-			switch (_state)
-			{
-				case INIT:
-					if (char.IsNumber(code))
-					{
-						_state = COUNT;
-						Parse(code);
-						return;
-					}
-					_state = ACTION;
-					Parse(code);
-					return;
-				case COUNT:
-					if (char.IsNumber(code))
-					{
-						_stateText += code;
-						return;
-					}
-					if (_stateText != "")
-					{
-						count = int.Parse(_stateText);
-						_stateText = "";
-					}
-					_state = ACTION;
-					Parse(code);
-					return;
-				case MOVE:
-					move = code;
-					_ready = true;
-					return;
-				case ACTION:
-					if (IsMove(code))
-					{
-						_state = MOVE;
-						Parse(code);
-						return;
-					}
-					action = code;
-					if (!IsNeedMove(code))
-					{
-						_ready = true;
-					}
-					return;
-			}
 		}
 		
 		public bool TryComplete()
@@ -115,19 +62,71 @@ namespace MulticaretEditor
 			return false;
 		}
 		
-		private void Reset()
+		private void Parse(ViChar code)
 		{
-			_ready = false;
-			_complete = false;
-			_state = INIT;
-			_stateText = "";
-			count = 1;
-			move = '\0';
-			action = '\0';
+			switch (_state)
+			{
+				case INIT:
+					if (char.IsNumber(code.c))
+					{
+						_state = COUNT;
+						Parse(code);
+						return;
+					}
+					_state = ACTION;
+					Parse(code);
+					return;
+				case COUNT:
+					if (char.IsNumber(code.c))
+					{
+						_stateText += code;
+						return;
+					}
+					if (_stateText != "")
+					{
+						count = int.Parse(_stateText);
+						_stateText = "";
+					}
+					_state = ACTION;
+					Parse(code);
+					return;
+				case ACTION:
+					switch (code.c)
+					{
+						case 'j':
+						case 'k':
+						case 'h':
+						case 'l':
+						case 'w':
+						case 'b':
+							move = code;
+							_ready = true;
+							return;
+						case 'f':
+							_state = WAIT_CHAR;
+							move = code;
+							return;
+					}
+					switch (code.c)
+					{
+						case 'i':
+						case 'a':
+						case 'u':
+							action = code;
+							Console.WriteLine("    action=" + code);
+							_ready = true;
+							break;
+						default:
+							action = code;
+							Console.WriteLine("    action=" + code);
+							break;
+					}
+					return;
+				case WAIT_CHAR:
+					moveChar = code;
+					_ready = true;
+					return;
+			}
 		}
-		
-		public int count;
-		public char move;
-		public char action;
 	}
 }

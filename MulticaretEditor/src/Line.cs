@@ -395,5 +395,18 @@ namespace MulticaretEditor
 				result = "\n";
 			return result;
 		}
+		
+		public int IndexOfChar(char c, int index)
+		{
+			int count = chars.Count;
+			for (int i = index; i < count; i++)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
 	}
 }
