@@ -26,26 +26,52 @@ namespace MulticaretEditor
 			}
 		}
 		
+		private readonly ViCommandParser parser = new ViCommandParser();
+		
 		public override void DoKeyPress(char code)
 		{
 			code = context.GetMapped(code);
-			switch (code)
+			parser.AddKey(code);
+			if (!parser.TryComplete())
 			{
-				case 'i':
-					context.SetState(new InputReceiver());
-					break;
+				return;
+			}
+			if (parser.action == 'i')
+			{
+				context.SetState(new InputReceiver());
+				return;
+			}
+			ViMove move = null;
+			switch (parser.move)
+			{
 				case 'h':
-					controller.MoveLeft(false);
+					move = new ViMoveStep(Direction.Left);
 					break;
 				case 'l':
-					controller.MoveRight(false);
+					move = new ViMoveStep(Direction.Right);
 					break;
 				case 'j':
-					controller.MoveDown(false);
+					move = new ViMoveStep(Direction.Up);
 					break;
 				case 'k':
-					controller.MoveUp(false);
+					move = new ViMoveStep(Direction.Down);
 					break;
+			}
+			ViCommand command = null;
+			if (move != null)
+			{
+				command = new ViEmpty(move, parser.count);
+			}
+			if (command != null)
+			{
+				if (parser.count != 1)
+				{
+					command = new ViRepeat(command, parser.count);
+				}
+			}
+			if (command != null)
+			{
+				command.Execute(controller);
 			}
 		}
 		
@@ -67,6 +93,105 @@ namespace MulticaretEditor
 					return true;
 			}
 			return false;
+		}
+		
+		public abstract class ViCommand
+		{
+			public abstract void Execute(Controller controller);
+		}
+		
+		public class ViRepeat : ViCommand
+		{
+			private ViCommand command;
+			private int count;
+			
+			public ViRepeat(ViCommand command, int count)
+			{
+				this.command = command;
+				this.count = count;
+			}
+			
+			public override void Execute(Controller controller)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					command.Execute(controller);
+				}
+			}
+		}
+		
+		public class ViEmpty : ViCommand
+		{
+			private ViMove move;
+			private int count;
+			
+			public ViEmpty(ViMove move, int count)
+			{
+				this.move = move;
+				this.count = count;
+			}
+			
+			public override void Execute(Controller controller)
+			{
+				foreach (Selection selection in controller.Selections)
+				{
+					selection.anchor = selection.caret = move.NewPosition(controller, selection.caret);
+				}
+				controller.JoinSelections();
+			}
+		}
+		
+		public abstract class ViMove
+		{
+			public abstract int NewPosition(Controller controller, int position);
+		}
+		
+		public class ViMoveStep : ViMove
+		{
+			private Direction direction;
+			
+			public ViMoveStep(Direction direction)
+			{
+				this.direction = direction;
+			}
+			
+			public override int NewPosition(Controller controller, int position)
+			{
+				LineArray lines = controller.Lines;
+				Place place = new Place();
+				switch (direction)
+				{
+					case Direction.Left:
+						place = lines.PlaceOf(position);
+						if (place.iChar > 0)
+						{
+							place.iChar--;
+						}
+						break;
+					case Direction.Right:
+						place = lines.PlaceOf(position);
+						if (place.iChar < lines[place.iLine].NormalCount)
+						{
+							place.iChar++;
+						}
+						break;
+					case Direction.Up:
+						place = lines.PlaceOf(position);
+						if (place.iLine > 0)
+						{
+							place.iLine++;
+						}
+						break;
+					case Direction.Down:
+						place = lines.PlaceOf(position);
+						if (place.iLine < lines.LinesCount - 1)
+						{
+							place.iLine--;
+						}
+						break;
+				}
+				return lines.IndexOf(place);
+			}
 		}
 	}
 	

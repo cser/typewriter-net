@@ -183,7 +183,7 @@ namespace UnitTests
 		[Test]
 		public void StateEnter_hjkl_mapped()
 		{
-			receiver.map = GetRuMap();
+			receiver.viMap = GetRuMap();
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
 			controller.PutCursor(new Place(2, 1), false);
