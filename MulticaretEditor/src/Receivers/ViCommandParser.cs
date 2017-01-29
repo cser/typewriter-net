@@ -12,11 +12,13 @@ namespace MulticaretEditor
 		
 		public ViCommandParser()
 		{
+			Reset();
 		}
 		
 		private const int INIT = 0;
 		private const int COUNT = 1;
-		private const int ACTION = 2;
+		private const int MOVE = 2;
+		private const int ACTION = 3;
 		
 		private int _state;
 		private string _stateText;
@@ -28,6 +30,30 @@ namespace MulticaretEditor
 				Reset();
 			}
 			Parse(code);
+		}
+		
+		private bool IsMove(char code)
+		{
+			switch (code)
+			{
+				case 'j':
+				case 'k':
+				case 'h':
+				case 'l':
+					return true;
+			}
+			return false;
+		}
+		
+		private bool IsNeedMove(char code)
+		{
+			switch (code)
+			{
+				case 'i':
+				case 'a':
+					return false;
+			}
+			return true;
 		}
 		
 		private void Parse(char code)
@@ -50,14 +76,30 @@ namespace MulticaretEditor
 						_stateText += code;
 						return;
 					}
-					count = int.Parse(_stateText);
-					_stateText = "";
+					if (_stateText != "")
+					{
+						count = int.Parse(_stateText);
+						_stateText = "";
+					}
 					_state = ACTION;
 					Parse(code);
 					return;
-				case ACTION:
+				case MOVE:
 					move = code;
 					_ready = true;
+					return;
+				case ACTION:
+					if (IsMove(code))
+					{
+						_state = MOVE;
+						Parse(code);
+						return;
+					}
+					action = code;
+					if (!IsNeedMove(code))
+					{
+						_ready = true;
+					}
 					return;
 			}
 		}

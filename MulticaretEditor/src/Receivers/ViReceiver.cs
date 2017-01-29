@@ -51,23 +51,29 @@ namespace MulticaretEditor
 					move = new ViMoveStep(Direction.Right);
 					break;
 				case 'j':
-					move = new ViMoveStep(Direction.Up);
-					break;
-				case 'k':
 					move = new ViMoveStep(Direction.Down);
 					break;
+				case 'k':
+					move = new ViMoveStep(Direction.Up);
+					break;
 			}
+			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move);
 			ViCommand command = null;
 			if (move != null)
 			{
-				command = new ViEmpty(move, parser.count);
-			}
-			if (command != null)
-			{
-				if (parser.count != 1)
+				switch (parser.action)
 				{
-					command = new ViRepeat(command, parser.count);
+					case 'd':
+						command = new ViDelete(move);
+						break;
+					default:
+						command = new ViEmpty(move, parser.count);
+						break;
 				}
+			}
+			if (command != null && parser.count != 1)
+			{
+				command = new ViRepeat(command, parser.count);
 			}
 			if (command != null)
 			{
@@ -133,17 +139,29 @@ namespace MulticaretEditor
 			
 			public override void Execute(Controller controller)
 			{
-				foreach (Selection selection in controller.Selections)
-				{
-					selection.anchor = selection.caret = move.NewPosition(controller, selection.caret);
-				}
-				controller.JoinSelections();
+				move.Move(controller, false);
+			}
+		}
+		
+		public class ViDelete : ViCommand
+		{
+			private ViMove move;
+			
+			public ViDelete(ViMove move)
+			{
+				this.move = move;
+			}
+			
+			public override void Execute(Controller controller)
+			{
+				move.Move(controller, true);
+				controller.Cut();
 			}
 		}
 		
 		public abstract class ViMove
 		{
-			public abstract int NewPosition(Controller controller, int position);
+			public abstract void Move(Controller controller, bool shift);
 		}
 		
 		public class ViMoveStep : ViMove
@@ -155,42 +173,23 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public override int NewPosition(Controller controller, int position)
+			public override void Move(Controller controller, bool shift)
 			{
-				LineArray lines = controller.Lines;
-				Place place = new Place();
 				switch (direction)
 				{
 					case Direction.Left:
-						place = lines.PlaceOf(position);
-						if (place.iChar > 0)
-						{
-							place.iChar--;
-						}
+						controller.MoveLeft(shift);
 						break;
 					case Direction.Right:
-						place = lines.PlaceOf(position);
-						if (place.iChar < lines[place.iLine].NormalCount)
-						{
-							place.iChar++;
-						}
+						controller.MoveRight(shift);
 						break;
 					case Direction.Up:
-						place = lines.PlaceOf(position);
-						if (place.iLine > 0)
-						{
-							place.iLine++;
-						}
+						controller.MoveUp(shift);
 						break;
 					case Direction.Down:
-						place = lines.PlaceOf(position);
-						if (place.iLine < lines.LinesCount - 1)
-						{
-							place.iLine--;
-						}
+						controller.MoveDown(shift);
 						break;
 				}
-				return lines.IndexOf(place);
 			}
 		}
 	}
