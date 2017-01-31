@@ -138,6 +138,13 @@ public class RunShellCommand
 						}
 						list.Add(new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength));
 					}
+					else
+					{
+						string path = match.Groups[0].Value;
+						int shellStart = match.Groups[0].Index;
+						int shellLength = match.Groups[0].Length;
+						ranges.Add(new StyleRange(shellStart, shellLength, Ds.String2.index));
+					}
 				}
 			}
 		}

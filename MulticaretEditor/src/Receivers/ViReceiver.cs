@@ -277,10 +277,10 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.MoveWordLeft(shift);
+						controller.ViMoveWordLeft(shift);
 						break;
 					case Direction.Right:
-						controller.MoveWordRight(shift);
+						controller.ViMoveWordRight(shift);
 						break;
 				}
 			}

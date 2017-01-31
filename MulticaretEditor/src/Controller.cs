@@ -374,6 +374,11 @@ namespace MulticaretEditor
 				return CharType.Special;
 			return char.IsLetterOrDigit(c) || c == '_' ? CharType.Identifier : CharType.Punctuation;
         }
+        
+        public static bool IsSpaceOrNewLine(char c)
+        {
+			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+        }
 
 		public void MoveWordRight(bool shift)
 		{
@@ -1234,6 +1239,96 @@ namespace MulticaretEditor
 				selection.caret = selection.anchor;
 			}
 			JoinSelections();
+		}
+		
+		public void ViMoveWordRight(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
+				if (GetCharType(iterator.RightChar) == CharType.Identifier)
+				{
+					while (GetCharType(iterator.RightChar) == CharType.Identifier)
+					{
+						if (!iterator.MoveRightWithRN())
+							break;
+					}
+					if (IsSpaceOrNewLine(iterator.RightChar))
+					{
+						while (IsSpaceOrNewLine(iterator.RightChar))
+						{
+							if (!iterator.MoveRightWithRN())
+								break;
+						}
+					}
+				}
+				else if (GetCharType(iterator.RightChar) == CharType.Punctuation)
+				{
+					while (GetCharType(iterator.RightChar) == CharType.Punctuation)
+					{
+						if (!iterator.MoveRightWithRN())
+							break;
+					}
+					if (IsSpaceOrNewLine(iterator.RightChar))
+					{
+						while (IsSpaceOrNewLine(iterator.RightChar))
+						{
+							if (!iterator.MoveRightWithRN())
+								break;
+						}
+					}
+				}
+				else if (IsSpaceOrNewLine(iterator.RightChar))
+				{
+					while (IsSpaceOrNewLine(iterator.RightChar))
+					{
+						if (!iterator.MoveRightWithRN())
+							break;
+					}
+				}
+				selection.caret = iterator.Position;
+				if (!shift)
+					selection.anchor = iterator.Position;
+				lines.SetPreferredPos(selection, iterator.Place);
+			}
+			DoAfterMove();
+		}
+		
+		public void ViMoveWordLeft(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
+
+				bool wasSpace = false;
+				while (GetCharType(iterator.LeftChar) == CharType.Space)
+				{
+					wasSpace = true;
+					if (!iterator.MoveLeftWithRN())
+						break;
+				}
+				bool wasIdentifier = false;
+				CharType type = GetCharType(iterator.LeftChar);
+				if (type == CharType.Identifier || type == CharType.Punctuation)
+				{
+					CharType typeI = type;
+					while (typeI == type)
+					{
+						wasIdentifier = true;
+						if (!iterator.MoveLeftWithRN())
+							break;
+						typeI = GetCharType(iterator.LeftChar);
+					}
+				}
+				if (!wasIdentifier && (!wasSpace || iterator.LeftChar != '\n' && iterator.LeftChar != '\r'))
+					iterator.MoveLeftWithRN();
+
+				selection.caret = iterator.Position;
+				if (!shift)
+					selection.anchor = iterator.Position;
+				lines.SetPreferredPos(selection, iterator.Place);
+			}
+			DoAfterMove();
 		}
 	}
 }
