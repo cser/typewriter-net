@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace UnitTests
 {
 	[TestFixture]
-	public class ReceiverTest : ControllerTestBase
+	public class ViReceiverTest : ControllerTestBase
 	{
 		private static Dictionary<char, char> ruMap;
 		

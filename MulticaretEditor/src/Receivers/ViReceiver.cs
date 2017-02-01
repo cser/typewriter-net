@@ -61,6 +61,7 @@ namespace MulticaretEditor
 		
 		private void ProcessKey(ViChar code)
 		{
+			Console.WriteLine("code=" + code);
 			if (!parser.AddKey(code))
 			{
 				return;
@@ -104,7 +105,7 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
+			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
 			ViCommand command = null;
 			if (move != null)
 			{
@@ -148,6 +149,7 @@ namespace MulticaretEditor
 			}
 			if (command != null)
 			{
+				Console.WriteLine("command=" + command);
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
 			}
@@ -156,6 +158,11 @@ namespace MulticaretEditor
 		public abstract class ViCommand
 		{
 			public abstract void Execute(Controller controller);
+			
+			public override string ToString()
+			{
+				return "ViCommand()";
+			}
 		}
 		
 		public class ViRepeat : ViCommand
@@ -176,6 +183,11 @@ namespace MulticaretEditor
 					command.Execute(controller);
 				}
 			}
+			
+			public override string ToString()
+			{
+				return "ViRepeat(" + command + ", " + count + ")";
+			}
 		}
 		
 		public class ViEmpty : ViCommand
@@ -193,6 +205,11 @@ namespace MulticaretEditor
 			{
 				move.Move(controller, false);
 			}
+			
+			public override string ToString()
+			{
+				return "Empty(" + move + ", " + count + ")";
+			}
 		}
 		
 		public class ViDelete : ViCommand
@@ -209,6 +226,11 @@ namespace MulticaretEditor
 				move.Move(controller, true);
 				controller.Cut();
 			}
+			
+			public override string ToString()
+			{
+				return "Delete(" + move + ")";
+			}
 		}
 		
 		public class ViUndo : ViCommand
@@ -217,6 +239,11 @@ namespace MulticaretEditor
 			{
 				controller.Undo();
 				controller.ViCollapseSelections();
+			}
+			
+			public override string ToString()
+			{
+				return "Undo()";
 			}
 		}
 		
@@ -227,11 +254,21 @@ namespace MulticaretEditor
 				controller.Redo();
 				controller.ViCollapseSelections();
 			}
+			
+			public override string ToString()
+			{
+				return "Redo()";
+			}
 		}
 		
 		public abstract class ViMove
 		{
 			public abstract void Move(Controller controller, bool shift);
+			
+			public override string ToString()
+			{
+				return "Move";
+			}
 		}
 		
 		public class ViMoveStep : ViMove
@@ -261,6 +298,11 @@ namespace MulticaretEditor
 						break;
 				}
 			}
+			
+			public override string ToString()
+			{
+				return "MoveStep:" + direction;
+			}
 		}
 		
 		public class ViMoveWord : ViMove
@@ -284,6 +326,11 @@ namespace MulticaretEditor
 						break;
 				}
 			}
+			
+			public override string ToString()
+			{
+				return "MoveWord:" + direction;
+			}
 		}
 		
 		public class ViFind : ViMove
@@ -298,6 +345,11 @@ namespace MulticaretEditor
 			public override void Move(Controller controller, bool shift)
 			{
 				controller.ViMoveToChar(charToFind, shift);
+			}
+			
+			public override string ToString()
+			{
+				return "MoveFind:" + charToFind;
 			}
 		}
 	}
