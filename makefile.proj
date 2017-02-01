@@ -21,7 +21,7 @@ This file was writen for launching with MSBuild
 			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll; TypewriterNET\bin\TypewriterNET.exe"
 			TargetType="library"
 			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll" />
-		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll" />
+		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
 	</Target>
 	<Target Name="resources">
 		<MakeDir Directories="ResourceBuilder\bin\" />

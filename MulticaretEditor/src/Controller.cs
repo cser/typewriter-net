@@ -1299,30 +1299,21 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-
-				bool wasSpace = false;
-				while (GetCharType(iterator.LeftChar) == CharType.Space)
+				iterator.MoveLeftWithRN();
+				if (IsSpaceOrNewLine(iterator.RightChar))
 				{
-					wasSpace = true;
+					while (IsSpaceOrNewLine(iterator.RightChar))
+					{
+						if (!iterator.MoveLeftWithRN())
+							break;
+					}
+				}
+				CharType type = GetCharType(iterator.RightChar);
+				while (GetCharType(iterator.LeftChar) == type)
+				{
 					if (!iterator.MoveLeftWithRN())
 						break;
 				}
-				bool wasIdentifier = false;
-				CharType type = GetCharType(iterator.LeftChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation)
-				{
-					CharType typeI = type;
-					while (typeI == type)
-					{
-						wasIdentifier = true;
-						if (!iterator.MoveLeftWithRN())
-							break;
-						typeI = GetCharType(iterator.LeftChar);
-					}
-				}
-				if (!wasIdentifier && (!wasSpace || iterator.LeftChar != '\n' && iterator.LeftChar != '\r'))
-					iterator.MoveLeftWithRN();
-
 				selection.caret = iterator.Position;
 				if (!shift)
 					selection.anchor = iterator.Position;

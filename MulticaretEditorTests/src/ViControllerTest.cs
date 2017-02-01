@@ -72,7 +72,7 @@ namespace UnitTests
 			controller.PutCursor(new Place(10, 3), false);
 			controller.ViMoveWordLeft(false);
 			AssertSelection().Both(4, 3);
-			
+
 			controller.PutCursor(new Place(6, 3), false);
 			controller.ViMoveWordLeft(false);
 			AssertSelection().Both(4, 3);
