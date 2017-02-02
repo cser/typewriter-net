@@ -200,5 +200,28 @@ namespace UnitTests
 			Assert.AreEqual(true, AddKey('b'));
 			AssertParsed("1:action:d;move:b;moveChar:\\0");
 		}
+		
+		private ViCommandParserTest Add(char c)
+		{
+			Assert.AreEqual(false, AddKey(c));
+			return this;
+		}
+		
+		private ViCommandParserTest AddLast(char c)
+		{
+			Assert.AreEqual(true, AddKey(c));
+			return this;
+		}
+		
+		[Test]
+		public void fFtT()
+		{
+			Add('f').AddLast('a').AssertParsed("1:action:\\0;move:f;moveChar:a");
+			Add('F').AddLast('a').AssertParsed("1:action:\\0;move:F;moveChar:a");
+			Add('t').AddLast('a').AssertParsed("1:action:\\0;move:t;moveChar:a");
+			Add('T').AddLast('a').AssertParsed("1:action:\\0;move:T;moveChar:a");
+			Add('2').Add('t').AddLast('a').AssertParsed("2:action:\\0;move:t;moveChar:a");
+			Add('3').Add('T').AddLast('a').AssertParsed("3:action:\\0;move:T;moveChar:a");
+		}
 	}
 }

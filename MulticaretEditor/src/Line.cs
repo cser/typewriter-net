@@ -408,5 +408,21 @@ namespace MulticaretEditor
 			}
 			return -1;
 		}
+		
+		public int LeftIndexOfChar(char c, int index)
+		{
+			if (index >= chars.Count)
+			{
+				index = chars.Count - 1;
+			}
+			for (int i = index; i >= 0; i--)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
 	}
 }

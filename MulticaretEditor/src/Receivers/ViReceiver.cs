@@ -61,7 +61,6 @@ namespace MulticaretEditor
 		
 		private void ProcessKey(ViChar code)
 		{
-			Console.WriteLine("code=" + code);
 			if (!parser.AddKey(code))
 			{
 				return;
@@ -78,6 +77,7 @@ namespace MulticaretEditor
 				return;
 			}
 			ViMove move = null;
+			bool ignoreRepeat = false;
 			if (!parser.move.control)
 			{
 				switch (parser.move.c)
@@ -101,11 +101,15 @@ namespace MulticaretEditor
 						move = new ViMoveWord(Direction.Left);
 						break;
 					case 'f':
-						move = new ViFind(parser.moveChar.c);
+					case 'F':
+					case 't':
+					case 'T':
+						move = new ViFind(parser.move.c, parser.moveChar.c, parser.count);
+						ignoreRepeat = true;
 						break;
 				}
 			}
-			Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
+			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
 			ViCommand command = null;
 			if (move != null)
 			{
@@ -143,13 +147,12 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			if (command != null && parser.count != 1)
+			if (command != null && parser.count != 1 && !ignoreRepeat)
 			{
 				command = new ViRepeat(command, parser.count);
 			}
 			if (command != null)
 			{
-				Console.WriteLine("command=" + command);
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
 			}
@@ -335,21 +338,39 @@ namespace MulticaretEditor
 		
 		public class ViFind : ViMove
 		{
+			private char type;
 			private char charToFind;
+			private int count;
 			
-			public ViFind(char charToFind)
+			public ViFind(char type, char charToFind, int count)
 			{
+				this.type = type;
 				this.charToFind = charToFind;
+				this.count = count;
 			}
 			
 			public override void Move(Controller controller, bool shift)
 			{
-				controller.ViMoveToChar(charToFind, shift);
+				switch (type)
+				{
+					case 'f':
+						controller.ViMoveToCharRight(charToFind, shift, count, false);
+						break;
+					case 't':
+						controller.ViMoveToCharRight(charToFind, shift, count, true);
+						break;
+					case 'F':
+						controller.ViMoveToCharLeft(charToFind, shift, count, false);
+						break;
+					case 'T':
+						controller.ViMoveToCharLeft(charToFind, shift, count, true);
+						break;
+				}
 			}
 			
 			public override string ToString()
 			{
-				return "MoveFind:" + charToFind;
+				return count + ":" + type + ":" + charToFind;
 			}
 		}
 	}

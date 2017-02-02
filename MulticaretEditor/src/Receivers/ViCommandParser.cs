@@ -98,6 +98,9 @@ namespace MulticaretEditor
 							action = code;
 							return ParseResult.WaitNext;
 						case 'f':
+						case 'F':
+						case 't':
+						case 'T':
 							_state = State.WaitChar;
 							move = code;
 							return ParseResult.WaitNext;

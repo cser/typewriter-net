@@ -1208,21 +1208,69 @@ namespace MulticaretEditor
 			ResetCommandsBatching();
 		}
 		
-		public void ViMoveToChar(char charToFind, bool shift)
+		public void ViMoveToCharLeft(char charToFind, bool shift, int count, bool at)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				Line line = lines[place.iLine];
-				int iChar = line.IndexOfChar(charToFind, place.iChar + 1);
-				if (iChar != -1)
+				bool needAfterMove = at;
+				for (int i = 0; i < count; i++)
 				{
-					if (shift)
+					int iChar = line.LeftIndexOfChar(charToFind, place.iChar - 1);
+					if (iChar != -1)
 					{
-						iChar++;
+						place.iChar = iChar;
+						selection.caret = lines.IndexOf(place);
+						lines.SetPreferredPos(selection, place);
+						needAfterMove &= true;
 					}
-					place.iChar = iChar;
-					selection.caret = lines.IndexOf(place);
+					else
+					{
+						break;
+					}
+				}
+				if (needAfterMove)
+				{
+					selection.caret++;
+					lines.SetPreferredPos(selection, place);
+				}
+				if (!shift)
+				{
+					selection.anchor = selection.caret;
+				}
+			}
+		}
+		
+		public void ViMoveToCharRight(char charToFind, bool shift, int count, bool at)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				bool needAfterMove = at;
+				for (int i = 0; i < count; i++)
+				{
+					int iChar = line.IndexOfChar(charToFind, place.iChar + 1);
+					if (iChar != -1)
+					{
+						if (shift)
+						{
+							iChar++;
+						}
+						place.iChar = iChar;
+						selection.caret = lines.IndexOf(place);
+						lines.SetPreferredPos(selection, place);
+						needAfterMove &= true;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (needAfterMove)
+				{
+					selection.caret--;
 					lines.SetPreferredPos(selection, place);
 				}
 				if (!shift)
