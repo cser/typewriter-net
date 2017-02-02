@@ -203,13 +203,13 @@ namespace UnitTests
 		
 		private ViCommandParserTest Add(char c)
 		{
-			Assert.AreEqual(false, AddKey(c));
+			Assert.AreEqual(false, AddKey(c), "key:" + c);
 			return this;
 		}
 		
 		private ViCommandParserTest AddLast(char c)
 		{
-			Assert.AreEqual(true, AddKey(c));
+			Assert.AreEqual(true, AddKey(c), "key:" + c);
 			return this;
 		}
 		
@@ -222,6 +222,20 @@ namespace UnitTests
 			Add('T').AddLast('a').AssertParsed("1:action:\\0;move:T;moveChar:a");
 			Add('2').Add('t').AddLast('a').AssertParsed("2:action:\\0;move:t;moveChar:a");
 			Add('3').Add('T').AddLast('a').AssertParsed("3:action:\\0;move:T;moveChar:a");
+		}
+		
+		[Test]
+		public void S6_S4_0()
+		{
+			AddLast('0').AssertParsed("1:action:\\0;move:0;moveChar:\\0");
+			Add('1').Add('0').AddLast('j').AssertParsed("10:action:\\0;move:j;moveChar:\\0");
+			Add('d').AddLast('0').AssertParsed("1:action:d;move:0;moveChar:\\0");
+			Add('d').Add('2').Add('0').AddLast('j').AssertParsed("20:action:d;move:j;moveChar:\\0");
+			
+			AddLast('^').AssertParsed("1:action:\\0;move:^;moveChar:\\0");
+			
+			AddLast('$').AssertParsed("1:action:\\0;move:$;moveChar:\\0");
+			Add('2').AddLast('$').AssertParsed("2:action:\\0;move:$;moveChar:\\0");
 		}
 	}
 }

@@ -1369,5 +1369,63 @@ namespace MulticaretEditor
 			}
 			DoAfterMove();
 		}
+		
+		public void ViMoveHome(bool shift, bool indented)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place caret = lines.PlaceOf(selection.caret);
+				Line line = lines[caret.iLine];
+				int minIChar = 0;
+				int charsCount = line.NormalCount;
+				if (indented)
+				{
+					while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar].c))
+					{
+						minIChar++;
+					}
+				}
+				caret.iChar = minIChar;
+				if (!shift && caret.iChar >= line.NormalCount)
+				{
+					caret.iChar = line.NormalCount - 1;
+				}
+				if (caret.iChar < 0)
+				{
+					caret.iChar = 0;
+				}
+				selection.caret = lines.IndexOf(caret);
+				if (!shift)
+					selection.anchor = selection.caret;
+				lines.SetPreferredPos(selection, caret);
+			}
+			DoAfterMove();
+		}
+		
+		public void ViMoveEnd(bool shift, int count)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place caret = lines.PlaceOf(selection.caret);
+				if (count > 1)
+				{
+					caret.iLine += count - 1;
+					if (caret.iLine >= lines.LinesCount)
+					{
+						caret.iLine = lines.LinesCount - 1;
+					}
+				}
+				caret.iChar = lines[caret.iLine].NormalCount;
+				selection.caret = lines.IndexOf(caret);
+				if (!shift && selection.caret > 0)
+				{
+					selection.caret--;
+				}
+				if (!shift)
+					selection.anchor = selection.caret;
+				lines.SetPreferredPos(selection, caret);
+			}
+			DoAfterMove();
+		}
 	}
 }

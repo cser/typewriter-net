@@ -107,6 +107,16 @@ namespace MulticaretEditor
 						move = new ViFind(parser.move.c, parser.moveChar.c, parser.count);
 						ignoreRepeat = true;
 						break;
+					case '0':
+						move = new ViHome(false);
+						break;
+					case '^':
+						move = new ViHome(true);
+						break;
+					case '$':
+						move = new ViEnd(parser.count);
+						ignoreRepeat = true;
+						break;
 				}
 			}
 			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
@@ -371,6 +381,47 @@ namespace MulticaretEditor
 			public override string ToString()
 			{
 				return count + ":" + type + ":" + charToFind;
+			}
+		}
+		
+		public class ViHome : ViMove
+		{
+			private bool indented;
+			
+			public ViHome(bool indented)
+			{
+				this.indented = indented;
+			}
+			
+			public override void Move(Controller controller, bool shift)
+			{
+				controller.MoveHome(shift);
+				controller.ViMoveHome(shift, indented);
+			}
+			
+			public override string ToString()
+			{
+				return "Home:" + indented;
+			}
+		}
+		
+		public class ViEnd : ViMove
+		{
+			private int count;
+			
+			public ViEnd(int count)
+			{
+				this.count = count;
+			}
+			
+			public override void Move(Controller controller, bool shift)
+			{
+				controller.ViMoveEnd(shift, count);
+			}
+			
+			public override string ToString()
+			{
+				return "End:" + count;
 			}
 		}
 	}

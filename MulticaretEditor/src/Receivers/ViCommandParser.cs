@@ -63,7 +63,7 @@ namespace MulticaretEditor
 			switch (_state)
 			{
 				case State.Init:
-					if (char.IsNumber(code.c))
+					if (char.IsNumber(code.c) && code.c != '0')
 					{
 						_state = State.Count;
 						return Parse(code);
@@ -92,6 +92,9 @@ namespace MulticaretEditor
 						case 'l':
 						case 'w':
 						case 'b':
+						case '0':
+						case '^':
+						case '$':
 							move = code;
 							return ParseResult.Complete;
 						case 'd':

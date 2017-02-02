@@ -101,5 +101,70 @@ namespace UnitTests
 			Put(7, 2).Press("t;").AssertSelection().Both(7, 2).NoNext();
 			Put(11, 2).Press("T;").AssertSelection().Both(11, 2).NoNext();
 		}
+		
+		[Test]
+		public void S6_0()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"   a");
+			
+			Put(4, 0).Press("0").AssertSelection().Both(0, 0).NoNext();
+			Put(4, 1).Press("0").AssertSelection().Both(0, 1).NoNext();
+			
+			Put(4, 0).Press("^").AssertSelection().Both(0, 0).NoNext();
+			
+			Put(14, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+			Put(4, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+			Put(3, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+			Put(2, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+			Put(1, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+			Put(0, 1).Press("^").AssertSelection().Both(3, 1).NoNext();
+		}
+		
+		[Test]
+		public void S6_OnlySpacesNuance()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   \n" +
+				"\n" +
+				"a");
+			
+			Put(1, 1).Press("^").AssertSelection().Both(2, 1).NoNext();
+			Put(0, 2).Press("^").AssertSelection().Both(0, 2).NoNext();
+		}
+		
+		[Test]
+		public void S4()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"   a");
+			
+			Put(4, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
+			Put(0, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
+			Put(1, 1).Press("$").AssertSelection().Both(14, 1).NoNext();
+			Put(3, 2).Press("$").AssertSelection().Both(3, 2).NoNext();
+		}
+		
+		[Test]
+		public void S4_Repeat()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"   a");
+			
+			Put(4, 0).Press("2").Press("$").AssertSelection().Both(14, 1).NoNext();
+			Put(4, 0).Press("3").Press("$").AssertSelection().Both(3, 2).NoNext();
+			Put(4, 0).Press("4").Press("$").AssertSelection().Both(3, 2).NoNext();
+		}
 	}
 }
