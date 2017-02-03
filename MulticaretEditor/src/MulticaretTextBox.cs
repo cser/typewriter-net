@@ -35,7 +35,7 @@ namespace MulticaretEditor
 		private readonly Dictionary<char, char> viMap = new Dictionary<char, char>();
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
-		private MacrosExecutor macrosExecutor;
+		private readonly MacrosExecutor macrosExecutor;
 
 		public MulticaretTextBox()
 		{
@@ -95,13 +95,14 @@ namespace MulticaretEditor
 			{
 				if (controller != value)
 				{
+					bool oldViMode = receiver != null && receiver.viMode;
 					if (controller != null)
 						controller.macrosExecutor = null;
 					controller = value;
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
-						receiver = new Receiver(controller);
+						receiver = new Receiver(controller, oldViMode);
 						receiver.viMap = viMap;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
@@ -478,6 +479,14 @@ namespace MulticaretEditor
 				BeginInvoke(new MethodInvoker(Invalidate));
 			else
 				base.Invalidate();
+		}
+		
+		public void SetViMode(bool viMode)
+		{
+			if (receiver != null)
+			{
+				receiver.SetViMode(viMode);
+			}
 		}
 
 		protected override void OnGotFocus(EventArgs e)

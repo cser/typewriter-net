@@ -16,27 +16,32 @@ namespace MulticaretEditor
 		
 		public bool viMode;
 		
-		public Receiver(Controller controller)
+		public Receiver(Controller controller, bool viMode)
 		{
 			this.controller = controller;
 			this.lines = controller.Lines;
 			
 			context = new Context(this);
-			context.SetState(new InputReceiver());
+			ProcessSetViMode(viMode);
 		}
 		
 		public void SetViMode(bool value)
 		{
 			if (viMode != value)
 			{
-				if (value)
-				{
-					context.SetState(new ViReceiver());
-				}
-				else
-				{
-					context.SetState(new InputReceiver());
-				}
+				ProcessSetViMode(value);
+			}
+		}
+		
+		private void ProcessSetViMode(bool value)
+		{
+			if (value)
+			{
+				context.SetState(new ViReceiver());
+			}
+			else
+			{
+				context.SetState(new InputReceiver());
 			}
 		}
 		

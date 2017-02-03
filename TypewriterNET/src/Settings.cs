@@ -70,6 +70,7 @@ public class Settings
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
 	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
 	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
+	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
 
 	private Setter onChange;
 
@@ -138,6 +139,7 @@ public class Settings
 		Add(fullScreenOnMaximized);
 		Add(viMapSource);
 		Add(viMapResult);
+		Add(startWithViMode);
 	}
 
 	public void DispatchChange()

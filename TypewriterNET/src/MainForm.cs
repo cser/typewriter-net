@@ -223,6 +223,7 @@ public class MainForm : Form
 		fileDragger = new FileDragger(this);
 
 		tempSettings.Load(tempFilePostfix);
+		InitStartSettings();
 		allowApply = true;
 		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
@@ -249,6 +250,12 @@ public class MainForm : Form
 		Activated += OnActivated;
 
         InitMessageReceiving();
+	}
+	
+	private void InitStartSettings()
+	{
+		if (focusedTextBox != null)
+			focusedTextBox.SetViMode(settings.startWithViMode.Value);
 	}
 
     private void InitMessageReceiving()

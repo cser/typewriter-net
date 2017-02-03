@@ -49,7 +49,7 @@ namespace UnitTests
 		{
 			Init();
 			lines.lineBreak = "\n";
-			receiver = new Receiver(controller);
+			receiver = new Receiver(controller, false);
 			SetViMode(true);
 		}
 		
