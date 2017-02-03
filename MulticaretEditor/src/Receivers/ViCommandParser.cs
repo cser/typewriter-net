@@ -84,29 +84,44 @@ namespace MulticaretEditor
 					_state = State.Action;
 					return Parse(code);
 				case State.Action:
-					switch (code.c)
+					if (code.control)
 					{
-						case 'j':
-						case 'k':
-						case 'h':
-						case 'l':
-						case 'w':
-						case 'b':
-						case '0':
-						case '^':
-						case '$':
-							move = code;
-							return ParseResult.Complete;
-						case 'd':
-							action = code;
-							return ParseResult.WaitNext;
-						case 'f':
-						case 'F':
-						case 't':
-						case 'T':
-							_state = State.WaitChar;
-							move = code;
-							return ParseResult.WaitNext;
+						switch (code.c)
+						{
+							case 'f':
+							case 'b':
+								move = code;
+								return ParseResult.Complete;
+						}
+					}
+					else
+					{
+						switch (code.c)
+						{
+							case 'j':
+							case 'k':
+							case 'h':
+							case 'l':
+							case 'w':
+							case 'b':
+							case '0':
+							case '^':
+							case '$':
+							case 'G':
+								move = code;
+								return ParseResult.Complete;
+							case 'd':
+								action = code;
+								return ParseResult.WaitNext;
+							case 'f':
+							case 'F':
+							case 't':
+							case 'T':
+							case 'g':
+								_state = State.WaitChar;
+								move = code;
+								return ParseResult.WaitNext;
+						}
 					}
 					switch (code.c)
 					{

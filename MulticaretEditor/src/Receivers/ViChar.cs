@@ -15,6 +15,11 @@ namespace MulticaretEditor
 			this.control = control;
 		}
 		
+		public bool IsChar(char c)
+		{
+			return this.c == c && !control;
+		}
+		
 		override public string ToString()
 		{
 			if (c == '\0')

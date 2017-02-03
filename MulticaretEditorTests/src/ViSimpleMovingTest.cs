@@ -166,5 +166,18 @@ namespace UnitTests
 			Put(4, 0).Press("3").Press("$").AssertSelection().Both(3, 2).NoNext();
 			Put(4, 0).Press("4").Press("$").AssertSelection().Both(3, 2).NoNext();
 		}
+		
+		[Test]
+		public void gg_G()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(4, 1).Press("g").Press("g").AssertSelection().Both(0, 0).NoNext();
+			Put(4, 1).Press("G").AssertSelection().Both(0, 2).NoNext();
+			Put(4, 2).Press("G").AssertSelection().Both(0, 2).NoNext();
+		}
 	}
 }

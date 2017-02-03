@@ -1427,5 +1427,20 @@ namespace MulticaretEditor
 			}
 			DoAfterMove();
 		}
+		
+		public void ViDocumentEnd(bool shift)
+		{
+			Place place = new Place(0, lines.LinesCount - 1);
+			int position = lines.IndexOf(place);
+			foreach (Selection selection in selections)
+			{
+				selection.caret = position;
+				if (!shift)
+					selection.anchor = selection.caret;
+			}
+			lines.JoinSelections();
+			lines.SetPreferredPos(lines.LastSelection, place);
+			DoAfterMove();
+		}
 	}
 }

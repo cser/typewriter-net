@@ -213,6 +213,18 @@ namespace UnitTests
 			return this;
 		}
 		
+		private ViCommandParserTest AddControl(char c)
+		{
+			Assert.AreEqual(false, parser.AddKey(new ViChar(c, true)), "key:<C-" + c + ">");
+			return this;
+		}
+		
+		private ViCommandParserTest AddControlLast(char c)
+		{
+			Assert.AreEqual(true, parser.AddKey(new ViChar(c, true)), "key:<C-" + c + ">");
+			return this;
+		}
+		
 		[Test]
 		public void fFtT()
 		{
@@ -236,6 +248,22 @@ namespace UnitTests
 			
 			AddLast('$').AssertParsed("1:action:\\0;move:$;moveChar:\\0");
 			Add('2').AddLast('$').AssertParsed("2:action:\\0;move:$;moveChar:\\0");
+		}
+		
+		[Test]
+		public void gg_G()
+		{
+			Add('g').AddLast('g').AssertParsed("1:action:\\0;move:g;moveChar:g");
+			AddLast('G').AssertParsed("1:action:\\0;move:G;moveChar:\\0");
+		}
+		
+		[Test]
+		public void pageUpDown()
+		{
+			AddControlLast('f').AssertParsed("1:action:\\0;move:<C-f>;moveChar:\\0");
+			Add('2').AddControlLast('f').AssertParsed("2:action:\\0;move:<C-f>;moveChar:\\0");
+			AddControlLast('b').AssertParsed("1:action:\\0;move:<C-b>;moveChar:\\0");
+			Add('2').AddControlLast('b').AssertParsed("2:action:\\0;move:<C-b>;moveChar:\\0");
 		}
 	}
 }
