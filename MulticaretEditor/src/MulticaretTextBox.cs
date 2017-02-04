@@ -1574,7 +1574,7 @@ namespace MulticaretEditor
 			if (mouseDownIndex == 1)
 			{
 				if (e.Button == MouseButtons.Left)
-				isMouseDown = true;
+					isMouseDown = true;
 				if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
 				{
 					if (Control.ModifierKeys == Keys.Control)
@@ -1586,6 +1586,7 @@ namespace MulticaretEditor
 						controller.ClearMinorSelections();
 						controller.PutCursor(GetMousePlace(e.Location), false);
 					}
+					ResetViInput();
 					UnblinkCursor();
 				}
 			}
@@ -1599,6 +1600,14 @@ namespace MulticaretEditor
 			}
 			if (AfterClick != null)
 				AfterClick();
+		}
+		
+		private void ResetViInput()
+		{
+			if (receiver != null)
+			{
+				receiver.ResetViInput();
+			}
 		}
 
 		protected override void OnMouseUp(MouseEventArgs e)

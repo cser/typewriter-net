@@ -19,6 +19,29 @@ namespace MulticaretEditor
 			this.context = context;
 		}
 		
+		protected void ProcessInputChar(char code)
+		{
+			switch (code)
+			{
+				case '\b':
+					if (lines.AllSelectionsEmpty)
+					{
+						controller.Backspace();
+					}
+					else
+					{
+						controller.EraseSelection();
+					}
+					break;
+				case '\r':
+					controller.InsertLineBreak();
+					break;
+				default:
+					controller.InsertText(code + "");
+					break;
+			}
+		}
+		
 		public virtual void DoOn()
 		{
 		}
@@ -30,6 +53,10 @@ namespace MulticaretEditor
 		public virtual bool DoKeyDown(Keys keysData)
 		{
 			return false;
+		}
+		
+		public virtual void ResetViInput()
+		{
 		}
 	}
 }

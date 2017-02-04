@@ -265,5 +265,11 @@ namespace UnitTests
 			AddControlLast('b').AssertParsed("1:action:\\0;move:<C-b>;moveChar:\\0");
 			Add('2').AddControlLast('b').AssertParsed("2:action:\\0;move:<C-b>;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Count_i()
+		{
+			Add('1').Add('0').AddLast('i').AssertParsed("10:action:i;move:\\0;moveChar:\\0");
+		}
 	}
 }

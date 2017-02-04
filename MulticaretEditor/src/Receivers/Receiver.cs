@@ -37,11 +37,11 @@ namespace MulticaretEditor
 		{
 			if (value)
 			{
-				context.SetState(new ViReceiver());
+				context.SetState(new ViReceiver(null));
 			}
 			else
 			{
-				context.SetState(new InputReceiver());
+				context.SetState(new InputReceiver(null));
 			}
 		}
 		
@@ -85,6 +85,11 @@ namespace MulticaretEditor
 		public bool DoKeyDown(Keys keysData)
 		{
 			return state.DoKeyDown(keysData);
+		}
+		
+		public void ResetViInput()
+		{
+			state.ResetViInput();
 		}
 	}
 }

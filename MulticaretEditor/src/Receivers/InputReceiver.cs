@@ -6,26 +6,19 @@ namespace MulticaretEditor
 {
 	public class InputReceiver : AReceiver
 	{
+		private ViReceiverData viData;
+		
+		public InputReceiver(ViReceiverData viData)
+		{
+			this.viData = viData;
+		}
+		
 		public override void DoKeyPress(char code)
 		{
-			switch (code)
+			ProcessInputChar(code);
+			if (viData != null)
 			{
-				case '\b':
-					if (lines.AllSelectionsEmpty)
-					{
-						controller.Backspace();
-					}
-					else
-					{
-						controller.EraseSelection();
-					}
-					break;
-				case '\r':
-					controller.InsertLineBreak();
-					break;
-				default:
-					controller.InsertText(code + "");
-					break;
+				viData.inputChars.Add(code);
 			}
 		}
 		
@@ -34,10 +27,17 @@ namespace MulticaretEditor
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
-				context.SetState(new ViReceiver());
+				ViReceiverData viData = this.viData;
+				this.viData = null;
+				context.SetState(new ViReceiver(viData));
 				return true;
 			}
 			return false;
+		}
+		
+		public override void ResetViInput()
+		{
+			viData = null;
 		}
 	}
 }

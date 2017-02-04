@@ -7,10 +7,29 @@ namespace MulticaretEditor
 {
 	public class ViReceiver : AReceiver
 	{
+		private ViReceiverData startData;
+		
+		public ViReceiver(ViReceiverData startData)
+		{
+			this.startData = startData;
+		}
+		
 		public override bool AltMode { get { return true; } }
 		
 		public override void DoOn()
 		{
+			ViReceiverData startData = this.startData;
+			this.startData = null;
+			if (startData != null)
+			{
+				for (int i = 1; i < startData.count; i++)
+				{
+					foreach (char c in startData.inputChars)
+					{
+						ProcessInputChar(c);
+					}
+				}
+			}
 			for (int i = 0; i < lines.selections.Count; i++)
 			{
 				Selection selection = lines.selections[i];
@@ -21,6 +40,10 @@ namespace MulticaretEditor
 					{
 						selection.anchor--;
 						selection.caret--;
+						if (selection.preferredPos > 0)
+						{
+							selection.preferredPos--;
+						}
 					}
 				}
 			}
@@ -73,13 +96,13 @@ namespace MulticaretEditor
 			}
 			if (parser.action.c == 'i')
 			{
-				context.SetState(new InputReceiver());
+				context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
 				return;
 			}
 			if (parser.action.c == 'a')
 			{
 				controller.MoveRight(false);
-				context.SetState(new InputReceiver());
+				context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
 				return;
 			}
 			ViMoves.IMove move = null;
