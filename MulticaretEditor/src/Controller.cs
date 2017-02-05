@@ -248,8 +248,7 @@ namespace MulticaretEditor
 						{
 							Place newPlace = new Place(sublineStart - 1, place.iLine);
 							selection.caret = lines.IndexOf(newPlace);
-							if (!shift)
-								selection.anchor = selection.caret;
+							selection.SetEmptyIfNotShift(shift);
 							lines.SetPreferredPos(selection, newPlace);
 							DoAfterMove();
 							return;
@@ -262,8 +261,7 @@ namespace MulticaretEditor
 				Place caret = lines.PlaceOf(selection.caret);
 				caret.iChar = lines[caret.iLine].NormalCount;
 				selection.caret = lines.IndexOf(caret);
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
 			DoAfterMove();
@@ -286,8 +284,7 @@ namespace MulticaretEditor
 						{
 							Place newPlace = new Place(sublineStart, place.iLine);
 							selection.caret = lines.IndexOf(newPlace);
-							if (!shift)
-								selection.anchor = selection.caret;
+							selection.SetEmptyIfNotShift(shift);
 							lines.SetPreferredPos(selection, newPlace);
 							DoAfterMove();
 							return;
@@ -307,8 +304,7 @@ namespace MulticaretEditor
 				}
 				caret.iChar = caret.iChar > minIChar ? minIChar : 0;
 				selection.caret = lines.IndexOf(caret);
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
 			DoAfterMove();
@@ -319,8 +315,7 @@ namespace MulticaretEditor
 			foreach (Selection selection in selections)
 			{
 				selection.caret = 0;
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 			}
 			lines.JoinSelections();
 			lines.LastSelection.preferredPos = 0;
@@ -332,8 +327,7 @@ namespace MulticaretEditor
 			foreach (Selection selection in selections)
 			{
 				selection.caret = lines.charsCount;
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 			}
 			lines.JoinSelections();
 			Place place = lines.PlaceOf(lines.charsCount);
@@ -1273,10 +1267,7 @@ namespace MulticaretEditor
 					selection.caret--;
 					lines.SetPreferredPos(selection, place);
 				}
-				if (!shift)
-				{
-					selection.anchor = selection.caret;
-				}
+				selection.SetEmptyIfNotShift(shift);
 			}
 		}
 		
@@ -1335,8 +1326,7 @@ namespace MulticaretEditor
 					}
 				}
 				selection.caret = iterator.Position;
-				if (!shift)
-					selection.anchor = iterator.Position;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, iterator.Place);
 			}
 			DoAfterMove();
@@ -1363,8 +1353,7 @@ namespace MulticaretEditor
 						break;
 				}
 				selection.caret = iterator.Position;
-				if (!shift)
-					selection.anchor = iterator.Position;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, iterator.Place);
 			}
 			DoAfterMove();
@@ -1395,8 +1384,7 @@ namespace MulticaretEditor
 					caret.iChar = 0;
 				}
 				selection.caret = lines.IndexOf(caret);
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
 			DoAfterMove();
@@ -1417,14 +1405,9 @@ namespace MulticaretEditor
 				}
 				caret.iChar = lines[caret.iLine].NormalCount;
 				selection.caret = lines.IndexOf(caret);
-				if (!shift && selection.caret > 0)
-				{
-					selection.caret--;
-				}
-				if (!shift)
-					selection.anchor = selection.caret;
-				lines.SetPreferredPos(selection, caret);
+				selection.SetEmptyIfNotShift(shift);
 			}
+			ViFixPositions(true);
 			DoAfterMove();
 		}
 		
@@ -1435,12 +1418,102 @@ namespace MulticaretEditor
 			foreach (Selection selection in selections)
 			{
 				selection.caret = position;
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 			}
 			lines.JoinSelections();
 			lines.SetPreferredPos(lines.LastSelection, place);
 			DoAfterMove();
+		}
+		
+		public void ViMoveLeft(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iChar > 0)
+				{
+					selection.caret--;
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(true);
+		}
+		
+		public void ViMoveRight(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				if (place.iChar < line.NormalCount)
+				{
+					place.iChar++;
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(true);
+		}
+		
+		public void ViMoveUp(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine > 0)
+				{
+					place.iLine--;
+					place = ViGetPreferredPlace(selection, place);
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(false);
+		}
+		
+		public void ViMoveDown(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine < lines.LinesCount - 1)
+				{
+					place.iLine++;
+					place = ViGetPreferredPlace(selection, place);
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(false);
+		}
+		
+		private void ViFixPositions(bool setPreferredPos)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (selection.Empty)
+				{
+					Line line = lines[place.iLine];
+					int count = line.NormalCount;
+					if (count > 0 && place.iChar >= count)
+					{
+						place.iChar = count - 1;
+						selection.caret = lines.IndexOf(place);
+						selection.anchor = selection.caret;
+					}
+				}
+				if (setPreferredPos)
+				{
+					lines.SetPreferredPos(selection, place);
+				}
+			}
+		}
+		
+		private Place ViGetPreferredPlace(Selection selection, Place place)
+		{
+			Line line = lines[place.iLine];
+			return new Place(line.NormalIndexOfPos(selection.preferredPos), place.iLine);
 		}
 	}
 }

@@ -26,16 +26,16 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.MoveLeft(shift);
+						controller.ViMoveLeft(shift);
 						break;
 					case Direction.Right:
-						controller.MoveRight(shift);
+						controller.ViMoveRight(shift);
 						break;
 					case Direction.Up:
-						controller.MoveUp(shift);
+						controller.ViMoveUp(shift);
 						break;
 					case Direction.Down:
-						controller.MoveDown(shift);
+						controller.ViMoveDown(shift);
 						break;
 				}
 			}

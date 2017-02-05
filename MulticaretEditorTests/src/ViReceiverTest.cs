@@ -228,7 +228,7 @@ namespace UnitTests
 		public void StateEnter_input_several()
 		{
 			SetViMode(false);
-			lines.SetText("line0\nline1\nline2\nline3");
+			lines.SetText("line0\nline1\nline2___________\nline3");
 			controller.PutCursor(new Place(3, 1), false);
 			SetViMode(true);
 			AssertSelection().Both(2, 1).NoNext();
@@ -243,7 +243,7 @@ namespace UnitTests
 			DoKeyPress('C');
 			AssertSelection().Both(4, 1).NoNext();
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
-			AssertText("line0\nlABCABCABCABCine1\nline2\nline3");
+			AssertText("line0\nlABCABCABCABCine1\nline2___________\nline3");
 			AssertSelection().Both(12, 1).NoNext();
 			DoKeyPress('j');
 			AssertSelection().Both(12, 2).NoNext();

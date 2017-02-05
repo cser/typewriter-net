@@ -1022,5 +1022,52 @@ namespace UnitTests
 			Assert.AreEqual(true, lines.IntersectSelections(5, 6));
 			Assert.AreEqual(true, lines.IntersectSelections(7, 11));
 		}
+		
+		[Test]
+		public void IndexOf_EmptyEnd()
+		{
+			Init();
+			
+			lines.SetText("01\n");
+			CollectionAssert.AreEqual(new string[] { "01\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines.IndexOf(new Place(0, 0)));
+			Assert.AreEqual(1, lines.IndexOf(new Place(1, 0)));
+			
+			Assert.AreEqual(3, lines.IndexOf(new Place(0, 1)));
+		}
+		
+		[Test]
+		public void NormalIndexOfPos()
+		{
+			Init();
+			
+			lines.SetText("01\n34\n");
+			CollectionAssert.AreEqual(new string[] { "01\n", "34\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(0));
+			Assert.AreEqual(1, lines[0].NormalIndexOfPos(1));
+			Assert.AreEqual(2, lines[0].NormalIndexOfPos(2));
+			Assert.AreEqual(2, lines[0].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(0));
+			Assert.AreEqual(1, lines[1].NormalIndexOfPos(1));
+			Assert.AreEqual(2, lines[1].NormalIndexOfPos(2));
+			Assert.AreEqual(2, lines[1].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[2].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[2].NormalIndexOfPos(1));
+			
+			lines.SetText("\t45\n");
+			CollectionAssert.AreEqual(new string[] { "\t45\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(1));
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(2));
+			Assert.AreEqual(1, lines[0].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(1));
+		}
 	}
 }

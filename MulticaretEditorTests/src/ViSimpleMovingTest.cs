@@ -179,5 +179,84 @@ namespace UnitTests
 			Put(4, 1).Press("G").AssertSelection().Both(0, 2).NoNext();
 			Put(4, 2).Press("G").AssertSelection().Both(0, 2).NoNext();
 		}
+		
+		[Test]
+		public void hjkl()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(4, 1).Press("j").AssertSelection().Both(4, 2).NoNext();
+			Put(4, 1).Press("k").AssertSelection().Both(4, 0).NoNext();
+			Put(4, 1).Press("h").AssertSelection().Both(3, 1).NoNext();
+			Put(4, 1).Press("l").AssertSelection().Both(5, 1).NoNext();
+			
+			Put(4, 1).Press("hhh").AssertSelection().Both(1, 1).NoNext();
+			Press("h").AssertSelection().Both(0, 1).NoNext();
+			Press("h").AssertSelection().Both(0, 1).NoNext();
+			
+			Put(4, 1).Press("9l").AssertSelection().Both(13, 1).NoNext();
+			Press("l").AssertSelection().Both(14, 1).NoNext();
+			Press("l").AssertSelection().Both(14, 1).NoNext();
+			
+			Put(14, 1).Press("j").AssertSelection().Both(6, 2).NoNext();
+			Press("j").AssertSelection().Both(6, 2).NoNext();
+			
+			Put(14, 1).Press("k").AssertSelection().Both(6, 0).NoNext();
+			Press("k").AssertSelection().Both(6, 0).NoNext();
+		}
+		
+		[Test]
+		public void hjkl_preferredPosition()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+
+			Put(14, 1);
+			Press("jk").AssertSelection().Both(14, 1).NoNext();
+			Press("kj").AssertSelection().Both(14, 1).NoNext();
+		}
+		
+		[Test]
+		public void hjkl_preferredPosition_withTab()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+			    "\tDu hast mich\n" +
+				"aaaaaaa");
+
+			Put(10, 1);
+			Press("jk").AssertSelection().Both(10, 1).NoNext();
+			Press("kj").AssertSelection().Both(10, 1).NoNext();
+		}
+		
+		[Test]
+		public void hjkl_DocumentEnd()
+		{
+			lines.SetText(
+				"aaa\n" +
+				"");
+
+			Put(2, 0).Press("j").AssertSelection().Both(0, 1).NoNext();
+		}
+		
+		[Test]
+		public void S4_preferredPos()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				  "\tDu hast mich\n" +
+				"   a");
+			
+			Put(4, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
+			Press("j").AssertSelection().Both(3, 1).NoNext();
+		}
 	}
 }
