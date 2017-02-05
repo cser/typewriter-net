@@ -514,6 +514,14 @@ public class DialogManager
 		if (mainForm.LastFrame != null)
 		{
 			Controller lastController = mainForm.LastFrame.Controller;
+			if (iLine < 0)
+			{
+				iLine = 0;
+			}
+			else if (iLine >= lastController.Lines.LinesCount)
+			{
+				iLine = lastController.Lines.LinesCount - 1;
+			}
 			int iChar = lastController.Lines[iLine].GetFirstSpaces();
 			lastController.PutCursor(new Place(iChar, iLine), false);
 			mainForm.LastFrame.TextBox.MoveToCaret();
