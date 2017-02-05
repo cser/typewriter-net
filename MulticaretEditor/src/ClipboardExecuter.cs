@@ -27,8 +27,17 @@ namespace MulticaretEditor
 				text = Clipboard.GetText();
 		}
 		
+		public static bool useFake = false;
+		
+		private static string fakeText;
+		
 		public static void PutToClipboard(string text)
 		{
+			if (useFake)
+			{
+				fakeText = text;
+				return;
+			}
 			ClipboardExecuter executer = new ClipboardExecuter();
 			executer.text = text;
 			Thread thread = new Thread(executer.PutTo);
@@ -39,6 +48,10 @@ namespace MulticaretEditor
 		
 		public static string GetFromClipboard()
 		{
+			if (useFake)
+			{
+				return fakeText;
+			}
 			ClipboardExecuter executer = new ClipboardExecuter();
 			Thread thread = new Thread(executer.GetFrom);
 			thread.SetApartmentState(ApartmentState.STA);

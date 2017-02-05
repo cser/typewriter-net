@@ -91,6 +91,33 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class Copy : ICommand
+		{
+			private ViMoves.IMove move;
+			private int count;
+			
+			public Copy(ViMoves.IMove move, int count)
+			{
+				this.move = move;
+				this.count = count;
+			}
+			
+			public void Execute(Controller controller)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					move.Move(controller, true, false);
+				}
+				controller.ViCopy();
+				controller.ViCollapseSelections();
+			}
+			
+			public override string ToString()
+			{
+				return "Copy(" + move + ")";
+			}
+		}
+		
 		public class Undo : ICommand
 		{
 			public void Execute(Controller controller)

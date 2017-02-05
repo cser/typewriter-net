@@ -206,6 +206,10 @@ namespace MulticaretEditor
 							ignoreRepeat = true;
 							needInput = true;
 							break;
+						case 'y':
+							command = new ViCommands.Copy(move, parser.FictiveCount);
+							ignoreRepeat = true;
+							break;
 						default:
 							command = new ViCommands.Empty(move, parser.FictiveCount);
 							break;

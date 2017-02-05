@@ -114,6 +114,7 @@ namespace MulticaretEditor
 								return ParseResult.Complete;
 							case 'd':
 							case 'c':
+							case 'y':
 								action = code;
 								return ParseResult.WaitNext;
 							case 'f':

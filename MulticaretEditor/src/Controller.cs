@@ -1591,6 +1591,11 @@ namespace MulticaretEditor
 			ViFixPositions(true);
 		}
 		
+		public void ViCopy()
+		{
+			Copy();
+		}
+		
 		public void ViGoToLine(int iLine, bool shift)
 		{
 			ClearMinorSelections();

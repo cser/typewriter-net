@@ -50,6 +50,18 @@ namespace UnitTests
 			return this;
 		}
 		
+		[TestFixtureSetUp]
+		public void FixtureSetUp()
+		{
+			ClipboardExecuter.useFake = true;
+		}
+	
+		[TestFixtureTearDown]
+		public void FixtureTearDown()
+		{
+			ClipboardExecuter.useFake = false;
+		}
+		
 		[SetUp]
 		public void SetUp()
 		{
@@ -346,6 +358,17 @@ namespace UnitTests
 			Put(3, 1).Press("2G").AssertSelection().Both(4, 1).NoNext();
 			Put(3, 1).Press("3G").AssertSelection().Both(2, 2).NoNext();
 			Put(3, 1).Press("4G").AssertSelection().Both(2, 2).NoNext();
+		}
+		
+		[Test]
+		public void y()
+		{
+			lines.SetText("Du hast mich");
+			
+			ClipboardExecuter.PutToClipboard("");
+			Put(3, 0).Press("yw");
+			Assert.AreEqual("hast ", ClipboardExecuter.GetFromClipboard());
+			AssertSelection().Both(3, 0).NoNext();
 		}
 	}
 }
