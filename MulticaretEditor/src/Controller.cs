@@ -1331,7 +1331,6 @@ namespace MulticaretEditor
 				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, iterator.Place);
 			}
-			DoAfterMove();
 		}
 		
 		public void ViMoveWordLeft(bool shift, bool change)
@@ -1358,7 +1357,6 @@ namespace MulticaretEditor
 				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, iterator.Place);
 			}
-			DoAfterMove();
 		}
 		
 		public void ViMoveHome(bool shift, bool indented)
@@ -1389,7 +1387,6 @@ namespace MulticaretEditor
 				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
-			DoAfterMove();
 		}
 		
 		public void ViMoveEnd(bool shift, int count)
@@ -1410,7 +1407,6 @@ namespace MulticaretEditor
 				selection.SetEmptyIfNotShift(shift);
 			}
 			ViFixPositions(true);
-			DoAfterMove();
 		}
 		
 		public void ViDocumentEnd(bool shift)
@@ -1424,7 +1420,6 @@ namespace MulticaretEditor
 			}
 			lines.JoinSelections();
 			lines.SetPreferredPos(lines.LastSelection, place);
-			DoAfterMove();
 		}
 		
 		public void ViMoveLeft(bool shift)
@@ -1594,6 +1589,11 @@ namespace MulticaretEditor
 		public void ViCopy()
 		{
 			Execute(new CopyCommand());
+		}
+		
+		public void ViSavePositions()
+		{
+			Execute(new ViSavePositions());
 		}
 		
 		public void ViPaste()

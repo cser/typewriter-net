@@ -44,11 +44,13 @@ namespace UnitTests
 			private LineArray provider;
 			private int index;
 			private Selection selection;
+			private string description;
 	
-			public SelectionAssertion(LineArray provider, int index)
+			public SelectionAssertion(LineArray provider, int index, string description)
 			{
 				this.provider = provider;
 				this.index = index;
+				this.description = description;
 				SetSelectionByIndex();
 			}
 			
@@ -68,43 +70,51 @@ namespace UnitTests
 			
 			public void NoNext()
 			{
-				Assert.IsTrue(index >= provider.selections.Count - 1, "Mast be no next selection");
+				Assert.IsTrue(index >= provider.selections.Count - 1,
+					(description != null ? description + ":" : "") + "Mast be no next selection");
 			}
 			
 			public SelectionAssertion Anchor(int iChar, int iLine)
 			{
-				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.anchor), "Anchor");
+				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.anchor),
+					(description != null ? description + ":" : "") + "Anchor");
 				return this;
 			}
 			
 			public SelectionAssertion Caret(int iChar, int iLine)
 			{
-				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.caret), "Caret");
+				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.caret),
+					(description != null ? description + ":" : "") + "Caret");
 				return this;
 			}
 			
 			public SelectionAssertion Both(int iChar, int iLine)
 			{
-				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.anchor), "Anchor");
-				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.caret), "Caret");
+				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.anchor),
+					(description != null ? description + ":" : "") + "Anchor");
+				Assert.AreEqual(new Place(iChar, iLine), provider.PlaceOf(selection.caret),
+					(description != null ? description + ":" : "") + "Caret");
 				return this;
 			}
 			
 			public SelectionAssertion PreferredPos(int pos)
 			{
-				Assert.AreEqual(pos, selection.preferredPos, "PreferredPos");
+				Assert.AreEqual(pos, selection.preferredPos,
+					(description != null ? description + ":" : "") + "PreferredPos");
 				return this;
 			}
 
 			public SelectionAssertion ModePreferredPos(int pos)
 			{
-				Assert.AreEqual(pos, provider.wordWrap ? selection.wwPreferredPos : selection.preferredPos, "WWPreferredPos");
+				Assert.AreEqual(pos, provider.wordWrap ? selection.wwPreferredPos : selection.preferredPos,
+					(description != null ? description + ":" : "") + "WWPreferredPos");
 				return this;
 			}
 			
 			public SelectionAssertion Count(int count)
 			{
-				Assert.AreEqual(count, provider.selections.Count, "SelectionsCount");
+				Assert.AreEqual(count, provider.selections.Count,
+					(description != null ? description + ":" : "") + "SelectionsCount");
 				return this;
 			}
 			
@@ -119,14 +129,19 @@ namespace UnitTests
 						return this;
 					}
 				}
-				Assert.Fail("No both: " + place);
+				Assert.Fail((description != null ? description + ":" : "") + "No both: " + place);
 				return this;
 			}
 		}
 		
 		protected SelectionAssertion AssertSelection()
 		{
-			return new SelectionAssertion(lines, 0);
+			return new SelectionAssertion(lines, 0, null);
+		}
+		
+		protected SelectionAssertion AssertSelection(string description)
+		{
+			return new SelectionAssertion(lines, 0, description);
 		}
 		
 		protected class SizeAssertion

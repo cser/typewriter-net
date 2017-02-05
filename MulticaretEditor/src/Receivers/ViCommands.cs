@@ -100,9 +100,20 @@ namespace MulticaretEditor
 		
 		public class Paste : ICommand
 		{
+			private Direction direction;
+			
+			public Paste(Direction direction)
+			{
+				this.direction = direction;
+			}
+			
 			public void Execute(Controller controller)
 			{
-				controller.ViMoveRightFromCursor();
+				if (direction == Direction.Right)
+				{
+					controller.ViSavePositions();
+					controller.ViMoveRightFromCursor();
+				}
 				controller.ViPaste();
 			}
 		}

@@ -303,12 +303,12 @@ namespace UnitTests
 			AssertText("Du hast\nDu NEW_WORD mich");
 			
 			Put(0, 1).Press("2cw").AssertSelection().Both(0, 1).NoNext();
-			Press("AAA").PressCommandMode().AssertSelection().Both(5, 1).NoNext();
-			AssertText("Du hast\nAAAAAA mich");
+			Press("AAA").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
+			AssertText("Du hast\nAAA mich");
 			
-			Put(7, 1).Press("cb").AssertSelection().Both(0, 1).NoNext();
+			Put(7, 1).Press("cb").AssertSelection().Both(3, 1).NoNext();
 			Press("BBB").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
-			AssertText("Du hast\nBBBmich");
+			AssertText("Du hast\nDu BBB mich");
 		}
 		
 		[Test]
@@ -368,6 +368,60 @@ namespace UnitTests
 			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
 			AssertSelection().Both(6, 0).NoNext();
+		}
+		
+		[Test]
+		public void p_Undo()
+		{
+			lines.SetText("Du hast mich");
+			
+			ClipboardExecuter.PutToClipboard("AAA");
+			Put(3, 0).Press("p");
+			AssertText("Du hAAAast mich");
+			AssertSelection("#1").Both(6, 0).NoNext();
+			Press("u").AssertSelection("#2").Both(3, 0);
+			AssertText("Du hast mich");
+			Press(Keys.Control | Keys.R).AssertSelection("#3").Both(3, 0);
+			AssertText("Du hAAAast mich");
+		}
+		
+		[Test]
+		public void P()
+		{
+			lines.SetText("Du hast mich");	
+			
+			ClipboardExecuter.PutToClipboard("AAA");
+			Put(3, 0).Press("P");
+			AssertText("Du AAAhast mich");
+			AssertSelection().Both(5, 0).NoNext();
+		}
+		
+		[Test]
+		public void P_Undo()
+		{
+			lines.SetText("Du hast mich");	
+			
+			ClipboardExecuter.PutToClipboard("AAA");
+			Put(3, 0).Press("P");
+			AssertText("Du AAAhast mich");
+			AssertSelection("#1").Both(5, 0).NoNext();
+			
+			Press("u");
+			AssertText("Du hast mich");
+			AssertSelection("#2").Both(3, 0);
+			Press(Keys.Control | Keys.R);
+			AssertText("Du AAAhast mich");
+			AssertSelection("#3").Both(5, 0);
+		}
+		
+		[Test]
+		public void dw_cw()
+		{
+			lines.SetText("Du hast mich gefragt");
+			Put(0, 0).Press("2dw").AssertText("mich gefragt");
+			
+			lines.SetText("Du hast mich gefragt");
+			Put(0, 0).Press("2cw").Press("AAA").PressCommandMode().AssertText("AAA mich gefragt");
 		}
 	}
 }

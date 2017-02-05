@@ -323,5 +323,12 @@ namespace UnitTests
 			AddLast('p').AssertParsed("1:action:p;move:\\0;moveChar:\\0");
 			Add('8').AddLast('p').AssertParsed("8:action:p;move:\\0;moveChar:\\0");
 		}
+		
+		[Test]
+		public void P()
+		{
+			AddLast('P').AssertParsed("1:action:P;move:\\0;moveChar:\\0");
+			Add('8').AddLast('P').AssertParsed("8:action:P;move:\\0;moveChar:\\0");
+		}
 	}
 }

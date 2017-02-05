@@ -200,6 +200,7 @@ namespace MulticaretEditor
 					{
 						case 'd':
 							command = new ViCommands.Delete(move, parser.FictiveCount, false);
+							ignoreRepeat = true;
 							break;
 						case 'c':
 							command = new ViCommands.Delete(move, parser.FictiveCount, true);
@@ -234,7 +235,10 @@ namespace MulticaretEditor
 							ignoreRepeat = true;
 							break;
 						case 'p':
-							command = new ViCommands.Paste();
+							command = new ViCommands.Paste(Direction.Right);
+							break;
+						case 'P':
+							command = new ViCommands.Paste(Direction.Left);
 							break;
 					}
 				}
@@ -258,7 +262,7 @@ namespace MulticaretEditor
 				controller.ViResetCommandsBatching();
 				if (needInput)
 				{
-					context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
+					context.SetState(new InputReceiver(null));
 				}
 			}
 		}
