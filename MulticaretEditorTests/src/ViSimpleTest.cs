@@ -310,5 +310,20 @@ namespace UnitTests
 			Press("BBB").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
 			AssertText("Du hast\nBBBmich");
 		}
+		
+		[Test]
+		public void x()
+		{
+			lines.SetText("Du hast\nDu hast mich");
+			
+			Put(3, 0).Press("x").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du ast\nDu hast mich");
+			
+			Put(3, 0).Press("2x").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du t\nDu hast mich");
+			
+			Put(8, 1).Press("5x").AssertSelection().Both(7, 1).NoNext();
+			AssertText("Du t\nDu hast ");
+		}
 	}
 }

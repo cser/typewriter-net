@@ -1584,6 +1584,13 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViCut()
+		{
+			Copy();
+			EraseSelection();
+			ViFixPositions(true);
+		}
+		
 		private Place ViGetPreferredPlace(Selection selection, Place place)
 		{
 			Line line = lines[place.iLine];

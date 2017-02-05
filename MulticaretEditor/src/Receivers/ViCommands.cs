@@ -82,7 +82,7 @@ namespace MulticaretEditor
 				{
 					move.Move(controller, true, change);
 				}
-				controller.Cut();
+				controller.ViCut();
 			}
 			
 			public override string ToString()
