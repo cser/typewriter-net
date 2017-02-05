@@ -26,10 +26,12 @@ namespace MulticaretEditor
 		private State _state;
 		private string _stateText;
 		
-		public int count;
+		public int rawCount;
 		public ViChar move;
 		public ViChar moveChar;
 		public ViChar action;
+		
+		public int FictiveCount { get { return rawCount > 0 ? rawCount : 1; } }
 		
 		public ViCommandParser()
 		{
@@ -42,7 +44,7 @@ namespace MulticaretEditor
 			_state = State.Init;
 			_stateText = "";
 			
-			count = 1;
+			rawCount = -1;
 			move = new ViChar('\0', false);
 			moveChar = new ViChar('\0', false);
 			action = new ViChar('\0', false);
@@ -78,7 +80,7 @@ namespace MulticaretEditor
 					}
 					if (_stateText != "")
 					{
-						count = int.Parse(_stateText);
+						rawCount = int.Parse(_stateText);
 						_stateText = "";
 					}
 					_state = State.Action;

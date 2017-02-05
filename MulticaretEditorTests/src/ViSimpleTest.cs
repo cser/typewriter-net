@@ -336,5 +336,16 @@ namespace UnitTests
 			Put(3, 1).Press("3G").AssertSelection().Both(0, 2).NoNext();
 			Put(3, 1).Press("4G").AssertSelection().Both(0, 2).NoNext();
 		}
+		
+		[Test]
+		public void NumberG_Tabbed()
+		{
+			lines.SetText("Du hast\n    Du hast mich\n\t\tDu hast mich");
+			
+			Put(3, 1).Press("1G").AssertSelection().Both(0, 0).NoNext();
+			Put(3, 1).Press("2G").AssertSelection().Both(4, 1).NoNext();
+			Put(3, 1).Press("3G").AssertSelection().Both(2, 2).NoNext();
+			Put(3, 1).Press("4G").AssertSelection().Both(2, 2).NoNext();
+		}
 	}
 }

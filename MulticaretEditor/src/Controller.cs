@@ -1591,6 +1591,16 @@ namespace MulticaretEditor
 			ViFixPositions(true);
 		}
 		
+		public void ViGoToLine(int iLine, bool shift)
+		{
+			ClearMinorSelections();
+			Place place = new Place(0, CommonHelper.Clamp(iLine, 0, lines.LinesCount - 1));
+			Line line = lines[place.iLine];
+			place.iChar = line.GetFirstSpaces();
+			LastSelection.caret = lines.IndexOf(place);
+			LastSelection.SetEmptyIfNotShift(shift);
+		}
+		
 		private Place ViGetPreferredPlace(Selection selection, Place place)
 		{
 			Line line = lines[place.iLine];

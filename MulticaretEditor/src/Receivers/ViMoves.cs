@@ -169,6 +169,21 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class GoToLine : IMove
+		{
+			private int count;
+			
+			public GoToLine(int count)
+			{
+				this.count = count;
+			}
+			
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				controller.ViGoToLine(count - 1, shift);
+			}
+		}
+		
 		public class PageUpDown : IMove
 		{
 			private bool isUp;

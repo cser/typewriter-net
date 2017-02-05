@@ -29,8 +29,14 @@ namespace UnitTests
 		
 		private void AssertParsed(string expected)
 		{
-			Assert.AreEqual(expected,
-				parser.count + ":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar);
+			Assert.AreEqual(expected, parser.FictiveCount +
+				":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar);
+		}
+		
+		private void AssertParsedRawCount(string expected)
+		{
+			Assert.AreEqual(expected, parser.rawCount +
+				":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar);
 		}
 		
 		[Test]
@@ -260,7 +266,9 @@ namespace UnitTests
 		[Test]
 		public void NumberG()
 		{
-			Add('1').Add('0').AddLast('G').AssertParsed("10:action:\\0;move:G;moveChar:\\0");
+			AddLast('G').AssertParsedRawCount("-1:action:\\0;move:G;moveChar:\\0");
+			Add('1').AddLast('G').AssertParsedRawCount("1:action:\\0;move:G;moveChar:\\0");
+			Add('1').Add('0').AddLast('G').AssertParsedRawCount("10:action:\\0;move:G;moveChar:\\0");
 		}
 		
 		[Test]
