@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace UnitTests
 {
 	[TestFixture]
-	public class ViSimpleMovingTest : ControllerTestBase
+	public class ViSimpleTest : ControllerTestBase
 	{
 		private Receiver receiver;
 		
@@ -16,7 +16,7 @@ namespace UnitTests
 			Assert.AreEqual(viMode, receiver.viMode);
 		}
 		
-		private ViSimpleMovingTest Press(string keys)
+		private ViSimpleTest Press(string keys)
 		{
 			foreach (char c in keys)
 			{
@@ -25,19 +25,19 @@ namespace UnitTests
 			return this;
 		}
 		
-		private ViSimpleMovingTest Press(Keys keysData)
+		private ViSimpleTest Press(Keys keysData)
 		{
 			receiver.DoKeyDown(keysData);
 			return this;
 		}
 		
-		private ViSimpleMovingTest Put(int iChar, int iLine, bool shift)
+		private ViSimpleTest Put(int iChar, int iLine, bool shift)
 		{
 			controller.PutCursor(new Place(iChar, iLine), shift);
 			return this;
 		}
 		
-		private ViSimpleMovingTest Put(int iChar, int iLine)
+		private ViSimpleTest Put(int iChar, int iLine)
 		{
 			controller.PutCursor(new Place(iChar, iLine), false);
 			AssertSelection().Both(iChar, iLine);
@@ -257,6 +257,34 @@ namespace UnitTests
 			
 			Put(4, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
 			Press("j").AssertSelection().Both(3, 1).NoNext();
+		}
+		
+		[Test]
+		public void r()
+		{
+			lines.SetText("Du hast");
+			Put(3, 0).Press("rx").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du xast");
+		}
+		
+		[Test]
+		public void r_Repeat()
+		{
+			lines.SetText("Du hast");
+			Put(3, 0).Press("3rx").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du xxxt");
+			Put(3, 0).Press("4ry").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du yyyy");
+			Put(3, 0).Press("5rz").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du yyyy");
+		}
+		
+		[Test]
+		public void r_Selection()
+		{
+			lines.SetText("Du hast\nDu hast mich");
+			Put(3, 0).Put(2, 1, true).Press("rx").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du xxxx\nxx hast mich");
 		}
 	}
 }

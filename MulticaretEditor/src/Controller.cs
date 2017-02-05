@@ -1518,14 +1518,66 @@ namespace MulticaretEditor
 				if (selection.Empty)
 				{
 					Line line = lines[place.iLine];
-					int count = line.NormalCount;
-					if (place.iChar < count)
+					if (place.iChar < line.NormalCount)
 					{
 						place.iChar++;
 						selection.caret = lines.IndexOf(place);
 						selection.anchor = selection.caret;
 						lines.SetPreferredPos(selection, place);
 					}
+				}
+			}
+		}
+		
+		public void ViReplaceChar(char c, int count)
+		{
+			foreach (Selection selection in selections)
+			{
+				if (selection.Empty)
+				{
+					Place place = lines.PlaceOf(selection.anchor);
+					Line line = lines[place.iLine];
+					if (place.iChar + count <= line.NormalCount)
+					{
+						selection.caret += count;
+					}
+				}
+			}
+			lines.JoinSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				if (selection.Count == 1)
+				{
+					texts[i] = c + "";
+				}
+				else
+				{
+					string text = lines.GetText(selection.Left, selection.Count);
+					StringBuilder builder = new StringBuilder();
+					for (int j = 0; j < text.Length; j++)
+					{
+						if (text[j] == '\n' || text[j] == '\r')
+						{
+							builder.Append(text[j]);
+						}
+						else
+						{
+							builder.Append(c);
+						}
+					}
+					texts[i] = builder.ToString();
+				}
+			}
+			Execute(new InsertTextCommand(null, texts, true));
+			if (selections.Count == texts.Length)
+			{
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					selection.caret -= texts[i].Length;
+					selection.anchor = selection.caret;
 				}
 			}
 		}

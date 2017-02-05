@@ -107,5 +107,27 @@ namespace MulticaretEditor
 				return "Redo()";
 			}
 		}
+		
+		public class ReplaceChar : ICommand
+		{
+			private char c;
+			private int count;
+			
+			public ReplaceChar(char c, int count)
+			{
+				this.c = c;
+				this.count = count;
+			}
+			
+			public void Execute(Controller controller)
+			{
+				controller.ViReplaceChar(c, count);
+			}
+			
+			public override string ToString()
+			{
+				return "ReplaceChar(" + c + ")";
+			}
+		}
 	}
 }

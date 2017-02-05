@@ -121,6 +121,10 @@ namespace MulticaretEditor
 								_state = State.WaitChar;
 								move = code;
 								return ParseResult.WaitNext;
+							case 'r':
+								_state = State.WaitChar;
+								action = code;
+								return ParseResult.WaitNext;
 						}
 					}
 					switch (code.c)

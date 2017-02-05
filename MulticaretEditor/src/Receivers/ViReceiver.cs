@@ -208,6 +208,9 @@ namespace MulticaretEditor
 						case 'u':
 							command = new ViCommands.Undo();
 							break;
+						case 'r':
+							command = new ViCommands.ReplaceChar(parser.moveChar.c, parser.count);
+							break;
 					}
 				}
 				else
