@@ -325,5 +325,16 @@ namespace UnitTests
 			Put(8, 1).Press("5x").AssertSelection().Both(7, 1).NoNext();
 			AssertText("Du t\nDu hast ");
 		}
+		
+		[Test]
+		public void NumberG()
+		{
+			lines.SetText("Du hast\nDu hast mich\nDu hast mich");
+			
+			Put(3, 1).Press("1G").AssertSelection().Both(0, 0).NoNext();
+			Put(3, 1).Press("2G").AssertSelection().Both(0, 1).NoNext();
+			Put(3, 1).Press("3G").AssertSelection().Both(0, 2).NoNext();
+			Put(3, 1).Press("4G").AssertSelection().Both(0, 2).NoNext();
+		}
 	}
 }

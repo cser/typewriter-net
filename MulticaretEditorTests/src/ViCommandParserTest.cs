@@ -258,6 +258,12 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void NumberG()
+		{
+			Add('1').Add('0').AddLast('G').AssertParsed("10:action:\\0;move:G;moveChar:\\0");
+		}
+		
+		[Test]
 		public void pageUpDown()
 		{
 			AddControlLast('f').AssertParsed("1:action:\\0;move:<C-f>;moveChar:\\0");
