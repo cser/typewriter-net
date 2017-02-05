@@ -50,7 +50,7 @@ namespace MulticaretEditor
 			
 			public void Execute(Controller controller)
 			{
-				move.Move(controller, false);
+				move.Move(controller, false, false);
 			}
 			
 			public override string ToString()
@@ -62,15 +62,26 @@ namespace MulticaretEditor
 		public class Delete : ICommand
 		{
 			private ViMoves.IMove move;
+			private int count;
+			private bool change;
 			
-			public Delete(ViMoves.IMove move)
+			public Delete(ViMoves.IMove move, int count, bool change)
 			{
 				this.move = move;
+				this.count = count;
+				this.change = change;
 			}
 			
 			public void Execute(Controller controller)
 			{
-				move.Move(controller, true);
+				for (int i = 0; i < count - 1; i++)
+				{
+					move.Move(controller, true, false);
+				}
+				if (count > 0)
+				{
+					move.Move(controller, true, change);
+				}
 				controller.Cut();
 			}
 			

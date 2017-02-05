@@ -31,6 +31,12 @@ namespace UnitTests
 			return this;
 		}
 		
+		private ViSimpleTest PressCommandMode()
+		{
+			receiver.DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			return this;
+		}
+		
 		private ViSimpleTest Put(int iChar, int iLine, bool shift)
 		{
 			controller.PutCursor(new Place(iChar, iLine), shift);
@@ -285,6 +291,24 @@ namespace UnitTests
 			lines.SetText("Du hast\nDu hast mich");
 			Put(3, 0).Put(2, 1, true).Press("rx").AssertSelection().Both(3, 0).NoNext();
 			AssertText("Du xxxx\nxx hast mich");
+		}
+		
+		[Test]
+		public void c()
+		{
+			lines.SetText("Du hast\nDu hast mich");
+			
+			Put(3, 1).Press("cw").AssertSelection().Both(3, 1).NoNext();
+			Press("NEW_WORD").PressCommandMode().AssertSelection().Both(10, 1).NoNext();
+			AssertText("Du hast\nDu NEW_WORD mich");
+			
+			Put(0, 1).Press("2cw").AssertSelection().Both(0, 1).NoNext();
+			Press("AAA").PressCommandMode().AssertSelection().Both(5, 1).NoNext();
+			AssertText("Du hast\nAAAAAA mich");
+			
+			Put(7, 1).Press("cb").AssertSelection().Both(0, 1).NoNext();
+			Press("BBB").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
+			AssertText("Du hast\nBBBmich");
 		}
 	}
 }

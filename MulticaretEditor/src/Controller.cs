@@ -1280,7 +1280,7 @@ namespace MulticaretEditor
 			JoinSelections();
 		}
 		
-		public void ViMoveWordRight(bool shift)
+		public void ViMoveWordRight(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{
@@ -1292,6 +1292,7 @@ namespace MulticaretEditor
 						if (!iterator.MoveRightWithRN())
 							break;
 					}
+					if (!change)
 					if (IsSpaceOrNewLine(iterator.RightChar))
 					{
 						while (IsSpaceOrNewLine(iterator.RightChar))
@@ -1308,6 +1309,7 @@ namespace MulticaretEditor
 						if (!iterator.MoveRightWithRN())
 							break;
 					}
+					if (!change)
 					if (IsSpaceOrNewLine(iterator.RightChar))
 					{
 						while (IsSpaceOrNewLine(iterator.RightChar))
@@ -1332,7 +1334,7 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 		
-		public void ViMoveWordLeft(bool shift)
+		public void ViMoveWordLeft(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{

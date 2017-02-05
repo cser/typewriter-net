@@ -9,7 +9,7 @@ namespace MulticaretEditor
 	{
 		public interface IMove
 		{
-			void Move(Controller controller, bool shift);
+			void Move(Controller controller, bool shift, bool change);
 		}
 		
 		public class MoveStep : IMove
@@ -21,7 +21,7 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				switch (direction)
 				{
@@ -55,15 +55,15 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMoveWordLeft(shift);
+						controller.ViMoveWordLeft(shift, change);
 						break;
 					case Direction.Right:
-						controller.ViMoveWordRight(shift);
+						controller.ViMoveWordRight(shift, change);
 						break;
 				}
 			}
@@ -87,7 +87,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				switch (type)
 				{
@@ -121,7 +121,7 @@ namespace MulticaretEditor
 				this.indented = indented;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.MoveHome(shift);
 				controller.ViMoveHome(shift, indented);
@@ -142,7 +142,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.ViMoveEnd(shift, count);
 			}
@@ -155,7 +155,7 @@ namespace MulticaretEditor
 		
 		public class DocumentStart : IMove
 		{
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.DocumentStart(shift);
 			}
@@ -163,7 +163,7 @@ namespace MulticaretEditor
 		
 		public class DocumentEnd : IMove
 		{
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.ViDocumentEnd(shift);
 			}
@@ -178,7 +178,7 @@ namespace MulticaretEditor
 				this.isUp = isUp;
 			}
 			
-			public void Move(Controller controller, bool shift)
+			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.ScrollPage(isUp, shift);
 			}

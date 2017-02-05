@@ -120,6 +120,7 @@ namespace MulticaretEditor
 			}
 			ViMoves.IMove move = null;
 			bool ignoreRepeat = false;
+			bool needInput = false;
 			if (parser.move.control)
 			{
 				switch (parser.move.c)
@@ -191,7 +192,12 @@ namespace MulticaretEditor
 					switch (parser.action.c)
 					{
 						case 'd':
-							command = new ViCommands.Delete(move);
+							command = new ViCommands.Delete(move, parser.count, false);
+							break;
+						case 'c':
+							command = new ViCommands.Delete(move, parser.count, true);
+							ignoreRepeat = true;
+							needInput = true;
 							break;
 						default:
 							command = new ViCommands.Empty(move, parser.count);
@@ -231,6 +237,10 @@ namespace MulticaretEditor
 			{
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
+				if (needInput)
+				{
+					context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
+				}
 			}
 		}
 	}
