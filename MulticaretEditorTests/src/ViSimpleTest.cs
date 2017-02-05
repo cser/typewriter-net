@@ -50,18 +50,6 @@ namespace UnitTests
 			return this;
 		}
 		
-		[TestFixtureSetUp]
-		public void FixtureSetUp()
-		{
-			ClipboardExecuter.useFake = true;
-		}
-	
-		[TestFixtureTearDown]
-		public void FixtureTearDown()
-		{
-			ClipboardExecuter.useFake = false;
-		}
-		
 		[SetUp]
 		public void SetUp()
 		{
