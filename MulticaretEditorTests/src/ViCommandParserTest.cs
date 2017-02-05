@@ -267,9 +267,12 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Count_i()
+		public void Count_iaIA()
 		{
 			Add('1').Add('0').AddLast('i').AssertParsed("10:action:i;move:\\0;moveChar:\\0");
+			Add('1').Add('0').AddLast('a').AssertParsed("10:action:a;move:\\0;moveChar:\\0");
+			Add('1').Add('0').AddLast('I').AssertParsed("10:action:I;move:\\0;moveChar:\\0");
+			Add('1').Add('0').AddLast('A').AssertParsed("10:action:A;move:\\0;moveChar:\\0");
 		}
 	}
 }

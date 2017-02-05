@@ -101,7 +101,20 @@ namespace MulticaretEditor
 			}
 			if (parser.action.c == 'a')
 			{
-				controller.MoveRight(false);
+				controller.ViMoveRightFromCursor();
+				context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
+				return;
+			}
+			if (parser.action.c == 'I')
+			{
+				controller.ViMoveHome(false, true);
+				context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
+				return;
+			}
+			if (parser.action.c == 'A')
+			{
+				controller.ViMoveEnd(false, 1);
+				controller.ViMoveRightFromCursor();
 				context.SetState(new InputReceiver(new ViReceiverData(parser.count)));
 				return;
 			}

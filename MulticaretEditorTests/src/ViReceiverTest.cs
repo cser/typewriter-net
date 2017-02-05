@@ -42,14 +42,16 @@ namespace UnitTests
 			Assert.AreEqual(viMode, receiver.viMode);
 		}
 		
-		private void DoKeyPress(char c)
+		private ViReceiverTest DoKeyPress(char c)
 		{
 			receiver.DoKeyPress(c);
+			return this;
 		}
 		
-		private void DoKeyDown(Keys keysData)
+		private ViReceiverTest DoKeyDown(Keys keysData)
 		{
 			Assert.AreEqual(true, receiver.DoKeyDown(keysData));
+			return this;
 		}
 		
 		[Test]
@@ -209,19 +211,13 @@ namespace UnitTests
 			SetViMode(true);
 			AssertSelection().Both(2, 1).NoNext();
 			
-			DoKeyPress('h');
-			AssertSelection().Both(1, 1).NoNext();
-			DoKeyPress('i');
-			AssertSelection().Both(1, 1).NoNext();
-			DoKeyPress('A');
-			DoKeyPress('B');
-			DoKeyPress('C');
-			AssertSelection().Both(4, 1).NoNext();
+			DoKeyPress('h').AssertSelection().Both(1, 1).NoNext();
+			DoKeyPress('i').AssertSelection().Both(1, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(4, 1).NoNext();
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
 			AssertText("line0\nlABCine1\nline2\nline3");
 			AssertSelection().Both(3, 1).NoNext();
-			DoKeyPress('j');
-			AssertSelection().Both(3, 2).NoNext();
+			DoKeyPress('j').AssertSelection().Both(3, 2).NoNext();
 		}
 		
 		[Test]
@@ -233,20 +229,59 @@ namespace UnitTests
 			SetViMode(true);
 			AssertSelection().Both(2, 1).NoNext();
 			
-			DoKeyPress('h');
-			AssertSelection().Both(1, 1).NoNext();
-			DoKeyPress('4');
-			DoKeyPress('i');
-			AssertSelection().Both(1, 1).NoNext();
-			DoKeyPress('A');
-			DoKeyPress('B');
-			DoKeyPress('C');
-			AssertSelection().Both(4, 1).NoNext();
+			DoKeyPress('h').AssertSelection().Both(1, 1).NoNext();
+			DoKeyPress('4').DoKeyPress('i').AssertSelection().Both(1, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(4, 1).NoNext();
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
 			AssertText("line0\nlABCABCABCABCine1\nline2___________\nline3");
 			AssertSelection().Both(12, 1).NoNext();
-			DoKeyPress('j');
-			AssertSelection().Both(12, 2).NoNext();
+			DoKeyPress('j').AssertSelection().Both(12, 2).NoNext();
+		}
+		
+		[Test]
+		public void StateEnter_a()
+		{
+			SetViMode(false);
+			lines.SetText("line0\nline1\nline2___________\nline3");
+			controller.PutCursor(new Place(3, 1), false);
+			SetViMode(true);
+			AssertSelection().Both(2, 1).NoNext();
+			
+			DoKeyPress('3').DoKeyPress('a').AssertSelection().Both(3, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').AssertSelection().Both(5, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\nlinABABABe1\nline2___________\nline3");
+			AssertSelection().Both(8, 1).NoNext();
+		}
+		
+		[Test]
+		public void StateEnter_A()
+		{
+			SetViMode(true);
+			lines.SetText("line0\nline1\nline2___________\nline3");
+			controller.PutCursor(new Place(2, 1), false);
+			AssertSelection().Both(2, 1).NoNext();
+			
+			DoKeyPress('3').DoKeyPress('A').AssertSelection().Both(5, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').AssertSelection().Both(7, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\nline1ABABAB\nline2___________\nline3");
+			AssertSelection().Both(10, 1).NoNext();
+		}
+		
+		[Test]
+		public void StateEnter_I()
+		{
+			SetViMode(true);
+			lines.SetText("line0\n    line1\nline2");
+			controller.PutCursor(new Place(8, 1), false);
+			AssertSelection().Both(8, 1).NoNext();
+			
+			DoKeyPress('3').DoKeyPress('I').AssertSelection().Both(4, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').AssertSelection().Both(6, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\n    ABABABline1\nline2");
+			AssertSelection().Both(9, 1).NoNext();
 		}
 	}
 }
