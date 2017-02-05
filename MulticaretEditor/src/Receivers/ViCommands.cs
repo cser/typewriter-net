@@ -30,11 +30,6 @@ namespace MulticaretEditor
 					command.Execute(controller);
 				}
 			}
-			
-			public override string ToString()
-			{
-				return "Repeat(" + command + ", " + count + ")";
-			}
 		}
 		
 		public class Empty : ICommand
@@ -51,11 +46,6 @@ namespace MulticaretEditor
 			public void Execute(Controller controller)
 			{
 				move.Move(controller, false, false);
-			}
-			
-			public override string ToString()
-			{
-				return "Empty(" + move + ", " + count + ")";
 			}
 		}
 		
@@ -84,11 +74,6 @@ namespace MulticaretEditor
 				}
 				controller.ViCut();
 			}
-			
-			public override string ToString()
-			{
-				return "Delete(" + move + ")";
-			}
 		}
 		
 		public class Copy : ICommand
@@ -111,10 +96,14 @@ namespace MulticaretEditor
 				controller.ViCopy();
 				controller.ViCollapseSelections();
 			}
-			
-			public override string ToString()
+		}
+		
+		public class Paste : ICommand
+		{
+			public void Execute(Controller controller)
 			{
-				return "Copy(" + move + ")";
+				controller.ViMoveRightFromCursor();
+				controller.ViPaste();
 			}
 		}
 		
@@ -125,11 +114,6 @@ namespace MulticaretEditor
 				controller.Undo();
 				controller.ViCollapseSelections();
 			}
-			
-			public override string ToString()
-			{
-				return "Undo()";
-			}
 		}
 		
 		public class Redo : ICommand
@@ -138,11 +122,6 @@ namespace MulticaretEditor
 			{
 				controller.Redo();
 				controller.ViCollapseSelections();
-			}
-			
-			public override string ToString()
-			{
-				return "Redo()";
 			}
 		}
 		
@@ -160,11 +139,6 @@ namespace MulticaretEditor
 			public void Execute(Controller controller)
 			{
 				controller.ViReplaceChar(c, count);
-			}
-			
-			public override string ToString()
-			{
-				return "ReplaceChar(" + c + ")";
 			}
 		}
 	}

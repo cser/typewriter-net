@@ -1593,7 +1593,18 @@ namespace MulticaretEditor
 		
 		public void ViCopy()
 		{
-			Copy();
+			Execute(new CopyCommand());
+		}
+		
+		public void ViPaste()
+		{
+			Execute(new PasteCommand());
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				selection.caret--;
+				selection.anchor = selection.caret;
+			}
 		}
 		
 		public void ViGoToLine(int iLine, bool shift)

@@ -139,6 +139,7 @@ namespace MulticaretEditor
 						case 'A':
 						case 'u':
 						case 'x':
+						case 'p':
 							action = code;
 							return ParseResult.Complete;
 						case 'r':

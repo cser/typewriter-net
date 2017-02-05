@@ -233,6 +233,9 @@ namespace MulticaretEditor
 								new ViMoves.MoveStep(Direction.Right), parser.FictiveCount, false);
 							ignoreRepeat = true;
 							break;
+						case 'p':
+							command = new ViCommands.Paste();
+							break;
 					}
 				}
 				else

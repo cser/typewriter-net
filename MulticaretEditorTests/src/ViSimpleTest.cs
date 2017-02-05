@@ -370,5 +370,16 @@ namespace UnitTests
 			Assert.AreEqual("hast ", ClipboardExecuter.GetFromClipboard());
 			AssertSelection().Both(3, 0).NoNext();
 		}
+		
+		[Test]
+		public void p()
+		{
+			lines.SetText("Du hast mich");	
+			
+			ClipboardExecuter.PutToClipboard("AAA");
+			Put(3, 0).Press("p");
+			AssertText("Du hAAAast mich");
+			AssertSelection().Both(6, 0).NoNext();
+		}
 	}
 }
