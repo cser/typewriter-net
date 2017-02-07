@@ -5,7 +5,7 @@ namespace MulticaretEditor
 {
 	public class ViSavePositions : Command
 	{
-		public ViSavePositions() : base(CommandType.Copy)
+		public ViSavePositions() : base(CommandType.ViSavePositions)
 		{
 		}
 		

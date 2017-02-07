@@ -39,11 +39,6 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			
-			public override string ToString()
-			{
-				return "MoveStep:" + direction;
-			}
 		}
 		
 		public class MoveWord : IMove
@@ -67,10 +62,20 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			
-			public override string ToString()
+		}
+		
+		public class MoveWordE : IMove
+		{	
+			public void Move(Controller controller, bool shift, bool change)
 			{
-				return "MoveWord:" + direction;
+				if (change)
+				{
+					controller.ViMoveWordRight(shift, change);
+				}
+				else
+				{
+					controller.ViMoveWordE(shift);
+				}
 			}
 		}
 		
@@ -105,11 +110,6 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			
-			public override string ToString()
-			{
-				return count + ":" + type + ":" + charToFind;
-			}
 		}
 		
 		public class Home : IMove
@@ -126,11 +126,6 @@ namespace MulticaretEditor
 				controller.MoveHome(shift);
 				controller.ViMoveHome(shift, indented);
 			}
-			
-			public override string ToString()
-			{
-				return "Home:" + indented;
-			}
 		}
 		
 		public class End : IMove
@@ -145,11 +140,6 @@ namespace MulticaretEditor
 			public void Move(Controller controller, bool shift, bool change)
 			{
 				controller.ViMoveEnd(shift, count);
-			}
-			
-			public override string ToString()
-			{
-				return "End:" + count;
 			}
 		}
 		

@@ -155,6 +155,9 @@ namespace MulticaretEditor
 					case 'b':
 						move = new ViMoves.MoveWord(Direction.Left);
 						break;
+					case 'e':
+						move = new ViMoves.MoveWordE();
+						break;
 					case 'f':
 					case 'F':
 					case 't':

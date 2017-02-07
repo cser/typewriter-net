@@ -599,7 +599,8 @@ namespace MulticaretEditor
 			command.lines = lines;
 			command.selections = selections;
 			long time = GetNowMilliseconds();
-			if (command.type != lastCommandType)
+			if (command.type != lastCommandType && !command.type.helped &&
+				!(lastCommandType != null && lastCommandType.helped))
 			{
 				if (history.LastCommand != null)
 					history.LastCommand.marked = true;
@@ -1330,6 +1331,87 @@ namespace MulticaretEditor
 				selection.caret = iterator.Position;
 				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, iterator.Place);
+			}
+		}
+		
+		public void ViMoveWordE(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
+				ViMoveWordE_Move(iterator, shift);
+				selection.caret = iterator.Position;
+				selection.SetEmptyIfNotShift(shift);
+				lines.SetPreferredPos(selection, iterator.Place);
+			}
+		}
+		
+		private void ViMoveWordE_Move(PlaceIterator iterator, bool shift)
+		{
+			char c = iterator.RightChar;
+			if (IsSpaceOrNewLine(c))
+			{
+				while (true)
+				{
+					if (!iterator.MoveRightWithRN())
+						return;
+					if (!IsSpaceOrNewLine(iterator.RightChar))
+						break;
+				}
+				CharType type = GetCharType(iterator.RightChar);
+				while (true)
+				{
+					if (!iterator.MoveRightWithRN())
+						return;
+					if (GetCharType(iterator.RightChar) != type)
+						break;
+				}
+				if (!shift)
+				{
+					iterator.MoveLeftWithRN();
+				}
+			}
+			else
+			{
+				if (!iterator.MoveRightWithRN())
+					return;
+				if (IsSpaceOrNewLine(iterator.RightChar))
+				{
+					while (true)
+					{
+						if (!iterator.MoveRightWithRN())
+							return;
+						if (!IsSpaceOrNewLine(iterator.RightChar))
+							break;
+					}
+					CharType type = GetCharType(iterator.RightChar);
+					while (true)
+					{
+						if (!iterator.MoveRightWithRN())
+							return;
+						if (GetCharType(iterator.RightChar) != type)
+							break;
+					}
+					if (!shift)
+					{
+						iterator.MoveLeftWithRN();
+					}
+				}
+				else
+				{
+					CharType type = GetCharType(iterator.RightChar);
+					while (true)
+					{
+						if (!iterator.MoveRightWithRN())
+							return;
+						if (GetCharType(iterator.RightChar) != type)
+							break;
+					}
+					if (!shift)
+					{
+						iterator.MoveLeftWithRN();
+					}
+				}
 			}
 		}
 		

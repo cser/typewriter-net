@@ -38,7 +38,7 @@ namespace UnitTests
 		
 		private TestCommand NewCommand(string name)
 		{
-			return new TestCommand(new CommandType(true), this, name);
+			return new TestCommand(new CommandType(true, false), this, name);
 		}
 		
 		private string log;

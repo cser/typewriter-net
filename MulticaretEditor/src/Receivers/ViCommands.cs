@@ -115,6 +115,7 @@ namespace MulticaretEditor
 					controller.ViMoveRightFromCursor();
 				}
 				controller.ViPaste();
+				controller.ViSavePositions();
 			}
 		}
 		

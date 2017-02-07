@@ -294,7 +294,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void c()
+		public void cw()
 		{
 			lines.SetText("Du hast\nDu hast mich");
 			
@@ -305,10 +305,16 @@ namespace UnitTests
 			Put(0, 1).Press("2cw").AssertSelection().Both(0, 1).NoNext();
 			Press("AAA").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
 			AssertText("Du hast\nAAA mich");
+		}
+		
+		[Test]
+		public void cb()
+		{
+			lines.SetText("Du hast\nDu hast mich");
 			
-			Put(7, 1).Press("cb").AssertSelection().Both(3, 1).NoNext();
-			Press("BBB").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
-			AssertText("Du hast\nDu BBB mich");
+			Put(8, 1).Press("cb").AssertSelection().Both(3, 1).NoNext();
+			Press("BBB").PressCommandMode().AssertSelection().Both(5, 1).NoNext();
+			AssertText("Du hast\nDu BBBmich");
 		}
 		
 		[Test]
@@ -379,10 +385,26 @@ namespace UnitTests
 			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
 			AssertSelection("#1").Both(6, 0).NoNext();
-			Press("u").AssertSelection("#2").Both(3, 0);
+			Press("u");
 			AssertText("Du hast mich");
-			Press(Keys.Control | Keys.R).AssertSelection("#3").Both(3, 0);
+			AssertSelection("#2").Both(3, 0);
+		}
+		
+		[Test]
+		public void p_Redo_Controvertial()
+		{
+			lines.SetText("Du hast mich");
+			
+			ClipboardExecuter.PutToClipboard("AAA");
+			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
+			AssertSelection("#1").Both(6, 0).NoNext();
+			Press("u");
+			AssertText("Du hast mich");
+			AssertSelection("#2").Both(3, 0);
+			Press(Keys.Control | Keys.R);
+			AssertText("Du hAAAast mich");
+			AssertSelection("#3").Both(6, 0);
 		}
 		
 		[Test]
@@ -422,6 +444,71 @@ namespace UnitTests
 			
 			lines.SetText("Du hast mich gefragt");
 			Put(0, 0).Press("2cw").Press("AAA").PressCommandMode().AssertText("AAA mich gefragt");
+		}
+		
+		[Test]
+		public void e()
+		{
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(3, 0).Press("e").AssertSelection().Both(6, 0);
+			Press("e").AssertSelection().Both(9, 0);
+			Put(8, 0).Press("e").AssertSelection().Both(9, 0);
+			Press("e").AssertSelection().Both(14, 0);
+			Press("e").AssertSelection().Both(16, 0);
+			Press("e").AssertSelection().Both(19, 0);
+			Press("e").AssertSelection().Both(21, 0);
+			Press("e").AssertSelection().Both(27, 0);
+			Put(20, 0).Press("e").AssertSelection().Both(21, 0);
+			Put(22, 0).Press("e").AssertSelection().Both(27, 0);
+			Put(23, 0).Press("e").AssertSelection().Both(27, 0);
+		}
+		
+		[Test]
+		public void Number_e_de()
+		{
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(0, 0).Press("2e").AssertSelection().Both(6, 0);
+			Put(8, 0).Press("5e").AssertSelection().Both(21, 0);
+			Put(8, 0).Press("d2e").AssertSelection().Both(8, 0);
+			AssertText("Du hast ..lkd d  asdf");
+		}
+		
+		[Test]
+		public void ce()
+		{
+			lines.SetText("Du hast mich");
+			Put(3, 0).Press("ce").AssertSelection().Both(3, 0);
+			Press("AAA").PressCommandMode().AssertText("Du AAA mich");
+			AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void de()
+		{
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(3, 0).Press("de").AssertText("Du  ;. AAAA..lkd d  asdf");
+			AssertSelection().Both(3, 0);
+			
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(15, 0).Press("de").AssertText("Du hast ;. AAAAlkd d  asdf");
+			AssertSelection().Both(15, 0);
+		}
+		
+		[Test]
+		public void de_AtEnd()
+		{
+			lines.SetText(
+			//   012345678901
+				"Du hast mich\n" +
+				"aaaa");
+			Put(6, 0).Press("de").AssertText(
+				"Du has\n" +
+				"aaaa");
+			AssertSelection().Both(5, 0);
 		}
 	}
 }
