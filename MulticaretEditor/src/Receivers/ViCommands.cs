@@ -119,6 +119,14 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class J : ICommand
+		{	
+			public void Execute(Controller controller)
+			{
+				controller.ViJ();
+			}
+		}
+		
 		public class Undo : ICommand
 		{
 			public void Execute(Controller controller)

@@ -1678,6 +1678,34 @@ namespace MulticaretEditor
 			Execute(new ViSavePositions());
 		}
 		
+		public void ViJ()
+		{
+			ViCollapseSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				if (selection.Empty)
+				{
+					Place place = lines.PlaceOf(selection.anchor);
+					if (place.iLine < lines.LinesCount - 1)
+					{
+						Line line = lines[place.iLine];
+						place.iChar = line.NormalCount;
+						selection.anchor = lines.IndexOf(place);
+						selection.caret = selection.anchor + line.GetRN().Length;
+						texts[i] = " ";
+					}
+					else
+					{
+						texts[i] = "";
+					}
+				}
+			}
+			Execute(new InsertTextCommand(null, texts, true));
+			ViMoveLeft(false);
+		}
+		
 		public void ViPaste()
 		{
 			Execute(new PasteCommand());

@@ -243,6 +243,9 @@ namespace MulticaretEditor
 						case 'P':
 							command = new ViCommands.Paste(Direction.Left);
 							break;
+						case 'J':
+							command = new ViCommands.J();
+							break;
 					}
 				}
 				else

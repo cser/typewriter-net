@@ -510,5 +510,17 @@ namespace UnitTests
 				"aaaa");
 			AssertSelection().Both(5, 0);
 		}
+		
+		[Test]
+		public void J()
+		{
+			lines.SetText(
+			//   012345678901
+				"Du hast mich\n" +
+				"aaaa\n" +
+				"bbbb");
+			Put(3, 0).Press("J").AssertText("Du hast mich aaaa\nbbbb");
+			AssertSelection().Both(12, 0);
+		}
 	}
 }
