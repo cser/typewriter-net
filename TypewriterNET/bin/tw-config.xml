@@ -37,7 +37,7 @@
 	<item name="altCharsResult" value="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°Æ¢ÑÇ¨"/>
 	<item name="viMapSource" value="фисвуапршолдьтщзйфыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ"/>
 	<item name="viMapResult" value="abcdefghijklmnopqastuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ"/>
-	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
+	<item name="shellRegex" value="/^(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="shellRegex" value='/\(at\s(.*):(\d+)\)$/'/><!-- Unity3d -->
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
