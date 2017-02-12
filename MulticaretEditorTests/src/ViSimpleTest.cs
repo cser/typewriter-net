@@ -53,6 +53,7 @@ namespace UnitTests
 		[SetUp]
 		public void SetUp()
 		{
+			ClipboardExecuter.Reset(true);
 			Init();
 			lines.lineBreak = "\n";
 			receiver = new Receiver(controller, false);
@@ -521,6 +522,19 @@ namespace UnitTests
 				"bbbb");
 			Put(3, 0).Press("J").AssertText("Du hast mich aaaa\nbbbb");
 			AssertSelection().Both(12, 0);
+		}
+		
+		[Test]
+		public void Registers()
+		{
+			lines.SetText(
+			//   012345678901
+				"Du hast mich\n" +
+				"aaaa\n" +
+				"bbbb");
+			Put(3, 0).Press("\"ayw").AssertText("Du hast mich\naaaa\nbbbb");
+			AssertSelection().Both(3, 0);
+			Assert.AreEqual("hast ", ClipboardExecuter.GetFromRegister('a'));
 		}
 	}
 }

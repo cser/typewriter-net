@@ -9,6 +9,6 @@ public class SetUpTests
     [SetUp]
     public void Setup()
     {
-        ClipboardExecuter.useFake = true;
+        ClipboardExecuter.Reset(true);
     }
 }

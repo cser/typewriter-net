@@ -19,7 +19,8 @@ namespace MulticaretEditor
 			Init,
 			Count,
 			Action,
-			WaitChar
+			WaitChar,
+			WaitRegister
 		}
 		
 		private ParseResult _lastResult;
@@ -30,6 +31,7 @@ namespace MulticaretEditor
 		public ViChar move;
 		public ViChar moveChar;
 		public ViChar action;
+		public char register;
 		
 		public int FictiveCount { get { return rawCount > 0 ? rawCount : 1; } }
 		
@@ -69,6 +71,11 @@ namespace MulticaretEditor
 					{
 						_state = State.Count;
 						return Parse(code);
+					}
+					if (code.c == '"')
+					{
+						_state = State.WaitRegister;
+						return ParseResult.WaitNext;
 					}
 					_state = State.Action;
 					return Parse(code);
@@ -163,6 +170,10 @@ namespace MulticaretEditor
 				case State.WaitChar:
 					moveChar = code;
 					return ParseResult.Complete;
+				case State.WaitRegister:
+					register = code.c;
+					_state = State.Init;
+					return ParseResult.WaitNext;
 			}
 			return ParseResult.Incorrect;
 		}

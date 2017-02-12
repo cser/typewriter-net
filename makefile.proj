@@ -3,9 +3,15 @@
 This file was writen for launching with MSBuild
 -->
 <Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+	<ItemGroup>
+		<TypewriterNETSrc Include="TypewriterNET\src\**\*.cs"/>
+	</ItemGroup>
+	<ItemGroup>
+		<MulticaretEditorSrc Include="MulticaretEditor\src\**\*.cs"/>
+	</ItemGroup>
 	<Target Name="me">
-		<MakeDir Directories="MulticaretEditor\bin\" />
-		<CSC Sources="MulticaretEditor\src\*.cs; MulticaretEditor\src\Commands\*.cs; MulticaretEditor\src\Highlighting\*.cs; MulticaretEditor\src\KeyMapping\*.cs; MulticaretEditor\src\CustomScrollBar\*.cs; MulticaretEditor\src\Receivers\*.cs"
+		<MakeDir Directories="MulticaretEditor\bin\"/>
+		<CSC Sources="@(MulticaretEditorSrc)"
 			TargetType="library"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
@@ -14,28 +20,29 @@ This file was writen for launching with MSBuild
 			Optimize="True"/>
 	</Target>
 	<Target Name="tests" DependsOnTargets="build-tw">
-		<MakeDir Directories="MulticaretEditor\bin\" />
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin" />
-		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin" />
+		<MakeDir Directories="MulticaretEditor\bin\"/>
+		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
 			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll; TypewriterNET\bin\TypewriterNET.exe"
 			TargetType="library"
-			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll" />
+			DebugType="pdbonly"
+			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
 		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
 	</Target>
 	<Target Name="resources">
-		<MakeDir Directories="ResourceBuilder\bin\" />
+		<MakeDir Directories="ResourceBuilder\bin\"/>
 		<CSC Sources="ResourceBuilder\src\*.cs"
 			TargetType="exe"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
 			LangVersion="Default"
-			OutputAssembly="ResourceBuilder\bin\ResourceBuilder.exe" />
+			OutputAssembly="ResourceBuilder\bin\ResourceBuilder.exe"/>
 	</Target>
 	<Target Name="build-tw" DependsOnTargets="me; resources">
-		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml" />
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin" />
-		<CSC Sources="TypewriterNET\src\*.cs; TypewriterNET\src\Dialogs\*.cs; TypewriterNET\src\DialogsCore\*.cs; TypewriterNET\src\Tools\*.cs;TypewriterNET\src\KlerksSoft\*.cs"
+		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml"/>
+		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin"/>
+		<CSC Sources="@(TypewriterNETSrc)"
 			References="TypewriterNET\bin\MulticaretEditor.dll"
 			Resources="TypewriterNET\TypewriterNET.resources"
 			TargetType="winexe"
@@ -44,22 +51,22 @@ This file was writen for launching with MSBuild
 			LangVersion="Default"
 			Optimize="True"
 			Win32Icon="TypewriterNET\TypewriterNET.ico"
-			OutputAssembly="TypewriterNET\bin\TypewriterNET.exe" />
+			OutputAssembly="TypewriterNET\bin\TypewriterNET.exe"/>
 	</Target>
 	<Target Name="tw" DependsOnTargets="build-tw">
-		<Exec Command="TypewriterNET\bin\TypewriterNET.exe" />
+		<Exec Command="TypewriterNET\bin\TypewriterNET.exe"/>
 	</Target>
 	<Target Name="mt">
-		<MakeDir Directories="ManualTests\bin\" />
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin" />
+		<MakeDir Directories="ManualTests\bin\"/>
+		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin"/>
 		<CSC Sources="ManualTests\src\*.cs"
 			References="ManualTests\bin\MulticaretEditor.dll"
 			TargetType="winexe"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
 			LangVersion="Default"
-			OutputAssembly="ManualTests\bin\ManualTests.exe" />
-		<Exec Command="ManualTests\bin\ManualTests.exe" />
+			OutputAssembly="ManualTests\bin\ManualTests.exe"/>
+		<Exec Command="ManualTests\bin\ManualTests.exe"/>
 	</Target>
 	<Target Name="installer" DependsOnTargets="build-tw">
 		<Exec Command="makensis TypewriterNET\installer.nsi"/>

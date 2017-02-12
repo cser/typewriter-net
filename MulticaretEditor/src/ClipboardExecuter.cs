@@ -9,7 +9,7 @@ namespace MulticaretEditor
 	{
 		public string text;
 		
-		public void PutTo()
+		private void PutTo()
 		{
 			try
 			{
@@ -21,15 +21,21 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void GetFrom()
+		private void GetFrom()
 		{
 			if (Clipboard.ContainsText())
 				text = Clipboard.GetText();
 		}
 		
-		public static bool useFake = false;
-		
+		private static bool useFake = false;
 		private static string fakeText;
+		private static string[] registers;
+		
+		public static void Reset(bool useFake)
+		{
+			ClipboardExecuter.useFake = useFake;
+			registers = new string[26];
+		}
 		
 		public static void PutToClipboard(string text)
 		{
@@ -58,6 +64,23 @@ namespace MulticaretEditor
 			thread.Start();
 			thread.Join();
 			return executer.text;
+		}
+		
+		public static void PutToRegister(char c, string text)
+		{
+			if (c >= 'a' && c <= 'z')
+			{
+				registers[c - 'a'] = text;
+			}
+		}
+		
+		public static string GetFromRegister(char c)
+		{
+			if (c >= 'a' && c <= 'z')
+			{
+				return registers[c - 'a'];
+			}
+			return "";
 		}
 	}
 }

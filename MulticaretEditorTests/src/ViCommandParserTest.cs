@@ -29,14 +29,23 @@ namespace UnitTests
 		
 		private void AssertParsed(string expected)
 		{
-			Assert.AreEqual(expected, parser.FictiveCount +
-				":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar);
+			Assert.AreEqual(expected, StringOf(parser, false));
 		}
 		
 		private void AssertParsedRawCount(string expected)
 		{
-			Assert.AreEqual(expected, parser.rawCount +
-				":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar);
+			Assert.AreEqual(expected, StringOf(parser, true));
+		}
+		
+		private static string StringOf(ViCommandParser parser, bool raw)
+		{
+			string text = (raw ? parser.rawCount : parser.FictiveCount) + "";
+			text += ":action:" + parser.action + ";move:" + parser.move + ";moveChar:" + parser.moveChar;
+			if (parser.register != '\0')
+			{
+				text += ";register:" + parser.register;
+			}
+			return text;
 		}
 		
 		[Test]
@@ -342,6 +351,26 @@ namespace UnitTests
 		{
 			AddLast('J').AssertParsed("1:action:J;move:\\0;moveChar:\\0");
 			Add('2').AddLast('J').AssertParsed("2:action:J;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
+		public void Registers()
+		{
+			/*
+			default
+			"a-z - simple
+			"A-Z - accumulating
+			"*,"- - clipboard
+			"_ - black hole
+			"/ - last search
+			
+			readonly:
+			": - last command
+			". - last insert text
+			"% - file name
+			*/
+			
+			Add('"').Add('*').Add('y').AddLast('w').AssertParsed("1:action:y;move:w;moveChar:\\0;register:*");
 		}
 	}
 }
