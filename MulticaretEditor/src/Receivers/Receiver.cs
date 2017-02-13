@@ -67,11 +67,13 @@ namespace MulticaretEditor
 			
 			public char GetMapped(char c)
 			{
-				if (receiver.viMap != null)
+				if (receiver.viMap != null && !ClipboardExecuter.IsEnLayout())
 				{
 					char result;
 					if (receiver.viMap.TryGetValue(c, out result))
+					{
 						return result;
+					}
 				}
 				return c;
 			}

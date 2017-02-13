@@ -50,6 +50,7 @@ namespace MulticaretEditor
 			move = new ViChar('\0', false);
 			moveChar = new ViChar('\0', false);
 			action = new ViChar('\0', false);
+			register = '\0';
 		}
 		
 		public bool AddKey(ViChar code)

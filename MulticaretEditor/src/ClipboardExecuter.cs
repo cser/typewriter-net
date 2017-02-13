@@ -35,6 +35,8 @@ namespace MulticaretEditor
 		public static string viLastCommand = "";
 		public static string viLastInsertText = "";
 		public static string viFileName = "";
+		public static bool fakeLayout = false;
+		public static bool fakeEnLayout = true;
 		
 		public static void Reset(bool useFake)
 		{
@@ -44,6 +46,8 @@ namespace MulticaretEditor
 			viLastCommand = "";
 			viLastInsertText = "";
 			viFileName = "";
+			fakeLayout = false;
+			fakeEnLayout = true;
 		}
 		
 		public static void PutToClipboard(string text)
@@ -135,6 +139,17 @@ namespace MulticaretEditor
 				result = viFileName;
 			}
 			return result ?? "";
+		}
+		
+		public static bool IsEnLayout()
+		{
+			string name = InputLanguage.CurrentInputLanguage.Culture.Name;
+			bool result = name[0] == 'e' && name[1] == 'n';
+			if (fakeLayout)
+			{
+				result = fakeEnLayout;
+			}
+			return result;
 		}
 	}
 }

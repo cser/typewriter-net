@@ -533,8 +533,17 @@ namespace UnitTests
 				"aaaa\n" +
 				"bbbb");
 			Put(3, 0).Press("\"ayw").AssertText("Du hast mich\naaaa\nbbbb");
-			AssertSelection().Both(3, 0);
 			Assert.AreEqual("hast ", ClipboardExecuter.GetFromRegister('a'));
+			
+			Put(8, 0).Press("\"bye").AssertText("Du hast mich\naaaa\nbbbb");
+			Put(3, 0).Press("ye").AssertText("Du hast mich\naaaa\nbbbb");
+			Assert.AreEqual("mich", ClipboardExecuter.GetFromRegister('b'));
+			Assert.AreEqual("hast ", ClipboardExecuter.GetFromRegister('a'));
+			Assert.AreEqual("hast", ClipboardExecuter.GetFromRegister('\0'));
+			
+			Put(0, 1).Press("\"ap").AssertText("Du hast mich\nahast aaa\nbbbb");
+			Put(0, 2).Press("\"bp").AssertText("Du hast mich\nahast aaa\nbmichbbb");
+			Put(0, 2).Press("p").AssertText("Du hast mich\nahast aaa\nbhastmichbbb");
 		}
 	}
 }
