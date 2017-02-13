@@ -711,7 +711,7 @@ namespace MulticaretEditor
 
 		public void Copy()
 		{
-			Execute(new CopyCommand());
+			Execute(new CopyCommand('*'));
 		}
 
 		public void Cut()
@@ -727,7 +727,7 @@ namespace MulticaretEditor
 
 		public void Paste()
 		{
-			Execute(new PasteCommand());
+			Execute(new PasteCommand('*'));
 		}
 
 		public bool ShiftLeft()
@@ -1668,9 +1668,9 @@ namespace MulticaretEditor
 			ViFixPositions(true);
 		}
 		
-		public void ViCopy()
+		public void ViCopy(char register)
 		{
-			Execute(new CopyCommand());
+			Execute(new CopyCommand(register));
 		}
 		
 		public void ViSavePositions()
@@ -1706,9 +1706,9 @@ namespace MulticaretEditor
 			ViMoveLeft(false);
 		}
 		
-		public void ViPaste()
+		public void ViPaste(char register)
 		{
-			Execute(new PasteCommand());
+			Execute(new PasteCommand(register));
 			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
 			{
 				Selection selection = lines.selections[i];

@@ -357,11 +357,10 @@ namespace UnitTests
 		public void Registers()
 		{
 			/*
-			default
+			"0 - default
 			"a-z - simple
 			"A-Z - accumulating
 			"*,"- - clipboard
-			"_ - black hole
 			"/ - last search
 			
 			readonly:

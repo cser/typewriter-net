@@ -27,14 +27,23 @@ namespace MulticaretEditor
 				text = Clipboard.GetText();
 		}
 		
+		private const int RegistersCount = 28;
 		private static bool useFake = false;
-		private static string fakeText;
-		private static string[] registers;
+		private static string fakeText = "";
+		private static string[] registers = new string[RegistersCount];
+		
+		public static string viLastCommand = "";
+		public static string viLastInsertText = "";
+		public static string viFileName = "";
 		
 		public static void Reset(bool useFake)
 		{
 			ClipboardExecuter.useFake = useFake;
-			registers = new string[26];
+			fakeText = "";
+			registers = new string[RegistersCount];
+			viLastCommand = "";
+			viLastInsertText = "";
+			viFileName = "";
 		}
 		
 		public static void PutToClipboard(string text)
@@ -68,19 +77,64 @@ namespace MulticaretEditor
 		
 		public static void PutToRegister(char c, string text)
 		{
-			if (c >= 'a' && c <= 'z')
+			if (c == '*' || c == '-')
+			{
+				PutToClipboard(text);
+			}
+			else if (c == '0' || c == '\0')
+			{
+				registers[27] = text;
+			}
+			else if (c >= 'a' && c <= 'z')
 			{
 				registers[c - 'a'] = text;
+			}
+			else if (c >= 'A' && c <= 'Z')
+			{
+				registers[c - 'A'] += text;
+			}
+			else if (c == '/')
+			{
+				registers[26] = text;
 			}
 		}
 		
 		public static string GetFromRegister(char c)
 		{
-			if (c >= 'a' && c <= 'z')
+			string result = null;
+			if (c == '*' || c == '-')
 			{
-				return registers[c - 'a'];
+				result = GetFromClipboard();
 			}
-			return "";
+			else if (c == '0' || c == '\0')
+			{
+				result = registers[27];
+			}
+			else if (c >= 'a' && c <= 'z')
+			{
+				result = registers[c - 'a'];
+			}
+			else if (c >= 'A' && c <= 'Z')
+			{
+				result = registers[c - 'A'];
+			}
+			else if (c == '/')
+			{
+				result = registers[26];
+			}
+			else if (c == ':')
+			{
+				result = viLastCommand;
+			}
+			else if (c == '.')
+			{
+				result = viLastInsertText;
+			}
+			else if (c == '%')
+			{
+				result = viFileName;
+			}
+			return result ?? "";
 		}
 	}
 }

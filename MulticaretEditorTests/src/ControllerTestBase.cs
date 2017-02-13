@@ -176,5 +176,15 @@ namespace UnitTests
 		{
 			return new SizeAssertion(lines);
 		}
+		
+		protected void PutToViClipboard(string text)
+		{
+			ClipboardExecuter.PutToRegister('\0', text);
+		}
+		
+		protected void AssertViClipboard(string text)
+		{
+			Assert.AreEqual(text, ClipboardExecuter.GetFromRegister('\0'));
+		}
 	}
 }

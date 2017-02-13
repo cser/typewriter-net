@@ -4,8 +4,11 @@ namespace MulticaretEditor
 {
 	public class PasteCommand : Command
 	{
-		public PasteCommand() : base(CommandType.Paste)
+		private readonly char register;
+		
+		public PasteCommand(char register) : base(CommandType.Paste)
 		{
+			this.register = register;
 		}
 		
 		private string[] pasted;
@@ -15,7 +18,7 @@ namespace MulticaretEditor
 		override public bool Init()
 		{
 			lines.JoinSelections();
-			string text = ClipboardExecuter.GetFromClipboard();
+			string text = ClipboardExecuter.GetFromRegister(register);
 			if (string.IsNullOrEmpty(text))
 				return false;
 			

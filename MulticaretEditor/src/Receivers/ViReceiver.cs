@@ -211,7 +211,7 @@ namespace MulticaretEditor
 							needInput = true;
 							break;
 						case 'y':
-							command = new ViCommands.Copy(move, parser.FictiveCount);
+							command = new ViCommands.Copy(move, parser.FictiveCount, parser.register);
 							ignoreRepeat = true;
 							break;
 						default:
@@ -238,10 +238,10 @@ namespace MulticaretEditor
 							ignoreRepeat = true;
 							break;
 						case 'p':
-							command = new ViCommands.Paste(Direction.Right);
+							command = new ViCommands.Paste(Direction.Right, parser.register);
 							break;
 						case 'P':
-							command = new ViCommands.Paste(Direction.Left);
+							command = new ViCommands.Paste(Direction.Left, parser.register);
 							break;
 						case 'J':
 							command = new ViCommands.J();

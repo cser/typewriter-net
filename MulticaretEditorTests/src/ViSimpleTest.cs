@@ -360,9 +360,9 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");
 			
-			ClipboardExecuter.PutToClipboard("");
+			PutToViClipboard("");
 			Put(3, 0).Press("yw");
-			Assert.AreEqual("hast ", ClipboardExecuter.GetFromClipboard());
+			AssertViClipboard("hast ");
 			AssertSelection().Both(3, 0).NoNext();
 		}
 		
@@ -371,7 +371,7 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");	
 			
-			ClipboardExecuter.PutToClipboard("AAA");
+			PutToViClipboard("AAA");
 			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
 			AssertSelection().Both(6, 0).NoNext();
@@ -382,7 +382,7 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");
 			
-			ClipboardExecuter.PutToClipboard("AAA");
+			PutToViClipboard("AAA");
 			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
 			AssertSelection("#1").Both(6, 0).NoNext();
@@ -396,7 +396,7 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");
 			
-			ClipboardExecuter.PutToClipboard("AAA");
+			PutToViClipboard("AAA");
 			Put(3, 0).Press("p");
 			AssertText("Du hAAAast mich");
 			AssertSelection("#1").Both(6, 0).NoNext();
@@ -413,7 +413,7 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");	
 			
-			ClipboardExecuter.PutToClipboard("AAA");
+			PutToViClipboard("AAA");
 			Put(3, 0).Press("P");
 			AssertText("Du AAAhast mich");
 			AssertSelection().Both(5, 0).NoNext();
@@ -424,7 +424,7 @@ namespace UnitTests
 		{
 			lines.SetText("Du hast mich");	
 			
-			ClipboardExecuter.PutToClipboard("AAA");
+			PutToViClipboard("AAA");
 			Put(3, 0).Press("P");
 			AssertText("Du AAAhast mich");
 			AssertSelection("#1").Both(5, 0).NoNext();
