@@ -545,5 +545,21 @@ namespace UnitTests
 			Put(0, 2).Press("\"bp").AssertText("Du hast mich\nahast aaa\nbmichbbb");
 			Put(0, 2).Press("p").AssertText("Du hast mich\nahast aaa\nbhastmichbbb");
 		}
+		
+		[Test]
+		public void iw()
+		{
+			lines.SetText("One two three");
+			Put(5, 0).Press("diw").AssertText("One  three");
+			AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void aw()
+		{
+			lines.SetText("One two three");
+			Put(5, 0).Press("daw").AssertText("One three");
+			AssertSelection().Both(4, 0);
+		}
 	}
 }

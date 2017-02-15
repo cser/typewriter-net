@@ -1441,6 +1441,23 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViMoveInWord(bool shift, bool inside)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
+				CharType type = GetCharType(iterator.RightChar);
+				while (GetCharType(iterator.LeftChar) == type)
+				{
+					if (!iterator.MoveLeftWithRN())
+						break;
+				}
+				selection.caret = iterator.Position;
+				selection.SetEmpty();
+			}
+			ViMoveWordRight(shift, inside);
+		}
+		
 		public void ViMoveHome(bool shift, bool indented)
 		{
 			foreach (Selection selection in selections)

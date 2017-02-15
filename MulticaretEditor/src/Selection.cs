@@ -43,6 +43,11 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void SetEmpty()
+		{
+			anchor = caret;
+		}
+		
 		override public string ToString()
 		{
 			return "(anchor:" + anchor + ", caret:" + caret + ")";

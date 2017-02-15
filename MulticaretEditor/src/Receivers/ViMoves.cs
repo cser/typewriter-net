@@ -64,6 +64,28 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class MoveObject : IMove
+		{
+			private char o;
+			private bool inside;
+			
+			public MoveObject(char o, bool inside)
+			{
+				this.o = o;
+				this.inside = inside;
+			}
+			
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				switch (o)
+				{
+					case 'w':
+						controller.ViMoveInWord(shift, inside);
+						break;
+				}
+			}
+		}
+		
 		public class MoveWordE : IMove
 		{	
 			public void Move(Controller controller, bool shift, bool change)

@@ -191,6 +191,10 @@ namespace MulticaretEditor
 							move = new ViMoves.DocumentStart();
 						}
 						break;
+					case 'i':
+					case 'a':
+						move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i');
+						break;
 				}
 			}
 			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);

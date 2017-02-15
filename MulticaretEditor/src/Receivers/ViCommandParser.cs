@@ -20,7 +20,8 @@ namespace MulticaretEditor
 			Count,
 			Action,
 			WaitChar,
-			WaitRegister
+			WaitRegister,
+			WaitObject
 		}
 		
 		private ParseResult _lastResult;
@@ -102,6 +103,13 @@ namespace MulticaretEditor
 							case 'b':
 								move = code;
 								return ParseResult.Complete;
+							case 'r':
+								if (code.control)
+								{
+									action = code;
+									return ParseResult.Complete;
+								}
+								break;
 						}
 					}
 					else
@@ -138,34 +146,32 @@ namespace MulticaretEditor
 								_state = State.WaitChar;
 								action = code;
 								return ParseResult.WaitNext;
-						}
-					}
-					switch (code.c)
-					{
-						case 'i':
-						case 'a':
-						case 'I':
-						case 'A':
-						case 'u':
-						case 'x':
-						case 'p':
-						case 'P':
-						case 'J':
-							action = code;
-							return ParseResult.Complete;
-						case 'r':
-							if (code.control)
-							{
+							case 'I':
+							case 'A':
+							case 'u':
+							case 'x':
+							case 'p':
+							case 'P':
+							case 'J':
 								action = code;
 								return ParseResult.Complete;
-							}
-							break;
-					}
-					if (char.IsNumber(code.c))
-					{
-						_stateText = "";
-						_state = State.Count;
-						return Parse(code);
+							case 'i':
+							case 'a':
+								if (action.c != '\0')
+								{
+									move = code;
+									_state = State.WaitObject;
+									return ParseResult.WaitNext;
+								}
+								action = code;
+								return ParseResult.Complete;
+						}
+						if (char.IsNumber(code.c))
+						{
+							_stateText = "";
+							_state = State.Count;
+							return Parse(code);
+						}
 					}
 					return ParseResult.Incorrect;
 				case State.WaitChar:
@@ -175,6 +181,9 @@ namespace MulticaretEditor
 					register = code.c;
 					_state = State.Init;
 					return ParseResult.WaitNext;
+				case State.WaitObject:
+					moveChar = code;
+					return ParseResult.Complete;
 			}
 			return ParseResult.Incorrect;
 		}

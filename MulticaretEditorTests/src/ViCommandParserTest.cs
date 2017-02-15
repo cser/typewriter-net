@@ -371,5 +371,30 @@ namespace UnitTests
 			
 			Add('"').Add('*').Add('y').AddLast('w').AssertParsed("1:action:y;move:w;moveChar:\\0;register:*");
 		}
+		
+		[Test]
+		public void TextObjects()
+		{
+			Add('d').Add('i').AddLast('w').AssertParsed("1:action:d;move:i;moveChar:w");
+			Add('1').Add('0').Add('d').Add('i').AddLast('w').AssertParsed("10:action:d;move:i;moveChar:w");
+			Add('c').Add('a').AddLast('w').AssertParsed("1:action:c;move:a;moveChar:w");
+			Add('d').Add('i').AddLast('"').AssertParsed("1:action:d;move:i;moveChar:\"");
+			Add('d').Add('i').AddLast('\'').AssertParsed("1:action:d;move:i;moveChar:'");
+			Add('d').Add('i').AddLast('`').AssertParsed("1:action:d;move:i;moveChar:`");
+			Add('c').Add('i').AddLast('{').AssertParsed("1:action:c;move:i;moveChar:{");
+			Add('d').Add('i').AddLast('}').AssertParsed("1:action:d;move:i;moveChar:}");
+			
+			Add('c').Add('i').AddLast('(').AssertParsed("1:action:c;move:i;moveChar:(");
+			Add('c').Add('i').AddLast(')').AssertParsed("1:action:c;move:i;moveChar:)");
+			Add('c').Add('i').AddLast('b').AssertParsed("1:action:c;move:i;moveChar:b");
+			
+			Add('d').Add('i').AddLast('[').AssertParsed("1:action:d;move:i;moveChar:[");
+			Add('c').Add('i').AddLast('p').AssertParsed("1:action:c;move:i;moveChar:p");//paragraph
+			Add('d').Add('i').AddLast('<').AssertParsed("1:action:d;move:i;moveChar:<");
+			Add('d').Add('i').AddLast('>').AssertParsed("1:action:d;move:i;moveChar:>");
+			Add('d').Add('i').AddLast('t').AssertParsed("1:action:d;move:i;moveChar:t");
+			
+			Add('c').Add('i').AddLast('s').AssertParsed("1:action:c;move:i;moveChar:s");//sentence
+		}
 	}
 }
