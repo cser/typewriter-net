@@ -1425,10 +1425,13 @@ public class MainForm : Form
 				Log.Open();
 				return false;
 			}
-			File.Copy(templatePath, path);
-			fileTree.Reload();
+			Buffer buffer = LoadFile(templatePath);
+			buffer.SetFile(path, Path.GetFileName(path));
 		}
-		LoadFile(path);
+		else
+		{
+			LoadFile(path);
+		}
 		return true;
 	}
 
