@@ -165,6 +165,9 @@ namespace MulticaretEditor
 								}
 								action = code;
 								return ParseResult.Complete;
+							case 's':
+								action = code;
+								return ParseResult.Complete;
 						}
 						if (char.IsNumber(code.c))
 						{

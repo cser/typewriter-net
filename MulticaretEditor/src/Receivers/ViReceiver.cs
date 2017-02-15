@@ -105,6 +105,13 @@ namespace MulticaretEditor
 				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
 				return;
 			}
+			if (parser.action.c == 's')
+			{
+				controller.ViShiftRight(parser.FictiveCount);
+				controller.EraseSelection();
+				context.SetState(new InputReceiver(new ViReceiverData(1)));
+				return;
+			}
 			if (parser.action.c == 'I')
 			{
 				controller.ViMoveHome(false, true);

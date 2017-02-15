@@ -561,5 +561,22 @@ namespace UnitTests
 			Put(5, 0).Press("daw").AssertText("One three");
 			AssertSelection().Both(4, 0);
 		}
+		
+		[Test]
+		public void s()
+		{
+			lines.SetText("01234567");
+			Put(6, 0).Press("s").AssertSelection().Both(6, 0);
+			Press("AB").PressCommandMode().AssertText("012345AB7");
+			AssertSelection().Both(7, 0);
+		}
+		
+		[Test]
+		public void s_Repeat()
+		{
+			lines.SetText("01234567");
+			Put(2, 0).Press("3sAB").PressCommandMode().AssertText("01AB567");
+			AssertSelection().Both(3, 0);
+		}
 	}
 }

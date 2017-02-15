@@ -1606,6 +1606,24 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViShiftRight(int count)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				for (int i = 0; i < count; i++)
+				{
+					if (place.iChar < line.NormalCount)
+					{
+						place.iChar++;
+						selection.caret = lines.IndexOf(place);
+					}
+				}
+				lines.SetPreferredPos(selection, place);
+			}
+		}
+		
 		public void ViMoveRightFromCursor()
 		{
 			foreach (Selection selection in lines.selections)
