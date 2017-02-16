@@ -213,11 +213,11 @@ namespace MulticaretEditor
 					switch (parser.action.c)
 					{
 						case 'd':
-							command = new ViCommands.Delete(move, parser.FictiveCount, false);
+							command = new ViCommands.Delete(move, parser.FictiveCount, false, parser.register);
 							ignoreRepeat = true;
 							break;
 						case 'c':
-							command = new ViCommands.Delete(move, parser.FictiveCount, true);
+							command = new ViCommands.Delete(move, parser.FictiveCount, true, parser.register);
 							ignoreRepeat = true;
 							needInput = true;
 							break;
@@ -245,7 +245,7 @@ namespace MulticaretEditor
 							break;
 						case 'x':
 							command = new ViCommands.Delete(
-								new ViMoves.MoveStep(Direction.Right), parser.FictiveCount, false);
+								new ViMoves.MoveStep(Direction.Right), parser.FictiveCount, false, parser.register);
 							ignoreRepeat = true;
 							break;
 						case 'p':

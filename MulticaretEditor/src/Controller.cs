@@ -1696,9 +1696,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViCut()
+		public void ViCut(char register)
 		{
-			Copy();
+			Execute(new CopyCommand(register));
 			EraseSelection();
 			ViFixPositions(true);
 		}

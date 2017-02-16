@@ -547,6 +547,15 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void d_Registers()
+		{
+			lines.SetText("Abcd efghij klmnop");
+			Put(5, 0).Press("\"adw").AssertText("Abcd klmnop");
+			Assert.AreEqual("efghij ", ClipboardExecuter.GetFromRegister('a'));
+			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('\0'));
+		}
+		
+		[Test]
 		public void iw()
 		{
 			lines.SetText("One two three");

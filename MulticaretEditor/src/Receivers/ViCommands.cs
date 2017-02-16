@@ -54,12 +54,14 @@ namespace MulticaretEditor
 			private ViMoves.IMove move;
 			private int count;
 			private bool change;
+			private char register;
 			
-			public Delete(ViMoves.IMove move, int count, bool change)
+			public Delete(ViMoves.IMove move, int count, bool change, char register)
 			{
 				this.move = move;
 				this.count = count;
 				this.change = change;
+				this.register = register;
 			}
 			
 			public void Execute(Controller controller)
@@ -72,7 +74,7 @@ namespace MulticaretEditor
 				{
 					move.Move(controller, true, change);
 				}
-				controller.ViCut();
+				controller.ViCut(register);
 			}
 		}
 		
