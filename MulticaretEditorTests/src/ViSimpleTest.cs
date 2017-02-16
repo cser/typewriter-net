@@ -641,5 +641,15 @@ namespace UnitTests
 				"    Nein, das darfst du nicht");
 			AssertSelection().Both(4, 1);
 		}
+		
+		[Test]
+		public void Dot()
+		{
+			lines.SetText("In meiner Hand ein Bild von dir");
+			Put(3, 0).Press("2dw").AssertText("In ein Bild von dir");
+			AssertSelection().Both(3, 0);
+			Press(".").AssertText("In von dir");
+			AssertSelection().Both(3, 0);
+		}
 	}
 }

@@ -8,6 +8,7 @@ namespace MulticaretEditor
 	public class ViReceiver : AReceiver
 	{
 		private ViReceiverData startData;
+		private ViCommands.ICommand lastCommand;
 		
 		public ViReceiver(ViReceiverData startData)
 		{
@@ -264,6 +265,10 @@ namespace MulticaretEditor
 								ignoreRepeat = true;
 							}
 							break;
+						case '.':
+							command = lastCommand;
+							lastCommand = null;
+							break;
 					}
 				}
 				else
@@ -289,6 +294,7 @@ namespace MulticaretEditor
 					context.SetState(new InputReceiver(null));
 				}
 			}
+			lastCommand = command;
 		}
 	}
 }
