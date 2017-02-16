@@ -257,6 +257,13 @@ namespace MulticaretEditor
 						case 'J':
 							command = new ViCommands.J();
 							break;
+						case 'd':
+							if (parser.move.IsChar('d'))
+							{
+								command = new ViCommands.DeleteLine(parser.FictiveCount, parser.register);
+								ignoreRepeat = true;
+							}
+							break;
 					}
 				}
 				else

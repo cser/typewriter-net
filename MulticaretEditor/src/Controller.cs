@@ -1762,6 +1762,33 @@ namespace MulticaretEditor
 			LastSelection.SetEmptyIfNotShift(shift);
 		}
 		
+		public void ViSelectLine(int count)
+		{
+			if (count < 1)
+			{
+				count = 1;
+			}
+			foreach (Selection selection in lines.selections)
+			{
+				{
+					Place place = lines.PlaceOf(selection.anchor);
+					place.iChar = 0;
+					selection.anchor = lines.IndexOf(place);
+				}
+				{
+					Place place = lines.PlaceOf(selection.caret);
+					place.iChar = 0;
+					place.iLine += count;
+					if (place.iLine >= lines.LinesCount)
+					{
+						place.iLine = lines.LinesCount - 1;
+					}
+					selection.caret = lines.IndexOf(place);
+					selection.preferredPos = 0;
+				}
+			}
+		}
+		
 		private Place ViGetPreferredPlace(Selection selection, Place place)
 		{
 			Line line = lines[place.iLine];

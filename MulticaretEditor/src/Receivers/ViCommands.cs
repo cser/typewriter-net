@@ -78,6 +78,25 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class DeleteLine : ICommand
+		{
+			private int count;
+			private char register;
+			
+			public DeleteLine(int count, char register)
+			{
+				this.count = count;
+				this.register = register;
+			}
+			
+			public void Execute(Controller controller)
+			{
+				controller.ViSelectLine(count);
+				controller.ViCut(register);
+				controller.ViMoveHome(false, true);
+			}
+		}
+		
 		public class Copy : ICommand
 		{
 			private ViMoves.IMove move;

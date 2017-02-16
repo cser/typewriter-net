@@ -587,5 +587,59 @@ namespace UnitTests
 			Put(2, 0).Press("3sAB").PressCommandMode().AssertText("01AB567");
 			AssertSelection().Both(3, 0);
 		}
+		
+		[Test]
+		public void dd()
+		{
+			lines.SetText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht\n" +
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht");
+			Put(2, 1).Press("dd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht");
+			AssertSelection().Both(0, 1);
+			Assert.AreEqual("Nein, das darfst du nicht\n", ClipboardExecuter.GetFromRegister('\0'));
+			
+			Put(2, 1).Press("\"ddd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht");
+			Assert.AreEqual("Lieben trotz der Konsequenzen\n", ClipboardExecuter.GetFromRegister('d'));
+		}
+		
+		[Test]
+		public void dd_Repeat()
+		{
+			lines.SetText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht\n" +
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht");
+			Put(2, 1).Press("2dd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht");
+			AssertSelection().Both(0, 1);
+			Assert.AreEqual(
+				"Nein, das darfst du nicht\n" +
+				"Lieben trotz der Konsequenzen\n",
+				ClipboardExecuter.GetFromRegister('\0'));
+		}
+		
+		[Test]
+		public void dd_Indented()
+		{
+			lines.SetText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht\n" +
+				"    Lieben trotz der Konsequenzen\n" +
+				"    Nein, das darfst du nicht");
+			Put(2, 1).Press("dd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"    Lieben trotz der Konsequenzen\n" +
+				"    Nein, das darfst du nicht");
+			AssertSelection().Both(4, 1);
+		}
 	}
 }
