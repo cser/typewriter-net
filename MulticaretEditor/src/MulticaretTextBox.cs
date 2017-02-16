@@ -707,6 +707,10 @@ namespace MulticaretEditor
 					if (place.iLine >= lineMin.iLine && place.iLine <= lineMax.iLine)
 					{
 						Line line = lines[place.iLine];
+						if (place.iChar < 0 || place.iChar > line.NormalCount)
+						{
+							continue;
+						}
 						int x;
 						int y;
 						if (lines.wordWrap)
