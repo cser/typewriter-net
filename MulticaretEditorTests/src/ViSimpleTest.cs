@@ -643,6 +643,86 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void p_Lines()
+		{
+			lines.SetText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			ClipboardExecuter.PutToRegister('\0', " aaaaaa\n");
+			Put(10, 1).Press("p").AssertText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				" aaaaaa\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			AssertSelection().Both(1, 2);
+		}
+		
+		[Test]
+		public void p_Lines_Multiline()
+		{
+			lines.SetText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			ClipboardExecuter.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
+			Put(10, 1).Press("p").AssertText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				" aaaaaa\n" +
+				"bbbbbbbb\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			AssertSelection().Both(1, 2);
+		}
+		
+		[Test]
+		public void P_Lines()
+		{
+			lines.SetText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			ClipboardExecuter.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
+			Put(10, 1).Press("P").AssertText(
+				"Mein Leben könnte gar nicht besser sein\n" +
+				" aaaaaa\n" +
+				"bbbbbbbb\n" +
+				"    Und plötzlich läufst du mir ins Messer rein\n" +
+				"    Du sagst zum Leben fehlt mir der Mut");
+			AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void p_Lines_Repeat()
+		{
+			lines.SetText(
+				"11111\n" +
+				"222");
+			ClipboardExecuter.PutToRegister('\0', "aa\nbb\n");
+			Put(1, 0).Press("pp").AssertText(
+				"11111\n" +
+				"aa\n" +
+				"aa\n" +
+				"bb\n" +
+				"bb\n" +
+				"222");
+			AssertSelection().Both(0, 2);
+			
+			lines.SetText(
+				"11111\n" +
+				"222");
+			ClipboardExecuter.PutToRegister('\0', "aa\nbb\n");
+			Put(1, 0).Press("2p").AssertText(
+				"11111\n" +
+				"aa\n" +
+				"bb\n" +
+				"aa\n" +
+				"bb\n" +
+				"222");
+			AssertSelection().Both(0, 1);
+		}
+		
+		[Test]
 		public void Dot()
 		{
 			lines.SetText("In meiner Hand ein Bild von dir");
@@ -650,6 +730,30 @@ namespace UnitTests
 			AssertSelection().Both(3, 0);
 			Press(".").AssertText("In von dir");
 			AssertSelection().Both(3, 0);
+		}
+		
+		[Test]
+		public void yy()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			
+			Put(1, 1).Press("yy");
+			Assert.AreEqual("aaaa\n", ClipboardExecuter.GetFromRegister('\0'));
+			AssertSelection().Both(1, 1);
+			
+			Put(1, 1).Press("2yy");
+			Assert.AreEqual("aaaa\nccc\n", ClipboardExecuter.GetFromRegister('\0'));
+			AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void xp()
+		{
+			lines.SetText("abcd");
+			
+			Put(1, 0).Press("xp");
+			AssertText("acbd");
+			AssertSelection().Both(2, 0);
 		}
 	}
 }

@@ -139,6 +139,11 @@ namespace MulticaretEditor
 								return ParseResult.WaitNext;
 							case 'c':
 							case 'y':
+								if (action.IsChar('y'))
+								{
+									move = code;
+									return ParseResult.Complete;
+								}
 								action = code;
 								return ParseResult.WaitNext;
 							case 'f':

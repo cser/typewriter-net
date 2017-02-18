@@ -1713,6 +1713,37 @@ namespace MulticaretEditor
 			Execute(new ViSavePositions());
 		}
 		
+		private List<SelectionMemento> viStashPositions = new List<SelectionMemento>();
+		
+		public void ViStashPositions()
+		{
+			viStashPositions.Clear();
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				viStashPositions.Add(new SelectionMemento(selection.anchor, selection.caret, selection.preferredPos));
+			}
+		}
+		
+		public void ViApplyPositions()
+		{
+			if (viStashPositions.Count == 0)
+			{
+				return;
+			}
+			for (int i = selections.Count; i < viStashPositions.Count; i++)
+			{
+				selections.Add(new Selection());
+			}
+			if (selections.Count > viStashPositions.Count)
+				selections.RemoveRange(viStashPositions.Count, selections.Count - viStashPositions.Count);
+			for (int i = 0; i < viStashPositions.Count; i++)
+			{
+				selections[viStashPositions[i].index].Memento = viStashPositions[i];
+			}
+			viStashPositions.Clear();
+		}
+		
 		public void ViJ()
 		{
 			ViCollapseSelections();
@@ -1741,15 +1772,71 @@ namespace MulticaretEditor
 			ViMoveLeft(false);
 		}
 		
-		public void ViPaste(char register)
+		public void ViPaste(char register, Direction direction, int count)
 		{
-			Execute(new PasteCommand(register));
-			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			if (direction == Direction.Right)
 			{
-				Selection selection = lines.selections[i];
-				selection.caret--;
-				selection.anchor = selection.caret;
+				ViSavePositions();
+				ViMoveRightFromCursor();
 			}
+			string text = ClipboardExecuter.GetFromRegister(register);
+			if (text == null || text == "")
+			{
+				return;
+			}
+			bool isLineInsert = text.EndsWith("\n") || text.EndsWith("\r");
+			if (isLineInsert)
+			{
+				StringBuilder builder = new StringBuilder();
+				for (int ii = 0; ii < count; ii++)
+				{
+					builder.Append(text);
+				}
+				text = builder.ToString();
+				foreach (Selection selection in selections)
+				{
+					Place caret = lines.PlaceOf(selection.caret);
+					caret.iChar = direction == Direction.Right ? lines[caret.iLine].chars.Count : 0;
+					selection.caret = lines.IndexOf(caret);
+					selection.SetEmpty();
+				}
+				Execute(new InsertTextCommand(text, null, false));
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					Place caret = lines.PlaceOf(selection.caret);
+					caret.iChar = lines[caret.iLine].GetFirstSpaces();
+					selection.caret = lines.IndexOf(caret);
+					selection.SetEmpty();
+				}
+			}
+			else
+			{
+				LineSubdivider subdivider = new LineSubdivider(text);
+				for (int ii = 0; ii < count; ii++)
+				{
+					if (subdivider.GetLinesCount() != selections.Count)
+					{
+						Execute(new InsertTextCommand(text, null, true));
+					}
+					else
+					{
+						string[] texts = subdivider.GetLines();
+						for (int i = 0; i < texts.Length; i++)
+						{
+							texts[i] = LineSubdivider.GetWithoutEndRN(texts[i]);
+						}
+						Execute(new InsertTextCommand(null, texts, true));
+					}
+				}
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					selection.caret--;
+					selection.SetEmpty();
+				}
+			}
+			ViSavePositions();
 		}
 		
 		public void ViGoToLine(int iLine, bool shift)

@@ -97,6 +97,27 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class CopyLine : ICommand
+		{
+			private int count;
+			private char register;
+			
+			public CopyLine(int count, char register)
+			{
+				this.count = count;
+				this.register = register;
+			}
+			
+			public void Execute(Controller controller)
+			{
+				controller.ViStashPositions();
+				controller.ViSavePositions();
+				controller.ViSelectLine(count);
+				controller.ViCopy(register);
+				controller.ViApplyPositions();
+			}
+		}
+		
 		public class Copy : ICommand
 		{
 			private ViMoves.IMove move;
@@ -125,22 +146,18 @@ namespace MulticaretEditor
 		{
 			private Direction direction;
 			private char register;
+			private int count;
 			
-			public Paste(Direction direction, char register)
+			public Paste(Direction direction, char register, int count)
 			{
 				this.direction = direction;
 				this.register = register;
+				this.count = count;
 			}
 			
 			public void Execute(Controller controller)
 			{
-				if (direction == Direction.Right)
-				{
-					controller.ViSavePositions();
-					controller.ViMoveRightFromCursor();
-				}
-				controller.ViPaste(register);
-				controller.ViSavePositions();
+				controller.ViPaste(register, direction, count);
 			}
 		}
 		

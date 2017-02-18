@@ -250,10 +250,12 @@ namespace MulticaretEditor
 							ignoreRepeat = true;
 							break;
 						case 'p':
-							command = new ViCommands.Paste(Direction.Right, parser.register);
+							command = new ViCommands.Paste(Direction.Right, parser.register, parser.FictiveCount);
+							ignoreRepeat = true;
 							break;
 						case 'P':
-							command = new ViCommands.Paste(Direction.Left, parser.register);
+							command = new ViCommands.Paste(Direction.Left, parser.register, parser.FictiveCount);
+							ignoreRepeat = true;
 							break;
 						case 'J':
 							command = new ViCommands.J();
@@ -262,6 +264,13 @@ namespace MulticaretEditor
 							if (parser.move.IsChar('d'))
 							{
 								command = new ViCommands.DeleteLine(parser.FictiveCount, parser.register);
+								ignoreRepeat = true;
+							}
+							break;
+						case 'y':
+							if (parser.move.IsChar('y'))
+							{
+								command = new ViCommands.CopyLine(parser.FictiveCount, parser.register);
 								ignoreRepeat = true;
 							}
 							break;
