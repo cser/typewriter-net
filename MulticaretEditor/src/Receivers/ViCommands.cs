@@ -110,11 +110,7 @@ namespace MulticaretEditor
 			
 			public void Execute(Controller controller)
 			{
-				controller.ViStashPositions();
-				controller.ViSavePositions();
-				controller.ViSelectLine(count);
-				controller.ViCopy(register);
-				controller.ViApplyPositions();
+				controller.ViCopyLine(register, count);
 			}
 		}
 		

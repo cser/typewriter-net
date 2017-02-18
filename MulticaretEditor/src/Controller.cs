@@ -1708,40 +1708,30 @@ namespace MulticaretEditor
 			Execute(new CopyCommand(register));
 		}
 		
-		public void ViSavePositions()
+		public void ViCopyLine(char register, int count)
 		{
-			Execute(new ViSavePositions());
-		}
-		
-		private List<SelectionMemento> viStashPositions = new List<SelectionMemento>();
-		
-		public void ViStashPositions()
-		{
-			viStashPositions.Clear();
+			StringBuilder builder = new StringBuilder();
 			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
 			{
 				Selection selection = lines.selections[i];
-				viStashPositions.Add(new SelectionMemento(selection.anchor, selection.caret, selection.preferredPos));
+				Place place = lines.PlaceOf(selection.caret);
+				for (int j = 0; j < count; j++)
+				{
+					Line line = lines[place.iLine];
+					builder.Append(line.Text);
+					place.iLine++;
+					if (place.iLine >= lines.LinesCount)
+					{
+						break;
+					}
+				}
 			}
+			ClipboardExecuter.PutToRegister(register, builder.ToString());
 		}
 		
-		public void ViApplyPositions()
+		public void ViSavePositions()
 		{
-			if (viStashPositions.Count == 0)
-			{
-				return;
-			}
-			for (int i = selections.Count; i < viStashPositions.Count; i++)
-			{
-				selections.Add(new Selection());
-			}
-			if (selections.Count > viStashPositions.Count)
-				selections.RemoveRange(viStashPositions.Count, selections.Count - viStashPositions.Count);
-			for (int i = 0; i < viStashPositions.Count; i++)
-			{
-				selections[viStashPositions[i].index].Memento = viStashPositions[i];
-			}
-			viStashPositions.Clear();
+			Execute(new ViSavePositions());
 		}
 		
 		public void ViJ()
