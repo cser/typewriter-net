@@ -311,5 +311,11 @@ namespace MulticaretEditor
 			}
 			lastCommand = command;
 		}
+		
+		public override bool DoFind(string text)
+		{
+			ClipboardExecuter.PutToRegister('/', text);
+			return true;
+		}
 	}
 }

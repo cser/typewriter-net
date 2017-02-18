@@ -106,6 +106,7 @@ public class DialogManager
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
+	private DialogOwner<ViFindDialog> viFind;
 	private FindDialog.Data findData;
 	private DialogOwner<FindInFilesDialog> findInFiles;
 	private FindInFilesDialog.Data findInFilesData;
@@ -168,6 +169,7 @@ public class DialogManager
 		schemeIncrementalSearch = new DialogOwner<SchemeIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
+		viFind = new DialogOwner<ViFindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
 		findInFiles = new DialogOwner<FindInFilesDialog>(this);
 		findInFilesData = new FindInFilesDialog.Data(tempSettings.FindInFilesHistory, tempSettings.FindInFilesTempFilter, tempSettings.FindInFilesTempCurrentFilter);
@@ -686,11 +688,28 @@ public class DialogManager
 		rename.Close(true);
 	}
 	
+	private bool ViDoFind(Controller controller)
+	{
+		if (viFind.SwitchOpen())
+			viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText), true);
+		return true;
+	}
+	
+	private bool ViDoFindText(string text)
+	{
+		viFind.Close(true);
+		if (mainForm.LastFrame != null)
+		{
+			mainForm.LastFrame.TextBox.ViFind(text);
+		}
+		return true;
+	}
+	
 	public void DoOnViShortcut(Controller controller, string shortcut)
 	{
 		if (shortcut == "/")
 		{
-			DoFind(controller);
+			ViDoFind(controller);
 		}
 		else if (shortcut == ":")
 		{

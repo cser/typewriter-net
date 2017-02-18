@@ -1100,7 +1100,7 @@ namespace MulticaretEditor
 				}
 			}
 		}
-
+		
 		private int markedBracketCaret = -1;
 		private bool markedBracketEnabled = true;
 

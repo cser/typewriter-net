@@ -130,6 +130,17 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public bool ViFind(string text)
+		{
+			if (receiver != null && receiver.DoFind(text))
+			{
+				ScrollIfNeedToCaret();
+				Invalidate();
+				return true;
+			}
+			return false;
+		}
+		
 		private void Receiver_ViModeChanged()
 		{
 			if (!alwaysInputMode)

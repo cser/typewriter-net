@@ -56,6 +56,11 @@ namespace MulticaretEditor
 			return false;
 		}
 		
+		public virtual bool DoFind(string text)
+		{
+			return false;
+		}
+		
 		public virtual void ResetViInput()
 		{
 		}

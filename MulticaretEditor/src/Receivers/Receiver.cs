@@ -101,6 +101,11 @@ namespace MulticaretEditor
 			return state.DoKeyDown(keysData);
 		}
 		
+		public bool DoFind(string text)
+		{
+			return state.DoFind(text);
+		}
+		
 		public void ResetViInput()
 		{
 			state.ResetViInput();
