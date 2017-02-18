@@ -44,7 +44,8 @@ namespace UnitTests
 		
 		private ViReceiverTest DoKeyPress(char c)
 		{
-			receiver.DoKeyPress(c);
+			string viShortcut;
+			receiver.DoKeyPress(c, out viShortcut);
 			return this;
 		}
 		

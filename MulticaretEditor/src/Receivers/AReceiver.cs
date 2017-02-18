@@ -46,8 +46,9 @@ namespace MulticaretEditor
 		{
 		}
 		
-		public virtual void DoKeyPress(char code)
+		public virtual void DoKeyPress(char code, out string viShortcut)
 		{
+			viShortcut = null;
 		}
 		
 		public virtual bool DoKeyDown(Keys keysData)

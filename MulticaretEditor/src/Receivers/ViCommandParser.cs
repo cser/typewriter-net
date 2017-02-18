@@ -33,6 +33,7 @@ namespace MulticaretEditor
 		public ViChar moveChar;
 		public ViChar action;
 		public char register;
+		public string shortcut;
 		
 		public int FictiveCount { get { return rawCount > 0 ? rawCount : 1; } }
 		
@@ -52,6 +53,7 @@ namespace MulticaretEditor
 			moveChar = new ViChar('\0', false);
 			action = new ViChar('\0', false);
 			register = '\0';
+			shortcut = null;
 		}
 		
 		public bool AddKey(ViChar code)
@@ -78,6 +80,11 @@ namespace MulticaretEditor
 					{
 						_state = State.WaitRegister;
 						return ParseResult.WaitNext;
+					}
+					if (code.c == '/')
+					{
+						shortcut = "/";
+						return ParseResult.Complete;
 					}
 					_state = State.Action;
 					return Parse(code);

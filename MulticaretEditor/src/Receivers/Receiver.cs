@@ -79,9 +79,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void DoKeyPress(char code)
+		public void DoKeyPress(char code, out string viShortcut)
 		{
-			state.DoKeyPress(code);
+			state.DoKeyPress(code, out viShortcut);
 		}
 		
 		public bool DoKeyDown(Keys keysData)

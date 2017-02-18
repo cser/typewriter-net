@@ -164,6 +164,14 @@ public class MainForm : Form
 
 	private Log log;
 	public Log Log { get { return log; } }
+	
+	public void ProcessViShortcut(Controller controller, string shortcut)
+	{
+		if (dialogs != null)
+		{
+			dialogs.DoOnViShortcut(controller, shortcut);
+		}
+	}
 
 	private FileTree fileTree;
 

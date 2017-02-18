@@ -20,6 +20,7 @@ namespace MulticaretEditor
 		public event Setter TextChange;
 		public event Setter AfterClick;
 		public event Setter AfterKeyPress;
+		public event Setter<string> ViShortcut;
 
 		private LineArray lines;
 		private Controller controller;
@@ -1468,7 +1469,13 @@ namespace MulticaretEditor
 		{
 			if (receiver != null)
 			{
-				receiver.DoKeyPress(code);
+				string viShortcut;
+				receiver.DoKeyPress(code, out viShortcut);
+				if (viShortcut != null)
+				{
+					if (ViShortcut != null)
+						ViShortcut(viShortcut);
+				}
 			}
 			if (highlighter != null && !highlighter.LastParsingChanged)
 				highlighter.Parse(lines, 100);

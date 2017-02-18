@@ -52,47 +52,53 @@ namespace MulticaretEditor
 		
 		private readonly ViCommandParser parser = new ViCommandParser();
 		
-		public override void DoKeyPress(char code)
+		public override void DoKeyPress(char code, out string viShortcut)
 		{
 			code = context.GetMapped(code);
-			ProcessKey(new ViChar(code, false));
+			ProcessKey(new ViChar(code, false), out viShortcut);
 		}
 		
 		public override bool DoKeyDown(Keys keysData)
 		{
+			string viShortcut;
 			switch (keysData)
 			{
 				case Keys.Left:
-					ProcessKey(new ViChar('h', false));
-					break;
+					ProcessKey(new ViChar('h', false), out viShortcut);
+					return true;
 				case Keys.Right:
-					ProcessKey(new ViChar('l', false));
-					break;
+					ProcessKey(new ViChar('l', false), out viShortcut);
+					return true;
 				case Keys.Down:
-					ProcessKey(new ViChar('j', false));
-					break;
+					ProcessKey(new ViChar('j', false), out viShortcut);
+					return true;
 				case Keys.Up:
-					ProcessKey(new ViChar('k', false));
-					break;
+					ProcessKey(new ViChar('k', false), out viShortcut);
+					return true;
 				case Keys.Control | Keys.R:
-					ProcessKey(new ViChar('r', true));
-					break;
+					ProcessKey(new ViChar('r', true), out viShortcut);
+					return true;
 				case Keys.Control | Keys.F:
-					ProcessKey(new ViChar('f', true));
-					break;
+					ProcessKey(new ViChar('f', true), out viShortcut);
+					return true;
 				case Keys.Control | Keys.B:
-					ProcessKey(new ViChar('b', true));
-					break;
+					ProcessKey(new ViChar('b', true), out viShortcut);
+					return true;
 				default:
 					return false;
 			}
-			return true;
 		}
 		
-		private void ProcessKey(ViChar code)
+		private void ProcessKey(ViChar code, out string viShortcut)
 		{
+			viShortcut = null;
 			if (!parser.AddKey(code))
 			{
+				return;
+			}
+			if (parser.shortcut != null)
+			{
+				viShortcut = parser.shortcut;
 				return;
 			}
 			if (parser.action.c == 'i')

@@ -20,7 +20,8 @@ namespace UnitTests
 		{
 			foreach (char c in keys)
 			{
-				receiver.DoKeyPress(c);
+				string viShortcut;
+				receiver.DoKeyPress(c, out viShortcut);
 			}
 			return this;
 		}

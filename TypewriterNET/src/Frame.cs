@@ -51,6 +51,7 @@ public class Frame : AFrame
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
 
 		textBox = new MulticaretTextBox();
+		textBox.ViShortcut += OnViShortcut;
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -68,6 +69,11 @@ public class Frame : AFrame
 		tabBar.List = null;
 		buffers.list.SelectedChange -= OnTabSelected;
 		buffers.frame = null;
+	}
+	
+	private void OnViShortcut(string shortcut)
+	{
+		MainForm.ProcessViShortcut(textBox.Controller, shortcut);
 	}
 
 	public MulticaretTextBox TextBox { get { return textBox; } }

@@ -13,8 +13,9 @@ namespace MulticaretEditor
 			this.viData = viData;
 		}
 		
-		public override void DoKeyPress(char code)
+		public override void DoKeyPress(char code, out string viShortcut)
 		{
+			viShortcut = null;
 			ProcessInputChar(code);
 			if (viData != null)
 			{

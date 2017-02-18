@@ -424,5 +424,12 @@ namespace UnitTests
 			Add('y').AddLast('y').AssertParsed("1:action:y;move:y;moveChar:\\0");
 			Add('2').Add('y').AddLast('y').AssertParsed("2:action:y;move:y;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Shortcuts()
+		{
+			AddLast('/');
+			Assert.AreEqual("/", parser.shortcut);
+		}
 	}
 }
