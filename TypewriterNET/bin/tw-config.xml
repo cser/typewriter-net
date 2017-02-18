@@ -35,8 +35,10 @@
 	<item name="fileIncrementalSearchTimeout" value="10"/>
 	<item name="altCharsSource" value="1234567890-=\qwertyuiop[]asdl;'zcnm,/!$+QWERTYUIOPASDL:ZCN&lt;&quot;"/>
 	<item name="altCharsResult" value="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°Æ¢ÑÇ¨"/>
-	<item name="viMapSource" value="фисвуапршолдьтщзйфыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ!&quot;№;%:?*()"/>
-	<item name="viMapResult" value="abcdefghijklmnopqastuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ!@#$%^&amp;*()"/>
+	<item name="viMapSource"
+		value="фисвуапршолдьтщзйфыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ!&quot;№;%:?*()бю.БЮ,хъХЪ"/>
+	<item name="viMapResult"
+		value="abcdefghijklmnopqastuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ!@#$%^&amp;*(),./&lt;&gt;?[]{}"/>
 	<item name="shellRegex" value="/^(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="shellRegex" value='/\(at\s(.*):(\d+)\)$/'/><!-- Unity3d -->
