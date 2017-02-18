@@ -13,7 +13,7 @@ namespace UnitTests
 		private void SetViMode(bool viMode)
 		{
 			receiver.SetViMode(viMode);
-			Assert.AreEqual(viMode, receiver.viMode);
+			Assert.AreEqual(viMode, receiver.ViMode);
 		}
 		
 		private ViSimpleTest Press(string keys)

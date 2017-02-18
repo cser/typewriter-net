@@ -34,7 +34,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public Receiver currentReceiver;
+		public bool viMode;
 
 		private Getter<MulticaretTextBox> getTextBox;
 

@@ -79,6 +79,7 @@ public class FindDialog : ADialog
 		}
 
 		textBox = new MulticaretTextBox();
+		textBox.alwaysInputMode = true;
 		textBox.KeyMap.AddBefore(beforeKeyMap);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);

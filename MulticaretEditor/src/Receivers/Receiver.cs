@@ -6,6 +6,8 @@ namespace MulticaretEditor
 {
 	public class Receiver
 	{
+		public event Setter ViModeChanged;
+		
 		private readonly Controller controller;
 		private readonly LineArray lines;
 		
@@ -14,7 +16,8 @@ namespace MulticaretEditor
 		
 		public Dictionary<char, char> viMap;
 		
-		public bool viMode;
+		private bool viMode;
+		public bool ViMode { get { return viMode; } }
 		
 		public Receiver(Controller controller, bool viMode)
 		{
@@ -61,7 +64,14 @@ namespace MulticaretEditor
 					receiver.state = state;
 					receiver.state.Init(receiver.controller, this);
 					receiver.state.DoOn();
-					receiver.viMode = receiver.state.AltMode;
+					if (receiver.viMode != receiver.state.AltMode)
+					{
+						receiver.viMode = receiver.state.AltMode;
+						if (receiver.ViModeChanged != null)
+						{
+							receiver.ViModeChanged();
+						}
+					}
 				}
 			}
 			

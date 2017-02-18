@@ -39,7 +39,7 @@ namespace UnitTests
 		private void SetViMode(bool viMode)
 		{
 			receiver.SetViMode(viMode);
-			Assert.AreEqual(viMode, receiver.viMode);
+			Assert.AreEqual(viMode, receiver.ViMode);
 		}
 		
 		private ViReceiverTest DoKeyPress(char c)
@@ -120,7 +120,7 @@ namespace UnitTests
 			AssertSelection().Both(1, 1).NoNext();
 			
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
-			Assert.AreEqual(true, receiver.viMode);
+			Assert.AreEqual(true, receiver.ViMode);
 			AssertSelection().Both(0, 1).NoNext();
 			
 			DoKeyPress('i');
@@ -132,7 +132,7 @@ namespace UnitTests
 			AssertSelection().Both(4, 1).NoNext();
 			
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
-			Assert.AreEqual(true, receiver.viMode);
+			Assert.AreEqual(true, receiver.ViMode);
 			AssertSelection().Both(3, 1).NoNext();
 			
 			DoKeyPress('i');
@@ -142,7 +142,7 @@ namespace UnitTests
 			AssertSelection().Both(5, 1).NoNext();
 			
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
-			Assert.AreEqual(true, receiver.viMode);
+			Assert.AreEqual(true, receiver.ViMode);
 			AssertSelection().Both(4, 1).NoNext();
 			DoKeyPress('i');
 			AssertSelection().Both(4, 1).NoNext();
