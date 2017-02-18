@@ -19,7 +19,6 @@ public class CommandDialog : ADialog
 		public string oldText = "";
 	}
 
-	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
 	private MonospaceLabel label;
 	private Data data;
@@ -34,11 +33,6 @@ public class CommandDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
-		tabBar.CloseClick += OnCloseClick;
-		tabBar.Text = Name;
-		Controls.Add(tabBar);
-
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("&View\\Cancel command", DoCancel, null, false)));
@@ -63,11 +57,17 @@ public class CommandDialog : ADialog
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
+		textBox.TextChange += OnTextChange;
 		Controls.Add(textBox);
 
-		tabBar.MouseDown += OnTabBarMouseDown;
-		InitResizing(tabBar, null);
 		Height = MinSize.Height;
+	}
+	
+	private void OnTextChange()
+	{
+		Nest.size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
+		textBox.Controller.NeedScrollToCaret();
+		SetNeedResize();
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
@@ -82,7 +82,7 @@ public class CommandDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
+	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight * 1); } }
 
 	override public void Focus()
 	{
@@ -113,7 +113,6 @@ public class CommandDialog : ADialog
 	{
 		if (Destroyed)
 			return;
-		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 	}
@@ -121,11 +120,9 @@ public class CommandDialog : ADialog
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
-		label.Location = new Point(0, tabBarHeight);
-		textBox.Location = new Point(textBox.CharWidth, tabBarHeight);
-		textBox.Size = new Size(Width - textBox.CharWidth, Height - tabBarHeight + 1);
+		label.Location = new Point(0, 0);
+		textBox.Location = new Point(textBox.CharWidth, 0);
+		textBox.Size = new Size(Width - textBox.CharWidth, Height + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -133,12 +130,10 @@ public class CommandDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
 			textBox.Scheme = settings.ParsedScheme;
-			tabBar.Scheme = settings.ParsedScheme;
 			label.TextColor = settings.ParsedScheme.fgColor;
 		}
 	}
