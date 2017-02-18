@@ -97,47 +97,6 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public class CopyLine : ICommand
-		{
-			private int count;
-			private char register;
-			
-			public CopyLine(int count, char register)
-			{
-				this.count = count;
-				this.register = register;
-			}
-			
-			public void Execute(Controller controller)
-			{
-				controller.ViCopyLine(register, count);
-			}
-		}
-		
-		public class Copy : ICommand
-		{
-			private ViMoves.IMove move;
-			private int count;
-			private char register;
-			
-			public Copy(ViMoves.IMove move, int count, char register)
-			{
-				this.move = move;
-				this.count = count;
-				this.register = register;
-			}
-			
-			public void Execute(Controller controller)
-			{
-				for (int i = 0; i < count; i++)
-				{
-					move.Move(controller, true, false);
-				}
-				controller.ViCopy(register);
-				controller.ViCollapseSelections();
-			}
-		}
-		
 		public class Paste : ICommand
 		{
 			private Direction direction;
@@ -162,24 +121,6 @@ namespace MulticaretEditor
 			public void Execute(Controller controller)
 			{
 				controller.ViJ();
-			}
-		}
-		
-		public class Undo : ICommand
-		{
-			public void Execute(Controller controller)
-			{
-				controller.Undo();
-				controller.ViCollapseSelections();
-			}
-		}
-		
-		public class Redo : ICommand
-		{
-			public void Execute(Controller controller)
-			{
-				controller.Redo();
-				controller.ViCollapseSelections();
 			}
 		}
 		

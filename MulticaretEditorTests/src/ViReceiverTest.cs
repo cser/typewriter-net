@@ -33,7 +33,7 @@ namespace UnitTests
 		{
 			Init();
 			lines.lineBreak = "\n";
-			receiver = new Receiver(controller, false);
+			receiver = new Receiver(controller, false, false);
 		}
 		
 		private void SetViMode(bool viMode)

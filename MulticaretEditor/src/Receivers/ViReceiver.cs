@@ -211,7 +211,6 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			//Console.WriteLine("ACTION: " + parser.action + " MOVE: " + parser.move + " - " + parser.moveChar);
 			ViCommands.ICommand command = null;
 			if (move != null)
 			{
@@ -229,8 +228,7 @@ namespace MulticaretEditor
 							needInput = true;
 							break;
 						case 'y':
-							command = new ViCommands.Copy(move, parser.FictiveCount, parser.register);
-							ignoreRepeat = true;
+							ProcessCopy(move, parser.register, parser.FictiveCount);
 							break;
 						default:
 							command = new ViCommands.Empty(move, parser.FictiveCount);
@@ -245,7 +243,7 @@ namespace MulticaretEditor
 					switch (parser.action.c)
 					{
 						case 'u':
-							command = new ViCommands.Undo();
+							ProcessUndo(parser.FictiveCount);
 							break;
 						case 'r':
 							command = new ViCommands.ReplaceChar(parser.moveChar.c, parser.FictiveCount);
@@ -276,8 +274,7 @@ namespace MulticaretEditor
 						case 'y':
 							if (parser.move.IsChar('y'))
 							{
-								command = new ViCommands.CopyLine(parser.FictiveCount, parser.register);
-								ignoreRepeat = true;
+								controller.ViCopyLine(parser.register, parser.FictiveCount);
 							}
 							break;
 						case '.':
@@ -291,7 +288,7 @@ namespace MulticaretEditor
 					switch (parser.action.c)
 					{
 						case 'r':
-							command = new ViCommands.Redo();
+							ProcessRedo(parser.FictiveCount);
 							break;
 					}
 				}
@@ -308,14 +305,42 @@ namespace MulticaretEditor
 				{
 					context.SetState(new InputReceiver(null, false));
 				}
+				lastCommand = command;
 			}
-			lastCommand = command;
 		}
 		
 		public override bool DoFind(string text)
 		{
 			ClipboardExecuter.PutToRegister('/', text);
 			return true;
+		}
+		
+		private void ProcessRedo(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				controller.Redo();
+			}
+			controller.ViCollapseSelections();
+		}
+		
+		private void ProcessUndo(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				controller.Undo();
+			}
+			controller.ViCollapseSelections();
+		}
+		
+		private void ProcessCopy(ViMoves.IMove move, char register, int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				move.Move(controller, true, false);
+			}
+			controller.ViCopy(register);
+			controller.ViCollapseSelections();
 		}
 	}
 }

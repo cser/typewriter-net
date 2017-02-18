@@ -5,7 +5,7 @@ using MulticaretEditor;
 
 namespace MulticaretEditor
 {
-	public class ViReceiverData : AReceiver
+	public class ViReceiverData
 	{
 		public readonly int count;
 		public readonly List<char> inputChars = new List<char>();

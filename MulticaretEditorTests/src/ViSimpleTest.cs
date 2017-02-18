@@ -57,7 +57,7 @@ namespace UnitTests
 			ClipboardExecuter.Reset(true);
 			Init();
 			lines.lineBreak = "\n";
-			receiver = new Receiver(controller, false);
+			receiver = new Receiver(controller, false, false);
 			SetViMode(true);
 		}
 		
@@ -436,6 +436,21 @@ namespace UnitTests
 			Press(Keys.Control | Keys.R);
 			AssertText("Du AAAhast mich");
 			AssertSelection("#3").Both(5, 0);
+		}
+		
+		[Test]
+		public void p_UndoRedo_Repeat()
+		{
+			lines.SetText("Du hast mich gefragt");
+			Put(3, 0).Press("dw").AssertText("Du mich gefragt");
+			Press("x").AssertText("Du ich gefragt");
+			AssertSelection().Both(3, 0);
+			
+			Press("2u").AssertText("Du hast mich gefragt");
+			AssertSelection().Both(3, 0);
+			
+			Press("2").Press(Keys.Control | Keys.R).AssertText("Du ich gefragt");
+			AssertSelection().Both(3, 0);
 		}
 		
 		[Test]
