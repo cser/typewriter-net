@@ -10,6 +10,7 @@ namespace MulticaretEditor
 		
 		private readonly Controller controller;
 		private readonly LineArray lines;
+		private readonly bool alwaysInputMode;
 		
 		private Context context;
 		private AReceiver state;
@@ -19,10 +20,11 @@ namespace MulticaretEditor
 		private bool viMode;
 		public bool ViMode { get { return viMode; } }
 		
-		public Receiver(Controller controller, bool viMode)
+		public Receiver(Controller controller, bool viMode, bool alwaysInputMode)
 		{
 			this.controller = controller;
 			this.lines = controller.Lines;
+			this.alwaysInputMode = alwaysInputMode;
 			
 			context = new Context(this);
 			ProcessSetViMode(viMode);
@@ -44,7 +46,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				context.SetState(new InputReceiver(null));
+				context.SetState(new InputReceiver(null, alwaysInputMode));
 			}
 		}
 		

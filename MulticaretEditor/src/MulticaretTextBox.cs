@@ -37,9 +37,16 @@ namespace MulticaretEditor
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
 		private readonly MacrosExecutor macrosExecutor;
-
-		public MulticaretTextBox()
+		
+		public readonly bool alwaysInputMode;
+		
+		public MulticaretTextBox() : this(false)
 		{
+		}
+
+		public MulticaretTextBox(bool alwaysInputMode)
+		{
+			this.alwaysInputMode = alwaysInputMode;
 			macrosExecutor = initMacrosExecutor ?? new MacrosExecutor(GetSelf);
 
 			bgBrush = new SolidBrush(BackColor);
@@ -73,8 +80,6 @@ namespace MulticaretEditor
 			InitScrollBars();
 			Controller = new Controller(new LineArray());
 		}
-		
-		public bool alwaysInputMode;
 
 		private MulticaretTextBox GetSelf()
 		{
@@ -104,7 +109,7 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
-						receiver = new Receiver(controller, macrosExecutor.viMode && !alwaysInputMode);
+						receiver = new Receiver(controller, macrosExecutor.viMode && !alwaysInputMode, alwaysInputMode);
 						receiver.viMap = viMap;
 						receiver.ViModeChanged += Receiver_ViModeChanged;
 						lines = controller.Lines;

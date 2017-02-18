@@ -7,10 +7,12 @@ namespace MulticaretEditor
 	public class InputReceiver : AReceiver
 	{
 		private ViReceiverData viData;
+		private readonly bool alwaysInputMode;
 		
-		public InputReceiver(ViReceiverData viData)
+		public InputReceiver(ViReceiverData viData, bool alwaysInputMode)
 		{
 			this.viData = viData;
+			this.alwaysInputMode = alwaysInputMode;
 		}
 		
 		public override void DoKeyPress(char code, out string viShortcut)
@@ -25,7 +27,8 @@ namespace MulticaretEditor
 		
 		public override bool DoKeyDown(Keys keysData)
 		{
-			if (((keysData & Keys.Control) == Keys.Control) &&
+			if (!alwaysInputMode &&
+				((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
 				ViReceiverData viData = this.viData;

@@ -86,6 +86,11 @@ namespace MulticaretEditor
 						shortcut = "/";
 						return ParseResult.Complete;
 					}
+					if (code.c == ':')
+					{
+						shortcut = ":";
+						return ParseResult.Complete;
+					}
 					_state = State.Action;
 					return Parse(code);
 				case State.Count:

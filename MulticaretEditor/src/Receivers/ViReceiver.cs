@@ -103,33 +103,33 @@ namespace MulticaretEditor
 			}
 			if (parser.action.c == 'i')
 			{
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
+				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
 				return;
 			}
 			if (parser.action.c == 'a')
 			{
 				controller.ViMoveRightFromCursor();
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
+				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
 				return;
 			}
 			if (parser.action.c == 's')
 			{
 				controller.ViShiftRight(parser.FictiveCount);
 				controller.EraseSelection();
-				context.SetState(new InputReceiver(new ViReceiverData(1)));
+				context.SetState(new InputReceiver(new ViReceiverData(1), false));
 				return;
 			}
 			if (parser.action.c == 'I')
 			{
 				controller.ViMoveHome(false, true);
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
+				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
 				return;
 			}
 			if (parser.action.c == 'A')
 			{
 				controller.ViMoveEnd(false, 1);
 				controller.ViMoveRightFromCursor();
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount)));
+				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
 				return;
 			}
 			ViMoves.IMove move = null;
@@ -306,7 +306,7 @@ namespace MulticaretEditor
 				controller.ViResetCommandsBatching();
 				if (needInput)
 				{
-					context.SetState(new InputReceiver(null));
+					context.SetState(new InputReceiver(null, false));
 				}
 			}
 			lastCommand = command;

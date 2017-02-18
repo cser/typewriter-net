@@ -21,6 +21,7 @@ public class CommandDialog : ADialog
 
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
+	private MonospaceLabel label;
 	private Data data;
 	private string text;
 
@@ -52,8 +53,12 @@ public class CommandDialog : ADialog
             frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
             frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
+		
+		label = new MonospaceLabel();
+		label.Text = ":";
+		Controls.Add(label);
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -118,8 +123,9 @@ public class CommandDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		textBox.Location = new Point(0, tabBarHeight);
-		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
+		label.Location = new Point(0, tabBarHeight);
+		textBox.Location = new Point(textBox.CharWidth, tabBarHeight);
+		textBox.Size = new Size(Width - textBox.CharWidth, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -133,6 +139,7 @@ public class CommandDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			label.TextColor = settings.ParsedScheme.fgColor;
 		}
 	}
 

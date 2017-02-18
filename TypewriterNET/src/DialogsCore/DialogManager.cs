@@ -153,8 +153,9 @@ public class DialogManager
 			new KeyAction("F&ind\\Recently dirs incremental search…", DoRecentlyDirsIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null,
 			new KeyAction("F&ind\\Menu item incremental search…", DoMenuItemIncrementalSearch, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null,
-			new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
+		KeyAction escape = new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false);
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, escape));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, escape));
 
 		info = new DialogOwner<InfoDialog>(this);
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
@@ -690,6 +691,10 @@ public class DialogManager
 		if (shortcut == "/")
 		{
 			DoFind(controller);
+		}
+		else if (shortcut == ":")
+		{
+			DoInputCommand(controller);
 		}
 	}
 }

@@ -78,8 +78,7 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
 		}
 
-		textBox = new MulticaretTextBox();
-		textBox.alwaysInputMode = true;
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddBefore(beforeKeyMap);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);

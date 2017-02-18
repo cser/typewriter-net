@@ -430,6 +430,9 @@ namespace UnitTests
 		{
 			AddLast('/');
 			Assert.AreEqual("/", parser.shortcut);
+			
+			AddLast(':');
+			Assert.AreEqual(":", parser.shortcut);
 		}
 	}
 }

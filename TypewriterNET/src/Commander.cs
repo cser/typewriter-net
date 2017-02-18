@@ -413,6 +413,15 @@ public class Commander
 		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
+		
+		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
+		commands.Add(new Command("e", "", "Edit file", DoEditFile));
+		commands.Add(new Command("q", "", "Close window", DoExit));
+	}
+	
+	private void DoViSaveFile(string args)
+	{
+		mainForm.SaveFile(mainForm.LastBuffer);
 	}
 
 	private void DoHelp(string args)
