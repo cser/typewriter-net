@@ -266,6 +266,12 @@ namespace MulticaretEditor
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
+					case (int)'y' + ViChar.ControlIndex:
+						controller.ScrollRelative(0, -1);
+						break;
+					case (int)'e' + ViChar.ControlIndex:
+						controller.ScrollRelative(0, 1);
+						break;
 				}
 			}
 			if (command != null && count != 1)

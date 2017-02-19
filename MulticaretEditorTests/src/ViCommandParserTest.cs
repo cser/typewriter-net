@@ -434,5 +434,15 @@ namespace UnitTests
 			AddLast(':');
 			Assert.AreEqual(":", parser.shortcut);
 		}
+		
+		[Test]
+		public void ScrollUpDown()
+		{
+			AddControlLast('y').AssertParsed("1:action:<C-y>;move:\\0;moveChar:\\0");
+			AddControlLast('e').AssertParsed("1:action:<C-e>;move:\\0;moveChar:\\0");
+			
+			Add('2').AddControlLast('y').AssertParsed("2:action:<C-y>;move:\\0;moveChar:\\0");
+			Add('1').Add('0').AddControlLast('e').AssertParsed("10:action:<C-e>;move:\\0;moveChar:\\0");
+		}
 	}
 }

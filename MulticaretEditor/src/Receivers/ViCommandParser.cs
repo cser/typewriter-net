@@ -116,12 +116,10 @@ namespace MulticaretEditor
 								move = code;
 								return ParseResult.Complete;
 							case 'r':
-								if (code.control)
-								{
-									action = code;
-									return ParseResult.Complete;
-								}
-								break;
+							case 'y':
+							case 'e':
+								action = code;
+								return ParseResult.Complete;
 						}
 					}
 					else
