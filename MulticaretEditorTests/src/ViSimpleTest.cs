@@ -111,6 +111,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void fFtT_RepeatNuance2()
+		{
+			lines.SetText(
+			//	 0123456789012345678901234
+				"aaaa((cccc(dddd))eeeeeee)");
+			
+			Put(18, 0).Press("2F(").AssertSelection().Both(5, 0).NoNext();
+			Press("F(").AssertSelection().Both(4, 0).NoNext();
+			Press("2t)").AssertSelection().Both(15, 0).NoNext();
+			Press("2T)").AssertSelection().Both(16, 0).NoNext();
+			Put(6, 0).Press("2f)").AssertSelection().Both(16, 0).NoNext();
+		}
+		
+		[Test]
 		public void S6_0()
 		{
 			lines.SetText(

@@ -45,7 +45,10 @@ namespace MulticaretEditor
 			
 			public void Execute(Controller controller)
 			{
-				move.Move(controller, false, false);
+				for (int i = 0; i < count; i++)
+				{
+					move.Move(controller, false, false);
+				}
 			}
 		}
 		

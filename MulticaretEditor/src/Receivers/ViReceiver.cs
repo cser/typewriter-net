@@ -101,201 +101,176 @@ namespace MulticaretEditor
 				viShortcut = parser.shortcut;
 				return;
 			}
-			if (parser.action.c == 'i')
-			{
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
-				return;
-			}
-			if (parser.action.c == 'a')
-			{
-				controller.ViMoveRightFromCursor();
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
-				return;
-			}
-			if (parser.action.c == 's')
-			{
-				controller.ViShiftRight(parser.FictiveCount);
-				controller.EraseSelection();
-				context.SetState(new InputReceiver(new ViReceiverData(1), false));
-				return;
-			}
-			if (parser.action.c == 'I')
-			{
-				controller.ViMoveHome(false, true);
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
-				return;
-			}
-			if (parser.action.c == 'A')
-			{
-				controller.ViMoveEnd(false, 1);
-				controller.ViMoveRightFromCursor();
-				context.SetState(new InputReceiver(new ViReceiverData(parser.FictiveCount), false));
-				return;
-			}
 			ViMoves.IMove move = null;
-			bool ignoreRepeat = false;
+			int count = parser.FictiveCount;
 			bool needInput = false;
-			if (parser.move.control)
+			switch (parser.move.Index)
 			{
-				switch (parser.move.c)
-				{
-					case 'f':
-						move = new ViMoves.PageUpDown(false);
-						break;
-					case 'b':
-						move = new ViMoves.PageUpDown(true);
-						break;
-				}
-			}
-			else
-			{
-				switch (parser.move.c)
-				{
-					case 'h':
-						move = new ViMoves.MoveStep(Direction.Left);
-						break;
-					case 'l':
-						move = new ViMoves.MoveStep(Direction.Right);
-						break;
-					case 'j':
-						move = new ViMoves.MoveStep(Direction.Down);
-						break;
-					case 'k':
-						move = new ViMoves.MoveStep(Direction.Up);
-						break;
-					case 'w':
-						move = new ViMoves.MoveWord(Direction.Right);
-						break;
-					case 'b':
-						move = new ViMoves.MoveWord(Direction.Left);
-						break;
-					case 'e':
-						move = new ViMoves.MoveWordE();
-						break;
-					case 'f':
-					case 'F':
-					case 't':
-					case 'T':
-						move = new ViMoves.Find(parser.move.c, parser.moveChar.c, parser.FictiveCount);
-						ignoreRepeat = true;
-						break;
-					case '0':
-						move = new ViMoves.Home(false);
-						break;
-					case '^':
-						move = new ViMoves.Home(true);
-						break;
-					case '$':
-						move = new ViMoves.End(parser.FictiveCount);
-						ignoreRepeat = true;
-						break;
-					case 'G':
-						if (parser.rawCount == -1)
-						{
-							move = new ViMoves.DocumentEnd();
-						}
-						else
-						{
-							move = new ViMoves.GoToLine(parser.rawCount);
-						}
-						break;
-					case 'g':
-						if (parser.moveChar.IsChar('g'))
-						{
-							move = new ViMoves.DocumentStart();
-						}
-						break;
-					case 'i':
-					case 'a':
-						move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i');
-						break;
-				}
+				case (int)'f' + ViChar.ControlIndex:
+					move = new ViMoves.PageUpDown(false);
+					break;
+				case (int)'b' + ViChar.ControlIndex:
+					move = new ViMoves.PageUpDown(true);
+					break;
+				case (int)'h':
+					move = new ViMoves.MoveStep(Direction.Left);
+					break;
+				case (int)'l':
+					move = new ViMoves.MoveStep(Direction.Right);
+					break;
+				case (int)'j':
+					move = new ViMoves.MoveStep(Direction.Down);
+					break;
+				case (int)'k':
+					move = new ViMoves.MoveStep(Direction.Up);
+					break;
+				case (int)'w':
+					move = new ViMoves.MoveWord(Direction.Right);
+					break;
+				case (int)'b':
+					move = new ViMoves.MoveWord(Direction.Left);
+					break;
+				case (int)'e':
+					move = new ViMoves.MoveWordE();
+					break;
+				case (int)'f':
+				case (int)'F':
+				case (int)'t':
+				case (int)'T':
+					move = new ViMoves.Find(parser.move.c, parser.moveChar.c, count);
+					count = 1;
+					break;
+				case (int)'0':
+					move = new ViMoves.Home(false);
+					break;
+				case (int)'^':
+					move = new ViMoves.Home(true);
+					break;
+				case (int)'$':
+					move = new ViMoves.End(count);
+					count = 1;
+					break;
+				case (int)'G':
+					if (parser.rawCount == -1)
+					{
+						move = new ViMoves.DocumentEnd();
+					}
+					else
+					{
+						move = new ViMoves.GoToLine(parser.rawCount);
+					}
+					count = 1;
+					break;
+				case (int)'g':
+					if (parser.moveChar.IsChar('g'))
+					{
+						move = new ViMoves.DocumentStart();
+					}
+					count = 1;
+					break;
+				case (int)'i':
+				case (int)'a':
+					move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i');
+					break;
 			}
 			ViCommands.ICommand command = null;
 			if (move != null)
 			{
-				if (!parser.action.control)
+				switch (parser.action.Index)
 				{
-					switch (parser.action.c)
-					{
-						case 'd':
-							command = new ViCommands.Delete(move, parser.FictiveCount, false, parser.register);
-							ignoreRepeat = true;
-							break;
-						case 'c':
-							command = new ViCommands.Delete(move, parser.FictiveCount, true, parser.register);
-							ignoreRepeat = true;
-							needInput = true;
-							break;
-						case 'y':
-							ProcessCopy(move, parser.register, parser.FictiveCount);
-							break;
-						default:
-							command = new ViCommands.Empty(move, parser.FictiveCount);
-							break;
-					}
+					case (int)'d':
+						command = new ViCommands.Delete(move, count, false, parser.register);
+						count = 1;
+						break;
+					case (int)'c':
+						command = new ViCommands.Delete(move, count, true, parser.register);
+						count = 1;
+						needInput = true;
+						break;
+					case (int)'y':
+						ProcessCopy(move, parser.register, count);
+						count = 1;
+						break;
+					default:
+						command = new ViCommands.Empty(move, count);
+						count = 1;
+						break;
 				}
 			}
 			else
 			{
-				if (!parser.action.control)
+				switch (parser.action.Index)
 				{
-					switch (parser.action.c)
-					{
-						case 'u':
-							ProcessUndo(parser.FictiveCount);
-							break;
-						case 'r':
-							command = new ViCommands.ReplaceChar(parser.moveChar.c, parser.FictiveCount);
-							break;
-						case 'x':
-							command = new ViCommands.Delete(
-								new ViMoves.MoveStep(Direction.Right), parser.FictiveCount, false, parser.register);
-							ignoreRepeat = true;
-							break;
-						case 'p':
-							command = new ViCommands.Paste(Direction.Right, parser.register, parser.FictiveCount);
-							ignoreRepeat = true;
-							break;
-						case 'P':
-							command = new ViCommands.Paste(Direction.Left, parser.register, parser.FictiveCount);
-							ignoreRepeat = true;
-							break;
-						case 'J':
-							command = new ViCommands.J();
-							break;
-						case 'd':
-							if (parser.move.IsChar('d'))
-							{
-								command = new ViCommands.DeleteLine(parser.FictiveCount, parser.register);
-								ignoreRepeat = true;
-							}
-							break;
-						case 'y':
-							if (parser.move.IsChar('y'))
-							{
-								controller.ViCopyLine(parser.register, parser.FictiveCount);
-							}
-							break;
-						case '.':
-							command = lastCommand;
-							lastCommand = null;
-							break;
-					}
-				}
-				else
-				{
-					switch (parser.action.c)
-					{
-						case 'r':
-							ProcessRedo(parser.FictiveCount);
-							break;
-					}
+					case (int)'u':
+						ProcessUndo(count);
+						break;
+					case (int)'r':
+						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
+						break;
+					case (int)'x':
+						command = new ViCommands.Delete(
+							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
+						count = 1;
+						break;
+					case (int)'p':
+						command = new ViCommands.Paste(Direction.Right, parser.register, count);
+						count = 1;
+						break;
+					case (int)'P':
+						command = new ViCommands.Paste(Direction.Left, parser.register, count);
+						count = 1;
+						break;
+					case (int)'J':
+						command = new ViCommands.J();
+						break;
+					case (int)'d':
+						if (parser.move.IsChar('d'))
+						{
+							command = new ViCommands.DeleteLine(count, parser.register);
+							count = 1;
+						}
+						break;
+					case (int)'y':
+						if (parser.move.IsChar('y'))
+						{
+							controller.ViCopyLine(parser.register, count);
+						}
+						break;
+					case (int)'.':
+						if (lastCommand != null)
+						{	
+							lastCommand.Execute(controller);
+						}
+						break;
+					case (int)'r' + ViChar.ControlIndex:
+						ProcessRedo(count);
+						break;
+					case (int)'i':
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
+					case (int)'a':
+						controller.ViMoveRightFromCursor();
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
+					case (int)'s':
+						controller.ViShiftRight(count);
+						controller.EraseSelection();
+						context.SetState(new InputReceiver(new ViReceiverData(1), false));
+						break;
+					case (int)'I':
+						controller.ViMoveHome(false, true);
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
+					case (int)'A':
+						controller.ViMoveEnd(false, 1);
+						controller.ViMoveRightFromCursor();
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
 				}
 			}
-			if (command != null && parser.FictiveCount != 1 && !ignoreRepeat)
+			if (command != null && count != 1)
 			{
-				command = new ViCommands.Repeat(command, parser.FictiveCount);
+				command = new ViCommands.Repeat(command, count);
 			}
 			if (command != null)
 			{

@@ -6,6 +6,8 @@ namespace MulticaretEditor
 {
 	public struct ViChar
 	{
+		public const int ControlIndex = 0x10000;
+		
 		public char c;
 		public bool control;
 		
@@ -14,6 +16,8 @@ namespace MulticaretEditor
 			this.c = c;
 			this.control = control;
 		}
+		
+		public int Index { get { return (int)c + (control ? ControlIndex : 0); } }
 		
 		public bool IsChar(char c)
 		{
