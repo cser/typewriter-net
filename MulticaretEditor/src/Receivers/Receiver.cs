@@ -91,14 +91,14 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void DoKeyPress(char code, out string viShortcut)
+		public void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{
-			state.DoKeyPress(code, out viShortcut);
+			state.DoKeyPress(code, out viShortcut, out scrollToCursor);
 		}
 		
-		public bool DoKeyDown(Keys keysData)
+		public bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
-			return state.DoKeyDown(keysData);
+			return state.DoKeyDown(keysData, out scrollToCursor);
 		}
 		
 		public bool DoFind(string text)

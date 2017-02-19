@@ -1485,10 +1485,11 @@ namespace MulticaretEditor
 		
 		private void ExecuteKeyPress(char code)
 		{
+			bool scrollToCursor = true;
 			if (receiver != null)
 			{
 				string viShortcut;
-				receiver.DoKeyPress(code, out viShortcut);
+				receiver.DoKeyPress(code, out viShortcut, out scrollToCursor);
 				if (viShortcut != null)
 				{
 					if (ViShortcut != null)
@@ -1498,15 +1499,22 @@ namespace MulticaretEditor
 			if (highlighter != null && !highlighter.LastParsingChanged)
 				highlighter.Parse(lines, 100);
 			UnblinkCursor();
-			ScrollIfNeedToCaret();
+			if (scrollToCursor)
+			{
+				ScrollIfNeedToCaret();
+			}
 		}
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
-			if (receiver.DoKeyDown(keyData))
+			bool scrollToCursor;
+			if (receiver != null && receiver.DoKeyDown(keyData, out scrollToCursor))
 			{
 				UnblinkCursor();
-				ScrollIfNeedToCaret();
+				if (scrollToCursor)
+				{
+					ScrollIfNeedToCaret();
+				}
 			}
 			else
 			{

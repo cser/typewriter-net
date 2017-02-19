@@ -46,13 +46,15 @@ namespace MulticaretEditor
 		{
 		}
 		
-		public virtual void DoKeyPress(char code, out string viShortcut)
+		public virtual void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{
 			viShortcut = null;
+			scrollToCursor = false;
 		}
 		
-		public virtual bool DoKeyDown(Keys keysData)
+		public virtual bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
+			scrollToCursor = false;
 			return false;
 		}
 		

@@ -52,55 +52,65 @@ namespace MulticaretEditor
 		
 		private readonly ViCommandParser parser = new ViCommandParser();
 		
-		public override void DoKeyPress(char code, out string viShortcut)
+		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{
 			code = context.GetMapped(code);
-			ProcessKey(new ViChar(code, false), out viShortcut);
+			ProcessKey(new ViChar(code, false), out viShortcut, out scrollToCursor);
 		}
 		
-		public override bool DoKeyDown(Keys keysData)
+		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
 			string viShortcut;
 			switch (keysData)
 			{
 				case Keys.Left:
-					ProcessKey(new ViChar('h', false), out viShortcut);
+					ProcessKey(new ViChar('h', false), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Right:
-					ProcessKey(new ViChar('l', false), out viShortcut);
+					ProcessKey(new ViChar('l', false), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Down:
-					ProcessKey(new ViChar('j', false), out viShortcut);
+					ProcessKey(new ViChar('j', false), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Up:
-					ProcessKey(new ViChar('k', false), out viShortcut);
+					ProcessKey(new ViChar('k', false), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Control | Keys.R:
-					ProcessKey(new ViChar('r', true), out viShortcut);
+					ProcessKey(new ViChar('r', true), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Control | Keys.F:
-					ProcessKey(new ViChar('f', true), out viShortcut);
+					ProcessKey(new ViChar('f', true), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Control | Keys.B:
-					ProcessKey(new ViChar('b', true), out viShortcut);
+					ProcessKey(new ViChar('b', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.J:
+					ProcessKey(new ViChar('j', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.K:
+					ProcessKey(new ViChar('k', true), out viShortcut, out scrollToCursor);
 					return true;
 				default:
+					scrollToCursor = false;
 					return false;
 			}
 		}
 		
-		private void ProcessKey(ViChar code, out string viShortcut)
+		private void ProcessKey(ViChar code, out string viShortcut, out bool scrollToCursor)
 		{
 			viShortcut = null;
 			if (!parser.AddKey(code))
 			{
+				scrollToCursor = false;
 				return;
 			}
 			if (parser.shortcut != null)
 			{
 				viShortcut = parser.shortcut;
+				scrollToCursor = false;
 				return;
 			}
+			scrollToCursor = true;
 			ViMoves.IMove move = null;
 			int count = parser.FictiveCount;
 			bool needInput = false;
@@ -266,11 +276,21 @@ namespace MulticaretEditor
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
-					case (int)'y' + ViChar.ControlIndex:
-						controller.ScrollRelative(0, -1);
+					case (int)'j' + ViChar.ControlIndex:
+						Console.WriteLine("action=" + parser.action);
+						for (int i = 0; i < count; i++)
+						{
+							controller.ScrollRelative(0, 1);
+						}
+						scrollToCursor = false;
 						break;
-					case (int)'e' + ViChar.ControlIndex:
-						controller.ScrollRelative(0, 1);
+					case (int)'k' + ViChar.ControlIndex:
+						Console.WriteLine("action=" + parser.action);
+						for (int i = 0; i < count; i++)
+						{
+							controller.ScrollRelative(0, -1);
+						}
+						scrollToCursor = false;
 						break;
 				}
 			}

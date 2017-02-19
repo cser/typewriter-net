@@ -45,13 +45,15 @@ namespace UnitTests
 		private ViReceiverTest DoKeyPress(char c)
 		{
 			string viShortcut;
-			receiver.DoKeyPress(c, out viShortcut);
+			bool scrollToCursor;
+			receiver.DoKeyPress(c, out viShortcut, out scrollToCursor);
 			return this;
 		}
 		
 		private ViReceiverTest DoKeyDown(Keys keysData)
 		{
-			Assert.AreEqual(true, receiver.DoKeyDown(keysData));
+			bool scrollToCursor;
+			Assert.AreEqual(true, receiver.DoKeyDown(keysData, out scrollToCursor));
 			return this;
 		}
 		

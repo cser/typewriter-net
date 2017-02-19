@@ -21,20 +21,23 @@ namespace UnitTests
 			foreach (char c in keys)
 			{
 				string viShortcut;
-				receiver.DoKeyPress(c, out viShortcut);
+				bool scrollToCursor;
+				receiver.DoKeyPress(c, out viShortcut, out scrollToCursor);
 			}
 			return this;
 		}
 		
 		private ViSimpleTest Press(Keys keysData)
 		{
-			receiver.DoKeyDown(keysData);
+			bool scrollToCursor;
+			receiver.DoKeyDown(keysData, out scrollToCursor);
 			return this;
 		}
 		
 		private ViSimpleTest PressCommandMode()
 		{
-			receiver.DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			bool scrollToCursor;
+			receiver.DoKeyDown(Keys.Control | Keys.OemOpenBrackets, out scrollToCursor);
 			return this;
 		}
 		
