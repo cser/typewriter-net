@@ -491,8 +491,15 @@ public class Commander
 	{
 		if (ReplaceVars(ref file))
 		{
-			Buffer buffer = mainForm.ForcedLoadFile(file);
-			buffer.needSaveAs = false;
+			if (string.IsNullOrEmpty(file))
+			{
+				mainForm.OpenNew();
+			}
+			else
+			{
+				Buffer buffer = mainForm.ForcedLoadFile(file);
+				buffer.needSaveAs = false;
+			}
 		}
 	}
 

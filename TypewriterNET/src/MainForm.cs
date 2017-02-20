@@ -848,9 +848,14 @@ public class MainForm : Form
 
 	private bool DoNew(Controller controller)
 	{
+		OpenNew();
+		return true;
+	}
+	
+	public void OpenNew()
+	{
 		RemoveEmptyIfNeed();
 		mainNest.Frame.AddBuffer(NewFileBuffer());
-		return true;
 	}
 
 	private bool DoOpen(Controller controller)
