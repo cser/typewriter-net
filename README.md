@@ -45,6 +45,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 
 7. Custom scroll bar (modified)
 	http://www.codeproject.com/Articles/41869/Custom-Drawn-Scrollbar
+	
+8. Vi-mode regex implementation idea
+	https://morepypy.blogspot.ru/2010/05/efficient-and-elegant-regular.html
 
 Installation without building
 -----------------------------
