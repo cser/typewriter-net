@@ -79,7 +79,87 @@ namespace MulticaretEditor
 				}
 				else if (token.type == '\\')
 				{
-					if (token.c == '|')
+					if (token.c == 'w')
+					{
+						result = new RE_W(false, result);
+					}
+					else if (token.c == 'W')
+					{
+						result = new RE_W(true, result);
+					}
+					else if (token.c == 's')
+					{
+						result = new RE_S(false, result);
+					}
+					else if (token.c == 'S')
+					{
+						result = new RE_S(true, result);
+					}
+					else if (token.c == 'a')
+					{
+						result = new RE_A(false, result);
+					}
+					else if (token.c == 'A')
+					{
+						result = new RE_A(true, result);
+					}
+					else if (token.c == 'd')
+					{
+						result = new RE_D(false, result);
+					}
+					else if (token.c == 'D')
+					{
+						result = new RE_D(true, result);
+					}
+					else if (token.c == 'h')
+					{
+						result = new RE_H(false, result);
+					}
+					else if (token.c == 'H')
+					{
+						result = new RE_H(true, result);
+					}
+					else if (token.c == 'l')
+					{
+						result = new RE_L(false, result);
+					}
+					else if (token.c == 'L')
+					{
+						result = new RE_L(true, result);
+					}
+					else if (token.c == 'o')
+					{
+						result = new RE_O(false, result);
+					}
+					else if (token.c == 'O')
+					{
+						result = new RE_O(true, result);
+					}
+					else if (token.c == 'p')
+					{
+						result = new RE_P(false, result);
+					}
+					else if (token.c == 'P')
+					{
+						result = new RE_P(true, result);
+					}
+					else if (token.c == 'u')
+					{
+						result = new RE_U(false, result);
+					}
+					else if (token.c == 'U')
+					{
+						result = new RE_U(true, result);
+					}
+					else if (token.c == 'x')
+					{
+						result = new RE_X(false, result);
+					}
+					else if (token.c == 'X')
+					{
+						result = new RE_X(true, result);
+					}
+					else if (token.c == '|')
 					{
 						return new REAlternate(ParseRange(tokens, index0, i, next), result, next);
 					}
