@@ -6,6 +6,11 @@ namespace UnitTests
 {
 	public class RegexTest
 	{
+		private RENode Parse(string regex)
+		{
+			return new REParser().Parse(regex);
+		}
+		
 		[Test]
 		public void MatchLength()
 		{
@@ -25,37 +30,37 @@ namespace UnitTests
 		[Test]
 		public void Parsing_Chars()
 		{
-			Assert.AreEqual("('a'('b'))", RERegex.Parse(@"ab").ToString());
-			Assert.AreEqual("('a'('b'('c')))", RERegex.Parse(@"abc").ToString());
-			Assert.AreEqual("('a')", RERegex.Parse(@"a").ToString());
+			Assert.AreEqual("('a'('b'))", Parse(@"ab").ToString());
+			Assert.AreEqual("('a'('b'('c')))", Parse(@"abc").ToString());
+			Assert.AreEqual("('a')", Parse(@"a").ToString());
 		}
 		
 		[Test]
 		public void Parsing_Alternate()
 		{
-			Assert.AreEqual("(('a')|('b'))", RERegex.Parse(@"a\|b").ToString());
-			Assert.AreEqual("(('a'('b'))|('b'('c')))", RERegex.Parse(@"ab\|bc").ToString());
-			Assert.AreEqual("(('a'('b'))|('b'('c')))", RERegex.Parse(@"ab\|bc").ToString());
-			Assert.AreEqual("((('f')|('a'('b')))|('b'('c')))", RERegex.Parse(@"f\|ab\|bc").ToString());
+			Assert.AreEqual("(('a')|('b'))", Parse(@"a\|b").ToString());
+			Assert.AreEqual("(('a'('b'))|('b'('c')))", Parse(@"ab\|bc").ToString());
+			Assert.AreEqual("(('a'('b'))|('b'('c')))", Parse(@"ab\|bc").ToString());
+			Assert.AreEqual("(('f')|(('a'('b'))|('b'('c'))))", Parse(@"f\|ab\|bc").ToString());
 		}
 		
 		[Test]
 		public void Parsing_AlternateBrackets()
 		{
-			Assert.AreEqual("('a'('('('b'('|'('c'(')'('d')))))))", RERegex.Parse(@"a(b|c)d").ToString());
-			Assert.AreEqual("('a'(('b')|('c')`('d')))", RERegex.Parse(@"a\(b\|c\)d").ToString());
+			Assert.AreEqual("('a'('('('b'('|'('c'(')'('d')))))))", Parse(@"a(b|c)d").ToString());
+			Assert.AreEqual("('a'(('b')|('c')`('d')))", Parse(@"a\(b\|c\)d").ToString());
 		}
 		
 		[Test]
 		public void Parsing_wWsS()
 		{
-			Assert.AreEqual("('a'(w('b')))", RERegex.Parse(@"a\wb").ToString());
-			Assert.AreEqual("(w(w('b')))", RERegex.Parse(@"\w\wb").ToString());
-			Assert.AreEqual("('a'(W('b')))", RERegex.Parse(@"a\Wb").ToString());
-			Assert.AreEqual("(W(w('b')))", RERegex.Parse(@"\W\wb").ToString());
+			Assert.AreEqual("('a'(w('b')))", Parse(@"a\wb").ToString());
+			Assert.AreEqual("(w(w('b')))", Parse(@"\w\wb").ToString());
+			Assert.AreEqual("('a'(W('b')))", Parse(@"a\Wb").ToString());
+			Assert.AreEqual("(W(w('b')))", Parse(@"\W\wb").ToString());
 			
-			Assert.AreEqual("('a'(s))", RERegex.Parse(@"a\s").ToString());
-			Assert.AreEqual("('a'(S))", RERegex.Parse(@"a\S").ToString());
+			Assert.AreEqual("('a'(s))", Parse(@"a\s").ToString());
+			Assert.AreEqual("('a'(S))", Parse(@"a\S").ToString());
 		}
 		
 		[Test]
@@ -102,7 +107,7 @@ namespace UnitTests
 		public void Parsing_dDxXoOhHpPaAlLuU()
 		{
 			Assert.AreEqual("(d(D(x(X(o(O(h(H(p(P(a(A(l(L(u(U))))))))))))))))",
-				RERegex.Parse(@"\d\D\x\X\o\O\h\H\p\P\a\A\l\L\u\U").ToString());
+				Parse(@"\d\D\x\X\o\O\h\H\p\P\a\A\l\L\u\U").ToString());
 		}
 		
 		[Test]
@@ -207,8 +212,8 @@ namespace UnitTests
 		[Test]
 		public void Parsing_Dot()
 		{
-			Assert.AreEqual("(.('a'))", RERegex.Parse(@".a").ToString());
-			Assert.AreEqual("('.'('a'))", RERegex.Parse(@"\.a").ToString());
+			Assert.AreEqual("(.('a'))", Parse(@".a").ToString());
+			Assert.AreEqual("('.'('a'))", Parse(@"\.a").ToString());
 		}
 		
 		[Test]
@@ -217,6 +222,40 @@ namespace UnitTests
 			Assert.AreEqual(4, new RERegex(@"....").MatchLength("a- 2"));
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\n"));
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\r"));
+		}
+		
+		[Test]
+		public void Parsing_Star()
+		{
+			Assert.AreEqual("('a'('*'))", Parse(@"a\*").ToString());
+			Assert.AreEqual("(('a')*)", Parse(@"a*").ToString());
+			Assert.AreEqual("((('a'('b'))|('c'))*)", Parse(@"\(ab\|c\)*").ToString());
+		}
+		
+		[Test]
+		public void Parsing_Star2()
+		{
+			Assert.AreEqual("('a'(('b')*))", Parse(@"ab*").ToString());
+		}
+		
+		[Test]
+		public void MatchLength_NotFull()
+		{
+			Assert.AreEqual(2, new RERegex(@"xy").MatchLength("xyz123"));
+			Assert.AreEqual(2, new RERegex(@"xy\|abc").MatchLength("xyabcdef"));
+			Assert.AreEqual(3, new RERegex(@"xy\|abc").MatchLength("abcdef"));
+		}
+		
+		[Test]
+		public void MatchLength_Star()
+		{
+			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaa"));
+		}
+		
+		[Test]
+		public void MatchLength_Star2()
+		{
+			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaabacdef"));
 		}
 	}
 }

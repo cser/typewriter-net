@@ -6,6 +6,7 @@ namespace MulticaretEditor
 	public class RENode
 	{
 		public static readonly RENode fail = new RENode();
+		public static readonly RENode needNext = new RENode();
 		
 		public virtual RENode MatchChar(char c)
 		{
