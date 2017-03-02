@@ -62,6 +62,11 @@ namespace MulticaretEditor
 					tokens.Add(new REToken('\\', c));
 					continue;
 				}
+				if (c == '.')
+				{
+					tokens.Add(new REToken('\\', '.'));
+					continue;
+				}
 				tokens.Add(new REToken('\0', c));
 			}
 			return ParseRange(tokens, 0, tokens.Count, null);
@@ -158,6 +163,10 @@ namespace MulticaretEditor
 					else if (token.c == 'X')
 					{
 						result = new RE_X(true, result);
+					}
+					else if (token.c == '.')
+					{
+						result = new REDot(result);
 					}
 					else if (token.c == '|')
 					{

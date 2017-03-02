@@ -203,5 +203,19 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@"\A\|\H\|\L\|\O\|\U\|\W\|\X").MatchLength("\n"));
 			Assert.AreEqual(-1, new RERegex(@"\A\|\H\|\L\|\O\|\U\|\W\|\X").MatchLength("\r"));
 		}
+		
+		[Test]
+		public void Parsing_Dot()
+		{
+			Assert.AreEqual("(.('a'))", RERegex.Parse(@".a").ToString());
+		}
+		
+		[Test]
+		public void MatchLength_Dot()
+		{
+			Assert.AreEqual(4, new RERegex(@"....").MatchLength("a- 2"));
+			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\n"));
+			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\r"));
+		}
 	}
 }
