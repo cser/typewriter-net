@@ -208,6 +208,7 @@ namespace UnitTests
 		public void Parsing_Dot()
 		{
 			Assert.AreEqual("(.('a'))", RERegex.Parse(@".a").ToString());
+			Assert.AreEqual("('.'('a'))", RERegex.Parse(@"\.a").ToString());
 		}
 		
 		[Test]
