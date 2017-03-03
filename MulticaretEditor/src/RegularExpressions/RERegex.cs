@@ -33,13 +33,16 @@ namespace MulticaretEditor
 				nodeI = nodeI.MatchChar(text[i]);
 				if (nodeI == RENode.fail)
 				{
-					matchLength = -1;
 					break;
 				}
 				if (nodeI == null)
 				{
 					matchLength = i + 1;
 					break;
+				}
+				if (nodeI.matchHere)
+				{
+					matchLength = i;
 				}
 			}
 			return matchLength;

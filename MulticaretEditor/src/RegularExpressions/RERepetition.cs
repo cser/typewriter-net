@@ -9,6 +9,7 @@ namespace MulticaretEditor
 		private readonly RENode _next;
 		
 		private RENode _current;
+		private bool _lastNextIsNull;
 		
 		public RERepetition(RENode node0, RENode next)
 		{
@@ -18,10 +19,12 @@ namespace MulticaretEditor
 		
 		public override RENode MatchChar(char c)
 		{
+			matchHere = false;
 			RENode node = _current.MatchChar(c);
-			if (node == RENode.fail)
+			if (node == RENode.fail && _next == null && !_lastNextIsNull)
 			{
-				return _next;
+				_lastNextIsNull = true;
+				matchHere = true;
 			}
 			return this;
 		}
@@ -47,6 +50,7 @@ namespace MulticaretEditor
 		public override void Reset()
 		{
 			_current = _node;
+			_lastNextIsNull = false;
 		}
 		
 		public override string ToString()
