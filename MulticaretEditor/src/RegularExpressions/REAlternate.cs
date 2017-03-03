@@ -21,17 +21,23 @@ namespace MulticaretEditor
 		
 		public override RENode MatchChar(char c)
 		{
-			_current0 = _current0.MatchChar(c);
-			if (_current0 == null)
+			if (_current0 != RENode.fail)
 			{
-				return _next;
+				_current0 = _current0.MatchChar(c);
+				if (_current0 == null)
+				{
+					return _next;
+				}
 			}
-			_current1 = _current1.MatchChar(c);
-			if (_current1 == null)
+			if (_current1 != RENode.fail)
 			{
-				return _next;
+				_current1 = _current1.MatchChar(c);
+				if (_current1 == null)
+				{
+					return _next;
+				}
 			}
-			return this;
+			return _current0 == RENode.fail && _current1 == RENode.fail ? RENode.fail : this;
 		}
 		
 		public override void FillResetNodes(List<RENode> nodes)

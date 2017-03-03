@@ -242,8 +242,26 @@ namespace UnitTests
 		public void MatchLength_NotFull()
 		{
 			Assert.AreEqual(2, new RERegex(@"xy").MatchLength("xyz123"));
+			Assert.AreEqual(2, new RERegex(@"\w\w").MatchLength("xyz123"));
+		}
+		
+		[Test]
+		public void MatchLength_Alternate_NotFull()
+		{
 			Assert.AreEqual(2, new RERegex(@"xy\|abc").MatchLength("xyabcdef"));
-			Assert.AreEqual(3, new RERegex(@"xy\|abc").MatchLength("abcdef"));
+ 			Assert.AreEqual(3, new RERegex(@"xy\|abc").MatchLength("abcdef"));
+		}
+		
+		[Test]
+		public void MatchLength_Alternate_NotFull2()
+		{
+ 			Assert.AreEqual(3, new RERegex(@"xy\|bcd\|abc").MatchLength("abcdef"));
+		}
+		
+		[Test]
+		public void MatchLength_Alternate_NotFull3()
+		{
+ 			Assert.AreEqual(3, new RERegex(@"xy\|abd\|abc").MatchLength("abcdef"));
 		}
 		
 		[Test]
