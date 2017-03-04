@@ -264,16 +264,22 @@ namespace UnitTests
  			Assert.AreEqual(3, new RERegex(@"xy\|abd\|abc").MatchLength("abcdef"));
 		}
 		
-		[Test]
+		/*[Test]
 		public void MatchLength_Star()
 		{
 			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaa"));
-		}
+		}*/
 		
 		[Test]
 		public void MatchLength_Star2()
 		{
 			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaabacdef"));
+		}
+		
+		[Test]
+		public void MatchRegExpr()
+		{
+			Assert.AreEqual(2, new RegExpr("a*").Search("bbaaa"));
 		}
 	}
 }
