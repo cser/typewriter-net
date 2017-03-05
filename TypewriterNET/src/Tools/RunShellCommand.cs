@@ -81,7 +81,7 @@ public class RunShellCommand
 			int index = parameters.IndexOf("e:");
 			if (index != -1)
 			{
-				int index2 = parameters.IndexOf(";");
+				int index2 = parameters.IndexOf(";", index);
 				string rawEncoding = index2 != -1 ?
 					parameters.Substring(index + 2, index2 - index - 2) :
 					parameters.Substring(index + 2);
@@ -194,7 +194,7 @@ public class RunShellCommand
 			int index = parameters.IndexOf("s:");
 			if (index != -1)
 			{
-				int index2 = parameters.IndexOf(";");
+				int index2 = parameters.IndexOf(";", index);
 				buffer.customSyntax = index2 != -1 ?
 					parameters.Substring(index + 2, index2 - index - 2) :
 					parameters.Substring(index + 2);
