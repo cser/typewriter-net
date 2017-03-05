@@ -19,7 +19,7 @@ This file was writen for launching with MSBuild
 			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll"
 			Optimize="True"/>
 	</Target>
-	<Target Name="tests" DependsOnTargets="build-tw">
+	<Target Name="build-tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
@@ -28,6 +28,8 @@ This file was writen for launching with MSBuild
 			TargetType="library"
 			DebugType="pdbonly"
 			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
+	</Target>
+	<Target Name="run-tests" DependsOnTargets="build-tests">
 		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
 	</Target>
 	<Target Name="resources">
