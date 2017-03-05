@@ -45,7 +45,9 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, List<Position>> positions;
 
-	public string Execute(string commandText, bool showCommandInOutput, IRList<RegexData> regexList, bool stayTop)
+	public string Execute(
+		string commandText, bool showCommandInOutput, IRList<RegexData> regexList,
+		bool stayTop, string parameters)
 	{
 		positions = new Dictionary<int, List<Position>>();
 
@@ -63,18 +65,46 @@ public class RunShellCommand
 		string errors = p.StandardError.ReadToEnd();
 		string text = (showCommandInOutput ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
-		return ShowInOutput(output, errors, text, regexList, stayTop);
+		return ShowInOutput(output, errors, text, regexList, stayTop, parameters);
 	}
 	
-	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop)
+	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, string parameters)
 	{
 		positions = new Dictionary<int, List<Position>>();
-		ShowInOutput(null, null, text, regexList, stayTop);
+		ShowInOutput(null, null, text, regexList, stayTop, parameters);
 	}
 	
-	private string ShowInOutput(string output, string errors, string text, IRList<RegexData> regexList, bool stayTop)
+	private Encoding GetEncoding(string parameters)
 	{
-		Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+		if (!string.IsNullOrEmpty(parameters))
+		{
+			int index = parameters.IndexOf("e:");
+			if (index != -1)
+			{
+				int index2 = parameters.IndexOf(";");
+				string rawEncoding = index2 != -1 ?
+					parameters.Substring(index + 2, index2 - index - 2) :
+					parameters.Substring(index + 2);
+				string error;
+				EncodingPair newValue = EncodingPair.ParseEncoding(rawEncoding, out error);
+				if (!newValue.IsNull)
+				{
+					return newValue.encoding;
+				}
+				if (mainForm.Dialogs != null)
+				{
+					mainForm.Dialogs.ShowInfo("Shell encoding", error);
+				}
+			}
+		}
+		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+	}
+	
+	private string ShowInOutput(
+		string output, string errors, string text, IRList<RegexData> regexList,
+		bool stayTop, string parameters)
+	{
+		Encoding encoding = GetEncoding(parameters);
 		List<StyleRange> ranges = new List<StyleRange>();
 		if (!string.IsNullOrEmpty(errors))
 		{
@@ -159,6 +189,17 @@ public class RunShellCommand
 			buffer.Controller.DocumentEnd(false);
 		}
 		buffer.Controller.NeedScrollToCaret();
+		if (!string.IsNullOrEmpty(parameters))
+		{
+			int index = parameters.IndexOf("s:");
+			if (index != -1)
+			{
+				int index2 = parameters.IndexOf(";");
+				buffer.customSyntax = index2 != -1 ?
+					parameters.Substring(index + 2, index2 - index - 2) :
+					parameters.Substring(index + 2);
+			}
+		}
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		return null;
 	}

@@ -8,14 +8,16 @@ using MulticaretEditor.Highlighting;
 
 public class ConcreteHighlighterSet : HighlighterSet
 {
+	private MainForm mainForm;
 	private XmlLoader xmlLoader;
 	private Log log;
 	private SyntaxFilesScanner scanner;
 	
-	public ConcreteHighlighterSet(XmlLoader xmlLoader, Log log)
+	public ConcreteHighlighterSet(XmlLoader xmlLoader, Log log, MainForm mainForm)
 	{
 		this.xmlLoader = xmlLoader;
 		this.log = log;
+		this.mainForm = mainForm;
 	}
 	
 	public void UpdateParameters(SyntaxFilesScanner scanner)
@@ -27,8 +29,15 @@ public class ConcreteHighlighterSet : HighlighterSet
 	override protected Raw NewRaw(string type)
 	{
 		string file = scanner.GetSyntaxFileByName(type);
-		XmlDocument xml = xmlLoader.Load(file, false);
-		
+		if (string.IsNullOrEmpty(file))
+		{
+			if (mainForm.Dialogs != null)
+			{
+				mainForm.Dialogs.ShowInfo("Syntax highlighting", "Missing syntax: " + type);
+			}
+			return null;
+		}
+		XmlDocument xml = xmlLoader.Load(file, false);		
 		Raw raw = Raw.Parse(xml);
 		Raw.PrefixContexts(raw, type);
 		Raw.InlineIncludeRules(raw, this);
