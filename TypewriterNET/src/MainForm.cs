@@ -212,7 +212,7 @@ public class MainForm : Form
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
-		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
+		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log, this);
 
 		sharpManager = new SharpManager(this);
 		syntaxFilesScanner.Rescan();
@@ -842,7 +842,8 @@ public class MainForm : Form
 	
 	private bool DoPasteInOutput(Controller controller)
 	{
-		new RunShellCommand(this).ShowInOutput(ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false);
+		new RunShellCommand(this).ShowInOutput(
+			ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false, null);
 		return true;
 	}
 
