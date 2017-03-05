@@ -25,7 +25,7 @@
         <RegExpr attribute="Header" context="Chunk" String="&chunk;" beginRegion="chunk" column="0"/>
         <RegExpr attribute="Header" context="RChunk" String="\*+$" beginRegion="chunk" column="0"/>
         <RegExpr attribute="File" context="#stay" String="Only in .*:.*$" column="0"/>
-        <RegExpr attribute="File" context="RFile" String="diff.*$" Region="chunk" column="0"/>
+        <!--<RegExpr attribute="File" context="RFile" String="diff.*$" Region="chunk" column="0"/>-->
         <RegExpr attribute="File" context="#stay" String="====.*$" column="0"/>
         <RegExpr attribute="File" context="File" String="(\*\*\*|\-\-\-).*$" beginRegion="chunk" column="0"/>
         <IncludeRules context="FindDiff"/>
@@ -63,12 +63,12 @@
       </context>
 
       <!-- block contexts (diff -r) -->
-      <context attribute="Normal Text" lineEndContext="#stay" name="RFile">
+      <!--<context attribute="Normal Text" lineEndContext="#stay" name="RFile">
         <RegExpr attribute="File" context="#pop" String="(diff|Only in .*:).*$" endRegion="chunk" lookAhead="true" column="0"/>
         <RegExpr attribute="Header" context="#stay" String="&file;" column="0"/>
         <RegExpr attribute="Header" context="RChunkInFile" String="\*+$" beginRegion="chunk" column="0"/>
         <IncludeRules context="File"/>
-      </context>
+      </context>-->
 
       <context attribute="Normal Text" lineEndContext="#stay" name="RChunk">
         <RegExpr attribute="Header" context="#stay" String="\*\*\* .* \*\*\*\*$" column="0"/>
