@@ -1,3 +1,4 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net)
 Typewriter.NET
 ==============
 
