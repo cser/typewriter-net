@@ -11,9 +11,9 @@ namespace MulticaretEditor
 		
 		private List<REToken> _tokens = new List<REToken>();
 		private Stack<char> _operators = new Stack<char>();
-		private Stack<RENode> _operands = new Stack<RENode>();
+		private Stack<RE.RENode> _operands = new Stack<RE.RENode>();
 		
-		public RENode Parse(string pattern)
+		public RE.RENode Parse(string pattern)
 		{
 			_tokens.Clear();
 			_operators.Clear();
@@ -38,9 +38,9 @@ namespace MulticaretEditor
 			return ParseSequence(_tokens.Count - 1, null, out index);
 		}
 		
-		private RENode ParseSequence(int index, RENode next, out int nextIndex)
+		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)
 		{
-			RENode result = null;
+			RE.RENode result = null;
 			while (index >= 0)
 			{
 				REToken token = _tokens[index];
@@ -54,7 +54,8 @@ namespace MulticaretEditor
 							if (o == '|')
 							{
 								_operators.Pop();
-								result = new REAlternate(result, _operands.Pop(), next);
+								result = new RE.REAlternate(result, _operands.Pop());
+								result.next0 = next;
 							}
 						}
 						_operators.Push('|');
@@ -83,14 +84,15 @@ namespace MulticaretEditor
 				if (o == '|')
 				{
 					_operators.Pop();
-					result = new REAlternate(result, _operands.Pop(), next);
+					result = new RE.REAlternate(result, _operands.Pop());
+					result.next0 = next;
 				}
 			}
 			nextIndex = index;
 			return result;
 		}
 		
-		private RENode ParsePart(int index, RENode next, out int nextIndex)
+		private RE.RENode ParsePart(int index, RE.RENode next, out int nextIndex)
 		{
 			nextIndex = index - 1;
 			REToken token = _tokens[index];
@@ -98,7 +100,9 @@ namespace MulticaretEditor
 			{
 				if (token.c == '.')
 				{
-					return new REDot(next);
+					RE.RENode node = new RE.REDot();
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == '*')
 				{
@@ -108,16 +112,24 @@ namespace MulticaretEditor
 						return null;
 					}
 					token = _tokens[index];
-					RENode target = ParsePart(index, null, out nextIndex);
-					return new RERepetition(target, next);
+					RE.RENode target = ParsePart(index, null, out nextIndex);
+					RE.RENode node = new RE.RERepetition(target);
+					node.next0 = next;
+					return node;
 				}
-				return new REChar(token.c, next);
+				{
+					RE.REChar node = new RE.REChar(token.c);
+					node.next0 = next;
+					return node;
+				}
 			}
 			if (token.type == '\\')
 			{
 				if (token.c == '.' || token.c == '*')
 				{
-					return new REChar(token.c, next);
+					RE.REChar node = new RE.REChar(token.c);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == ')')
 				{
@@ -130,83 +142,123 @@ namespace MulticaretEditor
 				}
 				if (token.c == 'w')
 				{
-					return new RE_W(false, next);
+					RE.RE_W node = new RE.RE_W(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'W')
 				{
-					return new RE_W(true, next);
+					RE.RE_W node = new RE.RE_W(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 's')
 				{
-					return new RE_S(false, next);
+					RE.RE_S node = new RE.RE_S(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'S')
 				{
-					return new RE_S(true, next);
+					RE.RE_S node = new RE.RE_S(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'a')
 				{
-					return new RE_A(false, next);
+					RE.RE_A node = new RE.RE_A(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'A')
 				{
-					return new RE_A(true, next);
+					RE.RE_A node = new RE.RE_A(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'd')
 				{
-					return new RE_D(false, next);
+					RE.RE_D node = new RE.RE_D(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'D')
 				{
-					return new RE_D(true, next);
+					RE.RE_D node = new RE.RE_D(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'h')
 				{
-					return new RE_H(false, next);
+					RE.RE_H node = new RE.RE_H(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'H')
 				{
-					return new RE_H(true, next);
+					RE.RE_H node = new RE.RE_H(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'l')
 				{
-					return new RE_L(false, next);
+					RE.RE_L node = new RE.RE_L(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'L')
 				{
-					return new RE_L(true, next);
+					RE.RE_L node = new RE.RE_L(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'o')
 				{
-					return new RE_O(false, next);
+					RE.RE_O node = new RE.RE_O(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'O')
 				{
-					return new RE_O(true, next);
+					RE.RE_O node = new RE.RE_O(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'p')
 				{
-					return new RE_P(false, next);
+					RE.RE_P node = new RE.RE_P(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'P')
 				{
-					return new RE_P(true, next);
+					RE.RE_P node = new RE.RE_P(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'u')
 				{
-					return new RE_U(false, next);
+					RE.RE_U node = new RE.RE_U(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'U')
 				{
-					return new RE_U(true, next);
+					RE.RE_U node = new RE.RE_U(true);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'x')
 				{
-					return new RE_X(false, next);
+					RE.RE_X node = new RE.RE_X(false);
+					node.next0 = next;
+					return node;
 				}
 				if (token.c == 'X')
 				{
-					return new RE_X(true, next);
+					RE.RE_X node = new RE.RE_X(true);
+					node.next0 = next;
+					return node;
 				}
 			}
 			return null;

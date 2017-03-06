@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MulticaretEditor;
 
 public class RegExpr
 {
@@ -15,49 +16,8 @@ public class RegExpr
 		public int next2;
 	}
 	
-	protected class Deque
-	{
-		private Stack<int> _leftStack = new Stack<int>();
-		private Stack<int> _rightStack = new Stack<int>();
-		
-		public void push(int n)
-		{
-			_rightStack.Push(n);
-		}
-		
-		public void put(int n)
-		{
-			_leftStack.Push(n);
-		}
-		
-		public int pop()
-		{
-			if (_rightStack.Count != 0)
-			{
-				return _rightStack.Pop();
-			}
-			else
-			{
-				int size = _leftStack.Count;
-				Stack<int> local = new Stack<int>();
-				for (int i = 0; i < size / 2; i++)
-					local.Push(_leftStack.Pop());
-				while (_leftStack.Count != 0)
-					_rightStack.Push(_leftStack.Pop());
-				while (local.Count != 0)
-					_leftStack.Push(local.Pop());
-				return _rightStack.Pop();
-			}
-		}
-
-		public bool isEmpty()
-		{
-			return _leftStack.Count == 0 && _rightStack.Count == 0;
-		}
-	}
-	
 	protected State[] _automaton = new State[MAXSTATES];
-	protected Deque _deque = new Deque();
+	protected Deque<int> _deque = new Deque<int>();
 	protected int _j;
 	protected int _state;
 	protected string _p;
@@ -213,36 +173,36 @@ public class RegExpr
 		int lastMatch = j - 1;
 		int len = str.Length;
 		if (_automaton[0].next1 != _automaton[0].next2)
-			_deque.push(_automaton[0].next2);
-		_deque.put(next_char);
+			_deque.Push(_automaton[0].next2);
+		_deque.Put(next_char);
 		do
 		{
 			if (state == next_char)
 			{
 				if (str[_j] != '\0')
 					_j++;
-				_deque.put(next_char);
+				_deque.Put(next_char);
 			}
 			else if (_automaton[state].the_char == str[j])
 			{
-				_deque.put(_automaton[state].next1);
+				_deque.Put(_automaton[state].next1);
 				if (_automaton[state].next1 != _automaton[state].next2)
-					_deque.put(_automaton[state].next2);
+					_deque.Put(_automaton[state].next2);
 			}
 			else if (_automaton[state].the_char == '\0')
 			{
-				_deque.push(_automaton[state].next1);
+				_deque.Push(_automaton[state].next1);
 				if (_automaton[state].next1 != _automaton[state].next2)
-					_deque.push(_automaton[state].next2);
+					_deque.Push(_automaton[state].next2);
 			}
-			state = _deque.pop();
+			state = _deque.Pop();
 			if (state == 0)
 			{
 				lastMatch = j - 1;
-				state = _deque.pop();
+				state = _deque.Pop();
 			}
 		}
-		while (j <= len && !_deque.isEmpty());
+		while (j <= len && !_deque.IsEmpty);
 		return lastMatch;
 	}
 }

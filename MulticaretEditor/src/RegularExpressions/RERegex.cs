@@ -5,15 +5,12 @@ namespace MulticaretEditor
 {
 	public class RERegex
 	{
-		private readonly RENode _root;
-		private RENode[] _resetNodes;
+		private readonly RE.RENode _root;
+		private RE.RENode[] _resetNodes;
 		
-		public RERegex(RENode node)
+		public RERegex(RE.RENode node)
 		{
 			_root = node;
-			List<RENode> resetNodes = new List<RENode>();
-			_root.FillResetNodes(resetNodes);
-			_resetNodes = resetNodes.ToArray();
 		}
 		
 		public RERegex(string pattern) : this(new REParser().Parse(pattern))
@@ -22,12 +19,8 @@ namespace MulticaretEditor
 		
 		public int MatchLength(string text)
 		{
-			for (int i = 0; i < _resetNodes.Length; i++)
-			{
-				_resetNodes[i].Reset();
-			}
 			int matchLength = -1;
-			RENode nodeI = _root;
+			/*RE.RENode nodeI = _root;
 			for (int i = 0; i < text.Length; i++)
 			{
 				nodeI = nodeI.MatchChar(text[i]);
@@ -40,11 +33,7 @@ namespace MulticaretEditor
 					matchLength = i + 1;
 					break;
 				}
-				if (nodeI.matchHere)
-				{
-					matchLength = i;
-				}
-			}
+			}*/
 			return matchLength;
 		}
 	}

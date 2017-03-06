@@ -47,7 +47,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 	http://www.codeproject.com/Articles/41869/Custom-Drawn-Scrollbar
 	
 8. Vi-mode regex implementation idea
-	https://morepypy.blogspot.ru/2010/05/efficient-and-elegant-regular.html
+	Pattern Matching with Regular Expressions in C++
+	(http://www.tldp.org/LDP/LG/issue27/mueller.html,
+	http://rus-linux.net/nlib.php?name=/MyLDP/algol/cpattern/Regular_Expressions_in_C_ru.html)
 
 Installation without building
 -----------------------------
