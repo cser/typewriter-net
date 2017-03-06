@@ -49,7 +49,7 @@ public class RunShellCommand
 	{
 		positions = new Dictionary<int, List<Position>>();
 
-		Encoding encoding = mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+		Encoding encoding = GetEncoding(parameters);
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
@@ -102,7 +102,6 @@ public class RunShellCommand
 		string output, string errors, string text, IRList<RegexData> regexList,
 		bool stayTop, string parameters)
 	{
-		Encoding encoding = GetEncoding(parameters);
 		List<StyleRange> ranges = new List<StyleRange>();
 		if (!string.IsNullOrEmpty(errors))
 		{
@@ -114,7 +113,7 @@ public class RunShellCommand
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(text);
-		buffer.encodingPair = new EncodingPair(encoding, false);
+		buffer.encodingPair = new EncodingPair(GetEncoding(parameters), false);
 		if (regexList != null)
 		{
 			foreach (RegexData regexData in regexList)

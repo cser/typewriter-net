@@ -2,7 +2,7 @@
 <!--
 This file was writen for launching with MSBuild
 -->
-<Project DefaultTargets="installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="build-installer" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 	<ItemGroup>
 		<TypewriterNETSrc Include="TypewriterNET\src\**\*.cs"/>
 	</ItemGroup>
@@ -19,8 +19,10 @@ This file was writen for launching with MSBuild
 			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll"
 			Optimize="True"/>
 	</Target>
-	<Target Name="tests" DependsOnTargets="build-tw">
+	<Target Name="build-tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
+		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="."/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
@@ -28,6 +30,8 @@ This file was writen for launching with MSBuild
 			TargetType="library"
 			DebugType="pdbonly"
 			OutputAssembly="MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
+	</Target>
+	<Target Name="run-tests" DependsOnTargets="build-tests">
 		<Exec Command="NUnit\nunit-console-x86.exe MulticaretEditorTests\Bin\TypewriterNET.exe MulticaretEditorTests\bin\MulticaretEditorTests.dll"/>
 	</Target>
 	<Target Name="resources">
@@ -68,8 +72,10 @@ This file was writen for launching with MSBuild
 			OutputAssembly="ManualTests\bin\ManualTests.exe"/>
 		<Exec Command="ManualTests\bin\ManualTests.exe"/>
 	</Target>
-	<Target Name="installer" DependsOnTargets="build-tw">
+	<Target Name="build-installer" DependsOnTargets="build-tw">
 		<Exec Command="makensis TypewriterNET\installer.nsi"/>
+	</Target>
+	<Target Name="run-installer" DependsOnTargets="build-installer">
 		<Exec Command="TypewriterNET\typewriter-net-installer.exe"/>
 	</Target>
 </Project>
