@@ -1,7 +1,13 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8/branch/master?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master)
-[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net&branch=master)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master)
 Typewriter.NET
 ==============
+
+Current state:
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net)
+[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net)](https://ci.appveyor.com/project/cser/typewriter-net)
+
+Last stable installer for download:
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts)
+[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net&branch=master)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts)
 
 ![preview_1](https://raw.githubusercontent.com/cser/typewriter-net/master/TypewriterNET/previews/preview_1.png "Typewriter.NET with npp color scheme")
 
