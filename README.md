@@ -1,5 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net)
-[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net)](https://ci.appveyor.com/project/cser/typewriter-net)
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8/branch/master?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master)
+[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net&branch=master)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master)
 Typewriter.NET
 ==============
 
