@@ -21,6 +21,8 @@ This file was writen for launching with MSBuild
 	</Target>
 	<Target Name="build-tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
+		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="."/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
