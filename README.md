@@ -70,7 +70,7 @@ To build and install:
 1. Install **NSIS** from http://nsis.sourceforge.net/Download
 2. Add **NSIS** directory (for example <code>C:\Program Files (x86)\NSIS</code>) to PATH
 3. Execute **MSBuild** in repository folder:<br/>
-	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe</code><br/>
+	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:run-installer</code><br/>
 	(Of cause, you can add **MSBuild** to PATH too)
 
 To build and run without installation:
