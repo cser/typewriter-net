@@ -124,7 +124,17 @@ public class Buffer
 					if (encoding != null)
 						encodingPair = new EncodingPair(encoding, bom);
 				}
-				text = encodingPair.GetString(bytes);
+				int bomLength = encodingPair.CorrectBomLength(bytes);
+				if (encodingPair.bom && encodingPair.encoding == Encoding.UTF8 && bomLength == 0)
+				{
+					encodingPair = new EncodingPair(Encoding.UTF8, false);
+					settedEncodingPair = encodingPair;
+					if (error == null)
+					{
+						error = "Missing bom, loaded as without it";
+					}
+				}
+				text = encodingPair.GetString(bytes, bomLength);
 			}
 			catch (Exception e)
 			{

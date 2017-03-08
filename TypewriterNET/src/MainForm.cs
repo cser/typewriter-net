@@ -503,7 +503,7 @@ public class MainForm : Form
 		string fileText = null;
 		try
 		{
-			fileText = buffer.encodingPair.GetString(bytes);
+			fileText = buffer.encodingPair.GetString(bytes, buffer.encodingPair.CorrectBomLength(bytes));
 		}
 		catch
 		{
