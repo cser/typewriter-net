@@ -33,11 +33,11 @@ namespace UnitTests
 		[Test]
 		public void Parsing_Alternate()
 		{
-			Assert.AreEqual("(0o:1|2)(1'a':3)(2'b':3)(3~)",
+			Assert.AreEqual("(0o:1|2)(1'a')(2'b')",
 				new RERegex(@"a\|b").ToGraphString());
-			Assert.AreEqual("(0o:1|2)(1'a':3)(2'b':4)(3'b':5)(4'c':5)(5~)",
+			Assert.AreEqual("(0o:1|2)(1'a':3)(2'b':4)(3'b')(4'c')",
 				new RERegex(@"ab\|bc").ToGraphString());
-			Assert.AreEqual("(0o:1|2)(1'f':3)(2o:4|5)(3~)(4'a':6)(5'b':7)(6'b':3)(7'c':3)",
+			Assert.AreEqual("(0o:1|2)(1'f')(2o:3|4)(3'a':5)(4'b':6)(5'b')(6'c')",
 				new RERegex(@"f\|ab\|bc").ToGraphString());
 		}
 		/*

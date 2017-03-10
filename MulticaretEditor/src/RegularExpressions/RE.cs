@@ -5,8 +5,6 @@ namespace MulticaretEditor
 {
 	public class RE
 	{
-		public static readonly RE.REEnd end = new RE.REEnd();
-		
 		public abstract class RENode
 		{
 			public RENode next0;
@@ -26,45 +24,6 @@ namespace MulticaretEditor
 			public virtual bool MatchChar(char c)
 			{
 				return false;
-			}
-		}
-		
-		public class REEnd : RENode
-		{
-			public REEnd()
-			{
-			}
-			
-			public override bool MatchChar(char c)
-			{
-				return false;
-			}
-			
-			public override string ToString()
-			{
-				return "~";
-			}
-		}
-		
-		public class REAlternate : RENode
-		{
-			public readonly RENode branch0;
-			public readonly RENode branch1;
-			
-			public REAlternate(RENode branch0, RENode branch1)
-			{
-				this.branch0 = branch0;
-				this.branch1 = branch1;
-			}
-			
-			public override bool MatchChar(char c)
-			{
-				return false;
-			}
-			
-			public override string ToString()
-			{
-				return "|";
 			}
 		}
 		

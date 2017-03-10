@@ -37,7 +37,7 @@ namespace MulticaretEditor
 				_tokens.Add(new REToken('\0', c));
 			}
 			int index;
-			return ParseSequence(_tokens.Count - 1, RE.end, out index);
+			return ParseSequence(_tokens.Count - 1, null, out index);
 		}
 		
 		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)

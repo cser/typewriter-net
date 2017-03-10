@@ -40,14 +40,14 @@ namespace MulticaretEditor
 				else if (!state.emptyEntry && state.MatchChar(text[j]))
 				{
 					deque.Put(state.next0);
-					if (state.next0 != state.next1)
+					if (state.next1 != null)
 						deque.Put(state.next1);
 				}
 				else if (state.emptyEntry)
 				{
 					deque.Push(state.next0);
-					if (state.next0 != state.next1)
-						deque.Push(state.next1);
+					if (state.next0 != null)
+						deque.Push(state.next0);
 				}
 				state = deque.Pop();
 				if (state == _root)
