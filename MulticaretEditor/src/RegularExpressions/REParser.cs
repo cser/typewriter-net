@@ -12,12 +12,14 @@ namespace MulticaretEditor
 		private List<REToken> _tokens = new List<REToken>();
 		private Stack<char> _operators = new Stack<char>();
 		private Stack<RE.RENode> _operands = new Stack<RE.RENode>();
+		private Stack<RE.RENode> _operandEnds = new Stack<RE.RENode>();
 		
 		public RE.RENode Parse(string pattern)
 		{
 			_tokens.Clear();
 			_operators.Clear();
 			_operands.Clear();
+			_operandEnds.Clear();
 			for (int i = 0; i < pattern.Length; i++)
 			{
 				char c = pattern[i];
@@ -35,11 +37,12 @@ namespace MulticaretEditor
 				_tokens.Add(new REToken('\0', c));
 			}
 			int index;
-			return ParseSequence(_tokens.Count - 1, null, out index);
+			return ParseSequence(_tokens.Count - 1, RE.end, out index);
 		}
 		
 		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)
 		{
+			RE.RENode resultEnd = null;
 			RE.RENode result = null;
 			while (index >= 0)
 			{
@@ -54,13 +57,15 @@ namespace MulticaretEditor
 							if (o == '|')
 							{
 								_operators.Pop();
-								result = new RE.REAlternate(result, _operands.Pop());
-								result.next0 = next;
+								result = BuildAlternate(result, resultEnd, _operands.Pop(), _operandEnds.Pop(), next);
+								resultEnd = resultEnd ?? result;
 							}
 						}
 						_operators.Push('|');
 						_operands.Push(result);
+						_operandEnds.Push(resultEnd);
 						result = null;
+						resultEnd = null;
 						index--;
 						continue;
 					}
@@ -73,10 +78,12 @@ namespace MulticaretEditor
 					{
 						index--;
 						result = ParseSequence(index, result, out index);
+						resultEnd = resultEnd ?? result;
 						continue;
 					}
 				}
-				result = ParsePart(index, result, out index); 
+				result = ParsePart(index, result, out index);
+				resultEnd = resultEnd ?? result;
 			}
 			if (_operators.Count > 0)
 			{
@@ -84,8 +91,8 @@ namespace MulticaretEditor
 				if (o == '|')
 				{
 					_operators.Pop();
-					result = new RE.REAlternate(result, _operands.Pop());
-					result.next0 = next;
+					result = BuildAlternate(result, resultEnd, _operands.Pop(), _operandEnds.Pop(), next);
+					resultEnd = resultEnd ?? result;
 				}
 			}
 			nextIndex = index;
@@ -262,6 +269,19 @@ namespace MulticaretEditor
 				}
 			}
 			return null;
+		}
+		
+		private RE.RENode BuildAlternate(
+			RE.RENode branch0, RE.RENode branch0End,
+			RE.RENode branch1, RE.RENode branch1End,
+			RE.RENode next)
+		{
+			RE.RENode start = new RE.REEmpty();
+			start.next0 = branch0;
+			start.next1 = branch1;
+			branch0End.next0 = next;
+			branch1End.next0 = next;
+			return start;
 		}
 	}
 }
