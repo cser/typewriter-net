@@ -71,11 +71,8 @@ namespace MulticaretEditor
 		
 		public class REEmpty : RENode
 		{
-			public readonly RENode body;
-			
-			public REEmpty(RENode body) : base(true)
+			public REEmpty() : base(true)
 			{
-				this.body = body;
 			}
 			
 			public override bool MatchChar(char c)
