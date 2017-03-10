@@ -40,15 +40,17 @@ namespace UnitTests
 			Assert.AreEqual("(0o:1|2)(1'f')(2o:3|4)(3'a':5)(4'b':6)(5'b')(6'c')",
 				new RERegex(@"f\|ab\|bc").ToGraphString());
 		}
-		/*
+		
 		[Test]
 		public void Parsing_AlternateBrackets()
 		{
-			Assert.AreEqual("('a'('('('b'('|'('c'(')'('d')))))))", new RERegex(@"a(b|c)d").ToGraphString());
-			Assert.AreEqual("('a'(('b')|('c')`('d')))", new RERegex(@"a\(b\|c\)d").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1'(':2)(2'b':3)(3'|':4)(4'c':5)(5')':6)(6'd')",
+				new RERegex(@"a(b|c)d").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'c':4)(4'd')",
+				new RERegex(@"a\(b\|c\)d").ToGraphString());
 		}
 		
-		[Test]
+		/*[Test]
 		public void Parsing_wWsS()
 		{
 			Assert.AreEqual("('a'(w('b')))", new RERegex(@"a\wb").ToGraphString());
