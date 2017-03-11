@@ -37,7 +37,7 @@ namespace MulticaretEditor
 				_tokens.Add(new REToken('\0', c));
 			}
 			int index;
-			return ParseSequence(_tokens.Count - 1, null, out index);
+			return RemoveSuperfluousNodes(ParseSequence(_tokens.Count - 1, null, out index));
 		}
 		
 		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)
@@ -119,8 +119,8 @@ namespace MulticaretEditor
 						return null;
 					}
 					token = _tokens[index];
-					RE.RENode target = ParsePart(index, null, out nextIndex);
-					RE.RENode targetEnd = null;
+					RE.RENode targetEnd = new RE.REEmpty();
+					RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
 					return BuildRepetition(target, targetEnd, next);
 				}
 				{
@@ -290,8 +290,52 @@ namespace MulticaretEditor
 			RE.RENode start = new RE.REEmpty();
 			start.next0 = body;
 			bodyEnd.next0 = start;
+			bodyEnd.next1 = start;
 			start.next1 = next;
 			return start;
+		}
+		
+		private RE.RENode RemoveSuperfluousNodes(RE.RENode root)
+		{
+			if (root == null)
+			{
+				return root;
+			}
+			while (root.next0 == root.next1 && root.next0 != null)
+			{
+				root = root.next0;
+			}
+			Dictionary<RE.RENode, bool> nodes = new Dictionary<RE.RENode, bool>();
+			Stack<RE.RENode> stack = new Stack<RE.RENode>();
+			stack.Push(root);
+			while (stack.Count > 0)
+			{
+				RE.RENode node = stack.Pop();
+				nodes[node] = true;
+				if (node.next0 != null)
+				{
+					if (node.next0.emptyEntry && node.next0.next0 == node.next0.next1)
+					{
+						node.next0 = node.next0.next0;
+					}
+					if (!nodes.ContainsKey(node.next0))
+					{
+						stack.Push(node.next0);
+					}
+				}
+				if (node.next1 != null)
+				{
+					if (node.next1.emptyEntry && node.next1.next0 == node.next1.next1)
+					{
+						node.next1 = node.next1.next0;
+					}
+					if (!nodes.ContainsKey(node.next1))
+					{
+						stack.Push(node.next1);
+					}
+				}
+			}
+			return root;
 		}
 	}
 }

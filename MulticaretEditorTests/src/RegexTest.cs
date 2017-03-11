@@ -216,21 +216,21 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\n"));
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\r"));
 		}
-		/*
+		
 		[Test]
 		public void Parsing_Star()
 		{
-			Assert.AreEqual("('a'('*'))", new RERegex(@"a\*").ToGraphString());
-			Assert.AreEqual("(('a')*)", new RERegex(@"a*").ToGraphString());
-			Assert.AreEqual("((('a'('b'))|('c'))*)", new RERegex(@"\(ab\|c\)*").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1'*')", new RERegex(@"a\*").ToGraphString());
+			Assert.AreEqual("(0o:1)(1'a':0)", new RERegex(@"a*").ToGraphString());
+			Assert.AreEqual("(0o:1)(1o:2|3)(2'a':4)(3'c':0)(4'b':0)", new RERegex(@"\(ab\|c\)*").ToGraphString());
 		}
 		
 		[Test]
 		public void Parsing_Star2()
 		{
-			Assert.AreEqual("('a'(('b')*))", new RERegex(@"ab*").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1o:2)(2'b':1)", new RERegex(@"ab*").ToGraphString());
 		}
-		*/
+		
 		[Test]
 		public void MatchLength_NotFull()
 		{

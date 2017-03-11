@@ -9,6 +9,7 @@ namespace MulticaretEditor
 		private readonly string _pattern;
 		private readonly RE.RENode _root;
 		private readonly RE.REEmpty _nextChar = new RE.REEmpty();
+		private bool _emptyMatched;
 		
 		public RERegex(string pattern)
 		{
@@ -43,7 +44,12 @@ namespace MulticaretEditor
 						{
 							if (state.next0.emptyEntry)
 							{
+								_emptyMatched = false;
 								AddEmpty(next, state.next0);
+								if (_emptyMatched)
+								{
+									matchLength = i + 1;
+								}
 							}
 							else if (!next.Contains(state.next0))
 							{
@@ -81,6 +87,10 @@ namespace MulticaretEditor
 					nodes.Add(node.next0);
 				}
 			}
+			else
+			{
+				_emptyMatched = true;
+			}
 			if (node.next1 != null)
 			{
 				if (node.next1.emptyEntry)
@@ -91,6 +101,10 @@ namespace MulticaretEditor
 				{
 					nodes.Add(node.next1);
 				}
+			}
+			else
+			{
+				_emptyMatched = true;
 			}
 		}
 		
