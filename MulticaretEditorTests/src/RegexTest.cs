@@ -5,23 +5,7 @@ using MulticaretEditor;
 namespace UnitTests
 {
 	public class RegexTest
-	{
-		/*[Test]
-		public void MatchLength()
-		{
-			Assert.AreEqual(2, new RERegex(new REChar('a', new REChar('b', null))).MatchLength("ab"));
-			Assert.AreEqual(-1, new RERegex(new REChar('a', new REChar('b', null))).MatchLength("aс"));
-			Assert.AreEqual(2, new RERegex(new REChar('a',
-				new REAlternate(new REChar('b', null), new REChar('c', null), null)
-			)).MatchLength("ab"));
-			Assert.AreEqual(2, new RERegex(new REChar('a',
-				new REAlternate(new REChar('b', null), new REChar('c', null), null)
-			)).MatchLength("ac"));
-			Assert.AreEqual(-1, new RERegex(new REChar('a',
-				new REAlternate(new REChar('b', null), new REChar('c', null), null)
-			)).MatchLength("ae"));
-		}*/
-			
+	{	
 		[Test]
 		public void Parsing_Chars()
 		{
@@ -48,6 +32,18 @@ namespace UnitTests
 				new RERegex(@"a(b|c)d").ToGraphString());
 			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'c':4)(4'd')",
 				new RERegex(@"a\(b\|c\)d").ToGraphString());
+		}
+		
+		[Test]
+		public void MatchLength()
+		{
+			Assert.AreEqual(2, new RERegex(@"ab").MatchLength("ab"));
+			Assert.AreEqual(-1, new RERegex(@"ab").MatchLength("aс"));
+			Console.WriteLine("-------------");
+			Assert.AreEqual(2, new RERegex(@"a\(b\|c\)").MatchLength("ab"));
+			Console.WriteLine("-------------");
+			Assert.AreEqual(2, new RERegex(@"a\(b\|c\)").MatchLength("ac"));
+			Assert.AreEqual(-1, new RERegex(@"a\(b\|c\)").MatchLength("ae"));
 		}
 		
 		/*[Test]

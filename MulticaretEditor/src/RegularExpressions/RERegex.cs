@@ -21,42 +21,60 @@ namespace MulticaretEditor
 		{
 			int length = text.Length;
 			int matchLength = -1;
-			Deque<RE.RENode> deque = new Deque<RE.RENode>();
-			RE.RENode state = _root.next0;
-			if (_root.next1 != null)
+			List<RE.RENode> current = new List<RE.RENode>();
+			List<RE.RENode> next = new List<RE.RENode>();
+			current.Add(_root);
+			for (int i = 0; i < text.Length; i++)
 			{
-				deque.Push(_root.next1);
+				char c = text[i];
+				Console.Write("['" + c + "':");
+				for (int j = 0; j < current.Count; j++)
+				{
+					Console.Write("(" + j + ")");
+					RE.RENode state = current[j];
+					if (state.emptyEntry)
+					{
+						Console.Write("EMPTY;");
+						if (state.next0 != null && !next.Contains(state.next0))
+						{
+							Console.Write("NEXT0;");
+							next.Add(state.next0);
+						}
+						if (state.next1 != null && !next.Contains(state.next1))
+						{
+							Console.Write("NEXT1;");
+							next.Add(state.next1);
+						}
+						if (state.next0 == null && state.next1 == null)
+						{
+							matchLength = i;
+							Console.Write("EMPTY_LENGTH=" + matchLength + ";");
+						}
+					}
+					else if (state.MatchChar(c))
+					{
+						Console.Write("MATCHED(" + c + ");");
+						if (state.next0 != null && !next.Contains(state.next0))
+						{
+							next.Add(state.next0);
+						}
+						if (state.next0 == null && state.next1 == null)
+						{
+							matchLength = i + 1;
+							Console.Write("MATCH_LENGTH=" + matchLength + ";");
+						}
+					}
+				}
+				Console.Write("]");
+				List<RE.RENode> temp = current;
+				current = next;
+				next = temp;
+				next.Clear();
+				if (current.Count == 0)
+				{
+					return matchLength;
+				}
 			}
-			deque.Put(_nextChar);
-			int j = 0;
-			do
-			{
-				if (state == _nextChar)
-				{
-					if (j < length - 1)
-						j++;
-					deque.Put(_nextChar);
-				}
-				else if (!state.emptyEntry && state.MatchChar(text[j]))
-				{
-					deque.Put(state.next0);
-					if (state.next1 != null)
-						deque.Put(state.next1);
-				}
-				else if (state.emptyEntry)
-				{
-					deque.Push(state.next0);
-					if (state.next0 != null)
-						deque.Push(state.next0);
-				}
-				state = deque.Pop();
-				if (state == _root)
-				{
-					matchLength = j - 1;
-					state = deque.Pop();
-				}
-			}
-			while (j < length && !deque.IsEmpty);
 			return matchLength;
 		}
 		
