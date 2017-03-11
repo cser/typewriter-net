@@ -120,9 +120,8 @@ namespace MulticaretEditor
 					}
 					token = _tokens[index];
 					RE.RENode target = ParsePart(index, null, out nextIndex);
-					RE.RENode node = new RE.RERepetition(target);
-					node.next0 = next;
-					return node;
+					RE.RENode targetEnd = null;
+					return BuildRepetition(target, targetEnd, next);
 				}
 				{
 					RE.REChar node = new RE.REChar(token.c);
@@ -281,6 +280,17 @@ namespace MulticaretEditor
 			start.next1 = branch1;
 			branch0End.next0 = next;
 			branch1End.next0 = next;
+			return start;
+		}
+		
+		private RE.RENode BuildRepetition(
+			RE.RENode body, RE.RENode bodyEnd,
+			RE.RENode next)
+		{
+			RE.RENode start = new RE.REEmpty();
+			start.next0 = body;
+			bodyEnd.next0 = start;
+			start.next1 = next;
 			return start;
 		}
 	}

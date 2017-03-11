@@ -27,26 +27,6 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public class RERepetition : RENode
-		{
-			public readonly RENode body;
-			
-			public RERepetition(RENode body)
-			{
-				this.body = body;
-			}
-			
-			public override bool MatchChar(char c)
-			{
-				return false;
-			}
-			
-			public override string ToString()
-			{
-				return "*";
-			}
-		}
-		
 		public class REEmpty : RENode
 		{
 			public REEmpty() : base(true)

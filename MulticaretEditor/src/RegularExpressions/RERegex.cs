@@ -23,49 +23,39 @@ namespace MulticaretEditor
 			int matchLength = -1;
 			List<RE.RENode> current = new List<RE.RENode>();
 			List<RE.RENode> next = new List<RE.RENode>();
-			current.Add(_root);
+			if (_root.emptyEntry)
+			{
+				AddEmpty(current, _root);
+			}
+			else
+			{
+				current.Add(_root);
+			}
 			for (int i = 0; i < text.Length; i++)
 			{
 				char c = text[i];
-				Console.Write("['" + c + "':");
 				for (int j = 0; j < current.Count; j++)
 				{
-					Console.Write("(" + j + ")");
 					RE.RENode state = current[j];
-					if (state.emptyEntry)
+					if (state.MatchChar(c))
 					{
-						Console.Write("EMPTY;");
-						if (state.next0 != null && !next.Contains(state.next0))
+						if (state.next0 != null)
 						{
-							Console.Write("NEXT0;");
-							next.Add(state.next0);
-						}
-						if (state.next1 != null && !next.Contains(state.next1))
-						{
-							Console.Write("NEXT1;");
-							next.Add(state.next1);
-						}
-						if (state.next0 == null && state.next1 == null)
-						{
-							matchLength = i;
-							Console.Write("EMPTY_LENGTH=" + matchLength + ";");
-						}
-					}
-					else if (state.MatchChar(c))
-					{
-						Console.Write("MATCHED(" + c + ");");
-						if (state.next0 != null && !next.Contains(state.next0))
-						{
-							next.Add(state.next0);
+							if (state.next0.emptyEntry)
+							{
+								AddEmpty(next, state.next0);
+							}
+							else if (!next.Contains(state.next0))
+							{
+								next.Add(state.next0);
+							}
 						}
 						if (state.next0 == null && state.next1 == null)
 						{
 							matchLength = i + 1;
-							Console.Write("MATCH_LENGTH=" + matchLength + ";");
 						}
 					}
 				}
-				Console.Write("]");
 				List<RE.RENode> temp = current;
 				current = next;
 				next = temp;
@@ -76,6 +66,32 @@ namespace MulticaretEditor
 				}
 			}
 			return matchLength;
+		}
+		
+		private void AddEmpty(List<RE.RENode> nodes, RE.RENode node)
+		{
+			if (node.next0 != null)
+			{
+				if (node.next0.emptyEntry)
+				{
+					AddEmpty(nodes, node.next0);
+				}
+				else if (!nodes.Contains(node.next0))
+				{
+					nodes.Add(node.next0);
+				}
+			}
+			if (node.next1 != null)
+			{
+				if (node.next1.emptyEntry)
+				{
+					AddEmpty(nodes, node.next1);
+				}
+				else if (!nodes.Contains(node.next1))
+				{
+					nodes.Add(node.next1);
+				}
+			}
 		}
 		
 		public override string ToString()

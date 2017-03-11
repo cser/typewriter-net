@@ -39,9 +39,7 @@ namespace UnitTests
 		{
 			Assert.AreEqual(2, new RERegex(@"ab").MatchLength("ab"));
 			Assert.AreEqual(-1, new RERegex(@"ab").MatchLength("aс"));
-			Console.WriteLine("-------------");
 			Assert.AreEqual(2, new RERegex(@"a\(b\|c\)").MatchLength("ab"));
-			Console.WriteLine("-------------");
 			Assert.AreEqual(2, new RERegex(@"a\(b\|c\)").MatchLength("ac"));
 			Assert.AreEqual(-1, new RERegex(@"a\(b\|c\)").MatchLength("ae"));
 		}
@@ -57,7 +55,7 @@ namespace UnitTests
 			Assert.AreEqual("('a'(s))", new RERegex(@"a\s").ToGraphString());
 			Assert.AreEqual("('a'(S))", new RERegex(@"a\S").ToGraphString());
 		}
-		
+		*/
 		[Test]
 		public void MatchLength2()
 		{
@@ -97,14 +95,14 @@ namespace UnitTests
 			Assert.AreEqual(1, new RERegex("\\S").MatchLength("ab"));
 			Assert.AreEqual(-1, new RERegex("\\S").MatchLength(" b"));
 		}
-		
+		/*
 		[Test]
 		public void Parsing_dDxXoOhHpPaAlLuU()
 		{
 			Assert.AreEqual("(d(D(x(X(o(O(h(H(p(P(a(A(l(L(u(U))))))))))))))))",
 				new RERegex(@"\d\D\x\X\o\O\h\H\p\P\a\A\l\L\u\U").ToGraphString());
 		}
-		
+		*/
 		[Test]
 		public void MatchLength_dD()
 		{
@@ -204,13 +202,13 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@"\A\|\H\|\L\|\O\|\U\|\W\|\X").MatchLength("\r"));
 		}
 		
-		[Test]
+		/*[Test]
 		public void Parsing_Dot()
 		{
 			Assert.AreEqual("(.('a'))", new RERegex(@".a").ToGraphString());
 			Assert.AreEqual("('.'('a'))", new RERegex(@"\.a").ToGraphString());
 		}
-		
+		*/
 		[Test]
 		public void MatchLength_Dot()
 		{
@@ -218,7 +216,7 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\n"));
 			Assert.AreEqual(-1, new RERegex(@".").MatchLength("\r"));
 		}
-		
+		/*
 		[Test]
 		public void Parsing_Star()
 		{
@@ -232,7 +230,7 @@ namespace UnitTests
 		{
 			Assert.AreEqual("('a'(('b')*))", new RERegex(@"ab*").ToGraphString());
 		}
-		
+		*/
 		[Test]
 		public void MatchLength_NotFull()
 		{
@@ -270,11 +268,5 @@ namespace UnitTests
 		{
 			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaabacdef"));
 		}
-		
-		[Test]
-		public void MatchRegExpr()
-		{
-			Assert.AreEqual(2, new RegExpr("a*").Search("bbaaa"));
-		}*/
 	}
 }

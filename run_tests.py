@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-proc = subprocess.Popen(["c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe", "/target:tests", "/verbosity:m"], shell=True, stdout=subprocess.PIPE)
+proc = subprocess.Popen(["c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe", "/target:run-tests", "/verbosity:m"], shell=True, stdout=subprocess.PIPE)
 out = proc.stdout.read()
 
 if "<<<" in out:
