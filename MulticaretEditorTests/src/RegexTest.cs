@@ -44,18 +44,18 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@"a\(b\|c\)").MatchLength("ae"));
 		}
 		
-		/*[Test]
+		[Test]
 		public void Parsing_wWsS()
 		{
-			Assert.AreEqual("('a'(w('b')))", new RERegex(@"a\wb").ToGraphString());
-			Assert.AreEqual("(w(w('b')))", new RERegex(@"\w\wb").ToGraphString());
-			Assert.AreEqual("('a'(W('b')))", new RERegex(@"a\Wb").ToGraphString());
-			Assert.AreEqual("(W(w('b')))", new RERegex(@"\W\wb").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1w:2)(2'b')", new RERegex(@"a\wb").ToGraphString());
+			Assert.AreEqual("(0w:1)(1w:2)(2'b')", new RERegex(@"\w\wb").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1W:2)(2'b')", new RERegex(@"a\Wb").ToGraphString());
+			Assert.AreEqual("(0W:1)(1w:2)(2'b')", new RERegex(@"\W\wb").ToGraphString());
 			
-			Assert.AreEqual("('a'(s))", new RERegex(@"a\s").ToGraphString());
-			Assert.AreEqual("('a'(S))", new RERegex(@"a\S").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1s)", new RERegex(@"a\s").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1S)", new RERegex(@"a\S").ToGraphString());
 		}
-		*/
+		
 		[Test]
 		public void MatchLength2()
 		{
@@ -95,14 +95,15 @@ namespace UnitTests
 			Assert.AreEqual(1, new RERegex("\\S").MatchLength("ab"));
 			Assert.AreEqual(-1, new RERegex("\\S").MatchLength(" b"));
 		}
-		/*
+		
 		[Test]
 		public void Parsing_dDxXoOhHpPaAlLuU()
 		{
-			Assert.AreEqual("(d(D(x(X(o(O(h(H(p(P(a(A(l(L(u(U))))))))))))))))",
+			Assert.AreEqual(
+				"(0d:1)(1D:2)(2x:3)(3X:4)(4o:5)(5O:6)(6h:7)(7H:8)(8p:9)(9P:10)(10a:11)(11A:12)(12l:13)(13L:14)(14u:15)(15U)",
 				new RERegex(@"\d\D\x\X\o\O\h\H\p\P\a\A\l\L\u\U").ToGraphString());
 		}
-		*/
+		
 		[Test]
 		public void MatchLength_dD()
 		{
@@ -202,13 +203,13 @@ namespace UnitTests
 			Assert.AreEqual(-1, new RERegex(@"\A\|\H\|\L\|\O\|\U\|\W\|\X").MatchLength("\r"));
 		}
 		
-		/*[Test]
+		[Test]
 		public void Parsing_Dot()
 		{
-			Assert.AreEqual("(.('a'))", new RERegex(@".a").ToGraphString());
-			Assert.AreEqual("('.'('a'))", new RERegex(@"\.a").ToGraphString());
+			Assert.AreEqual("(0.:1)(1'a')", new RERegex(@".a").ToGraphString());
+			Assert.AreEqual("(0'.':1)(1'a')", new RERegex(@"\.a").ToGraphString());
 		}
-		*/
+		
 		[Test]
 		public void MatchLength_Dot()
 		{
@@ -267,6 +268,19 @@ namespace UnitTests
 		public void MatchLength_Star2()
 		{
 			Assert.AreEqual(3, new RERegex(@"a*").MatchLength("aaabacdef"));
+		}
+		
+		[Test]
+		public void MatchLength_Star3()
+		{
+			Assert.AreEqual(6, new RERegex(@"a*b*ac").MatchLength("aaabacdef"));
+			Assert.AreEqual(3, new RERegex(@"a*e*a").MatchLength("aaabacdef"));
+		}
+		
+		[Test]
+		public void MatchLength_Star4()
+		{
+			Assert.AreEqual(4, new RERegex(@"\(ae\)*").MatchLength("aeaeaf"));
 		}
 	}
 }
