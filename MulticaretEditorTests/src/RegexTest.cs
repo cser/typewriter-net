@@ -32,6 +32,8 @@ namespace UnitTests
 				new RERegex(@"a(b|c)d").ToGraphString());
 			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'c':4)(4'd')",
 				new RERegex(@"a\(b\|c\)d").ToGraphString());
+			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'd':5)(4'c':5)(5'e')",
+				new RERegex(@"a\(bc\|d\)e").ToGraphString());
 		}
 		
 		[Test]
@@ -280,11 +282,63 @@ namespace UnitTests
 		[Test]
 		public void MatchLength_Star4()
 		{
-			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'd':5)(4'c':5)(5'e')",
-				new RERegex(@"a\(bc\|d\)e").ToGraphString());
-			
 			Assert.AreEqual("(0o:1)(1'a':2)(2'e':0)", new RERegex(@"\(ae\)*").ToGraphString());
 			Assert.AreEqual(4, new RERegex(@"\(ae\)*").MatchLength("aeaeaf"));
+		}
+		
+		[Test]
+		public void Parsing_CharacterRanges1()
+		{
+			Assert.AreEqual("(0['a''b'])", new RERegex(@"[ab]").ToGraphString());
+			Assert.AreEqual("(0!['a''b'])", new RERegex(@"[^ab]").ToGraphString());
+			Assert.AreEqual("(0['a''^''b'])", new RERegex(@"[a^b]").ToGraphString());
+			Assert.AreEqual("(0['-''a''b'])", new RERegex(@"[-ab]").ToGraphString());
+			Assert.AreEqual("(0!['-''a''b'])", new RERegex(@"[^-ab]").ToGraphString());
+		}
+		
+		[Test]
+		public void Parsing_CharacterRanges2()
+		{
+			Assert.AreEqual("(0['a'-'z'])", new RERegex(@"[a-z]").ToGraphString());
+			Assert.AreEqual("(0['0''1''a'-'z'])", new RERegex(@"[01a-z]").ToGraphString());
+			Assert.AreEqual("(0['0''1''_''a'-'z''2'-'9'])", new RERegex(@"[01a-z_2-9]").ToGraphString());
+			Assert.AreEqual("(0!['0''1''_''a'-'z''2'-'9'])", new RERegex(@"[^01a-z_2-9]").ToGraphString());
+		}
+		
+		[Test]
+		public void Parsing_CharacterRanges3()
+		{
+			Assert.AreEqual("(0['-'])", new RERegex(@"[-]").ToGraphString());
+			Assert.AreEqual("(0['-''a'])", new RERegex(@"[-a]").ToGraphString());
+			Assert.AreEqual("(0!['-'])", new RERegex(@"[^-]").ToGraphString());
+			Assert.AreEqual("(0!['-''a'])", new RERegex(@"[^-a]").ToGraphString());
+		}
+		
+		[Test]
+		public void MatchLength_CharacterRanges1()
+		{
+			Assert.AreEqual(1, new RERegex(@"[a]").MatchLength("a"));
+			Assert.AreEqual(-1, new RERegex(@"[с]").MatchLength("a"));
+			Assert.AreEqual(1, new RERegex(@"[a-z]").MatchLength("a"));
+			Assert.AreEqual(-1, new RERegex(@"[a-z]").MatchLength("2"));
+			Assert.AreEqual(-1, new RERegex(@"[^a]").MatchLength("a"));
+			Assert.AreEqual(1, new RERegex(@"[^с]").MatchLength("a"));
+			Assert.AreEqual(-1, new RERegex(@"[^a-z]").MatchLength("a"));
+			Assert.AreEqual(1, new RERegex(@"[^a-z]").MatchLength("2"));
+		}
+		
+		[Test]
+		public void Parsing_StarRanges()
+		{
+			Assert.AreEqual("(0o:1)(1['a']:0)", new RERegex(@"[a]*").ToGraphString());
+			Assert.AreEqual("(0o:1)(1['a''b']:0)", new RERegex(@"[ab]*").ToGraphString());
+		}
+		
+		[Test]
+		public void MatchLength_StarGreed()
+		{
+			Assert.AreEqual(10, new RERegex(@"[abc]*abc").MatchLength("aabcaaaabccccc"));
+			Assert.AreEqual(4, new RERegex(@"[abc]*abc").MatchLength("aabcaaaabaccccc"));
 		}
 	}
 }

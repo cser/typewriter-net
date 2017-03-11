@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MulticaretEditor
 {
@@ -314,6 +315,90 @@ namespace MulticaretEditor
 			public override string ToString()
 			{
 				return _upper ? "X" : "x";
+			}
+		}
+		
+		public class REInterval
+		{
+			public readonly char a;
+			public readonly char b;
+			public readonly REInterval next;
+			
+			public REInterval(char a, char b, REInterval next)
+			{
+				this.a = a;
+				this.b = b;
+				this.next = next;
+			}
+		}
+		
+		public class RERange : RENode
+		{
+			private readonly char[] _chars;
+			private readonly REInterval _interval;
+			
+			public RERange(char[] chars, REInterval interval)
+			{
+				_chars = chars;
+				_interval = interval;
+			}
+			
+			public override bool MatchChar(char c)
+			{
+				if (_chars != null && Array.IndexOf(_chars, c) != -1)
+				{
+					return true;
+				}
+				for (REInterval interval = _interval; interval != null; interval = interval.next)
+				{
+					if (c >= interval.a && c <= interval.b)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			public override string ToString()
+			{
+				StringBuilder builder = new StringBuilder();
+				builder.Append('[');
+				for (int i = 0; i < _chars.Length; i++)
+				{
+					builder.Append("'");
+					builder.Append(_chars[i]);
+					builder.Append("'");
+				}
+				for (REInterval interval = _interval; interval != null; interval = interval.next)
+				{
+					builder.Append("'");
+					builder.Append(interval.a);
+					builder.Append("'-'");
+					builder.Append(interval.b);
+					builder.Append("'");
+				}
+				builder.Append(']');
+				return builder.ToString();
+			}
+		}
+		
+		public class RENot : RENode
+		{
+			private readonly RENode _node;
+			
+			public RENot(RENode node)
+			{
+				_node = node;
+			}
+			
+			public override bool MatchChar(char c)
+			{
+				return !_node.MatchChar(c);
+			}
+			
+			public override string ToString()
+			{
+				return "!" + _node;
 			}
 		}
 	}

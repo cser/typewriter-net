@@ -82,6 +82,16 @@ namespace MulticaretEditor
 						continue;
 					}
 				}
+				else
+				{
+					if (token.c == ']')
+					{
+						index--;
+						result = ParseRange(index, result, out index);
+						resultEnd = resultEnd ?? result;
+						continue;
+					}
+				}
 				result = ParsePart(index, result, out index);
 				resultEnd = resultEnd ?? result;
 			}
@@ -122,6 +132,12 @@ namespace MulticaretEditor
 					RE.RENode targetEnd = new RE.REEmpty();
 					RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
 					RE.RENode result = BuildRepetition(target, targetEnd, next);
+					return result;
+				}
+				if (token.c == ']' && index > 0)
+				{
+					index--;
+					RE.RENode result = ParseRange(index, next, out nextIndex);
 					return result;
 				}
 				{
@@ -338,6 +354,50 @@ namespace MulticaretEditor
 				}
 			}
 			return root;
+		}
+		
+		private RE.RENode ParseRange(int index, RE.RENode next, out int nextIndex)
+		{
+			Stack<char> chars = new Stack<char>();
+			RE.REInterval interval = null;
+			bool negative = false;
+			while (index >= 0)
+			{
+				REToken token = _tokens[index];
+				index--;
+				if (token.type == '\0')
+				{
+					if (token.c == '[')
+					{
+						break;
+					}
+					if (token.c == '^' && index >= 0 && _tokens[index].type == '\0' && _tokens[index].c == '[')
+					{
+						index--;
+						negative = true;
+						break;
+					}
+					if (token.c == '-' && chars.Count > 0 && index >= 0 &&
+						(_tokens[index].type != '\0' || _tokens[index].c != '[' &&
+						_tokens[index].c != '-' &&
+						(_tokens[index].c != '^' || index <= 0 || _tokens[index - 1].type != '\0' ||
+						_tokens[index - 1].c != '[')))
+					{
+						interval = new RE.REInterval(_tokens[index].c, chars.Pop(), interval);
+						index--;
+						continue;
+					}
+				}
+				chars.Push(token.c);
+			}
+			nextIndex = index;
+			RE.RENode range = new RE.RERange(chars.ToArray(), interval);
+			if (negative)
+			{
+				range = new RE.RENot(range);
+			}
+			range.next0 = next;
+			return range;
 		}
 	}
 }
