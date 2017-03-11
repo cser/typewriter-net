@@ -13,5 +13,10 @@ namespace MulticaretEditor
 			this.type = type;
 			this.c = c;
 		}
+		
+		public override string ToString()
+		{
+			return (type == '\0' ? "\\0" : "" + type) + (c == '\0' ? "\\0" : "" + c);
+		}
 	}
 }

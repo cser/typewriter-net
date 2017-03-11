@@ -280,6 +280,10 @@ namespace UnitTests
 		[Test]
 		public void MatchLength_Star4()
 		{
+			Assert.AreEqual("(0'a':1)(1o:2|3)(2'b':4)(3'd':5)(4'c':5)(5'e')",
+				new RERegex(@"a\(bc\|d\)e").ToGraphString());
+			
+			Assert.AreEqual("(0o:1)(1'a':2)(2'e':0)", new RERegex(@"\(ae\)*").ToGraphString());
 			Assert.AreEqual(4, new RERegex(@"\(ae\)*").MatchLength("aeaeaf"));
 		}
 	}

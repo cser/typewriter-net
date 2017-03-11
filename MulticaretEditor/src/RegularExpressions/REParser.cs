@@ -43,7 +43,7 @@ namespace MulticaretEditor
 		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)
 		{
 			RE.RENode resultEnd = null;
-			RE.RENode result = null;
+			RE.RENode result = next;
 			while (index >= 0)
 			{
 				REToken token = _tokens[index];
@@ -116,12 +116,13 @@ namespace MulticaretEditor
 					index--;
 					if (index < 0)
 					{
-						return null;
+						throw new FormatException("Missing body for *");
 					}
 					token = _tokens[index];
 					RE.RENode targetEnd = new RE.REEmpty();
 					RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
-					return BuildRepetition(target, targetEnd, next);
+					RE.RENode result = BuildRepetition(target, targetEnd, next);
+					return result;
 				}
 				{
 					RE.REChar node = new RE.REChar(token.c);
@@ -142,9 +143,10 @@ namespace MulticaretEditor
 					index--;
 					if (index < 0)
 					{
-						return null;
+						throw new FormatException("')' at start");
 					}
-					return ParseSequence(index, next, out nextIndex);
+					RE.RENode result = ParseSequence(index, next, out nextIndex);
+					return result;
 				}
 				if (token.c == 'w')
 				{
@@ -267,7 +269,7 @@ namespace MulticaretEditor
 					return node;
 				}
 			}
-			return null;
+			throw new FormatException("Can't parse part at " + index);
 		}
 		
 		private RE.RENode BuildAlternate(
