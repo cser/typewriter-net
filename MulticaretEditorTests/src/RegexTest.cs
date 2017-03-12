@@ -352,13 +352,29 @@ namespace UnitTests
 		[Test]
 		public void Parsing_NonGreed()
 		{
-			Assert.AreEqual("(0o:1)(1'a':2)(2o:|0)", new RERegex(@"a\{-}").ToGraphString());
+			Assert.AreEqual("(0o:1)(1'a':2)(2o:(-0))", new RERegex(@"a\{-}").ToGraphString());
+			Assert.AreEqual("(0o:1|2)(1['a''b']:3)(2'a':4)(3o:2|(-0))(4'b')", new RERegex(@"[ab]\{-}ab").ToGraphString());
 		}
 		
 		[Test]
-		public void MatchLength_NonGreed()
+		public void MatchLength_NonGreed_Primitive()
 		{
+			Assert.AreEqual(3, new RERegex(@"[ab]\{-}ab").MatchLength("aabaab"));
 			Assert.AreEqual(4, new RERegex(@"[abc]\{-}abc").MatchLength("aabcaaaabccccc"));
+		}
+		
+		[Test]
+		public void MatchLength_Greed_Complex()
+		{
+			Assert.AreEqual(8, new RERegex(@"[ab]*bb[abc]*bb").MatchLength("aabbaabb"));
+		}
+		
+		[Test]
+		public void MatchLength_NonGreed_Complex()
+		{
+			Assert.AreEqual(8, new RERegex(@"[ab]\{-}bb[abc]*bb").MatchLength("aabbaabb"));
+			Assert.AreEqual(12, new RERegex(@"[ab]\{-}bb[abc]*bb").MatchLength("aabbacbbacbb"));
+			Assert.AreEqual(11, new RERegex(@"[ab]\{-}bb[abc]*c").MatchLength("aabbaabbaac"));
 		}
 	}
 }

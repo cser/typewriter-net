@@ -10,6 +10,7 @@ namespace MulticaretEditor
 		{
 			public RENode next0;
 			public RENode next1;
+			public bool next1Low;
 			
 			public readonly bool emptyEntry;
 			

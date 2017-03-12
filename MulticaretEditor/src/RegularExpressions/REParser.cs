@@ -45,7 +45,7 @@ namespace MulticaretEditor
 									_tokens.Add(new REToken('\0', pattern[j]));
 								}
 								_tokens.Add(new REToken('#', '}'));
-								i = matchedIndex + 1;
+								i = matchedIndex;
 							}
 							continue;
 						}
@@ -427,6 +427,7 @@ namespace MulticaretEditor
 			a.next1 = next;
 			b.next0 = next;
 			b.next1 = a;
+			b.next1Low = true;
 			return a;
 		}
 		

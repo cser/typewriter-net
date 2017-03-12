@@ -24,9 +24,10 @@ namespace MulticaretEditor
 			int matchLength = -1;
 			List<RE.RENode> current = new List<RE.RENode>();
 			List<RE.RENode> next = new List<RE.RENode>();
+			bool addLow = true;
 			if (_root.emptyEntry)
 			{
-				AddEmpty(current, _root);
+				AddEmpty(current, _root, addLow);
 			}
 			else
 			{
@@ -45,10 +46,11 @@ namespace MulticaretEditor
 							if (state.next0.emptyEntry)
 							{
 								_emptyMatched = false;
-								AddEmpty(next, state.next0);
+								AddEmpty(next, state.next0, addLow);
 								if (_emptyMatched)
 								{
 									matchLength = i + 1;
+									addLow = false;
 								}
 							}
 							else if (!next.Contains(state.next0))
@@ -59,6 +61,7 @@ namespace MulticaretEditor
 						if (state.next0 == null && state.next1 == null)
 						{
 							matchLength = i + 1;
+							addLow = false;
 						}
 					}
 				}
@@ -74,13 +77,13 @@ namespace MulticaretEditor
 			return matchLength;
 		}
 		
-		private void AddEmpty(List<RE.RENode> nodes, RE.RENode node)
+		private void AddEmpty(List<RE.RENode> nodes, RE.RENode node, bool addLow)
 		{
 			if (node.next0 != null)
 			{
 				if (node.next0.emptyEntry)
 				{
-					AddEmpty(nodes, node.next0);
+					AddEmpty(nodes, node.next0, addLow);
 				}
 				else if (!nodes.Contains(node.next0))
 				{
@@ -95,7 +98,10 @@ namespace MulticaretEditor
 			{
 				if (node.next1.emptyEntry)
 				{
-					AddEmpty(nodes, node.next1);
+					if (!node.next1Low || addLow)
+					{
+						AddEmpty(nodes, node.next1, addLow);
+					}
 				}
 				else if (!nodes.Contains(node.next1))
 				{
@@ -151,11 +157,22 @@ namespace MulticaretEditor
 					if (node.next0 != null)
 					{
 						builder.Append(indexOf[node.next0]);
+						if (node.next1 != null)
+						{
+							builder.Append('|');
+						}
 					}
 					if (node.next1 != null)
 					{
-						builder.Append('|');
+						if (node.next1Low)
+						{
+							builder.Append("(-");
+						}
 						builder.Append(indexOf[node.next1]);
+						if (node.next1Low)
+						{
+							builder.Append(')');
+						}
 					}
 				}
 				builder.Append(')');
