@@ -405,6 +405,8 @@ namespace UnitTests
 			Assert.AreEqual(2, new RERegex(@"a\=b").MatchLength("ab"));
 			Assert.AreEqual(1, new RERegex(@"a\=b").MatchLength("b"));
 		}
+<<<<<<< HEAD
+=======
 		
 		private void AssertMatch(int expectedIndex, int expectedLength, string regex, string text)
 		{
@@ -433,5 +435,6 @@ namespace UnitTests
 			RERegex regex = new RERegex(@"[_a]*__");
 			Assert.AreEqual(new REMatch(2, 12), regex.Match("xx_aa_a__aaa__aa"));
 		}
+>>>>>>> regex: \+, \=
 	}
 }

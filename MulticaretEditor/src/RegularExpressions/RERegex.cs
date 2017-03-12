@@ -17,6 +17,77 @@ namespace MulticaretEditor
 			_root = new REParser().Parse(_pattern);
 		}
 		
+		public REMatch Match(string text)
+		{
+			RE.RENode outsetStart = new RE.REEmpty();
+			RE.RENode outsetSplitter = new RE.REEmpty();
+			RE.RENode outsetAny = new RE.REAny();
+			outsetStart.next0 = outsetAny;
+			outsetStart.next1 = _root;
+			outsetAny.next0 = outsetSplitter;
+			outsetSplitter.next0 = _root;
+			outsetSplitter.next1 = outsetStart;
+			
+			int matchStart = -1;
+			int matchEnd = -1;
+			int length = text.Length;
+			List<RE.RENode> current = new List<RE.RENode>();
+			List<RE.RENode> next = new List<RE.RENode>();
+			bool addLow = true;
+			if (outsetStart.emptyEntry)
+			{
+				AddEmpty(current, outsetStart, addLow);
+			}
+			else
+			{
+				current.Add(outsetStart);
+			}
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c = text[i];
+				for (int j = 0; j < current.Count; j++)
+				{
+					RE.RENode state = current[j];
+					if (state.MatchChar(c))
+					{
+						state.index = i;
+						if (state.next0 != null)
+						{
+							if (state.next0.emptyEntry)
+							{
+								_emptyMatched = false;
+								AddEmpty(next, state.next0, addLow);
+								if (_emptyMatched)
+								{
+									matchEnd = i + 1;
+									outsetAny.next0 = null;
+									addLow = false;
+								}
+							}
+							else if (!next.Contains(state.next0))
+							{
+								next.Add(state.next0);
+							}
+						}
+						if (state.next0 == null && state.next1 == null)
+						{
+							matchEnd = i + 1;
+							outsetAny.next0 = null;
+							addLow = false;
+						}
+					}
+				}
+				List<RE.RENode> temp = current;
+				current = next;
+				next = temp;
+				next.Clear();
+				if (current.Count == 0)
+				{
+					return new REMatch(_root.index, matchEnd - _root.index);
+				}
+			}
+			return new REMatch(_root.index, matchEnd - _root.index);
+		}
 		
 		public int MatchLength(string text)
 		{

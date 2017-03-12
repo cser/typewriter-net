@@ -11,6 +11,7 @@ namespace MulticaretEditor
 			public RENode next0;
 			public RENode next1;
 			public bool next1Low;
+			public int index = -1;
 			
 			public readonly bool emptyEntry;
 			
@@ -43,6 +44,23 @@ namespace MulticaretEditor
 			public override string ToString()
 			{
 				return "o";
+			}
+		}
+		
+		public class REAny : RENode
+		{
+			public REAny()
+			{
+			}
+			
+			public override bool MatchChar(char c)
+			{
+				return true;
+			}
+			
+			public override string ToString()
+			{
+				return "~";
 			}
 		}
 		
