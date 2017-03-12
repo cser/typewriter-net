@@ -406,11 +406,6 @@ namespace UnitTests
 			Assert.AreEqual(1, new RERegex(@"a\=b").MatchLength("b"));
 		}
 		
-		private void AssertMatch(int expectedIndex, int expectedLength, string regex, string text)
-		{
-			Assert.AreEqual(new REMatch(expectedIndex, expectedLength), new RERegex(regex).Match(text));
-		}
-		
 		[Test]
 		public void Match1()
 		{
