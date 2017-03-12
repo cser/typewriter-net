@@ -256,6 +256,28 @@ namespace MulticaretEditor
 					node.next0 = next;
 					return node;
 				}
+				if (token.c == '+')
+				{
+					index--;
+					if (index >= 0)
+					{
+						RE.RENode targetEnd = new RE.REEmpty();
+						RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
+						RE.RENode result = BuildOneOrMore(target, targetEnd, next);
+						return result;
+					}
+				}
+				if (token.c == '=')
+				{
+					index--;
+					if (index >= 0)
+					{
+						RE.RENode targetEnd = new RE.REEmpty();
+						RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
+						RE.RENode result = BuildOneOrNone(target, targetEnd, next);
+						return result;
+					}
+				}
 				if (token.c == ')')
 				{
 					index--;
@@ -415,6 +437,30 @@ namespace MulticaretEditor
 			return start;
 		}
 		
+		private RE.RENode BuildOneOrMore(
+			RE.RENode body, RE.RENode bodyEnd,
+			RE.RENode next)
+		{
+			RE.RENode end = new RE.REEmpty();
+			bodyEnd.next0 = end;
+			bodyEnd.next1 = end;
+			end.next0 = body;
+			end.next1 = next;
+			return body;
+		}
+		
+		private RE.RENode BuildOneOrNone(
+			RE.RENode body, RE.RENode bodyEnd,
+			RE.RENode next)
+		{
+			RE.RENode start = new RE.REEmpty();
+			bodyEnd.next0 = next;
+			bodyEnd.next1 = next;
+			start.next0 = body;
+			start.next1 = next;
+			return start;
+		}
+		
 		private RE.RENode BuildNonGreedly(
 			RE.RENode body, RE.RENode bodyEnd,
 			RE.RENode next)
@@ -454,7 +500,7 @@ namespace MulticaretEditor
 					{
 						node.next0 = node.next0.next0;
 					}
-					if (!nodes.ContainsKey(node.next0))
+					if (node.next0 != null && !nodes.ContainsKey(node.next0))
 					{
 						stack.Push(node.next0);
 					}
@@ -465,7 +511,7 @@ namespace MulticaretEditor
 					{
 						node.next1 = node.next1.next0;
 					}
-					if (!nodes.ContainsKey(node.next1))
+					if (node.next1 != null && !nodes.ContainsKey(node.next1))
 					{
 						stack.Push(node.next1);
 					}

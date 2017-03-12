@@ -376,5 +376,34 @@ namespace UnitTests
 			Assert.AreEqual(12, new RERegex(@"[ab]\{-}bb[abc]*bb").MatchLength("aabbacbbacbb"));
 			Assert.AreEqual(11, new RERegex(@"[ab]\{-}bb[abc]*c").MatchLength("aabbaabbaac"));
 		}
+		
+		[Test]
+		public void Parsing_OneOrMore()
+		{
+			Assert.AreEqual("(0'a':1)(1o:0|2)(2'b')", new RERegex(@"a\+b").ToGraphString());
+		}
+		
+		[Test]
+		public void Parsing_OneOrNone()
+		{
+			Assert.AreEqual("(0o:1|2)(1'a':2)(2'b')", new RERegex(@"a\=b").ToGraphString());
+		}
+		
+		[Test]
+		public void MatchLength_OneOrMore()
+		{
+			Assert.AreEqual(1, new RERegex(@"a\+").MatchLength("a"));
+			Assert.AreEqual(2, new RERegex(@"a\+").MatchLength("aa"));
+			Assert.AreEqual(-1, new RERegex(@"a\+").MatchLength("b"));
+		}
+		
+		[Test]
+		public void MatchLength_OneOrNone()
+		{
+			Assert.AreEqual(1, new RERegex(@"a\=").MatchLength("a"));
+			Assert.AreEqual(-1, new RERegex(@"a\=b").MatchLength("aab"));
+			Assert.AreEqual(2, new RERegex(@"a\=b").MatchLength("ab"));
+			Assert.AreEqual(1, new RERegex(@"a\=b").MatchLength("b"));
+		}
 	}
 }
