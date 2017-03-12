@@ -151,13 +151,10 @@ namespace MulticaretEditor
 					if (node.next0 != null)
 					{
 						builder.Append(indexOf[node.next0]);
-						if (node.next1 != null)
-						{
-							builder.Append('|');
-						}
 					}
 					if (node.next1 != null)
 					{
+						builder.Append('|');
 						builder.Append(indexOf[node.next1]);
 					}
 				}

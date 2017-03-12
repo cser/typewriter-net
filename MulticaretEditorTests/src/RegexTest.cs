@@ -340,5 +340,11 @@ namespace UnitTests
 			Assert.AreEqual(10, new RERegex(@"[abc]*abc").MatchLength("aabcaaaabccccc"));
 			Assert.AreEqual(4, new RERegex(@"[abc]*abc").MatchLength("aabcaaaabaccccc"));
 		}
+		
+		[Test]
+		public void Parsing_NonGreed()
+		{
+			Assert.AreEqual("(0o:1)(1'a':2)(2o:|0)", new RERegex(@"a\{-}").ToGraphString());
+		}
 	}
 }
