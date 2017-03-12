@@ -111,13 +111,13 @@ namespace UnitTests
 			//    012345678901234567890123
 			Init("word word word word word");
 			line.CalcCutOffs(10);
-			Assert.AreEqual("[(10/0), (20/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(10/0), (20/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			line.CalcCutOffs(9);
-			Assert.AreEqual("[(5/0), (10/0), (15/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(5/0), (10/0), (15/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 
 			Init("word word word word word ");
 			line.CalcCutOffs(9);
-			Assert.AreEqual("[(5/0), (10/0), (15/0), (20/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(5/0), (10/0), (15/0), (20/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -127,13 +127,13 @@ namespace UnitTests
 			//    0123456789012345678901234567
 			Init("    word word word word word");
 			line.CalcCutOffs(20);
-			Assert.AreEqual("[(19/4)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(19/4)]", ListHelper.ToString(line.cutOffs.ToArray()));
 
 			//               1         2
 			//     0123456789012345678901234
 			Init("\tword word word word word");
 			line.CalcCutOffs(20);
-			Assert.AreEqual("[(16/4)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(16/4)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -143,11 +143,11 @@ namespace UnitTests
 			//    0123456789012345678901234567890123
 			Init("01234567890123456 0123456789012345");
 			line.CalcCutOffs(20);
-			Assert.AreEqual("[(18/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(18/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			line.CalcCutOffs(18);
-			Assert.AreEqual("[(18/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(18/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			line.CalcCutOffs(17);
-			Assert.AreEqual("[(17/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(17/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -157,21 +157,21 @@ namespace UnitTests
 			//    01234567890123456789012345678901234567
 			Init("    01234567890123456 0123456789012345");
 			line.CalcCutOffs(21);
-			Assert.AreEqual("[(21/4)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(21/4)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			//              1         2         3
 			//    01234567890123456789012345678901234567
 			//        0123456789012|
 			//        3456         |
 			//    0123456789012345 |
 			line.CalcCutOffs(17);
-			Assert.AreEqual("[(17/4), (22/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(17/4), (22/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			//              1         2         3
 			//    01234567890123456789012345678901234567
 			//        012345678901|
 			//        23456       |
 			//    0123456789012345|
 			line.CalcCutOffs(16);
-			Assert.AreEqual("[(16/4), (22/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(16/4), (22/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -187,7 +187,7 @@ namespace UnitTests
 			//    012345678901234|
 			//    5              |
 			line.CalcCutOffs(15);
-			Assert.AreEqual("[(15/4), (22/0), (37/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(15/4), (22/0), (37/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			//              1         2         3
 			//    01234567890123456789012345678901234567
 			//        0123456789|
@@ -195,7 +195,7 @@ namespace UnitTests
 			//    01234567890123|
 			//    45            |
 			line.CalcCutOffs(14);
-			Assert.AreEqual("[(14/4), (22/0), (36/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(14/4), (22/0), (36/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 			//              1         2         3
 			//    01234567890123456789012345678901234567
 			//        0123456|
@@ -203,7 +203,7 @@ namespace UnitTests
 			//    01234567890|
 			//    14523      |
 			line.CalcCutOffs(11);
-			Assert.AreEqual("[(11/0), (22/0), (33/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(11/0), (22/0), (33/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -220,7 +220,7 @@ namespace UnitTests
 			//    0123456789|
 			//    014523    |
 			line.CalcCutOffs(10);
-			Assert.AreEqual("[(10/0), (20/0), (22/0), (32/0)]", ListUtil.ToString(line.cutOffs.ToArray()));
+			Assert.AreEqual("[(10/0), (20/0), (22/0), (32/0)]", ListHelper.ToString(line.cutOffs.ToArray()));
 		}
 
 		[Test]
@@ -278,7 +278,7 @@ namespace UnitTests
 
 		private string StringOfCutOffs(Line line)
 		{
-			return ListUtil.ToString<CutOff>(line.cutOffs.ToArray(), StringOfCutOff) + ":" + line.lastSublineSizeX;
+			return ListHelper.ToString<CutOff>(line.cutOffs.ToArray(), StringOfCutOff) + ":" + line.lastSublineSizeX;
 		}
 
 		private string StringOfCutOff(MulticaretEditor.CutOff cutOff)

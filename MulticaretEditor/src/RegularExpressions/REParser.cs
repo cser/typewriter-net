@@ -20,6 +20,7 @@ namespace MulticaretEditor
 			_operators.Clear();
 			_operands.Clear();
 			_operandEnds.Clear();
+			int bracket = -1;
 			for (int i = 0; i < pattern.Length; i++)
 			{
 				char c = pattern[i];
@@ -31,13 +32,100 @@ namespace MulticaretEditor
 						break;
 					}
 					c = pattern[i];
+					if (bracket == -1)
+					{
+						if (c == '{')
+						{
+							int matchedIndex = QuantifierStarted(pattern, i + 1);
+							if (matchedIndex != -1)
+							{
+								_tokens.Add(new REToken('#', '{'));
+								for (int j = i + 1; j <= matchedIndex - 1; j++)
+								{
+									_tokens.Add(new REToken('\0', pattern[j]));
+								}
+								_tokens.Add(new REToken('#', '}'));
+								i = matchedIndex + 1;
+							}
+							continue;
+						}
+					}
 					_tokens.Add(new REToken('\\', c));
 					continue;
+				}
+				if (bracket != -1)
+				{
+					if (c == ']' && bracket != i - 1)
+					{
+						bracket = -1;
+						_tokens.Add(new REToken('#', ']'));
+						continue;
+					}
+				}
+				else
+				{
+					if (c == '[')
+					{
+						bracket = i;
+						_tokens.Add(new REToken('#', '['));
+						continue;
+					}
 				}
 				_tokens.Add(new REToken('\0', c));
 			}
 			int index;
 			return RemoveSuperfluousNodes(ParseSequence(_tokens.Count - 1, null, out index));
+		}
+		
+		private int QuantifierStarted(string pattern, int index)
+		{
+			int state = 0;
+			for (; index < pattern.Length; index++)
+			{
+				char c = pattern[index];
+				if (state == 0)
+				{
+					if (c == '-' || c >= '0' && c <= '9')
+					{
+						state = 1;
+					}
+					else if (c == ',')
+					{
+						state = 2;
+					}
+					else
+					{
+						return -1;
+					}
+				}
+				else if (state == 1)
+				{
+					if (c == ',')
+					{
+						state = 2;
+					}
+					else if (c == '}')
+					{
+						return index;
+					}
+					else if (!(c >= '0' && c <= '9'))
+					{
+						return -1;
+					}
+				}
+				else if (state == 2)
+				{
+					if (c == '}')
+					{
+						return index;
+					}
+					else if (!(c >= '0' && c <= '9'))
+					{
+						return -1;
+					}
+				}
+			}
+			return -1;
 		}
 		
 		private RE.RENode ParseSequence(int index, RE.RENode next, out int nextIndex)
@@ -82,7 +170,7 @@ namespace MulticaretEditor
 						continue;
 					}
 				}
-				else
+				else if (token.type == '#')
 				{
 					if (token.c == ']')
 					{
@@ -124,26 +212,40 @@ namespace MulticaretEditor
 				if (token.c == '*')
 				{
 					index--;
-					if (index < 0)
+					if (index >= 0)
 					{
-						throw new FormatException("Missing body for *");
+						RE.RENode targetEnd = new RE.REEmpty();
+						RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
+						RE.RENode result = BuildRepetition(target, targetEnd, next);
+						return result;
 					}
-					token = _tokens[index];
-					RE.RENode targetEnd = new RE.REEmpty();
-					RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
-					RE.RENode result = BuildRepetition(target, targetEnd, next);
-					return result;
-				}
-				if (token.c == ']' && index > 0)
-				{
-					index--;
-					RE.RENode result = ParseRange(index, next, out nextIndex);
-					return result;
 				}
 				{
 					RE.REChar node = new RE.REChar(token.c);
 					node.next0 = next;
 					return node;
+				}
+			}
+			if (token.type == '#')
+			{
+				if (token.c == ']')
+				{
+					index--;
+					RE.RENode result = ParseRange(index, next, out nextIndex);
+					return result;
+				}
+				if (token.c == '}')
+				{
+					index--;
+					if (index > 0 && _tokens[index].type == '\0' && _tokens[index].c == '-' &&
+						_tokens[index - 1].type == '#' && _tokens[index - 1].c == '{')
+					{
+						index -= 2;
+						RE.RENode targetEnd = new RE.REEmpty();
+						RE.RENode target = ParsePart(index, targetEnd, out nextIndex);
+						RE.RENode result = BuildNonGreedly(target, targetEnd, next);
+						return result;
+					} 
 				}
 			}
 			if (token.type == '\\')
@@ -313,6 +415,21 @@ namespace MulticaretEditor
 			return start;
 		}
 		
+		private RE.RENode BuildNonGreedly(
+			RE.RENode body, RE.RENode bodyEnd,
+			RE.RENode next)
+		{
+			RE.RENode a = new RE.REEmpty();
+			RE.RENode b = new RE.REEmpty();
+			a.next0 = body;
+			bodyEnd.next0 = b;
+			bodyEnd.next1 = b;
+			a.next1 = next;
+			b.next0 = next;
+			b.next1 = a;
+			return a;
+		}
+		
 		private RE.RENode RemoveSuperfluousNodes(RE.RENode root)
 		{
 			if (root == null)
@@ -367,25 +484,27 @@ namespace MulticaretEditor
 				index--;
 				if (token.type == '\0')
 				{
-					if (token.c == '[')
-					{
-						break;
-					}
-					if (token.c == '^' && index >= 0 && _tokens[index].type == '\0' && _tokens[index].c == '[')
+					if (token.c == '^' && index >= 0 && _tokens[index].type == '#' && _tokens[index].c == '[')
 					{
 						index--;
 						negative = true;
 						break;
 					}
-					if (token.c == '-' && chars.Count > 0 && index >= 0 &&
-						(_tokens[index].type != '\0' || _tokens[index].c != '[' &&
-						_tokens[index].c != '-' &&
-						(_tokens[index].c != '^' || index <= 0 || _tokens[index - 1].type != '\0' ||
-						_tokens[index - 1].c != '[')))
+					if (token.c == '-' && chars.Count > 0 && index >= 0 && (
+						_tokens[index].type != '#' && !(_tokens[index].type == '\0' && _tokens[index].c == '-') &&
+						(_tokens[index].c != '^' || index <= 0 || _tokens[index - 1].type != '#')
+					))
 					{
 						interval = new RE.REInterval(_tokens[index].c, chars.Pop(), interval);
 						index--;
 						continue;
+					}
+				}
+				if (token.type == '#')
+				{
+					if (token.c == '[')
+					{
+						break;
 					}
 				}
 				chars.Push(token.c);

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MulticaretEditor
 {	
-	public static class ListUtil
+	public static class ListHelper
 	{
 		public static string ToString<T>(IEnumerable<T> list)
 		{

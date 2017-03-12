@@ -93,7 +93,7 @@ namespace UnitTests
 				{
 					gotIds.Add(tagI.id);
 				}
-				Assert.True(equals, "Explected: " + ListUtil.ToString(ids) + ", got: " + ListUtil.ToString(gotIds));
+				Assert.True(equals, "Explected: " + ListHelper.ToString(ids) + ", got: " + ListHelper.ToString(gotIds));
 				return this;
 			}
 			

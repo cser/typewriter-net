@@ -342,9 +342,23 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Parsing_RangesQuantificationsStar()
+		{
+			Assert.AreEqual("(0['a''{']:1)(1'}')", new RERegex(@"[a{]}").ToGraphString());
+			Assert.AreEqual("(0['a''{'-'}'])", new RERegex(@"[a{-}]").ToGraphString());
+			Assert.AreEqual("(0'*':1)(1'a')", new RERegex(@"*a").ToGraphString());
+		}
+		
+		[Test]
 		public void Parsing_NonGreed()
 		{
 			Assert.AreEqual("(0o:1)(1'a':2)(2o:|0)", new RERegex(@"a\{-}").ToGraphString());
+		}
+		
+		[Test]
+		public void MatchLength_NonGreed()
+		{
+			Assert.AreEqual(4, new RERegex(@"[abc]\{-}abc").MatchLength("aabcaaaabccccc"));
 		}
 	}
 }
