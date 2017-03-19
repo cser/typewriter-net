@@ -712,7 +712,9 @@ namespace MulticaretEditor
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].chars.Count, lineMax.iLine));
 			if (lines.wordWrap)
 			{
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				lines.UpdateHighlight();
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, true, true);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic, false);
 			}
 			else
 			{
@@ -946,7 +948,7 @@ namespace MulticaretEditor
 
 		private void DrawSelections_WordWrap(
 			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic, bool highlight)
 		{
 			if (!symbolic &&
 				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
@@ -956,7 +958,7 @@ namespace MulticaretEditor
 				int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + wwILine * charHeight, clientWidth, charHeight * (line.cutOffs.count + 1));
 			}
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in highlight ? lines.matches : lines.selections)
 			{
 				if (selection.Right < start || selection.Left > end || selection.Count == 0)
 					continue;

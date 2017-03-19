@@ -135,6 +135,7 @@ namespace MulticaretEditor
 
 		private string cachedText;
 		private bool charsValid;
+		private CharsRegularExpressions.Regex highlightRegex;
 
 		public string GetText()
 		{
@@ -188,6 +189,41 @@ namespace MulticaretEditor
 		{
 			cachedText = null;
 			charsValid = false;
+			highlightRegex = null;
+		}
+		
+		public void UpdateHighlight()
+		{
+			if (highlightRegex != ClipboardExecuter.ViRegex)
+			{
+				highlightRegex = ClipboardExecuter.ViRegex;
+				matches.Clear();
+				if (highlightRegex != null)
+				{
+					char[] chars = GetChars();
+					int index = 0;
+					while (index < charsCount)
+					{
+						CharsRegularExpressions.Match match = null;
+						//try
+						{
+							match = highlightRegex.Match(chars, index, charsCount - index);
+						}
+						/*catch
+						{
+						}*/
+						if (match == null || !match.IsMatched(0))
+						{
+							break;
+						}
+						Selection selection = new Selection();
+						selection.anchor = match.Index;
+						selection.caret = match.Index + match.Length;
+						matches.Add(selection);
+						index = match.Index + (match.Length > 0 ? match.Length : 1);
+					}
+				}
+			}
 		}
 
 		private Line NewLine(string text, int index, int count)
@@ -624,6 +660,7 @@ namespace MulticaretEditor
 		}
 
 		public readonly List<Selection> selections;
+		public readonly List<Selection> matches = new List<Selection>();
 
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();
