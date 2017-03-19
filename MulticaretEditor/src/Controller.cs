@@ -1874,14 +1874,18 @@ namespace MulticaretEditor
 		
 		public void ViFindForward(CharsRegularExpressions.Regex regex)
 		{
-			char[] chars = lines.GetChars();
-			int charsCount = lines.charsCount;
-			if (selections[0].caret >= charsCount)
+			if (regex == null)
 			{
 				return;
 			}
-			CharsRegularExpressions.Match match;
-			match = regex.Match(chars, selections[0].caret + 1, charsCount - selections[0].caret + 1);
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			int start = selections[0].caret;
+			if (start < charsCount)
+			{
+				start++;
+			}
+			CharsRegularExpressions.Match match = regex.Match(chars, start, charsCount - start);
 			if (match == null || !match.IsMatched(0))
 			{
 				match = regex.Match(chars, 0, charsCount);
@@ -1899,15 +1903,14 @@ namespace MulticaretEditor
 		
 		public void ViFindBackward(CharsRegularExpressions.Regex regex)
 		{
-			//TODO fix it!!!!!!!!!!!!!!!!!!!
-			char[] chars = lines.GetChars();
-			int charsCount = lines.charsCount;
-			if (selections[0].caret <= 0)
+			if (regex == null)
 			{
 				return;
 			}
-			CharsRegularExpressions.Match match;
-			match = regex.Match(chars, 0, selections[0].caret - 1);
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			int start = selections[0].caret;
+			CharsRegularExpressions.Match match = regex.Match(chars, 0, start);
 			if (match == null || !match.IsMatched(0))
 			{
 				match = regex.Match(chars, 0, charsCount);

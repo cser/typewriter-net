@@ -103,8 +103,8 @@ namespace MulticaretEditor
 			AddValue(NewLine(text, lineStart, length - lineStart));
 			charsCount = length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
 		}
 		
 		public void ClearAllUnsafely()
@@ -267,8 +267,8 @@ namespace MulticaretEditor
 			}
 			charsCount += text.Length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
 		}
 
 		public void RemoveText(int index, int count)
@@ -368,8 +368,8 @@ namespace MulticaretEditor
 			}
 			charsCount -= count;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
 		}
 
 		public string GetText(int index, int count)

@@ -42,7 +42,7 @@ namespace MulticaretEditor
 		public static CharsRegularExpressions.Regex ViRegex { get { return _viRegex; } }
 		
 		private static CharsRegularExpressions.Regex _viBackwardRegex;
-		public static CharsRegularExpressions.Regex ViBackwardRegex { get { return _viRegex; } }
+		public static CharsRegularExpressions.Regex ViBackwardRegex { get { return _viBackwardRegex; } }
 		
 		public static void Reset(bool useFake)
 		{
