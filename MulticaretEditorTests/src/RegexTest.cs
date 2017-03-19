@@ -1,4 +1,6 @@
 using System;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 using NUnit.Framework;
 using MulticaretEditor;
 
@@ -427,6 +429,58 @@ namespace UnitTests
 		{
 			RERegex regex = new RERegex(@"[_a]*__");
 			Assert.AreEqual(new REMatch(2, 12), regex.Match("xx_aa_a__aaa__aa"));
+		}
+		
+		[Test]
+		public void Test1()
+		{
+			RERegex regex = new RERegex(@".\{-}<item>.*</item>");
+			string text =
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjf<itjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkj<itemfllkjsalkjfllkjsalkjfllkjsal<itllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllk<itlkjfllkjsalkjfll<itslkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalk</itejsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfll<item>jfllkjsalkj<item>alkjfllkjsalk<item>salkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsem>jfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkj<item>jfllkjsalkjf</item>sdfsdfslkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkj<itkjfllkjsalkjfllem>alkjfllkj</itefllkjsalkjfl";
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.Start();
+			for (int i = 0; i < 1000; i++)
+			{
+				regex.MatchLength(text);
+			}
+			stopwatch.Stop();
+			Console.WriteLine("TIME O: " + stopwatch.ElapsedMilliseconds);
+			Assert.AreEqual(858, regex.MatchLength(text));
+		}
+		
+		[Test]
+		public void Test2()
+		{
+			Regex regex = new Regex(@"^.*?<item>.*</item>");
+			string text =
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjf<itjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkj<itemfllkjsalkjfllkjsalkjfllkjsal<itllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllk<itlkjfllkjsalkjfll<itslkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalk</itejsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfll<item>jfllkjsalkj<item>alkjfllkjsalk<item>salkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsem>jfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkj<item>jfllkjsalkjf</item>sdfsdfslkjfllkjsalkjfllkjsalkjfllkjsalkjfl" +
+				"lkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkjsalkjfllkj<itkjfllkjsalkjfllem>alkjfllkj</itefllkjsalkjfl";
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.Start();
+			for (int i = 0; i < 1000; i++)
+			{
+				regex.Match(text);
+			}
+			stopwatch.Stop();
+			Console.WriteLine("TIME N: " + stopwatch.ElapsedMilliseconds);
+			Assert.AreEqual(858, regex.Match(text).Length);
 		}
 	}
 }
