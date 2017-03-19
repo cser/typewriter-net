@@ -206,7 +206,7 @@ namespace MulticaretEditor
 					selections[part.index].anchor += offset;
 				}
 			}
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 
 		override public void Undo()
@@ -235,7 +235,7 @@ namespace MulticaretEditor
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 	}
 }

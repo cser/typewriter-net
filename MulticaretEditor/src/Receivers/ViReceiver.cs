@@ -182,6 +182,12 @@ namespace MulticaretEditor
 				case (int)'a':
 					move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i');
 					break;
+				case (int)'n':
+					move = new ViMoves.FindForwardPattern();
+					break;
+				case (int)'N':
+					move = new ViMoves.FindBackwardPattern();
+					break;
 			}
 			ViCommands.ICommand command = null;
 			if (move != null)
@@ -313,6 +319,10 @@ namespace MulticaretEditor
 		public override bool DoFind(string text)
 		{
 			ClipboardExecuter.PutToRegister('/', text);
+			if (ClipboardExecuter.ViRegex != null)
+			{
+				controller.ViFindForward(ClipboardExecuter.ViRegex);
+			}
 			return true;
 		}
 		

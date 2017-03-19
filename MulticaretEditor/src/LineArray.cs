@@ -133,7 +133,8 @@ namespace MulticaretEditor
 			}
 		}
 
-		public string cachedText;
+		private string cachedText;
+		private bool charsValid;
 
 		public string GetText()
 		{
@@ -151,6 +152,41 @@ namespace MulticaretEditor
 				cachedText = builder.ToString();
 			}
 			return cachedText;
+		}
+		
+		private CharBuffer _charBuffer;
+		
+		public char[] GetChars()
+		{
+			if (_charBuffer == null)
+			{
+				_charBuffer = new CharBuffer();
+			}
+			if (!charsValid)
+			{
+				charsValid = true;
+				_charBuffer.Resize(charsCount);
+				int index = 0;
+				for (int i = 0; i < blocksCount; i++)
+				{
+					LineBlock block = blocks[i];
+					for (int j = 0; j < block.count; j++)
+					{
+						List<Char> chars = block.array[j].chars;
+						for (int k = 0, count = chars.Count; k < count; k++)
+						{
+							_charBuffer.buffer[index++] = chars[k].c;
+						}
+					}
+				}
+			}
+			return _charBuffer.buffer;
+		}
+		
+		public void ResetTextCache()
+		{
+			cachedText = null;
+			charsValid = false;
 		}
 
 		private Line NewLine(string text, int index, int count)

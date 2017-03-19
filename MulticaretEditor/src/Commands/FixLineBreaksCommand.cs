@@ -83,7 +83,7 @@ namespace MulticaretEditor
 				selection.caret = lines.IndexOf(place.caret);
 			}
 			
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 
 		override public void Undo()
@@ -103,7 +103,7 @@ namespace MulticaretEditor
 				}
 			}
 			SetSelectionMementos(mementos);
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 	}
 }

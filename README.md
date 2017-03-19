@@ -46,6 +46,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 7. Custom scroll bar (modified)
 	http://www.codeproject.com/Articles/41869/Custom-Drawn-Scrollbar
 
+8. Regex for search by char[] instead of string got with changes from mono
+	https://github.com/mono/mono/tree/master/mcs/class/referencesource/System/regex/system/text/regularexpressions
+
 Installation without building
 -----------------------------
 

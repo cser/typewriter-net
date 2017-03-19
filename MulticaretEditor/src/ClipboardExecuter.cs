@@ -38,6 +38,12 @@ namespace MulticaretEditor
 		public static bool fakeLayout = false;
 		public static bool fakeEnLayout = true;
 		
+		private static CharsRegularExpressions.Regex _viRegex;
+		public static CharsRegularExpressions.Regex ViRegex { get { return _viRegex; } }
+		
+		private static CharsRegularExpressions.Regex _viBackwardRegex;
+		public static CharsRegularExpressions.Regex ViBackwardRegex { get { return _viRegex; } }
+		
 		public static void Reset(bool useFake)
 		{
 			ClipboardExecuter.useFake = useFake;
@@ -100,6 +106,17 @@ namespace MulticaretEditor
 			else if (c == '/')
 			{
 				registers[26] = text;
+				try
+				{
+					_viRegex = new CharsRegularExpressions.Regex(text);
+					_viBackwardRegex = new CharsRegularExpressions.Regex(
+						text, CharsRegularExpressions.RegexOptions.RightToLeft);
+				}
+				catch
+				{
+					_viRegex = null;
+					_viBackwardRegex = null;
+				}
 			}
 		}
 		

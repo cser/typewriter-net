@@ -137,6 +137,8 @@ namespace MulticaretEditor
 							case '^':
 							case '$':
 							case 'G':
+							case 'n':
+							case 'N':
 								move = code;
 								return ParseResult.Complete;
 							case 'd':

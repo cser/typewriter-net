@@ -1871,5 +1871,56 @@ namespace MulticaretEditor
 			Line line = lines[place.iLine];
 			return new Place(line.NormalIndexOfPos(selection.preferredPos), place.iLine);
 		}
+		
+		public void ViFindForward(CharsRegularExpressions.Regex regex)
+		{
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			if (selections[0].caret >= charsCount)
+			{
+				return;
+			}
+			CharsRegularExpressions.Match match;
+			match = regex.Match(chars, selections[0].caret + 1, charsCount - selections[0].caret + 1);
+			if (match == null || !match.IsMatched(0))
+			{
+				match = regex.Match(chars, 0, charsCount);
+				if (match == null || !match.IsMatched(0))
+				{
+					return;
+				}
+			}
+			ClearMinorSelections();
+			selections[0].anchor = match.Index;
+			selections[0].caret = match.Index;
+			Place place = lines.PlaceOf(selections[0].caret);
+			lines.SetPreferredPos(selections[0], place);
+		}
+		
+		public void ViFindBackward(CharsRegularExpressions.Regex regex)
+		{
+			//TODO fix it!!!!!!!!!!!!!!!!!!!
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			if (selections[0].caret <= 0)
+			{
+				return;
+			}
+			CharsRegularExpressions.Match match;
+			match = regex.Match(chars, 0, selections[0].caret - 1);
+			if (match == null || !match.IsMatched(0))
+			{
+				match = regex.Match(chars, 0, charsCount);
+				if (match == null || !match.IsMatched(0))
+				{
+					return;
+				}
+			}
+			ClearMinorSelections();
+			selections[0].anchor = match.Index;
+			selections[0].caret = match.Index;
+			Place place = lines.PlaceOf(selections[0].caret);
+			lines.SetPreferredPos(selections[0], place);
+		}
 	}
 }

@@ -134,6 +134,22 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class FindForwardPattern : IMove
+		{
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				controller.ViFindForward(ClipboardExecuter.ViRegex);
+			}
+		}
+		
+		public class FindBackwardPattern : IMove
+		{
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				controller.ViFindBackward(ClipboardExecuter.ViBackwardRegex);
+			}
+		}
+		
 		public class Home : IMove
 		{
 			private bool indented;
