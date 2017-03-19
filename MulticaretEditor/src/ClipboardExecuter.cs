@@ -108,7 +108,9 @@ namespace MulticaretEditor
 				registers[26] = text;
 				try
 				{
-					_viRegex = new CharsRegularExpressions.Regex(text);
+					_viRegex = new CharsRegularExpressions.Regex(text,
+						CharsRegularExpressions.RegexOptions.None,
+						new System.TimeSpan(0, 0, 0, 1));
 					_viBackwardRegex = new CharsRegularExpressions.Regex(
 						text, CharsRegularExpressions.RegexOptions.RightToLeft);
 				}

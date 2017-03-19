@@ -1888,7 +1888,13 @@ namespace MulticaretEditor
 			CharsRegularExpressions.Match match = regex.Match(chars, start, charsCount - start);
 			if (match == null || !match.IsMatched(0))
 			{
-				match = regex.Match(chars, 0, charsCount);
+				try
+				{
+					match = regex.Match(chars, 0, charsCount);
+				}
+				catch
+				{
+				}
 				if (match == null || !match.IsMatched(0))
 				{
 					return;
@@ -1913,7 +1919,13 @@ namespace MulticaretEditor
 			CharsRegularExpressions.Match match = regex.Match(chars, 0, start);
 			if (match == null || !match.IsMatched(0))
 			{
-				match = regex.Match(chars, 0, charsCount);
+				try
+				{
+					match = regex.Match(chars, 0, charsCount);
+				}
+				catch
+				{
+				}
 				if (match == null || !match.IsMatched(0))
 				{
 					return;

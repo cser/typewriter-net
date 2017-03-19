@@ -205,13 +205,13 @@ namespace MulticaretEditor
 					while (index < charsCount)
 					{
 						CharsRegularExpressions.Match match = null;
-						//try
+						try
 						{
 							match = highlightRegex.Match(chars, index, charsCount - index);
 						}
-						/*catch
+						catch
 						{
-						}*/
+						}
 						if (match == null || !match.IsMatched(0))
 						{
 							break;
