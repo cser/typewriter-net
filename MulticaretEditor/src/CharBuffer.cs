@@ -33,5 +33,23 @@ namespace MulticaretEditor
 			}
 			this.count = count;
 		}
+		
+		public void Realocate()
+		{
+			int length = buffer.Length;
+			while (true)
+			{
+				int halfLength = length >> 1;
+				if (halfLength < MinCapacity || count > (halfLength >> 1))
+					break;
+				length = halfLength;
+			}
+			if (length < buffer.Length)
+			{
+				char[] newBuffer = new char[length];
+				Array.Copy(buffer, newBuffer, newBuffer.Length);
+				buffer = newBuffer;
+			}
+		}
     }
 }

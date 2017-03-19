@@ -166,6 +166,7 @@ namespace MulticaretEditor
 			{
 				charsValid = true;
 				_charBuffer.Resize(charsCount);
+				_charBuffer.Realocate();
 				int index = 0;
 				for (int i = 0; i < blocksCount; i++)
 				{
