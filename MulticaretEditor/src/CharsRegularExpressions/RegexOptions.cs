@@ -33,7 +33,12 @@ using System;
         ///    <para>[To be supplied.]</para>
         /// </devdoc>
         ExplicitCapture =          0x0004,      // "n"
-        
+#if !SILVERLIGHT || FEATURE_LEGACYNETCF || MOBILE
+        /// <devdoc>
+        ///    <para>[To be supplied.]</para>
+        /// </devdoc>
+        Compiled =                 0x0008,      // "c"
+#endif
         /// <devdoc>
         ///    <para>[To be supplied.]</para>
         /// </devdoc>

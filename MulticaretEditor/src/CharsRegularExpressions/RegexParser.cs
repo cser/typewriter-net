@@ -34,8 +34,13 @@ namespace CharsRegularExpressions {
         internal int _capcount;
         internal int _captop;
         internal int _capsize;
+#if SILVERLIGHT
+        internal Dictionary<int, int> _caps;
+        internal Dictionary<string, int> _capnames;
+#else
         internal Hashtable _caps;
         internal Hashtable _capnames;
+#endif
         internal int[] _capnumlist;
         internal List<string> _capnamelist;
 
@@ -79,7 +84,11 @@ namespace CharsRegularExpressions {
          * This static call constructs a flat concatenation node given
          * a replacement pattern.
          */
+#if SILVERLIGHT
+        internal static RegexReplacement ParseReplacement(string rep, Dictionary<int, int> caps, int capsize, Dictionary<string, int> capnames, RegexOptions op) {
+#else
         internal static RegexReplacement ParseReplacement(string rep, Hashtable caps, int capsize, Hashtable capnames, RegexOptions op) {
+#endif
             RegexParser p;
             RegexNode root;
 
@@ -182,7 +191,12 @@ namespace CharsRegularExpressions {
         private RegexParser(CultureInfo culture) {
             _culture = culture;
             _optionsStack = new List<RegexOptions>();
+#if SILVERLIGHT
+            _caps = new Dictionary<int,int>();
+#else
             _caps = new Hashtable();
+#endif
+
         }
 
         /*
@@ -1322,6 +1336,9 @@ namespace CharsRegularExpressions {
          */
         internal bool IsOnlyTopOption(RegexOptions option) {
             return(option == RegexOptions.RightToLeft
+#if !(SILVERLIGHT||FULL_AOT_RUNTIME)
+                || option == RegexOptions.Compiled
+#endif
                 || option == RegexOptions.CultureInvariant
                 || option == RegexOptions.ECMAScript
             );
@@ -1459,6 +1476,10 @@ namespace CharsRegularExpressions {
                 ch += (char)('a' - 'A');
 
             switch (ch) {
+#if !(SILVERLIGHT||FULL_AOT_RUNTIME)
+                case 'c':
+                    return RegexOptions.Compiled;
+#endif
                 case 'i':
                     return RegexOptions.IgnoreCase;
                 case 'r':
@@ -1606,7 +1627,11 @@ namespace CharsRegularExpressions {
          */
         internal void NoteCaptureName(string name, int pos) {
             if (_capnames == null) {
+#if SILVERLIGHT
+                _capnames = new Dictionary<string, int>();
+#else
                 _capnames = new Hashtable();
+#endif
                 _capnamelist = new List<string>();
             }
 
@@ -1619,7 +1644,11 @@ namespace CharsRegularExpressions {
         /*
          * For when all the used captures are known: note them all at once
          */
+#if SILVERLIGHT
+        internal void NoteCaptures(Dictionary<int, int> caps, int capsize, Dictionary<string, int> capnames) {
+#else
         internal void NoteCaptures(Hashtable caps, int capsize, Hashtable capnames) {
+#endif
             _caps = caps;
             _capsize = capsize;
             _capnames = capnames;
@@ -1663,7 +1692,11 @@ namespace CharsRegularExpressions {
 
                 if (_capnames == null) {
                     oldcapnamelist = null;
+#if SILVERLIGHT
+                    _capnames = new Dictionary<string, int>();
+#else
                     _capnames = new Hashtable();
+#endif
                     _capnamelist = new List<string>();
                     next = -1;
                 }

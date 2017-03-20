@@ -19,7 +19,11 @@ namespace CharsRegularExpressions {
          * the constructor takes a RegexNode which is a concatenation
          * of constant strings and backreferences.
          */
+#if SILVERLIGHT
+        internal RegexReplacement(string rep, RegexNode concat, Dictionary<int, int> _caps) {
+#else
         internal RegexReplacement(string rep, RegexNode concat, Hashtable _caps) {
+#endif
             System.Text.StringBuilder sb;
             List<string> strings;
             List<int> rules;

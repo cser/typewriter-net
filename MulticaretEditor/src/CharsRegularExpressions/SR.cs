@@ -1,68 +1,68 @@
 namespace CharsRegularExpressions {
 
     public static class SR {
-    	public const string UnexpectedOpcode = "Unexpected opcode";
-    	public const string BeginIndexNotNegative = "Begin index not negative";
-    	public const string CountTooSmall = "Count too small";
-    	public const string ReplacementError = "Replacement error";
-    	public const string MakeException = "Make exception";
-    	public const string TooManyAlternates = "TooMany alternates";
-    	public const string IllegalCondition = "Illegal condition";
-    	public const string IncompleteSlashP = "Incomplete \\P";
-    	public const string MalformedSlashP = "Malformed \\P";
-    	public const string UnrecognizedEscape = "Unrecognized escape";
-    	public const string UnrecognizedControl = "Unrecognized control";
-    	public const string MissingControl = "Missing control";
-    	public const string TooFewHex = "Too few hex";
-    	public const string CaptureGroupOutOfRange = "Capture group out of range";
-    	public const string UndefinedNameRef = "Undefined name ref";
-    	public const string UndefinedBackref = "Undefined backref";
-    	public const string MalformedNameRef = "Malformed name ref";
-    	public const string IllegalEndEscape = "Illegal end escape";
-    	public const string UnterminatedComment = "Unterminated comment";
-    	public const string AlternationCantCapture = "Alternation can't capture";
-    	public const string MalformedReference = "Malformed reference";
-    	public const string IllegalDefaultRegexMatchTimeoutInAppDomain = "Illegal default regex match timeout in AppDomain";
-    	public const string UnrecognizedGrouping = "Unrecognized grouping";
-    	public const string AlternationCantHaveComment = "Alternation can't have comment";
-    	public const string UndefinedReference = "Undefined reference";
-    	public const string InvalidGroupName = "Invalid group name";
-    	public const string CapnumNotZero = "Capnum not zero";
-    	public const string UnterminatedBracket = "Unterminated bracket";
-    	public const string SubtractionMustBeLast = "Subtraction must be last";
-    	public const string ReversedCharRange = "Reversed char range";
-    	public const string BadClassInCharRange = "Bad class in char range";
-    	public const string NotEnoughParens = "Not enough parens";
-    	public const string IllegalRange = "Illegal range";
-    	public const string InternalError = "Internal error";
-    	public const string QuantifyAfterNothing = "Quantify after nothing";
-    	public const string NestedQuantify = "Nested quantify";
-    	public const string TooManyParens = "Too many parens";
-    	public const string RegexMatchTimeoutException_Occurred = "RegexMatchTimeoutException occurred";
-    	public const string EnumNotStarted = "Enum not started";
-    	public const string Arg_InvalidArrayType = "Argument - invalid array type";
-    	public const string Arg_RankMultiDimNotSupported = "Argument - rank multi dim not supported";
-    	public const string UnimplementedState = "Unimplemented state";
-    	public const string OnlyAllowedOnce = "Only allowed once";
-    	public const string InvalidNullEmptyArgument = "Invalid null or empty argument";
-    	public const string UnknownProperty = "Unknown property";
-    	public const string LengthNotNegative = "Length not negative";
-    	public const string ArgumentNull_ArrayWithNullElements = "Argument is null or array with null elements";
-    	public const string NoResultOnFailed = "No result on failed";
+    	public const int UnexpectedOpcode = 1;
+    	public const int BeginIndexNotNegative = 2;
+    	public const int CountTooSmall = 3;
+    	public const int ReplacementError = 4;
+    	public const int MakeException = 5;
+    	public const int TooManyAlternates = 6;
+    	public const int IllegalCondition = 7;
+    	public const int IncompleteSlashP = 8;
+    	public const int MalformedSlashP = 9;
+    	public const int UnrecognizedEscape = 10;
+    	public const int UnrecognizedControl = 11;
+    	public const int MissingControl = 12;
+    	public const int TooFewHex = 13;
+    	public const int CaptureGroupOutOfRange = 14;
+    	public const int UndefinedNameRef = 15;
+    	public const int UndefinedBackref = 16;
+    	public const int MalformedNameRef = 17;
+    	public const int IllegalEndEscape = 18;
+    	public const int UnterminatedComment = 19;
+    	public const int AlternationCantCapture = 20;
+    	public const int MalformedReference = 21;
+    	public const int IllegalDefaultRegexMatchTimeoutInAppDomain = 22;
+    	public const int UnrecognizedGrouping = 22;
+    	public const int AlternationCantHaveComment = 23;
+    	public const int UndefinedReference = 24;
+    	public const int InvalidGroupName = 25;
+    	public const int CapnumNotZero = 26;
+    	public const int UnterminatedBracket = 27;
+    	public const int SubtractionMustBeLast = 28;
+    	public const int ReversedCharRange = 29;
+    	public const int BadClassInCharRange = 30;
+    	public const int NotEnoughParens = 31;
+    	public const int IllegalRange = 32;
+    	public const int InternalError = 33;
+    	public const int QuantifyAfterNothing = 34;
+    	public const int NestedQuantify = 35;
+    	public const int TooManyParens = 36;
+    	public const int RegexMatchTimeoutException_Occurred = 37;
+    	public const int EnumNotStarted = 38;
+    	public const int Arg_InvalidArrayType = 39;
+    	public const int Arg_RankMultiDimNotSupported = 40;
+    	public const int UnimplementedState = 41;
+    	public const int OnlyAllowedOnce = 42;
+    	public const int InvalidNullEmptyArgument = 43;
+    	public const int UnknownProperty = 44;
+    	public const int LengthNotNegative = 45;
+    	public const int ArgumentNull_ArrayWithNullElements = 46;
+    	public const int NoResultOnFailed = 47;
     	
-    	public static string GetString(string opcode) {
+    	public static string GetString(int opcode) {
     		return opcode + "";
     	}
     	
-    	public static string GetString(string opcode, string message) {
+    	public static string GetString(int opcode, string message) {
     		return opcode + ": " + message;
     	}
     	
-    	public static string GetString(string opcode, string pattern, string message) {
+    	public static string GetString(int opcode, string pattern, string message) {
     		return opcode + ": " + pattern + " - " + message;
     	}
     	
-    	public static string GetString(string opcode, int index) {
+    	public static string GetString(int opcode, int index) {
     		return opcode + ": " + index;
     	}
     }

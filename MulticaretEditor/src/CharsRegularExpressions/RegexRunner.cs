@@ -30,8 +30,18 @@ namespace CharsRegularExpressions {
     /// <internalonly/>
 
     // 
+
+
+
+
+#if !SILVERLIGHT
     [EditorBrowsable(EditorBrowsableState.Never)]
+#endif
+#if !SILVERLIGHT
     abstract public class RegexRunner {
+#else
+    abstract internal class RegexRunner {
+#endif
         protected internal int runtextbeg;          // beginning of text to search
         protected internal int runtextend;          // end of text to search
         protected internal int runtextstart;        // starting point for search
@@ -100,8 +110,13 @@ namespace CharsRegularExpressions {
         protected internal Match Scan(Regex regex, char[] text, int textbeg, int textend, int textstart, int prevlen, bool quick) {
             return Scan(regex, text, textbeg, textend, textstart, prevlen, quick, regex.MatchTimeout);
         }
-     
-        protected internal Match Scan(Regex regex, char[] text, int textbeg, int textend, int textstart, int prevlen, bool quick, System.TimeSpan timeout) {
+
+        #if !SILVERLIGHT        
+        protected internal
+        #else
+        internal
+        #endif
+               Match Scan(Regex regex, char[] text, int textbeg, int textend, int textstart, int prevlen, bool quick, System.TimeSpan timeout) {
         
             int bump;
             int stoppos;
@@ -207,7 +222,12 @@ namespace CharsRegularExpressions {
             }
         }
 
-        protected void CheckTimeout() {
+        #if !SILVERLIGHT
+        protected
+        #else
+        internal
+        #endif
+               void CheckTimeout() {
 
             if (ignoreTimeout)
                 return;

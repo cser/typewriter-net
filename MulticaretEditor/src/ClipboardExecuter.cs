@@ -106,18 +106,30 @@ namespace MulticaretEditor
 			else if (c == '/')
 			{
 				registers[26] = text;
-				try
-				{
-					_viRegex = new CharsRegularExpressions.Regex(text,
-						CharsRegularExpressions.RegexOptions.None,
-						new System.TimeSpan(0, 0, 0, 1));
-					_viBackwardRegex = new CharsRegularExpressions.Regex(
-						text, CharsRegularExpressions.RegexOptions.RightToLeft);
-				}
-				catch
+				if (string.IsNullOrEmpty(text))
 				{
 					_viRegex = null;
 					_viBackwardRegex = null;
+				}
+				else
+				{
+					try
+					{
+						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 500);
+						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
+						if (text.Length < 50)
+						{
+							options |= CharsRegularExpressions.RegexOptions.Compiled;
+						}
+						_viRegex = new CharsRegularExpressions.Regex(text, options, span);
+						_viBackwardRegex = new CharsRegularExpressions.Regex(
+							text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
+					}
+					catch
+					{
+						_viRegex = null;
+						_viBackwardRegex = null;
+					}
 				}
 			}
 		}

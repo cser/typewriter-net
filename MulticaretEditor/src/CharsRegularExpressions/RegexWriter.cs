@@ -32,7 +32,11 @@ namespace CharsRegularExpressions {
         internal bool     _counting;
         internal int         _count;
         internal int         _trackcount;
+#if SILVERLIGHT
+        internal Dictionary<int, int>   _caps;
+#else
         internal Hashtable   _caps;
+#endif
 
         internal const int BeforeChild = 64;
         internal const int AfterChild = 128;
@@ -195,7 +199,11 @@ namespace CharsRegularExpressions {
                 return -1;
 
             if (_caps != null)
+#if SILVERLIGHT
+                return _caps[capnum];
+#else
                 return(int)_caps[capnum];
+#endif
             else
                 return capnum;
         }

@@ -16,6 +16,9 @@ namespace CharsRegularExpressions {
     ///       Represents the results from a single subexpression capture. The object represents
     ///       one substring for a single successful capture.</para>
     /// </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ] 
+#endif
     public class Capture {
         internal char[] _text;
         internal int _index;
@@ -51,12 +54,6 @@ namespace CharsRegularExpressions {
         public int Length {
             get {
                 return _length;
-            }
-        }
-        
-        public string Value {
-            get {
-                return new string(_text, _index, _length);
             }
         }
 

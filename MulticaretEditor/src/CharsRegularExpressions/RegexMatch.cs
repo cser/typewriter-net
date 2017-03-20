@@ -41,6 +41,9 @@ namespace CharsRegularExpressions {
     ///          the results from a single regular expression match.
     ///       </para>
     ///    </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ] 
+#endif
     public class Match : Group {
         internal static Match _empty = new Match(null, 1, Regex.EmptyChars, 0, 0, 0);
         internal GroupCollection _groupcoll;
@@ -147,7 +150,14 @@ namespace CharsRegularExpressions {
         ///    </para>
         /// </devdoc>
 
+#if !SILVERLIGHT
+#if FEATURE_MONO_CAS
+        [HostProtection(Synchronization=true)]
+#endif
+        static public Match Synchronized(Match inner) {
+#else
         static internal Match Synchronized(Match inner) {
+#endif
             if (inner == null)
                 throw new System.ArgumentNullException("inner");
 
@@ -355,12 +365,20 @@ namespace CharsRegularExpressions {
      */
     internal class MatchSparse : Match {
         // the lookup hashtable
+#if SILVERLIGHT
+        new internal Dictionary<Int32, Int32> _caps;
+#else
         new internal Hashtable _caps;
+#endif
 
         /*
          * Nonpublic constructor
          */
+#if SILVERLIGHT
+        internal MatchSparse(Regex regex, Dictionary<Int32, Int32> caps, int capcount,
+#else
         internal MatchSparse(Regex regex, Hashtable caps, int capcount,
+#endif
                              char[] text, int begpos, int len, int startpos)
 
         : base(regex, capcount, text, begpos, len, startpos) {
@@ -380,7 +398,11 @@ namespace CharsRegularExpressions {
 #if DBG
         internal override void Dump() {
             if (_caps != null) {
+#if SILVERLIGHT
+                IEnumerator<Int32> e = _caps.Keys.GetEnumerator();
+#else
                 IEnumerator e = _caps.Keys.GetEnumerator();
+#endif
                 while (e.MoveNext()) {
                     System.Diagnostics.Debug.WriteLine("Slot " + e.Current.ToString() + " -> " + _caps[e.Current].ToString());
                 }

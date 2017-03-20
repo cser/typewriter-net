@@ -22,6 +22,9 @@ namespace CharsRegularExpressions {
     ///       to return the set of captures done by a single capturing group.
     ///    </para>
     /// </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ]
+#endif
     public class CaptureCollection : ICollection {
         internal Group _group;
         internal int _capcount;
@@ -157,6 +160,9 @@ namespace CharsRegularExpressions {
      * This non-public enumerator lists all the captures
      * Should it be public?
      */
+#if !SILVERLIGHT
+    [ System.Serializable() ]
+#endif
     internal class CaptureEnumerator : IEnumerator {
         internal CaptureCollection _rcc;
         internal int _curindex;

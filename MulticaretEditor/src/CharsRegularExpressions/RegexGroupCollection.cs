@@ -18,9 +18,16 @@ namespace CharsRegularExpressions {
     ///       to return the set of captures done by a single capturing group.
     ///    </para>
     /// </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ]
+#endif
     public class GroupCollection : ICollection {
         internal Match _match;
+#if SILVERLIGHT
+        internal Dictionary<Int32, Int32> _captureMap;
+#else
         internal Hashtable _captureMap;
+#endif
 
         // cache of Group objects fed to the user
         internal Group[]             _groups;
@@ -28,7 +35,11 @@ namespace CharsRegularExpressions {
         /*
          * Nonpublic constructor
          */
+#if SILVERLIGHT
+        internal GroupCollection(Match match, Dictionary<Int32, Int32> caps) {
+#else
         internal GroupCollection(Match match, Hashtable caps) {
+#endif
             _match = match;
             _captureMap = caps;
         }

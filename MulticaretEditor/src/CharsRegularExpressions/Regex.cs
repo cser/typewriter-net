@@ -13,11 +13,20 @@ namespace CharsRegularExpressions {
     using System.Threading;
     using System.Collections;
     using System.Reflection;
+#if !FULL_AOT_RUNTIME
+    using System.Reflection.Emit;
+#endif
     using System.Globalization;
     using System.Security.Permissions;
     using System.Runtime.CompilerServices;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+
+#if !SILVERLIGHT
+    using System.Runtime.Serialization;
+    using System.Runtime.Versioning;
+#endif
+
 
     /// <devdoc>
     ///    <para>
@@ -26,11 +35,22 @@ namespace CharsRegularExpressions {
     ///       a Regex explicitly.
     ///    </para>
     /// </devdoc>
-    public class Regex
+#if !SILVERLIGHT
+    [ Serializable() ] 
+#endif
+    public class Regex 
+#if !SILVERLIGHT
+    : ISerializable 
+#endif
     {
 		internal static readonly char[] EmptyChars = new char[0];
         // Fields used by precompiled regexes
         protected internal string pattern;
+#if !SILVERLIGHT
+        protected internal RegexRunnerFactory factory;       // if compiled, this is the RegexRunner subclass
+#else
+        internal RegexRunnerFactory factory;                // if compiled, this is the RegexRunner subclass
+#endif
 
         protected internal RegexOptions roptions;            // the top-level options from the options string
 
@@ -39,6 +59,9 @@ namespace CharsRegularExpressions {
 
         // We need this because time is queried using Environment.TickCount for performance reasons
         // (Environment.TickCount returns millisecs as an int and cycles):
+        #if !SILVERLIGHT
+        [NonSerialized()]
+        #endif
         private static readonly TimeSpan MaximumMatchTimeout = TimeSpan.FromMilliseconds(Int32.MaxValue - 1);
 
         // InfiniteMatchTimeout specifies that match timeout is switched OFF. It allows for faster code paths
@@ -49,14 +72,27 @@ namespace CharsRegularExpressions {
         //       There may in theory be a SKU that has RegEx, but no multithreading.
         // We create a public Regex.InfiniteMatchTimeout constant, which for consistency uses the save underlying
         // value as Timeout.InfiniteTimeSpan creating an implementation detail dependency only.
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        #if !FEATURE_NETCORE
+        [NonSerialized()]
+        #endif
         public static readonly TimeSpan InfiniteMatchTimeout = new TimeSpan (0, 0, 0, 0, Timeout.Infinite);
+        #else
+        internal static readonly TimeSpan InfiniteMatchTimeout = new TimeSpan(0, 0, 0, 0, Timeout.Infinite);
+        #endif                              
 
         // All these protected internal fields in this class really should not be protected. The historic reason
         // for this is that classes extending Regex that are generated via CompileToAssembly rely on the fact that
         // these are accessible as protected in order to initialise them in the generated constructor of the
         // extending class. We should update this initialisation logic to using a protected constructor, but until
         // that is done we stick to the existing pattern however ugly it may be.
-        protected internal TimeSpan internalMatchTimeout;   // timeout for the execution of this regex
+        #if !SILVERLIGHT
+        [OptionalField(VersionAdded = 2)]        
+        protected internal
+        #else
+        internal
+        #endif
+               TimeSpan internalMatchTimeout;   // timeout for the execution of this regex
 
 
         // During static initialisation of Regex we check 
@@ -71,6 +107,9 @@ namespace CharsRegularExpressions {
         // In Silverlight, DefaultMatchTimeout is always set to FallbackDefaultMatchTimeout,
         // on desktop, DefaultMatchTimeout can be configured via AppDomain and falls back to
         // FallbackDefaultMatchTimeout, if no AppDomain setting is present (see InitDefaultMatchTimeout()).
+        #if !SILVERLIGHT
+        [NonSerialized()]
+        #endif
         internal static readonly TimeSpan FallbackDefaultMatchTimeout = InfiniteMatchTimeout;
 
 
@@ -78,14 +117,24 @@ namespace CharsRegularExpressions {
         // by one means or another. Typically, it is set to InfiniteMatchTimeout in Dev 11
         // (we plan to set a positive timeout in Dev12).
         // Hosts (e.g.) ASP may set an AppDomain property via SetData to change the default value.        
-
+        #if !SILVERLIGHT
+        [NonSerialized()]
+        internal static readonly TimeSpan DefaultMatchTimeout = InitDefaultMatchTimeout();
+        #else
         internal static readonly TimeSpan DefaultMatchTimeout = FallbackDefaultMatchTimeout;
+        #endif
         
         // *********** } match timeout fields ***********
 
+
+#if SILVERLIGHT
+        internal Dictionary<Int32, Int32> caps;              // if captures are sparse, this is the hashtable capnum->index
+        internal Dictionary<String, Int32> capnames;         // if named captures are used, this maps names->index
+#else
         // desktop build still uses non-generic collections for AppCompat with .NET Framework 3.5 pre-compiled assemblies
         protected internal Hashtable caps;
         protected internal Hashtable capnames;        
+#endif
         protected internal String[]  capslist;               // if captures are sparse or named captures are used, this is the sorted list of names
         protected internal int       capsize;                // the size of the capture array
 
@@ -136,7 +185,12 @@ namespace CharsRegularExpressions {
             : this(pattern, options, DefaultMatchTimeout, false) {
         }
 
-        public Regex(String pattern, RegexOptions options, TimeSpan matchTimeout)
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        public
+        #else
+        private
+        #endif
+               Regex(String pattern, RegexOptions options, TimeSpan matchTimeout)
             : this(pattern, options, matchTimeout, false) {
         }
 
@@ -153,6 +207,9 @@ namespace CharsRegularExpressions {
              && (options & ~(RegexOptions.ECMAScript | 
                              RegexOptions.IgnoreCase | 
                              RegexOptions.Multiline |
+#if !(SILVERLIGHT) || FEATURE_LEGACYNETCF 
+                             RegexOptions.Compiled | 
+#endif
                              RegexOptions.CultureInvariant
 #if DBG
                            | RegexOptions.Debug
@@ -200,11 +257,54 @@ namespace CharsRegularExpressions {
                 capslist   = cached._capslist;
                 capsize    = cached._capsize;
                 code       = cached._code;
+                factory    = cached._factory;
                 runnerref  = cached._runnerref;
                 replref    = cached._replref;
                 refsInitialized = true;
             }
+
+#if !(SILVERLIGHT || FULL_AOT_RUNTIME)
+            // if the compile option is set, then compile the code if it's not already
+            if (UseOptionC() && factory == null) {
+                factory = Compile(code, roptions);
+
+                if (useCache && cached != null)
+                    cached.AddCompiled(factory);
+                code = null;
+            }
+#endif
         }
+
+#if !SILVERLIGHT
+        /* 
+         *  ISerializable constructor
+         */
+        protected Regex(SerializationInfo info, StreamingContext context)
+            : this(info.GetString("pattern"), (RegexOptions) info.GetInt32("options")) {
+
+            try {
+                Int64 timeoutTicks = info.GetInt64("matchTimeout");
+                TimeSpan timeout = new TimeSpan(timeoutTicks);
+                ValidateMatchTimeout(timeout);
+                this.internalMatchTimeout = timeout;
+            } catch (SerializationException) {
+                // If this occurs, then assume that this object was serialised using a version
+                // before timeout was added. In that case just do not set a timeout
+                // (keep default value)
+            }
+
+        }
+
+        /* 
+         *  ISerializable method
+         */
+        /// <internalonly/>
+        void ISerializable.GetObjectData(SerializationInfo si, StreamingContext context) {
+            si.AddValue("pattern", this.ToString());
+            si.AddValue("options", this.Options);
+            si.AddValue("matchTimeout", this.MatchTimeout.Ticks);
+        }
+#endif  // !SILVERLIGHT
 
         //* Note: "&lt;" is the XML entity for smaller ("<").
         /// <summary>
@@ -214,7 +314,12 @@ namespace CharsRegularExpressions {
         /// <param name="matchTimeout">The timeout value to validate.</param>
         /// <exception cref="System.ArgumentOutOfRangeException">If the specified timeout is not within a valid range.        
         /// </exception>
-        protected internal static void ValidateMatchTimeout(TimeSpan matchTimeout) {
+        #if !SILVERLIGHT
+        protected internal
+        #else
+        internal
+        #endif
+        static void ValidateMatchTimeout(TimeSpan matchTimeout) {
 
             if (InfiniteMatchTimeout == matchTimeout)
                 return;
@@ -226,13 +331,84 @@ namespace CharsRegularExpressions {
             throw new ArgumentOutOfRangeException("matchTimeout");
         }
 
+#if !SILVERLIGHT
+        /// <summary>
+        /// Specifies the default RegEx matching timeout value (i.e. the timeout that will be used if no
+        /// explicit timeout is specified).       
+        /// The default is queried from the current <code>AppDomain</code> through <code>GetData</code> using
+        /// the key specified in <code>Regex.DefaultMatchTimeout_ConfigKeyName</code>. For that key, the
+        /// current <code>AppDomain</code> is expected to either return <code>null</code> or a <code>TimeSpan</code>
+        /// value specifying the default timeout within a valid range.
+        /// If the AddDomain's data value for that key is not a <code>TimeSpan</code> value or if it is outside the
+        /// valid range, an exception is thrown which will result in a <code>TypeInitializationException</code> for RegEx.
+        /// If the AddDomain's data value for that key is <code>null</code>, a fallback value is returned
+        /// (see <code>FallbackDefaultMatchTimeout</code> in code).
+        /// </summary>
+        /// <returns>The default RegEx matching timeout for this AppDomain</returns>        
+        private static TimeSpan InitDefaultMatchTimeout() {            
+
+            // Query AppDomain:
+            AppDomain ad = AppDomain.CurrentDomain;
+            Object defTmOut = ad.GetData(DefaultMatchTimeout_ConfigKeyName);
+
+            // If no default is specified, use fallback:
+            if (defTmOut == null)
+                return FallbackDefaultMatchTimeout;
+
+            // If default has invalid type, throw. It will result in a TypeInitializationException:
+            if (!(defTmOut is TimeSpan)) {
+
+                #if DBG
+                String errMsg = "AppDomain.CurrentDomain.GetData(\"" + DefaultMatchTimeout_ConfigKeyName + "\")"
+                                + " is expected to return null or a value of type System.TimeSpan only; but it returned a value of type"
+                                + " '" + defTmOut.GetType().FullName + "'.";
+                System.Diagnostics.Debug.WriteLine(errMsg);
+                #endif
+
+                throw new System.InvalidCastException(SR.GetString(SR.IllegalDefaultRegexMatchTimeoutInAppDomain, DefaultMatchTimeout_ConfigKeyName));
+            }
+
+            // Convert default value:
+            TimeSpan defaultTimeout = (TimeSpan) defTmOut;
+
+            // If default timeout is outside the valid range, throw. It will result in a TypeInitializationException:
+            try {
+                ValidateMatchTimeout(defaultTimeout);
+
+            } catch (ArgumentOutOfRangeException) {
+
+                #if DBG
+                String errMsg = "AppDomain.CurrentDomain.GetData(\"" + DefaultMatchTimeout_ConfigKeyName + "\")"
+                                + " returned a TimeSpan value outside the valid range"
+                                + " ("+ defaultTimeout.ToString() + ").";
+                System.Diagnostics.Debug.WriteLine(errMsg);
+                #endif
+
+                throw new ArgumentOutOfRangeException(SR.GetString(SR.IllegalDefaultRegexMatchTimeoutInAppDomain, DefaultMatchTimeout_ConfigKeyName));
+            }
+
+            // We are good:
+            return defaultTimeout;
+        }  // private static TimeSpan InitDefaultMatchTimeout
+#endif  // !SILVERLIGHT
+
+#if !SILVERLIGHT && !FULL_AOT_RUNTIME
         /* 
         * This method is here for perf reasons: if the call to RegexCompiler is NOT in the 
         * Regex constructor, we don't load RegexCompiler and its reflection classes when
         * instantiating a non-compiled regex
         * This method is internal virtual so the jit does not inline it.
         */
-        [MethodImplAttribute(MethodImplOptions.NoInlining)]
+        [
+#if FEATURE_MONO_CAS
+            HostProtection(MayLeakOnAbort=true),
+#endif
+            MethodImplAttribute(MethodImplOptions.NoInlining)
+        ]
+        internal RegexRunnerFactory Compile(RegexCode code, RegexOptions roptions) {
+            return RegexCompiler.Compile(code, roptions);
+        }
+#endif  // !SILVERLIGHT
 
         /*
          * Escape metacharacters within the string
@@ -291,6 +467,63 @@ namespace CharsRegularExpressions {
             }
         }
 
+#if NETSTANDARD
+        [CLSCompliant (false)]
+        protected IDictionary Caps
+        {
+            get
+            {
+                var dict = new Dictionary<int, int>();
+
+                foreach (int key in caps.Keys)
+                {
+                    dict.Add (key, (int)caps[key]);
+                }
+
+                return dict;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+
+ 
+                caps = new Hashtable (value.Count);
+                foreach (DictionaryEntry entry in value)
+                {
+                    caps[(int)entry.Key] = (int)entry.Value;
+                }
+            }
+        }
+
+        [CLSCompliant (false)]
+        protected IDictionary CapNames
+        {
+            get
+            {
+                var dict = new Dictionary<string, int>();
+
+                foreach (string key in capnames.Keys)
+                {
+                    dict.Add (key, (int)capnames[key]);
+                }
+
+                return dict;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+
+                capnames = new Hashtable (value.Count);
+                foreach (DictionaryEntry entry in value)
+                {
+                    capnames[(string)entry.Key] = (int)entry.Value;
+                }
+            }
+        }
+#endif
+
         /// <devdoc>
         ///    <para>
         ///       Returns the options passed into the constructor
@@ -304,7 +537,12 @@ namespace CharsRegularExpressions {
         /// <summary>
         /// The match timeout used by this Regex instance.
         /// </summary>
-        public TimeSpan MatchTimeout {
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        public
+        #else
+        internal
+        #endif
+               TimeSpan MatchTimeout {
             get { return internalMatchTimeout; }
         }
 
@@ -418,11 +656,19 @@ namespace CharsRegularExpressions {
             }
             else {
                 if (caps != null) {
+#if SILVERLIGHT
+                    if (!caps.ContainsKey(i))
+#else
                     Object obj = caps[i];
                     if (obj == null)
+#endif
                         return String.Empty;
 
+#if SILVERLIGHT
+                    i = caps[i];
+#else
                     i = (int)obj;
+#endif
                 }
 
                 if (i >= 0 && i < capslist.Length)
@@ -452,11 +698,19 @@ namespace CharsRegularExpressions {
 
             // look up name if we have a hashtable of names
             if (capnames != null) {
+#if SILVERLIGHT
+                if (!capnames.ContainsKey(name))
+#else
                 Object ret = capnames[name];
                 if (ret == null)
+#endif
                     return -1;
 
+#if SILVERLIGHT
+                return capnames[name];
+#else
                 return(int)ret;
+#endif
             }
 
             // convert to an int if it looks like a number
@@ -506,7 +760,12 @@ namespace CharsRegularExpressions {
             return IsMatch(input, pattern, options, DefaultMatchTimeout);
         }
 
-        public static bool IsMatch(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        public
+        #else
+        private
+        #endif
+               static bool IsMatch(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
             return new Regex(pattern, options, matchTimeout, true).IsMatch(input);
         }
 
@@ -574,7 +833,13 @@ namespace CharsRegularExpressions {
             return Match(input, pattern, options, DefaultMatchTimeout);
         }
 
-        public static Match Match(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
+
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        public
+        #else
+        private
+        #endif
+               static Match Match(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
             return new Regex(pattern, options, matchTimeout, true).Match(input);
         }
 
@@ -655,7 +920,12 @@ namespace CharsRegularExpressions {
             return Matches(input, pattern, options, DefaultMatchTimeout);
         }
 
-        public static MatchCollection Matches(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
+        #if !SILVERLIGHT || FEATURE_NETCORE
+        public
+        #else
+        private
+        #endif
+               static MatchCollection Matches(char[] input, String pattern, RegexOptions options, TimeSpan matchTimeout) {
             return new Regex(pattern, options, matchTimeout, true).Matches(input);
         }
 
@@ -695,6 +965,56 @@ namespace CharsRegularExpressions {
 
             return new MatchCollection(this, input, 0, input.Length, startat);
         }
+        
+#if !(SILVERLIGHT || FULL_AOT_RUNTIME)
+        /// <devdoc>
+        /// </devdoc>
+#if FEATURE_MONO_CAS
+        [HostProtection(MayLeakOnAbort=true)]
+#endif
+        [ResourceExposure(ResourceScope.Machine)] // The AssemblyName is interesting.
+        [ResourceConsumption(ResourceScope.Machine)]
+        [SuppressMessage("Microsoft.Naming","CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId="assemblyname", Justification="[....]: already shipped since v1 - can't fix without causing a breaking change")]
+        public static void CompileToAssembly(RegexCompilationInfo[] regexinfos, AssemblyName assemblyname) {
+        
+            CompileToAssemblyInternal(regexinfos, assemblyname, null, null);
+        }
+
+        /// <devdoc>
+        /// </devdoc>
+#if FEATURE_MONO_CAS
+        [HostProtection(MayLeakOnAbort=true)]
+#endif
+        [ResourceExposure(ResourceScope.Machine)] // The AssemblyName is interesting.
+        [ResourceConsumption(ResourceScope.Machine)]
+        [SuppressMessage("Microsoft.Naming","CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId="assemblyname", Justification="[....]: already shipped since v1 - can't fix without causing a breaking change")]
+        public static void CompileToAssembly(RegexCompilationInfo[] regexinfos, AssemblyName assemblyname, CustomAttributeBuilder[] attributes) {
+            CompileToAssemblyInternal(regexinfos, assemblyname, attributes, null);
+        }
+
+#if FEATURE_MONO_CAS
+        [HostProtection(MayLeakOnAbort=true)]
+#endif
+        [ResourceExposure(ResourceScope.Machine)]
+        [ResourceConsumption(ResourceScope.Machine)]
+        [SuppressMessage("Microsoft.Naming","CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId="assemblyname", Justification="[....]: already shipped since v1 - can't fix without causing a breaking change")]
+        public static void CompileToAssembly(RegexCompilationInfo[] regexinfos, AssemblyName assemblyname, CustomAttributeBuilder[] attributes, String resourceFile) {
+            CompileToAssemblyInternal(regexinfos, assemblyname, attributes, resourceFile);
+        }
+
+        [ResourceExposure(ResourceScope.Machine)]  // AssemblyName & resourceFile
+        [ResourceConsumption(ResourceScope.Machine)]
+        private static void CompileToAssemblyInternal (RegexCompilationInfo[] regexinfos, AssemblyName assemblyname, CustomAttributeBuilder[] attributes, String resourceFile) {
+            if (assemblyname == null)
+                throw new ArgumentNullException("assemblyname");
+
+            if (regexinfos == null)
+                throw new ArgumentNullException("regexinfos");
+        
+            RegexCompiler.CompileToAssembly(regexinfos, assemblyname, attributes, resourceFile);
+        }
+        
+#endif
 
         /// <devdoc>
         /// </devdoc>
@@ -729,7 +1049,11 @@ namespace CharsRegularExpressions {
 
             if (runner == null) {
                 // Use the compiled RegexRunner factory if the code was compiled to MSIL
-                runner = new RegexInterpreter(code, UseOptionInvariant() ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture);
+
+                if (factory != null)
+                    runner = factory.CreateInstance();
+                else
+                    runner = new RegexInterpreter(code, UseOptionInvariant() ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture);
             }
 
             try {
@@ -793,6 +1117,28 @@ namespace CharsRegularExpressions {
             return newcached;
         }
 
+#if !SILVERLIGHT
+        /*
+         * True if the O option was set
+         */
+        /// <internalonly/>
+        /// <devdoc>
+        /// </devdoc>
+        protected bool UseOptionC() {
+#if FULL_AOT_RUNTIME
+            return false;
+#else
+
+#if MONO
+            /* Mono: Set to false until we investigate  https://bugzilla.xamarin.com/show_bug.cgi?id=25671 */
+            return false;
+#else
+            return(roptions & RegexOptions.Compiled) != 0;
+#endif
+#endif
+        }
+#endif
+
         /*
          * True if the L option was set
          */
@@ -830,6 +1176,9 @@ namespace CharsRegularExpressions {
      */
     /// <devdoc>
     /// </devdoc>
+#if !SILVERLIGHT
+    [ Serializable() ] 
+#endif
     public delegate String MatchEvaluator(Match match);
 
 
@@ -839,14 +1188,24 @@ namespace CharsRegularExpressions {
     internal sealed class CachedCodeEntry {
         internal string _key;
         internal RegexCode _code;
+#if SILVERLIGHT
+        internal Dictionary<Int32, Int32> _caps;
+        internal Dictionary<String, Int32> _capnames;
+#else
         internal Hashtable _caps;
         internal Hashtable _capnames;
+#endif
         internal String[]  _capslist;
         internal int       _capsize;
+        internal RegexRunnerFactory _factory;
         internal ExclusiveReference _runnerref;
         internal SharedReference _replref;
 
+#if SILVERLIGHT
+        internal CachedCodeEntry(string key, Dictionary<String, Int32> capnames, String[] capslist, RegexCode code, Dictionary<Int32, Int32> caps, int capsize, ExclusiveReference runner, SharedReference repl)
+#else
         internal CachedCodeEntry(string key, Hashtable capnames, String[] capslist, RegexCode code, Hashtable caps, int capsize, ExclusiveReference runner, SharedReference repl)
+#endif
         {
 
             _key        = key;
@@ -860,6 +1219,13 @@ namespace CharsRegularExpressions {
             _runnerref     = runner;
             _replref       = repl;
         }
+
+#if !SILVERLIGHT
+        internal void AddCompiled(RegexRunnerFactory factory) {
+            _factory = factory;
+            _code = null;
+        }
+#endif
     }
 
     /*

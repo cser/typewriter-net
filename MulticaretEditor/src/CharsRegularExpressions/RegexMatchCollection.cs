@@ -24,9 +24,16 @@ namespace CharsRegularExpressions {
     ///       names in a regular expression.
     ///    </para>
     /// </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ] 
+#endif
     public class MatchCollection : ICollection {
         internal Regex _regex;
+#if SILVERLIGHT
+        internal List<Match> _matches;
+#else
         internal ArrayList _matches;
+#endif
         internal bool _done;
         internal char[] _input;
         internal int _beginning;
@@ -49,7 +56,11 @@ namespace CharsRegularExpressions {
             _length = length;
             _startat = startat;
             _prevlen = -1;
+#if SILVERLIGHT
+            _matches = new List<Match>();
+#else
             _matches = new ArrayList();
+#endif
             _done = false;
         }
 
@@ -162,10 +173,19 @@ namespace CharsRegularExpressions {
             int count = Count;
             try
             {
+#if SILVERLIGHT
+                // Array.Copy will check for null.
+                Array.Copy(_matches.ToArray(), 0, array, arrayIndex, count);
+#else
                 _matches.CopyTo(array, arrayIndex);
+#endif
             }
             catch (System.ArrayTypeMismatchException ex)
             {
+#if FEATURE_LEGACYNETCF
+                if (CompatibilitySwitches.IsAppEarlierThanWindowsPhone8)
+                    throw;
+#endif
                 throw new System.ArgumentException(SR.GetString(SR.Arg_InvalidArrayType), ex);
             }
         }
@@ -184,6 +204,9 @@ namespace CharsRegularExpressions {
      * This non-public enumerator lists all the group matches.
      * Should it be public?
      */
+#if !SILVERLIGHT
+    [ System.Serializable() ] 
+#endif
     internal class MatchEnumerator : IEnumerator {
         internal MatchCollection _matchcoll;
         internal Match _match = null;

@@ -7,8 +7,10 @@
 ///------------------------------------------------------------------------------
 
 using System;
+using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
+
 
 namespace CharsRegularExpressions {
 
@@ -16,7 +18,18 @@ namespace CharsRegularExpressions {
 /// This is the exception that is thrown when a RegEx matching timeout occurs.
 /// </summary>
 
-public class RegexMatchTimeoutException : TimeoutException {
+#if SILVERLIGHT
+#if FEATURE_NETCORE
+public
+#else
+internal 
+#endif
+class RegexMatchTimeoutException : TimeoutException {
+#else
+[Serializable]
+public class RegexMatchTimeoutException : TimeoutException, ISerializable {
+#endif
+
 
     private string regexInput = null;
 
@@ -73,6 +86,32 @@ public class RegexMatchTimeoutException : TimeoutException {
         Init();
     }
 
+
+    #if !SILVERLIGHT
+    /// <summary>
+    /// Initializes a new RegexMatchTimeoutException with serialized data.
+    /// </summary>
+    /// <param name="info">The SerializationInfo  that holds the serialized object data about the exception being thrown.</param>
+    /// <param name="context">The StreamingContext  that contains contextual information about the source or destination.</param>
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    protected RegexMatchTimeoutException(SerializationInfo info, StreamingContext context) :
+        base(info, context) {
+
+        string input = info.GetString("regexInput");
+        string pattern = info.GetString("regexPattern");
+        TimeSpan timeout = TimeSpan.FromTicks(info.GetInt64("timeoutTicks"));
+        Init(input, pattern, timeout);
+    }
+        
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    void ISerializable.GetObjectData(SerializationInfo si, StreamingContext context) {
+        base.GetObjectData(si, context);
+        si.AddValue("regexInput", this.regexInput);
+        si.AddValue("regexPattern", this.regexPattern);
+        si.AddValue("timeoutTicks", this.matchTimeout.Ticks);
+    }
+    #endif // !SILVERLIGHT
+
     private void Init() {
         Init("", "", TimeSpan.FromTicks(-1));
     }
@@ -83,18 +122,42 @@ public class RegexMatchTimeoutException : TimeoutException {
         this.matchTimeout = timeout;
     }
 
+    #if SILVERLIGHT && !FEATURE_NETCORE
+    internal string Pattern {
+    #else
     public string Pattern {
+    #endif
+    #if SILVERLIGHT
+        [SecurityCritical]
+    #else  // SILVERLIGHT
         [PermissionSet(SecurityAction.LinkDemand, Unrestricted=true)]
+    #endif  // SILVERLIGHT
         get { return regexPattern; }
     }
 
+    #if SILVERLIGHT && !FEATURE_NETCORE
+    internal string Input {
+    #else
     public string Input {
+    #endif
+    #if SILVERLIGHT
+        [SecurityCritical]
+    #else  // SILVERLIGHT
         [PermissionSet(SecurityAction.LinkDemand, Unrestricted=true)]
+    #endif  // SILVERLIGHT
         get { return regexInput; }
     }
 
+    #if SILVERLIGHT && !FEATURE_NETCORE
+    internal TimeSpan MatchTimeout {
+    #else
     public TimeSpan MatchTimeout {
+    #endif
+    #if SILVERLIGHT
+        [SecurityCritical]
+    #else  // SILVERLIGHT
         [PermissionSet(SecurityAction.LinkDemand, Unrestricted=true)]
+    #endif  // SILVERLIGHT
         get { return matchTimeout; }
     }
 } // public class RegexMatchTimeoutException

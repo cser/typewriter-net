@@ -17,6 +17,9 @@ namespace CharsRegularExpressions {
     ///       capture zero, one, or more strings in a single match because of quantifiers, so
     ///       Group supplies a collection of Capture objects. 
     ///    </devdoc>
+#if !SILVERLIGHT
+    [ System.Serializable() ] 
+#endif
     public class Group : Capture {
         // the empty group object
         internal static Group   _emptygroup = new Group(Regex.EmptyChars, new int[0], 0);
@@ -73,7 +76,14 @@ namespace CharsRegularExpressions {
         ///       a Group object equivalent to the one supplied that is safe to share between
         ///       multiple threads.</para>
         /// </devdoc>
+#if !SILVERLIGHT
+#if FEATURE_MONO_CAS
+        [HostProtection(Synchronization=true)]
+#endif
         static public Group Synchronized(Group inner) {
+#else
+        static internal Group Synchronized(Group inner) {
+#endif
             if (inner == null)
                 throw new System.ArgumentNullException("inner");
 

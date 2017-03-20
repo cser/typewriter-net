@@ -99,7 +99,11 @@ namespace CharsRegularExpressions {
         internal string[]        _strings;               // the string/set table
         // not used! internal int[]           _sparseIndex;           // a list of the groups that are used
         internal int             _trackcount;            // how many instructions use backtracking
+#if SILVERLIGHT
+        internal Dictionary<Int32, Int32> _caps;         // mapping of user group numbers -> impl group slots
+#else
         internal Hashtable       _caps;                  // mapping of user group numbers -> impl group slots
+#endif
         internal int             _capsize;               // number of impl group slots
         internal RegexPrefix     _fcPrefix;              // the set of candidate first characters (may be null)
         internal RegexBoyerMoore _bmPrefix;              // the fixed prefix string as a Boyer-Moore machine (may be null)
@@ -111,7 +115,11 @@ namespace CharsRegularExpressions {
         // constructor
 
         internal RegexCode(int [] codes, List<string> stringlist, int trackcount,
+#if SILVERLIGHT
+                           Dictionary<Int32, Int32> caps, int capsize,
+#else
                            Hashtable caps, int capsize,
+#endif
                            RegexBoyerMoore bmPrefix, RegexPrefix fcPrefix, 
                            int anchors, bool rightToLeft) {
             _codes = codes;
