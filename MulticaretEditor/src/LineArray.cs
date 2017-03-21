@@ -174,7 +174,9 @@ namespace MulticaretEditor
 					LineBlock block = blocks[i];
 					for (int j = 0; j < block.count; j++)
 					{
-						Array.Copy(block.array[j].chars, 0, _charBuffer.buffer, index, block.array[j].charsCount);
+						Line line = block.array[j];
+						Array.Copy(line.chars, 0, _charBuffer.buffer, index, line.charsCount);
+						index += line.charsCount;
 					}
 				}
 			}

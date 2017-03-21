@@ -32,14 +32,14 @@ namespace MulticaretEditor
 		{
 			Array.Copy(chars, index + 1, chars, index, charsCount - index - 1);
 			Array.Copy(styles, index + 1, styles, index, charsCount - index - 1);
-			charsCount++;
+			charsCount--;
 		}
 		
 		public void Chars_AddRange(Line line)
 		{
 			Chars_Resize(charsCount + line.charsCount);
-			Array.Copy(line.chars, chars, line.charsCount);
-			Array.Copy(line.styles, styles, line.charsCount);
+			Array.Copy(line.chars, 0, chars, charsCount, line.charsCount);
+			Array.Copy(line.styles, 0, styles, charsCount, line.charsCount);
 			charsCount += line.charsCount;
 		}
 		
@@ -54,8 +54,8 @@ namespace MulticaretEditor
 		public void Chars_InsertRange(int index, Line line, int lineIndex, int count)
 		{
 			Chars_Resize(charsCount + count);
-			Array.Copy(chars, index, chars, index + count, charsCount + count - index);
-			Array.Copy(styles, index, styles, index + count, charsCount + count - index);
+			Array.Copy(chars, index, chars, index + count, charsCount - index);
+			Array.Copy(styles, index, styles, index + count, charsCount - index);
 			Array.Copy(line.chars, lineIndex, chars, index, count);
 			Array.Copy(line.styles, lineIndex, styles, index, count);
 			charsCount += count;
@@ -65,7 +65,7 @@ namespace MulticaretEditor
 		{
 			Chars_Resize(charsCount + text.Length);
 			Array.Copy(chars, index, chars, index + text.Length, charsCount - index);
-			Array.Copy(chars, 0, chars, index, text.Length);
+			Array.Copy(text, 0, chars, index, text.Length);
 			charsCount += text.Length;
 		}
 		
@@ -106,11 +106,6 @@ namespace MulticaretEditor
 		public int wwSizeX = 0;
 		public PredictableList<CutOff> cutOffs = new PredictableList<CutOff>(2);
 		public int lastSublineSizeX;
-
-		public void SetStyle(int index, short style)
-		{
-			styles[index] = style;
-		}
 
 		public void SetRangeStyle(int startIndex, int count, short style)
 		{

@@ -99,13 +99,16 @@ namespace MulticaretEditor
 				{
 					int length = wordEnd - position;
 					int i = length % HashSize;
-					string word = text.Substring(position, length);
-					if (!casesansitive)
-						word = word.ToLowerInvariant();
-					if (hash[i] != null && Array.IndexOf<string>(hash[i], word) != -1)
+					if (hash[i] != null)
 					{
-						nextPosition = position + length;
-						return true;
+						string word = text.Substring(position, length);
+						if (!casesansitive)
+							word = word.ToLowerInvariant();
+						if (Array.IndexOf<string>(hash[i], word) != -1)
+						{
+							nextPosition = position + length;
+							return true;
+						}
 					}
 				}
 				nextPosition = position;

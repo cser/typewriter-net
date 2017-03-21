@@ -443,7 +443,7 @@ namespace MulticaretEditor
 								{
 									for (; position < nextPosition; position++)
 									{
-										line.SetStyle(position, rule.attribute.index);
+										line.styles[position] = rule.attribute.index;
 									}
 								}
 								if (rule.childs != null && position < count)
@@ -455,7 +455,7 @@ namespace MulticaretEditor
 										{
 											for (; position < childNextPosition; position++)
 											{
-												line.SetStyle(position, childRule.attribute.index);
+												line.styles[position] = childRule.attribute.index;
 											}
 											Switch(rule.context);
 										}
@@ -474,7 +474,7 @@ namespace MulticaretEditor
 							}
 							else
 							{
-								line.SetStyle(position, context.attribute.index);
+								line.styles[position] = context.attribute.index;
 								position++;
 							}
 						}
