@@ -165,7 +165,7 @@ namespace MulticaretEditor
 					if (place.iLine > 0)
 					{
 						Line line = lines[place.iLine - 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -216,7 +216,7 @@ namespace MulticaretEditor
 					if (place.iLine < lines.LinesCount - 1)
 					{
 						Line line = lines[place.iLine + 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -298,7 +298,7 @@ namespace MulticaretEditor
 				Line line = lines[caret.iLine];
 				int charsCount = line.NormalCount;
 				int minIChar = 0;
-				while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar].c))
+				while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar]))
 				{
 					minIChar++;
 				}
@@ -685,11 +685,11 @@ namespace MulticaretEditor
 
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
 		{
-			int count = line.chars.Count;
+			int count = line.charsCount;
 			int spacesCount = 0;
 			for (int i = 0; i < count; i++)
 			{
-				char c = line.chars[i].c;
+				char c = line.chars[i];
 				if (c != '\t' && c != ' ')
 					break;
 				spacesCount++;
@@ -699,7 +699,7 @@ namespace MulticaretEditor
 				StringBuilder builder = new StringBuilder();
 				for (int i = 0; i < count; i++)
 				{
-					char c = line.chars[i].c;
+					char c = line.chars[i];
 					if (c != '\t' && c != ' ')
 						break;
 					builder.Append(c);
@@ -779,7 +779,7 @@ namespace MulticaretEditor
 				if (iChar > normalCount)
 					iChar = normalCount;
 				left = iChar;
-				while (left > 0 && GetCharType(line.chars[left - 1].c) == CharType.Identifier)
+				while (left > 0 && GetCharType(line.chars[left - 1]) == CharType.Identifier)
 				{
 					left--;
 				}
@@ -807,14 +807,14 @@ namespace MulticaretEditor
 				int iChar = place.iChar;
 				if (iChar >= normalCount)
 					iChar = normalCount - 1;
-				CharType charType = GetCharType(line.chars[iChar].c);
+				CharType charType = GetCharType(line.chars[iChar]);
 				left = iChar;
-				while (left > 0 && GetCharType(line.chars[left - 1].c) == charType)
+				while (left > 0 && GetCharType(line.chars[left - 1]) == charType)
 				{
 					left--;
 				}
 				right = iChar + 1;
-				while (right < normalCount && GetCharType(line.chars[right].c) == charType)
+				while (right < normalCount && GetCharType(line.chars[right]) == charType)
 				{
 					right++;
 				}
@@ -1038,13 +1038,13 @@ namespace MulticaretEditor
 			}
 			Line line = lines[leftPlace.iLine];
 			string word = null;
-			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
-				(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
+			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1]) != CharType.Identifier) &&
+				(rightPlace.iChar == line.charsCount || GetCharType(line.chars[rightPlace.iChar]) != CharType.Identifier))
 			{
 				StringBuilder builder = new StringBuilder();
 				for (int i = leftPlace.iChar; i < rightPlace.iChar; i++)
 				{
-					char c = line.chars[i].c;
+					char c = line.chars[i];
 					if (GetCharType(c) != CharType.Identifier)
 					{
 						builder = null;
@@ -1096,7 +1096,7 @@ namespace MulticaretEditor
 						if (indexList.count > 0)
 							lines.marksByLine[block.offset + j] = indexList.ToArray();
 					}
-					charOffset += lineI.chars.Count;
+					charOffset += lineI.charsCount;
 				}
 			}
 		}
@@ -1131,16 +1131,16 @@ namespace MulticaretEditor
 			char c0 = '\0';
 			if (place.iChar > 0)
 			{
-				c0 = line.chars[place.iChar - 1].c;
+				c0 = line.chars[place.iChar - 1];
 				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')
 				{
 					iChar = place.iChar - 1;
 					position--;
 				}
 			}
-			if (iChar == -1 && place.iChar < line.chars.Count)
+			if (iChar == -1 && place.iChar < line.charsCount)
 			{
-				c0 = line.chars[place.iChar].c;
+				c0 = line.chars[place.iChar];
 				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')
 					iChar = place.iChar;
 			}
@@ -1468,7 +1468,7 @@ namespace MulticaretEditor
 				int charsCount = line.NormalCount;
 				if (indented)
 				{
-					while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar].c))
+					while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar]))
 					{
 						minIChar++;
 					}
@@ -1786,7 +1786,7 @@ namespace MulticaretEditor
 				foreach (Selection selection in selections)
 				{
 					Place caret = lines.PlaceOf(selection.caret);
-					caret.iChar = direction == Direction.Right ? lines[caret.iLine].chars.Count : 0;
+					caret.iChar = direction == Direction.Right ? lines[caret.iLine].charsCount : 0;
 					selection.caret = lines.IndexOf(caret);
 					selection.SetEmpty();
 				}

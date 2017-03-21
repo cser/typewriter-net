@@ -116,22 +116,22 @@ namespace MulticaretEditor
 			return new Regex(@"\\(\d\d\d\d)").Replace(regex, @"\u$1");
 		}
 		
-		public static bool GetRGBForHighlight(List<Char> chars, int iChar, out int offset, out Color color)
+		public static bool GetRGBForHighlight(char[] chars, int iChar, out int offset, out Color color)
 		{
 			offset = 0;
 			int count = 0;
 			for (int i = iChar; i-- > 0;)
 			{
-				char c = chars[i].c;
+				char c = chars[i];
 				if (count > 8 || !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F'))
 					break;
 				offset--;
 				count++;
 			}
-			int charsCount = chars.Count;
+			int charsCount = chars.Length;
 			for (int i = iChar; i < charsCount; i++)
 			{
-				char c = chars[i].c;
+				char c = chars[i];
 				if (count > 8 || !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F'))
 					break;
 				count++;
@@ -146,7 +146,7 @@ namespace MulticaretEditor
 			{
 				int i = iChar + offset;
 				int rgb = int.Parse(
-					new string(new char[] { chars[i].c, chars[i + 1].c, chars[i + 2].c, chars[i + 3].c, chars[i + 4].c, chars[i + 5].c }),
+					new string(new char[] { chars[i], chars[i + 1], chars[i + 2], chars[i + 3], chars[i + 4], chars[i + 5] }),
 				    NumberStyles.HexNumber, CultureInfo.InstalledUICulture);
 				color = Color.FromArgb(Color.Black.ToArgb() | rgb);
 				return true;

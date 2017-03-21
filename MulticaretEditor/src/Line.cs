@@ -6,7 +6,98 @@ namespace MulticaretEditor
 {
 	public class Line
 	{
-		public readonly List<Char> chars = new List<Char>();
+		public int charsCount;
+		public char[] chars;
+		public short[] styles;
+		
+		public Line(int capacity)
+		{
+			if (capacity < 1)
+			{
+				capacity = 1;
+			}
+			chars = new char[capacity];
+			styles = new short[capacity];
+		}
+		
+		public void Chars_Add(Char c)
+		{
+			Chars_Resize(charsCount + 1);
+			chars[charsCount] = c.c;
+			styles[charsCount] = c.style;
+			charsCount++;
+		}
+		
+		public void Chars_RemoveAt(int index)
+		{
+			Array.Copy(chars, index + 1, chars, index, charsCount - index - 1);
+			Array.Copy(styles, index + 1, styles, index, charsCount - index - 1);
+			charsCount++;
+		}
+		
+		public void Chars_AddRange(Line line)
+		{
+			Chars_Resize(charsCount + line.charsCount);
+			Array.Copy(line.chars, chars, line.charsCount);
+			Array.Copy(line.styles, styles, line.charsCount);
+			charsCount += line.charsCount;
+		}
+		
+		public void Chars_AddRange(Line line, int index, int count)
+		{
+			Chars_Resize(charsCount + count);
+			Array.Copy(line.chars, index, chars, charsCount, count);
+			Array.Copy(line.styles, index, styles, charsCount, count);
+			charsCount += count;
+		}
+		
+		public void Chars_InsertRange(int index, Line line, int lineIndex, int count)
+		{
+			Chars_Resize(charsCount + count);
+			Array.Copy(chars, index, chars, index + count, charsCount + count - index);
+			Array.Copy(styles, index, styles, index + count, charsCount + count - index);
+			Array.Copy(line.chars, lineIndex, chars, index, count);
+			Array.Copy(line.styles, lineIndex, styles, index, count);
+			charsCount += count;
+		}
+		
+		public void Chars_InsertRange(int index, char[] text)
+		{
+			Chars_Resize(charsCount + text.Length);
+			Array.Copy(chars, index, chars, index + text.Length, charsCount - index);
+			Array.Copy(chars, 0, chars, index, text.Length);
+			charsCount += text.Length;
+		}
+		
+		public void Chars_RemoveRange(int index, int length)
+		{
+			if (charsCount - index - length > 0)
+			{
+				Array.Copy(chars, index + length, chars, index, charsCount - index - length);
+				Array.Copy(styles, index + length, styles, index, charsCount - index - length);
+			}
+			Chars_Resize(charsCount);
+			charsCount -= length;
+		}
+		
+		private void Chars_Resize(int count)
+		{
+			if (count > chars.Length)
+			{
+				int nextLength = chars.Length << 1;
+				while (nextLength < count)
+				{
+					nextLength = nextLength << 1;
+				}
+				char[] newChars = new char[nextLength];
+				short[] newStyles = new short[nextLength];
+				Array.Copy(chars, newChars, charsCount);
+				Array.Copy(styles, newStyles, charsCount);
+				chars = newChars;
+				styles = newStyles;
+			}
+		}
+		
 		public int tabSize;
 		public int cachedSize = -1;
 		public string cachedText = null;
@@ -18,7 +109,7 @@ namespace MulticaretEditor
 
 		public void SetStyle(int index, short style)
 		{
-			chars[index] = new Char(chars[index].c, style);
+			styles[index] = style;
 		}
 
 		public void SetRangeStyle(int startIndex, int count, short style)
@@ -26,13 +117,13 @@ namespace MulticaretEditor
 			int endIndex = startIndex + count;
 			for (int i = startIndex; i < endIndex; i++)
 			{
-				chars[i] = new Char(chars[i].c, style);
+				styles[i] = style;
 			}
 		}
 
 		public Char this[int index]
 		{
-			get { return chars[index]; }
+			get { return new Char(chars[index], styles[index]); }
 		}
 
 		public int Size
@@ -42,10 +133,10 @@ namespace MulticaretEditor
 				if (cachedSize == -1)
 				{
 					cachedSize = 0;
-					int count = chars.Count;
+					int count = charsCount;
 					for (int i = 0; i < count; i++)
 					{
-						if (chars[i].c == '\t')
+						if (chars[i] == '\t')
 						{
 							cachedSize = ((cachedSize + tabSize) / tabSize) * tabSize;
 						}
@@ -65,11 +156,11 @@ namespace MulticaretEditor
 			{
 				if (cachedText == null)
 				{
-					StringBuilder builder = new StringBuilder(chars.Count);
-					int count = chars.Count;
+					StringBuilder builder = new StringBuilder(charsCount);
+					int count = charsCount;
 					for (int i = 0; i < count; i++)
 					{
-						builder.Append(chars[i].c);
+						builder.Append(chars[i]);
 					}
 					cachedText = builder.ToString();
 				}
@@ -79,12 +170,12 @@ namespace MulticaretEditor
 
 		public int IndexOfPos(int pos)
 		{
-			int count = chars.Count;
+			int count = charsCount;
 			int iPos = 0;
 			int i = 0;
 			for (; i < count; i++)
 			{
-				if (chars[i].c == '\t')
+				if (chars[i] == '\t')
 				{
 					int prevPos = iPos;
 					iPos = ((iPos + tabSize) / tabSize) * tabSize;
@@ -104,7 +195,7 @@ namespace MulticaretEditor
 		public int WWIndexOfPos(int pos, int iSubline)
 		{
 			if (iSubline > cutOffs.count)
-				return chars.Count;
+				return charsCount;
 
 			CutOff cutOff;
 			if (iSubline <= 0)
@@ -116,11 +207,11 @@ namespace MulticaretEditor
 				cutOff = cutOffs.buffer[iSubline - 1];
 			}
 
-			int count = iSubline < cutOffs.count ? cutOffs.buffer[iSubline].iChar - 1 : chars.Count;
+			int count = iSubline < cutOffs.count ? cutOffs.buffer[iSubline].iChar - 1 : charsCount;
 			int iPos = cutOff.left;
 			for (int i = cutOff.iChar; i < count; i++)
 			{
-				if (chars[i].c == '\t')
+				if (chars[i] == '\t')
 				{
 					int prevPos = iPos;
 					iPos = ((iPos + tabSize) / tabSize) * tabSize;
@@ -151,12 +242,12 @@ namespace MulticaretEditor
 
 		public int PosOfIndex(int index)
 		{
-			if (index > chars.Count)
-				index = chars.Count;
+			if (index > charsCount)
+				index = charsCount;
 			int pos = 0;
 			for (int i = 0; i < index; i++)
 			{
-				if (chars[i].c == '\t')
+				if (chars[i] == '\t')
 				{
 					pos = ((pos + tabSize) / tabSize) * tabSize;
 				}
@@ -179,7 +270,7 @@ namespace MulticaretEditor
 			int pos = 0;
 			for (int i = cutOff.iChar; i < index; i++)
 			{
-				if (chars[i].c == '\t')
+				if (chars[i] == '\t')
 				{
 					pos = ((pos + tabSize) / tabSize) * tabSize;
 				}
@@ -196,14 +287,14 @@ namespace MulticaretEditor
 		{
 			get
 			{
-				int count = chars.Count;
+				int count = charsCount;
 				if (count > 0)
 				{
-					char c = chars[count - 1].c;
+					char c = chars[count - 1];
 					if (c == '\n')
 					{
 						count--;
-						if (count > 0 && chars[count - 1].c == '\r')
+						if (count > 0 && chars[count - 1] == '\r')
 							count--;
 					}
 					else if (c == '\r')
@@ -217,13 +308,13 @@ namespace MulticaretEditor
 
 		public void GetFirstIntegerTabs(out string text, out int tabsCount)
 		{
-			int count = chars.Count;
+			int count = charsCount;
 			int size = 0;
 			int lastLength = 0;
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < count; i++)
 			{
-				char c = chars[i].c;
+				char c = chars[i];
 				if (c == '\t')
 				{
 					builder.Append(c);
@@ -248,12 +339,12 @@ namespace MulticaretEditor
 
 		public int GetFirstSpaceSize(out int iChar)
 		{
-			int count = chars.Count;
+			int count = charsCount;
 			int size = 0;
 			iChar = 0;
 			for (; iChar < count; iChar++)
 			{
-				char c = chars[iChar].c;
+				char c = chars[iChar];
 				if (c == '\t')
 				{
 					size = ((size + tabSize) / tabSize) * tabSize;
@@ -274,7 +365,7 @@ namespace MulticaretEditor
 		{
 			this.wwSizeX = wwSizeX;
 			cutOffs.Clear();
-			int count = chars.Count;
+			int count = charsCount;
 			if (count > 4)
 			{
 				int i;
@@ -286,7 +377,7 @@ namespace MulticaretEditor
 				char prev = '\0';
 				while (i < count)
 				{
-					char c = chars[i].c;
+					char c = chars[i];
 					if (!char.IsWhiteSpace(c) && (char.IsWhiteSpace(prev) || !char.IsLetterOrDigit(c)))
 					{
 						prevLastSeparator = lastSeparator;
@@ -358,24 +449,24 @@ namespace MulticaretEditor
 		{
 			int count = 0;
 			string text = "";
-			for (int i = chars.Count; i-- > 0; )
+			for (int i = charsCount; i-- > 0; )
 			{
-				char c = chars[i].c;
+				char c = chars[i];
 				if (c != '\n' && c != '\r')
 					break;
 				count++;
 				text = c + text;
 			}
-			chars.RemoveRange(chars.Count - count, count);
+			Chars_RemoveRange(charsCount - count, count);
 			return text;
 		}
 
 		public int GetFirstSpaces()
 		{
-			int count = chars.Count;
+			int count = charsCount;
 			for (int i = 0; i < count; i++)
 			{
-				char c = chars[i].c;
+				char c = chars[i];
 				if (c != ' ' && c != '\t')
 					return i;
 			}
@@ -384,8 +475,8 @@ namespace MulticaretEditor
 		
 		public string GetRN()
 		{
-			char c0 = chars.Count > 1 ? chars[chars.Count - 2].c : '\0';
-			char c1 = chars.Count > 0 ? chars[chars.Count - 1].c : '\0';
+			char c0 = charsCount > 1 ? chars[charsCount - 2] : '\0';
+			char c1 = charsCount > 0 ? chars[charsCount - 1] : '\0';
 			string result = "";
 			if (c0 == '\r' && c1 == '\n')
 				result = "\r\n";
@@ -398,10 +489,9 @@ namespace MulticaretEditor
 		
 		public int IndexOfChar(char c, int index)
 		{
-			int count = chars.Count;
-			for (int i = index; i < count; i++)
+			for (int i = index; i < charsCount; i++)
 			{
-				if (chars[i].c == c)
+				if (chars[i] == c)
 				{
 					return i;
 				}
@@ -411,13 +501,13 @@ namespace MulticaretEditor
 		
 		public int LeftIndexOfChar(char c, int index)
 		{
-			if (index >= chars.Count)
+			if (index >= charsCount)
 			{
-				index = chars.Count - 1;
+				index = charsCount - 1;
 			}
 			for (int i = index; i >= 0; i--)
 			{
-				if (chars[i].c == c)
+				if (chars[i] == c)
 				{
 					return i;
 				}

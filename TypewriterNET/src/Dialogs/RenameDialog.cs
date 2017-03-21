@@ -90,7 +90,7 @@ public class RenameDialog : ADialog
 			{
 				for (int j = right; j-- > 1;)
 				{
-					if (line.chars[j].c == '.')
+					if (line.chars[j] == '.')
 					{
 						right = j;
 						break;

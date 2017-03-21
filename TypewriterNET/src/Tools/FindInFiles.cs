@@ -95,15 +95,14 @@ public class FindInFiles
 			buffer.Controller.Lines.ClearAllUnsafely();
 			{
 				string text = "FILE SYSTEM SCANNING STOPPED";
-				Line line = new Line();
+				Line line = new Line(text.Length + 1);
 				line.tabSize = tabSize;
-				line.chars.Capacity = text.Length + 1;
 				short style = Ds.Error.index;
 				for (int i = 0; i < text.Length; i++)
 				{
-					line.chars.Add(new Char(text[i], style));
+					line.Chars_Add(new Char(text[i], style));
 				}
-				line.chars.Add(new Char('\n', 0));
+				line.Chars_Add(new Char('\n', 0));
 				buffer.Controller.Lines.AddLineUnsafely(line);
 			}
 			finishBuffer = buffer;
@@ -119,36 +118,34 @@ public class FindInFiles
 	
 	private void AddLine(string text, Ds ds)
 	{
-		Line line = new Line();
+		Line line = new Line(text.Length + 1);
 		line.tabSize = tabSize;
-		line.chars.Capacity = text.Length + 1;
 		short style = ds.index;
 		for (int i = 0; i < text.Length; i++)
 		{
-			line.chars.Add(new Char(text[i], style));
+			line.Chars_Add(new Char(text[i], style));
 		}
-		line.chars.Add(new Char('\n', 0));
+		line.Chars_Add(new Char('\n', 0));
 		lines.AddLineUnsafely(line);
 	}
 	
 	private void AddLine(string path, string position, string text, int lineIndex, int lineLength, int sublineIndex, int sublineLength)
 	{
-		Line line = new Line();
+		Line line = new Line(path.Length + 1 + position.Length + 1 + lineLength + 1);
 		line.tabSize = tabSize;
-		line.chars.Capacity = path.Length + 1 + position.Length + 1 + lineLength + 1;
 		short style;
 		style = Ds.String.index;
 		for (int i = 0; i < path.Length; i++)
 		{
-			line.chars.Add(new Char(path[i], style));
+			line.Chars_Add(new Char(path[i], style));
 		}
-		line.chars.Add(new Char('|', Ds.Operator.index));
+		line.Chars_Add(new Char('|', Ds.Operator.index));
 		style = Ds.DecVal.index;
 		for (int i = 0; i < position.Length; i++)
 		{
-			line.chars.Add(new Char(position[i], style));
+			line.Chars_Add(new Char(position[i], style));
 		}
-		line.chars.Add(new Char('|', Ds.Operator.index));
+		line.Chars_Add(new Char('|', Ds.Operator.index));
 		style = Ds.Keyword.index;
 		int index0 = lineIndex;
 		int index1 = lineIndex + sublineIndex;
@@ -156,17 +153,17 @@ public class FindInFiles
 		int index3 = lineIndex + lineLength;
 		for (int i = index0; i < index1; i++)
 		{
-			line.chars.Add(new Char(text[i], 0));
+			line.Chars_Add(new Char(text[i], 0));
 		}
 		for (int i = index1; i < index2; i++)
 		{
-			line.chars.Add(new Char(text[i], style));
+			line.Chars_Add(new Char(text[i], style));
 		}
 		for (int i = index2; i < index3; i++)
 		{
-			line.chars.Add(new Char(text[i], 0));
+			line.Chars_Add(new Char(text[i], 0));
 		}
-		line.chars.Add(new Char('\n', 0));
+		line.Chars_Add(new Char('\n', 0));
 		lines.AddLineUnsafely(line);
 	}
 
@@ -343,7 +340,7 @@ public class FindInFiles
 		}
 		if (lines.LinesCount == 0)
 		{
-			lines.AddLineUnsafely(new Line());
+			lines.AddLineUnsafely(new Line(8));
 		}
 		else
 		{

@@ -20,13 +20,13 @@ namespace MulticaretEditor
 			this.blockILine = blockILine;
 			this.iChar = iChar;
 			this.position = position;
-			if (iChar == blocks[blockI].array[blockILine].chars.Count)
+			if (iChar == blocks[blockI].array[blockILine].charsCount)
 			{
 				rightChar = '\0';
 			}
 			else
 			{
-				rightChar = blocks[blockI].array[blockILine].chars[iChar].c;
+				rightChar = blocks[blockI].array[blockILine].chars[iChar];
 			}
 		}
 
@@ -63,13 +63,13 @@ namespace MulticaretEditor
 								blockILine--;
 							}
 							line = block.array[blockILine];
-							iChar = line.chars.Count - 1;
+							iChar = line.charsCount - 1;
 						}
 						else
 						{
 							iChar--;
 						}
-						leftChar = line.chars[iChar].c;
+						leftChar = line.chars[iChar];
 					}
 				}
 				return leftChar.Value;
@@ -108,13 +108,13 @@ namespace MulticaretEditor
 						blockILine--;
 					}
 					line = block.array[blockILine];
-					iChar = line.chars.Count - 1;
+					iChar = line.charsCount - 1;
 				}
 				else
 				{
 					iChar--;
 				}
-				rightChar = line.chars[iChar].c;
+				rightChar = line.chars[iChar];
 				position--;
 			}
 			return result;
@@ -135,7 +135,7 @@ namespace MulticaretEditor
 				leftChar = rightChar;
 				LineBlock block = blocks[blockI];
 				Line line = block.array[blockILine];
-				if (iChar == line.chars.Count - 1)
+				if (iChar == line.charsCount - 1)
 				{
 					if (blockILine == block.count - 1)
 					{
@@ -156,12 +156,12 @@ namespace MulticaretEditor
 					}
 					line = block.array[blockILine];
 					iChar = 0;
-					rightChar = line.chars.Count > 0 ? line.chars[iChar].c : '\0';
+					rightChar = line.charsCount > 0 ? line.chars[iChar] : '\0';
 				}
 				else
 				{
 					iChar++;
-					rightChar = line.chars[iChar].c;
+					rightChar = line.chars[iChar];
 				}
 				position++;
 			}

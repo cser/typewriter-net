@@ -142,7 +142,7 @@ namespace MulticaretEditor
 				string rn = line0.RemoveRN();
 				for (int i = 0; i < rn.Length; i++)
 				{
-					line1.chars.Add(new Char(rn[i]));
+					line1.Chars_Add(new Char(rn[i]));
 				}
 				line0.cachedText = null;
 				line0.cachedSize = -1;

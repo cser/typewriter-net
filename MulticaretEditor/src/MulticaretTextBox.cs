@@ -709,7 +709,7 @@ namespace MulticaretEditor
 			int minPos = Math.Max(0, valueX / charWidth - 1);
 			int maxPos = Math.Min(lines.scroller.textSizeX, (valueX + clientWidth) / charWidth + 1);
 			int start = lines.IndexOf(new Place(0, lineMin.iLine));
-			int end = lines.IndexOf(new Place(lines[lineMax.iLine].chars.Count, lineMax.iLine));
+			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
 			if (lines.wordWrap)
 			{
 				lines.UpdateHighlight();
@@ -832,9 +832,9 @@ namespace MulticaretEditor
 								if (isCursorTick)
 								{
 									g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
-									if (caret.iChar < line.chars.Count)
+									if (caret.iChar < line.charsCount)
 									{
-										char c = line.chars[caret.iChar].c;
+										char c = line.chars[caret.iChar];
 										g.DrawString(c + "", font, scheme.bgBrush,
 											x - charWidth / 3, y + lineInterval / 2, stringFormat);
 									}
@@ -906,7 +906,7 @@ namespace MulticaretEditor
 
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
-				if (left.iChar + selection.Count <= leftLine.chars.Count)
+				if (left.iChar + selection.Count <= leftLine.charsCount)
 				{
 					int pos0 = leftLine.PosOfIndex(left.iChar);
 					int pos1 = leftLine.PosOfIndex(left.iChar + selection.Count);
@@ -968,7 +968,7 @@ namespace MulticaretEditor
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
 				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
-				if (left.iChar + selection.Count <= leftLine.chars.Count)
+				if (left.iChar + selection.Count <= leftLine.charsCount)
 				{
 					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
 					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selection.Count);
@@ -1089,7 +1089,7 @@ namespace MulticaretEditor
 		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos,
 			bool symbolic)
 		{
-			int count = line.chars.Count;
+			int count = line.charsCount;
 			int tabSize = lines.tabSize;
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
@@ -1115,31 +1115,32 @@ namespace MulticaretEditor
 					if (markI < indices.Length - 1)
 						markI++;
 				}
-				Char c = line.chars[i];
+				char c = line.chars[i];
+				short cStyle = line.styles[i];
 				if (pos >= minPos)
 				{
-					if (showLineBreaks && c.c == '\r')
+					if (showLineBreaks && c == '\r')
 					{
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showLineBreaks && c.c == '\n')
+					else if (showLineBreaks && c == '\n')
 					{
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showSpaceCharacters && c.c == ' ')
+					else if (showSpaceCharacters && c == ' ')
 					{
 						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
 					}
 					else
 					{
-						TextStyle style = styles[c.style];
+						TextStyle style = styles[cStyle];
 						if (symbolic)
 						{
-							if (!char.IsWhiteSpace(c.c))
+							if (!char.IsWhiteSpace(c))
 							{
-								if (char.IsUpper(c.c))
+								if (char.IsUpper(c))
 								{
 									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .2f,
 										charWidth * .8f, charHeight * .8f);
@@ -1153,11 +1154,11 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							g.DrawString(c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
 						}
 					}
 				}
-				if (c.c == '\t')
+				if (c == '\t')
 				{
 					int newPos = ((pos + tabSize) / tabSize) * tabSize;
 					if (showSpaceCharacters)
@@ -1218,7 +1219,7 @@ namespace MulticaretEditor
 					pos = cutOff.left;
 					i0 = cutOff.iChar;
 				}
-				int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.chars.Count;
+				int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.charsCount;
 				for (int i = i0; i < i1; i++)
 				{
 					if (markI != -1 && i == indices[markI])
@@ -1239,14 +1240,14 @@ namespace MulticaretEditor
 							{
 								int left = line.cutOffs.buffer[k - 1].left;
 								int ii0 = line.cutOffs.buffer[k - 1].iChar;
-								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
+								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.charsCount;
 								int top = (int)(y + (k - iCutOff) * charHeight + lineInterval / 2);
 								if (i + length <= ii1)
 								{
 									int offsetX = left;
 									for (int ii = ii0; ii < i + length; ii++)
 									{
-										if (line.chars[ii].c == '\t')
+										if (line.chars[ii] == '\t')
 										{
 											offsetX = ((offsetX + tabSize) / tabSize) * tabSize;
 										}
@@ -1275,29 +1276,30 @@ namespace MulticaretEditor
 						}
 					}
 
-					Char c = line.chars[i];
-					if (showLineBreaks && c.c == '\r')
+					char c = line.chars[i];
+					short cStyle = line.styles[i];
+					if (showLineBreaks && c == '\r')
 					{
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("r", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showLineBreaks && c.c == '\n')
+					else if (showLineBreaks && c == '\n')
 					{
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showSpaceCharacters && c.c == ' ')
+					else if (showSpaceCharacters && c == ' ')
 					{
 						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
 					}
 					else
 					{
-						TextStyle style = styles[c.style];
+						TextStyle style = styles[cStyle];
 						if (symbolic)
 						{
-							if (!char.IsWhiteSpace(c.c))
+							if (!char.IsWhiteSpace(c))
 							{
-								if (char.IsUpper(c.c))
+								if (char.IsUpper(c))
 								{
 									g.FillRectangle(style.brush, x + charWidth * pos, y + charHeight * .2f,
 										charWidth * .8f, charHeight * .8f);
@@ -1311,10 +1313,10 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							g.DrawString(c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
 						}
 					}
-					if (c.c == '\t')
+					if (c == '\t')
 					{
 						int newPos = ((pos + tabSize) / tabSize) * tabSize;
 						if (showSpaceCharacters)
