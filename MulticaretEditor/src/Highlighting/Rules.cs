@@ -226,10 +226,9 @@ namespace MulticaretEditor
 			override public bool Match(string text, int position, out int nextPosition)
 			{
 				nextPosition = position;
-				int length = text.Length;
-				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
-				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
+				if (position == 0 || char.IsWhiteSpace(text[position - 1]) || Rules.IsPunctuation(text[position - 1]))
 				{
+					int length = text.Length;
 					while (nextPosition < length && char.IsDigit(text[nextPosition]))
 					{
 						nextPosition++;
@@ -245,7 +244,7 @@ namespace MulticaretEditor
 			{
 				int i = position;
 				int length = text.Length;
-				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
+				char prev = position - 1 >= 0 && position > 0 ? text[position - 1] : '\0';
 				bool hasDot = false;
 				bool hasNumber = false;
 				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
@@ -253,16 +252,20 @@ namespace MulticaretEditor
 					while (i < length)
 					{
 						char c = text[i];
-						if (!char.IsDigit(text[i]) && c != '.')
-							break;
 						if (c == '.')
 						{
 							if (hasDot)
+							{
 								break;
+							}
 							hasDot = true;
 						}
 						else
 						{
+							if (c < '0' | c > '9')
+							{
+								break;
+							}
 							hasNumber = true;
 						}
 						i++;
@@ -293,8 +296,10 @@ namespace MulticaretEditor
 						while (i < length)
 						{
 							char c = text[i];
-							if (!char.IsDigit(c) || c == '8' || c == '9')
+							if (c < '0' | c > '7')
+							{
 								break;
+							}
 							i++;
 						}
 					}
