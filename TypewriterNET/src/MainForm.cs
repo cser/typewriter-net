@@ -769,7 +769,7 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null,
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F4, null,
 			new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null,
 			new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
