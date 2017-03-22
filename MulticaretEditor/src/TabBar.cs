@@ -148,7 +148,7 @@ namespace MulticaretEditor
 		{
 			Size sz2 = TextRenderer.MeasureText("<" + c.ToString() + ">", font);
 			Size sz3 = TextRenderer.MeasureText("<>", font);
-			return new SizeF(sz2.Width - sz3.Width + 1, font.Height);
+			return new SizeF(sz2.Width - sz3.Width + 1, font.Height + 4);
 		}
 
 		public new void Invalidate()
@@ -204,6 +204,7 @@ namespace MulticaretEditor
 			int width = Width;
 			int x = charWidth;
 			int indent = charWidth;
+			int yOffset = 3;
 
 			g.FillRectangle(scheme.tabsBg.brush, 0, 0, width - charWidth, charHeight);
 
@@ -213,7 +214,7 @@ namespace MulticaretEditor
 				Brush fg = scheme.tabsFg.brush;
 				for (int j = 0; j < text.Length; j++)
 				{
-					g.DrawString(text[j] + "", font, fg, 10 - charWidth / 3 + j * charWidth, 0, stringFormat);
+					g.DrawString(text[j] + "", font, fg, 10 - charWidth / 3 + j * charWidth, yOffset, stringFormat);
 				}
 				leftIndent += (charWidth + 1) * text.Length;
 			}
@@ -296,7 +297,7 @@ namespace MulticaretEditor
 						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
 						if (charX > 0 && charX < width - rightIndent - charWidth * 2)
 						{
-							g.DrawString(tabText[j] + "", font, currentFg, charX, 0, stringFormat);
+							g.DrawString(tabText[j] + "", font, currentFg, charX, yOffset, stringFormat);
 						}
 					}
 					rects.Add(rect);
@@ -366,7 +367,7 @@ namespace MulticaretEditor
 				{
 					g.DrawString(
 						text2[j] + "", font, infoBrush,
-						left + charWidth * 2 / 3 + j * charWidth, 0, stringFormat);
+						left + charWidth * 2 / 3 + j * charWidth, yOffset - 2, stringFormat);
 				}
 			}
 
