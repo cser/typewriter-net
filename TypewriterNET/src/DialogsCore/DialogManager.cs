@@ -147,6 +147,8 @@ public class DialogManager
 			new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null,
 			new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null,
 			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.O, null,
@@ -215,7 +217,7 @@ public class DialogManager
 	{
 		if (find.SwitchOpen())
 			find.Open(
-				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Find", null), true);
+				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFound, DoSelectNextFound, "Find", null), true);
 		return true;
 	}
 
@@ -231,7 +233,7 @@ public class DialogManager
 	{
 		if (replace.SwitchOpen())
 			replace.Open(
-				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFinded, DoSelectNextFinded, "Replace"), true);
+				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFound, DoSelectNextFound, "Replace"), true);
 		return true;
 	}
 
@@ -291,7 +293,7 @@ public class DialogManager
 		return true;
 	}
 	
-	private bool DoSelectAllFinded(string text)
+	private bool DoSelectAllFound(string text)
 	{
 		bool result = true;
 		if (mainForm.LastFrame != null)
@@ -308,7 +310,7 @@ public class DialogManager
 				regex = ParseRegex(text, out error);
 				if (regex == null || error != null)
 				{
-					ShowInfo("Select all finded", "Error: " + error);
+					ShowInfo("Select all found", "Error: " + error);
 					return false;
 				}
 			}
@@ -388,7 +390,7 @@ public class DialogManager
 		return result;
 	}
 	
-	private bool DoSelectNextFinded(string text)
+	private bool DoSelectNextFound(string text)
 	{
 		if (mainForm.LastFrame != null)
 		{

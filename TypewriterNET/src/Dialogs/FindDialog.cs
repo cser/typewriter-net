@@ -28,8 +28,8 @@ public class FindDialog : ADialog
 	private Data data;
 	private FindParams findParams;
 	private Getter<string, bool> doFind;
-	private Getter<string, bool> doSelectAllFinded;
-	private Getter<string, bool> doSelectNextFinded;
+	private Getter<string, bool> doSelectAllFound;
+	private Getter<string, bool> doSelectNextFound;
 	private Getter<string> getFilterText;
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
@@ -38,16 +38,16 @@ public class FindDialog : ADialog
 		Data data,
 		FindParams findParams,
 		Getter<string, bool> doFind,
-		Getter<string, bool> doSelectAllFinded,
-		Getter<string, bool> doSelectNextFinded,
+		Getter<string, bool> doSelectAllFound,
+		Getter<string, bool> doSelectNextFound,
 		string name,
 		Getter<string> getFilterText)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
-		this.doSelectAllFinded = doSelectAllFinded;
-		this.doSelectNextFinded = doSelectNextFinded;
+		this.doSelectAllFound = doSelectAllFound;
+		this.doSelectNextFound = doSelectNextFound;
 		this.getFilterText = getFilterText;
 		Name = name;
 	}
@@ -70,14 +70,15 @@ public class FindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
-		
+		frameKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+
 		KeyMap beforeKeyMap = new KeyMap();
-		if (doSelectAllFinded != null)
+		if (doSelectAllFound != null)
 		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
-				new KeyAction("F&ind\\Select next finded", DoSelectNextFinded, null, false)));
+				new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
-				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
+				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -208,22 +209,22 @@ public class FindDialog : ADialog
 		return false;
 	}
 	
-	private bool DoSelectAllFinded(Controller controller)
+	private bool DoSelectAllFound(Controller controller)
 	{
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		if (doSelectAllFinded(text))
+		if (doSelectAllFound(text))
 			DispatchNeedClose();
 		return true;
 	}
 	
-	private bool DoSelectNextFinded(Controller controller)
+	private bool DoSelectNextFound(Controller controller)
 	{
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		doSelectNextFinded(text);
+		doSelectNextFound(text);
 		return true;
 	}
 }

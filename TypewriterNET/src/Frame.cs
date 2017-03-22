@@ -165,7 +165,6 @@ public class Frame : AFrame
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None, buffer);
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
