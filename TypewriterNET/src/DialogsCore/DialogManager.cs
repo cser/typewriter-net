@@ -147,6 +147,8 @@ public class DialogManager
 			new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null,
 			new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null,
 			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.O, null,

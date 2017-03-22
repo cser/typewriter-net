@@ -70,7 +70,8 @@ public class FindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
-		
+		frameKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+
 		KeyMap beforeKeyMap = new KeyMap();
 		if (doSelectAllFinded != null)
 		{
