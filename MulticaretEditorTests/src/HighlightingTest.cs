@@ -378,6 +378,38 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void RegExpr_LineStart()
+		{
+			Init(@"<language name='test' extensions='*.test'> 
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>word0</item>
+				            <item>word1</item>
+				        </list>
+				        <contexts>
+				            <context attribute='Normal Text' lineEndContext='#stay' name='Normal'>
+				                <RegExpr attribute='RegExpr0' context='#stay' insensitive='true' String='^abc' />
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='Normal Text' defStyleNum='dsNormal'/>
+				            <itemData name='RegExpr0' defStyleNum='dsDataType'/>
+				        </itemDatas>
+				    </highlighting>
+				</language>");
+				
+			provider.SetText("abcabcabcabc");
+			highlighting.Parse(provider);
+			//                  abcabcabcabc
+			AssertHighlighting("222000000000", provider[0]);
+			
+			provider.SetText("xxxabcabcabc");
+			highlighting.Parse(provider);
+			//                  abcabcabcabc
+			AssertHighlighting("000000000000", provider[0]);
+		}
+		
+		[Test]
 		public void Int()
 		{
 			Init(@"<language name='test' extensions='*.test'> 
