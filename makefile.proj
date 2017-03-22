@@ -17,6 +17,7 @@ This file was writen for launching with MSBuild
 			EmitDebugInformation="False"
 			LangVersion="Default"
 			OutputAssembly="MulticaretEditor\bin\MulticaretEditor.dll"
+			AllowUnsafeBlocks="True"
 			Optimize="True"/>
 	</Target>
 	<Target Name="build-tests" DependsOnTargets="build-tw">

@@ -1872,21 +1872,21 @@ namespace MulticaretEditor
 			return new Place(line.NormalIndexOfPos(selection.preferredPos), place.iLine);
 		}
 		
-		public void ViFindForward(CharsRegularExpressions.Regex regex)
+		public void ViFindForward(Regex regex)
 		{
 			if (regex == null)
 			{
 				return;
 			}
-			char[] chars = lines.GetChars();
+			string chars = lines.GetChars();
 			int charsCount = lines.charsCount;
 			int start = selections[0].caret;
 			if (start < charsCount)
 			{
 				start++;
 			}
-			CharsRegularExpressions.Match match = regex.Match(chars, start, charsCount - start);
-			if (match == null || !match.IsMatched(0))
+			Match match = regex.Match(chars, start, charsCount - start);
+			if (match == null || !match.Success)
 			{
 				try
 				{
@@ -1895,7 +1895,7 @@ namespace MulticaretEditor
 				catch
 				{
 				}
-				if (match == null || !match.IsMatched(0))
+				if (match == null || !match.Success)
 				{
 					return;
 				}
@@ -1907,17 +1907,17 @@ namespace MulticaretEditor
 			lines.SetPreferredPos(selections[0], place);
 		}
 		
-		public void ViFindBackward(CharsRegularExpressions.Regex regex)
+		public void ViFindBackward(Regex regex)
 		{
 			if (regex == null)
 			{
 				return;
 			}
-			char[] chars = lines.GetChars();
+			string chars = lines.GetChars();
 			int charsCount = lines.charsCount;
 			int start = selections[0].caret;
-			CharsRegularExpressions.Match match = regex.Match(chars, 0, start);
-			if (match == null || !match.IsMatched(0))
+			Match match = regex.Match(chars, 0, start);
+			if (match == null || !match.Success)
 			{
 				try
 				{
@@ -1926,7 +1926,7 @@ namespace MulticaretEditor
 				catch
 				{
 				}
-				if (match == null || !match.IsMatched(0))
+				if (match == null || !match.Success)
 				{
 					return;
 				}

@@ -4,14 +4,14 @@ namespace MulticaretEditor
 {
     public class CharBuffer
     {
-    	public char[] buffer;
+    	public string buffer;
         public int count;
         
         private const int MinCapacity = 32;
         
         public CharBuffer()
 		{
-			buffer = new char[MinCapacity];
+			buffer = new string('\0', MinCapacity);
 		}
         
         public void Resize(int count)
@@ -23,13 +23,7 @@ namespace MulticaretEditor
 				{
 					nextLength = nextLength << 1;
 				}
-				char[] newBuffer = new char[nextLength];
-				Array.Copy(buffer, newBuffer, this.count);
-				buffer = newBuffer;
-			}
-			else if (count < this.count)
-			{
-				Array.Clear(buffer, count, this.count - count);
+				buffer = new string('\0', nextLength);
 			}
 			this.count = count;
 		}
@@ -46,9 +40,7 @@ namespace MulticaretEditor
 			}
 			if (length < buffer.Length)
 			{
-				char[] newBuffer = new char[length];
-				Array.Copy(buffer, newBuffer, newBuffer.Length);
-				buffer = newBuffer;
+				buffer = new string('\0', length);
 			}
 		}
     }

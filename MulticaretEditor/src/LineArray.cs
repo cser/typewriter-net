@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MulticaretEditor
 {
@@ -135,7 +136,7 @@ namespace MulticaretEditor
 
 		private string cachedText;
 		private bool charsValid;
-		private CharsRegularExpressions.Regex highlightRegex;
+		private Regex highlightRegex;
 
 		public string GetText()
 		{
@@ -157,7 +158,7 @@ namespace MulticaretEditor
 		
 		private CharBuffer _charBuffer;
 		
-		public char[] GetChars()
+		public string GetChars()
 		{
 			if (_charBuffer == null)
 			{
@@ -168,15 +169,27 @@ namespace MulticaretEditor
 				charsValid = true;
 				_charBuffer.Resize(charsCount);
 				_charBuffer.Realocate();
-				int index = 0;
-				for (int i = 0; i < blocksCount; i++)
+				unsafe
 				{
-					LineBlock block = blocks[i];
-					for (int j = 0; j < block.count; j++)
+					fixed (char* charArray = _charBuffer.buffer)
 					{
-						Line line = block.array[j];
-						Array.Copy(line.chars, 0, _charBuffer.buffer, index, line.charsCount);
-						index += line.charsCount;
+						int index = 0;
+						for (int i = 0; i < blocksCount; i++)
+						{
+							LineBlock block = blocks[i];
+							for (int j = 0; j < block.count; j++)
+							{
+								Line line = block.array[j];
+								fixed (char * lineCharArray = line.chars)
+								{
+									int count = line.charsCount;
+									for (int k = 0; k < count; k++)
+									{
+										charArray[index++] = lineCharArray[k];
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -198,11 +211,11 @@ namespace MulticaretEditor
 				matches.Clear();
 				if (highlightRegex != null)
 				{
-					char[] chars = GetChars();
+					string chars = GetChars();
 					int index = 0;
 					while (index < charsCount)
 					{
-						CharsRegularExpressions.Match match = null;
+						Match match = null;
 						try
 						{
 							match = highlightRegex.Match(chars, index, charsCount - index);
@@ -210,7 +223,7 @@ namespace MulticaretEditor
 						catch
 						{
 						}
-						if (match == null || !match.IsMatched(0))
+						if (match == null || !match.Success)
 						{
 							break;
 						}
