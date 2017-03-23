@@ -43,15 +43,14 @@ namespace MulticaretEditor
 			abstract public bool Match(string text, int position, out int nextPosition);
 		}
 		
-		public class Keyword : Rule
+		public class KeywordCasesensitive : Rule
 		{
 			private const int HashSize = 16;
 			
 			private string[][] hash;
-			private bool casesansitive;
 			private string deliminators;
 			
-			public Keyword(string[] words, bool casesansitive, string weakDeliminator, string additionalDeliminator)
+			public KeywordCasesensitive(string[] words, string weakDeliminator, string additionalDeliminator)
 			{
 				string defaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 				StringBuilder builder = new StringBuilder();
@@ -63,7 +62,6 @@ namespace MulticaretEditor
 				}
 				builder.Append(additionalDeliminator);
 				deliminators = builder.ToString();
-				this.casesansitive = casesansitive;
 				hash = new string[HashSize][];
 				int[] counts = new int[HashSize];
 				foreach (string word in words)
@@ -80,7 +78,7 @@ namespace MulticaretEditor
 						hash[i] = array;
 					}
 					counts[i]--;
-					array[counts[i]] = casesansitive ? word : word.ToLowerInvariant();
+					array[counts[i]] = word;
 				}
 			}
 			
@@ -102,8 +100,75 @@ namespace MulticaretEditor
 					if (hash[i] != null)
 					{
 						string word = text.Substring(position, length);
-						if (!casesansitive)
-							word = word.ToLowerInvariant();
+						if (Array.IndexOf<string>(hash[i], word) != -1)
+						{
+							nextPosition = position + length;
+							return true;
+						}
+					}
+				}
+				nextPosition = position;
+				return false;
+			}
+		}
+		
+		public class Keyword : Rule
+		{
+			private const int HashSize = 16;
+			
+			private string[][] hash;
+			private string deliminators;
+			
+			public Keyword(string[] words, string weakDeliminator, string additionalDeliminator)
+			{
+				string defaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < defaultDeliminators.Length; i++)
+				{
+					char c = defaultDeliminators[i];
+					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
+						builder.Append(c);
+				}
+				builder.Append(additionalDeliminator);
+				deliminators = builder.ToString();
+				hash = new string[HashSize][];
+				int[] counts = new int[HashSize];
+				foreach (string word in words)
+				{
+					counts[word.Length % HashSize]++;
+				}
+				foreach (string word in words)
+				{
+					int i = word.Length % HashSize;
+					string[] array = hash[i];
+					if (array == null)
+					{
+						array = new string[counts[i]];
+						hash[i] = array;
+					}
+					counts[i]--;
+					array[counts[i]] = word.ToLowerInvariant();
+				}
+			}
+			
+			override public bool Match(string text, int position, out int nextPosition)
+			{
+				int count = text.Length;
+				int wordEnd = position;
+				if (position == 0 || deliminators.IndexOf(text[position - 1]) != -1)
+				{
+					while (wordEnd < count && deliminators.IndexOf(text[wordEnd]) == -1)
+					{
+						wordEnd++;
+					}
+				}
+				if (wordEnd > position)
+				{
+					int length = wordEnd - position;
+					int i = length % HashSize;
+					if (hash[i] != null)
+					{
+						string word = text.Substring(position, length).ToLowerInvariant();;
 						if (Array.IndexOf<string>(hash[i], word) != -1)
 						{
 							nextPosition = position + length;

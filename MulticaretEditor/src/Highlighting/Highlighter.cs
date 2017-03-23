@@ -150,11 +150,20 @@ namespace MulticaretEditor
 				textListOf.TryGetValue(rawRule.String.ToLowerInvariant(), out list);
 				if (list != null)
 				{
-					commonRule = new Rules.Keyword(
-						list,
-						GetBool(rawRule.general.keywordsCasesensitive, true),
-						rawRule.general.keywordsWeakDeliminator ?? "",
-						rawRule.general.keywordsAdditionalDeliminator ?? "");
+					if (GetBool(rawRule.general.keywordsCasesensitive, true))
+					{
+						commonRule = new Rules.KeywordCasesensitive(
+							list,
+							rawRule.general.keywordsWeakDeliminator ?? "",
+							rawRule.general.keywordsAdditionalDeliminator ?? "");
+					}
+					else
+					{
+						commonRule = new Rules.Keyword(
+							list,
+							rawRule.general.keywordsWeakDeliminator ?? "",
+							rawRule.general.keywordsAdditionalDeliminator ?? "");
+					}
 				}
 			}
 			else if (rawRule.type == "DetectChar")
