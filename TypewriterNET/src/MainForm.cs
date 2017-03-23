@@ -707,7 +707,6 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, new KeyAction("&File\\Close Tab", DoClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
@@ -859,12 +858,6 @@ public class MainForm : Form
 		OpenFileDialog dialog = new OpenFileDialog();
 		if (dialog.ShowDialog() == DialogResult.OK)
 			LoadFile(dialog.FileName);
-		return true;
-	}
-
-	private bool DoClose(Controller controller)
-	{
-		mainNest.Frame.RemoveBuffer(LastBuffer);
 		return true;
 	}
 
