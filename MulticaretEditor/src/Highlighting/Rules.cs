@@ -43,12 +43,37 @@ namespace MulticaretEditor
 			abstract public bool Match(string text, int position, out int nextPosition);
 		}
 		
+		public class KeywordNode
+		{
+			public char c;
+			public bool end;
+			public KeywordNode next;
+			public KeywordNode alternative;
+			
+			public string ToString(StringBuilder builder, string tab)
+			{
+				KeywordNode node = this;
+				while (node != null)
+				{
+					builder.Append(tab + node.c + (node.end ? "(end)" : "") + ":\n");
+					if (node.next != null)
+					{
+						node.next.ToString(builder, tab + "\t");
+					}
+					else
+					{
+						builder.Append(tab + "\tnull\n");
+					}
+					node = node.alternative;
+				}
+				return builder.ToString();
+			}
+		}
+		
 		public class KeywordCasesensitive : Rule
 		{
-			private const int HashSize = 16;
-			
-			private string[][] hash;
 			private string deliminators;
+			private KeywordNode rootNode;
 			
 			public KeywordCasesensitive(string[] words, string weakDeliminator, string additionalDeliminator)
 			{
@@ -62,24 +87,50 @@ namespace MulticaretEditor
 				}
 				builder.Append(additionalDeliminator);
 				deliminators = builder.ToString();
-				hash = new string[HashSize][];
-				int[] counts = new int[HashSize];
-				foreach (string word in words)
+				Array.Sort(words);
+				rootNode = ParseNodes(words, 0, 0, words.Length);
+				//Console.WriteLine("-------------------------------");
+				//Console.WriteLine(string.Join("\n", words));
+				//builder = new StringBuilder();
+				//rootNode.ToString(builder, "");
+				//Console.WriteLine(builder.ToString());
+			}
+			
+			private KeywordNode ParseNodes(string[] words, int position, int i0, int i1)
+			{
+				KeywordNode startNode = null;
+				KeywordNode nodeI = null;
+				for (int i = i0; i < i1; i++)
 				{
-					counts[word.Length % HashSize]++;
-				}
-				foreach (string word in words)
-				{
-					int i = word.Length % HashSize;
-					string[] array = hash[i];
-					if (array == null)
+					if (position >= words[i].Length)
 					{
-						array = new string[counts[i]];
-						hash[i] = array;
+						continue;
 					}
-					counts[i]--;
-					array[counts[i]] = word;
+					char c = words[i][position];
+					if (nodeI == null)
+					{
+						nodeI = new KeywordNode();
+						nodeI.c = c;
+						startNode = nodeI;
+					}
+					else if (nodeI.c != c)
+					{
+						nodeI.next = ParseNodes(words, position + 1, i0, i);
+						i0 = i;
+						nodeI.alternative = new KeywordNode();
+						nodeI.alternative.c = c;
+						nodeI = nodeI.alternative;
+					}
+					if (position == words[i].Length - 1)
+					{
+						nodeI.end = true;
+					}
 				}
+				if (nodeI != null)
+				{
+					nodeI.next = ParseNodes(words, position + 1, i0, i1);
+				}
+				return startNode;
 			}
 			
 			override public bool Match(string text, int position, out int nextPosition)
@@ -95,16 +146,44 @@ namespace MulticaretEditor
 				}
 				if (wordEnd > position)
 				{
-					int length = wordEnd - position;
-					int i = length % HashSize;
-					if (hash[i] != null)
+					KeywordNode node = rootNode;
+					int i = position;
+					while (true)
 					{
-						string word = text.Substring(position, length);
-						if (Array.IndexOf<string>(hash[i], word) != -1)
+						if (i >= wordEnd)
 						{
-							nextPosition = position + length;
-							return true;
+							nextPosition = position;
+							return false;
 						}
+						char c = text[i];
+						while (true)
+						{
+							if (node == null)
+							{
+								nextPosition = position;
+								return false;
+							}
+							else if (node.end)
+							{
+								i++;
+								if (i == wordEnd)
+								{
+									nextPosition = wordEnd;
+									return true;
+								}
+								nextPosition = position;
+								return false;
+							}
+							if (c == node.c)
+							{
+								i++;
+								node = node.next;
+								goto outer;
+							}
+							node = node.alternative;
+						}
+						outer:
+						continue;
 					}
 				}
 				nextPosition = position;
