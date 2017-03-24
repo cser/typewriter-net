@@ -165,14 +165,11 @@ namespace MulticaretEditor
 							}
 							else if (node.end)
 							{
-								i++;
-								if (i == wordEnd)
+								if (i + 1 == wordEnd)
 								{
 									nextPosition = wordEnd;
 									return true;
 								}
-								nextPosition = position;
-								return false;
 							}
 							if (c == node.c)
 							{
