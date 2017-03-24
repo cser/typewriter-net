@@ -135,26 +135,12 @@ namespace MulticaretEditor
 			
 			override public bool Match(string text, int position, out int nextPosition)
 			{
-				int count = text.Length;
-				int wordEnd = position;
 				if (position == 0 || deliminators.IndexOf(text[position - 1]) != -1)
-				{
-					while (wordEnd < count && deliminators.IndexOf(text[wordEnd]) == -1)
-					{
-						wordEnd++;
-					}
-				}
-				if (wordEnd > position)
 				{
 					KeywordNode node = rootNode;
 					int i = position;
 					while (true)
 					{
-						if (i >= wordEnd)
-						{
-							nextPosition = position;
-							return false;
-						}
 						char c = text[i];
 						while (true)
 						{
@@ -165,9 +151,9 @@ namespace MulticaretEditor
 							}
 							else if (node.end)
 							{
-								if (i + 1 == wordEnd)
+								if (i >= text.Length - 1 || deliminators.IndexOf(text[i + 1]) != -1)
 								{
-									nextPosition = wordEnd;
+									nextPosition = i + 1;
 									return true;
 								}
 							}
