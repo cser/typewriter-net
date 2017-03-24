@@ -49,26 +49,9 @@ namespace MulticaretEditor
 			public bool end;
 			public KeywordNode next;
 			public KeywordNode alternative;
-			
-			public string ToString(StringBuilder builder, string tab)
-			{
-				KeywordNode node = this;
-				while (node != null)
-				{
-					builder.Append(tab + node.c + (node.end ? "(end)" : "") + ":\n");
-					if (node.next != null)
-					{
-						node.next.ToString(builder, tab + "\t");
-					}
-					else
-					{
-						builder.Append(tab + "\tnull\n");
-					}
-					node = node.alternative;
-				}
-				return builder.ToString();
-			}
 		}
+		
+		public const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 		
 		public class KeywordCasesensitive : Rule
 		{
@@ -77,9 +60,9 @@ namespace MulticaretEditor
 			
 			public KeywordCasesensitive(string[] words, string weakDeliminator, string additionalDeliminator)
 			{
-				string defaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+				string defaultDeliminators = DefaultDeliminators;
 				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < defaultDeliminators.Length; i++)
+				for (int i = 0; i < defaultDeliminators.Length; ++i)
 				{
 					char c = defaultDeliminators[i];
 					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
@@ -89,18 +72,13 @@ namespace MulticaretEditor
 				deliminators = builder.ToString();
 				Array.Sort(words);
 				rootNode = ParseNodes(words, 0, 0, words.Length);
-				//Console.WriteLine("-------------------------------");
-				//Console.WriteLine(string.Join("\n", words));
-				//builder = new StringBuilder();
-				//rootNode.ToString(builder, "");
-				//Console.WriteLine(builder.ToString());
 			}
 			
 			private KeywordNode ParseNodes(string[] words, int position, int i0, int i1)
 			{
 				KeywordNode startNode = null;
 				KeywordNode nodeI = null;
-				for (int i = i0; i < i1; i++)
+				for (int i = i0; i < i1; ++i)
 				{
 					if (position >= words[i].Length)
 					{
@@ -139,34 +117,34 @@ namespace MulticaretEditor
 				{
 					KeywordNode node = rootNode;
 					int i = position;
+					char c = text[i];
 					while (true)
 					{
-						char c = text[i];
-						while (true)
+						if (node == null)
 						{
-							if (node == null)
+							nextPosition = position;
+							return false;
+						}
+						if (c == node.c)
+						{
+							++i;
+							if (node.end && (i >= text.Length || deliminators.IndexOf(text[i]) != -1))
+							{
+								nextPosition = i;
+								return true;
+							}
+							node = node.next;
+							if (i >= text.Length)
 							{
 								nextPosition = position;
 								return false;
 							}
-							else if (node.end)
-							{
-								if (i >= text.Length - 1 || deliminators.IndexOf(text[i + 1]) != -1)
-								{
-									nextPosition = i + 1;
-									return true;
-								}
-							}
-							if (c == node.c)
-							{
-								i++;
-								node = node.next;
-								goto outer;
-							}
+							c = text[i];
+						}
+						else
+						{
 							node = node.alternative;
 						}
-						outer:
-						continue;
 					}
 				}
 				nextPosition = position;
@@ -183,9 +161,9 @@ namespace MulticaretEditor
 			
 			public Keyword(string[] words, string weakDeliminator, string additionalDeliminator)
 			{
-				string defaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+				string defaultDeliminators = DefaultDeliminators;
 				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < defaultDeliminators.Length; i++)
+				for (int i = 0; i < defaultDeliminators.Length; ++i)
 				{
 					char c = defaultDeliminators[i];
 					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
@@ -197,7 +175,7 @@ namespace MulticaretEditor
 				int[] counts = new int[HashSize];
 				foreach (string word in words)
 				{
-					counts[word.Length % HashSize]++;
+					++counts[word.Length % HashSize];
 				}
 				foreach (string word in words)
 				{
@@ -221,7 +199,7 @@ namespace MulticaretEditor
 				{
 					while (wordEnd < count && deliminators.IndexOf(text[wordEnd]) == -1)
 					{
-						wordEnd++;
+						++wordEnd;
 					}
 				}
 				if (wordEnd > position)
@@ -358,7 +336,7 @@ namespace MulticaretEditor
 					int length = text.Length;
 					while (nextPosition < length && char.IsDigit(text[nextPosition]))
 					{
-						nextPosition++;
+						++nextPosition;
 					}
 				}
 				return nextPosition > position;
@@ -395,7 +373,7 @@ namespace MulticaretEditor
 							}
 							hasNumber = true;
 						}
-						i++;
+						++i;
 					}
 				}
 				if (hasDot && hasNumber)
@@ -419,7 +397,7 @@ namespace MulticaretEditor
 					char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
 					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
-						i++;
+						++i;
 						while (i < length)
 						{
 							char c = text[i];
@@ -427,7 +405,7 @@ namespace MulticaretEditor
 							{
 								break;
 							}
-							i++;
+							++i;
 						}
 					}
 					if (i > position + 1)
@@ -461,7 +439,7 @@ namespace MulticaretEditor
 								char c = text[i];
 								if (!(c >= '0' & c <= '9' | c >= 'a' & c <= 'f' | c >= 'A' & c <= 'F'))
 									break;
-								i++;
+								++i;
 							}
 						}
 						if (i > position + 2)
@@ -487,7 +465,7 @@ namespace MulticaretEditor
 				if (text[i] == char0)
 				{
 					int length = text.Length;
-					i++;
+					++i;
 					while (i < length)
 					{
 						if (text[i] == char1)
@@ -495,7 +473,7 @@ namespace MulticaretEditor
 							nextPosition = i + 1;
 							return true;
 						}
-						i++;
+						++i;
 					}
 				}
 				nextPosition = position;
@@ -513,7 +491,7 @@ namespace MulticaretEditor
 					nextPosition = position + 1;
 					while (nextPosition < length && char.IsWhiteSpace(text[nextPosition]))
 					{
-						nextPosition++;
+						++nextPosition;
 					}
 					return true;
 				}
@@ -539,7 +517,7 @@ namespace MulticaretEditor
 							c = text[nextPosition];
 							if (!char.IsLetterOrDigit(c) && c != '_')
 								break;
-							nextPosition++;
+							++nextPosition;
 						}
 						return true;
 					}
@@ -670,7 +648,7 @@ namespace MulticaretEditor
 					{
 						bool matched = false;
 						int i = slashPosition + 2;
-						for (; i < slashPosition + 4 && i < length; i++)
+						for (; i < slashPosition + 4 && i < length; ++i)
 						{
 							char c = text[i];
 							if (!(c >= '0' & c <= '9' | c >= 'a' & c <= 'f' | c >= 'A' & c <= 'F'))
@@ -691,7 +669,7 @@ namespace MulticaretEditor
 					case '7':
 					{
 						int i = slashPosition + 2;
-						for (; i < slashPosition + 4 && i < length; i++)
+						for (; i < slashPosition + 4 && i < length; ++i)
 						{
 							char c = text[i];
 							if (!(c >= '0' && c <= '7'))

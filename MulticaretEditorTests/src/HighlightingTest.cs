@@ -1078,6 +1078,45 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void KeywordsCasesensitive_Complex()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>abc</item>
+				            <item>abcde</item>
+				            <item>abcdef</item>
+				            <item>abcdefg</item>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab abc abcc abcde abcdefgh abcdef abcdefg");
+			highlighting.Parse(provider);
+			AssertHighlighting("00011100000011111000000000011111101111111", provider[0]);
+			
+			provider.SetText(  "ab abe abcc abc");
+			highlighting.Parse(provider);
+			AssertHighlighting("000000000000111", provider[0]);
+			
+			provider.SetText(  "abcd");
+			highlighting.Parse(provider);
+			AssertHighlighting("0000", provider[0]);
+		}
+		
+		[Test]
 		public void KeywordsNoncasesensitive()
 		{
 			Init(@"<language name='test' extensions='*.test'>
