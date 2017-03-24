@@ -327,8 +327,11 @@ namespace MulticaretEditor
 			override public bool Match(string text, int position, out int nextPosition)
 			{
 				nextPosition = position;
-				if (position == 0 || char.IsWhiteSpace(text[position - 1]) || Rules.IsPunctuation(text[position - 1]))
+				if (char.IsDigit(text[nextPosition]) && (
+					position == 0 || char.IsWhiteSpace(text[position - 1]) || Rules.IsPunctuation(text[position - 1])
+				))
 				{
+					++nextPosition;
 					int length = text.Length;
 					while (nextPosition < length && char.IsDigit(text[nextPosition]))
 					{
@@ -345,7 +348,7 @@ namespace MulticaretEditor
 			{
 				int i = position;
 				int length = text.Length;
-				char prev = position - 1 >= 0 && position > 0 ? text[position - 1] : '\0';
+				char prev = position > 0 ? text[position - 1] : '\0';
 				bool hasDot = false;
 				bool hasNumber = false;
 				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
@@ -389,11 +392,11 @@ namespace MulticaretEditor
 				int i = position;
 				if (text[i] == '0')
 				{
-					int length = text.Length;
-					char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
+					char prev = i > 0 ? text[i - 1] : '\0';
 					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
 						++i;
+						int length = text.Length;
 						while (i < length)
 						{
 							char c = text[i];
@@ -419,29 +422,32 @@ namespace MulticaretEditor
 		{
 			override public bool Match(string text, int position, out int nextPosition)
 			{
-				int length = text.Length;
-				int i = position;
-				if (i + 1 < length && text[i] == '0')
+				if (text[position] == '0')
 				{
-					char c1 = text[i + 1];
-					if (c1 == 'x' || c1 == 'X')
+					int length = text.Length;
+					int i = position;
+					if (i + 1 < length)
 					{
-						char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
-						if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
+						char c1 = text[i + 1];
+						if (c1 == 'x' || c1 == 'X')
 						{
-							i += 2;
-							while (i < length)
+							char prev = i > 0 ? text[i - 1] : '\0';
+							if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 							{
-								char c = text[i];
-								if (!(c >= '0' & c <= '9' | c >= 'a' & c <= 'f' | c >= 'A' & c <= 'F'))
-									break;
-								++i;
+								i += 2;
+								while (i < length)
+								{
+									char c = text[i];
+									if (!(c >= '0' & c <= '9' | c >= 'a' & c <= 'f' | c >= 'A' & c <= 'F'))
+										break;
+									++i;
+								}
 							}
-						}
-						if (i > position + 2)
-						{
-							nextPosition = i;
-							return true;
+							if (i > position + 2)
+							{
+								nextPosition = i;
+								return true;
+							}
 						}
 					}
 				}
