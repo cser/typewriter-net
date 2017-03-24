@@ -1117,6 +1117,65 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void KeywordsCasesensitive_OneChar()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>a</item>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab a text");
+			highlighting.Parse(provider);
+			AssertHighlighting("000100000", provider[0]);
+			
+			provider.SetText(  "a");
+			highlighting.Parse(provider);
+			AssertHighlighting("1", provider[0]);
+		}
+		
+		[Test]
+		public void KeywordsCasesensitive_NoChars()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab a text");
+			highlighting.Parse(provider);
+			AssertHighlighting("000000000", provider[0]);
+		}
+		
+		[Test]
 		public void KeywordsNoncasesensitive()
 		{
 			Init(@"<language name='test' extensions='*.test'>

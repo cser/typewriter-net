@@ -117,24 +117,20 @@ namespace MulticaretEditor
 				{
 					KeywordNode node = rootNode;
 					int i = position;
+					int count = text.Length;
 					char c = text[i];
-					while (true)
+					while (node != null)
 					{
-						if (node == null)
-						{
-							nextPosition = position;
-							return false;
-						}
 						if (c == node.c)
 						{
 							++i;
-							if (node.end && (i >= text.Length || deliminators.IndexOf(text[i]) != -1))
+							if (node.end && (i >= count || deliminators.IndexOf(text[i]) != -1))
 							{
 								nextPosition = i;
 								return true;
 							}
 							node = node.next;
-							if (i >= text.Length)
+							if (i >= count)
 							{
 								nextPosition = position;
 								return false;
