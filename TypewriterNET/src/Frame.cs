@@ -44,7 +44,9 @@ public class Frame : AFrame
 		tabBar = new TabBar<Buffer>(buffers.list, Buffer.StringOf);
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
+		tabBar.NewTabDoubleClick += OnNewTabDoubleClick;
 		Controls.Add(tabBar);
+
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
@@ -291,7 +293,12 @@ public class Frame : AFrame
 	{
 		RemoveBuffer(buffer);
 	}
-	
+
+	private void OnNewTabDoubleClick()
+	{
+		Nest.MainForm.OpenNew();
+	}
+
 	private AutocompleteMode autocomplete;
 	
 	private void CloseAutocomplete()

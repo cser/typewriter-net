@@ -22,6 +22,7 @@ namespace MulticaretEditor
 
 		public event Setter CloseClick;
 		public event Setter<T> TabDoubleClick;
+		public event Setter NewTabDoubleClick;
 
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
@@ -427,7 +428,12 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDoubleClick(e);
 			Point location = e.Location;
-			if (location.X < Width - rightIndent)
+            if (closeRect.Contains(location))
+            {
+                return;
+            }
+
+            if (location.X < Width - rightIndent)
 			{
 				location.X -= GetOffsetX(offsetIndex);
 				for (int i = 0; i < rects.count; i++)
@@ -443,6 +449,9 @@ namespace MulticaretEditor
 					}
 				}
 			}
+
+            if (NewTabDoubleClick != null)
+				NewTabDoubleClick();
 		}
 
 		private int GetOffsetX(int index)
