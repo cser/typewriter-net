@@ -1044,7 +1044,7 @@ namespace MulticaretEditor
 						for (int i = i0; i < i1; i++)
 						{
 							Line line = lines[i];
-							for (int iy = 0; iy <= line.cutOffs.count; iy++)
+							for (int iy = i == i0 ? iLineMin.iSubline : 0; iy <= line.cutOffs.count; iy++)
 							{
 								int sublineLeft = line.GetSublineLeft(iy);
 								selectionRects.Add(new DrawingLine(sublineLeft, wwILine + iy, line.GetSublineSize(iy) - sublineLeft));

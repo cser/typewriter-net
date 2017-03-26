@@ -194,7 +194,7 @@ namespace MulticaretEditor
 			if (highlightRegex != ClipboardExecuter.ViRegex)
 			{
 				highlightRegex = ClipboardExecuter.ViRegex;
-				matches.Clear();
+				int matchesCount = 0;
 				if (highlightRegex != null)
 				{
 					char[] chars = GetChars();
@@ -213,12 +213,25 @@ namespace MulticaretEditor
 						{
 							break;
 						}
-						Selection selection = new Selection();
+						Selection selection;
+						if (matchesCount >= matches.Count)
+						{
+							selection = new Selection();
+							matches.Add(selection);
+						}
+						else
+						{
+							selection = matches[matchesCount];
+						}
+						++matchesCount;
 						selection.anchor = match.Index;
 						selection.caret = match.Index + match.Length;
-						matches.Add(selection);
 						index = match.Index + (match.Length > 0 ? match.Length : 1);
 					}
+				}
+				if (matches.Count > matchesCount)
+				{
+					matches.RemoveRange(matchesCount, matches.Count - matchesCount);
 				}
 			}
 		}
