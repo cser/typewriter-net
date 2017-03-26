@@ -68,6 +68,9 @@ namespace MulticaretEditor
 		public Pen scrollArrowPen;
 		public Pen scrollArrowHoverPen;
 		
+		public Brush highlightBrush;
+		public Pen highlightPen;
+		
 		public void ParseXml(IEnumerable<XmlDocument> xmls)
 		{
 			Reset();
@@ -267,6 +270,9 @@ namespace MulticaretEditor
 			scrollArrowHoverPen = new Pen(scrollArrowHoverColor, 1);
 			
 			defaultTextStyle.brush = new SolidBrush(fgColor);
+			
+			highlightBrush = new SolidBrush(Color.FromArgb(80, 255, 255, 0));
+			highlightPen = new Pen(Color.Yellow, 2);
 			
 			Tabs_Update();
 		}

@@ -713,8 +713,8 @@ namespace MulticaretEditor
 			if (lines.wordWrap)
 			{
 				lines.UpdateHighlight();
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, true, true);
 				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic, false);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, true, true);
 			}
 			else
 			{
@@ -1038,8 +1038,14 @@ namespace MulticaretEditor
 						}
 					}
 				}
-
-				DrawSelection(g, selectionRects, offsetX, offsetY);
+				if (highlight)
+				{
+					DrawHighlighting(g, selectionRects, offsetX, offsetY);
+				}
+				else
+				{
+					DrawSelection(g, selectionRects, offsetX, offsetY);
+				}
 				selectionRects.Clear();
 			}
 		}
@@ -1047,6 +1053,7 @@ namespace MulticaretEditor
 		private void DrawSelection(Graphics g, PredictableList<DrawingLine> rects, int offsetX, int offsetY)
 		{
 			Pen selectionPen = scheme.selectionPen;
+			Brush selectionBrush = scheme.selectionBrush;
 			for (int i = 0; i < rects.count; i++)
 			{
 				DrawingLine rectangle = rects.buffer[i];
@@ -1057,7 +1064,21 @@ namespace MulticaretEditor
 					rectangle.sizeX * charWidth,
 					charHeight);
 			}
-			Brush selectionBrush = scheme.selectionBrush;
+			for (int i = 0; i < rects.count; i++)
+			{
+				DrawingLine rectangle = rects.buffer[i];
+				g.FillRectangle(
+					selectionBrush,
+					offsetX + rectangle.ix * charWidth,
+					offsetY + rectangle.iy * charHeight + lineInterval / 2,
+					rectangle.sizeX * charWidth,
+					charHeight);
+			}
+		}
+		
+		private void DrawHighlighting(Graphics g, PredictableList<DrawingLine> rects, int offsetX, int offsetY)
+		{
+			Brush selectionBrush = scheme.highlightBrush;
 			for (int i = 0; i < rects.count; i++)
 			{
 				DrawingLine rectangle = rects.buffer[i];
