@@ -428,6 +428,10 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDoubleClick(e);
 			Point location = e.Location;
+			if (closeRect.Contains(location))
+			{
+				return;
+			}
 			if (location.X < Width - rightIndent)
 			{
 				location.X -= GetOffsetX(offsetIndex);
