@@ -1086,8 +1086,8 @@ namespace MulticaretEditor
 					selectionBrush,
 					offsetX + rectangle.ix * charWidth,
 					offsetY + rectangle.iy * charHeight + lineInterval / 2,
-					rectangle.sizeX * charWidth,
-					charHeight);
+					rectangle.sizeX * charWidth - 2,
+					charHeight + (i == rects.count - 1 ? -1 : 0));
 			}
 		}
 
