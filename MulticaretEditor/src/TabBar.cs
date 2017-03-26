@@ -22,6 +22,7 @@ namespace MulticaretEditor
 
 		public event Setter CloseClick;
 		public event Setter<T> TabDoubleClick;
+		public event Setter NewTabDoubleClick;
 
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
@@ -443,6 +444,8 @@ namespace MulticaretEditor
 					}
 				}
 			}
+			if (NewTabDoubleClick != null)
+				NewTabDoubleClick();
 		}
 
 		private int GetOffsetX(int index)
