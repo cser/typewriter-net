@@ -166,6 +166,11 @@ public class MainForm : Form
 
 	private Log log;
 	public Log Log { get { return log; } }
+	
+	private Nest GetMainNest()
+	{
+		return lastFrame != null && lastFrame.Nest == mainNest2 ? mainNest2 : mainNest;
+	}
 
 	private FileTree fileTree;
 
@@ -523,14 +528,19 @@ public class MainForm : Form
 			mainNest.Frame.AddBuffer(buffer);
 		}
 	}
-
+	
 	private void RemoveEmptyIfNeed()
+	{
+		RemoveEmptyIfNeed(mainNest);
+	}
+
+	private void RemoveEmptyIfNeed(Nest nest)
 	{
 		Buffer buffer = null;
 		int otherEmpty = 0;
-		for (int i = mainNest.buffers.list.Count; i-- > 0;)
+		for (int i = nest.buffers.list.Count; i-- > 0;)
 		{
-			Buffer bufferI = mainNest.buffers.list[i];
+			Buffer bufferI = nest.buffers.list[i];
 			if ((bufferI.tags & BufferTag.File) == BufferTag.File &&
 				bufferI.IsEmpty && !bufferI.HasHistory && bufferI.Name == UntitledTxt)
 			{
@@ -546,7 +556,7 @@ public class MainForm : Form
 		}
 		if (buffer != null && otherEmpty == 0)
 		{
-			mainNest.buffers.list.Remove(buffer);
+			nest.buffers.list.Remove(buffer);
 		}
 		
 		CloseOldBuffers();
@@ -858,8 +868,9 @@ public class MainForm : Form
 	
 	public void OpenNew()
 	{
-		RemoveEmptyIfNeed();
-		mainNest.Frame.AddBuffer(NewFileBuffer());
+		Nest nest = GetMainNest();
+		RemoveEmptyIfNeed(nest);
+		nest.Frame.AddBuffer(NewFileBuffer());
 	}
 
 	private bool DoOpen(Controller controller)
@@ -923,7 +934,7 @@ public class MainForm : Form
 		}
 		buffer.SetFile(fullPath, name);
 		if (nest == null)
-			nest = buffer.Frame != null ? buffer.Frame.Nest : mainNest;
+			nest = buffer.Frame != null ? buffer.Frame.Nest : GetMainNest();
 		ShowBuffer(nest, buffer);
 		if (needLoad && !ReloadFile(buffer))
 		{
@@ -1698,7 +1709,7 @@ public class MainForm : Form
 				tempSettings.helpPosition = 0;
 			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
 				tempSettings.helpPosition = _helpBuffer.Controller.Lines.charsCount;
-			ShowBuffer(mainNest, _helpBuffer);
+			ShowBuffer(GetMainNest(), _helpBuffer);
 			_helpBuffer.Controller.PutCursor(_helpBuffer.Controller.Lines.PlaceOf(tempSettings.helpPosition), false);
 			_helpBuffer.Controller.NeedScrollToCaret();
 		}
@@ -2185,13 +2196,17 @@ public class MainForm : Form
 		if (mainNest2.Frame == null)
 			new Frame().Create(mainNest2);
 		mainNest2.Frame.AddBuffer(mainNest.buffers.list.Selected);
+		mainNest2.Frame.Focus();
 		return true;
 	}
 
 	private bool MoveDocumentLeft(Controller controller)
 	{
 		if (mainNest2.Frame != null)
+		{
 			mainNest.Frame.AddBuffer(mainNest2.buffers.list.Selected);
+			mainNest.Frame.Focus();
+		}
 		return true;
 	}
 
