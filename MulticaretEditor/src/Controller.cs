@@ -402,21 +402,25 @@ namespace MulticaretEditor
 					if (!iterator.MoveRightWithRN())
 						break;
 				}
-				bool wasIdentifier = false;
-				CharType type = GetCharType(iterator.RightChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation)
+
+				if (!wasSpace)
 				{
-					CharType typeI = type;
-					while (typeI == type)
+					bool wasIdentifier = false;
+					CharType type = GetCharType(iterator.RightChar);
+					if (type == CharType.Identifier || type == CharType.Punctuation)
 					{
-						wasIdentifier = true;
-						if (!iterator.MoveRightWithRN())
-							break;
-						typeI = GetCharType(iterator.RightChar);
+						CharType typeI = type;
+						while (typeI == type)
+						{
+							wasIdentifier = true;
+							if (!iterator.MoveRightWithRN())
+								break;
+							typeI = GetCharType(iterator.RightChar);
+						}
 					}
+					if (!wasIdentifier && (!wasSpace || iterator.RightChar != '\n' && iterator.RightChar != '\r'))
+						iterator.MoveRightWithRN();
 				}
-				if (!wasIdentifier && (!wasSpace || iterator.RightChar != '\n' && iterator.RightChar != '\r'))
-					iterator.MoveRightWithRN();
 
 				selection.caret = iterator.Position;
 				if (!shift)
