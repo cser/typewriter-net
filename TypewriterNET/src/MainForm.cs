@@ -722,7 +722,7 @@ public class MainForm : Form
 			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
 			.SetGetText(GetFindIgnoreCase)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null,
-			new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)
+			new KeyAction("F&ind\\Switch replace escape sequence", DoSwitchEscape, null, false)
 			.SetGetText(GetFindEscape)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
 
