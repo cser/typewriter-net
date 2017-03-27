@@ -173,6 +173,11 @@ public class MainForm : Form
 		}
 	}
 
+	private Nest GetMainNest()
+	{
+		return lastFrame != null && lastFrame.Nest == mainNest2 ? mainNest2 : mainNest;
+	}
+
 	private FileTree fileTree;
 
 	private void OnLoad(object sender, EventArgs e)
@@ -212,7 +217,7 @@ public class MainForm : Form
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
-		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log);
+		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log, this);
 
 		sharpManager = new SharpManager(this);
 		syntaxFilesScanner.Rescan();
@@ -516,7 +521,7 @@ public class MainForm : Form
 		string fileText = null;
 		try
 		{
-			fileText = buffer.encodingPair.GetString(bytes);
+			fileText = buffer.encodingPair.GetString(bytes, buffer.encodingPair.CorrectBomLength(bytes));
 		}
 		catch
 		{
@@ -532,26 +537,40 @@ public class MainForm : Form
 			new Frame().Create(mainNest);
 		if (mainNest.buffers.list.Count == 0)
 		{
-			Buffer buffer = NewFileBuffer();
+			Buffer buffer = NewFileBuffer(true);
 			mainNest.Frame.AddBuffer(buffer);
 		}
 	}
-
+	
 	private void RemoveEmptyIfNeed()
 	{
+		RemoveEmptyIfNeed(mainNest);
+	}
+
+	private void RemoveEmptyIfNeed(Nest nest)
+	{
 		Buffer buffer = null;
-		for (int i = mainNest.buffers.list.Count; i-- > 0;)
+		int otherEmpty = 0;
+		for (int i = nest.buffers.list.Count; i-- > 0;)
 		{
-			Buffer bufferI = mainNest.buffers.list[i];
-			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory &&
-				bufferI.Name == UntitledTxt)
+			Buffer bufferI = nest.buffers.list[i];
+			if ((bufferI.tags & BufferTag.File) == BufferTag.File &&
+				bufferI.IsEmpty && !bufferI.HasHistory && bufferI.Name == UntitledTxt)
 			{
-				buffer = bufferI;
-				break;
+				if (buffer == null && (bufferI.tags & BufferTag.Placeholder) == BufferTag.Placeholder)
+				{
+					buffer = bufferI;
+				}
+				else
+				{
+					++otherEmpty;
+				}
 			}
 		}
-		if (buffer != null)
-			mainNest.buffers.list.Remove(buffer);
+		if (buffer != null && otherEmpty == 0)
+		{
+			nest.buffers.list.Remove(buffer);
+		}
 		
 		CloseOldBuffers();
 	}
@@ -720,10 +739,11 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
-			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
+			new KeyAction("&File\\Save As...", DoSaveAs, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
@@ -734,8 +754,9 @@ public class MainForm : Form
 			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
 			.SetGetText(GetFindIgnoreCase)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null,
-			new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)
+			new KeyAction("F&ind\\Switch replace escape sequence", DoSwitchEscape, null, false)
 			.SetGetText(GetFindEscape)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
 			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
@@ -745,6 +766,7 @@ public class MainForm : Form
 			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
 			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null, 
 			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
@@ -753,6 +775,7 @@ public class MainForm : Form
 			new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null,
 			new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null,
 			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
@@ -772,14 +795,16 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null,
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F4, null,
 			new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null,
 			new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
@@ -788,6 +813,7 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
 			new KeyAction("Prefere&nces\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
 			.SetGetText(GetF5CommandText)));
@@ -842,7 +868,8 @@ public class MainForm : Form
 	
 	private bool DoPasteInOutput(Controller controller)
 	{
-		new RunShellCommand(this).ShowInOutput(ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false);
+		new RunShellCommand(this).ShowInOutput(
+			ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false, null);
 		return true;
 	}
 
@@ -854,8 +881,9 @@ public class MainForm : Form
 	
 	public void OpenNew()
 	{
-		RemoveEmptyIfNeed();
-		mainNest.Frame.AddBuffer(NewFileBuffer());
+		Nest nest = GetMainNest();
+		RemoveEmptyIfNeed(nest);
+		nest.Frame.AddBuffer(NewFileBuffer());
 	}
 
 	private bool DoOpen(Controller controller)
@@ -919,7 +947,7 @@ public class MainForm : Form
 		}
 		buffer.SetFile(fullPath, name);
 		if (nest == null)
-			nest = buffer.Frame != null ? buffer.Frame.Nest : mainNest;
+			nest = buffer.Frame != null ? buffer.Frame.Nest : GetMainNest();
 		ShowBuffer(nest, buffer);
 		if (needLoad && !ReloadFile(buffer))
 		{
@@ -1694,7 +1722,7 @@ public class MainForm : Form
 				tempSettings.helpPosition = 0;
 			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
 				tempSettings.helpPosition = _helpBuffer.Controller.Lines.charsCount;
-			ShowBuffer(mainNest, _helpBuffer);
+			ShowBuffer(GetMainNest(), _helpBuffer);
 			_helpBuffer.Controller.PutCursor(_helpBuffer.Controller.Lines.PlaceOf(tempSettings.helpPosition), false);
 			_helpBuffer.Controller.NeedScrollToCaret();
 		}
@@ -1714,11 +1742,20 @@ public class MainForm : Form
 		_helpBuffer = null;
 		return true;
 	}
-
+	
 	private Buffer NewFileBuffer()
+	{
+		return NewFileBuffer(false);
+	}
+
+	private Buffer NewFileBuffer(bool placeholder)
 	{
 		Buffer buffer = new Buffer(null, UntitledTxt, SettingsMode.Normal);
 		buffer.tags = BufferTag.File;
+		if (placeholder)
+		{
+			buffer.tags |= BufferTag.Placeholder;
+		}
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
 		buffer.encodingPair = settings.defaultEncoding.Value;
@@ -2172,13 +2209,17 @@ public class MainForm : Form
 		if (mainNest2.Frame == null)
 			new Frame().Create(mainNest2);
 		mainNest2.Frame.AddBuffer(mainNest.buffers.list.Selected);
+		mainNest2.Frame.Focus();
 		return true;
 	}
 
 	private bool MoveDocumentLeft(Controller controller)
 	{
 		if (mainNest2.Frame != null)
+		{
 			mainNest.Frame.AddBuffer(mainNest2.buffers.list.Selected);
+			mainNest.Frame.Focus();
+		}
 		return true;
 	}
 

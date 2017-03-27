@@ -20,11 +20,36 @@ public struct EncodingPair
 	}
 
 	public bool IsNull { get { return encoding == null; } }
-
-	public string GetString(byte[] bytes)
+	
+	public int CorrectBomLength(byte[] bytes)
 	{
-		int length = bom ? encoding.GetPreamble().Length : 0;
-		return encoding.GetString(bytes, length, bytes.Length - length);
+		int length = 0;
+		if (bom)
+		{
+			byte[] preamble = encoding.GetPreamble();
+			if (preamble.Length <= bytes.Length)
+			{
+				bool matched = true;
+				for (int i = 0; i < preamble.Length; i++)
+				{
+					if (bytes[i] != preamble[i])
+					{
+						matched = false;
+						break;
+					}
+				}
+				if (matched)
+				{
+					length = preamble.Length;
+				}
+			}
+		}
+		return length;
+	}
+
+	public string GetString(byte[] bytes, int bomLength)
+	{
+		return encoding.GetString(bytes, bomLength, bytes.Length - bomLength);
 	}
 
 	override public string ToString()

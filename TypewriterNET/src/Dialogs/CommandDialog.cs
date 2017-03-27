@@ -82,7 +82,7 @@ public class CommandDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight * 1); } }
+	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight); } }
 
 	override public void Focus()
 	{
@@ -224,6 +224,43 @@ public class CommandDialog : ADialog
 								return true;
 							}
 						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if ((text.StartsWith("!{") || text.StartsWith("!^{")) && !text.Contains("}"))
+			{
+				int prefixIndex;
+				prefixIndex = text.LastIndexOf("s:");
+				if (prefixIndex != -1 && text.IndexOf(";", prefixIndex) == -1)
+				{
+					List<Variant> variants = new List<Variant>();
+					foreach (SyntaxFilesScanner.LanguageInfo info in MainForm.SyntaxFilesScanner.Infos)
+					{
+						Variant variant = new Variant();
+						variant.CompletionText = info.syntax;
+						variant.DisplayText = info.syntax;
+						variants.Add(variant);
+					}
+					if (variants.Count > 0)
+					{
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
+						return true;
+					}
+				}
+				prefixIndex = text.LastIndexOf("e:");
+				if (prefixIndex != -1 && text.IndexOf(";", prefixIndex) == -1)
+				{
+					Properties.Property property = new Properties.EncodingProperty("", new EncodingPair(Encoding.UTF8, false));
+					List<Variant> variants = property.GetAutocompleteVariants();
+					if (variants != null)
+					{
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
+						return true;
 					}
 				}
 			}

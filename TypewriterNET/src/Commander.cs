@@ -148,22 +148,29 @@ public class Commander
 				p.Start();
 			}
 		}
-		else if (name.StartsWith("!^"))
-		{
-			string commandText = text.Substring(2).Trim();
-			if (ReplaceVars(ref commandText))
-			{
-				ExecuteShellCommand(commandText, showCommandInOutput, true);
-				if (needFileTreeReload)
-				    mainForm.FileTreeReload();
-		    }
-		}
 		else if (name.StartsWith("!"))
 		{
-			string commandText = text.Substring(1).Trim();
+			bool scrollUp = false;
+			string parameters = null;
+			string commandText = text.Substring(1);
+			if (commandText.StartsWith("^"))
+			{
+				commandText = commandText.Substring(1);
+				scrollUp = true;
+			}
+			if (commandText.StartsWith("{"))
+			{
+				int index = commandText.IndexOf("}");
+				if (index != -1)
+				{
+					parameters = commandText.Substring(1, index - 1);
+					commandText = commandText.Substring(index + 1);
+				}
+			}
+			commandText = commandText.Trim();
 			if (ReplaceVars(ref commandText))
 			{
-				ExecuteShellCommand(commandText, showCommandInOutput, false);
+				ExecuteShellCommand(commandText, showCommandInOutput, scrollUp, parameters);
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 		    }
@@ -351,7 +358,11 @@ public class Commander
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command");
 		table.NewRow();
+		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
+		table.NewRow();
 		table.Add("!^command").Add("*").Add("Run shell command, stay output up");
+		table.NewRow();
+		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
 		table.NewRow();
 		table.Add("!!command").Add("*").Add("Run without output capture");
 		table.NewRow();
@@ -482,9 +493,11 @@ public class Commander
 		}
 	}
 
-	private void ExecuteShellCommand(string commandText, bool showCommandInOutput, bool stayTop)
+	private void ExecuteShellCommand(string commandText, bool showCommandInOutput, bool stayTop, string parameters)
 	{
-		new RunShellCommand(mainForm).Execute(commandText, showCommandInOutput, settings.shellRegexList.Value, stayTop);
+		new RunShellCommand(mainForm).Execute(
+			commandText, showCommandInOutput, settings.shellRegexList.Value,
+			stayTop, parameters);
 	}
 
 	private void DoEditFile(string file)

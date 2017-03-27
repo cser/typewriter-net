@@ -77,7 +77,7 @@ public class ViFindDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight * 1); } }
+	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight); } }
 
 	override public void Focus()
 	{

@@ -128,7 +128,7 @@ public class IncrementalSearchBase : ADialog
 		}
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
 
 	override public void Focus()
 	{
@@ -208,7 +208,6 @@ public class IncrementalSearchBase : ADialog
 			settings.ApplySimpleParameters(variantsTextBox, null);
 			settings.ApplySimpleParameters(textBox, null);
 			SetTextBoxParameters();
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{

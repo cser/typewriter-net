@@ -247,8 +247,13 @@ public class Settings
 		textBox.MarkWord = markWord.Value;
 		textBox.MarkBracket = markBracket.Value;
 	}
-
+	
 	public void ApplySimpleParameters(MulticaretTextBox textBox, Buffer buffer)
+	{
+		ApplySimpleParameters(textBox, buffer, true);
+	}
+
+	public void ApplySimpleParameters(MulticaretTextBox textBox, Buffer buffer, bool changeFont)
 	{
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
@@ -258,8 +263,11 @@ public class Settings
 		textBox.TabSize = tabSize.Value;
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
-		textBox.FontFamily = font.Value;
-		textBox.FontSize = fontSize.Value;
+		if (changeFont)
+		{
+			textBox.FontFamily = font.Value;
+			textBox.FontSize = fontSize.Value;
+		}
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);

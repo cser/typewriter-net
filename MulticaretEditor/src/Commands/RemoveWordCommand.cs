@@ -25,7 +25,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				Controller.MoveWordRight(lines, true);
+				Controller.MoveWordRight(lines, true, false);
 			}
 			eraseSelection = new EraseSelectionCommand();
 			eraseSelection.lines = lines;

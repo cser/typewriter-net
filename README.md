@@ -1,6 +1,14 @@
 Typewriter.NET
 ==============
 
+Current state (may be another branch):
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net)
+[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net)](https://ci.appveyor.com/project/cser/typewriter-net)
+
+Last stable installer for download:
+[![Build status](https://ci.appveyor.com/api/projects/status/ft623rt0w9ewe0f8/branch/master?svg=true)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts)
+[![Build status](http://flauschig.ch/batch.php?type=tests&account=cser&slug=typewriter-net&branch=master)](https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts)
+
 ![preview_1](https://raw.githubusercontent.com/cser/typewriter-net/master/TypewriterNET/previews/preview_1.png "Typewriter.NET with npp color scheme")
 
 Features
@@ -65,7 +73,7 @@ To build and install:
 1. Install **NSIS** from http://nsis.sourceforge.net/Download
 2. Add **NSIS** directory (for example <code>C:\Program Files (x86)\NSIS</code>) to PATH
 3. Execute **MSBuild** in repository folder:<br/>
-	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe</code><br/>
+	<code>C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:run-installer</code><br/>
 	(Of cause, you can add **MSBuild** to PATH too)
 
 To build and run without installation:

@@ -230,26 +230,51 @@ namespace UnitTests
 
 			AssertSize().XY(4, 1);
 		}
-
+		
 		[Test]
-		public void MoveWordLeftRight()
+		public void MoveWordRight()
 		{
-			Init();
+			Init();      //01234567890123456
 			lines.SetText("text text123 text");
-			AssertSelection().Caret(0, 0).PreferredPos(0);
-
+			
+			controller.PutCursor(new Place(5, 0), false);
 			controller.MoveWordRight(true);
-			AssertSelection().Anchor(0, 0).Caret(4, 0).PreferredPos(4);
-			controller.MoveWordLeft(false);
-			AssertSelection().Both(0, 0).PreferredPos(0);
+			AssertSelection().Anchor(5, 0).Caret(12, 0).PreferredPos(12);
+			
+			controller.PutCursor(new Place(5, 0), false);
 			controller.MoveWordRight(false);
-			AssertSelection().Both(4, 0).PreferredPos(4);
+			AssertSelection().Both(13, 0).PreferredPos(13);
+			
+			controller.PutCursor(new Place(4, 0), false);
+			controller.MoveWordRight(false);
+			AssertSelection().Both(5, 0).PreferredPos(5);
+			
+			controller.PutCursor(new Place(4, 0), false);
 			controller.MoveWordRight(true);
 			AssertSelection().Anchor(4, 0).Caret(12, 0).PreferredPos(12);
+		}
+		
+		[Test]
+		public void MoveWordLeft()
+		{
+			Init();      //01234567890123456
+			lines.SetText("text text123 text");
+			
+			controller.PutCursor(new Place(12, 0), false);
 			controller.MoveWordLeft(true);
-			AssertSelection().Anchor(4, 0).Caret(5, 0).PreferredPos(5);
+			AssertSelection().Anchor(12, 0).Caret(5, 0).PreferredPos(5);
+			
+			controller.PutCursor(new Place(12, 0), false);
+			controller.MoveWordLeft(false);
+			AssertSelection().Both(5, 0).PreferredPos(5);
+			
+			controller.PutCursor(new Place(13, 0), false);
 			controller.MoveWordLeft(true);
-			AssertSelection().Anchor(4, 0).Caret(0, 0).PreferredPos(0);
+			AssertSelection().Anchor(13, 0).Caret(5, 0).PreferredPos(5);
+			
+			controller.PutCursor(new Place(13, 0), false);
+			controller.MoveWordLeft(false);
+			AssertSelection().Both(5, 0).PreferredPos(5);
 		}
 
 		[Test]

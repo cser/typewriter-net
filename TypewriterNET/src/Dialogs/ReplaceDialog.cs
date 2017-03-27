@@ -30,8 +30,8 @@ public class ReplaceDialog : ADialog
 	private Data data;
 	private FindParams findParams;
 	private Getter<string, bool> doFindText;
-	private Getter<string, bool> doSelectAllFinded;
-	private Getter<string, bool> doSelectNextFinded;
+	private Getter<string, bool> doSelectAllFound;
+	private Getter<string, bool> doSelectNextFound;
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
@@ -40,15 +40,15 @@ public class ReplaceDialog : ADialog
 
 	public ReplaceDialog(Data data, FindParams findParams,
 		Getter<string, bool> doFindText,
-		Getter<string, bool> doSelectAllFinded,
-		Getter<string, bool> doSelectNextFinded,
+		Getter<string, bool> doSelectAllFound,
+		Getter<string, bool> doSelectNextFound,
 		string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFindText = doFindText;
-		this.doSelectAllFinded = doSelectAllFinded;
-		this.doSelectNextFinded = doSelectNextFinded;
+		this.doSelectAllFound = doSelectAllFound;
+		this.doSelectNextFound = doSelectNextFound;
 		Name = name;
 	}
 
@@ -69,12 +69,12 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		
 		KeyMap beforeKeyMap = new KeyMap();
-		if (doSelectAllFinded != null)
+		if (doSelectAllFound != null)
 		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
-				new KeyAction("F&ind\\Select all finded", DoSelectAllFinded, null, false)));
+				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
-				new KeyAction("F&ind\\Select all finded", DoSelectNextFinded, null, false)));
+				new KeyAction("F&ind\\Select all found", DoSelectNextFound, null, false)));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -247,7 +247,6 @@ public class ReplaceDialog : ADialog
 			settings.ApplySimpleParameters(replaceTextBox, null);
 			settings.ApplyToLabel(textLabel);
 			settings.ApplyToLabel(replaceTextLabel);
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -301,22 +300,22 @@ public class ReplaceDialog : ADialog
 		return false;
 	}
 	
-	private bool DoSelectAllFinded(Controller controller)
+	private bool DoSelectAllFound(Controller controller)
 	{
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		if (doSelectAllFinded(text))
+		if (doSelectAllFound(text))
 			DispatchNeedClose();
 		return true;
 	}
 	
-	private bool DoSelectNextFinded(Controller controller)
+	private bool DoSelectNextFound(Controller controller)
 	{
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		doSelectAllFinded(text);
+		doSelectAllFound(text);
 		return true;
 	}
 }

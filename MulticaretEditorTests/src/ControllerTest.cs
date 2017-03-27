@@ -660,13 +660,13 @@ namespace UnitTests
 			AssertSelection().Caret(0, 0).PreferredPos(0);
 			
 			controller.MoveWordRight(false);
-			AssertSelection().Caret(4, 0).PreferredPos(4);
+			AssertSelection().Caret(5, 0).PreferredPos(5);
 			controller.MoveWordLeft(false);
 			AssertSelection().Caret(0, 0).PreferredPos(0);
 			controller.MoveWordRight(false);
-			AssertSelection().Caret(4, 0).PreferredPos(4);
+			AssertSelection().Caret(5, 0).PreferredPos(5);
 			controller.MoveWordRight(false);
-			AssertSelection().Caret(12, 0).PreferredPos(12);
+			AssertSelection().Caret(13, 0).PreferredPos(13);
 			controller.MoveWordLeft(false);
 			AssertSelection().Caret(5, 0).PreferredPos(5);
 			controller.MoveWordLeft(false);
@@ -674,44 +674,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void MoveWordLeftRight1()
-		{
-			Init();
-			lines.SetText(
-				"text text123 text\n" +
-				"    --text(text);\n" +
-				"\t    text text\n"
-			);
-			AssertSelection().Caret(0, 0).PreferredPos(0);
-			
-			controller.MoveWordRight(false);
-			controller.MoveWordRight(false);
-			controller.MoveWordRight(false);
-			AssertSelection().Caret(17, 0);
-			
-			controller.MoveWordRight(false);
-			AssertSelection().Caret(0, 1);
-			controller.MoveWordRight(false);
-			AssertSelection().Caret(6, 1);
-			controller.MoveWordRight(false);
-			AssertSelection().Caret(10, 1);
-			controller.MoveWordRight(false);
-			AssertSelection().Caret(11, 1);
-			
-			controller.MoveWordLeft(false);
-			AssertSelection().Caret(10, 1);
-			controller.MoveWordLeft(false);
-			AssertSelection().Caret(6, 1);
-			controller.MoveWordLeft(false);
-			AssertSelection().Caret(4, 1);
-			controller.MoveWordLeft(false);
-			AssertSelection().Caret(0, 1);
-			controller.MoveWordLeft(false);
-			AssertSelection().Caret(17, 0);
-		}
-		
-		[Test]
-		public void MoveWordLeftRight_RN()
+		public void MoveWordRightRN()
 		{
 			Init();
 			lines.SetText(
@@ -719,7 +682,7 @@ namespace UnitTests
 				"    --text(text);\r\n" +
 				"\t    text text\n"
 			);
-			AssertSelection().Caret(0, 0).PreferredPos(0);
+			AssertSelection().Caret(0, 0);
 			
 			controller.MoveWordRight(false);
 			controller.MoveWordRight(false);
@@ -727,12 +690,25 @@ namespace UnitTests
 			AssertSelection().Caret(17, 0);
 			
 			controller.MoveWordRight(false);
-			AssertSelection().Caret(0, 1);
+			AssertSelection().Caret(4, 1);
 			controller.MoveWordRight(false);
 			AssertSelection().Caret(6, 1);
 			controller.MoveWordRight(false);
 			AssertSelection().Caret(10, 1);
 			controller.MoveWordRight(false);
+			AssertSelection().Caret(11, 1);
+		}
+		
+		[Test]
+		public void MoveWordLeftRN()
+		{
+			Init();
+			lines.SetText(
+				"text text123 text\r\n" +
+				"    --text(text);\r\n" +
+				"\t    text text\n"
+			);
+			controller.PutCursor(new Place(11, 1), false);
 			AssertSelection().Caret(11, 1);
 			
 			controller.MoveWordLeft(false);
@@ -742,9 +718,14 @@ namespace UnitTests
 			controller.MoveWordLeft(false);
 			AssertSelection().Caret(4, 1);
 			controller.MoveWordLeft(false);
-			AssertSelection().Caret(0, 1);
-			controller.MoveWordLeft(false);
 			AssertSelection().Caret(17, 0);
+			
+			controller.MoveWordLeft(false);
+			controller.MoveWordLeft(false);
+			controller.MoveWordLeft(false);
+			AssertSelection().Caret(0, 0);
+			controller.MoveWordLeft(false);
+			AssertSelection().Caret(0, 0);
 		}
 		
 		[Test]
@@ -917,16 +898,35 @@ namespace UnitTests
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
 			controller.RemoveWordRight();
-			AssertText("line0  line2 line3 line4");
+			AssertText("line0 line2 line3 line4");
 			AssertSelection().Both(6, 0).NoNext();
+			
+			//Then not Npp behavour (npp moves cursor on undo), but seems to be more nice
 			
 			controller.Undo();
 			AssertSelection().Both(6, 0).NoNext();
 			AssertText("line0 line1 line2 line3 line4");
 			
 			controller.Redo();
-			AssertText("line0  line2 line3 line4");
+			AssertText("line0 line2 line3 line4");
 			AssertSelection().Both(6, 0).NoNext();
+		}
+		
+		[Test]
+		public void RemoveWordRight_Space()
+		{
+			Init();
+			lines.SetText("line0 line1 line2");
+			controller.PutCursor(new Place(5, 0), false);
+			controller.RemoveWordRight();
+			AssertText("line0line1 line2");
+			AssertSelection().Both(5, 0).NoNext();
+			
+			lines.SetText("line0  line1 line2");
+			controller.PutCursor(new Place(5, 0), false);
+			controller.RemoveWordRight();
+			AssertText("line0line1 line2");
+			AssertSelection().Both(5, 0).NoNext();
 		}
 		
 		[Test]

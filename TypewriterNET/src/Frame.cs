@@ -42,13 +42,19 @@ public class Frame : AFrame
 		tabBar = new TabBar<Buffer>(buffers.list, Buffer.StringOf);
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.TabDoubleClick += OnTabDoubleClick;
+		tabBar.NewTabDoubleClick += OnNewTabDoubleClick;
 		Controls.Add(tabBar);
+
 		splitLine = new SplitLine();
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, new KeyAction("&View\\Close tab", DoCloseTab, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Close tab", DoCloseTab, null, false);
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, action));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, action));
+		}
 
 		textBox = new MulticaretTextBox();
 		textBox.ViShortcut += OnViShortcut;
@@ -169,7 +175,6 @@ public class Frame : AFrame
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplyParameters(textBox, buffer != null ? buffer.settingsMode : SettingsMode.None, buffer);
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -292,7 +297,12 @@ public class Frame : AFrame
 	{
 		RemoveBuffer(buffer);
 	}
-	
+
+	private void OnNewTabDoubleClick()
+	{
+		Nest.MainForm.OpenNew();
+	}
+
 	private AutocompleteMode autocomplete;
 	
 	private void CloseAutocomplete()
