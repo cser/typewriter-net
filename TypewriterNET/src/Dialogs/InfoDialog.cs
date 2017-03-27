@@ -67,7 +67,7 @@ public class InfoDialog : ADialog
 		}
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
 
 	override public void Focus()
 	{
@@ -105,7 +105,6 @@ public class InfoDialog : ADialog
 		{
 			settings.ApplySimpleParameters(textBox, null);
 			SetTextBoxParameters();
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{

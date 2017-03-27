@@ -118,7 +118,7 @@ namespace MulticaretEditor
 		private int charWidth;
 		private int charHeight;
 
-		public void SetFont(FontFamily family, float emSize)
+		private void SetFont(FontFamily family, float emSize)
 		{
 			font = new Font(family, emSize);
 			boldFont = new Font(family, emSize, FontStyle.Bold);

@@ -63,6 +63,8 @@ public class FindInFilesDialog : ADialog
 			}
 			
 			filterTextBox = new MulticaretTextBox();
+			filterTextBox.FontFamily = FontFamily.GenericMonospace;
+			filterTextBox.FontSize = 10.25f;
 			filterTextBox.ShowLineNumbers = false;
 			filterTextBox.HighlightCurrentLine = false;
 			filterTextBox.KeyMap.AddAfter(KeyMap);
@@ -121,7 +123,7 @@ public class FindInFilesDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 2); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
 	
 	override protected void OnResize(EventArgs e)
 	{
@@ -131,8 +133,8 @@ public class FindInFilesDialog : ADialog
 		textBox.Location = new Point(0, tabBarHeight);
 		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 		int size = 20;
-		filterTextBox.Location = new Point(Width - 9 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 0);
-		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, tabBarHeight + 1);
+		filterTextBox.Location = new Point(Width - 9 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 2);
+		filterTextBox.Size = new Size(size * filterTextBox.CharWidth, filterTextBox.CharHeight + 1);
 	}
 
 	override public void Focus()
@@ -187,8 +189,7 @@ public class FindInFilesDialog : ADialog
 		if (phase == UpdatePhase.Raw) 
 		{
 			settings.ApplySimpleParameters(textBox, null);
-			settings.ApplySimpleParameters(filterTextBox, null);
-			tabBar.SetFont(settings.font.Value, settings.fontSize.Value);
+			settings.ApplySimpleParameters(filterTextBox, null, false);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
