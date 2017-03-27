@@ -379,7 +379,7 @@ namespace MulticaretEditor
 
 		public void MoveWordRight(bool shift)
 		{
-			MoveWordRight(lines, shift);
+			MoveWordRight(lines, shift, shift);
 			DoAfterMove();
 		}
 
@@ -389,37 +389,35 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		public static void MoveWordRight(LineArray lines, bool shift)
+		public static void MoveWordRight(LineArray lines, bool shift, bool shiftMove)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-
-				bool wasSpace = false;
-				while (GetCharType(iterator.RightChar) == CharType.Space)
+				if (shiftMove)
 				{
-					wasSpace = true;
-					if (!iterator.MoveRightWithRN())
-						break;
-				}
-
-				if (!wasSpace)
-				{
-					bool wasIdentifier = false;
-					CharType type = GetCharType(iterator.RightChar);
-					if (type == CharType.Identifier || type == CharType.Punctuation)
+					while (GetCharType(iterator.RightChar) == CharType.Space)
 					{
-						CharType typeI = type;
-						while (typeI == type)
-						{
-							wasIdentifier = true;
-							if (!iterator.MoveRightWithRN())
-								break;
-							typeI = GetCharType(iterator.RightChar);
-						}
+						if (!iterator.MoveRightWithRN())
+							break;
 					}
-					if (!wasIdentifier && (!wasSpace || iterator.RightChar != '\n' && iterator.RightChar != '\r'))
-						iterator.MoveRightWithRN();
+				}
+				CharType type = GetCharType(iterator.RightChar);
+				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
+				{
+					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.RightChar))
+					{
+						if (!iterator.MoveRightWithRN())
+							break;
+					}
+				}
+				if (!shiftMove)
+				{
+					while (GetCharType(iterator.RightChar) == CharType.Space)
+					{
+						if (!iterator.MoveRightWithRN())
+							break;
+					}
 				}
 
 				selection.caret = iterator.Position;
@@ -434,30 +432,20 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-
-				bool wasSpace = false;
 				while (GetCharType(iterator.LeftChar) == CharType.Space)
 				{
-					wasSpace = true;
 					if (!iterator.MoveLeftWithRN())
 						break;
 				}
-				bool wasIdentifier = false;
 				CharType type = GetCharType(iterator.LeftChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation)
+				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
 				{
-					CharType typeI = type;
-					while (typeI == type)
+					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.LeftChar))
 					{
-						wasIdentifier = true;
 						if (!iterator.MoveLeftWithRN())
 							break;
-						typeI = GetCharType(iterator.LeftChar);
 					}
 				}
-				if (!wasIdentifier && (!wasSpace || iterator.LeftChar != '\n' && iterator.LeftChar != '\r'))
-					iterator.MoveLeftWithRN();
-
 				selection.caret = iterator.Position;
 				if (!shift)
 					selection.anchor = iterator.Position;
