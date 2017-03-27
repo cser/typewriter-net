@@ -519,7 +519,7 @@ public class MainForm : Form
 			new Frame().Create(mainNest);
 		if (mainNest.buffers.list.Count == 0)
 		{
-			Buffer buffer = NewFileBuffer();
+			Buffer buffer = NewFileBuffer(true);
 			mainNest.Frame.AddBuffer(buffer);
 		}
 	}
@@ -527,18 +527,27 @@ public class MainForm : Form
 	private void RemoveEmptyIfNeed()
 	{
 		Buffer buffer = null;
+		int otherEmpty = 0;
 		for (int i = mainNest.buffers.list.Count; i-- > 0;)
 		{
 			Buffer bufferI = mainNest.buffers.list[i];
-			if ((bufferI.tags & BufferTag.File) != 0 && bufferI.IsEmpty && !bufferI.HasHistory &&
-				bufferI.Name == UntitledTxt)
+			if ((bufferI.tags & BufferTag.File) == BufferTag.File &&
+				bufferI.IsEmpty && !bufferI.HasHistory && bufferI.Name == UntitledTxt)
 			{
-				buffer = bufferI;
-				break;
+				if (buffer == null && (bufferI.tags & BufferTag.Placeholder) == BufferTag.Placeholder)
+				{
+					buffer = bufferI;
+				}
+				else
+				{
+					++otherEmpty;
+				}
 			}
 		}
-		if (buffer != null)
+		if (buffer != null && otherEmpty == 0)
+		{
 			mainNest.buffers.list.Remove(buffer);
+		}
 		
 		CloseOldBuffers();
 	}
@@ -1709,11 +1718,20 @@ public class MainForm : Form
 		_helpBuffer = null;
 		return true;
 	}
-
+	
 	private Buffer NewFileBuffer()
+	{
+		return NewFileBuffer(false);
+	}
+
+	private Buffer NewFileBuffer(bool placeholder)
 	{
 		Buffer buffer = new Buffer(null, UntitledTxt, SettingsMode.Normal);
 		buffer.tags = BufferTag.File;
+		if (placeholder)
+		{
+			buffer.tags |= BufferTag.Placeholder;
+		}
 		buffer.needSaveAs = true;
 		buffer.onRemove = OnFileBufferRemove;
 		buffer.encodingPair = settings.defaultEncoding.Value;
