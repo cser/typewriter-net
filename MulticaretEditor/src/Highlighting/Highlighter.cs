@@ -366,15 +366,8 @@ namespace MulticaretEditor
 
 		private int[] awakePositions;
 		
-		private Stopwatch _debugStopwatch;
-
 		public bool Parse(LineArray lines, int maxMilliseconds)
 		{
-			if (_debugStopwatch == null)
-			{
-				_debugStopwatch = new Stopwatch();
-				_debugStopwatch.Start();
-			}
 			DateTime startTime = DateTime.Now;
 			int changesBeforeTimeCheck = 0;
 			bool timeElapsed = false;
@@ -539,11 +532,6 @@ namespace MulticaretEditor
 				{
 					lines.SetStyleRange(range);
 				}
-			}
-			if (!changed)
-			{
-				_debugStopwatch.Stop();
-				Console.WriteLine("TIME: " + (_debugStopwatch.Elapsed.TotalMilliseconds / 1000).ToString("0.00"));
 			}
 			return changed;
 		}
