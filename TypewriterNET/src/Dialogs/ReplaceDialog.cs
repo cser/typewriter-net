@@ -206,7 +206,10 @@ public class ReplaceDialog : ADialog
 		return true;
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height * 3 + 2); } }
+	override public Size MinSize
+	{
+		get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight * 2 + 4); }
+	}
 
 	private void OnTabBarMouseDown(object sender, EventArgs e)
 	{
