@@ -196,9 +196,13 @@ namespace MulticaretEditor
 			{
 				Rules.RegExpr rule = new Rules.RegExpr();
 				string regex = rawRule.String;
+				RegexOptions options = RegexOptions.None;
+				if (GetBool(rawRule.insensitive))
+				{
+					options |= RegexOptions.IgnoreCase;
+				}
 				rule.regex = new Regex(
-					HighlighterUtil.FixRegexUnicodeChars(GetBool(rawRule.minimal) ? HighlighterUtil.LazyOfRegex(regex) : regex),
-					GetBool(rawRule.insensitive) ? RegexOptions.IgnoreCase : RegexOptions.None
+					HighlighterUtil.FixRegexUnicodeChars(GetBool(rawRule.minimal) ? HighlighterUtil.LazyOfRegex(regex) : regex), options
 				);
 				commonRule = rule;
 				regExprRules.Add(rule);
@@ -429,7 +433,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < block.count; j++)
 				{
 					Line line = block.array[j];
-					if (AreEquals(line.startState, state) && line.endState != null)
+					if (line.endState != null && AreEquals(line.startState, state))
 					{
 						state = line.endState;
 						needSetStack = true;
@@ -455,7 +459,8 @@ namespace MulticaretEditor
 						{
 							Rules.Rule rule = context.childs[ri];
 							int nextPosition;
-							if ((rule.column == -1 || position == rule.column) && rule.Match(text, position, out nextPosition))
+							if ((rule.column == -1 || position == rule.column) &&
+								rule.Match(text, position, out nextPosition))
 							{
 								if (!rule.lookAhead)
 								{
