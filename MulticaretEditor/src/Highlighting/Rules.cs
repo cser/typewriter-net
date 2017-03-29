@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using Pcre;
 
 namespace MulticaretEditor
 {
@@ -287,7 +288,7 @@ namespace MulticaretEditor
 		
 		public class RegExpr : Rule
 		{
-			public Regex regex;
+			public PcreRegex regex;
 			public int[] awakePositions;
 			public int awakeIndex;
 			
@@ -295,12 +296,12 @@ namespace MulticaretEditor
 			{
 				if (position >= awakePositions[awakeIndex])
 				{
-					Match match = regex.Match(text, position);
-					if (match.Success)
+					regex.Match(text, position);
+					if (regex.Success)
 					{
-						if (match.Index == position)
+						if (regex.MatchIndex == position)
 						{
-							int position1 = position + match.Length;
+							int position1 = position + regex.MatchLength;
 							if (position1 > position)
 							{
 								nextPosition = position1;
@@ -309,7 +310,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							awakePositions[awakeIndex] = match.Index;
+							awakePositions[awakeIndex] = regex.MatchIndex;
 						}
 					}
 					else

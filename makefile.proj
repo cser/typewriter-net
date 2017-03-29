@@ -12,6 +12,8 @@ This file was writen for launching with MSBuild
 	<Target Name="me">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
 		<CSC Sources="@(MulticaretEditorSrc)"
+			AllowUnsafeBlocks="True"
+			Platform="x86"
 			TargetType="library"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
@@ -21,11 +23,13 @@ This file was writen for launching with MSBuild
 	</Target>
 	<Target Name="build-tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
+		<Copy SourceFiles="MulticaretEditor\src\Pcre\libpcre16_x86.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="."/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
 		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
+			Platform="x86"
 			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll; TypewriterNET\bin\TypewriterNET.exe"
 			TargetType="library"
 			DebugType="pdbonly"
@@ -37,6 +41,7 @@ This file was writen for launching with MSBuild
 	<Target Name="resources">
 		<MakeDir Directories="ResourceBuilder\bin\"/>
 		<CSC Sources="ResourceBuilder\src\*.cs"
+			Platform="x86"
 			TargetType="exe"
 			NoStandardLib="False"
 			EmitDebugInformation="False"
@@ -46,7 +51,9 @@ This file was writen for launching with MSBuild
 	<Target Name="build-tw" DependsOnTargets="me; resources">
 		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe TypewriterNET\resources.xml"/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin"/>
+		<Copy SourceFiles="MulticaretEditor\src\Pcre\libpcre16_x86.dll" DestinationFolder="TypewriterNET\bin"/>
 		<CSC Sources="@(TypewriterNETSrc)"
+			Platform="x86"
 			References="TypewriterNET\bin\MulticaretEditor.dll"
 			Resources="TypewriterNET\TypewriterNET.resources"
 			TargetType="winexe"
@@ -64,6 +71,7 @@ This file was writen for launching with MSBuild
 		<MakeDir Directories="ManualTests\bin\"/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin"/>
 		<CSC Sources="ManualTests\src\*.cs"
+			Platform="x86"
 			References="ManualTests\bin\MulticaretEditor.dll"
 			TargetType="winexe"
 			NoStandardLib="False"

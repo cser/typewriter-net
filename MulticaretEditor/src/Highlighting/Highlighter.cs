@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Diagnostics;
+using Pcre;
 
 namespace MulticaretEditor
 {
@@ -196,13 +197,17 @@ namespace MulticaretEditor
 			{
 				Rules.RegExpr rule = new Rules.RegExpr();
 				string regex = rawRule.String;
-				RegexOptions options = RegexOptions.None;
+				PcreOptions options = PcreOptions.NO_AUTO_CAPTURE;
 				if (GetBool(rawRule.insensitive))
 				{
-					options |= RegexOptions.IgnoreCase;
+					options |= PcreOptions.CASELESS;
 				}
-				rule.regex = new Regex(
-					HighlighterUtil.FixRegexUnicodeChars(GetBool(rawRule.minimal) ? HighlighterUtil.LazyOfRegex(regex) : regex), options
+				if (GetBool(rawRule.minimal))
+				{
+					options |= PcreOptions.UNGREEDY;
+				}
+				rule.regex = new PcreRegex(
+					HighlighterUtil.FixRegexUnicodeChars(regex), options
 				);
 				commonRule = rule;
 				regExprRules.Add(rule);
