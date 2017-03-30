@@ -151,13 +151,7 @@ namespace MulticaretEditor
 			{
 				if (cachedText == null)
 				{
-					StringBuilder builder = new StringBuilder(charsCount);
-					int count = charsCount;
-					for (int i = 0; i < count; i++)
-					{
-						builder.Append(chars[i]);
-					}
-					cachedText = builder.ToString();
+					cachedText = new string(chars, 0, charsCount);
 				}
 				return cachedText;
 			}
