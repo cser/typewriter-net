@@ -101,7 +101,7 @@
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
 				<RegExpr attribute="Keyword" context="AfterNew" String="\bnew\s"/>
-				<RegExpr attribute="Keyword" context="AfterAs" String="\bas\s"/>
+				<RegExpr attribute="Keyword" context="AfterAs" String="\bas\s|\bis\s"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords2">
 					<RegExpr attribute="Constructor" context="#pop" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
@@ -141,11 +141,10 @@
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*(?!as\b)[_\w\(])"/>
+					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*(?!as\b)(?!is\b)[_\w\(])"/>
 				</RegExpr>
-				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}"/>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
-				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\s)(?!as\s)(?=[_\w])"/>
+				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\s)(?!as\s)(?!is\s)(?=[_\w])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
 				<RegExpr attribute="Function" context="#pop" String="[_\w][_\w\d]*(?=\s*\()"/>
@@ -174,13 +173,13 @@
 			<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
 				<keyword attribute="Data Type" context="#pop" String="types"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
-				<AnyChar attribute="Symbol" context="#stay" String="."/>
+				<DetectChar attribute="Symbol" context="#stay" char="."/>
 				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)\s*(?![\.\w])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterAs">
 				<keyword attribute="Data Type" context="#stay" String="types"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
-				<AnyChar attribute="Symbol" context="#stay" String="."/>
+				<DetectChar attribute="Symbol" context="#stay" char="."/>
 				<RegExpr attribute="Data Type2" context="#pop" String="\b[_\w][_\w\d]*(?:&lt;[\w\,\s]+&gt;|)\s*(?!\.)(?=\W\D)"/>
 			</context>
 		</contexts>
