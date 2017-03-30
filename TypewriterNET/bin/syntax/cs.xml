@@ -100,8 +100,9 @@
 		</list>
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-				<RegExpr attribute="Keyword" context="AfterNew" String="\bnew\s"/>
-				<RegExpr attribute="Keyword" context="AfterAs" String="\bas\s|\bis\s"/>
+				<WordDetect attribute="Keyword" context="AfterNew" String="new"/>
+				<WordDetect attribute="Keyword" context="AfterAs" String="as"/>
+				<WordDetect attribute="Keyword" context="AfterAs" String="is"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords2">
 					<RegExpr attribute="Constructor" context="#pop" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
