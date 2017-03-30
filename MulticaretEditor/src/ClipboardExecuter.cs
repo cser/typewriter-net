@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using Pcre;
 
 namespace MulticaretEditor
 {
@@ -38,11 +39,11 @@ namespace MulticaretEditor
 		public static bool fakeLayout = false;
 		public static bool fakeEnLayout = true;
 		
-		private static CharsRegularExpressions.Regex _viRegex;
-		public static CharsRegularExpressions.Regex ViRegex { get { return _viRegex; } }
+		private static PcreRegex _viRegex;
+		public static PcreRegex ViRegex { get { return _viRegex; } }
 		
-		private static CharsRegularExpressions.Regex _viBackwardRegex;
-		public static CharsRegularExpressions.Regex ViBackwardRegex { get { return _viBackwardRegex; } }
+		private static PcreRegex _viBackwardRegex;
+		public static PcreRegex ViBackwardRegex { get { return _viBackwardRegex; } }
 		
 		public static void Reset(bool useFake)
 		{
@@ -115,15 +116,9 @@ namespace MulticaretEditor
 				{
 					try
 					{
-						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 500);
-						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
-						if (text.Length < 50)
-						{
-							options |= CharsRegularExpressions.RegexOptions.Compiled;
-						}
-						_viRegex = new CharsRegularExpressions.Regex(text, options, span);
-						_viBackwardRegex = new CharsRegularExpressions.Regex(
-							text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
+						PcreOptions options = PcreOptions.NONE;
+						_viRegex = new PcreRegex(text, options);
+						_viBackwardRegex = new PcreRegex(text, PcreOptions.NONE | options);
 					}
 					catch
 					{

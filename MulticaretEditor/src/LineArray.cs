@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Pcre;
 
 namespace MulticaretEditor
 {
@@ -135,7 +136,7 @@ namespace MulticaretEditor
 
 		private string cachedText;
 		private bool charsValid;
-		private CharsRegularExpressions.Regex highlightRegex;
+		private PcreRegex highlightRegex;
 
 		public string GetText()
 		{
@@ -201,15 +202,14 @@ namespace MulticaretEditor
 					int index = 0;
 					while (index < charsCount)
 					{
-						CharsRegularExpressions.Match match = null;
 						try
 						{
-							match = highlightRegex.Match(chars, index, charsCount - index);
+							highlightRegex.Match(chars, index, charsCount - index);
 						}
 						catch
 						{
 						}
-						if (match == null || !match.IsMatched(0))
+						if (!highlightRegex.Success)
 						{
 							break;
 						}
@@ -224,9 +224,9 @@ namespace MulticaretEditor
 							selection = matches[matchesCount];
 						}
 						++matchesCount;
-						selection.anchor = match.Index;
-						selection.caret = match.Index + match.Length;
-						index = match.Index + (match.Length > 0 ? match.Length : 1);
+						selection.anchor = highlightRegex.MatchIndex;
+						selection.caret = highlightRegex.MatchIndex + highlightRegex.MatchLength;
+						index = highlightRegex.MatchIndex + (highlightRegex.MatchLength > 0 ? highlightRegex.MatchLength : 1);
 					}
 				}
 				if (matches.Count > matchesCount)

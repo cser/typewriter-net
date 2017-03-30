@@ -43,6 +43,21 @@ namespace Pcre
 			return this;
 		}
 		
+		public PcreRegex Match(char[] text, int start, int length)
+		{
+			unsafe
+			{
+				fixed(char* subject = text)
+				fixed(int* vector = _matches)
+				{
+					_success = PcreApi.pcre16_exec(
+						_regexPtr, IntPtr.Zero, subject, start + length, start, 0, vector, _matches.Length
+					) == 1;
+				}
+			}
+			return this;
+		}
+		
 		private readonly string _pattern;
 		public string Pattern { get { return _pattern; } }
 		

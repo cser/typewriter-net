@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using Pcre;
 
 namespace MulticaretEditor
 {
@@ -1864,7 +1865,7 @@ namespace MulticaretEditor
 			return new Place(line.NormalIndexOfPos(selection.preferredPos), place.iLine);
 		}
 		
-		public void ViFindForward(CharsRegularExpressions.Regex regex)
+		public void ViFindForward(PcreRegex regex)
 		{
 			if (regex == null)
 			{
@@ -1877,29 +1878,29 @@ namespace MulticaretEditor
 			{
 				start++;
 			}
-			CharsRegularExpressions.Match match = regex.Match(chars, start, charsCount - start);
-			if (match == null || !match.IsMatched(0))
+			regex.Match(chars, start, charsCount - start);
+			if (!regex.Success)
 			{
 				try
 				{
-					match = regex.Match(chars, 0, charsCount);
+					regex.Match(chars, 0, charsCount);
 				}
 				catch
 				{
 				}
-				if (match == null || !match.IsMatched(0))
+				if (!regex.Success)
 				{
 					return;
 				}
 			}
 			ClearMinorSelections();
-			selections[0].anchor = match.Index;
-			selections[0].caret = match.Index;
+			selections[0].anchor = regex.MatchIndex;
+			selections[0].caret = regex.MatchIndex;
 			Place place = lines.PlaceOf(selections[0].caret);
 			lines.SetPreferredPos(selections[0], place);
 		}
 		
-		public void ViFindBackward(CharsRegularExpressions.Regex regex)
+		public void ViFindBackward(PcreRegex regex)
 		{
 			if (regex == null)
 			{
@@ -1908,24 +1909,24 @@ namespace MulticaretEditor
 			char[] chars = lines.GetChars();
 			int charsCount = lines.charsCount;
 			int start = selections[0].caret;
-			CharsRegularExpressions.Match match = regex.Match(chars, 0, start);
-			if (match == null || !match.IsMatched(0))
+			regex.Match(chars, 0, start);
+			if (!regex.Success)
 			{
 				try
 				{
-					match = regex.Match(chars, 0, charsCount);
+					regex.Match(chars, 0, charsCount);
 				}
 				catch
 				{
 				}
-				if (match == null || !match.IsMatched(0))
+				if (!regex.Success)
 				{
 					return;
 				}
 			}
 			ClearMinorSelections();
-			selections[0].anchor = match.Index;
-			selections[0].caret = match.Index;
+			selections[0].anchor = regex.MatchIndex;
+			selections[0].caret = regex.MatchIndex;
 			Place place = lines.PlaceOf(selections[0].caret);
 			lines.SetPreferredPos(selections[0], place);
 		}
