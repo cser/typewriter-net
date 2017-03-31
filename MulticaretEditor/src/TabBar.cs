@@ -428,28 +428,39 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDoubleClick(e);
 			Point location = e.Location;
-			int locationX = location.X;
-			if (location.X < Width - rightIndent)
+			int x = location.X;
+			int y = location.Y;
+			if (x < Width - rightIndent)
 			{
-				location.X -= GetOffsetX(offsetIndex);
+				x -= GetOffsetX(offsetIndex);
 				for (int i = 0; i < rects.count; i++)
 				{
-					if (rects.buffer[i].Contains(location))
+					if (rects.buffer[i].Contains(x, y))
 					{
 						if (i < list.Count)
 						{
 							if (TabDoubleClick != null)
 								TabDoubleClick(list[i]);
+							return;
 						}
-						return;
+						break;
 					}
 				}
 			}
-			if (locationX < Width - rightIndent - 12)
+			if (leftRect != null && leftRect.Value.Contains(location))
 			{
-				if (NewTabDoubleClick != null)
-					NewTabDoubleClick();
+				return;
 			}
+			if (rightRect != null && rightRect.Value.Contains(location))
+			{
+				return;
+			}
+			if (closeRect != null && closeRect.Contains(location))
+			{
+				return;
+			}
+			if (NewTabDoubleClick != null)
+				NewTabDoubleClick();
 		}
 
 		private int GetOffsetX(int index)
