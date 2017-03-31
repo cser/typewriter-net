@@ -872,6 +872,14 @@ public class MainForm : Form
 		RemoveEmptyIfNeed(nest);
 		nest.Frame.AddBuffer(NewFileBuffer());
 	}
+	
+	public void ProcessTabBarDoubleClick(Nest nest)
+	{
+		if (nest == mainNest || nest == mainNest2)
+		{
+			OpenNew();
+		}
+	}
 
 	private bool DoOpen(Controller controller)
 	{
