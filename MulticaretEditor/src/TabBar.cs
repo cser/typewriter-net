@@ -428,10 +428,6 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDoubleClick(e);
 			Point location = e.Location;
-			if (closeRect.Contains(location))
-			{
-				return;
-			}
 			if (location.X < Width - rightIndent)
 			{
 				location.X -= GetOffsetX(offsetIndex);
@@ -448,8 +444,11 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			if (NewTabDoubleClick != null)
-				NewTabDoubleClick();
+			if (location.X < Width - rightIndent - 12)
+			{
+				if (NewTabDoubleClick != null)
+					NewTabDoubleClick();
+			}
 		}
 
 		private int GetOffsetX(int index)
