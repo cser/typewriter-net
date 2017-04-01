@@ -34,7 +34,7 @@ public class ReplaceDialog : ADialog
 	private Getter<string, bool> doFindText;
 	private Getter<string, bool> doSelectAllFound;
 	private Getter<string, bool> doSelectNextFound;
-	private TabBar<string> tabBar;
+	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
 	private MonospaceLabel textLabel;
@@ -56,14 +56,10 @@ public class ReplaceDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.Text = Name;
-		tabBar.CloseClick += OnCloseClick;
-		Controls.Add(tabBar);
-
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Tab, null, new KeyAction("F&ind\\Prev field", DoPrevField, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
@@ -71,13 +67,24 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		
 		KeyMap beforeKeyMap = new KeyMap();
-		if (doSelectAllFound != null)
-		{
-			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
-				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
-			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
-				new KeyAction("F&ind\\Select all found", DoSelectNextFound, null, false)));
-		}
+		beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
+			new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
+		beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
+			new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false)));
+		
+		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
+		list.Add(new NamedAction("FIND NEXT", DoFind));
+		list.Add(new NamedAction("REPLACE", DoReplace));
+		list.Add(new NamedAction("REPLACE ALL", DoReplaceAll));
+		list.Add(new NamedAction("SELECT NEXT FOUND", DoSelectNextFound));
+		list.Add(new NamedAction("SELECT ALL FOUND", DoSelectAllFound));
+		
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf);
+		tabBar.Text = Name;
+		tabBar.ButtonMode = true;
+		tabBar.TabClick += OnTabClick;
+		tabBar.CloseClick += OnCloseClick;
+		Controls.Add(tabBar);
 
 		textBox = new MulticaretTextBox();
 		textBox.ShowLineNumbers = false;
@@ -119,6 +126,11 @@ public class ReplaceDialog : ADialog
 	{
 		DispatchNeedClose();
 	}
+	
+	private void OnTabClick(NamedAction action)
+	{
+		action.Execute(textBox.Controller);
+	}
 
 	override protected void DoDestroy()
 	{
@@ -155,12 +167,20 @@ public class ReplaceDialog : ADialog
 			textBox.Focus();
 		return true;
 	}
+	
+	private bool DoPrevField(Controller controller)
+	{
+		return DoNextField(controller);
+	}
 
 	private bool DoFind(Controller controller)
 	{
 		string text = textBox.Text;
-		doFindText(text);
-		data.history.Add(text);
+		if (text != "")
+		{
+			doFindText(text);
+			data.history.Add(text);
+		}
 		return true;
 	}
 
@@ -173,12 +193,12 @@ public class ReplaceDialog : ADialog
 
 	private bool DoReplace(Controller controller)
 	{
-		if (Nest.MainForm.LastFrame != null)
+		string text = textBox.Text;
+		if (text != "" && Nest.MainForm.LastFrame != null)
 		{
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			if (!lastController.Lines.AllSelectionsEmpty)
 				lastController.InsertText(GetReplaceText());
-			string text = textBox.Text;
 			doFindText(text);
 			data.history.Add(text);
 		}
@@ -187,12 +207,12 @@ public class ReplaceDialog : ADialog
 
 	private bool DoReplaceAll(Controller controller)
 	{
-		if (Nest.MainForm.LastFrame != null)
+		string text = textBox.Text;
+		if (text != "" && Nest.MainForm.LastFrame != null)
 		{
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
 			lastController.ClearMinorSelections();
 			lastController.LastSelection.anchor = lastController.LastSelection.caret = 0;
-			string text = textBox.Text;
 			while (true)
 			{
 				doFindText(text);
@@ -320,7 +340,7 @@ public class ReplaceDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		doSelectAllFound(text);
+		doSelectNextFound(text);
 		return true;
 	}
 }

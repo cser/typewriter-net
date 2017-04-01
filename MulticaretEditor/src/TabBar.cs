@@ -21,6 +21,7 @@ namespace MulticaretEditor
 		}
 
 		public event Setter CloseClick;
+		public event Setter<T> TabClick;
 		public event Setter<T> TabDoubleClick;
 		public event Setter NewTabDoubleClick;
 
@@ -108,6 +109,20 @@ namespace MulticaretEditor
 				if (text2 != value)
 				{
 					text2 = value;
+					Invalidate();
+				}
+			}
+		}
+		
+		private bool buttonMode;
+		public bool ButtonMode
+		{
+			get { return buttonMode; }
+			set
+			{
+				if (buttonMode != value)
+				{
+					buttonMode = value;
 					Invalidate();
 				}
 			}
@@ -274,7 +289,7 @@ namespace MulticaretEditor
 				{
 					T value = list[i];
 					string tabText = stringOf(value);
-					bool isCurrent = object.Equals(list.Selected, value);
+					bool isCurrent = !buttonMode && object.Equals(list.Selected, value);
 					Rectangle rect = rects.buffer[i];
 					rect.X += offsetX;
 					if (rect.X > width)
@@ -289,10 +304,22 @@ namespace MulticaretEditor
 					}
 					if (!isCurrent)
 					{
-						g.FillRectangle(scheme.tabsUnselectedBg.brush,
-							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+						if (buttonMode)
+						{
+							g.FillRectangle(scheme.buttonBgBrush,
+								rect.X + 1, rect.Y + 2, rect.Width - 2, rect.Height - 4);
+						}
+						else
+						{
+							g.FillRectangle(scheme.tabsUnselectedBg.brush,
+								rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+						}
 					}
 					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsUnselectedFg.brush;
+					if (buttonMode)
+					{
+						currentFg = scheme.buttonFgBrush;
+					}
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
@@ -406,7 +433,17 @@ namespace MulticaretEditor
 					if (rects.buffer[i].Contains(location))
 					{
 						if (i < list.Count)
-							list.Selected = list[i];
+						{
+							if (buttonMode)
+							{
+								if (TabClick != null)
+									TabClick(list[i]);
+							}
+							else
+							{
+								list.Selected = list[i];
+							}
+						}
 						return;
 					}
 				}

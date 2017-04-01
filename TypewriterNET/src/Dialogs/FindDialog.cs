@@ -31,7 +31,7 @@ public class FindDialog : ADialog
 	private Getter<string, bool> doSelectAllFound;
 	private Getter<string, bool> doSelectNextFound;
 	private Getter<string> getFilterText;
-	private TabBar<string> tabBar;
+	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 
 	public FindDialog(
@@ -54,10 +54,6 @@ public class FindDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(new SwitchList<string>(), TabBar<string>.DefaultStringOf);
-		tabBar.CloseClick += OnCloseClick;
-		Controls.Add(tabBar);
-
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
@@ -71,6 +67,9 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
 		}
 		frameKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+		
+		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
+		list.Add(new NamedAction("FIND NEXT", DoFindNext));
 
 		KeyMap beforeKeyMap = new KeyMap();
 		if (doSelectAllFound != null)
@@ -79,6 +78,9 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
 				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
+			
+			list.Add(new NamedAction("SELECT NEXT FOUND", DoSelectNextFound));
+			list.Add(new NamedAction("SELECT ALL FOUND", DoSelectAllFound));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -89,7 +91,13 @@ public class FindDialog : ADialog
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf);
+		tabBar.ButtonMode = true;
+		tabBar.TabClick += OnTabClick;
+		tabBar.CloseClick += OnCloseClick;
 		tabBar.MouseDown += OnTabBarMouseDown;
+		Controls.Add(tabBar);
+		
 		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 		UpdateFindParams();
@@ -105,6 +113,11 @@ public class FindDialog : ADialog
 	private void OnCloseClick()
 	{
 		DispatchNeedClose();
+	}
+	
+	private void OnTabClick(NamedAction action)
+	{
+		action.Execute(textBox.Controller);
 	}
 
 	override protected void DoDestroy()
