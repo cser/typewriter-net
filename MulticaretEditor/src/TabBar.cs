@@ -28,10 +28,11 @@ namespace MulticaretEditor
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly StringOfDelegate<T> stringOf;
+		private readonly StringOfDelegate<T> hintOf;
 		private readonly Point[] tempPoints;
 		private readonly Point[] tempPoints2;
 
-		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf)
+		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf, StringOfDelegate<T> hintOf)
 		{
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			SetStyle(ControlStyles.UserPaint, true);
@@ -39,6 +40,7 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.ResizeRedraw, true);
 
 			this.stringOf = stringOf;
+			this.hintOf = hintOf;
 			TabStop = false;
 
 			tempPoints = new Point[3];
@@ -50,6 +52,10 @@ namespace MulticaretEditor
 			arrowTimer.Tick += OnArrowTick;
 
 			List = list;
+		}
+		
+		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf) : this(list, stringOf, null)
+		{
 		}
 
 		private void OnSelectedChange()
@@ -525,6 +531,99 @@ namespace MulticaretEditor
 					Invalidate();
 				}
 			}
+		}
+		
+		private string rightHint;
+		public string RightHint
+		{
+			get { return rightHint; }
+			set { rightHint = value; }
+		}
+		
+		private string showingHint;
+		
+		private ToolTip toolTip;
+		
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			int locationX;
+			string hint = GetHintText(e.Location, out locationX);
+			TryShowHint(hint, locationX);
+		}
+		
+		private void TryShowHint(string hint, int locationX)
+		{
+			if (showingHint != hint)
+			{
+				showingHint = hint;
+				if (!string.IsNullOrEmpty(showingHint))
+				{
+					if (toolTip == null)
+					{
+						toolTip = new ToolTip();
+					}
+					toolTip.Show(showingHint, this, locationX, 20);
+				}
+				else
+				{
+					if (toolTip != null)
+					{
+						toolTip.Dispose();
+						toolTip = null;
+					}
+				}
+			}
+		}
+		
+		private string GetHintText(Point location, out int locationX)
+		{
+			locationX = 0;
+			int x = location.X;
+			int y = location.Y;
+			if (x < Width - rightIndent)
+			{
+				x -= GetOffsetX(offsetIndex);
+				for (int i = 0; i < rects.count; i++)
+				{
+					if (rects.buffer[i].Contains(x, y))
+					{
+						if (i < list.Count)
+						{
+							if (hintOf != null)
+							{
+								string hintText = hintOf(list[i]);
+								if (!string.IsNullOrEmpty(hintText))
+								{
+									locationX = rects.buffer[i].X + GetOffsetX(offsetIndex);
+									return hintText;
+								}
+							}
+						}
+						break;
+					}
+				}
+				return null;
+			}
+			if (leftRect != null && leftRect.Value.Contains(location))
+			{
+				return null;
+			}
+			if (rightRect != null && rightRect.Value.Contains(location))
+			{
+				return null;
+			}
+			if (closeRect != null && closeRect.Contains(location))
+			{
+				return null;
+			}
+			locationX = Width - rightIndent;
+			return rightHint;
+		}
+		
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			base.OnMouseLeave(e);
+			TryShowHint(null, 0);
 		}
 	}
 }

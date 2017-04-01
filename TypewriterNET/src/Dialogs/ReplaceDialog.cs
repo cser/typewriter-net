@@ -56,30 +56,25 @@ public class ReplaceDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Tab, null, new KeyAction("F&ind\\Prev field", DoPrevField, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
-		
-		KeyMap beforeKeyMap = new KeyMap();
-		beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.D, null,
-			new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false)));
-		beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.D, null,
-			new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false)));
-		
 		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
-		list.Add(new NamedAction("FIND NEXT", DoFind));
-		list.Add(new NamedAction("REPLACE", DoReplace));
-		list.Add(new NamedAction("REPLACE ALL", DoReplaceAll));
-		list.Add(new NamedAction("SELECT NEXT FOUND", DoSelectNextFound));
-		list.Add(new NamedAction("SELECT ALL FOUND", DoSelectAllFound));
 		
-		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf);
+		KeyMapBuilder frameKeyMap = new KeyMapBuilder(new KeyMap(), list);
+		frameKeyMap.Add(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false));
+		frameKeyMap.Add(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false));
+		frameKeyMap.Add(Keys.Control | Keys.Tab, null, new KeyAction("F&ind\\Prev field", DoPrevField, null, false));
+		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false));
+		frameKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false));
+		frameKeyMap.AddInList(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false));
+		frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
+		frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+		
+		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
+		beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
+			new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
+		beforeKeyMap.AddInList(Keys.Control | Keys.D, null,
+			new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
+		
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
 		tabBar.Text = Name;
 		tabBar.ButtonMode = true;
 		tabBar.TabClick += OnTabClick;
@@ -90,8 +85,8 @@ public class ReplaceDialog : ADialog
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
 		textBox.KeyMap.AddAfter(KeyMap);
-		textBox.KeyMap.AddBefore(beforeKeyMap);
-		textBox.KeyMap.AddAfter(frameKeyMap, 1);
+		textBox.KeyMap.AddBefore(beforeKeyMap.map);
+		textBox.KeyMap.AddAfter(frameKeyMap.map, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
@@ -99,7 +94,7 @@ public class ReplaceDialog : ADialog
 		replaceTextBox = new MulticaretTextBox();
 		replaceTextBox.ShowLineNumbers = false;
 		replaceTextBox.HighlightCurrentLine = false;
-		replaceTextBox.KeyMap.AddAfter(frameKeyMap, 1);
+		replaceTextBox.KeyMap.AddAfter(frameKeyMap.map, 1);
 		replaceTextBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(replaceTextBox);
 
