@@ -77,6 +77,7 @@ public class ReplaceDialog : ADialog
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
 		tabBar.Text = Name;
 		tabBar.ButtonMode = true;
+		tabBar.RightHint = findParams.GetIndicationWithEscapeHint();
 		tabBar.TabClick += OnTabClick;
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
@@ -114,7 +115,7 @@ public class ReplaceDialog : ADialog
 
 	private void UpdateFindParams()
 	{
-		tabBar.Text2 = findParams.GetIndicationTextWithEscape();
+		tabBar.Text2 = findParams.GetIndicationWithEscapeText();
 	}
 
 	private void OnCloseClick()

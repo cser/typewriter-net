@@ -11,15 +11,30 @@ public class FindParams
 	{
 		return ignoreCase ? "[i]" : " i ";
 	}
+	
+	public string GetIgnoreCaseIndicationHint()
+	{
+		return "Ctrl+Shift+I(ignore case)";
+	}
 
 	public string GetIndicationText()
 	{
 		return (regex ? "[r]" : " r ") + (ignoreCase ? "[i]" : " i ");
 	}
+	
+	public string GetIndicationHint()
+	{
+		return "Ctrl+Shift+R(regex)/I(ignore case)";
+	}
 
-	public string GetIndicationTextWithEscape()
+	public string GetIndicationWithEscapeText()
 	{
 		return (regex ? "[r]" : " r ") + (ignoreCase ? "[i]" : " i ") + (escape ? "[e]" : " e ");
+	}
+	
+	public string GetIndicationWithEscapeHint()
+	{
+		return "Ctrl+Shift+R(regex)/I(ignore case)/E(replace as escape sequence)";
 	}
 
 	public void Unserialize(SValue value)

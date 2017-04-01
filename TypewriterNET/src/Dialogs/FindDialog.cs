@@ -84,6 +84,7 @@ public class FindDialog : ADialog
 
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
 		tabBar.ButtonMode = true;
+		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
 		tabBar.CloseClick += OnCloseClick;
 		tabBar.MouseDown += OnTabBarMouseDown;
