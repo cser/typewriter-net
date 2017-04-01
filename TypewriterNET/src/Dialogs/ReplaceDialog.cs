@@ -34,6 +34,7 @@ public class ReplaceDialog : ADialog
 	private Getter<string, bool> doFindText;
 	private Getter<string, bool> doSelectAllFound;
 	private Getter<string, bool> doSelectNextFound;
+	private Getter<bool> doUnselectPrevText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 	private MulticaretTextBox replaceTextBox;
@@ -44,6 +45,7 @@ public class ReplaceDialog : ADialog
 		Getter<string, bool> doFindText,
 		Getter<string, bool> doSelectAllFound,
 		Getter<string, bool> doSelectNextFound,
+		Getter<bool> doUnselectPrevText,
 		string name)
 	{
 		this.data = data;
@@ -51,6 +53,7 @@ public class ReplaceDialog : ADialog
 		this.doFindText = doFindText;
 		this.doSelectAllFound = doSelectAllFound;
 		this.doSelectNextFound = doSelectNextFound;
+		this.doUnselectPrevText = doUnselectPrevText;
 		Name = name;
 	}
 
@@ -73,6 +76,8 @@ public class ReplaceDialog : ADialog
 			new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
 		beforeKeyMap.AddInList(Keys.Control | Keys.D, null,
 			new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
+		beforeKeyMap.Add(Keys.Control | Keys.K, null,
+			new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
 		
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
 		tabBar.Text = Name;
@@ -337,6 +342,12 @@ public class ReplaceDialog : ADialog
 		if (data.history != null)
 			data.history.Add(text);
 		doSelectNextFound(text);
+		return true;
+	}
+	
+	private bool DoUnselectPrevText(Controller controller)
+	{
+		doUnselectPrevText();
 		return true;
 	}
 }

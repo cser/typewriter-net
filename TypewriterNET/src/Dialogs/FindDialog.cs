@@ -30,6 +30,7 @@ public class FindDialog : ADialog
 	private Getter<string, bool> doFind;
 	private Getter<string, bool> doSelectAllFound;
 	private Getter<string, bool> doSelectNextFound;
+	private Getter<bool> doUnselectPrevText;
 	private Getter<string> getFilterText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
@@ -40,6 +41,7 @@ public class FindDialog : ADialog
 		Getter<string, bool> doFind,
 		Getter<string, bool> doSelectAllFound,
 		Getter<string, bool> doSelectNextFound,
+		Getter<bool> doUnselectPrevText,
 		string name,
 		Getter<string> getFilterText)
 	{
@@ -48,6 +50,7 @@ public class FindDialog : ADialog
 		this.doFind = doFind;
 		this.doSelectAllFound = doSelectAllFound;
 		this.doSelectNextFound = doSelectNextFound;
+		this.doUnselectPrevText = doUnselectPrevText;
 		this.getFilterText = getFilterText;
 		Name = name;
 	}
@@ -72,6 +75,8 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
 			beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
 				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
+			beforeKeyMap.Add(Keys.Control | Keys.K, null,
+				new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
 		}
 
 		textBox = new MulticaretTextBox();
@@ -229,6 +234,12 @@ public class FindDialog : ADialog
 		if (data.history != null)
 			data.history.Add(text);
 		doSelectNextFound(text);
+		return true;
+	}
+	
+	private bool DoUnselectPrevText(Controller controller)
+	{
+		doUnselectPrevText();
 		return true;
 	}
 }
