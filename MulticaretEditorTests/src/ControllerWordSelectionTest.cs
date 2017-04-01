@@ -248,5 +248,51 @@ namespace UnitTests
 				.Anchor(0, 2).Caret(4, 2).Next()
 				.Anchor(0, 5).Caret(4, 5).NoNext();
 		}
+		
+		[Test]
+		public void UnselectPrevText()
+		{
+			Init();
+			//                   [  ]        [  ]  [  ]              [  ]
+			lines.SetText("text\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext");
+			controller.PutCursor(new Pos(0, 1), false);
+			controller.PutCursor(new Pos(4, 1), true);
+			controller.PutNewCursor(new Pos(0, 3));
+			controller.PutCursor(new Pos(4, 3), true);
+			controller.PutNewCursor(new Pos(0, 4));
+			controller.PutCursor(new Pos(4, 4), true);
+			controller.PutNewCursor(new Pos(0, 7));
+			controller.PutCursor(new Pos(4, 7), true);
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 4).Caret(4, 4).Next().Anchor(0, 7).Caret(4, 7).NoNext();
+
+			controller.UnselectPrevText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 3).Caret(4, 3).Next().Anchor(0, 7).Caret(4, 7).NoNext();
+			
+			controller.UnselectPrevText();
+			AssertSelection().Anchor(0, 1).Caret(4, 1).Next().Anchor(0, 7).Caret(4, 7).NoNext();
+			
+			controller.UnselectPrevText();
+			AssertSelection().Anchor(0, 7).Caret(4, 7).NoNext();
+		}
+		
+		[Test]
+		public void UnselectPrevText_DoNothingForOneSelection()
+		{
+			Init();
+			//                                                       [  ]
+			lines.SetText("text\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext\ntext");
+			controller.PutCursor(new Pos(0, 7), false);
+			controller.PutCursor(new Pos(4, 7), true);
+			AssertSelection().Anchor(0, 7).Caret(4, 7).NoNext();
+
+			controller.UnselectPrevText();
+			AssertSelection().Anchor(0, 7).Caret(4, 7).NoNext();
+			
+			controller.PutCursor(new Pos(0, 7), false);
+			AssertSelection().Both(0, 7).NoNext();
+			
+			controller.UnselectPrevText();
+			AssertSelection().Both(0, 7).NoNext();
+		}
 	}
 }

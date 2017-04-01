@@ -232,6 +232,13 @@ namespace MulticaretEditor.KeyMapping
 			return true;
 		}
 		
+		public static readonly KeyAction UnselectPrevText = Add("&Edit\\Selection\\Unselect prev text", DoUnselectPrevText, null, true);
+		private static bool DoUnselectPrevText(Controller controller)
+		{
+			controller.UnselectPrevText();
+			return true;
+		}
+		
 		public static readonly KeyAction SelectAllMatches = Add("&Edit\\Selection\\Select all matches", DoSelectAllMatches, null, true);
 		private static bool DoSelectAllMatches(Controller controller)
 		{
