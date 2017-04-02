@@ -100,9 +100,9 @@ public class FindInFiles
 				short style = Ds.Error.index;
 				for (int i = 0; i < text.Length; i++)
 				{
-					line.Chars_Add(new Char(text[i], style));
+					line.Chars_Add(text[i], style);
 				}
-				line.Chars_Add(new Char('\n', 0));
+				line.Chars_Add('\n', 0);
 				buffer.Controller.Lines.AddLineUnsafely(line);
 			}
 			finishBuffer = buffer;
@@ -123,9 +123,9 @@ public class FindInFiles
 		short style = ds.index;
 		for (int i = 0; i < text.Length; i++)
 		{
-			line.Chars_Add(new Char(text[i], style));
+			line.Chars_Add(text[i], style);
 		}
-		line.Chars_Add(new Char('\n', 0));
+		line.Chars_Add('\n', 0);
 		lines.AddLineUnsafely(line);
 	}
 	
@@ -137,15 +137,15 @@ public class FindInFiles
 		style = Ds.String.index;
 		for (int i = 0; i < path.Length; i++)
 		{
-			line.Chars_Add(new Char(path[i], style));
+			line.Chars_Add(path[i], style);
 		}
-		line.Chars_Add(new Char('|', Ds.Operator.index));
+		line.Chars_Add('|', Ds.Operator.index);
 		style = Ds.DecVal.index;
 		for (int i = 0; i < position.Length; i++)
 		{
-			line.Chars_Add(new Char(position[i], style));
+			line.Chars_Add(position[i], style);
 		}
-		line.Chars_Add(new Char('|', Ds.Operator.index));
+		line.Chars_Add('|', Ds.Operator.index);
 		style = Ds.Keyword.index;
 		int index0 = lineIndex;
 		int index1 = lineIndex + sublineIndex;
@@ -153,17 +153,17 @@ public class FindInFiles
 		int index3 = lineIndex + lineLength;
 		for (int i = index0; i < index1; i++)
 		{
-			line.Chars_Add(new Char(text[i], 0));
+			line.Chars_Add(text[i], 0);
 		}
 		for (int i = index1; i < index2; i++)
 		{
-			line.Chars_Add(new Char(text[i], style));
+			line.Chars_Add(text[i], style);
 		}
 		for (int i = index2; i < index3; i++)
 		{
-			line.Chars_Add(new Char(text[i], 0));
+			line.Chars_Add(text[i], 0);
 		}
-		line.Chars_Add(new Char('\n', 0));
+		line.Chars_Add('\n', 0);
 		lines.AddLineUnsafely(line);
 	}
 

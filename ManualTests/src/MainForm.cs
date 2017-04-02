@@ -35,6 +35,7 @@ slkjflsjdf sldfaj lasdjf lsd fl asdfldsf";
             PerformLayout();
             
             TestFSBArray();
+            TestLineArrayInit();
         }
 
         public class TestArray<T> : FSBArray<T, FSBBlock<T>>
@@ -122,6 +123,25 @@ slkjflsjdf sldfaj lasdjf lsd fl asdfldsf";
 	        	_list = array;
 	        	sw.Stop();
 	        	Console.WriteLine("List: " + sw.ElapsedMilliseconds + "ms");
+        	}
+        }
+        
+        private LineArray _lines;
+        
+        public void TestLineArrayInit()
+        {
+        	string text = System.IO.File.ReadAllText("MulticaretEditor/src/MulticaretTextBox.cs");
+        	{
+        		Stopwatch sw = Stopwatch.StartNew();
+        		for (int i = 0; i < 100; i++)
+        		{
+					_lines = new LineArray();
+					_lines.SetText(text);
+				}
+	        	sw.Stop();
+	        	Console.WriteLine("LineArray.SetText: " + sw.ElapsedMilliseconds + "ms");
+	        	//34 ms - for
+	        	//32 ms - string.CopyTo
         	}
         }
     }

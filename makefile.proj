@@ -60,7 +60,7 @@ This file was writen for launching with MSBuild
 	<Target Name="tw" DependsOnTargets="build-tw">
 		<Exec Command="TypewriterNET\bin\TypewriterNET.exe"/>
 	</Target>
-	<Target Name="mt">
+	<Target Name="mt" DependsOnTargets="me">
 		<MakeDir Directories="ManualTests\bin\"/>
 		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin"/>
 		<CSC Sources="ManualTests\src\*.cs"

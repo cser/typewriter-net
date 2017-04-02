@@ -780,7 +780,7 @@ namespace MulticaretEditor
 					StringBuilder builder = new StringBuilder();
 					for (int i = left; i < iChar; i++)
 					{
-						builder.Append(line[i].c);
+						builder.Append(line.chars[i]);
 					}
 					return builder.ToString();
 				}

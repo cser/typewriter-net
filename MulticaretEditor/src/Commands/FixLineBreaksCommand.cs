@@ -68,9 +68,9 @@ namespace MulticaretEditor
 				if (lineBreak != linesLineBreak && lineBreak != "")
 				{
 					line.Chars_RemoveRange(line.charsCount - lineBreak.Length, lineBreak.Length);
-					line.Chars_Add(new Char(linesLineBreak[0]));
+					line.Chars_Add(linesLineBreak[0], 0);
 					if (linesLineBreak.Length > 1)
-						line.Chars_Add(new Char(linesLineBreak[1]));
+						line.Chars_Add(linesLineBreak[1], 0);
 					iterator.InvalidateCurrentText(linesLineBreak.Length - lineBreak.Length);
 				}
 			}
@@ -96,9 +96,9 @@ namespace MulticaretEditor
 				if (lineBreak != linesLineBreak && lineBreak != "")
 				{
 					line.Chars_RemoveRange(line.charsCount - linesLineBreak.Length, linesLineBreak.Length);
-					line.Chars_Add(new Char(lineBreak[0]));
+					line.Chars_Add(lineBreak[0], 0);
 					if (lineBreak.Length > 1)
-						line.Chars_Add(new Char(lineBreak[1]));
+						line.Chars_Add(lineBreak[1], 0);
 					iterator.InvalidateCurrentText(lineBreak.Length - linesLineBreak.Length);
 				}
 			}

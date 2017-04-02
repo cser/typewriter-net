@@ -20,19 +20,19 @@ namespace MulticaretEditor
 			styles = new short[capacity];
 		}
 		
-		public void Chars_Add(Char c)
+		public void Chars_Add(char c, short style)
 		{
 			Chars_Resize(charsCount + 1);
-			chars[charsCount] = c.c;
-			styles[charsCount] = c.style;
-			charsCount++;
+			chars[charsCount] = c;
+			styles[charsCount] = style;
+			++charsCount;
 		}
 		
 		public void Chars_RemoveAt(int index)
 		{
 			Array.Copy(chars, index + 1, chars, index, charsCount - index - 1);
 			Array.Copy(styles, index + 1, styles, index, charsCount - index - 1);
-			charsCount--;
+			--charsCount;
 		}
 		
 		public void Chars_AddRange(Line line)
@@ -117,11 +117,6 @@ namespace MulticaretEditor
 			{
 				styles[i] = style;
 			}
-		}
-
-		public Char this[int index]
-		{
-			get { return new Char(chars[index], styles[index]); }
 		}
 
 		public int Size

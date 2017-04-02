@@ -84,13 +84,13 @@ namespace MulticaretEditor
 			ClearValues();
 			int length = text.Length;
 			int lineStart = 0;
-			for (int i = 0; i < length; i++)
+			for (int i = 0; i < length; ++i)
 			{
 				char c = text[i];
 				if (c == '\r')
 				{
 					if (i + 1 < length && text[i + 1] == '\n')
-						i++;
+						++i;
 					AddValue(NewLine(text, lineStart, i + 1 - lineStart));
 					lineStart = i + 1;
 				}
@@ -240,13 +240,8 @@ namespace MulticaretEditor
 		{
 			Line line = new Line(count);
 			line.tabSize = tabSize;
-			int end = index + count;
-			int charIndex = 0;
-			for (int j = index; j < end; j++)
-			{
-				line.chars[charIndex++] = text[j];
-			}
-			line.charsCount = charIndex;
+			text.CopyTo(index, line.chars, 0, count);
+			line.charsCount = count;
 			return line;
 		}
 

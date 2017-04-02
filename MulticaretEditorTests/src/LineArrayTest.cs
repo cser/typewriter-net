@@ -968,7 +968,7 @@ namespace UnitTests
 			StringBuilder got = new StringBuilder();
 			for (int i = 0; i < line.charsCount; i++)
 			{
-				got.Append(line[i].style + "");
+				got.Append(line.styles[i] + "");
 			}
 			Assert.AreEqual(expected, got.ToString(), "\"" + line.Text + "\"");
 		}
