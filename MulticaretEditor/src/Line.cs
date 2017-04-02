@@ -63,10 +63,13 @@ namespace MulticaretEditor
 		
 		public void Chars_InsertRange(int index, char[] text)
 		{
-			Chars_Resize(charsCount + text.Length);
-			Array.Copy(chars, index, chars, index + text.Length, charsCount - index);
-			Array.Copy(text, 0, chars, index, text.Length);
-			charsCount += text.Length;
+			int length = text.Length;
+			Chars_Resize(charsCount + length);
+			Array.Copy(chars, index, chars, index + length, charsCount - index);
+			Array.Copy(text, 0, chars, index, length);
+			Array.Copy(styles, index, styles, index + length, charsCount - index);
+			Array.Clear(styles, index, length);
+			charsCount += length;
 		}
 		
 		public void Chars_RemoveRange(int index, int length)
