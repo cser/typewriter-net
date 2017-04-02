@@ -549,6 +549,7 @@ namespace MulticaretEditor
 			int locationX;
 			string hint = GetHintText(e.Location, out locationX);
 			TryShowHint(hint, locationX);
+			base.OnMouseMove(e);
 		}
 		
 		private void TryShowHint(string hint, int locationX)
