@@ -1309,6 +1309,8 @@ namespace MulticaretEditor
 			if (disposing)
 			{
 				cursorTimer.Dispose();
+				keyTimer.Dispose();
+				highlightingTimer.Dispose();
 			}
 		}
 
