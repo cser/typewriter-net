@@ -886,6 +886,14 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void UnselectPrevText()
+		{
+			if (selections.Count > 1)
+			{
+				selections.RemoveAt(selections.Count - 2);
+			}
+		}
+		
 		public void SelectAllMatches()
 		{
 			Selection lastSelection = lines.LastSelection;

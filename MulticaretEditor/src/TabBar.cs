@@ -19,16 +19,18 @@ namespace MulticaretEditor
 		}
 
 		public event Setter CloseClick;
+		public event Setter<T> TabClick;
 		public event Setter<T> TabDoubleClick;
 		public event Setter NewTabDoubleClick;
 
 		private Timer arrowTimer;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly StringOfDelegate<T> stringOf;
+		private readonly StringOfDelegate<T> hintOf;
 		private readonly Point[] tempPoints;
 		private readonly Point[] tempPoints2;
 
-		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf)
+		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf, StringOfDelegate<T> hintOf)
 		{
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			SetStyle(ControlStyles.UserPaint, true);
@@ -36,6 +38,7 @@ namespace MulticaretEditor
 			SetStyle(ControlStyles.ResizeRedraw, true);
 
 			this.stringOf = stringOf;
+			this.hintOf = hintOf;
 			TabStop = false;
 
 			tempPoints = new Point[3];
@@ -47,6 +50,10 @@ namespace MulticaretEditor
 			arrowTimer.Tick += OnArrowTick;
 
 			List = list;
+		}
+		
+		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf) : this(list, stringOf, null)
+		{
 		}
 
 		private void OnSelectedChange()
@@ -106,6 +113,20 @@ namespace MulticaretEditor
 				if (text2 != value)
 				{
 					text2 = value;
+					Invalidate();
+				}
+			}
+		}
+		
+		private bool buttonMode;
+		public bool ButtonMode
+		{
+			get { return buttonMode; }
+			set
+			{
+				if (buttonMode != value)
+				{
+					buttonMode = value;
 					Invalidate();
 				}
 			}
@@ -272,7 +293,7 @@ namespace MulticaretEditor
 				{
 					T value = list[i];
 					string tabText = stringOf(value);
-					bool isCurrent = object.Equals(list.Selected, value);
+					bool isCurrent = !buttonMode && object.Equals(list.Selected, value);
 					Rectangle rect = rects.buffer[i];
 					rect.X += offsetX;
 					if (rect.X > width)
@@ -287,10 +308,22 @@ namespace MulticaretEditor
 					}
 					if (!isCurrent)
 					{
-						g.FillRectangle(scheme.tabsUnselectedBg.brush,
-							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+						if (buttonMode)
+						{
+							g.FillRectangle(scheme.buttonBgBrush,
+								rect.X + 1, rect.Y + 2, rect.Width - 2, rect.Height - 4);
+						}
+						else
+						{
+							g.FillRectangle(scheme.tabsUnselectedBg.brush,
+								rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+						}
 					}
 					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsUnselectedFg.brush;
+					if (buttonMode)
+					{
+						currentFg = scheme.buttonFgBrush;
+					}
 					for (int j = 0; j < tabText.Length; j++)
 					{
 						int charX = rect.X - charWidth / 3 + j * charWidth + indent;
@@ -404,7 +437,17 @@ namespace MulticaretEditor
 					if (rects.buffer[i].Contains(location))
 					{
 						if (i < list.Count)
-							list.Selected = list[i];
+						{
+							if (buttonMode)
+							{
+								if (TabClick != null)
+									TabClick(list[i]);
+							}
+							else
+							{
+								list.Selected = list[i];
+							}
+						}
 						return;
 					}
 				}
@@ -426,25 +469,36 @@ namespace MulticaretEditor
 		{
 			base.OnMouseDoubleClick(e);
 			Point location = e.Location;
-			if (closeRect.Contains(location))
+			int x = location.X;
+			int y = location.Y;
+			if (x < Width - rightIndent)
 			{
-				return;
-			}
-			if (location.X < Width - rightIndent)
-			{
-				location.X -= GetOffsetX(offsetIndex);
+				x -= GetOffsetX(offsetIndex);
 				for (int i = 0; i < rects.count; i++)
 				{
-					if (rects.buffer[i].Contains(location))
+					if (rects.buffer[i].Contains(x, y))
 					{
 						if (i < list.Count)
 						{
 							if (TabDoubleClick != null)
 								TabDoubleClick(list[i]);
+							return;
 						}
-						return;
+						break;
 					}
 				}
+			}
+			if (leftRect != null && leftRect.Value.Contains(location))
+			{
+				return;
+			}
+			if (rightRect != null && rightRect.Value.Contains(location))
+			{
+				return;
+			}
+			if (closeRect != null && closeRect.Contains(location))
+			{
+				return;
 			}
 			if (NewTabDoubleClick != null)
 				NewTabDoubleClick();
@@ -475,6 +529,99 @@ namespace MulticaretEditor
 					Invalidate();
 				}
 			}
+		}
+		
+		private string rightHint;
+		public string RightHint
+		{
+			get { return rightHint; }
+			set { rightHint = value; }
+		}
+		
+		private string showingHint;
+		
+		private ToolTip toolTip;
+		
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			int locationX;
+			string hint = GetHintText(e.Location, out locationX);
+			TryShowHint(hint, locationX);
+		}
+		
+		private void TryShowHint(string hint, int locationX)
+		{
+			if (showingHint != hint)
+			{
+				showingHint = hint;
+				if (!string.IsNullOrEmpty(showingHint))
+				{
+					if (toolTip == null)
+					{
+						toolTip = new ToolTip();
+					}
+					toolTip.Show(showingHint, this, locationX, 20);
+				}
+				else
+				{
+					if (toolTip != null)
+					{
+						toolTip.Dispose();
+						toolTip = null;
+					}
+				}
+			}
+		}
+		
+		private string GetHintText(Point location, out int locationX)
+		{
+			locationX = 0;
+			int x = location.X;
+			int y = location.Y;
+			if (x < Width - rightIndent)
+			{
+				x -= GetOffsetX(offsetIndex);
+				for (int i = 0; i < rects.count; i++)
+				{
+					if (rects.buffer[i].Contains(x, y))
+					{
+						if (i < list.Count)
+						{
+							if (hintOf != null)
+							{
+								string hintText = hintOf(list[i]);
+								if (!string.IsNullOrEmpty(hintText))
+								{
+									locationX = rects.buffer[i].X + GetOffsetX(offsetIndex);
+									return hintText;
+								}
+							}
+						}
+						break;
+					}
+				}
+				return null;
+			}
+			if (leftRect != null && leftRect.Value.Contains(location))
+			{
+				return null;
+			}
+			if (rightRect != null && rightRect.Value.Contains(location))
+			{
+				return null;
+			}
+			if (closeRect != null && closeRect.Contains(location))
+			{
+				return null;
+			}
+			locationX = Width - rightIndent;
+			return rightHint;
+		}
+		
+		protected override void OnMouseLeave(EventArgs e)
+		{
+			base.OnMouseLeave(e);
+			TryShowHint(null, 0);
 		}
 	}
 }

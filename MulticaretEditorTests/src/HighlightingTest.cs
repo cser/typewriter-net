@@ -1341,5 +1341,39 @@ namespace UnitTests
 			//                  word5
 			AssertHighlighting("00000", provider[2]);
 		}
+		
+		[Test]
+		public void Int_WordDetect()
+		{
+			Init(@"<language name='test' extensions='*.test'> 
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>word0</item>
+				            <item>word1</item>
+				        </list>
+				        <contexts>
+				            <context attribute='Normal Text' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+								<WordDetect attribute='a2' context='#stay' String='thinG' insensitive='true'/>
+								<WordDetect attribute='a3' context='#stay' String='Thing'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='Normal Text' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				            <itemData name='a2' defStyleNum='dsDataType'/>
+				            <itemData name='a3' defStyleNum='dsDecVal'/>
+				        </itemDatas>
+				    </highlighting>
+				</language>");
+			provider.SetText(
+				"123Thing;Thing text word0 Thing.thing 10 text\n" +
+				"Thing 12323 word1 234(Thing) thing");
+			highlighting.Parse(provider);
+			//                  123Thing;Thing text word0 Thing.thing 10 text
+			AssertHighlighting("0000000003333300000011111033333022222000000000", provider[0]);
+			//                  Thing 12323 word1 234(Thing) ThInG
+			AssertHighlighting("3333300000001111100000333330022222", provider[1]);
+		}
 	}
 }

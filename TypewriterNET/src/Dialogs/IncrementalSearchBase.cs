@@ -94,6 +94,8 @@ public class IncrementalSearchBase : ADialog
 
 		SetTextBoxParameters();
 
+		tabBar.RightHint = tempSettings.FindParams != null ?
+			tempSettings.FindParams.GetIgnoreCaseIndicationHint() : "";
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, null);
 		Height = MinSize.Height;

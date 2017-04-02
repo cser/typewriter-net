@@ -192,6 +192,10 @@ namespace MulticaretEditor
 				rule.text = rawRule.String;
 				commonRule = rule;
 			}
+			else if (rawRule.type == "WordDetect")
+			{
+				commonRule = new Rules.WordDetect(rawRule.String, GetBool(rawRule.insensitive));
+			}
 			else if (rawRule.type == "RegExpr")
 			{
 				Rules.RegExpr rule = new Rules.RegExpr();

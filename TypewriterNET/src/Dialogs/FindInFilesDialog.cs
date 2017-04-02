@@ -103,6 +103,8 @@ public class FindInFilesDialog : ADialog
 			Controls.Add(textBox);		
 		}
 
+		tabBar.RightHint = "Ctrl+E(enter/exit custom filter)" +
+			(findParams != null ? "/" + findParams.GetIndicationHint() : "");
 		tabBar.MouseDown += OnTabBarMouseDown;
 		InitResizing(tabBar, null);
 		Height = MinSize.Height;

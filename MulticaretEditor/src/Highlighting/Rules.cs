@@ -285,6 +285,43 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class WordDetect : Rule
+		{
+			private const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+			private bool insensitive;
+			private string pattern;
+			
+			public WordDetect(string pattern, bool insensitive)
+			{
+				this.pattern = insensitive ? pattern.ToLower() : pattern;
+				this.insensitive = insensitive;
+			}
+			
+			override public bool Match(string text, int position, out int nextPosition)
+			{
+				nextPosition = position;
+				int position1 = position + pattern.Length;
+				if (position1 <= text.Length)
+				{
+					for (int i = position; i < position1; ++i)
+					{
+						if (pattern[i - position] != text[i])
+						{
+							nextPosition = position;
+							return false;
+						}
+					}
+					if ((position == 0 || DefaultDeliminators.IndexOf(text[position - 1]) != -1) &&
+						(position1 == text.Length || DefaultDeliminators.IndexOf(text[position1]) != -1))
+					{
+						nextPosition = position1;
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		
 		public class RegExpr : Rule
 		{
 			public Regex regex;

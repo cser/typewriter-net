@@ -300,7 +300,7 @@ public class Frame : AFrame
 
 	private void OnNewTabDoubleClick()
 	{
-		Nest.MainForm.OpenNew();
+		Nest.MainForm.ProcessTabBarDoubleClick(Nest);
 	}
 
 	private AutocompleteMode autocomplete;

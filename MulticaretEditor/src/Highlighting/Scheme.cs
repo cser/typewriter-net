@@ -317,6 +317,8 @@ namespace MulticaretEditor
 		public readonly ColorItem tabsUnselectedFg = new ColorItem("tabsUnselectedFg");
 		public readonly ColorItem tabsInfoBg = new ColorItem("tabsInfoBg");
 		public readonly ColorItem tabsInfoFg = new ColorItem("tabsInfoFg");
+		public Brush buttonBgBrush;
+		public Brush buttonFgBrush;
 		
 		private void Tabs_Reset()
 		{
@@ -328,6 +330,8 @@ namespace MulticaretEditor
 			tabsSelectedFg.Set(Color.Black);
 			tabsInfoBg.Set(Color.FromArgb(0x50, 0x50, 0x50));
 			tabsInfoFg.Set(Color.White);
+			buttonBgBrush = null;
+			buttonFgBrush = null;
 		}
 		
 		private void Tabs_ParseXml(Dictionary<string, Color> colors)
@@ -356,6 +360,39 @@ namespace MulticaretEditor
 			tabsUnselectedFg.Update();
 			tabsInfoBg.Update();
 			tabsInfoFg.Update();
+			{
+				Color color = tabsBg.color;
+				int criterion = (color.R + color.G + color.B) / 3;
+				if (criterion < 100)
+				{
+					buttonBgBrush = new SolidBrush(GetBright(color, .4f));
+					buttonFgBrush = new SolidBrush(GetBright(color, 2.4f));
+				}
+				else if (criterion < 128)
+				{
+					buttonBgBrush = new SolidBrush(GetBright(color, .4f));
+					buttonFgBrush = new SolidBrush(GetBright(color, -.8f));
+				}
+				else
+				{
+					buttonBgBrush = new SolidBrush(GetBright(color, -.4f));
+					buttonFgBrush = new SolidBrush(GetBright(color, .8f));
+				}
+			}
+		}
+		
+		private Color GetBright(Color color, float ratio)
+		{
+			float k = 1 + ratio;
+			if (k < 0)
+			{
+				k = 0;
+			}
+			return Color.FromArgb(
+				0xFF,
+				Math.Min(0xFF, (int)(color.R * k)),
+				Math.Min(0xFF, (int)(color.G * k)),
+				Math.Min(0xFF, (int)(color.B * k)));
 		}
 	}
 }

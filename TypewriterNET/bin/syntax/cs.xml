@@ -100,8 +100,9 @@
 		</list>
 		<contexts>
 			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-				<RegExpr attribute="Keyword" context="AfterNew" String="\bnew\s"/>
-				<RegExpr attribute="Keyword" context="AfterAs" String="\bas\s"/>
+				<WordDetect attribute="Keyword" context="AfterNew" String="new"/>
+				<WordDetect attribute="Keyword" context="AfterAs" String="as"/>
+				<WordDetect attribute="Keyword" context="AfterAs" String="is"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="Keyword" context="#stay" String="keywords2">
 					<RegExpr attribute="Constructor" context="#pop" String="\s+[_\w][_\w\d]*\s*(?=\()"/>
@@ -141,10 +142,10 @@
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
-					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*(?!as\b)[_\w\(])"/>
+					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*(?!as\b)(?!is\b)[_\w\(])"/>
 				</RegExpr>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
-				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\s)(?!as\s)(?=[_\w])"/>
+				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\s)(?!as\s)(?!is\s)(?=[_\w])"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
 				<RegExpr attribute="Function" context="#pop" String="[_\w][_\w\d]*(?=\s*\()"/>

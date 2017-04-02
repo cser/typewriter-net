@@ -217,8 +217,8 @@ public class DialogManager
 	private bool DoFind(Controller controller)
 	{
 		if (find.SwitchOpen())
-			find.Open(
-				new FindDialog(findData, tempSettings.FindParams, DoFindText, DoSelectAllFound, DoSelectNextFound, "Find", null), true);
+			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText,
+				DoSelectAllFound, DoSelectNextFound, DoUnselectPrevText, "Find", null), true);
 		return true;
 	}
 
@@ -233,8 +233,8 @@ public class DialogManager
 	private bool DoReplace(Controller controller)
 	{
 		if (replace.SwitchOpen())
-			replace.Open(
-				new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText, DoSelectAllFound, DoSelectNextFound, "Replace"), true);
+			replace.Open(new ReplaceDialog(replaceData, tempSettings.FindParams, DoFindText,
+				DoSelectAllFound, DoSelectNextFound, DoUnselectPrevText, "Replace"), true);
 		return true;
 	}
 
@@ -461,6 +461,20 @@ public class DialogManager
 		}
 		return true;
 	}
+	
+	private bool DoUnselectPrevText()
+	{
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			if (lastController != null)
+			{
+				lastController.UnselectPrevText();
+				mainForm.LastFrame.TextBox.MoveToCaret();
+			}
+		}
+		return true;
+	}
 
 	private bool DoFindInFilesDialog(string text, string filter)
 	{
@@ -490,7 +504,7 @@ public class DialogManager
 			if (string.IsNullOrEmpty(goToLineData.oldText) && place != null)
 				goToLineData.oldText = place.Value.iLine + "";
 			goToLine.Open(new FindDialog(
-				goToLineData, null, DoGoToLine, null, null,
+				goToLineData, null, DoGoToLine, null, null, null,
 				"Go to line" +
 				(place != null ?
 					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : ""),
@@ -657,7 +671,7 @@ public class DialogManager
 		if (input.SwitchOpen())
 		{
 			inputData.oldText = text;
-			input.Open(new FindDialog(inputData, null, doInput, null, null, title, null), true);
+			input.Open(new FindDialog(inputData, null, doInput, null, null, null, title, null), true);
 		}
 		return true;
 	}
