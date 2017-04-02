@@ -330,8 +330,6 @@ namespace MulticaretEditor
 			return info;
 		}
 
-		private PredictableList<Rules.Context> stack;
-
 		private static bool AreEquals(PredictableList<Rules.Context> a, Rules.Context[] b)
 		{
 			if (b == null || a.count != b.Length)
@@ -378,41 +376,73 @@ namespace MulticaretEditor
 			int changesBeforeTimeCheck = 0;
 			bool timeElapsed = false;
 			bool changed = false;
-			stack = new PredictableList<Rules.Context>(8);
+			PredictableList<Rules.Context> stack = new PredictableList<Rules.Context>(8);
 			stack.Add(contexts[0]);
 			Rules.Context[] state = stack.ToArray();
 			bool needSetStack = false;
 			bool lastLineChanged = false;
-			for (int i = 0; i < lines.blocksCount; i++)
+			LineBlock[] blocks = lines.blocks;
+			for (int i = 0; i < blocks.Length; i++)
 			{
-				LineBlock block = lines.blocks[i];
+				LineBlock block = blocks[i];
+				if (block == null)
+				{
+					break;
+				}
 				if (timeElapsed && lastLineChanged)
 				{
 					while (block.count == 0)
 					{
-						i++;
-						if (i >= lines.blocksCount)
+						++i;
+						if (i >= blocks.Length)
 						{
 							block = null;
 							break;
 						}
-						block = lines.blocks[i];
+						block = blocks[i];
+						if (block == null)
+						{
+							break;
+						}
 					}
 					if (block != null)
 					{
 						block.valid &= ~LineBlock.ColorValid;
-						Line line = block.array[0];
-						line.startState = state;
-						line.endState = null;
+						Line[] blockArray = block.array;
+						if (blockArray.Length == 0)
+						{
+							return true;//TODO
+						}
+						Line line = blockArray[0];
+						if (line != null)
+						{
+							line.startState = state;
+							line.endState = null;
+						}
 					}
 					stack = null;
 					return changed;
+				}
+				Line[] array = block.array;
+				int blockCount = block.count;
+				if (array.Length < blockCount)
+				{
+					return true;//TODO
 				}
 				{
 					bool noChangesInBlock = (block.valid & LineBlock.ColorValid) != 0 && !lastLineChanged;
 					if (noChangesInBlock && block.count > 0)
 					{
-						Rules.Context[] nextState = block.array[block.count - 1].endState;
+						if (array.Length == 0)
+						{
+							return true;//TODO
+						}
+						Line nextLine = array[blockCount - 1];
+						if (nextLine == null)
+						{
+							return true;//TODO
+						}
+						Rules.Context[] nextState = nextLine.endState;
 						if (nextState == null)
 						{
 							noChangesInBlock = false;
@@ -429,15 +459,25 @@ namespace MulticaretEditor
 					}
 				}
 				block.valid |= LineBlock.ColorValid;
-				for (int j = 0; j < block.count; j++)
+				for (int j = 0; j < blockCount; j++)
 				{
-					Line line = block.array[j];
+					Line line = array[j];
+					if (line == null)
+					{
+						return true;//TODO
+					}
 					if (line.endState != null && AreEquals(line.startState, state))
 					{
 						state = line.endState;
 						needSetStack = true;
 						lastLineChanged = false;
 						continue;
+					}
+					string text = line.Text;
+					short[] styles = line.styles;
+					if (text == null || styles == null || styles.Length < text.Length)
+					{
+						return true;//TODO
 					}
 					if (needSetStack)
 					{
@@ -446,10 +486,9 @@ namespace MulticaretEditor
 						Array.Copy(state, stack.buffer, stack.count);
 					}
 					line.startState = state;
-					string text = line.Text;
 					Array.Clear(awakePositions, 0, awakePositions.Length);
 					int position = 0;
-					int count = line.charsCount;
+					int count = text.Length;
 					while (position < count)
 					{
 						Rules.Context context = stack.count > 0 ? stack.Peek() : contexts[0];
@@ -465,7 +504,7 @@ namespace MulticaretEditor
 								{
 									for (; position < nextPosition; position++)
 									{
-										line.styles[position] = rule.attribute.index;
+										styles[position] = rule.attribute.index;
 									}
 								}
 								if (rule.childs != null && position < count)
@@ -477,13 +516,13 @@ namespace MulticaretEditor
 										{
 											for (; position < childNextPosition; position++)
 											{
-												line.styles[position] = childRule.attribute.index;
+												styles[position] = childRule.attribute.index;
 											}
-											Switch(rule.context);
+											Switch(stack, rule.context);
 										}
 									}
 								}
-								Switch(rule.context);
+								Switch(stack, rule.context);
 								ruleMatched = true;
 								break;
 							}
@@ -492,11 +531,11 @@ namespace MulticaretEditor
 						{
 							if (context.fallthrough)
 							{
-								Switch(context.fallthroughContext);
+								Switch(stack, context.fallthroughContext);
 							}
 							else
 							{
-								line.styles[position] = context.attribute.index;
+								styles[position] = context.attribute.index;
 								position++;
 							}
 						}
@@ -506,7 +545,7 @@ namespace MulticaretEditor
 						Rules.Context contextI = stack.Peek();
 						if (contextI.lineEndContext.next == null && contextI.lineEndContext.pops == 0)
 							break;
-						Switch(contextI.lineEndContext);
+						Switch(stack, contextI.lineEndContext);
 					}
 					if (AreEquals(stack, state))
 					{
@@ -543,7 +582,7 @@ namespace MulticaretEditor
 			return changed;
 		}
 
-		private void Switch(Rules.SwitchInfo info)
+		private static void Switch(PredictableList<Rules.Context> stack, Rules.SwitchInfo info)
 		{
 			for (int i = 0; i < info.pops; i++)
 			{
