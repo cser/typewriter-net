@@ -362,6 +362,8 @@ namespace MulticaretEditor
 
 		private bool lastParsingChanged = true;
 		public bool LastParsingChanged { get { return lastParsingChanged; } }
+		
+		public bool needUpdatePainting;
 
 		public bool Parse(LineArray lines)
 		{
@@ -518,6 +520,7 @@ namespace MulticaretEditor
 					changesBeforeTimeCheck++;
 					lastLineChanged = true;
 					changed = true;
+					needUpdatePainting = true;
 				}
 				if (changesBeforeTimeCheck > 50)
 				{

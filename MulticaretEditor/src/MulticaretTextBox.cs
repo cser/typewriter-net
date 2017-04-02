@@ -1435,11 +1435,38 @@ namespace MulticaretEditor
 			}
 			return false;
 		}
+		
+		private System.Threading.Thread highlighterThread;
+		
+		private void HighlighterThread()
+		{
+			while (true)
+			{
+				if (highlighter == null)
+				{
+					highlighterThread = null;
+					break;
+				}
+				System.Threading.Thread.Sleep(5);
+				highlighter.Parse(lines, 1000);
+			}
+		}
 
 		private void OnHighlightingTick(object sender, EventArgs e)
 		{
-			if (highlighter != null && highlighter.Parse(lines))
-				Invalidate();
+			if (highlighter != null)
+			{
+				if (highlighter.needUpdatePainting)
+				{
+					highlighter.needUpdatePainting = false;
+					Invalidate();
+				}
+				if (highlighterThread == null)
+				{
+					highlighterThread = new System.Threading.Thread(HighlighterThread);
+					highlighterThread.Start();
+				}
+			}
 		}
 
 		protected override void Dispose(bool disposing)
@@ -1448,6 +1475,12 @@ namespace MulticaretEditor
 			if (disposing)
 			{
 				cursorTimer.Dispose();
+				System.Threading.Thread thread = highlighterThread;
+				if (thread != null)
+				{
+					thread.Abort();
+					thread = null;
+				}
 			}
 		}
 
