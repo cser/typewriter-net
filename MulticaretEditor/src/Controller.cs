@@ -1199,5 +1199,19 @@ namespace MulticaretEditor
 		{
 			return Execute(new FixLineBreaksCommand());
 		}
+		
+		private ControllerDialogsExtension dialogsExtension;
+		
+		public ControllerDialogsExtension DialogsExtension
+		{
+			get
+			{
+				if (dialogsExtension == null)
+				{
+					dialogsExtension = new ControllerDialogsExtension(this);
+				}
+				return dialogsExtension;
+			}
+		}
 	}
 }

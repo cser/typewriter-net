@@ -242,152 +242,24 @@ public class DialogManager
 		if (mainForm.LastFrame != null)
 		{
 			Controller lastController = mainForm.LastFrame.Controller;
-			int index;
-			int length;
-			if (tempSettings.FindParams.regex)
-			{
-				string error;
-				Regex regex = ParseRegex(text, out error);
-				if (regex == null || error != null)
-				{
-					ShowInfo("FindInFiles", "Error: " + error);
-					return true;
-				}
-				Match match = regex.Match(lastController.Lines.GetText(), lastController.Lines.LastSelection.Right);
-				index = -1;
-				length = text.Length;
-				if (match.Success)
-				{
-					index = match.Index;
-					length = match.Length;
-				}
-				else
-				{
-					match = regex.Match(lastController.Lines.GetText(), 0);
-					if (match.Success)
-					{
-						index = match.Index;
-						length = match.Length;
-					}
-				}
-			}
-			else
-			{
-				length = text.Length;
-				CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
-				index = ci != null ?
-					ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
-					lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
-				if (index == -1)
-					index = ci != null ?
-						ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
-						lastController.Lines.IndexOf(text, 0);
-			}
-			if (index != -1)
-			{
-				lastController.PutCursor(lastController.Lines.PlaceOf(index), false);
-				lastController.PutCursor(lastController.Lines.PlaceOf(index + length), true);
-				mainForm.LastFrame.TextBox.MoveToCaret();
-			}
+			lastController.DialogsExtension.FindNext(
+				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
 		}
 		return true;
 	}
 	
 	private bool DoSelectAllFound(string text)
 	{
-		bool result = true;
 		if (mainForm.LastFrame != null)
 		{
 			Controller lastController = mainForm.LastFrame.Controller;
-			string all = lastController.Lines.GetText();
-			int minIndex = 0;
-			int maxIndex = all.Length;
-			
-			Regex regex = null;
-			if (tempSettings.FindParams.regex)
-			{
-				string error;
-				regex = ParseRegex(text, out error);
-				if (regex == null || error != null)
-				{
-					ShowInfo("Select all found", "Error: " + error);
-					return false;
-				}
-			}
-			
-			if (!lastController.LastSelection.Empty && lastController.SelectionsCount == 1)
-			{
-				string selectionText = all.Substring(lastController.LastSelection.Left, lastController.LastSelection.Count);
-				bool useArea = false;
-				if (tempSettings.FindParams.regex)
-				{
-					Match match = regex.Match(selectionText);
-					useArea = !match.Success || match.Length != selectionText.Length;
-				}
-				else
-				{
-					useArea = text != selectionText;
-				}
-				if (useArea)
-				{
-					result = false;
-					minIndex = lastController.LastSelection.Left;
-					maxIndex = lastController.LastSelection.Right;
-				}
-			}
-			List<Selection> selections = new List<Selection>();
-
-			int start = minIndex;			
-			while (true)
-			{
-				int index;
-				int length;
-				if (tempSettings.FindParams.regex)
-				{
-					Match match = regex.Match(all, start);
-					index = -1;
-					length = text.Length;
-					if (match.Success)
-					{
-						index = match.Index;
-						length = match.Length;
-					}
-				}
-				else
-				{
-					length = text.Length;
-					CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
-					index = ci != null ?
-						ci.IndexOf(all, text, start, CompareOptions.IgnoreCase) :
-						all.IndexOf(text, start);
-				}
-				if (index == -1 || index + length > maxIndex)
-				{
-					break;
-				}
-				Selection selection = new Selection();
-				selection.anchor = index;
-				selection.caret = index + length;
-				selections.Add(selection);
-				start = index + length;
-			}
-			if (selections.Count > 0)
-			{
-				lastController.ClearMinorSelections();
-				
-				Selection selection = selections[0];
-				lastController.PutCursor(lastController.Lines.PlaceOf(selection.anchor), false);
-				lastController.PutCursor(lastController.Lines.PlaceOf(selection.caret), true);
-				for (int i = 1; i < selections.Count; i++)
-				{
-					selection = selections[i];
-					lastController.PutNewCursor(lastController.Lines.PlaceOf(selection.anchor));
-					lastController.PutCursor(lastController.Lines.PlaceOf(selection.caret), true);
-				}
-				mainForm.LastFrame.TextBox.MoveToCaret();
-			}
+			bool result = lastController.DialogsExtension.SelectAllFound(
+				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
+			return result;
 		}
-		return result;
+		return true;
 	}
 	
 	private bool DoSelectNextFound(string text)
@@ -395,70 +267,23 @@ public class DialogManager
 		if (mainForm.LastFrame != null)
 		{
 			Controller lastController = mainForm.LastFrame.Controller;
-			int index;
-			int length;
-			if (tempSettings.FindParams.regex)
-			{
-				string error;
-				Regex regex = ParseRegex(text, out error);
-				if (regex == null || error != null)
-				{
-					ShowInfo("FindInFiles", "Error: " + error);
-					return true;
-				}
-				Match match = regex.Match(lastController.Lines.GetText(), lastController.Lines.LastSelection.Right);
-				index = -1;
-				length = text.Length;
-				if (match.Success)
-				{
-					index = match.Index;
-					length = match.Length;
-				}
-				else
-				{
-					match = regex.Match(lastController.Lines.GetText(), 0);
-					if (match.Success)
-					{
-						index = match.Index;
-						length = match.Length;
-					}
-				}
-			}
-			else
-			{
-				length = text.Length;
-				CompareInfo ci = tempSettings.FindParams.ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
-				index = ci != null ?
-					ci.IndexOf(lastController.Lines.GetText(), text, lastController.Lines.LastSelection.Right, CompareOptions.IgnoreCase) :
-					lastController.Lines.IndexOf(text, lastController.Lines.LastSelection.Right);
-				if (index == -1)
-					index = ci != null ?
-						ci.IndexOf(lastController.Lines.GetText(), text, 0, CompareOptions.IgnoreCase) :
-						lastController.Lines.IndexOf(text, 0);
-			}
-			if (index != -1)
-			{
-				if (lastController.Lines.LastSelection.Right != index)
-				{
-					lastController.PutNewCursor(lastController.Lines.PlaceOf(index));
-					lastController.PutCursor(lastController.Lines.PlaceOf(index + length), true);
-				}
-				else
-				{
-					lastController.PutNewCursor(lastController.Lines.PlaceOf(index + length));
-					lastController.PutCursor(lastController.Lines.PlaceOf(index), true);
-					Selection lastSelection = lastController.Lines.selections[lastController.Lines.selections.Count - 1];
-					if (lastSelection.anchor == index + length && lastSelection.caret == index)
-					{
-						int temp = lastSelection.anchor;
-						lastSelection.anchor = lastSelection.caret;
-						lastSelection.caret = temp;
-					}
-				}
-				mainForm.LastFrame.TextBox.MoveToCaret();
-			}
+			lastController.DialogsExtension.SelectNextFound(
+				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
 		}
 		return true;
+	}
+	
+	private void ProcessAfterControllerExtension(ControllerDialogsExtension extension)
+	{
+		if (extension.NeedMoveToCaret)
+		{
+			mainForm.LastFrame.TextBox.MoveToCaret();
+		}
+		if (extension.NeedShowError != null)
+		{
+			ShowInfo("FindInFiles", "Error: " + extension.NeedShowError);
+		}
 	}
 	
 	private bool DoUnselectPrevText()
