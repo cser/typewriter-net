@@ -1070,36 +1070,125 @@ namespace MulticaretEditor
 				regexOptions |= RegexOptions.Compiled;
 			Regex regex = new Regex("\\b" + word + "\\b", regexOptions);
 
-			Dictionary<int, bool> selectionLefts = new Dictionary<int, bool>();
 			PredictableList<int> indexList = new PredictableList<int>();
-			for (int i = selections.Count; i-- > 0;)
-			{
-				selectionLefts[selections[i].Left] = true;
-			}
 			lines.marksByLine.Clear();
-			int charOffset = 0;
-			for (int i = 0; i < lines.blocksCount; i++)
+			int selectionIndex = 0;
+			int charsOffset = 0;
+			for (int i = 0; i < lines.blocksCount; ++i)
 			{
 				LineBlock block = lines.blocks[i];
-				for (int j = 0; j < block.count; j++)
+				for (int j = 0; j < block.count; ++j)
 				{
 					Line lineI = block.array[j];
-					MatchCollection matches = regex.Matches(lineI.Text);
-					int count = matches.Count;
-					if (count > 0)
+					string chars = lineI.Text;
+					int charsCount = lineI.NormalCount;
+					int selectionsCount = selections.Count;
+					indexList.Clear();
+					int k = 0;
 					{
-						indexList.Clear();
-						for (int k = 0; k < count; k++)
+						if (k + word.Length <= charsCount)
 						{
-							int matchIndex = matches[k].Index;
-							if (!selectionLefts.ContainsKey(charOffset + matchIndex))
-								indexList.Add(matchIndex);
+							bool matched = true;
+							for (int wordK = 0; wordK < word.Length; ++wordK)
+							{
+								if (chars[k + wordK] != word[wordK])
+								{
+									matched = false;
+									break;
+								}
+							}
+							if (matched && k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length]))
+							{
+								for (; selectionIndex < selectionsCount; ++selectionIndex)
+								{
+									if (selections[selectionIndex].Left >= charsOffset + k)
+									{
+										break;
+									}
+								}
+								if (selectionIndex >= selectionsCount ||
+									selections[selectionIndex].Left != charsOffset + k)
+								{
+									indexList.Add(k);
+								}
+							}
 						}
-						if (indexList.count > 0)
-							lines.marksByLine[block.offset + j] = indexList.ToArray();
 					}
-					charOffset += lineI.chars.Count;
+					for (; k < charsCount; ++k)
+					{
+						if (IsWordSeparator(chars[k]))
+						{
+							++k;
+							if (k + word.Length <= charsCount)
+							{
+								bool matched = true;
+								for (int wordK = 0; wordK < word.Length; ++wordK)
+								{
+									if (chars[k + wordK] != word[wordK])
+									{
+										matched = false;
+										break;
+									}
+								}
+								if (matched && k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length]))
+								{
+									for (; selectionIndex < selectionsCount; ++selectionIndex)
+									{
+										if (selections[selectionIndex].Left >= charsOffset + k)
+										{
+											break;
+										}
+									}
+									if (selectionIndex >= selectionsCount ||
+										selections[selectionIndex].Left != charsOffset + k)
+									{
+										indexList.Add(k);
+									}
+								}
+							}
+						}
+					}
+					if (indexList.count > 0)
+						lines.marksByLine[block.offset + j] = indexList.ToArray();
+					charsOffset += lineI.chars.Count;
 				}
+			}
+		}
+		
+		private static bool IsWordSeparator(char c)
+		{
+			switch (c)
+			{
+				case ' ':
+				case '\t':
+				case '!':
+				case '%':
+				case '&':
+				case '(':
+				case ')':
+				case '*':
+				case '+':
+				case ',':
+				case '-':
+				case '.':
+				case '/':
+				case ':':
+				case ';':
+				case '<':
+				case '=':
+				case '>':
+				case '?':
+				case '[':
+				case '\\':
+				case ']':
+				case '^':
+				case '{':
+				case '|':
+				case '}':
+				case '~':
+					return true;
+				default:
+					return false;
 			}
 		}
 
