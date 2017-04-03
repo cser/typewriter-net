@@ -1580,8 +1580,6 @@ namespace MulticaretEditor
 						ViShortcut(viShortcut);
 				}
 			}
-			if (highlighter != null && !highlighter.LastParsingChanged)
-				highlighter.Parse(lines, 100);
 			UnblinkCursor();
 			if (scrollToCursor)
 			{
