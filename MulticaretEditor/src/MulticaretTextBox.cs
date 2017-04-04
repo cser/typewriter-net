@@ -36,6 +36,7 @@ namespace MulticaretEditor
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
 		private MacrosExecutor macrosExecutor;
+		private readonly BorderHGeometry borderH = new BorderHGeometry();
 
 		public MulticaretTextBox()
 		{
@@ -521,7 +522,7 @@ namespace MulticaretEditor
 			if (macrosExecutor.current != null)
 			{
 				int d = charWidth;
-				g.DrawEllipse(scheme.markPen, new Rectangle(leftIndent + clientWidth - d - 4, clientHeight - d - 4, d, d));
+				g.DrawEllipse(scheme.markPen2, new Rectangle(leftIndent + clientWidth - d - 4, clientHeight - d - 4, d, d));
 			}
 
 			mouseAreaRight = leftIndent + clientWidth;
@@ -688,7 +689,7 @@ namespace MulticaretEditor
 							y = offsetY + place.iLine * charHeight;
 						}
 						y += charHeight + lineInterval / 2;
-                        g.DrawRectangle(scheme.markPen, x, y - charHeight, charWidth, charHeight);
+                        g.DrawRectangle(scheme.markPen2, x, y - charHeight, charWidth, charHeight);
 					}
 				}
 			}
@@ -1020,8 +1021,7 @@ namespace MulticaretEditor
 				if (markI != -1 && i == indices[markI])
 				{
 					int length = lines.markedWord.Length;
-					g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-					g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 					if (markI < indices.Length - 1)
 						markI++;
 				}
@@ -1136,21 +1136,24 @@ namespace MulticaretEditor
 						int length = lines.markedWord.Length;
 						if (i + length <= i1)
 						{
-							g.DrawRectangle(scheme.markPen, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
-							g.FillRectangle(scheme.bgBrush, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
 							if (markI < indices.Length - 1)
 								markI++;
 						}
 						else
 						{
-							selectionRects.Clear();
-							selectionRects.Add(new DrawingLine(pos, (int)(y + lineInterval / 2), line.GetSublineSize(iCutOff) - pos));
+							int top = (int)(y + lineInterval / 2);
+							borderH.Begin();
+							borderH.AddLine(
+								position.X + pos * charWidth,
+								(line.GetSublineSize(iCutOff) - pos) * charWidth);
+							DrawBorderLine(g, scheme.markPen1, top);
 							for (int k = iCutOff + 1; k <= line.cutOffs.count; k++)
 							{
 								int left = line.cutOffs.buffer[k - 1].left;
 								int ii0 = line.cutOffs.buffer[k - 1].iChar;
 								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
-								int top = (int)(y + (k - iCutOff) * charHeight + lineInterval / 2);
+								top += charHeight;
 								if (i + length <= ii1)
 								{
 									int offsetX = left;
@@ -1165,21 +1168,15 @@ namespace MulticaretEditor
 											offsetX++;
 										}
 									}
-									selectionRects.Add(new DrawingLine(left, top, offsetX));
+									borderH.AddLine(position.X + left * charWidth, offsetX * charWidth);
+									DrawBorderLine(g, scheme.markPen1, top);
 									break;
 								}
-								selectionRects.Add(new DrawingLine(left, top, line.GetSublineSize(k)));
+								borderH.AddLine(position.X + left * charWidth, line.GetSublineSize(k) * charWidth);
+								DrawBorderLine(g, scheme.markPen1, top);
 							}
-							for (int k = 0; k < selectionRects.count; k++)
-							{
-								DrawingLine rect = selectionRects.buffer[k];
-								g.DrawRectangle(scheme.markPen, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
-							}
-							for (int k = 0; k < selectionRects.count; k++)
-							{
-								DrawingLine rect = selectionRects.buffer[k];
-								g.FillRectangle(scheme.bgBrush, position.X + rect.ix * charWidth, rect.iy, rect.sizeX * charWidth, charHeight);
-							}
+							borderH.End();
+							DrawBorderLine(g, scheme.markPen1, top + charHeight);
 							if (markI < indices.Length - 1)
 								markI++;
 						}
@@ -1243,6 +1240,23 @@ namespace MulticaretEditor
 						pos++;
 					}
 				}
+			}
+		}
+		
+		private void DrawBorderLine(Graphics g, Pen pen, int top)
+		{
+			if (borderH.top0Exists)
+			{
+				g.DrawLine(pen, borderH.top0X0, top, borderH.top0X1, top);
+			}
+			if (borderH.top1Exists)
+			{
+				g.DrawLine(pen, borderH.top1X0, top, borderH.top1X1, top);
+			}
+			if (!borderH.isEnd)
+			{
+				g.DrawLine(pen, borderH.x0, top, borderH.x0, top + charHeight);
+				g.DrawLine(pen, borderH.x1, top, borderH.x1, top + charHeight);
 			}
 		}
 

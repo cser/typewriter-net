@@ -49,7 +49,8 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineBgBrush;
 		public Brush selectionBrush;
 		public Pen selectionPen;
-		public Pen markPen;
+		public Pen markPen1;
+		public Pen markPen2;
 		public Pen mainCaretPen;
 		public Pen caretPen;
 		public Brush lineNumberBackground;
@@ -247,7 +248,8 @@ namespace MulticaretEditor.Highlighting
 			lineNumberFgPen = new Pen(lineNumberFgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
-			markPen = new Pen(markPenColor, 2);
+			markPen1 = new Pen(markPenColor, 1);
+			markPen2 = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
 			printMarginPen = new Pen(printMarginColor);

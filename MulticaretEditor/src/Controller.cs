@@ -1068,16 +1068,8 @@ namespace MulticaretEditor
 			}
 			lines.markedWord = word;
 
-			int[] selectionStarts = new int[selections.Count];
-			for (int i = 0; i < selectionStarts.Length; ++i)
-			{
-				Selection selectionI = selections[i];
-				selectionStarts[i] = selectionI.anchor < selectionI.caret ? selectionI.anchor : selectionI.caret;
-			}
-			Array.Sort(selectionStarts);
 			PredictableList<int> indexList = new PredictableList<int>();
 			lines.marksByLine.Clear();
-			int selectionIndex = 0;
 			int charsOffset = 0;
 			int lineIndex = 0;
 			for (int i = 0; i < lines.blocksCount; ++i)
@@ -1088,7 +1080,6 @@ namespace MulticaretEditor
 					Line lineI = block.array[j];
 					string chars = lineI.Text;
 					int charsCount = lineI.NormalCount;
-					int selectionsCount = selectionStarts.Length;
 					indexList.Clear();
 					int k = 0;
 					{
@@ -1106,18 +1097,7 @@ namespace MulticaretEditor
 							if (matched &&
 								(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
 							{
-								for (; selectionIndex < selectionsCount; ++selectionIndex)
-								{
-									if (selectionStarts[selectionIndex] >= charsOffset + k)
-									{
-										break;
-									}
-								}
-								if (selectionIndex >= selectionsCount ||
-									selectionStarts[selectionIndex] != charsOffset + k)
-								{
-									indexList.Add(k);
-								}
+								indexList.Add(k);
 							}
 						}
 					}
@@ -1140,18 +1120,7 @@ namespace MulticaretEditor
 								if (matched &&
 									(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
 								{
-									for (; selectionIndex < selectionsCount; ++selectionIndex)
-									{
-										if (selectionStarts[selectionIndex] >= charsOffset + k)
-										{
-											break;
-										}
-									}
-									if (selectionIndex >= selectionsCount ||
-										selectionStarts[selectionIndex] != charsOffset + k)
-									{
-										indexList.Add(k);
-									}
+									indexList.Add(k);
 								}
 							}
 						}
