@@ -1097,7 +1097,8 @@ namespace MulticaretEditor
 									break;
 								}
 							}
-							if (matched && k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length]))
+							if (matched &&
+								(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
 							{
 								for (; selectionIndex < selectionsCount; ++selectionIndex)
 								{
@@ -1130,7 +1131,8 @@ namespace MulticaretEditor
 										break;
 									}
 								}
-								if (matched && k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length]))
+								if (matched &&
+									(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
 								{
 									for (; selectionIndex < selectionsCount; ++selectionIndex)
 									{
