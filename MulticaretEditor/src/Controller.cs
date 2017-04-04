@@ -79,7 +79,7 @@ namespace MulticaretEditor
 					}
 					else if (selection.caret < lines.charsCount)
 					{
-						selection.caret++;
+						++selection.caret;
 						result = true;
 					}
 					if (!shift && selection.anchor != selection.caret)
@@ -116,7 +116,7 @@ namespace MulticaretEditor
 					}
 					else if (selection.caret > 0)
 					{
-						selection.caret--;
+						--selection.caret;
 						result = true;
 					}
 					if (!shift && selection.anchor != selection.caret)
@@ -305,7 +305,7 @@ namespace MulticaretEditor
 				int minIChar = 0;
 				while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar].c))
 				{
-					minIChar++;
+					++minIChar;
 				}
 				caret.iChar = caret.iChar > minIChar ? minIChar : 0;
 				selection.caret = lines.IndexOf(caret);
@@ -470,7 +470,7 @@ namespace MulticaretEditor
 			if (pos.iy < lines.LinesCount - 1)
 			{
 				pos.ix = preferredPos;
-				pos.iy++;
+				++pos.iy;
 				PutNewCursor(pos);
 				lines.LastSelection.preferredPos = preferredPos;
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
@@ -495,7 +495,7 @@ namespace MulticaretEditor
 			if (pos.iy > 0)
 			{
 				pos.ix = preferredPos;
-				pos.iy--;
+				--pos.iy;
 				PutNewCursor(pos);
 				lines.LastSelection.preferredPos = preferredPos;
 				lines.LastSelection.wwPreferredPos = wwPreferredPos;
@@ -667,7 +667,7 @@ namespace MulticaretEditor
 		{
 			lines.JoinSelections();
 			string[] texts = new string[selections.Count];
-			for (int i = 0; i < selections.Count; i++)
+			for (int i = 0; i < selections.Count; ++i)
 			{
 				Selection selection = selections[i];
 				Place place = lines.PlaceOf(selection.Left);
@@ -681,17 +681,17 @@ namespace MulticaretEditor
 		{
 			int count = line.chars.Count;
 			int spacesCount = 0;
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				char c = line.chars[i].c;
 				if (c != '\t' && c != ' ')
 					break;
-				spacesCount++;
+				++spacesCount;
 			}
 			if (iChar >= spacesCount)
 			{
 				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < count; ++i)
 				{
 					char c = line.chars[i].c;
 					if (c != '\t' && c != ' ')
@@ -775,12 +775,12 @@ namespace MulticaretEditor
 				left = iChar;
 				while (left > 0 && GetCharType(line.chars[left - 1].c) == CharType.Identifier)
 				{
-					left--;
+					--left;
 				}
 				if (left < iChar)
 				{
 					StringBuilder builder = new StringBuilder();
-					for (int i = left; i < iChar; i++)
+					for (int i = left; i < iChar; ++i)
 					{
 						builder.Append(line[i].c);
 					}
@@ -805,12 +805,12 @@ namespace MulticaretEditor
 				left = iChar;
 				while (left > 0 && GetCharType(line.chars[left - 1].c) == charType)
 				{
-					left--;
+					--left;
 				}
 				right = iChar + 1;
 				while (right < normalCount && GetCharType(line.chars[right].c) == charType)
 				{
-					right++;
+					++right;
 				}
 			}
 			else
@@ -941,7 +941,7 @@ namespace MulticaretEditor
 			lines.JoinSelections();
 			string[] texts = new string[selections.Count];
 			bool needChange = false;
-			for (int i = 0; i < selections.Count; i++)
+			for (int i = 0; i < selections.Count; ++i)
 			{
 				Selection selection = selections[i];
 				string text = lines.GetText(selection.Left, selection.Count);
@@ -1038,24 +1038,26 @@ namespace MulticaretEditor
 				lines.markedWord = null;
 				return;
 			}
-			Line line = lines[leftPlace.iLine];
 			string word = null;
-			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
-				(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
 			{
-				StringBuilder builder = new StringBuilder();
-				for (int i = leftPlace.iChar; i < rightPlace.iChar; i++)
+				Line line = lines[leftPlace.iLine];
+				if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
+					(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
 				{
-					char c = line.chars[i].c;
-					if (GetCharType(c) != CharType.Identifier)
+					StringBuilder builder = new StringBuilder();
+					for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
 					{
-						builder = null;
-						break;
+						char c = line.chars[i].c;
+						if (GetCharType(c) != CharType.Identifier)
+						{
+							builder = null;
+							break;
+						}
+						builder.Append(c);
 					}
-					builder.Append(c);
+					if (builder != null && builder.Length != 0)
+						word = builder.ToString();
 				}
-				if (builder != null && builder.Length != 0)
-					word = builder.ToString();
 			}
 			if (word == null)
 			{
@@ -1065,15 +1067,19 @@ namespace MulticaretEditor
 				return;
 			}
 			lines.markedWord = word;
-			RegexOptions regexOptions = RegexOptions.CultureInvariant;
-			if (word.Length < 50)
-				regexOptions |= RegexOptions.Compiled;
-			Regex regex = new Regex("\\b" + word + "\\b", regexOptions);
 
+			int[] selectionStarts = new int[selections.Count];
+			for (int i = 0; i < selectionStarts.Length; ++i)
+			{
+				Selection selectionI = selections[i];
+				selectionStarts[i] = selectionI.anchor < selectionI.caret ? selectionI.anchor : selectionI.caret;
+			}
+			Array.Sort(selectionStarts);
 			PredictableList<int> indexList = new PredictableList<int>();
 			lines.marksByLine.Clear();
 			int selectionIndex = 0;
 			int charsOffset = 0;
+			int lineIndex = 0;
 			for (int i = 0; i < lines.blocksCount; ++i)
 			{
 				LineBlock block = lines.blocks[i];
@@ -1082,7 +1088,7 @@ namespace MulticaretEditor
 					Line lineI = block.array[j];
 					string chars = lineI.Text;
 					int charsCount = lineI.NormalCount;
-					int selectionsCount = selections.Count;
+					int selectionsCount = selectionStarts.Length;
 					indexList.Clear();
 					int k = 0;
 					{
@@ -1102,13 +1108,13 @@ namespace MulticaretEditor
 							{
 								for (; selectionIndex < selectionsCount; ++selectionIndex)
 								{
-									if (selections[selectionIndex].Left >= charsOffset + k)
+									if (selectionStarts[selectionIndex] >= charsOffset + k)
 									{
 										break;
 									}
 								}
 								if (selectionIndex >= selectionsCount ||
-									selections[selectionIndex].Left != charsOffset + k)
+									selectionStarts[selectionIndex] != charsOffset + k)
 								{
 									indexList.Add(k);
 								}
@@ -1136,13 +1142,13 @@ namespace MulticaretEditor
 								{
 									for (; selectionIndex < selectionsCount; ++selectionIndex)
 									{
-										if (selections[selectionIndex].Left >= charsOffset + k)
+										if (selectionStarts[selectionIndex] >= charsOffset + k)
 										{
 											break;
 										}
 									}
 									if (selectionIndex >= selectionsCount ||
-										selections[selectionIndex].Left != charsOffset + k)
+										selectionStarts[selectionIndex] != charsOffset + k)
 									{
 										indexList.Add(k);
 									}
@@ -1151,8 +1157,9 @@ namespace MulticaretEditor
 						}
 					}
 					if (indexList.count > 0)
-						lines.marksByLine[block.offset + j] = indexList.ToArray();
+						lines.marksByLine[lineIndex] = indexList.ToArray();
 					charsOffset += lineI.chars.Count;
+					++lineIndex;
 				}
 			}
 		}
@@ -1228,7 +1235,7 @@ namespace MulticaretEditor
 				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')
 				{
 					iChar = place.iChar - 1;
-					position--;
+					--position;
 				}
 			}
 			if (iChar == -1 && place.iChar < line.chars.Count)
@@ -1270,9 +1277,9 @@ namespace MulticaretEditor
 			{
 				char c = iterator.RightChar;
 				if (c == c0)
-					depth++;
+					++depth;
 				else if (c == c1)
-					depth--;
+					--depth;
 				if (depth <= 0)
 					break;
 			}
