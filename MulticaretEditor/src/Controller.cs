@@ -1082,26 +1082,24 @@ namespace MulticaretEditor
 					int charsCount = lineI.NormalCount;
 					indexList.Clear();
 					int k = 0;
+					if (k + word.Length <= charsCount)
 					{
-						if (k + word.Length <= charsCount)
+						bool matched = true;
+						for (int wordK = 0; wordK < word.Length; ++wordK)
 						{
-							bool matched = true;
-							for (int wordK = 0; wordK < word.Length; ++wordK)
+							if (chars[k + wordK] != word[wordK])
 							{
-								if (chars[k + wordK] != word[wordK])
-								{
-									matched = false;
-									break;
-								}
-							}
-							if (matched &&
-								(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
-							{
-								indexList.Add(k);
+								matched = false;
+								break;
 							}
 						}
+						if (matched &&
+							(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
+						{
+							indexList.Add(k);
+						}
 					}
-					for (; k < charsCount; ++k)
+					for (; k < charsCount;)
 					{
 						if (IsWordSeparator(chars[k]))
 						{
@@ -1123,6 +1121,10 @@ namespace MulticaretEditor
 									indexList.Add(k);
 								}
 							}
+						}
+						else
+						{
+							++k;
 						}
 					}
 					if (indexList.count > 0)
