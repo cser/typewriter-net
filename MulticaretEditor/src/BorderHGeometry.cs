@@ -11,10 +11,12 @@ namespace MulticaretEditor
 		public bool top0Exists;
 		public int top0X0;
 		public int top0X1;
+		public int top0Offset;
 		
 		public bool top1Exists;
 		public int top1X0;
 		public int top1X1;
+		public int top1Offset;
 		
 		private bool hasPrev;
 		
@@ -36,9 +38,11 @@ namespace MulticaretEditor
 					top0Exists = true;
 					top0X0 = x0;
 					top0X1 = x1;
+					top0Offset = -1;
 					top1Exists = true;
 					top1X0 = x;
 					top1X1 = xx1;
+					top1Offset = -1;
 				}
 				else
 				{
@@ -47,12 +51,14 @@ namespace MulticaretEditor
 						top0Exists = true;
 						top0X0 = x;
 						top0X1 = x0;
+						top1Offset = -1;
 					}
 					else if (x > x0)
 					{
 						top0Exists = true;
 						top0X0 = x0;
 						top0X1 = x;
+						top0Offset = 0;
 					}
 					else
 					{
@@ -63,12 +69,14 @@ namespace MulticaretEditor
 						top1Exists = true;
 						top1X0 = xx1;
 						top1X1 = x1;
+						top1Offset = 0;
 					}
 					else if (xx1 > x1)
 					{
 						top1Exists = true;
 						top1X0 = x1;
 						top1X1 = xx1;
+						top1Offset = -1;
 					}
 					else
 					{
@@ -82,6 +90,7 @@ namespace MulticaretEditor
 				top0Exists = true;
 				top0X0 = x;
 				top0X1 = xx1;
+				top0Offset = -1;
 			}
 			x0 = x;
 			x1 = xx1;
@@ -93,6 +102,7 @@ namespace MulticaretEditor
 			top0Exists = true;
 			top0X0 = x0;
 			top0X1 = x1;
+			top0Offset = 1;
 			top1Exists = false;
 			isEnd = true;
 		}

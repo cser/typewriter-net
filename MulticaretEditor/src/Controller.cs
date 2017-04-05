@@ -1021,7 +1021,7 @@ namespace MulticaretEditor
 			{
 				for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
 				{
-					if (GetCharType(line.chars[i].c) != CharType.Identifier)
+					if (IsWordSeparator(line.chars[i].c))
 					{
 						return null;
 					}

@@ -1021,7 +1021,7 @@ namespace MulticaretEditor
 				if (markI != -1 && i == indices[markI])
 				{
 					int length = lines.markedWord.Length;
-					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
 					if (markI < indices.Length - 1)
 						markI++;
 				}
@@ -1136,7 +1136,7 @@ namespace MulticaretEditor
 						int length = lines.markedWord.Length;
 						if (i + length <= i1)
 						{
-							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth, y + lineInterval / 2, length * charWidth, charHeight);
+							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
 							if (markI < indices.Length - 1)
 								markI++;
 						}
@@ -1247,11 +1247,11 @@ namespace MulticaretEditor
 		{
 			if (borderH.top0Exists)
 			{
-				g.DrawLine(pen, borderH.top0X0, top, borderH.top0X1, top);
+				g.DrawLine(pen, borderH.top0X0, top + borderH.top0Offset, borderH.top0X1, top + borderH.top0Offset);
 			}
 			if (borderH.top1Exists)
 			{
-				g.DrawLine(pen, borderH.top1X0, top, borderH.top1X1, top);
+				g.DrawLine(pen, borderH.top1X0, top + borderH.top1Offset, borderH.top1X1, top + borderH.top1Offset);
 			}
 			if (!borderH.isEnd)
 			{
