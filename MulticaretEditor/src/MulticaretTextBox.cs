@@ -1111,8 +1111,8 @@ namespace MulticaretEditor
 				iCutOff1 = iiMax - iiLine;
 			if (markI != -1 && iCutOff0 < line.cutOffs.count)
 			{
-				CutOff cutOff = line.cutOffs.buffer[iCutOff0];
-				while (markI < indices.Length - 1 && indices[markI] < cutOff.iChar)
+				int cutOff = iCutOff0 > 0 ? line.cutOffs.buffer[iCutOff0 - 1].iChar : 0;
+				while (markI < indices.Length - 1 && indices[markI] < cutOff)
 				{
 					markI++;
 				}
