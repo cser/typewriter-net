@@ -118,6 +118,29 @@ namespace MulticaretEditor
 			charsCount += length;
 		}
 		
+		public void Chars_InsertRange(int index, List<char> text)
+		{
+			int length = text.Count;
+			int count = charsCount + length;
+			if (count > chars.Length)
+			{
+				int nextLength = chars.Length << 1;
+				while (nextLength < count)
+				{
+					nextLength = nextLength << 1;
+				}
+				Char[] newChars = new Char[nextLength];
+				Array.Copy(chars, newChars, charsCount);
+				chars = newChars;
+			}
+			Array.Copy(chars, index, chars, index + length, charsCount - index);
+			for (int i = 0; i < length; ++i)
+			{
+				chars[index + i].c = text[i];
+			}
+			charsCount += length;
+		}
+		
 		public void Chars_RemoveRange(int index, int length)
 		{
 			if (charsCount - index - length > 0)
@@ -130,15 +153,10 @@ namespace MulticaretEditor
 		public void SetRangeStyle(int startIndex, int count, short style)
 		{
 			int endIndex = startIndex + count;
-			for (int i = startIndex; i < endIndex; i++)
+			for (int i = startIndex; i < endIndex; ++i)
 			{
-				chars[i] = new Char(chars[i].c, style);
+				chars[i].style = style;
 			}
-		}
-
-		public Char this[int index]
-		{
-			get { return chars[index]; }
 		}
 
 		public int Size
@@ -149,7 +167,7 @@ namespace MulticaretEditor
 				{
 					cachedSize = 0;
 					int count = charsCount;
-					for (int i = 0; i < count; i++)
+					for (int i = 0; i < count; ++i)
 					{
 						if (chars[i].c == '\t')
 						{
@@ -171,13 +189,13 @@ namespace MulticaretEditor
 			{
 				if (cachedText == null)
 				{
-					StringBuilder builder = new StringBuilder(charsCount);
 					int count = charsCount;
-					for (int i = 0; i < count; i++)
+					char[] buffer = new char[count];
+					for (int i = 0; i < count; ++i)
 					{
-						builder.Append(chars[i].c);
+						buffer[i] = chars[i].c;
 					}
-					cachedText = builder.ToString();
+					cachedText = new string(buffer);
 				}
 				return cachedText;
 			}
@@ -188,7 +206,7 @@ namespace MulticaretEditor
 			int count = charsCount;
 			int iPos = 0;
 			int i = 0;
-			for (; i < count; i++)
+			for (; i < count; ++i)
 			{
 				if (chars[i].c == '\t')
 				{
@@ -224,7 +242,7 @@ namespace MulticaretEditor
 
 			int count = iSubline < cutOffs.count ? cutOffs.buffer[iSubline].iChar - 1 : charsCount;
 			int iPos = cutOff.left;
-			for (int i = cutOff.iChar; i < count; i++)
+			for (int i = cutOff.iChar; i < count; ++i)
 			{
 				if (chars[i].c == '\t')
 				{
@@ -260,7 +278,7 @@ namespace MulticaretEditor
 			if (index > charsCount)
 				index = charsCount;
 			int pos = 0;
-			for (int i = 0; i < index; i++)
+			for (int i = 0; i < index; ++i)
 			{
 				if (chars[i].c == '\t')
 				{
@@ -283,7 +301,7 @@ namespace MulticaretEditor
 				cutOff = cutOffs.buffer[iy];
 			}
 			int pos = 0;
-			for (int i = cutOff.iChar; i < index; i++)
+			for (int i = cutOff.iChar; i < index; ++i)
 			{
 				if (chars[i].c == '\t')
 				{
@@ -327,7 +345,7 @@ namespace MulticaretEditor
 			int size = 0;
 			int lastLength = 0;
 			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count; ++i)
 			{
 				char c = chars[i].c;
 				if (c == '\t')
@@ -417,7 +435,7 @@ namespace MulticaretEditor
 
 								prev = c;
 								pos = c == '\t' ? ((pos + tabSize) / tabSize) * tabSize : pos + 1;
-								i++;
+								++i;
 								continue;
 							}
 							else
@@ -435,7 +453,7 @@ namespace MulticaretEditor
 					{
 						prev = c;
 						pos = c == '\t' ? ((pos + tabSize) / tabSize) * tabSize : pos + 1;
-						i++;
+						++i;
 					}
 				}
 				lastSublineSizeX = pos;

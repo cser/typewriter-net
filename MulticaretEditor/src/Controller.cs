@@ -782,7 +782,7 @@ namespace MulticaretEditor
 					StringBuilder builder = new StringBuilder();
 					for (int i = left; i < iChar; ++i)
 					{
-						builder.Append(line[i].c);
+						builder.Append(line.chars[i].c);
 					}
 					return builder.ToString();
 				}
@@ -1013,8 +1013,8 @@ namespace MulticaretEditor
 
 		public void MarkWordOnPaint(bool enabled)
 		{
-			System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-			sw.Start();
+			//System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+			//sw.Start();
 			Selection selection = selections[0];
 			if (selection.Empty || !enabled)
 			{
@@ -1141,8 +1141,8 @@ namespace MulticaretEditor
 					++lineIndex;
 				}
 			}
-			sw.Stop();
-			Console.WriteLine(sw.ElapsedMilliseconds + " ms");
+			//sw.Stop();
+			//Console.WriteLine(sw.ElapsedMilliseconds + " ms");
 		}
 		
 		private static bool IsWordSeparator(char c)

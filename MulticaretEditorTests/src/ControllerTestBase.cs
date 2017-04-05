@@ -28,7 +28,7 @@ namespace UnitTests
 			int Count = lines[index].charsCount;
 			for (int i = 0; i < Count; i++)
 			{
-				builder.Append(lines[index][i].c);
+				builder.Append(lines[index].chars[i].c);
 			}
 			return builder.ToString();
 		}
