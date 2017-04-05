@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using System.Threading;
 using System.Runtime.InteropServices;
 using MulticaretEditor.Commands;
 using MulticaretEditor.Highlighting;
@@ -1008,8 +1005,38 @@ namespace MulticaretEditor
 
 		private int markLeft = -1;
 		private int markRight = -1;
-		private int markCount = -1;
 		private bool markEnabled = true;
+		
+		private string GetWordForSelection(Selection selection)
+		{
+			Place leftPlace = lines.PlaceOf(selection.Left);
+			Place rightPlace = lines.PlaceOf(selection.Right);
+			if (leftPlace.iLine != rightPlace.iLine)
+			{
+				return null;
+			}
+			Line line = lines[leftPlace.iLine];
+			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
+				(rightPlace.iChar == line.charsCount || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
+			{
+				for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
+				{
+					if (GetCharType(line.chars[i].c) != CharType.Identifier)
+					{
+						return null;
+					}
+				}
+				int offset = leftPlace.iChar;
+				int length = rightPlace.iChar - offset;
+				char[] buffer = new char[length];
+				for (int i = 0; i < length; ++i)
+				{
+					buffer[i] = line.chars[offset + i].c;
+				}
+				return new string(buffer);
+			}
+			return null;
+		}
 
 		public void MarkWordOnPaint(bool enabled)
 		{
@@ -1025,41 +1052,15 @@ namespace MulticaretEditor
 				markRight = -1;
 				return;
 			}
-			if (selection.Left == markLeft && selection.Right == markRight && markCount == selections.Count && markEnabled == enabled)
+			if (selection.Left == markLeft && selection.Right == markRight && markEnabled == enabled)
 				return;
 			markLeft = selection.Left;
 			markRight = selection.Right;
-			markCount = selections.Count;
 			markEnabled = enabled;
-			Place leftPlace = lines.PlaceOf(selection.Left);
-			Place rightPlace = lines.PlaceOf(selection.Right);
-			if (leftPlace.iLine != rightPlace.iLine)
+			string word = GetWordForSelection(selection);
+			if (word == lines.markedWord)
 			{
-				if (lines.marksByLine.Count != 0)
-					lines.marksByLine.Clear();
-				lines.markedWord = null;
 				return;
-			}
-			string word = null;
-			{
-				Line line = lines[leftPlace.iLine];
-				if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
-					(rightPlace.iChar == line.charsCount || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
-				{
-					StringBuilder builder = new StringBuilder();
-					for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
-					{
-						char c = line.chars[i].c;
-						if (GetCharType(c) != CharType.Identifier)
-						{
-							builder = null;
-							break;
-						}
-						builder.Append(c);
-					}
-					if (builder != null && builder.Length != 0)
-						word = builder.ToString();
-				}
 			}
 			if (word == null)
 			{
@@ -1073,8 +1074,6 @@ namespace MulticaretEditor
 			int wordLength = word.Length;
 
 			PredictableList<int> indexList = new PredictableList<int>();
-			lines.marksByLine.Clear();
-			int charsOffset = 0;
 			int lineIndex = 0;
 			for (int i = 0; i < lines.blocksCount; ++i)
 			{
@@ -1137,7 +1136,6 @@ namespace MulticaretEditor
 					}
 					if (indexList.count > 0)
 						lines.marksByLine[lineIndex] = indexList.ToArray();
-					charsOffset += lineI.charsCount;
 					++lineIndex;
 				}
 			}
