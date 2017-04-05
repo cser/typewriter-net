@@ -653,7 +653,7 @@ namespace MulticaretEditor
 			int minPos = Math.Max(0, valueX / charWidth - 1);
 			int maxPos = Math.Min(lines.scroller.textSizeX, (valueX + clientWidth) / charWidth + 1);
 			int start = lines.IndexOf(new Place(0, lineMin.iLine));
-			int end = lines.IndexOf(new Place(lines[lineMax.iLine].chars.Count, lineMax.iLine));
+			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
 			if (lines.wordWrap)
 			{
 				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
@@ -758,7 +758,7 @@ namespace MulticaretEditor
 					{
 						int offset;
 						Color color;
-						if (HighlighterUtil.GetRGBForHighlight(line.chars, caret.iChar, out offset, out color))
+						if (HighlighterUtil.GetRGBForHighlight(line.chars, line.charsCount, caret.iChar, out offset, out color))
 						{
 							using (Pen pen = new Pen(color, 2))
 								g.DrawLine(pen, x + offset * CharWidth, y + charHeight - 1, x + (offset + 6) * CharWidth, y + charHeight - 1);
@@ -817,7 +817,7 @@ namespace MulticaretEditor
 
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
-				if (left.iChar + selection.Count <= leftLine.chars.Count)
+				if (left.iChar + selection.Count <= leftLine.charsCount)
 				{
 					int pos0 = leftLine.PosOfIndex(left.iChar);
 					int pos1 = leftLine.PosOfIndex(left.iChar + selection.Count);
@@ -879,7 +879,7 @@ namespace MulticaretEditor
 				Place left = lines.PlaceOf(selection.Left);
 				Line leftLine = lines[left.iLine];
 				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
-				if (left.iChar + selection.Count <= leftLine.chars.Count)
+				if (left.iChar + selection.Count <= leftLine.charsCount)
 				{
 					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
 					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selection.Count);
@@ -1000,7 +1000,7 @@ namespace MulticaretEditor
 		private void DrawLineChars(Graphics g, Point position, Line line, int iLine, int minPos, int maxPos,
 			bool symbolic)
 		{
-			int count = line.chars.Count;
+			int count = line.charsCount;
 			int tabSize = lines.tabSize;
 			float y = position.Y + lineInterval / 2;
 			float x = position.X - charWidth / 3;
@@ -1128,7 +1128,7 @@ namespace MulticaretEditor
 					pos = cutOff.left;
 					i0 = cutOff.iChar;
 				}
-				int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.chars.Count;
+				int i1 = iCutOff < line.cutOffs.count ? line.cutOffs.buffer[iCutOff].iChar : line.charsCount;
 				for (int i = i0; i < i1; i++)
 				{
 					if (markI != -1 && i == indices[markI])
@@ -1152,7 +1152,7 @@ namespace MulticaretEditor
 							{
 								int left = line.cutOffs.buffer[k - 1].left;
 								int ii0 = line.cutOffs.buffer[k - 1].iChar;
-								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.chars.Count;
+								int ii1 = k < line.cutOffs.count ? line.cutOffs.buffer[k].iChar : line.charsCount;
 								top += charHeight;
 								if (i + length <= ii1)
 								{

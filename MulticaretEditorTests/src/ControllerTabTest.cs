@@ -51,19 +51,19 @@ namespace UnitTests
 		{
 			Init();
 			lines.SetText("\ta");
-			Assert.AreEqual(2, lines[0].chars.Count);
+			Assert.AreEqual(2, lines[0].charsCount);
 			Assert.AreEqual(5, lines[0].Size);
 			
 			Init();
 			lines.SetText("\ta\tbc\tdfg\thi");
 		//		a	bc	dfg	hi
-			Assert.AreEqual(12, lines[0].chars.Count);
+			Assert.AreEqual(12, lines[0].charsCount);
 			Assert.AreEqual(18, lines[0].Size);
 			
 			Init();
 			lines.SetText("abcd\te");
 		//	abcd	e
-			Assert.AreEqual(6, lines[0].chars.Count);
+			Assert.AreEqual(6, lines[0].charsCount);
 			Assert.AreEqual(9, lines[0].Size);
 		}
 		

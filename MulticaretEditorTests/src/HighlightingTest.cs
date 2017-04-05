@@ -29,7 +29,7 @@ namespace UnitTests
 		private void AssertHighlighting(string expected, Line line)
 		{
 			StringBuilder got = new StringBuilder();
-			for (int i = 0; i < line.chars.Count; i++)
+			for (int i = 0; i < line.charsCount; i++)
 			{
 				got.Append(line[i].style + "");
 			}

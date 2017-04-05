@@ -23,7 +23,7 @@ namespace MulticaretEditor
 		{
 		}
 
-		public bool IsEmpty { get { return LinesCount == 1 && this[0].chars.Count == 0; } }
+		public bool IsEmpty { get { return LinesCount == 1 && this[0].charsCount == 0; } }
 
 		override protected LineBlock NewBlock()
 		{
@@ -116,20 +116,20 @@ namespace MulticaretEditor
 		public void AddLineUnsafely(Line line)
 		{
 			AddValue(line);
-			charsCount += line.chars.Count;
+			charsCount += line.charsCount;
 		}
 		
 		public void CutLastLineBreakUnsafely()
 		{
 			Line line = GetValue(LinesCount - 1);
-			if (line.chars[line.chars.Count - 1].c == '\n' || line.chars[line.chars.Count - 1].c == '\r')
+			if (line.chars[line.charsCount - 1].c == '\n' || line.chars[line.charsCount - 1].c == '\r')
 			{
-				line.chars.RemoveAt(line.chars.Count - 1);
+				line.Chars_RemoveAt(line.charsCount - 1);
 				--charsCount;
 			}
-			if (line.chars[line.chars.Count - 1].c == '\n' || line.chars[line.chars.Count - 1].c == '\r')
+			if (line.chars[line.charsCount - 1].c == '\n' || line.chars[line.charsCount - 1].c == '\r')
 			{
-				line.chars.RemoveAt(line.chars.Count - 1);
+				line.Chars_RemoveAt(line.charsCount - 1);
 				--charsCount;
 			}
 		}
@@ -156,13 +156,12 @@ namespace MulticaretEditor
 
 		private Line NewLine(string text, int index, int count)
 		{
-			Line line = new Line();
+			Line line = new Line(count);
 			line.tabSize = tabSize;
-			line.chars.Capacity = count;
 			int end = index + count;
 			for (int j = index; j < end; j++)
 			{
-				line.chars.Add(new Char(text[j]));
+				line.Chars_Add(new Char(text[j]));
 			}
 			return line;
 		}
@@ -187,7 +186,7 @@ namespace MulticaretEditor
 				{
 					chars[i] = new Char(text[i]);
 				}
-				start.chars.InsertRange(place.iChar, chars);
+				start.Chars_InsertRange(place.iChar, chars);
 				start.cachedText = null;
 				start.cachedSize = -1;
 				start.endState = null;
@@ -218,12 +217,12 @@ namespace MulticaretEditor
 				}
 				lines.Add(NewLine(text, lineStart, length - lineStart));
 				Line line0 = lines[0];
-				line0.chars.InsertRange(0, start.chars.GetRange(0, place.iChar));
+				line0.Chars_InsertRange(0, start, 0, place.iChar);
 				line0.cachedText = null;
 				line0.cachedSize = -1;
 				line0.wwSizeX = 0;
 				Line line1 = lines[lines.Count - 1];
-				line1.chars.AddRange(start.chars.GetRange(place.iChar, start.chars.Count - place.iChar));
+				line1.Chars_AddRange(start, place.iChar, start.charsCount - place.iChar);
 				line1.cachedText = null;
 				line1.cachedSize = -1;
 				line1.wwSizeX = 0;
@@ -250,16 +249,16 @@ namespace MulticaretEditor
 			LineBlock block = blocks[blockI];
 			int startJ = place.iLine - block.offset;
 			Line start = block.array[startJ];
-			if (place.iChar + count <= start.chars.Count)
+			if (place.iChar + count <= start.charsCount)
 			{
-				start.chars.RemoveRange(place.iChar, count);
+				start.Chars_RemoveRange(place.iChar, count);
 				start.cachedText = null;
 				start.cachedSize = -1;
 				start.endState = null;
 				start.wwSizeX = 0;
 				block.valid = 0;
 				block.wwSizeX = 0;
-				int startCharsCount = start.chars.Count;
+				int startCharsCount = start.charsCount;
 				bool needMerge;
 				if (startCharsCount > 0)
 				{
@@ -273,7 +272,7 @@ namespace MulticaretEditor
 				if (needMerge && place.iLine + 1 < valuesCount)
 				{
 					Line line = startJ + 1 < block.count ? block.array[startJ + 1] : blocks[blockI + 1].array[0];
-					start.chars.AddRange(line.chars);
+					start.Chars_AddRange(line);
 					RemoveValueAt(place.iLine + 1);
 				}
 			}
@@ -282,7 +281,7 @@ namespace MulticaretEditor
 				block.valid = 0;
 				block.wwSizeX = 0;
 				int lineJ = startJ;
-				int k = start.chars.Count - place.iChar;
+				int k = start.charsCount - place.iChar;
 				int countToRemove = -1;
 				Line line = start;
 				while (k < count)
@@ -296,21 +295,21 @@ namespace MulticaretEditor
 						lineJ = 0;
 					}
 					line = block.array[lineJ];
-					k += line.chars.Count;
+					k += line.charsCount;
 				}
 				Line end = line;
-				start.chars.RemoveRange(place.iChar, start.chars.Count - place.iChar);// fails
+				start.Chars_RemoveRange(place.iChar, start.charsCount - place.iChar);// fails
 				start.cachedText = null;
 				start.cachedSize = -1;
 				start.endState = null;
 				start.wwSizeX = 0;
-				end.chars.RemoveRange(0, count + end.chars.Count - k);
+				end.Chars_RemoveRange(0, count + end.charsCount - k);
 				end.cachedText = null;
 				end.cachedSize = -1;
 				end.wwSizeX = 0;
-				start.chars.AddRange(end.chars);
+				start.Chars_AddRange(end);
 
-				int startCharsCount = start.chars.Count;
+				int startCharsCount = start.charsCount;
 				bool needMerge;
 				if (startCharsCount > 0)
 				{
@@ -324,7 +323,7 @@ namespace MulticaretEditor
 				if (needMerge && block.offset + lineJ + 1 < valuesCount)
 				{
 					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[blockI + 1].array[0];
-					start.chars.AddRange(next.chars);
+					start.Chars_AddRange(next);
 					countToRemove++;
 				}
 
@@ -352,12 +351,12 @@ namespace MulticaretEditor
 			int j = index - blockIChar;
 			for (int ii = 0; ii < i; ii++)
 			{
-				j -= block.array[ii].chars.Count;
+				j -= block.array[ii].charsCount;
 			}
 			Line line = block.array[i];
 			for (int k = 0; k < count; k++)
 			{
-				if (j < line.chars.Count)
+				if (j < line.charsCount)
 				{
 					builder.Append(line.chars[j].c);
 				}
@@ -391,7 +390,7 @@ namespace MulticaretEditor
 					block.charsCount = 0;
 					for (int j = 0; j < block.count; j++)
 					{
-						block.charsCount += block.array[j].chars.Count;
+						block.charsCount += block.array[j].charsCount;
 					}
 				}
 				if (place.iLine >= block.offset && place.iLine < block.offset + block.count)
@@ -399,10 +398,10 @@ namespace MulticaretEditor
 					int j1 = place.iLine - block.offset;
 					for (int j = 0; j < j1; j++)
 					{
-						charOffset += block.array[j].chars.Count;
+						charOffset += block.array[j].charsCount;
 					}
-					if (place.iChar > block.array[j1].chars.Count)
-						place.iChar = block.array[j1].chars.Count;
+					if (place.iChar > block.array[j1].charsCount)
+						place.iChar = block.array[j1].charsCount;
 					return charOffset + place.iChar;
 				}
 				charOffset += block.charsCount;
@@ -435,7 +434,7 @@ namespace MulticaretEditor
 					block.charsCount = 0;
 					for (int j = 0; j < block.count; j++)
 					{
-						block.charsCount += block.array[j].chars.Count;
+						block.charsCount += block.array[j].charsCount;
 					}
 				}
 				if (index >= charOffset && index < charOffset + block.charsCount)
@@ -444,13 +443,13 @@ namespace MulticaretEditor
 					int currentJ = 0;
 					for (int j = 0; j < block.count; j++)
 					{
-						charOffset += block.array[j].chars.Count;
+						charOffset += block.array[j].charsCount;
 						currentJ = j;
 						if (index < charOffset)
 							break;
 					}
 					blockI = i;
-					Place place = new Place(index - charOffset + block.array[currentJ].chars.Count, block.offset + currentJ);
+					Place place = new Place(index - charOffset + block.array[currentJ].charsCount, block.offset + currentJ);
 					return place;
 				}
 				charOffset += block.charsCount;
@@ -458,7 +457,7 @@ namespace MulticaretEditor
 			blockIChar = charOffset;
 			blockI = blocksCount - 1;
 			{
-				Place place = new Place(block.array[block.count - 1].chars.Count, block.offset + block.count - 1);
+				Place place = new Place(block.array[block.count - 1].charsCount, block.offset + block.count - 1);
 				return place;
 			}
 		}
@@ -556,7 +555,7 @@ namespace MulticaretEditor
 				string text0 = texts[0];
 				LineIterator iteratorI = GetLineRange(place.iLine, linesCount - place.iLine);
 				iteratorI.MoveNext();
-				if (place.iChar > iteratorI.current.chars.Count - text0.Length)
+				if (place.iChar > iteratorI.current.charsCount - text0.Length)
 					iteratorI.MoveNext();
 				while (true)
 				{
@@ -743,7 +742,7 @@ namespace MulticaretEditor
 			short style = range.style;
 			Place start = PlaceOf(range.start);
 			Line line = this[start.iLine];
-			if (start.iChar + range.count <= line.chars.Count)
+			if (start.iChar + range.count <= line.charsCount)
 			{
 				line.SetRangeStyle(start.iChar, range.count, style);
 			}
@@ -753,11 +752,11 @@ namespace MulticaretEditor
 				LineIterator iterator = GetLineRange(start.iLine, end.iLine - start.iLine + 1);
 				if (iterator.MoveNext())
 				{
-					iterator.current.SetRangeStyle(start.iChar, iterator.current.chars.Count - start.iChar, style);
+					iterator.current.SetRangeStyle(start.iChar, iterator.current.charsCount - start.iChar, style);
 					for (int i = end.iLine - start.iLine - 1; i-- > 0;)
 					{
 						iterator.MoveNext();
-						iterator.current.SetRangeStyle(0, iterator.current.chars.Count, style);
+						iterator.current.SetRangeStyle(0, iterator.current.charsCount, style);
 					}
 					iterator.MoveNext();
 					iterator.current.SetRangeStyle(0, end.iChar, style);
@@ -788,7 +787,7 @@ namespace MulticaretEditor
 				for (int j = 0; j < block.count; j++)
 				{
 					Line line = block.array[j];
-					line.SetRangeStyle(0, line.chars.Count, 0);
+					line.SetRangeStyle(0, line.charsCount, 0);
 				}
 			}
 		}
@@ -815,7 +814,7 @@ namespace MulticaretEditor
 				int offsetCharsI = 0;
 				for (int j = 0; j < block.count; j++)
 				{
-					offsetCharsI += block.array[j].chars.Count;
+					offsetCharsI += block.array[j].charsCount;
 				}
 				if (offsetCharsI != block.charsCount)
 					return "ERROR [i=" + i + "] (offsetCharsI=" + offsetCharsI + " != block.charsCount=" + block.charsCount + ")\n" + Debug_GetBlockInfo(block, "");
@@ -832,8 +831,8 @@ namespace MulticaretEditor
 			for (int i = 0; i < block.count; i++)
 			{
 				Line line = block.array[i];
-				text += "\t[" + i + ":" + line.chars.Count + "] " + line.Text.Replace("\n", "\\n").Replace("\r", "\\r") + "\n";
-				charsCount += line.chars.Count;
+				text += "\t[" + i + ":" + line.charsCount + "] " + line.Text.Replace("\n", "\\n").Replace("\r", "\\r") + "\n";
+				charsCount += line.charsCount;
 			}
 			text += "] expected:" + block.charsCount + ", was:" + charsCount;
 			return text;

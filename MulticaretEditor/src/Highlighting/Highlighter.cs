@@ -433,7 +433,7 @@ namespace MulticaretEditor.Highlighting
 					string text = line.Text;
 					Array.Clear(awakePositions, 0, awakePositions.Length);
 					int position = 0;
-					int count = line.chars.Count;
+					int count = line.charsCount;
 					while (position < count)
 					{
 						Rules.Context context = stack.count > 0 ? stack.Peek() : contexts[0];

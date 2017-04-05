@@ -114,7 +114,7 @@ namespace MulticaretEditor.Commands
 				while (iterator.MoveNext())
 				{
 					Line line = iterator.current;
-					int oldCount = line.chars.Count;
+					int oldCount = line.charsCount;
 					string deletedI;
 					int tabsCount;
 					line.GetFirstIntegerTabs(out deletedI, out tabsCount);
@@ -138,7 +138,7 @@ namespace MulticaretEditor.Commands
 						if (tabsCount == 0)
 						{
 							string spaces = "";
-							for (int j = deletedI.Length; j < line.chars.Count && line.chars[j].c == ' '; j++)
+							for (int j = deletedI.Length; j < line.charsCount && line.chars[j].c == ' '; j++)
 							{
 								spaces += ' ';
 							}
@@ -162,8 +162,8 @@ namespace MulticaretEditor.Commands
 							}
 						}
 					}
-					line.chars.RemoveRange(0, deletedI.Length);
-					line.chars.InsertRange(0, chars);
+					line.Chars_RemoveRange(0, deletedI.Length);
+					line.Chars_InsertRange(0, chars.ToArray());//TODO optimize
 					int delta = chars.Count - deletedI.Length;
 					iterator.InvalidateCurrentText(delta);
 					deleted[k++] = new Memento(deletedI, chars.Count);
@@ -223,14 +223,14 @@ namespace MulticaretEditor.Commands
 				{
 					Memento deletedI = deleted[k++];
 					Line line = iterator.current;
-					line.chars.RemoveRange(0, deletedI.count);
-					List<Char> chars = new List<Char>();
+					line.Chars_RemoveRange(0, deletedI.count);
+					Char[] chars = new Char[deletedI.text.Length];
 					for (int j = 0; j < deletedI.text.Length; j++)
 					{
-						chars.Add(new Char(deletedI.text[j]));
+						chars[j] = new Char(deletedI.text[j]);
 					}
-					line.chars.InsertRange(0, chars);
-					iterator.InvalidateCurrentText(chars.Count - deletedI.count);
+					line.Chars_InsertRange(0, chars);
+					iterator.InvalidateCurrentText(chars.Length - deletedI.count);
 				}
 			}
 			deleted = null;

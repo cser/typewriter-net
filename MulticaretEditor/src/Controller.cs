@@ -167,7 +167,7 @@ namespace MulticaretEditor
 					if (place.iLine > 0)
 					{
 						Line line = lines[place.iLine - 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -218,7 +218,7 @@ namespace MulticaretEditor
 					if (place.iLine < lines.LinesCount - 1)
 					{
 						Line line = lines[place.iLine + 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -679,7 +679,7 @@ namespace MulticaretEditor
 
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
 		{
-			int count = line.chars.Count;
+			int count = line.charsCount;
 			int spacesCount = 0;
 			for (int i = 0; i < count; ++i)
 			{
@@ -1044,7 +1044,7 @@ namespace MulticaretEditor
 			{
 				Line line = lines[leftPlace.iLine];
 				if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
-					(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
+					(rightPlace.iChar == line.charsCount || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
 				{
 					StringBuilder builder = new StringBuilder();
 					for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
@@ -1137,7 +1137,7 @@ namespace MulticaretEditor
 					}
 					if (indexList.count > 0)
 						lines.marksByLine[lineIndex] = indexList.ToArray();
-					charsOffset += lineI.chars.Count;
+					charsOffset += lineI.charsCount;
 					++lineIndex;
 				}
 			}
@@ -1219,7 +1219,7 @@ namespace MulticaretEditor
 					--position;
 				}
 			}
-			if (iChar == -1 && place.iChar < line.chars.Count)
+			if (iChar == -1 && place.iChar < line.charsCount)
 			{
 				c0 = line.chars[place.iChar].c;
 				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')

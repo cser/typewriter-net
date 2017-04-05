@@ -25,7 +25,7 @@ namespace UnitTests
 		protected string GetLineText(int index)
 		{
 			StringBuilder builder = new StringBuilder();
-			int Count = lines[index].chars.Count;
+			int Count = lines[index].charsCount;
 			for (int i = 0; i < Count; i++)
 			{
 				builder.Append(lines[index][i].c);
