@@ -127,11 +127,6 @@ namespace MulticaretEditor
 			charsCount -= length;
 		}
 
-		public void SetStyle(int index, short style)
-		{
-			chars[index].style = style;
-		}
-
 		public void SetRangeStyle(int startIndex, int count, short style)
 		{
 			int endIndex = startIndex + count;
