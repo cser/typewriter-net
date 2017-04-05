@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using System.IO;
 
 public class Program
 {
@@ -17,6 +18,7 @@ public class Program
         bool isNewInstance;
         using (Mutex singleMutex = new Mutex(true, "3549b015-0564-4e97-b519-2a911a927b45", out isNewInstance))
         {
+            string currentDirectory = Directory.GetCurrentDirectory();
             List<string> files = new List<string>();
             bool hasUnsupportedArgs = false;
             List<string> supportedArgs = new List<string>();
@@ -24,7 +26,8 @@ public class Program
             {
                 if (!arg.StartsWith("-"))
                 {
-                    files.Add(arg);
+                    string fullFilePath = Path.Combine(currentDirectory, arg);
+                    files.Add(fullFilePath);
                 }
                 else if (arg.StartsWith("-line="))
                 {

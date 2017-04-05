@@ -287,7 +287,8 @@ public class MainForm : Form
 
 	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
 	{
-	    lineNumber = 0;
+		string currentDirectory = Directory.GetCurrentDirectory();
+		lineNumber = 0;
 		filesToLoad = new List<FileArg>();
 		tempFilePostfix = null;
 		configFilePostfix = null;
@@ -309,7 +310,7 @@ public class MainForm : Form
 			}
 			else if (i < args.Length && !args[i].StartsWith("-"))
 			{
-				filesToLoad.Add(new FileArg(args[i], null));
+				filesToLoad.Add(new FileArg(Path.Combine(currentDirectory, args[i]), null));
 				i++;
 			}
 			else if (i < args.Length && args[i] == "-temp")
