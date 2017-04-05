@@ -1013,6 +1013,8 @@ namespace MulticaretEditor
 
 		public void MarkWordOnPaint(bool enabled)
 		{
+			//System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+			//sw.Start();
 			Selection selection = selections[0];
 			if (selection.Empty || !enabled)
 			{
@@ -1067,6 +1069,8 @@ namespace MulticaretEditor
 				return;
 			}
 			lines.markedWord = word;
+			char c0 = word[0];
+			int wordLength = word.Length;
 
 			PredictableList<int> indexList = new PredictableList<int>();
 			lines.marksByLine.Clear();
@@ -1082,49 +1086,53 @@ namespace MulticaretEditor
 					int charsCount = lineI.NormalCount;
 					indexList.Clear();
 					int k = 0;
-					if (k + word.Length <= charsCount)
+					if (k + wordLength <= charsCount)
 					{
-						bool matched = true;
-						for (int wordK = 0; wordK < word.Length; ++wordK)
+						bool matched = chars[k] == c0;
+						if (matched)
 						{
-							if (chars[k + wordK] != word[wordK])
+							for (int wordK = 1; wordK < wordLength; ++wordK)
 							{
-								matched = false;
-								break;
+								if (chars[k + wordK] != word[wordK])
+								{
+									matched = false;
+									k += wordK;
+									break;
+								}
 							}
 						}
 						if (matched &&
-							(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
+							(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength])))
 						{
 							indexList.Add(k);
 						}
 					}
-					for (; k < charsCount;)
+					if (k == 0)
 					{
-						if (IsWordSeparator(chars[k]))
+						++k;
+					}
+					for (; k < charsCount; ++k)
+					{
+						if (chars[k] == c0 && IsWordSeparator(chars[k - 1]))
 						{
-							++k;
-							if (k + word.Length <= charsCount)
+							if (k + wordLength <= charsCount)
 							{
 								bool matched = true;
-								for (int wordK = 0; wordK < word.Length; ++wordK)
+								for (int wordK = 1; wordK < wordLength; ++wordK)
 								{
 									if (chars[k + wordK] != word[wordK])
 									{
 										matched = false;
+										k += wordK;
 										break;
 									}
 								}
 								if (matched &&
-									(k + word.Length >= charsCount || IsWordSeparator(chars[k + word.Length])))
+									(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength])))
 								{
 									indexList.Add(k);
 								}
 							}
-						}
-						else
-						{
-							++k;
 						}
 					}
 					if (indexList.count > 0)
@@ -1133,6 +1141,8 @@ namespace MulticaretEditor
 					++lineIndex;
 				}
 			}
+			//sw.Stop();
+			//Console.WriteLine(sw.ElapsedMilliseconds + " ms");
 		}
 		
 		private static bool IsWordSeparator(char c)
