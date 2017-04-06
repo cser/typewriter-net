@@ -67,6 +67,7 @@ namespace UnitTests
 		{
 			Init("");
 			AssertChars("");
+			AssertStyles("");
 			AssertCharsBuffer("\0\0");
 		}
 		
@@ -77,11 +78,51 @@ namespace UnitTests
 			line.Chars_Add(new Char('1'));
 			line.Chars_Add(new Char('2'));
 			AssertChars("12");
+			AssertStyles("00");
 			AssertCharsBuffer("12");
 			
 			line.Chars_Add(new Char('3'));
 			AssertChars("123");
+			AssertStyles("000");
 			AssertCharsBuffer("123\0");
+		}
+		
+		[Test]
+		public void Chars_AddRange()
+		{
+			Init("abc\ndef");
+			lines[0].SetRangeStyle(1, 2, 9);
+			lines[1].SetRangeStyle(1, 2, 7);
+			
+			line.Chars_AddRange(lines[1]);
+			AssertChars("abc\ndef");
+			AssertStyles("0990077");
+			AssertCharsBuffer("abc\ndef\0");
+			
+			line.Chars_AddRange(lines[1], 1, 2);
+			AssertChars("abc\ndefef");
+			AssertStyles("099007777");
+			AssertCharsBuffer("abc\ndefef\0\0\0\0\0\0\0");
+			
+			line.Chars_AddRange(lines[1], 1, 1);
+			AssertChars("abc\ndefefe");
+			AssertStyles("0990077777");
+			AssertCharsBuffer("abc\ndefefe\0\0\0\0\0\0");
+			
+			line.Chars_AddRange(lines[1], 0, 2);
+			AssertChars("abc\ndefefede");
+			AssertStyles("099007777707");
+			AssertCharsBuffer("abc\ndefefede\0\0\0\0");
+		}
+		
+		[Test]
+		public void Chars_AddRange_JumpOverX2()
+		{
+			Init("abc\ndefghidklmnopqrstuvwxyz");
+			
+			line.Chars_AddRange(lines[1]);
+			AssertChars("abc\ndefghidklmnopqrstuvwxyz");
+			AssertCharsBuffer("abc\ndefghidklmnopqrstuvwxyz\0\0\0\0\0");
 		}
 	}
 }
