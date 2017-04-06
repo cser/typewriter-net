@@ -82,6 +82,8 @@ namespace MulticaretEditor
 
 		public void SetText(string text)
 		{
+			//System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+			//sw.Start();
 			ClearValues();
 			int length = text.Length;
 			int lineStart = 0;
@@ -106,6 +108,8 @@ namespace MulticaretEditor
 			size = null;
 			cachedText = null;
 			wwSizeX = 0;
+			//sw.Stop();
+			//Console.WriteLine(sw.ElapsedMilliseconds + " ms - " + text.Length + " chars");
 		}
 		
 		public void ClearAllUnsafely()
@@ -158,11 +162,11 @@ namespace MulticaretEditor
 		{
 			Line line = new Line(count);
 			line.tabSize = tabSize;
-			int end = index + count;
-			for (int j = index; j < end; j++)
+			for (int j = 0; j < count; j++)
 			{
-				line.Chars_Add(new Char(text[j]));
+				line.chars[j].c = text[index + j];
 			}
+			line.charsCount = count;
 			return line;
 		}
 

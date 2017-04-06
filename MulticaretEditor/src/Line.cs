@@ -20,8 +20,8 @@ namespace MulticaretEditor
 		
 		public Line(int capacity)
 		{
-			if (capacity < 1)
-				capacity = 1;
+			if (capacity < 2)
+				capacity = 2;
 			chars = new Char[capacity];
 		}
 		
