@@ -87,7 +87,7 @@ public class RenameDialog : ADialog
 			{
 				textBox.Controller.PutNewCursor(new Place(0, i));
 			}
-			int right = line.chars.Count - line.GetRN().Length;
+			int right = line.charsCount - line.GetRN().Length;
 			if (isDirectory != null && i < isDirectory.Count && !isDirectory[i])
 			{
 				for (int j = right; j-- > 1;)

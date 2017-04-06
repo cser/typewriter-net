@@ -433,7 +433,7 @@ namespace MulticaretEditor.Highlighting
 					string text = line.Text;
 					Array.Clear(awakePositions, 0, awakePositions.Length);
 					int position = 0;
-					int count = line.chars.Count;
+					int count = line.charsCount;
 					while (position < count)
 					{
 						Rules.Context context = stack.count > 0 ? stack.Peek() : contexts[0];
@@ -447,7 +447,7 @@ namespace MulticaretEditor.Highlighting
 								{
 									for (; position < nextPosition; position++)
 									{
-										line.SetStyle(position, rule.attribute.index);
+										line.chars[position].style = rule.attribute.index;
 									}
 								}
 								if (rule.childs != null && position < count)
@@ -459,7 +459,7 @@ namespace MulticaretEditor.Highlighting
 										{
 											for (; position < childNextPosition; position++)
 											{
-												line.SetStyle(position, childRule.attribute.index);
+												line.chars[position].style = childRule.attribute.index;
 											}
 											Switch(rule.context);
 										}
@@ -478,7 +478,7 @@ namespace MulticaretEditor.Highlighting
 							}
 							else
 							{
-								line.SetStyle(position, context.attribute.index);
+								line.chars[position].style = context.attribute.index;
 								position++;
 							}
 						}

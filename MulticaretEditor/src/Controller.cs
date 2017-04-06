@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using System.Threading;
 using System.Runtime.InteropServices;
 using MulticaretEditor.Commands;
 using MulticaretEditor.Highlighting;
@@ -167,7 +164,7 @@ namespace MulticaretEditor
 					if (place.iLine > 0)
 					{
 						Line line = lines[place.iLine - 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine - 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -218,7 +215,7 @@ namespace MulticaretEditor
 					if (place.iLine < lines.LinesCount - 1)
 					{
 						Line line = lines[place.iLine + 1];
-						place = new Place(Math.Min(line.chars.Count, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
+						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
 						result = true;
 					}
 					selection.caret = lines.IndexOf(place);
@@ -679,7 +676,7 @@ namespace MulticaretEditor
 
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
 		{
-			int count = line.chars.Count;
+			int count = line.charsCount;
 			int spacesCount = 0;
 			for (int i = 0; i < count; ++i)
 			{
@@ -782,7 +779,7 @@ namespace MulticaretEditor
 					StringBuilder builder = new StringBuilder();
 					for (int i = left; i < iChar; ++i)
 					{
-						builder.Append(line[i].c);
+						builder.Append(line.chars[i].c);
 					}
 					return builder.ToString();
 				}
@@ -1008,8 +1005,38 @@ namespace MulticaretEditor
 
 		private int markLeft = -1;
 		private int markRight = -1;
-		private int markCount = -1;
 		private bool markEnabled = true;
+		
+		private string GetWordForSelection(Selection selection)
+		{
+			Place leftPlace = lines.PlaceOf(selection.Left);
+			Place rightPlace = lines.PlaceOf(selection.Right);
+			if (leftPlace.iLine != rightPlace.iLine)
+			{
+				return null;
+			}
+			Line line = lines[leftPlace.iLine];
+			if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
+				(rightPlace.iChar == line.charsCount || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
+			{
+				for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
+				{
+					if (IsWordSeparator(line.chars[i].c))
+					{
+						return null;
+					}
+				}
+				int offset = leftPlace.iChar;
+				int length = rightPlace.iChar - offset;
+				char[] buffer = new char[length];
+				for (int i = 0; i < length; ++i)
+				{
+					buffer[i] = line.chars[offset + i].c;
+				}
+				return new string(buffer);
+			}
+			return null;
+		}
 
 		public void MarkWordOnPaint(bool enabled)
 		{
@@ -1025,41 +1052,15 @@ namespace MulticaretEditor
 				markRight = -1;
 				return;
 			}
-			if (selection.Left == markLeft && selection.Right == markRight && markCount == selections.Count && markEnabled == enabled)
+			if (selection.Left == markLeft && selection.Right == markRight && markEnabled == enabled)
 				return;
 			markLeft = selection.Left;
 			markRight = selection.Right;
-			markCount = selections.Count;
 			markEnabled = enabled;
-			Place leftPlace = lines.PlaceOf(selection.Left);
-			Place rightPlace = lines.PlaceOf(selection.Right);
-			if (leftPlace.iLine != rightPlace.iLine)
+			string word = GetWordForSelection(selection);
+			if (word == lines.markedWord)
 			{
-				if (lines.marksByLine.Count != 0)
-					lines.marksByLine.Clear();
-				lines.markedWord = null;
 				return;
-			}
-			string word = null;
-			{
-				Line line = lines[leftPlace.iLine];
-				if ((leftPlace.iChar == 0 || GetCharType(line.chars[leftPlace.iChar - 1].c) != CharType.Identifier) &&
-					(rightPlace.iChar == line.chars.Count || GetCharType(line.chars[rightPlace.iChar].c) != CharType.Identifier))
-				{
-					StringBuilder builder = new StringBuilder();
-					for (int i = leftPlace.iChar; i < rightPlace.iChar; ++i)
-					{
-						char c = line.chars[i].c;
-						if (GetCharType(c) != CharType.Identifier)
-						{
-							builder = null;
-							break;
-						}
-						builder.Append(c);
-					}
-					if (builder != null && builder.Length != 0)
-						word = builder.ToString();
-				}
 			}
 			if (word == null)
 			{
@@ -1073,8 +1074,6 @@ namespace MulticaretEditor
 			int wordLength = word.Length;
 
 			PredictableList<int> indexList = new PredictableList<int>();
-			lines.marksByLine.Clear();
-			int charsOffset = 0;
 			int lineIndex = 0;
 			for (int i = 0; i < lines.blocksCount; ++i)
 			{
@@ -1082,18 +1081,18 @@ namespace MulticaretEditor
 				for (int j = 0; j < block.count; ++j)
 				{
 					Line lineI = block.array[j];
-					string chars = lineI.Text;
+					Char[] chars = lineI.chars;
 					int charsCount = lineI.NormalCount;
 					indexList.Clear();
 					int k = 0;
 					if (k + wordLength <= charsCount)
 					{
-						bool matched = chars[k] == c0;
+						bool matched = chars[k].c == c0;
 						if (matched)
 						{
 							for (int wordK = 1; wordK < wordLength; ++wordK)
 							{
-								if (chars[k + wordK] != word[wordK])
+								if (chars[k + wordK].c != word[wordK])
 								{
 									matched = false;
 									k += wordK;
@@ -1102,7 +1101,7 @@ namespace MulticaretEditor
 							}
 						}
 						if (matched &&
-							(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength])))
+							(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength].c)))
 						{
 							indexList.Add(k);
 						}
@@ -1113,14 +1112,14 @@ namespace MulticaretEditor
 					}
 					for (; k < charsCount; ++k)
 					{
-						if (chars[k] == c0 && IsWordSeparator(chars[k - 1]))
+						if (chars[k].c == c0 && IsWordSeparator(chars[k - 1].c))
 						{
 							if (k + wordLength <= charsCount)
 							{
 								bool matched = true;
 								for (int wordK = 1; wordK < wordLength; ++wordK)
 								{
-									if (chars[k + wordK] != word[wordK])
+									if (chars[k + wordK].c != word[wordK])
 									{
 										matched = false;
 										k += wordK;
@@ -1128,7 +1127,7 @@ namespace MulticaretEditor
 									}
 								}
 								if (matched &&
-									(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength])))
+									(k + wordLength >= charsCount || IsWordSeparator(chars[k + wordLength].c)))
 								{
 									indexList.Add(k);
 								}
@@ -1137,7 +1136,6 @@ namespace MulticaretEditor
 					}
 					if (indexList.count > 0)
 						lines.marksByLine[lineIndex] = indexList.ToArray();
-					charsOffset += lineI.chars.Count;
 					++lineIndex;
 				}
 			}
@@ -1176,6 +1174,8 @@ namespace MulticaretEditor
 				case '|':
 				case '}':
 				case '~':
+				case '"':
+				case '\'':
 					return true;
 				default:
 					return false;
@@ -1219,7 +1219,7 @@ namespace MulticaretEditor
 					--position;
 				}
 			}
-			if (iChar == -1 && place.iChar < line.chars.Count)
+			if (iChar == -1 && place.iChar < line.charsCount)
 			{
 				c0 = line.chars[place.iChar].c;
 				if (c0 == '{' || c0 == '}' || c0 == '(' || c0 == ')')

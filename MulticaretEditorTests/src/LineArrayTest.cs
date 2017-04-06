@@ -52,7 +52,7 @@ namespace UnitTests
 			lines.SetText("text");
 			Assert.AreEqual(4, lines.charsCount);
 			Assert.AreEqual(1, lines.LinesCount);
-			Assert.AreEqual(4, lines[0].chars.Count);
+			Assert.AreEqual(4, lines[0].charsCount);
 			Assert.AreEqual("text", lines[0].Text);
 			
 			lines.SetText("line0\nline1 text\n\r\nline3 text text text");
@@ -967,9 +967,9 @@ namespace UnitTests
 		private void AssertHighlighting(string expected, Line line)
 		{
 			StringBuilder got = new StringBuilder();
-			for (int i = 0; i < line.chars.Count; i++)
+			for (int i = 0; i < line.charsCount; i++)
 			{
-				got.Append(line[i].style + "");
+				got.Append(line.chars[i].style + "");
 			}
 			Assert.AreEqual(expected, got.ToString(), "\"" + line.Text + "\"");
 		}

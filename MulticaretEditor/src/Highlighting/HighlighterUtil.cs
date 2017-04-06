@@ -116,7 +116,7 @@ namespace MulticaretEditor.Highlighting
 			return new Regex(@"\\(\d\d\d\d)").Replace(regex, @"\u$1");
 		}
 		
-		public static bool GetRGBForHighlight(List<Char> chars, int iChar, out int offset, out Color color)
+		public static bool GetRGBForHighlight(Char[] chars, int charsCount, int iChar, out int offset, out Color color)
 		{
 			offset = 0;
 			int count = 0;
@@ -128,7 +128,6 @@ namespace MulticaretEditor.Highlighting
 				offset--;
 				count++;
 			}
-			int charsCount = chars.Count;
 			for (int i = iChar; i < charsCount; i++)
 			{
 				char c = chars[i].c;
