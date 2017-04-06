@@ -98,7 +98,7 @@ namespace MulticaretEditor
 			charsCount += count;
 		}
 		
-		public void Chars_InsertRange(int index, Char[] text)
+		public void Chars_InsertRange(int index, string text)
 		{
 			int length = text.Length;
 			int count = charsCount + length;
@@ -114,7 +114,10 @@ namespace MulticaretEditor
 				chars = newChars;
 			}
 			Array.Copy(chars, index, chars, index + length, charsCount - index);
-			Array.Copy(text, 0, chars, index, length);
+			for (int i = 0; i < text.Length; ++i)
+			{
+				chars[index + i] = new Char(text[i]);
+			}
 			charsCount += length;
 		}
 		
@@ -136,7 +139,7 @@ namespace MulticaretEditor
 			Array.Copy(chars, index, chars, index + length, charsCount - index);
 			for (int i = 0; i < length; ++i)
 			{
-				chars[index + i].c = text[i];
+				chars[index + i] = new Char(text[i]);
 			}
 			charsCount += length;
 		}
@@ -148,6 +151,24 @@ namespace MulticaretEditor
 				Array.Copy(chars, index + length, chars, index, charsCount - index - length);
 			}
 			charsCount -= length;
+		}
+		
+		public void Chars_ReduceBuffer()
+		{
+			if (charsCount <= (chars.Length >> 2))
+			{
+				int length = chars.Length;
+				while ((length >> 1) >= 32 && charsCount <= (length >> 2))
+				{
+					length = length >> 1;
+				}
+				if (length < chars.Length)
+				{
+					Char[] newBuffer = new Char[length];
+					Array.Copy(chars, newBuffer, newBuffer.Length);
+					chars = newBuffer;
+				}
+			}
 		}
 
 		public void SetRangeStyle(int startIndex, int count, short style)

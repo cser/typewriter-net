@@ -80,14 +80,19 @@ namespace MulticaretEditor
 		
 		public void Realocate()
 		{
-			while (true)
+			if (count <= (buffer.Length >> 2))
 			{
-				int halfLenght = buffer.Length >> 1;
-				if (halfLenght < minCapacity || count > (halfLenght >> 1))
-					break;
-				T[] newBuffer = new T[halfLenght];
-				Array.Copy(buffer, newBuffer, newBuffer.Length);
-				buffer = newBuffer;
+				int length = buffer.Length;
+				while ((length >> 1) >= minCapacity && count <= (length >> 2))
+				{
+					length = length >> 1;
+				}
+				if (length < buffer.Length)
+				{
+					T[] newBuffer = new T[length];
+					Array.Copy(buffer, newBuffer, newBuffer.Length);
+					buffer = newBuffer;
+				}
 			}
 		}
 		

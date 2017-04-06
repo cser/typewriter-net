@@ -224,13 +224,8 @@ namespace MulticaretEditor.Commands
 					Memento deletedI = deleted[k++];
 					Line line = iterator.current;
 					line.Chars_RemoveRange(0, deletedI.count);
-					Char[] chars = new Char[deletedI.text.Length];
-					for (int j = 0; j < deletedI.text.Length; j++)
-					{
-						chars[j] = new Char(deletedI.text[j]);
-					}
-					line.Chars_InsertRange(0, chars);
-					iterator.InvalidateCurrentText(chars.Length - deletedI.count);
+					line.Chars_InsertRange(0, deletedI.text);
+					iterator.InvalidateCurrentText(deletedI.text.Length - deletedI.count);
 				}
 			}
 			deleted = null;

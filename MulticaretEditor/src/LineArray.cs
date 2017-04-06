@@ -185,12 +185,7 @@ namespace MulticaretEditor
 			Line start = block.array[startJ];
 			if (text.IndexOf("\n") == -1 && text.IndexOf("\r") == -1)
 			{
-				Char[] chars = new Char[text.Length];
-				for (int i = 0; i < chars.Length; i++)
-				{
-					chars[i] = new Char(text[i]);
-				}
-				start.Chars_InsertRange(place.iChar, chars);
+				start.Chars_InsertRange(place.iChar, text);
 				start.cachedText = null;
 				start.cachedSize = -1;
 				start.endState = null;
@@ -311,6 +306,7 @@ namespace MulticaretEditor
 				end.cachedText = null;
 				end.cachedSize = -1;
 				end.wwSizeX = 0;
+				end.Chars_ReduceBuffer();
 				start.Chars_AddRange(end);
 
 				int startCharsCount = start.charsCount;
@@ -334,6 +330,7 @@ namespace MulticaretEditor
 				countToRemove++;
 				RemoveValuesRange(place.iLine + 1, countToRemove);
 			}
+			start.Chars_ReduceBuffer();
 			charsCount -= count;
 			size = null;
 			cachedText = null;
