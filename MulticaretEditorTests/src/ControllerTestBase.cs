@@ -12,7 +12,7 @@ namespace UnitTests
 		
 		virtual protected void Init()
 		{
-			Init(200);
+			Init(50);
 		}
 		
 		virtual protected void Init(int blockSize)

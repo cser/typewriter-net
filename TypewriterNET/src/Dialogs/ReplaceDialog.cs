@@ -185,23 +185,16 @@ public class ReplaceDialog : ADialog
 		return true;
 	}
 
-	private string GetReplaceText()
-	{
-		if (findParams.escape)
-			return Regex.Unescape(replaceTextBox.Text);
-		return replaceTextBox.Text;
-	}
-
 	private bool DoReplace(Controller controller)
 	{
 		string text = textBox.Text;
 		if (text != "" && Nest.MainForm.LastFrame != null)
 		{
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
-			if (!lastController.Lines.AllSelectionsEmpty)
-				lastController.InsertText(GetReplaceText());
-			doFindText(text);
+			lastController.DialogsExtension.Replace(text, replaceTextBox.Text,
+				findParams.regex, findParams.ignoreCase, findParams.escape);
 			data.history.Add(text);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
 		}
 		return true;
 	}
@@ -212,19 +205,24 @@ public class ReplaceDialog : ADialog
 		if (text != "" && Nest.MainForm.LastFrame != null)
 		{
 			Controller lastController = Nest.MainForm.LastFrame.Controller;
-			lastController.ClearMinorSelections();
-			lastController.LastSelection.anchor = lastController.LastSelection.caret = 0;
-			while (true)
-			{
-				doFindText(text);
-				if (!lastController.Lines.AllSelectionsEmpty)
-					lastController.InsertText(GetReplaceText());
-				else
-					break;
-			}
+			lastController.DialogsExtension.ReplaceAll(text, replaceTextBox.Text,
+				findParams.regex, findParams.ignoreCase, findParams.escape);
 			data.history.Add(text);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
 		}
 		return true;
+	}
+	
+	private void ProcessAfterControllerExtension(ControllerDialogsExtension extension)
+	{
+		if (extension.NeedMoveToCaret && Nest.MainForm.LastFrame != null)
+		{
+			Nest.MainForm.LastFrame.TextBox.MoveToCaret();
+		}
+		if (extension.NeedShowError != null)
+		{
+			Nest.MainForm.Dialogs.ShowInfo("FindInFiles", "Error: " + extension.NeedShowError);
+		}
 	}
 
 	override public Size MinSize

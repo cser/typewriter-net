@@ -241,6 +241,44 @@ namespace MulticaretEditor
 			return result;
 		}
 		
+		public void Replace(string text, string newText, bool isRegex, bool isIgnoreCase, bool isEscape)
+		{
+			if (isEscape)
+				newText = Regex.Unescape(newText);
+			if (!controller.Lines.AllSelectionsEmpty)
+			{
+				controller.RemoveEmptyOrMinorSelections();
+				controller.InsertText(newText);
+			}
+			FindNext(text, isRegex, isIgnoreCase);
+		}
+		
+		public void ReplaceAll(string text, string newText, bool isRegex, bool isIgnoreCase, bool isEscape)
+		{
+			if (isEscape)
+				newText = Regex.Unescape(newText);
+			controller.ClearMinorSelections();
+			controller.LastSelection.anchor = controller.LastSelection.caret = 0;
+			//TODO optimize regexes recreation, replace by one command
+			FindNext(text, isRegex, isIgnoreCase);
+			if (controller.Lines.AllSelectionsEmpty)
+			{
+				return;
+			}
+			controller.PutCursor(new Place(0, 0), false);
+			int index = 0;
+			while (true)
+			{
+				FindNext(text, isRegex, isIgnoreCase);
+				if (controller.Lines.AllSelectionsEmpty || controller.LastSelection.Left < index)
+				{
+					break;
+				}
+				index = controller.LastSelection.Left;
+				controller.InsertText(newText);
+			}
+		}
+		
 		public static Regex ParseRegex(string regexText, out string error)
 		{
 			Regex regex = null;

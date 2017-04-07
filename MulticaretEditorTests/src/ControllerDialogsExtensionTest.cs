@@ -10,7 +10,7 @@ namespace UnitTests
 		[Test]
 		public void FindNext1()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -31,7 +31,7 @@ namespace UnitTests
 		[Test]
 		public void FindNext1_NoMatches()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -44,7 +44,7 @@ namespace UnitTests
 		[Test]
 		public void FindNext1_CloseMatches()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			
 			controller.PutCursor(new Place(8, 0), false);			
@@ -72,7 +72,7 @@ namespace UnitTests
 		[Test]
 		public void FindNext2()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -89,7 +89,7 @@ namespace UnitTests
 		[Test]
 		public void SelectNextFound1()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -114,7 +114,7 @@ namespace UnitTests
 		[Test]
 		public void SelectNextFound1_NoMatches()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -127,7 +127,7 @@ namespace UnitTests
 		[Test]
 		public void SelectNextFound1_CloseMatches()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			
 			controller.PutCursor(new Place(10, 0), false);			
@@ -146,7 +146,7 @@ namespace UnitTests
 		[Test]
 		public void SelectAllFound()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -161,7 +161,7 @@ namespace UnitTests
 		[Test]
 		public void SelectAllFound_NoMatches()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			controller.PutCursor(new Place(6, 0), false);
 			AssertSelection().Both(6, 0).NoNext();
@@ -174,7 +174,7 @@ namespace UnitTests
 		[Test]
 		public void SelectAllFound_InsideSelection()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			
 			controller.PutCursor(new Place(14, 0), false);
@@ -199,7 +199,7 @@ namespace UnitTests
 		[Test]
 		public void SelectAllFound_InsideSelection_NotMatched()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			
 			controller.PutCursor(new Place(9, 1), false);
@@ -214,7 +214,7 @@ namespace UnitTests
 		[Test]
 		public void SelectAllFound_IfEqualSelectionThenMatchesAsNotInside()
 		{
-			Init(10);
+			Init();
 			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			
 			controller.PutCursor(new Place(9, 1), false);
@@ -226,6 +226,137 @@ namespace UnitTests
 			AssertSelection()
 				.Anchor(9, 0).Caret(14, 0).Next()
 				.Anchor(9, 1).Caret(14, 1).NoNext();
+		}
+		
+		[Test]
+		public void Replace()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 0), false);
+			controller.DialogsExtension.FindNext("ccccc", false, false);
+			AssertSelection().Anchor(9, 0).Caret(14, 0).NoNext();
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa ccccc fff");
+			AssertSelection().Anchor(9, 1).Caret(14, 1).NoNext();
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			AssertSelection().Both(11, 1).NoNext();
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			AssertSelection().Both(11, 1).NoNext();
+		}
+		
+		[Test]
+		public void Replace_Cyclic()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 1), false);
+			controller.DialogsExtension.FindNext("ccccc", false, false);
+			AssertSelection().Anchor(9, 1).Caret(14, 1).NoNext();
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb ccccc\neeee aaa CC fff");
+			AssertSelection().Anchor(9, 0).Caret(14, 0).NoNext();
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			AssertSelection().Both(11, 0).NoNext();
+		}
+		
+		[Test]
+		public void Replace_IfSelectionIsEmpty_JustSelectNext()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 0), false);
+			
+			controller.DialogsExtension.Replace("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			
+			AssertSelection().Anchor(9, 0).Caret(14, 0).NoNext();
+		}
+		
+		[Test]
+		public void ReplaceAll()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 0), false);
+			
+			controller.DialogsExtension.ReplaceAll("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			
+			AssertSelection().Both(11, 1).NoNext();
+		}
+		
+		[Test]
+		public void ReplaceAll_DontFreezeOnEqualReplace()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 0), false);
+			
+			controller.DialogsExtension.ReplaceAll("ccccc", "ccccc", false, false, false);
+			AssertText("aaa bbbb ccccc\neeee aaa ccccc fff");
+		}
+		
+		[Test]
+		public void ReplaceAll_ToEmpty()
+		{
+			Init();
+			lines.SetText("aaaaaaa");
+			controller.PutCursor(new Place(5, 0), false);
+			
+			controller.DialogsExtension.ReplaceAll("a", "", false, false, false);
+			AssertText("");
+			AssertSelection().Both(0, 0).NoNext();
+		}
+		
+		[Test]
+		public void Issue_with_replace_text_N6()
+		{
+			Init();
+			lines.SetText(
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test\n" +
+				"test");
+			controller.PutCursor(new Place(0, 4), false);
+			controller.SelectNextText();
+			controller.SelectNextText();
+			controller.SelectNextText();
+			AssertSelection()
+				.Anchor(0, 4).Caret(4, 4).Next()
+				.Anchor(0, 5).Caret(4, 5).Next()
+				.Anchor(0, 6).Caret(4, 6).NoNext();
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			controller.DialogsExtension.Replace("test", "pass", false, false, false);
+			AssertText(
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass\n" +
+				"pass");
+			//Made despite the fact that Sublime Text replace only last selection in contract to this behaviour
 		}
 	}
 }

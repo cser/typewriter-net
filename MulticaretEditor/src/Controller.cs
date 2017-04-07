@@ -976,13 +976,34 @@ namespace MulticaretEditor
 		public IEnumerable<Selection> Selections { get { return selections; } }
 		public Selection LastSelection { get { return lines.LastSelection; } }
 
-		public void RemoveSelections(List<Selection> selections)
+		public void RemoveEmptyOrMinorSelections()
 		{
-			foreach (Selection selection in selections)
+			bool allEmpty = true;
+			for (int i = selections.Count; i-- > 0;)
 			{
-				lines.selections.Remove(selection);
+				if (!selections[i].Empty)
+				{
+					allEmpty = false;
+					break;
+				}
 			}
-			lines.JoinSelections();
+			if (allEmpty)
+			{
+				if (selections.Count > 1)
+				{
+					selections.RemoveRange(0, selections.Count - 1);
+				}
+			}
+			else
+			{
+				for (int i = selections.Count; i-- > 0;)
+				{
+					if (selections[i].Empty)
+					{
+						selections.RemoveAt(i);
+					}
+				}
+			}
 		}
 
 		public void JoinSelections()
@@ -1058,10 +1079,6 @@ namespace MulticaretEditor
 			markRight = selection.Right;
 			markEnabled = enabled;
 			string word = GetWordForSelection(selection);
-			if (word == lines.markedWord)
-			{
-				return;
-			}
 			if (word == null)
 			{
 				if (lines.marksByLine.Count != 0)

@@ -1114,5 +1114,50 @@ namespace UnitTests
 				"line0\r\nline3\r\nline1\r\nline2\r\nline7\r\nline4\r\nline5\r\nline6\r\nline8\r\nline9\r\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 		}
+		
+		[Test]
+		public void RemoveEmptyOrMinorSelections()
+		{
+			Init();
+			lines.SetText("123456780123456780");
+			
+			controller.PutCursor(new Place(1, 0), false);
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Both(1, 0).NoNext();
+			
+			controller.PutCursor(new Place(1, 0), false);
+			controller.PutCursor(new Place(2, 0), true);
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Anchor(1, 0).Caret(2, 0).NoNext();
+			
+			controller.PutCursor(new Place(1, 0), false);
+			controller.PutCursor(new Place(2, 0), true);
+			controller.PutNewCursor(new Place(3, 0));
+			controller.PutCursor(new Place(4, 0), true);
+			AssertSelection().Anchor(1, 0).Caret(2, 0).Next().Anchor(3, 0).Caret(4, 0).NoNext();
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Anchor(1, 0).Caret(2, 0).Next().Anchor(3, 0).Caret(4, 0).NoNext();
+			
+			controller.PutNewCursor(new Place(5, 0));
+			AssertSelection().Anchor(1, 0).Caret(2, 0).Next().Anchor(3, 0).Caret(4, 0).Next().Both(5, 0).NoNext();
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Anchor(1, 0).Caret(2, 0).Next().Anchor(3, 0).Caret(4, 0).NoNext();
+			
+			controller.ClearMinorSelections();
+			controller.PutCursor(new Place(1, 0), false);
+			controller.PutNewCursor(new Place(3, 0));
+			controller.PutCursor(new Place(4, 0), true);
+			AssertSelection().Both(1, 0).Next().Anchor(3, 0).Caret(4, 0).NoNext();
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Anchor(3, 0).Caret(4, 0).NoNext();
+			
+			controller.ClearMinorSelections();
+			controller.PutCursor(new Place(1, 0), false);
+			controller.PutNewCursor(new Place(2, 0));
+			controller.PutNewCursor(new Place(3, 0));
+			AssertSelection().Both(1, 0).Next().Both(2, 0).Next().Both(3, 0).NoNext();
+			controller.RemoveEmptyOrMinorSelections();
+			AssertSelection().Both(3, 0).NoNext();
+		}
 	}
 }
