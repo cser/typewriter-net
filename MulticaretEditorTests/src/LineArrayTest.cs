@@ -31,6 +31,11 @@ namespace UnitTests
 			}
 		}
 		
+		protected void AssertLines(params string[] expectedLines)
+		{
+			CollectionAssert.AreEqual(expectedLines, lines.Debug_GetLinesText(), "Lines");
+		}
+		
 		[Test]
 		public void AlwaysHasOneLine()
 		{
@@ -197,7 +202,7 @@ namespace UnitTests
 			Init();
 			
 			lines.SetText("line0\nline1 text\r\nline3");
-			CollectionAssert.AreEqual(new string[] { "line0\n", "line1 text\r\n", "line3" }, lines.Debug_GetLinesText());		
+			CollectionAssert.AreEqual(new string[] { "line0\n", "line1 text\r\n", "line3" }, lines.Debug_GetLinesText());
 			
 			// line0N
 			// line1 textRN
@@ -1022,6 +1027,47 @@ namespace UnitTests
 			Assert.AreEqual(true, lines.IntersectSelections(3, 5));
 			Assert.AreEqual(true, lines.IntersectSelections(5, 6));
 			Assert.AreEqual(true, lines.IntersectSelections(7, 11));
+		}
+		
+		[Test]
+		public void RemoveFromRN()
+		{
+			Init();
+			
+			lines.SetText("aaa\r\nbb");
+			lines.RemoveText(4, 1);
+			AssertText("aaa\rbb");
+			AssertLines("aaa\r", "bb");
+			
+			lines.SetText("aaa\r\nbb");
+			lines.RemoveText(3, 1);
+			AssertText("aaa\nbb");
+			AssertLines("aaa\n", "bb");
+			
+			lines.SetText("aaa\r\nbb");
+			lines.RemoveText(3, 2);
+			AssertText("aaabb");
+			AssertLines("aaabb");
+		}
+		
+		[Test]
+		public void InsertInsideRN_Singleline()
+		{
+			Init();
+			lines.SetText("aaa\r\nbb");
+			lines.InsertText(4, "C");
+			AssertText("aaa\rC\nbb");
+			AssertLines("aaa\r", "C\n", "bb");
+		}
+		
+		[Test]
+		public void InsertInsideRN_Multiline()
+		{
+			Init();
+			lines.SetText("aaa\r\nbb");
+			lines.InsertText(4, "C\nB");
+			AssertText("aaa\rC\nB\nbb");
+			AssertLines("aaa\r", "C\n", "B\n", "bb");
 		}
 	}
 }

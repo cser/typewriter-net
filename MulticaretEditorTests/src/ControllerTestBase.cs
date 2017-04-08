@@ -90,6 +90,13 @@ namespace UnitTests
 				return this;
 			}
 			
+			public SelectionAssertion AbsoluteAnchorCaret(int anchor, int caret)
+			{
+				Assert.AreEqual(anchor + ", " + caret, selection.anchor + ", " + selection.caret,
+					"Absolute anchor, caret");
+				return this;
+			}
+			
 			public SelectionAssertion PreferredPos(int pos)
 			{
 				Assert.AreEqual(pos, selection.preferredPos, "PreferredPos");

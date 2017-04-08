@@ -187,9 +187,12 @@ namespace MulticaretEditor
 					maxIndex = controller.LastSelection.Right;
 				}
 			}
-			List<Selection> selections = new List<Selection>();
-
-			int start = minIndex;			
+			
+			LineArray lines = controller.Lines;
+			List<Selection> selections = lines.selections;
+			int start = minIndex;
+			bool found = false;
+			bool first = true;
 			while (true)
 			{
 				int index;
@@ -217,27 +220,22 @@ namespace MulticaretEditor
 				{
 					break;
 				}
-				Selection selection = new Selection();
+				if (first)
+				{
+					first = false;
+					controller.ClearMinorSelections();
+				}
+				else
+				{
+					selections.Add(new Selection());
+				}
+				Selection selection = selections[selections.Count - 1];
 				selection.anchor = index;
 				selection.caret = index + length;
-				selections.Add(selection);
+				lines.SetPreferredPos(selection, lines.PlaceOf(selection.caret));
 				start = index + length;
 			}
-			if (selections.Count > 0)
-			{
-				controller.ClearMinorSelections();
-				
-				Selection selection = selections[0];
-				controller.PutCursor(controller.Lines.PlaceOf(selection.anchor), false);
-				controller.PutCursor(controller.Lines.PlaceOf(selection.caret), true);
-				for (int i = 1; i < selections.Count; i++)
-				{
-					selection = selections[i];
-					controller.PutNewCursor(controller.Lines.PlaceOf(selection.anchor));
-					controller.PutCursor(controller.Lines.PlaceOf(selection.caret), true);
-				}
-				needMoveToCaret = true;
-			}
+			needMoveToCaret = found;
 			return result;
 		}
 		

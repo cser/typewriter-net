@@ -183,7 +183,25 @@ namespace MulticaretEditor
 			LineBlock block = blocks[blockI];
 			int startJ = place.iLine - block.offset;
 			Line start = block.array[startJ];
-			if (text.IndexOf("\n") == -1 && text.IndexOf("\r") == -1)
+			if (place.iChar == start.charsCount - 1 &&
+				start.charsCount >= 2 &&
+				start.chars[start.charsCount - 2].c == '\r' &&
+				start.chars[start.charsCount - 1].c == '\n')
+			{
+				start.Chars_RemoveAt(start.charsCount - 1);
+				start.cachedText = null;
+				start.cachedSize = -1;
+				start.endState = null;
+				start.wwSizeX = 0;
+				block.valid = 0;
+				block.wwSizeX = 0;
+				
+				start = NewLine("\n", 0, 1);
+				place.iLine++;
+				place.iChar = 0;
+				InsertValue(place.iLine, start);
+			}
+			if (text.IndexOf('\n') == -1 && text.IndexOf('\r') == -1)
 			{
 				start.Chars_InsertRange(place.iChar, text);
 				start.cachedText = null;

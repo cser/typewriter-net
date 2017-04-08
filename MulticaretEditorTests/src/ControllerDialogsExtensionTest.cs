@@ -391,5 +391,62 @@ namespace UnitTests
 			Assert.AreEqual("\n", lines[1].Text);
 			Assert.AreEqual("def", lines[2].Text);
 		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void SelectAllFound_InsideLineBreak(bool isIgnoreCase)
+		{
+			Init();
+			//             012345 6789 0 12345678 901
+			lines.SetText("aaa aa\njaa\r\njabj aa\njj");
+			Assert.AreEqual("aaa aa\n", lines[0].Text);
+			Assert.AreEqual("jaa\r\n", lines[1].Text);
+			Assert.AreEqual("jabj aa\n", lines[2].Text);
+			controller.PutCursor(new Place(1, 0), false);
+			AssertSelection().Both(1, 0).NoNext();
+			Assert.AreEqual("jj", lines[3].Text);
+			
+			controller.DialogsExtension.SelectAllFound("aa\nj", false, isIgnoreCase);
+			Assert.IsNull(controller.DialogsExtension.NeedShowError);
+			AssertSelection().AbsoluteAnchorCaret(4, 8).Next().AbsoluteAnchorCaret(17, 21).NoNext();
+			
+			controller.ClearMinorSelections();
+			controller.PutCursor(new Place(1, 0), false);
+			controller.DialogsExtension.SelectAllFound("\n", false, isIgnoreCase);
+			Assert.IsNull(controller.DialogsExtension.NeedShowError);
+			AssertSelection()
+				.AbsoluteAnchorCaret(6, 7).Next()
+				.AbsoluteAnchorCaret(11, 12).Next()
+				.AbsoluteAnchorCaret(19, 20).NoNext();
+			
+			controller.ClearMinorSelections();
+			controller.PutCursor(new Place(1, 0), false);
+			controller.DialogsExtension.SelectAllFound("\nj", false, isIgnoreCase);
+			Assert.IsNull(controller.DialogsExtension.NeedShowError);
+			AssertSelection()
+				.AbsoluteAnchorCaret(6, 8).Next()
+				.AbsoluteAnchorCaret(11, 13).Next()
+				.AbsoluteAnchorCaret(19, 21).NoNext();
+		}
+		
+		[Test]
+		[Ignore]
+		public void EnterText_InsideBreak_Undo()
+		{
+			Init();
+			lines.SetText("rh\r\nsf");
+			controller.PutCursor(new Place(1, 0), false);
+			controller.DialogsExtension.FindNext("\n", false, false);
+			AssertSelection().AbsoluteAnchorCaret(3, 4).NoNext();
+			controller.InsertText("GS");
+			AssertText("rh\rGSsf");
+			Assert.AreEqual("rh\r", lines[0].Text);
+			Assert.AreEqual("GSsf", lines[1].Text);
+			
+			controller.Undo();
+			AssertText("rh\r\nsf");
+			Assert.AreEqual("rh\r\n", lines[0].Text);
+			Assert.AreEqual("sf", lines[1].Text);
+		}
 	}
 }
