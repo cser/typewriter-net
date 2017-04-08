@@ -100,7 +100,10 @@ public class ReplaceDialog : ADialog
 		replaceTextBox = new MulticaretTextBox();
 		replaceTextBox.ShowLineNumbers = false;
 		replaceTextBox.HighlightCurrentLine = false;
+		replaceTextBox.KeyMap.AddAfter(KeyMap);
+		replaceTextBox.KeyMap.AddBefore(beforeKeyMap.map);
 		replaceTextBox.KeyMap.AddAfter(frameKeyMap.map, 1);
+		replaceTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		replaceTextBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(replaceTextBox);
 
@@ -180,7 +183,10 @@ public class ReplaceDialog : ADialog
 		if (text != "")
 		{
 			doFindText(text);
-			data.history.Add(text);
+			if (data.history != null)
+				data.history.Add(text);
+			if (data.replaceHistory != null)
+				data.replaceHistory.Add(replaceTextBox.Text);
 		}
 		return true;
 	}
@@ -329,6 +335,8 @@ public class ReplaceDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
+		if (data.replaceHistory != null)
+			data.replaceHistory.Add(replaceTextBox.Text);
 		if (doSelectAllFound(text))
 			DispatchNeedClose();
 		return true;
@@ -339,6 +347,8 @@ public class ReplaceDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
+		if (data.replaceHistory != null)
+			data.replaceHistory.Add(replaceTextBox.Text);
 		doSelectNextFound(text);
 		return true;
 	}
