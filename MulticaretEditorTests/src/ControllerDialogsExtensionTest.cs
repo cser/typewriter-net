@@ -358,5 +358,38 @@ namespace UnitTests
 				"pass");
 			//Made despite the fact that Sublime Text replace only last selection in contract to this behaviour
 		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Replace_InsideLineBreak1(bool isIgnoreCase)
+		{
+			Init();
+			lines.SetText("abc\r\ndef");
+			Assert.AreEqual("abc\r\n", lines[0].Text);
+			Assert.AreEqual("def", lines[1].Text);
+			controller.PutCursor(new Place(1, 0), false);
+			
+			controller.DialogsExtension.FindNext("\r\n", false, isIgnoreCase);
+			AssertSelection().Anchor(3, 0).Caret(0, 1).NoNext();
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Replace_InsideLineBreak2(bool isIgnoreCase)
+		{
+			Init();
+			lines.SetText("abc\r\ndef");
+			Assert.AreEqual("abc\r\n", lines[0].Text);
+			Assert.AreEqual("def", lines[1].Text);
+			controller.PutCursor(new Place(1, 0), false);
+			controller.DialogsExtension.FindNext("\r", false, isIgnoreCase);
+			AssertSelection().Anchor(3, 0).Caret(4, 0).NoNext();
+			
+			controller.DialogsExtension.Replace("\r", "\n", false, isIgnoreCase, false);
+			AssertText("abc\n\ndef");
+			Assert.AreEqual("abc\n", lines[0].Text);
+			Assert.AreEqual("\n", lines[1].Text);
+			Assert.AreEqual("def", lines[2].Text);
+		}
 	}
 }

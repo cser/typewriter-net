@@ -72,6 +72,19 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void LineSubdivider_WithoutLastEmpty()
+		{
+			Assert.AreEqual(2, new LineSubdivider("text\n", false).GetLinesCount());
+			Assert.AreEqual(1, new LineSubdivider("text\n", true).GetLinesCount());
+			
+			Assert.AreEqual(2, new LineSubdivider("text\na", false).GetLinesCount());
+			Assert.AreEqual(2, new LineSubdivider("text\na", true).GetLinesCount());
+			
+			Assert.AreEqual(2, new LineSubdivider("\n", false).GetLinesCount());
+			Assert.AreEqual(1, new LineSubdivider("\n", true).GetLinesCount());
+		}
+		
+		[Test]
 		public void IndexOf_SignOfStartIndex()
 		{
 			Init("Du\nDu hast\r\nDu hast\r\nDu hast mich");

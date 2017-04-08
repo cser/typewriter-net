@@ -294,5 +294,46 @@ namespace UnitTests
 			controller.UnselectPrevText();
 			AssertSelection().Both(0, 7).NoNext();
 		}
+		
+		[Test]
+		public void SelectAllMatches()
+		{
+			Init();
+			lines.SetText("text\ntext\ntext");
+			
+			controller.PutCursor(new Pos(2, 1), false);
+			AssertSelection().Both(2, 1).NoNext();
+			controller.SelectAllMatches();
+			AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).PreferredPos(4).Next()
+				.Anchor(0, 1).Caret(4, 1).PreferredPos(4).Next()
+				.Anchor(0, 2).Caret(4, 2).PreferredPos(4).NoNext();
+				
+			controller.ClearMinorSelections();
+			controller.PutCursor(new Pos(1, 1), false);
+			controller.PutCursor(new Pos(3, 1), true);
+			AssertSelection().Anchor(1, 1).Caret(3, 1).NoNext();
+			controller.SelectAllMatches();
+			AssertSelection()
+				.Anchor(1, 0).Caret(3, 0).PreferredPos(3).Next()
+				.Anchor(1, 1).Caret(3, 1).PreferredPos(3).Next()
+				.Anchor(1, 2).Caret(3, 2).PreferredPos(3).NoNext();
+		}
+		
+		[Test]
+		public void SelectAllMatches_CloseMatches()
+		{
+			Init();
+			lines.SetText("texttext\ntext");
+			
+			controller.PutCursor(new Pos(0, 1), false);
+			controller.PutCursor(new Pos(4, 1), true);
+			AssertSelection().Anchor(0, 1).Caret(4, 1).NoNext();
+			controller.SelectAllMatches();
+			AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).PreferredPos(4).Next()
+				.Anchor(4, 0).Caret(8, 0).PreferredPos(8).Next()
+				.Anchor(0, 1).Caret(4, 1).PreferredPos(4).NoNext();
+		}
 	}
 }

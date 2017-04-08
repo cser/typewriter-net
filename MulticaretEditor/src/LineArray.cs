@@ -536,53 +536,61 @@ namespace MulticaretEditor
 			int linesCount = LinesCount;
 			if (text.IndexOf('\n') == -1 && text.IndexOf('\r') == -1)
 			{
-				LineIterator iterator = GetLineRange(place.iLine, linesCount - place.iLine);
-				iterator.MoveNext();
-				{
-					int index = iterator.current.Text.IndexOf(text, place.iChar);
-					if (index != -1)
-						return IndexOf(new Place(index, place.iLine));
-				}
-				while (iterator.MoveNext())
-				{
-					int index = iterator.current.Text.IndexOf(text);
-					if (index != -1)
-						return IndexOf(new Place(index, iterator.Index));
-				}
+				return SingleLineIndexOf(text, startIndex, length, place);
 			}
-			else
+			LineSubdivider subdivider = new LineSubdivider(text, true);
+			if (subdivider.GetLinesCount() == 1)
 			{
-				string[] texts = new LineSubdivider(text).GetLines();
-				string text0 = texts[0];
-				LineIterator iteratorI = GetLineRange(place.iLine, linesCount - place.iLine);
+				return SingleLineIndexOf(text, startIndex, length, place);
+			}
+			string[] texts = subdivider.GetLines();
+			string text0 = texts[0];
+			LineIterator iteratorI = GetLineRange(place.iLine, linesCount - place.iLine);
+			iteratorI.MoveNext();
+			if (place.iChar > iteratorI.current.charsCount - text0.Length)
 				iteratorI.MoveNext();
-				if (place.iChar > iteratorI.current.charsCount - text0.Length)
-					iteratorI.MoveNext();
-				while (true)
+			while (true)
+			{
+				Line line = iteratorI.current;
+				if (line.Text.EndsWith(text0))
 				{
-					Line line = iteratorI.current;
-					if (line.Text.EndsWith(text0))
+					int i = iteratorI.Index;
+					bool correct = i + texts.Length <= linesCount;
+					if (correct)
 					{
-						int i = iteratorI.Index;
-						bool correct = i + texts.Length <= linesCount;
-						if (correct)
+						LineIterator iteratorJ = iteratorI.GetNextRange(texts.Length - 1);
+						for (int j = 1; j < texts.Length - 1 && correct; j++)
 						{
-							LineIterator iteratorJ = iteratorI.GetNextRange(texts.Length - 1);
-							for (int j = 1; j < texts.Length - 1 && correct; j++)
-							{
-								iteratorJ.MoveNext();
-								if (texts[j] != iteratorJ.current.Text)
-									correct = false;
-							}
 							iteratorJ.MoveNext();
-							if (correct && iteratorJ.current.Text.StartsWith(texts[texts.Length - 1]))
-								return IndexOf(new Place(line.Text.Length - text0.Length, i));
+							if (texts[j] != iteratorJ.current.Text)
+								correct = false;
 						}
+						iteratorJ.MoveNext();
+						if (correct && iteratorJ.current.Text.StartsWith(texts[texts.Length - 1]))
+							return IndexOf(new Place(line.Text.Length - text0.Length, i));
 					}
-					if (!iteratorI.MoveNext())
-						break;
 				}
-
+				if (!iteratorI.MoveNext())
+					break;
+			}
+			return -1;
+		}
+		
+		private int SingleLineIndexOf(string text, int startIndex, int length, Place place)
+		{
+			int linesCount = LinesCount;
+			LineIterator iterator = GetLineRange(place.iLine, linesCount - place.iLine);
+			iterator.MoveNext();
+			{
+				int index = iterator.current.Text.IndexOf(text, place.iChar);
+				if (index != -1)
+					return IndexOf(new Place(index, place.iLine));
+			}
+			while (iterator.MoveNext())
+			{
+				int index = iterator.current.Text.IndexOf(text);
+				if (index != -1)
+					return IndexOf(new Place(index, iterator.Index));
 			}
 			return -1;
 		}

@@ -73,8 +73,8 @@ namespace MulticaretEditor
 			}
 			if (index != -1)
 			{
-				controller.PutCursor(controller.Lines.PlaceOf(index), false);
-				controller.PutCursor(controller.Lines.PlaceOf(index + length), true);
+				controller.PutCursorForcedly(controller.Lines.PlaceOf(index), false);
+				controller.PutCursorForcedly(controller.Lines.PlaceOf(index + length), true);
 				needMoveToCaret = true;
 			}
 		}

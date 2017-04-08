@@ -7,9 +7,19 @@ namespace MulticaretEditor
 	{
 		public readonly string text;
 		
+		private readonly bool noLastEmpty;
+		
 		public LineSubdivider(string text)
 		{
 			this.text = text;
+			noLastEmpty = false;
+			linesCount = -1;
+		}
+		
+		public LineSubdivider(string text, bool noLastEmpty)
+		{
+			this.text = text;
+			this.noLastEmpty = noLastEmpty;
 			linesCount = -1;
 		}
 		
@@ -43,6 +53,11 @@ namespace MulticaretEditor
 				}
 				linesCount++;
 			}
+			if (noLastEmpty &&
+				linesCount > 1 && text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
+			{
+				linesCount--;
+			}
 			return linesCount;
 		}
 		
@@ -72,7 +87,10 @@ namespace MulticaretEditor
 					prev = index + 1;
 				}
 			}
-			lines[i++] = text.Substring(prev);
+			if (i < lines.Length)
+			{
+				lines[i] = text.Substring(prev);
+			}
 			return lines;
 		}
 		

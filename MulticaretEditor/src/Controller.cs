@@ -352,8 +352,17 @@ namespace MulticaretEditor
 			selection.caret = lines.IndexOf(caret);
 			if (!moving)
 				selection.anchor = selection.caret;
-			Line line = lines[caret.iLine];
 			lines.SetPreferredPos(selection, caret);
+			DoAfterMove();
+		}
+		
+		public void PutCursorForcedly(Place place, bool moving)
+		{
+			Selection selection = selections[selections.Count - 1];
+			selection.caret = lines.IndexOf(place);
+			if (!moving)
+				selection.anchor = selection.caret;
+			lines.SetPreferredPos(selection, place);
 			DoAfterMove();
 		}
 
@@ -919,16 +928,16 @@ namespace MulticaretEditor
 				if (first)
 				{
 					first = false;
-										
 					ClearMinorSelections();
-					PutCursor(lines.PlaceOf(index), false);
-					PutCursor(lines.PlaceOf(index + length), true);
 				}
 				else
 				{
-					PutNewCursor(lines.PlaceOf(index));
-					PutCursor(lines.PlaceOf(index + length), true);
+					selections.Add(new Selection());
 				}
+				Selection selection = selections[selections.Count - 1];
+				selection.anchor = index;
+				selection.caret = index + length;
+				lines.SetPreferredPos(selection, lines.PlaceOf(selection.caret));
 				start = index + length;
 			}
 		}
