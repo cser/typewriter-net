@@ -276,15 +276,40 @@ namespace MulticaretEditor
 				block.valid = 0;
 				block.wwSizeX = 0;
 				int startCharsCount = start.charsCount;
-				bool needMerge;
-				if (startCharsCount > 0)
+				bool needMerge = true;
+				if (startCharsCount == 1)
+				{
+					char c = start.chars[0].c;
+					if (c == '\n')
+					{
+						needMerge = false;
+						if (place.iLine > 0)
+						{
+							Line prev;
+							if (startJ - 1 >= 0)
+							{
+								prev = block.array[startJ - 1];
+							}
+							else
+							{
+								block = blocks[blockI - 1];
+								block.valid = 0;
+								block.wwSizeX = 0;
+								prev = block.array[block.count - 1];
+							}
+							RemoveValueAt(place.iLine);
+							prev.Chars_Add(new Char('\n'));
+							prev.cachedText = null;
+							prev.cachedSize = -1;
+							prev.endState = null;
+							prev.wwSizeX = 0;
+						}
+					}
+				}
+				else if (startCharsCount > 0)
 				{
 					char c = start.chars[startCharsCount - 1].c;
 					needMerge = c != '\n' && c != '\r';
-				}
-				else
-				{
-					needMerge = true;
 				}
 				if (needMerge && place.iLine + 1 < valuesCount)
 				{

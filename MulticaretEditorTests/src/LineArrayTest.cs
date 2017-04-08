@@ -1051,6 +1051,66 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void RemoveFromRN_Joining1()
+		{
+			Init();
+			
+			lines.SetText("aaa\r\nbb\ncc");
+			AssertLines("aaa\r\n", "bb\n", "cc");
+			lines.RemoveText(4, 3);
+			AssertText("aaa\r\ncc");
+			AssertLines("aaa\r\n", "cc");
+		}
+		
+		[Test]
+		public void RemoveFromRN_Joining2()
+		{
+			Init();
+			
+			lines.SetText("aaa\rbb\ncc");
+			AssertLines("aaa\r", "bb\n", "cc");
+			lines.RemoveText(4, 2);
+			AssertText("aaa\r\ncc");
+			AssertLines("aaa\r\n", "cc");
+			
+			lines.SetText("aaa\rbb\r\ncc");
+			AssertLines("aaa\r", "bb\r\n", "cc");
+			lines.RemoveText(4, 3);
+			AssertText("aaa\r\ncc");
+			AssertLines("aaa\r\n", "cc");
+		}
+		
+		[Test]
+		[Ignore]
+		public void InsertInsideRN()
+		{
+			Init();
+			
+			lines.SetText("aaa\ncc");
+			AssertLines("aaa\n", "cc");
+			lines.InsertText(3, "\r");
+			AssertText("aaa\r\ncc");
+			AssertLines("aaa\r\n", "cc");
+		}
+		
+		public void RemoveWholeLine()
+		{
+			Init();
+			
+			lines.SetText("aaa\rbb\ncc");
+			AssertLines("aaa\r", "bb\n", "cc");
+			lines.RemoveText(4, 3);
+			AssertText("aaa\rcc");
+			AssertLines("aaa\r", "cc");
+			
+			lines.SetText("aaa\rbb\ncc");
+			AssertLines("aaa\r", "bb\n", "cc");
+			lines.RemoveText(4, 9);
+			AssertText("aaa\r");
+			AssertLines("aaa\r", "");
+		}
+		
+		[Test]
 		public void InsertInsideRN_Singleline()
 		{
 			Init();
