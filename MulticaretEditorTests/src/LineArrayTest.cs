@@ -1081,16 +1081,37 @@ namespace UnitTests
 		}
 		
 		[Test]
-		[Ignore]
+		public void RemoveFromRN_Joining3()
+		{
+			Init();
+			
+			lines.SetText("aaa\r\nbb\ncc");
+			AssertLines("aaa\r\n", "bb\n", "cc");
+			lines.RemoveText(5, 2);
+			AssertText("aaa\r\n\ncc");
+			AssertLines("aaa\r\n", "\n", "cc");
+		}
+		
+		[Test]
+		public void RemoveFromRN_Joining4()
+		{
+			Init();
+			
+			lines.SetText("aaa\r\nbb\r\ncc");
+			AssertLines("aaa\r\n", "bb\r\n", "cc");
+			lines.RemoveText(5, 3);
+			AssertText("aaa\r\n\ncc");
+			AssertLines("aaa\r\n", "\n", "cc");
+		}
+		
+		[Test]
 		public void RemoveFromRN_Joining_Multiline()
 		{
 			Init();
 			//             012 345 6 789 0 123 456
 			lines.SetText("aaa\rbb\r\ndd\r\nee\ncc");
 			AssertLines("aaa\r", "bb\r\n", "dd\r\n", "ee\n", "cc");
-			//Debug.Begin("RemoveFromRN_Joining_Multiline");
 			lines.RemoveText(4, 10);
-			//Debug.End();
 			AssertText("aaa\r\ncc");
 			AssertLines("aaa\r\n", "cc");
 		}

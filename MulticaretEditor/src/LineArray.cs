@@ -306,27 +306,26 @@ namespace MulticaretEditor
 				block.valid = 0;
 				block.wwSizeX = 0;
 				int startCharsCount = start.charsCount;
-				bool needMerge = true;
-				if (startCharsCount == 1)
+				bool mergeNext = true;
+				if (startCharsCount == 1 && start.chars[0].c == '\n')
 				{
-					char c = start.chars[0].c;
-					if (c == '\n')
+					mergeNext = false;
+					if (place.iLine > 0)
 					{
-						needMerge = false;
-						if (place.iLine > 0)
+						Line prev;
+						if (startJ - 1 >= 0)
 						{
-							Line prev;
-							if (startJ - 1 >= 0)
-							{
-								prev = block.array[startJ - 1];
-							}
-							else
-							{
-								block = blocks[blockI - 1];
-								block.valid = 0;
-								block.wwSizeX = 0;
-								prev = block.array[block.count - 1];
-							}
+							prev = block.array[startJ - 1];
+						}
+						else
+						{
+							block = blocks[blockI - 1];
+							block.valid = 0;
+							block.wwSizeX = 0;
+							prev = block.array[block.count - 1];
+						}
+						if (prev.chars[prev.charsCount - 1].c == '\r')
+						{
 							RemoveValueAt(place.iLine);
 							prev.Chars_Add(new Char('\n'));
 							prev.cachedText = null;
@@ -339,9 +338,9 @@ namespace MulticaretEditor
 				else if (startCharsCount > 0)
 				{
 					char c = start.chars[startCharsCount - 1].c;
-					needMerge = c != '\n' && c != '\r';
+					mergeNext = c != '\n' && c != '\r';
 				}
-				if (needMerge && place.iLine + 1 < valuesCount)
+				if (mergeNext && place.iLine + 1 < valuesCount)
 				{
 					Line line = startJ + 1 < block.count ? block.array[startJ + 1] : blocks[blockI + 1].array[0];
 					start.Chars_AddRange(line);
@@ -350,6 +349,8 @@ namespace MulticaretEditor
 			}
 			else
 			{
+				LineBlock prevBlock = block;
+				int prevBlockI = blockI;
 				block.valid = 0;
 				block.wwSizeX = 0;
 				int lineJ = startJ;
@@ -359,7 +360,7 @@ namespace MulticaretEditor
 				while (k < count)
 				{
 					lineJ++;
-					countToRemove++;
+					++countToRemove;
 					if (lineJ >= block.count)
 					{
 						blockI++;
@@ -382,26 +383,52 @@ namespace MulticaretEditor
 				end.Chars_ReduceBuffer();
 				start.Chars_AddRange(end);
 
+				int removeStart = place.iLine + 1;
 				int startCharsCount = start.charsCount;
-				bool needMerge;
-				if (startCharsCount > 0)
+				bool mergeNext = true;
+				if (startCharsCount == 1 && start.chars[0].c == '\n')
+				{
+					mergeNext = false;
+					if (place.iLine > 0)
+					{
+						Line prev;
+						if (startJ - 1 >= 0)
+						{
+							prev = prevBlock.array[startJ - 1];
+						}
+						else
+						{
+							prevBlock = blocks[prevBlockI - 1];
+							prevBlock.valid = 0;
+							prevBlock.wwSizeX = 0;
+							prev = prevBlock.array[prevBlock.count - 1];
+						}
+						if (prev.chars[prev.charsCount - 1].c == '\r')
+						{
+							--removeStart;
+							++countToRemove;
+							prev.Chars_Add(new Char('\n'));
+							prev.cachedText = null;
+							prev.cachedSize = -1;
+							prev.endState = null;
+							prev.wwSizeX = 0;
+						}
+					}
+				}
+				else if (startCharsCount > 0)
 				{
 					char c = start.chars[startCharsCount - 1].c;
-					needMerge = c != '\n' && c != '\r';
+					mergeNext = c != '\n' && c != '\r';
 				}
-				else
-				{
-					needMerge = true;
-				}
-				if (needMerge && block.offset + lineJ + 1 < valuesCount)
+				if (mergeNext && block.offset + lineJ + 1 < valuesCount)
 				{
 					Line next = lineJ + 1 < block.count ? block.array[lineJ + 1] : blocks[blockI + 1].array[0];
 					start.Chars_AddRange(next);
-					countToRemove++;
+					++countToRemove;
 				}
 
-				countToRemove++;
-				RemoveValuesRange(place.iLine + 1, countToRemove);
+				++countToRemove;
+				RemoveValuesRange(removeStart, countToRemove);
 			}
 			start.Chars_ReduceBuffer();
 			charsCount -= count;
