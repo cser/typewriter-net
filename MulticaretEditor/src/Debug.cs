@@ -1,6 +1,9 @@
 /*
+using System.Collections.Generic;
+
 public static class Debug
 {
+	private static bool enabled = false;
 	private static int tabIndex = 0;
 	
 	public static void Begin(string text)
@@ -27,7 +30,30 @@ public static class Debug
 	
 	public static void Log(string text)
 	{
-		System.Console.WriteLine(GetTabs() + text.Replace("\n", "\n" + GetTabs()));
+		if (tabIndex > 0)
+		{
+			System.Console.WriteLine(GetTabs() + text.Replace("\n", "\n" + GetTabs()));
+		}
+	}
+	
+	public static void Log<T>(IEnumerable<T> list)
+	{
+		Log(MulticaretEditor.ListUtil.ToString<T>(list));
+	}
+	
+	public static void Log(IEnumerable<MulticaretEditor.Line> list)
+	{
+		Log(MulticaretEditor.ListUtil.ToString<MulticaretEditor.Line>(list, LineToString));
+	}
+	
+	public static void Log(MulticaretEditor.Line line)
+	{
+		Log(LineToString(line));
+	}
+	
+	public static string LineToString(MulticaretEditor.Line line)
+	{
+		return "\"" + line.Text.Replace("\n", "\\n").Replace("\r", "\\r") + "\"";
 	}
 }
-*/
+//*/

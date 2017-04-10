@@ -430,7 +430,6 @@ namespace UnitTests
 		}
 		
 		[Test]
-		[Ignore]
 		public void EnterText_InsideBreak_Undo()
 		{
 			Init();

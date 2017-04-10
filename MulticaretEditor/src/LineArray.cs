@@ -213,15 +213,15 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				int length = text.Length;
+				int textLength = text.Length;
 				int lineStart = 0;
 				List<Line> lines = new List<Line>();
-				for (int i = 0; i < length; i++)
+				for (int i = 0; i < textLength; i++)
 				{
 					char c = text[i];
 					if (c == '\r')
 					{
-						if (i + 1 < length && text[i + 1] == '\n')
+						if (i + 1 < textLength && text[i + 1] == '\n')
 							i++;
 						lines.Add(NewLine(text, lineStart, i + 1 - lineStart));
 						lineStart = i + 1;
@@ -232,17 +232,47 @@ namespace MulticaretEditor
 						lineStart = i + 1;
 					}
 				}
-				lines.Add(NewLine(text, lineStart, length - lineStart));
+				lines.Add(NewLine(text, lineStart, textLength - lineStart));
 				Line line0 = lines[0];
 				line0.Chars_InsertRange(0, start, 0, place.iChar);
 				line0.cachedText = null;
 				line0.cachedSize = -1;
 				line0.wwSizeX = 0;
+				if (place.iLine > 0 && line0.charsCount > 0 && line0.chars[0].c == '\n')
+				{
+					int prevBlockI = GetBlockIndex(place.iLine - 1);
+					LineBlock prevBlock = blocks[prevBlockI];
+					Line prev = prevBlock.array[place.iLine - 1 - prevBlock.offset];
+					if (prev.chars[prev.charsCount - 1].c == '\r')
+					{
+						line0.Chars_RemoveAt(0);
+						prev.Chars_Add(new Char('\n'));
+						prev.cachedText = null;
+						prev.cachedSize = -1;
+						prev.endState = null;
+						prev.wwSizeX = 0;
+						prevBlock.valid = 0;
+						prevBlock.wwSizeX = 0;
+						if (line0.charsCount == 0)
+						{
+							lines.RemoveAt(0);
+						}
+					}
+				}
 				Line line1 = lines[lines.Count - 1];
 				line1.Chars_AddRange(start, place.iChar, start.charsCount - place.iChar);
 				line1.cachedText = null;
 				line1.cachedSize = -1;
 				line1.wwSizeX = 0;
+				if (line1.charsCount == 1 && line1.chars[0].c == '\n' && lines.Count > 1)
+				{
+					Line prevLine1 = lines[lines.Count - 2];
+					if (prevLine1.chars[prevLine1.charsCount - 1].c == '\r')
+					{
+						prevLine1.Chars_Add(new Char('\n'));
+						lines.RemoveAt(lines.Count - 1);
+					}
+				}
 				RemoveValueAt(place.iLine);
 				InsertValuesRange(place.iLine, lines.ToArray());
 			}
