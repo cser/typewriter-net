@@ -148,6 +148,12 @@ namespace MulticaretEditor
 		
 		public bool SelectAllFound(string text, bool isRegex, bool isIgnoreCase)
 		{
+			return PrivateSelectAllFound(text, isRegex, isIgnoreCase, null);
+		}
+		
+		public bool PrivateSelectAllFound(string text, bool isRegex, bool isIgnoreCase,
+			List<SimpleRange> outRanges)
+		{
 			ResetOutput();
 			
 			bool result = true;
@@ -220,19 +226,26 @@ namespace MulticaretEditor
 				{
 					break;
 				}
-				if (first)
+				if (outRanges == null)
 				{
-					first = false;
-					controller.ClearMinorSelections();
+					if (first)
+					{
+						first = false;
+						controller.ClearMinorSelections();
+					}
+					else
+					{
+						selections.Add(new Selection());
+					}
+					Selection selection = selections[selections.Count - 1];
+					selection.anchor = index;
+					selection.caret = index + length;
+					lines.SetPreferredPos(selection, lines.PlaceOf(selection.caret));
 				}
 				else
 				{
-					selections.Add(new Selection());
+					outRanges.Add(new SimpleRange(index, length));
 				}
-				Selection selection = selections[selections.Count - 1];
-				selection.anchor = index;
-				selection.caret = index + length;
-				lines.SetPreferredPos(selection, lines.PlaceOf(selection.caret));
 				start = index + length;
 			}
 			needMoveToCaret = found;
@@ -255,25 +268,11 @@ namespace MulticaretEditor
 		{
 			if (isEscape)
 				newText = Regex.Unescape(newText);
-			controller.ClearMinorSelections();
-			controller.LastSelection.anchor = controller.LastSelection.caret = 0;
-			//TODO optimize regexes recreation, replace by one command
-			FindNext(text, isRegex, isIgnoreCase);
-			if (controller.Lines.AllSelectionsEmpty)
+			List<SimpleRange> ranges = new List<SimpleRange>();
+			PrivateSelectAllFound(text, isRegex, isIgnoreCase, ranges);
+			if (ranges.Count > 0)
 			{
-				return;
-			}
-			controller.PutCursor(new Place(0, 0), false);
-			int index = 0;
-			while (true)
-			{
-				FindNext(text, isRegex, isIgnoreCase);
-				if (controller.Lines.AllSelectionsEmpty || controller.LastSelection.Left < index)
-				{
-					break;
-				}
-				index = controller.LastSelection.Left;
-				controller.InsertText(newText);
+				controller.ReplaceText(ranges.ToArray(), newText);
 			}
 		}
 		

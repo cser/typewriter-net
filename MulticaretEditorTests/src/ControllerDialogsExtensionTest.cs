@@ -318,6 +318,44 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void ReplaceAll_InsideSelection()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			
+			controller.PutCursor(new Place(14, 0), false);
+			controller.PutCursor(new Place(16, 1), true);
+			AssertSelection().Anchor(14, 0).Caret(16, 1).NoNext();
+			
+			controller.DialogsExtension.ReplaceAll("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb ccccc\neeee aaa CC fff");
+			
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			
+			controller.PutCursor(new Place(9, 0), false);
+			controller.PutCursor(new Place(16, 1), true);
+			AssertSelection().Anchor(9, 0).Caret(16, 1).NoNext();
+			
+			controller.DialogsExtension.ReplaceAll("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+		}
+		
+		[Test]
+		public void ReplaceAll_Escape()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.DialogsExtension.ReplaceAll("ccccc", "C\\tC", false, false, true);
+			AssertText("aaa bbbb C\tC\neeee aaa C\tC fff");
+			
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.DialogsExtension.ReplaceAll("ccccc", "C\\tC", false, false, false);
+			AssertText("aaa bbbb C\\tC\neeee aaa C\\tC fff");
+		}
+		
+		[Test]
 		public void Issue_with_replace_text_N6()
 		{
 			Init();

@@ -682,6 +682,11 @@ namespace MulticaretEditor
 			}
 			Execute(new InsertTextCommand(null, texts, true));
 		}
+		
+		public void ReplaceText(SimpleRange[] orderedRanges, string newText)
+		{
+			Execute(new ReplaceTextCommand(orderedRanges, newText));
+		}
 
 		private static string GetLineBreakFirstSpaces(Line line, int iChar)
 		{
