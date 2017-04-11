@@ -186,10 +186,19 @@ namespace MulticaretEditor.Highlighting
 			private const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 			private bool insensitive;
 			private string pattern;
+			private string upperPattern;
 			
 			public WordDetect(string pattern, bool insensitive)
 			{
-				this.pattern = insensitive ? pattern.ToLower() : pattern;
+				if (insensitive)
+				{
+					this.pattern = pattern.ToLowerInvariant();
+					this.upperPattern = pattern.ToUpperInvariant();
+				}
+				else
+				{
+					this.pattern = pattern;
+				}
 				this.insensitive = insensitive;
 			}
 			
@@ -199,12 +208,27 @@ namespace MulticaretEditor.Highlighting
 				int position1 = position + pattern.Length;
 				if (position1 <= text.Length)
 				{
-					for (int i = position; i < position1; ++i)
+					if (insensitive)
 					{
-						if (pattern[i - position] != text[i])
+						for (int i = position; i < position1; ++i)
 						{
-							nextPosition = position;
-							return false;
+							char c = text[i];
+							if (pattern[i - position] != c && upperPattern[i - position] != c)
+							{
+								nextPosition = position;
+								return false;
+							}
+						}
+					}
+					else
+					{
+						for (int i = position; i < position1; ++i)
+						{
+							if (pattern[i - position] != text[i])
+							{
+								nextPosition = position;
+								return false;
+							}
 						}
 					}
 					if ((position == 0 || DefaultDeliminators.IndexOf(text[position - 1]) != -1) &&

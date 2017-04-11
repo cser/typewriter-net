@@ -1225,8 +1225,8 @@ namespace UnitTests
 				        <contexts>
 				            <context attribute='Normal Text' lineEndContext='#stay' name='Normal'>
 				                <keyword attribute='a1' context='#stay' String='keywords0'/>
-								<WordDetect attribute='a2' context='#stay' String='thinG' insensitive='true'/>
 								<WordDetect attribute='a3' context='#stay' String='Thing'/>
+								<WordDetect attribute='a2' context='#stay' String='thinG' insensitive='true'/>
 				            </context>
 				        </contexts>
 				        <itemDatas>
@@ -1239,7 +1239,7 @@ namespace UnitTests
 				</language>");
 			provider.SetText(
 				"123Thing;Thing text word0 Thing.thing 10 text\n" +
-				"Thing 12323 word1 234(Thing) thing");
+				"Thing 12323 word1 234(Thing) ThInG");
 			highlighting.Parse(provider);
 			//                  123Thing;Thing text word0 Thing.thing 10 text
 			AssertHighlighting("0000000003333300000011111033333022222000000000", provider[0]);
