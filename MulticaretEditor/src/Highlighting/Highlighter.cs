@@ -356,8 +356,20 @@ namespace MulticaretEditor.Highlighting
 
 		private int[] awakePositions;
 
+#if HIGHLIGHTER_DEBUG
+		private System.Diagnostics.Stopwatch _debugStopwatch;
+#endif
+
 		public bool Parse(LineArray lines, int maxMilliseconds)
 		{
+#if HIGHLIGHTER_DEBUG
+			if (_debugStopwatch == null)
+			{
+				_debugStopwatch = new System.Diagnostics.Stopwatch();
+				_debugStopwatch.Start();
+				Console.WriteLine("HIGHLIGHTER START");
+			}
+#endif
 			DateTime startTime = DateTime.Now;
 			int changesBeforeTimeCheck = 0;
 			bool timeElapsed = false;
@@ -521,6 +533,13 @@ namespace MulticaretEditor.Highlighting
 					lines.SetStyleRange(range);
 				}
 			}
+#if HIGHLIGHTER_DEBUG
+			if (!changed)
+			{
+				_debugStopwatch.Stop();
+				Console.WriteLine("HIGHLIGHTER TIME: " + (_debugStopwatch.Elapsed.TotalMilliseconds / 1000).ToString("0.00"));
+			}
+#endif
 			return changed;
 		}
 
