@@ -1188,5 +1188,95 @@ namespace UnitTests
 			AssertText("aaa\rC\nB\nbb");
 			AssertLines("aaa\r", "C\n", "B\n", "bb");
 		}
+		
+		[Test]
+		public void RemoveFromRN_Multiblocks1()
+		{
+			Init();
+			lines.SetText(
+				"abcd\r\n" +
+				"efg\r\n" +
+				"hi\r\n" +
+				"jklmnop\r\n" +
+				
+				"qrst\r\n" +
+				"uvw\r\n" +
+				"x\r\n" +
+				"w\r\n" +
+				
+				"z\r\n" +
+				"12\r\n" +
+				"34\r\n" +
+				"5678\r\n" +
+				
+				"9\r\n" +
+				"abcde\r\n" +
+				"fghijklmno");
+			
+			lines.RemoveText(14, 53);
+			AssertText("abcd\r\nefg\r\nhi\r\nfghijklmno");
+			AssertLines("abcd\r\n", "efg\r\n", "hi\r\n", "fghijklmno");
+		}
+		
+		[Test]
+		public void RemoveFromRN_Multiblocks2()
+		{
+			Init();
+			lines.SetText(
+				"abcd\r\n" +
+				"efg\r\n" +
+				"hi\r\n" +
+				"jklmnop\n" +
+			//  [
+				"qrst\r\n" +
+				"uvw\r\n" +
+				"x\r\n" +
+				"w\r\n" +
+				
+				"z\r\n" +
+				"12\r\n" +
+				"34\r\n" +
+				"5678\r\n" +
+			//      ]
+				"9\r\n" +
+				"abcde\r\n" +
+				"fghijklmno");
+			
+			lines.RemoveText(23, 36);
+			AssertText("abcd\r\nefg\r\nhi\r\njklmnop\n\nabcde\r\nfghijklmno");
+			AssertLines("abcd\r\n", "efg\r\n", "hi\r\n", "jklmnop\n", "\n", "abcde\r\n", "fghijklmno");
+		}
+		
+		[Test]
+		public void RemoveFromRN_Multiblocks3()
+		{
+			Init();
+			lines.SetText(
+				"abc\r\n" +
+				"def\r\n" +
+				"ghi\r\n" +
+				"jkl\r\n" +
+				
+				"mno\r\n" +
+				"pqr\r\n" +
+				"stu\r\n" +
+				"vwx\r\n" +
+				
+				"yza\r\n" +
+				"bcd\r\n" +
+				"efg\r\n" +
+				"hij\r\n" +
+				
+				"klm\r\n" +
+				"nop\r\n" +
+				"qrstu");
+			
+			lines.RemoveText(20, 4);
+			AssertText(
+				"abc\r\ndef\r\nghi\r\njkl\r\n\npqr\r\nstu\r\nvwx\r\nyza\r\nbcd\r\nefg\r\nhij\r\nklm\r\nnop\r\nqrstu");
+			AssertLines(
+				"abc\r\n", "def\r\n", "ghi\r\n", "jkl\r\n", "\n", "pqr\r\n", "stu\r\n", "vwx\r\n", "yza\r\n",
+				"bcd\r\n", "efg\r\n", "hij\r\n", "klm\r\n", "nop\r\n", "qrstu");
+		}
 	}
 }

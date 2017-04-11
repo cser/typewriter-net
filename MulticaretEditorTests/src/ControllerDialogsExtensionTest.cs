@@ -295,6 +295,26 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void ReplaceAll_Undo()
+		{
+			Init();
+			lines.SetText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			controller.PutCursor(new Place(5, 0), false);
+			
+			controller.DialogsExtension.ReplaceAll("ccccc", "CC", false, false, false);
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			AssertSelection().Both(11, 1).NoNext();
+			
+			controller.Undo();
+			AssertText("aaa bbbb ccccc\neeee aaa ccccc fff");
+			AssertSelection().Both(5, 0).NoNext();
+			
+			controller.Redo();
+			AssertText("aaa bbbb CC\neeee aaa CC fff");
+			AssertSelection().Both(11, 1).NoNext();
+		}
+		
+		[Test]
 		public void ReplaceAll_DontFreezeOnEqualReplace()
 		{
 			Init();
