@@ -1246,5 +1246,170 @@ namespace UnitTests
 			//                  Thing 12323 word1 234(Thing) ThInG
 			AssertHighlighting("3333300000001111100000333330022222", provider[1]);
 		}
+		
+		[Test]
+		public void KeywordsCasesensitive_Complex()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>abc</item>
+				            <item>abcde</item>
+				            <item>abcdef</item>
+				            <item>abcdefg</item>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab abc abcc abcde abcdefgh abcdef abcdefg");
+			highlighting.Parse(provider);
+			AssertHighlighting("00011100000011111000000000011111101111111", provider[0]);
+			
+			provider.SetText(  "ab abe abcc abc");
+			highlighting.Parse(provider);
+			AssertHighlighting("000000000000111", provider[0]);
+			
+			provider.SetText(  "abcd");
+			highlighting.Parse(provider);
+			AssertHighlighting("0000", provider[0]);
+		}
+		
+		[Test]
+		public void KeywordsCasesensitive_OneChar()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				            <item>a</item>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab a text");
+			highlighting.Parse(provider);
+			AssertHighlighting("000100000", provider[0]);
+			
+			provider.SetText(  "a");
+			highlighting.Parse(provider);
+			AssertHighlighting("1", provider[0]);
+		}
+		
+		[Test]
+		public void KeywordsCasesensitive_NoChars()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				    <highlighting>
+				        <list name='keywords0'>
+				        </list>
+				        <contexts>
+				            <context attribute='a0' lineEndContext='#stay' name='Normal'>
+				                <keyword attribute='a1' context='#stay' String='keywords0'/>
+				            </context>
+				        </contexts>
+				        <itemDatas>
+				            <itemData name='a0' defStyleNum='dsNormal'/>
+				            <itemData name='a1' defStyleNum='dsKeyword'/>
+				        </itemDatas>
+				    </highlighting>
+				    <general>
+						<keywords casesensitive='1' />
+					</general>
+				</language>");
+
+			provider.SetText(  "ab a text");
+			highlighting.Parse(provider);
+			AssertHighlighting("000000000", provider[0]);
+		}
+		
+		[Test]
+		public void Keywords()
+		{
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, false, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(true, rule.Match("word1", 0, out nextPosition));
+				Assert.AreEqual(5, nextPosition);
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, false, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(true, rule.Match("word2", 0, out nextPosition));
+				Assert.AreEqual(5, nextPosition);
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, true, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(false, rule.Match("word2", 0, out nextPosition));
+				Assert.AreEqual(0, nextPosition);
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"a12bC", "a12"}, false, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(true, rule.Match("a12", 0, out nextPosition));
+				Assert.AreEqual(3, nextPosition);
+				Assert.AreEqual(true, rule.Match("a12bC", 0, out nextPosition));
+				Assert.AreEqual(5, nextPosition);
+				Assert.AreEqual(true, rule.Match("A12bC", 0, out nextPosition));
+				Assert.AreEqual(5, nextPosition);
+				Assert.AreEqual(false, rule.Match("A12fC", 0, out nextPosition));
+				Assert.AreEqual(0, nextPosition);
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"a12bC", "a12"}, false, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(false, rule.Match("a1", 0, out nextPosition));
+				Assert.AreEqual(0, nextPosition);
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"abABC", "abdABC", "acABC"}, true, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(true, rule.Match("abABC", 0, out nextPosition));
+				Assert.AreEqual(true, rule.Match("abdABC", 0, out nextPosition));
+				Assert.AreEqual(true, rule.Match("acABC", 0, out nextPosition));
+				Assert.AreEqual(false, rule.Match("aca", 0, out nextPosition));
+				Assert.AreEqual(false, rule.Match("acABD", 0, out nextPosition));
+			}
+			{
+				Rules.Keyword rule = new Rules.Keyword(new string[] {"#define", "#elif", "#else", "#endif", "#error", "#if", "#line", "#undef", "#warning", "abstract", "as", "base", "break", "case", "catch", "checked", "class", "const", "continue", "default", "delegate", "do", "else", "enum", "event", "explicit", "extern", "finally", "fixed", "for", "foreach", "get", "goto", "if", "implicit", "in", "interface", "is", "lock", "namespace", "new", "operator", "out", "override", "params", "readonly", "ref", "return", "sealed", "set", "sizeof", "stackalloc", "static", "struct", "switch", "this", "throw", "try", "typeof", "unchecked", "unsafe", "using", "var", "virtual", "where", "while"}, true, "", "");
+				int nextPosition = 0;
+				Assert.AreEqual(true, rule.Match("while", 0, out nextPosition));
+				Assert.AreEqual(5, nextPosition);
+			}
+		}
+		
+		[Test]
+		public void Keywords_IgnoreCaseInvariantOptimization()
+		{
+			Rules.Keyword rule = new Rules.Keyword(new string[] {"2200fC", "2b23", "2456"}, false, "", "");
+			int nextPosition = 0;
+			Assert.AreEqual(true, rule.Match("2B23", 0, out nextPosition));
+			Assert.AreEqual(4, nextPosition);
+			Assert.AreEqual(true, rule.Match("2b23", 0, out nextPosition));
+			Assert.AreEqual(4, nextPosition);
+		}
 	}
 }

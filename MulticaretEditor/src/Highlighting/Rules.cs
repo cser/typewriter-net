@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -43,19 +44,30 @@ namespace MulticaretEditor.Highlighting
 			abstract public bool Match(string text, int position, out int nextPosition);
 		}
 		
+		public const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+		
 		public class Keyword : Rule
 		{
-			private const int HashSize = 16;
-			
-			private string[][] hash;
-			private bool casesansitive;
 			private string deliminators;
+			private Char[] nodes = new Char[32];
+			private int nodesCount;
 			
-			public Keyword(string[] words, bool casesansitive, string weakDeliminator, string additionalDeliminator)
+			private void NodesAdd(Char item)
 			{
-				string defaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+				if (nodesCount >= nodes.Length)
+				{
+					Char[] newNodes = new Char[nodes.Length << 1];
+					Array.Copy(nodes, newNodes, nodes.Length);
+					nodes = newNodes;
+				}
+				nodes[nodesCount++] = item;
+			}
+			
+			public Keyword(string[] words, bool casesensitive, string weakDeliminator, string additionalDeliminator)
+			{
+				string defaultDeliminators = DefaultDeliminators;
 				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < defaultDeliminators.Length; i++)
+				for (int i = 0; i < defaultDeliminators.Length; ++i)
 				{
 					char c = defaultDeliminators[i];
 					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
@@ -63,49 +75,138 @@ namespace MulticaretEditor.Highlighting
 				}
 				builder.Append(additionalDeliminator);
 				deliminators = builder.ToString();
-				this.casesansitive = casesansitive;
-				hash = new string[HashSize][];
-				int[] counts = new int[HashSize];
-				foreach (string word in words)
+				string[] sortedWords = new string[words.Length];
+				if (casesensitive)
 				{
-					counts[word.Length % HashSize]++;
+					Array.Copy(words, sortedWords, words.Length);
 				}
-				foreach (string word in words)
+				else
 				{
-					int i = word.Length % HashSize;
-					string[] array = hash[i];
-					if (array == null)
+					for (int i = 0; i < words.Length; ++i)
 					{
-						array = new string[counts[i]];
-						hash[i] = array;
+						sortedWords[i] = words[i].ToLowerInvariant();
 					}
-					counts[i]--;
-					array[counts[i]] = casesansitive ? word : word.ToLowerInvariant();
+				}
+				Array.Sort(sortedWords);				
+				ParseNodes(sortedWords, 0, 0, sortedWords.Length, casesensitive);
+			}
+			
+			private void ParseNodes(string[] words, int position, int i0, int i1, bool casesensitive)
+			{
+				int index = nodesCount;
+				{
+					char prevC = '\0';
+					bool hasEnds = false;
+					for (int i = i0; i < i1; ++i)
+					{
+						string word = words[i];
+						if (position >= word.Length)
+						{
+							if (position == word.Length)
+							{
+								hasEnds = true;
+							}
+							continue;
+						}
+						char c = word[position];
+						if (c != prevC)
+						{
+							prevC = c;
+							NodesAdd(new Char(c));
+							if (!casesensitive)
+							{
+								char upperC = char.ToUpperInvariant(c);
+								if (upperC != c)
+								{
+									NodesAdd(new Char(upperC));
+								}
+							}
+						}
+					}
+					NodesAdd(new Char(hasEnds ? (char)1 : '\0'));
+				}
+				{
+					bool first = true;
+					char prevC = '\0';
+					int prevI = i0;
+					for (int i = i0; i < i1; ++i)
+					{
+						string word = words[i];
+						if (position >= word.Length)
+						{
+							continue;
+						}
+						char c = word[position];
+						if (first)
+						{
+							prevC = c;
+							first = false;
+						}
+						else if (c != prevC)
+						{
+							nodes[index].style = (short)nodesCount;
+							++index;
+							if (!casesensitive)
+							{
+								char upperC = char.ToUpperInvariant(prevC);
+								if (upperC != prevC)
+								{
+									nodes[index].style = (short)nodesCount;
+									++index;
+								}
+							}
+							ParseNodes(words, position + 1, prevI, i, casesensitive);
+							prevC = c;
+							prevI = i;
+						}
+					}
+					if (!first)
+					{
+						nodes[index].style = (short)nodesCount;
+						if (!casesensitive)
+						{
+							char currentC = nodes[index].c;
+							char upperC = char.ToUpperInvariant(currentC);
+							if (upperC != currentC)
+							{
+								++index;
+								nodes[index].style = (short)nodesCount;
+							}
+						}
+						ParseNodes(words, position + 1, prevI, i1, casesensitive);
+					}
 				}
 			}
 			
 			override public bool Match(string text, int position, out int nextPosition)
 			{
-				int count = text.Length;
-				int wordEnd = position;
 				if (position == 0 || deliminators.IndexOf(text[position - 1]) != -1)
 				{
-					while (wordEnd < count && deliminators.IndexOf(text[wordEnd]) == -1)
+					int count = text.Length;
+					int i = position;
+					int iNode = 0;
+					while (true)
 					{
-						wordEnd++;
-					}
-				}
-				if (wordEnd > position)
-				{
-					int length = wordEnd - position;
-					int i = length % HashSize;
-					string word = text.Substring(position, length);
-					if (!casesansitive)
-						word = word.ToLowerInvariant();
-					if (hash[i] != null && Array.IndexOf<string>(hash[i], word) != -1)
-					{
-						nextPosition = position + length;
-						return true;
+						Char node = nodes[iNode];
+						if (node.c <= 1)
+						{
+							if (node.c == 1 && (i >= count || deliminators.IndexOf(text[i]) != -1))
+							{
+								nextPosition = i;
+								return true;
+							}
+							nextPosition = position;
+							return false;
+						}
+						if (i < count && text[i] == node.c)
+						{
+							++i;
+							iNode = node.style;
+						}
+						else
+						{
+							++iNode;
+						}
 					}
 				}
 				nextPosition = position;

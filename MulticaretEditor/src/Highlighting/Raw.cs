@@ -230,7 +230,11 @@ namespace MulticaretEditor.Highlighting
 												XmlElement elementL = nodeL as XmlElement;
 												if (elementL != null && elementL.Name == "item")
 												{
-													list.items.Add(elementL.InnerText.Trim());
+													string innerText = elementL.InnerText.Trim();
+													if (!string.IsNullOrEmpty(innerText))
+													{
+														list.items.Add(innerText);
+													}
 												}
 											}
 											raw.lists.Add(list);

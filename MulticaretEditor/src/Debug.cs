@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public static class Debug
 {
-	private static bool enabled = false;
 	private static int tabIndex = 0;
 	
 	public static void Begin(string text)
@@ -16,6 +15,24 @@ public static class Debug
 	{
 		tabIndex--;
 		System.Console.WriteLine(GetTabs() + "}");
+	}
+	
+	public static void BeginIfLog(string text)
+	{
+		if (tabIndex > 0)
+		{
+			System.Console.WriteLine(GetTabs() + text + " {");
+			tabIndex++;
+		}
+	}
+	
+	public static void EndIfLog()
+	{
+		if (tabIndex > 1)
+		{
+			tabIndex--;
+			System.Console.WriteLine(GetTabs() + "}");
+		}
 	}
 	
 	private static string GetTabs()
