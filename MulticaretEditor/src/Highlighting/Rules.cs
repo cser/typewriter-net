@@ -44,7 +44,7 @@ namespace MulticaretEditor.Highlighting
 			abstract public bool Match(string text, int position, out int nextPosition);
 		}
 		
-		public const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
+		private const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 		
 		public struct KeywordNode
 		{
@@ -329,7 +329,6 @@ namespace MulticaretEditor.Highlighting
 		
 		public class WordDetect : Rule
 		{
-			private const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 			private bool insensitive;
 			private string pattern;
 			private string upperPattern;
@@ -430,10 +429,10 @@ namespace MulticaretEditor.Highlighting
 			override public bool Match(string text, int position, out int nextPosition)
 			{
 				nextPosition = position;
-				int length = text.Length;
-				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
+				char prev = position > 0 ? text[position - 1] : '\0';
 				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 				{
+					int length = text.Length;
 					while (nextPosition < length && char.IsDigit(text[nextPosition]))
 					{
 						nextPosition++;
@@ -447,17 +446,17 @@ namespace MulticaretEditor.Highlighting
 		{
 			override public bool Match(string text, int position, out int nextPosition)
 			{
-				int i = position;
-				int length = text.Length;
-				char prev = position - 1 >= 0 && position - 1 < length ? text[position - 1] : '\0';
-				bool hasDot = false;
-				bool hasNumber = false;
+				char prev = position > 0 ? text[position - 1] : '\0';
 				if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 				{
+					bool hasDot = false;
+					bool hasNumber = false;
+					int length = text.Length;
+					int i = position;
 					while (i < length)
 					{
 						char c = text[i];
-						if (!char.IsDigit(text[i]) && c != '.')
+						if (!char.IsDigit(c) && c != '.')
 							break;
 						if (c == '.')
 						{
@@ -471,11 +470,11 @@ namespace MulticaretEditor.Highlighting
 						}
 						i++;
 					}
-				}
-				if (hasDot && hasNumber)
-				{
-					nextPosition = i;
-					return true;
+					if (hasDot && hasNumber)
+					{
+						nextPosition = i;
+						return true;
+					}
 				}
 				nextPosition = position;
 				return false;
@@ -486,14 +485,14 @@ namespace MulticaretEditor.Highlighting
 		{
 			override public bool Match(string text, int position, out int nextPosition)
 			{
-				int i = position;
-				if (text[i] == '0')
+				if (text[position] == '0')
 				{
-					int length = text.Length;
-					char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
+					int i = position;
+					char prev = position > 0 ? text[position - 1] : '\0';
 					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
 						i++;
+						int length = text.Length;
 						while (i < length)
 						{
 							char c = text[i];
@@ -524,7 +523,7 @@ namespace MulticaretEditor.Highlighting
 					char c1 = text[i + 1];
 					if (c1 == 'x' || c1 == 'X')
 					{
-						char prev = i - 1 >= 0 && i - 1 < length ? text[i - 1] : '\0';
+						char prev = i > 0 ? text[i - 1] : '\0';
 						if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 						{
 							i += 2;
@@ -601,11 +600,11 @@ namespace MulticaretEditor.Highlighting
 				char c = text[position];
 				if (char.IsLetter(c) || c == '_')
 				{
-					int length = text.Length;
 					char prev = position > 0 ? text[position - 1] : '\0';
 					if (char.IsWhiteSpace(prev) || Rules.IsPunctuation(prev) || prev == '\0')
 					{
 						nextPosition = position + 1;
+						int length = text.Length;
 						while (nextPosition < length)
 						{
 							c = text[nextPosition];
