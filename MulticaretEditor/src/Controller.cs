@@ -1210,6 +1210,7 @@ namespace MulticaretEditor
 				case '@':
 				case '#':
 				case '$':
+				case '`':
 					return true;
 				default:
 					return false;
