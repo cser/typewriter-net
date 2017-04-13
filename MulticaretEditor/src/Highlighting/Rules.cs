@@ -58,35 +58,17 @@ namespace MulticaretEditor.Highlighting
 			}
 		}
 		
-		public class Keyword : Rule
+		public class KeywordData
 		{
-			private string deliminators;
-			private KeywordNode[] nodes = new KeywordNode[32];
-			private int nodesCount;
+			public KeywordNode[] nodes = new KeywordNode[32];
+			public int nodesCount;
+			public readonly bool casesensitive;
+			public readonly KeywordData next;
 			
-			private void NodesAdd(KeywordNode item)
+			public KeywordData(string[] words, bool casesensitive, KeywordData next)
 			{
-				if (nodesCount >= nodes.Length)
-				{
-					KeywordNode[] newNodes = new KeywordNode[nodes.Length << 1];
-					Array.Copy(nodes, newNodes, nodes.Length);
-					nodes = newNodes;
-				}
-				nodes[nodesCount++] = item;
-			}
-			
-			public Keyword(string[] words, bool casesensitive, string weakDeliminator, string additionalDeliminator)
-			{
-				string defaultDeliminators = DefaultDeliminators;
-				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < defaultDeliminators.Length; ++i)
-				{
-					char c = defaultDeliminators[i];
-					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
-						builder.Append(c);
-				}
-				builder.Append(additionalDeliminator);
-				deliminators = builder.ToString();
+				this.casesensitive = casesensitive;
+				this.next = next;
 				string[] sortedWords = new string[words.Length];
 				if (casesensitive)
 				{
@@ -102,35 +84,17 @@ namespace MulticaretEditor.Highlighting
 				Array.Sort(sortedWords, System.StringComparer.Ordinal);
 				NodesAdd(new KeywordNode((char)1));
 				ParseNodes(sortedWords, 0, 0, sortedWords.Length, casesensitive);
-				
-				/*Debug.Log(string.Join(", ", sortedWords));
-				builder = new StringBuilder();
-				for (int i = 0; i < nodesCount; ++i)
+			}
+			
+			private void NodesAdd(KeywordNode item)
+			{
+				if (nodesCount >= nodes.Length)
 				{
-					builder.Append("[" + i + "]");
-					KeywordNode node = nodes[i];
-					if (node.c == 0 && node.style == 0)
-					{
-						builder.Append("NULL");
-					}
-					else if (node.c == 1 && node.style == 0)
-					{
-						builder.Append("END");
-					}
-					else
-					{
-						if (node.c == '\0')
-						{
-							builder.Append("\\0");
-						}
-						else
-						{
-							builder.Append(node.c);
-						}
-						builder.Append("->" + node.style);
-					}
+					KeywordNode[] newNodes = new KeywordNode[nodes.Length << 1];
+					Array.Copy(nodes, newNodes, nodes.Length);
+					nodes = newNodes;
 				}
-				Debug.Log(builder.ToString());*/
+				nodes[nodesCount++] = item;
 			}
 			
 			private void ParseNodes(string[] words, int position, int i0, int i1, bool casesensitive)
@@ -234,6 +198,29 @@ namespace MulticaretEditor.Highlighting
 						}
 					}
 				}
+			}
+		}
+		
+		public class Keyword : Rule
+		{
+			private readonly string deliminators;
+			private readonly KeywordNode[] nodes;
+			private readonly int nodesCount;
+			
+			public Keyword(KeywordData keywordData, string weakDeliminator, string additionalDeliminator)
+			{
+				string defaultDeliminators = DefaultDeliminators;
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < defaultDeliminators.Length; ++i)
+				{
+					char c = defaultDeliminators[i];
+					if (weakDeliminator.IndexOf(c) == -1 && additionalDeliminator.IndexOf(c) == -1)
+						builder.Append(c);
+				}
+				builder.Append(additionalDeliminator);
+				deliminators = builder.ToString();
+				nodes = keywordData.nodes;
+				nodesCount = keywordData.nodesCount;
 			}
 			
 			override public bool Match(string text, int position, out int nextPosition)

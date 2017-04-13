@@ -1345,29 +1345,36 @@ namespace UnitTests
 			AssertHighlighting("000000000", provider[0]);
 		}
 		
+		private Rules.Keyword NewRulesKeyword(string[] words, bool casesensitive,
+			string weakDeliminator, string additionalDeliminator)
+		{
+			Rules.KeywordData data = new Rules.KeywordData(words, casesensitive, null);
+			return new Rules.Keyword(data, weakDeliminator, additionalDeliminator);
+		}
+		
 		[Test]
 		public void Keywords()
 		{
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, false, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"word1", "Word2"}, false, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(true, rule.Match("word1", 0, out nextPosition));
 				Assert.AreEqual(5, nextPosition);
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, false, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"word1", "Word2"}, false, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(true, rule.Match("word2", 0, out nextPosition));
 				Assert.AreEqual(5, nextPosition);
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"word1", "Word2"}, true, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"word1", "Word2"}, true, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(false, rule.Match("word2", 0, out nextPosition));
 				Assert.AreEqual(0, nextPosition);
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"a12bC", "a12"}, false, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"a12bC", "a12"}, false, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(true, rule.Match("a12", 0, out nextPosition));
 				Assert.AreEqual(3, nextPosition);
@@ -1379,13 +1386,13 @@ namespace UnitTests
 				Assert.AreEqual(0, nextPosition);
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"a12bC", "a12"}, false, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"a12bC", "a12"}, false, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(false, rule.Match("a1", 0, out nextPosition));
 				Assert.AreEqual(0, nextPosition);
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"abABC", "abdABC", "acABC"}, true, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"abABC", "abdABC", "acABC"}, true, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(true, rule.Match("abABC", 0, out nextPosition));
 				Assert.AreEqual(true, rule.Match("abdABC", 0, out nextPosition));
@@ -1394,7 +1401,7 @@ namespace UnitTests
 				Assert.AreEqual(false, rule.Match("acABD", 0, out nextPosition));
 			}
 			{
-				Rules.Keyword rule = new Rules.Keyword(new string[] {"#define", "#elif", "#else", "#endif", "#error", "#if", "#line", "#undef", "#warning", "abstract", "as", "base", "break", "case", "catch", "checked", "class", "const", "continue", "default", "delegate", "do", "else", "enum", "event", "explicit", "extern", "finally", "fixed", "for", "foreach", "get", "goto", "if", "implicit", "in", "interface", "is", "lock", "namespace", "new", "operator", "out", "override", "params", "readonly", "ref", "return", "sealed", "set", "sizeof", "stackalloc", "static", "struct", "switch", "this", "throw", "try", "typeof", "unchecked", "unsafe", "using", "var", "virtual", "where", "while"}, true, "", "");
+				Rules.Keyword rule = NewRulesKeyword(new string[] {"#define", "#elif", "#else", "#endif", "#error", "#if", "#line", "#undef", "#warning", "abstract", "as", "base", "break", "case", "catch", "checked", "class", "const", "continue", "default", "delegate", "do", "else", "enum", "event", "explicit", "extern", "finally", "fixed", "for", "foreach", "get", "goto", "if", "implicit", "in", "interface", "is", "lock", "namespace", "new", "operator", "out", "override", "params", "readonly", "ref", "return", "sealed", "set", "sizeof", "stackalloc", "static", "struct", "switch", "this", "throw", "try", "typeof", "unchecked", "unsafe", "using", "var", "virtual", "where", "while"}, true, "", "");
 				int nextPosition = 0;
 				Assert.AreEqual(true, rule.Match("while", 0, out nextPosition));
 				Assert.AreEqual(5, nextPosition);
@@ -1404,7 +1411,7 @@ namespace UnitTests
 		[Test]
 		public void Keywords_IgnoreCaseInvariantOptimization()
 		{
-			Rules.Keyword rule = new Rules.Keyword(new string[] {"2200fC", "2b23", "2456"}, false, "", "");
+			Rules.Keyword rule = NewRulesKeyword(new string[] {"2200fC", "2b23", "2456"}, false, "", "");
 			int nextPosition = 0;
 			Assert.AreEqual(true, rule.Match("2B23", 0, out nextPosition));
 			Assert.AreEqual(4, nextPosition);
