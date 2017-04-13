@@ -18,13 +18,30 @@ namespace MulticaretEditor.Highlighting
 		private Dictionary<string, StyleData> styleDataOf;
 		private StyleData defaultStyleData;
 		private Dictionary<string, string[]> textListOf;
+		private Dictionary<string, KeywordList> keywordListOf;
 		private Dictionary<string, Rules.Context> contextOf;
 		private List<StyleData> customStyleDatas;
+		
+		private class KeywordList
+		{
+			public readonly KeywordList next;
+			
+			public KeywordList(KeywordList next)
+			{
+				this.next = next;
+			}
+			
+			public bool casesensitive;
+			public string weakDeliminator;
+			public string additionalDeliminator;
+			public Rules.Keyword rule;
+		}
 
 		public Highlighter(Raw raw)
 		{
 			styleDataOf = new Dictionary<string, StyleData>();
 			textListOf = new Dictionary<string, string[]>();
+			keywordListOf = new Dictionary<string, KeywordList>();
 			customStyleDatas = new List<StyleData>();
 			foreach (Raw.RawList listI in raw.lists)
 			{
@@ -146,14 +163,36 @@ namespace MulticaretEditor.Highlighting
 			if (rawRule.type == "keyword")
 			{
 				string[] list;
-				textListOf.TryGetValue(rawRule.String.ToLowerInvariant(), out list);
+				string key = rawRule.String.ToLowerInvariant();
+				textListOf.TryGetValue(key, out list);
 				if (list != null)
 				{
-					commonRule = new Rules.Keyword(
-						list,
-						GetBool(rawRule.general.keywordsCasesensitive, true),
-						rawRule.general.keywordsWeakDeliminator ?? "",
-						rawRule.general.keywordsAdditionalDeliminator ?? "");
+					bool casesensitive = GetBool(rawRule.general.keywordsCasesensitive, true);
+					string weakDeliminator = rawRule.general.keywordsWeakDeliminator ?? "";
+					string additionalDeliminator = rawRule.general.keywordsAdditionalDeliminator ?? "";
+					KeywordList keywordList;
+					keywordListOf.TryGetValue(key, out keywordList);
+					for (KeywordList node = keywordList; node != null; node = node.next)
+					{
+						if (node.casesensitive == casesensitive &&
+							node.weakDeliminator == weakDeliminator &&
+							node.additionalDeliminator == additionalDeliminator)
+						{
+							commonRule = node.rule;
+							break;
+						}
+					}
+					if (commonRule == null)
+					{
+						keywordList = new KeywordList(keywordList);
+						keywordList.rule = new Rules.Keyword(
+							list, casesensitive, weakDeliminator, additionalDeliminator);
+						keywordList.casesensitive = casesensitive;
+						keywordList.weakDeliminator = weakDeliminator;
+						keywordList.additionalDeliminator = additionalDeliminator;
+						keywordListOf[key] = keywordList;
+						commonRule = keywordList.rule;
+					}
 				}
 			}
 			else if (rawRule.type == "DetectChar")
