@@ -87,8 +87,38 @@ namespace MulticaretEditor.Highlighting
 						sortedWords[i] = words[i].ToLowerInvariant();
 					}
 				}
-				Array.Sort(sortedWords);				
+				Array.Sort(sortedWords, System.StringComparer.Ordinal);
+				NodesAdd(new Char((char)1));
 				ParseNodes(sortedWords, 0, 0, sortedWords.Length, casesensitive);
+				
+				/*Debug.Log(string.Join(", ", sortedWords));
+				builder = new StringBuilder();
+				for (int i = 0; i < nodesCount; ++i)
+				{
+					builder.Append("[" + i + "]");
+					Char node = nodes[i];
+					if (node.c == 0 && node.style == 0)
+					{
+						builder.Append("NULL");
+					}
+					else if (node.c == 1 && node.style == 0)
+					{
+						builder.Append("END");
+					}
+					else
+					{
+						if (node.c == '\0')
+						{
+							builder.Append("\\0");
+						}
+						else
+						{
+							builder.Append(node.c);
+						}
+						builder.Append("->" + node.style);
+					}
+				}
+				Debug.Log(builder.ToString());*/
 			}
 			
 			private void ParseNodes(string[] words, int position, int i0, int i1, bool casesensitive)
@@ -144,25 +174,38 @@ namespace MulticaretEditor.Highlighting
 						}
 						else if (c != prevC)
 						{
-							nodes[index].style = (short)nodesCount;
+							short next = (short)nodesCount;
+							if (i - prevI == 1 && words[prevI].Length == position + 1)
+							{
+								next = 0;
+							}
+							nodes[index].style = next;
 							++index;
 							if (!casesensitive)
 							{
 								char upperC = char.ToUpperInvariant(prevC);
 								if (upperC != prevC)
 								{
-									nodes[index].style = (short)nodesCount;
+									nodes[index].style = next;
 									++index;
 								}
 							}
-							ParseNodes(words, position + 1, prevI, i, casesensitive);
+							if (next != 0)
+							{
+								ParseNodes(words, position + 1, prevI, i, casesensitive);
+							}
 							prevC = c;
 							prevI = i;
 						}
 					}
 					if (!first)
 					{
-						nodes[index].style = (short)nodesCount;
+						short next = (short)nodesCount;
+						if (i1 - prevI == 1 && words[prevI].Length == position + 1)
+						{
+							next = 0;
+						}
+						nodes[index].style = next;
 						if (!casesensitive)
 						{
 							char currentC = nodes[index].c;
@@ -170,10 +213,13 @@ namespace MulticaretEditor.Highlighting
 							if (upperC != currentC)
 							{
 								++index;
-								nodes[index].style = (short)nodesCount;
+								nodes[index].style = next;
 							}
 						}
-						ParseNodes(words, position + 1, prevI, i1, casesensitive);
+						if (next != 0)
+						{
+							ParseNodes(words, position + 1, prevI, i1, casesensitive);
+						}
 					}
 				}
 			}
@@ -184,7 +230,7 @@ namespace MulticaretEditor.Highlighting
 				{
 					int count = text.Length;
 					int i = position;
-					int iNode = 0;
+					int iNode = 1;
 					while (true)
 					{
 						Char node = nodes[iNode];
