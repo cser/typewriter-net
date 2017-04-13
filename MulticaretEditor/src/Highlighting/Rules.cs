@@ -46,17 +46,29 @@ namespace MulticaretEditor.Highlighting
 		
 		public const string DefaultDeliminators = " .():!+,-<=>%&/;?[]^{|}~\\*\t\n\r";
 		
+		public struct KeywordNode
+		{
+			public char c;
+			public int next;
+			
+			public KeywordNode(char c)
+			{
+				this.c = c;
+				next = 0;
+			}
+		}
+		
 		public class Keyword : Rule
 		{
 			private string deliminators;
-			private Char[] nodes = new Char[32];
+			private KeywordNode[] nodes = new KeywordNode[32];
 			private int nodesCount;
 			
-			private void NodesAdd(Char item)
+			private void NodesAdd(KeywordNode item)
 			{
 				if (nodesCount >= nodes.Length)
 				{
-					Char[] newNodes = new Char[nodes.Length << 1];
+					KeywordNode[] newNodes = new KeywordNode[nodes.Length << 1];
 					Array.Copy(nodes, newNodes, nodes.Length);
 					nodes = newNodes;
 				}
@@ -88,7 +100,7 @@ namespace MulticaretEditor.Highlighting
 					}
 				}
 				Array.Sort(sortedWords, System.StringComparer.Ordinal);
-				NodesAdd(new Char((char)1));
+				NodesAdd(new KeywordNode((char)1));
 				ParseNodes(sortedWords, 0, 0, sortedWords.Length, casesensitive);
 				
 				/*Debug.Log(string.Join(", ", sortedWords));
@@ -96,7 +108,7 @@ namespace MulticaretEditor.Highlighting
 				for (int i = 0; i < nodesCount; ++i)
 				{
 					builder.Append("[" + i + "]");
-					Char node = nodes[i];
+					KeywordNode node = nodes[i];
 					if (node.c == 0 && node.style == 0)
 					{
 						builder.Append("NULL");
@@ -142,18 +154,18 @@ namespace MulticaretEditor.Highlighting
 						if (c != prevC)
 						{
 							prevC = c;
-							NodesAdd(new Char(c));
+							NodesAdd(new KeywordNode(c));
 							if (!casesensitive)
 							{
 								char upperC = char.ToUpperInvariant(c);
 								if (upperC != c)
 								{
-									NodesAdd(new Char(upperC));
+									NodesAdd(new KeywordNode(upperC));
 								}
 							}
 						}
 					}
-					NodesAdd(new Char(hasEnds ? (char)1 : '\0'));
+					NodesAdd(new KeywordNode(hasEnds ? (char)1 : '\0'));
 				}
 				{
 					bool first = true;
@@ -174,19 +186,19 @@ namespace MulticaretEditor.Highlighting
 						}
 						else if (c != prevC)
 						{
-							short next = (short)nodesCount;
+							int next = nodesCount;
 							if (i - prevI == 1 && words[prevI].Length == position + 1)
 							{
 								next = 0;
 							}
-							nodes[index].style = next;
+							nodes[index].next = next;
 							++index;
 							if (!casesensitive)
 							{
 								char upperC = char.ToUpperInvariant(prevC);
 								if (upperC != prevC)
 								{
-									nodes[index].style = next;
+									nodes[index].next = next;
 									++index;
 								}
 							}
@@ -200,12 +212,12 @@ namespace MulticaretEditor.Highlighting
 					}
 					if (!first)
 					{
-						short next = (short)nodesCount;
+						int next = nodesCount;
 						if (i1 - prevI == 1 && words[prevI].Length == position + 1)
 						{
 							next = 0;
 						}
-						nodes[index].style = next;
+						nodes[index].next = next;
 						if (!casesensitive)
 						{
 							char currentC = nodes[index].c;
@@ -213,7 +225,7 @@ namespace MulticaretEditor.Highlighting
 							if (upperC != currentC)
 							{
 								++index;
-								nodes[index].style = next;
+								nodes[index].next = next;
 							}
 						}
 						if (next != 0)
@@ -233,7 +245,7 @@ namespace MulticaretEditor.Highlighting
 					int iNode = 1;
 					while (true)
 					{
-						Char node = nodes[iNode];
+						KeywordNode node = nodes[iNode];
 						if (node.c <= 1)
 						{
 							if (node.c == 1 && (i >= count || deliminators.IndexOf(text[i]) != -1))
@@ -247,7 +259,7 @@ namespace MulticaretEditor.Highlighting
 						if (i < count && text[i] == node.c)
 						{
 							++i;
-							iNode = node.style;
+							iNode = node.next;
 						}
 						else
 						{
