@@ -83,7 +83,7 @@ namespace MulticaretEditor.Highlighting
 				}
 				Array.Sort(sortedWords, System.StringComparer.Ordinal);
 				NodesAdd(new KeywordNode((char)1));
-				ParseNodes(sortedWords, 0, 0, sortedWords.Length, casesensitive);
+				ParseNodes(sortedWords, 0, 0, sortedWords.Length);
 			}
 			
 			private void NodesAdd(KeywordNode item)
@@ -97,7 +97,7 @@ namespace MulticaretEditor.Highlighting
 				nodes[nodesCount++] = item;
 			}
 			
-			private void ParseNodes(string[] words, int position, int i0, int i1, bool casesensitive)
+			private void ParseNodes(string[] words, int position, int i0, int i1)
 			{
 				int index = nodesCount;
 				{
@@ -168,7 +168,7 @@ namespace MulticaretEditor.Highlighting
 							}
 							if (next != 0)
 							{
-								ParseNodes(words, position + 1, prevI, i, casesensitive);
+								ParseNodes(words, position + 1, prevI, i);
 							}
 							prevC = c;
 							prevI = i;
@@ -194,7 +194,7 @@ namespace MulticaretEditor.Highlighting
 						}
 						if (next != 0)
 						{
-							ParseNodes(words, position + 1, prevI, i1, casesensitive);
+							ParseNodes(words, position + 1, prevI, i1);
 						}
 					}
 				}
@@ -675,7 +675,8 @@ namespace MulticaretEditor.Highlighting
 			{
 				int length = text.Length;
 				bool result = text[position] == '\\' &&
-					(position >= length - 1 || (position >= length - 2 && (text[position + 1] == '\n' || text[position + 1] == '\r')));
+					(position + 1 >= length ||
+					(position + 2 >= length && (text[position + 1] == '\n' || text[position + 1] == '\r')));
 				nextPosition = result ? position + length - position : position;
 				return result;
 			}
@@ -765,7 +766,7 @@ namespace MulticaretEditor.Highlighting
 						for (; i < slashPosition + 4 && i < length; i++)
 						{
 							char c = text[i];
-							if (!(c >= '0' && c <= '7'))
+							if (c < '0' || c > '7')
 								break;
 						}
 						return i;
