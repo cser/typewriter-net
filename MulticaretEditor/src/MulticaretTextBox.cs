@@ -503,9 +503,13 @@ namespace MulticaretEditor
 			int valueY = lines.scroller.scrollY.value;
 
 			Graphics g = e.Graphics;
-
 			g.SmoothingMode = SmoothingMode.None;
 			g.Clear(scheme.bgColor);
+			
+#if ON_PAINT_DEBUG
+			g.ScaleTransform(.5f, .5f);
+			g.TranslateTransform(clientWidth * .25f, clientHeight * .25f);
+#endif
 
 			DrawText(g, valueX, valueY, leftIndent, clientWidth, clientHeight, false);
 			g.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
@@ -518,6 +522,10 @@ namespace MulticaretEditor
 						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
 				}
 			}
+
+#if ON_PAINT_DEBUG			
+			g.DrawRectangle(scheme.fgPen, leftIndent, 0, clientWidth, clientHeight);
+#endif
 
 			if (macrosExecutor.current != null)
 			{
@@ -535,7 +543,7 @@ namespace MulticaretEditor
 				mapRectangle = new RectangleF(clientWidth + leftIndent, (valueY - mapValueY) * mapScale, clientWidth * mapScale, clientHeight * mapScale);
 				g.FillRectangle(scheme.lineBgBrush, offsetX, valueY - mapValueY, clientWidth + (lines.scroller.scrollY.visible ? scrollBarBreadth : 0), clientHeight);
 				DrawText(g, 0, mapValueY, offsetX, clientWidth, (int)(clientHeight / mapScale), true);
-				g.ScaleTransform(1, 1);
+				g.ResetTransform();
 			}
 
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
@@ -940,7 +948,7 @@ namespace MulticaretEditor
 						for (int i = i0; i < i1; i++)
 						{
 							Line line = lines[i];
-							for (int iy = i == i0 ? iLineMin.iSubline : 0; iy <= line.cutOffs.count; iy++)
+							for (int iy = 0; iy <= line.cutOffs.count; iy++)
 							{
 								int sublineLeft = line.GetSublineLeft(iy);
 								selectionRects.Add(new DrawingLine(sublineLeft, wwILine + iy, line.GetSublineSize(iy) - sublineLeft));
