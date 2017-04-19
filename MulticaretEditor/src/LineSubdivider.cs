@@ -30,33 +30,27 @@ namespace MulticaretEditor
 			if (linesCount == -1)
 			{
 				linesCount = 0;
-				int prev = 0;
-				int indexN = -1;
-				int indexR = -1;
-				while (true)
-				{			
-					indexN = indexN > prev ? indexN : text.IndexOf('\n', prev);
-					indexR = indexR > prev ? indexR : text.IndexOf('\r', prev);
-					int index = indexN != -1 && (indexR != -1 && indexN < indexR || indexR == -1) ? indexN : indexR;
-					if (index == -1)
-						break;
-					char c = text[index];
-					if (c == '\r' && index + 1 < text.Length && text[index + 1] == '\n')
+				int length = text.Length;
+				for (int i = 0; i < length; ++i)
+				{
+					char c = text[i];
+					if (c == '\r')
 					{
-						prev = index + 2;
+						if (i + 1 < length && text[i + 1] == '\n')
+							++i;
+						++linesCount;
 					}
-					else
+					else if (c == '\n')
 					{
-						prev = index + 1;
+						++linesCount;
 					}
-					linesCount++;
 				}
-				linesCount++;
-			}
-			if (noLastEmpty &&
-				linesCount > 1 && text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
-			{
-				linesCount--;
+				++linesCount;
+				if (noLastEmpty &&
+					linesCount > 1 && text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
+				{
+					linesCount--;
+				}
 			}
 			return linesCount;
 		}
@@ -64,32 +58,28 @@ namespace MulticaretEditor
 		public string[] GetLines()
 		{
 			string[] lines = new string[GetLinesCount()];
-			int prev = 0;
-			int i = 0;
-			int indexN = -1;
-			int indexR = -1;
-			while (true)
+			int length = text.Length;
+			int lineIndex = 0;
+			int lineStart = 0;
+			for (int i = 0; i < length; i++)
 			{
-				indexN = indexN > prev ? indexN : text.IndexOf('\n', prev);
-				indexR = indexR > prev ? indexR : text.IndexOf('\r', prev);
-				int index = indexN != -1 && (indexR != -1 && indexN < indexR || indexR == -1) ? indexN : indexR;
-				if (index == -1)
-					break;
-				char c = text[index];
-				if (c == '\r' && index + 1 < text.Length && text[index + 1] == '\n')
+				char c = text[i];
+				if (c == '\r')
 				{
-					lines[i++] = text.Substring(prev, index + 2 - prev);
-					prev = index + 2;
+					if (i + 1 < length && text[i + 1] == '\n')
+						i++;
+					lines[lineIndex++] = text.Substring(lineStart, i + 1 - lineStart);
+					lineStart = i + 1;
 				}
-				else
+				else if (c == '\n')
 				{
-					lines[i++] = text.Substring(prev, index + 1 - prev);
-					prev = index + 1;
+					lines[lineIndex++] = text.Substring(lineStart, i + 1 - lineStart);
+					lineStart = i + 1;
 				}
 			}
-			if (i < lines.Length)
+			if (lineIndex < lines.Length)
 			{
-				lines[i] = text.Substring(prev);
+				lines[lineIndex] = text.Substring(lineStart, length - lineStart);
 			}
 			return lines;
 		}

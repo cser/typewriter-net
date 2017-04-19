@@ -81,7 +81,16 @@ namespace UnitTests
 			Assert.AreEqual(2, new LineSubdivider("text\na", true).GetLinesCount());
 			
 			Assert.AreEqual(2, new LineSubdivider("\n", false).GetLinesCount());
-			Assert.AreEqual(1, new LineSubdivider("\n", true).GetLinesCount());
+			{
+				LineSubdivider subdivider = new LineSubdivider("\n", true);
+				Assert.AreEqual(1, subdivider.GetLinesCount());
+				Assert.AreEqual(1, subdivider.GetLinesCount());
+			}
+			{
+				LineSubdivider subdivider = new LineSubdivider("text\ntext\n", true);
+				Assert.AreEqual(2, subdivider.GetLinesCount());
+				Assert.AreEqual(2, subdivider.GetLinesCount());
+			}
 		}
 		
 		[Test]
