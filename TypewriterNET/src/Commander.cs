@@ -503,7 +503,10 @@ public class Commander
 			else
 			{
 				Buffer buffer = mainForm.ForcedLoadFile(file);
-				buffer.needSaveAs = false;
+				if (buffer != null)
+				{
+					buffer.needSaveAs = false;
+				}
 			}
 		}
 	}

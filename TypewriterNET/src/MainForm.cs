@@ -927,7 +927,7 @@ public class MainForm : Form
 		}
 		catch (Exception e)
 		{
-			Log.WriteWarning("Path", e.Message);
+			Log.WriteWarning("Path", e.Message + " (" + file + ")");
 			Log.Open();
 			return null;
 		}
@@ -968,7 +968,7 @@ public class MainForm : Form
 		}
 		catch (Exception e)
 		{
-			Log.WriteWarning("Path", e.Message);
+			Log.WriteWarning("Path", e.Message + " (" + file + ")");
 			Log.Open();
 			return null;
 		}
