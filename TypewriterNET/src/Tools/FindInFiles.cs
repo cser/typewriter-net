@@ -179,30 +179,17 @@ public class FindInFiles
 		lines.ClearAllUnsafely();
 		
 		bool needCutCurrent = false;
-		FileNameFilter hardFilter = null;
-		if (string.IsNullOrEmpty(filter))
-		{
-			filter = "*";
-		}
-		else if (filter.Contains(";"))
-		{
-			hardFilter = new FileNameFilter(filter);
-			filter = "*";
-		}
 		if (string.IsNullOrEmpty(directory))
 		{
 			directory = Directory.GetCurrentDirectory();
 			needCutCurrent = true;
 		}
-		string[] files = null;
-		try
+		
+		FileSystemScanner scanner = new FileSystemScanner(directory, filter);
+		scanner.Scan();
+		if (scanner.error != null)
 		{
-			files = Directory.GetFiles(directory, filter, SearchOption.AllDirectories);
-		}
-		catch (System.Exception e)
-		{
-			AddLine("Error: File list reading error: " + e.Message, Ds.Error);
-			files = new string[0];
+			AddLine("Error: File list reading error: " + scanner.error, Ds.Error);
 		}
 		fsScanComplete = true;
 		
@@ -211,19 +198,13 @@ public class FindInFiles
 		CompareInfo ci = ignoreCase ? CultureInfo.InvariantCulture.CompareInfo : null;
 		int remainsMatchesCount = 2000000;
 		string stopReason = null;
-		foreach (string file in files)
+		foreach (string file in scanner.files)
 		{
 			if (isStopped)
 			{
 				if (stopReason == null)
 					stopReason = "STOPPED";
 				break;
-			}
-			if (hardFilter != null)
-			{
-				string name = Path.GetFileName(file);
-				if (!hardFilter.Match(name))
-					continue;
 			}
 			string text = null;
 			try
