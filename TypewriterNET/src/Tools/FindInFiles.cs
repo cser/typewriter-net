@@ -51,7 +51,7 @@ public class FindInFiles
 		this.mainForm = mainForm;
 	}
 
-	public string Execute(string regexText, FindParams findParams, string directory, string filter)
+	public string Execute(string regexText, FindParams findParams, string directory, string filter, string ignoreDirs)
 	{
 		if (string.IsNullOrEmpty(regexText))
 			return null;
@@ -74,7 +74,7 @@ public class FindInFiles
 		thread = new Thread(
 			new ThreadStart(delegate()
 			{
-				Search(directory, regex, pattern, findParams.ignoreCase, filter);
+				Search(directory, regex, pattern, findParams.ignoreCase, filter, ignoreDirs);
 			})
 		);
 		thread.Start();
@@ -169,7 +169,7 @@ public class FindInFiles
 		lines.AddLineUnsafely(line);
 	}
 
-	private void Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter)
+	private void Search(string directory, Regex regex, string pattern, bool ignoreCase, string filter, string ignoreDirs)
 	{
 		positions = new List<Position>();
 		buffer = new Buffer(null, "Find in files results", SettingsMode.Normal);
@@ -185,7 +185,7 @@ public class FindInFiles
 			needCutCurrent = true;
 		}
 		
-		FileSystemScanner scanner = new FileSystemScanner(directory, filter);
+		FileSystemScanner scanner = new FileSystemScanner(directory, filter, ignoreDirs);
 		scanner.Scan();
 		if (scanner.error != null)
 		{

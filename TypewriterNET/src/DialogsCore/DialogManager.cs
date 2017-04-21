@@ -303,8 +303,12 @@ public class DialogManager
 	private bool DoFindInFilesDialog(string text, string filter)
 	{
 		findInFiles.Close(true);
-		string errors = new FindInFiles(mainForm)
-			.Execute(text, tempSettings.FindParams, mainForm.Settings.findInFilesDir.Value, filter);
+		string errors = new FindInFiles(mainForm).Execute(
+			text,
+			tempSettings.FindParams,
+			mainForm.Settings.findInFilesDir.Value,
+			filter,
+			mainForm.Settings.findInFilesIgnoreDirs.Value);
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
 		return true;

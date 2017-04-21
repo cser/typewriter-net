@@ -12,15 +12,17 @@ public class FileSystemScanner
 {
 	private readonly string directory;
 	private readonly string filter;
+	private readonly string ignoreDirs;
 	
 	public string error;
 	public readonly List<string> files = new List<string>();
 	public bool done;
 	
-	public FileSystemScanner(string directory, string filter)
+	public FileSystemScanner(string directory, string filter, string ignoreDirs)
 	{
 		this.directory = directory;
 		this.filter = filter;
+		this.ignoreDirs = ignoreDirs;
 	}
 	
 	public void Scan()

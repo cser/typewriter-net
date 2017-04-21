@@ -32,14 +32,13 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	private List<string> filesList = new List<string>();
 
 	private Thread thread;
-	private string[] files;
-	private string error;
 	
 	override protected bool Prebuild()
 	{
 		FileSystemScanner scanner = new FileSystemScanner(
 			Directory.GetCurrentDirectory(),
-			MainForm.Settings.findInFilesFilter.Value);
+			MainForm.Settings.findInFilesFilter.Value,
+			MainForm.Settings.findInFilesIgnoreDirs.Value);
 		thread = new Thread(new ThreadStart(scanner.Scan));
 		thread.Start();
 		thread.Join(new TimeSpan(0, 0, MainForm.Settings.fileIncrementalSearchTimeout.Value));
@@ -47,7 +46,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		{
 			if (scanner.error != null)
 			{
-				MainForm.Dialogs.ShowInfo("Error", error);
+				MainForm.Dialogs.ShowInfo("Error", scanner.error);
 			}
 		}
 		else
