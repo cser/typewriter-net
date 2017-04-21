@@ -35,8 +35,13 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	
 	override protected bool Prebuild()
 	{
+		string directory = MainForm.Settings.findInFilesDir.Value;
+		if (string.IsNullOrEmpty(directory))
+		{
+			directory = Directory.GetCurrentDirectory();
+		}
 		FileSystemScanner scanner = new FileSystemScanner(
-			Directory.GetCurrentDirectory(),
+			directory,
 			MainForm.Settings.findInFilesFilter.Value,
 			MainForm.Settings.findInFilesIgnoreDirs.Value);
 		thread = new Thread(new ThreadStart(scanner.Scan));
