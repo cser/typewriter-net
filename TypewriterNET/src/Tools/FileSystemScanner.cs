@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using System.Threading;
 
 public class FileSystemScanner
@@ -78,52 +74,73 @@ public class FileSystemScanner
 		}
 		ignoreDirs = ignoreDirsList.ToArray();
 		
-		if (ignoreDirs.Length == 0 && !ignoreRoot)
+		
+		List<string> directories = new List<string>();
+		if (directory.IndexOf(';') != -1)
 		{
-			AddFilesRecursive(directory, filter, hardFilter);
+			foreach (string directoryI in directory.Split(';'))
+			{
+				string temp = directoryI.Trim();
+				if (string.IsNullOrEmpty(temp))
+				{
+					continue;
+				}
+				directories.Add(temp);
+			}
 		}
 		else
 		{
-			if (!ignoreRoot)
+			directories.Add(directory);
+		}
+		foreach (string directoryI in directories)
+		{
+			if (ignoreDirs.Length == 0 && !ignoreRoot)
 			{
-				AddFiles(directory, filter, hardFilter);
+				AddFilesRecursive(directoryI, filter, hardFilter);
 			}
-			string[] dirs = null;
-			try
+			else
 			{
-				dirs = Directory.GetDirectories(directory);
-			}
-			catch (System.Exception e)
-			{
-				error = e.Message + " (root directories)";
-				done = true;
-				return;
-			}
-			if (dirs == null)
-			{
-				error = "Unknown error (root directories is null)";
-				done = true;
-				return;
-			}
-			for (int i = 0; i < dirs.Length; ++i)
-			{
-				string dir = dirs[i];
-				string dirToMatch = dir;
-				if (dirToMatch.IndexOf('/') != -1)
+				if (!ignoreRoot)
 				{
-					dirToMatch = dirToMatch.Replace('/', '\\');
+					AddFiles(directoryI, filter, hardFilter);
 				}
-				int index = dirToMatch.LastIndexOf('\\');
-				if (index != -1)
+				string[] dirs = null;
+				try
 				{
-					string dirName = dirToMatch.Substring(index + 1);
-					if (!string.IsNullOrEmpty(dirName) &&
-						Array.IndexOf(ignoreDirs, dirName.ToLowerInvariant()) != -1)
+					dirs = Directory.GetDirectories(directoryI);
+				}
+				catch (System.Exception e)
+				{
+					error = e.Message + " (root directories)";
+					done = true;
+					return;
+				}
+				if (dirs == null)
+				{
+					error = "Unknown error (root directories is null)";
+					done = true;
+					return;
+				}
+				for (int i = 0; i < dirs.Length; ++i)
+				{
+					string dir = dirs[i];
+					string dirToMatch = dir;
+					if (dirToMatch.IndexOf('/') != -1)
 					{
-						continue;
+						dirToMatch = dirToMatch.Replace('/', '\\');
 					}
+					int index = dirToMatch.LastIndexOf('\\');
+					if (index != -1)
+					{
+						string dirName = dirToMatch.Substring(index + 1);
+						if (!string.IsNullOrEmpty(dirName) &&
+							Array.IndexOf(ignoreDirs, dirName.ToLowerInvariant()) != -1)
+						{
+							continue;
+						}
+					}
+					AddFilesRecursive(dir, filter, hardFilter);
 				}
-				AddFilesRecursive(dir, filter, hardFilter);
 			}
 		}
 		done = true;
