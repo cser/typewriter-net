@@ -10,8 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class RecentlyIncrementalSearch : IncrementalSearchBase

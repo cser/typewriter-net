@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class FindDialog : ADialog
@@ -79,7 +77,7 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
 		}
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddBefore(beforeKeyMap.map);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap.map, 1);

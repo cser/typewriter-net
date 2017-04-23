@@ -300,7 +300,7 @@
 				<RegExpr attribute="Definition Keyword" String="class\b" context="#stay">
 					<RegExpr attribute="Constructor" String="\s*[_\w][_\w\d]*" context="#pop"/>
 				</RegExpr>
-				<keyword attribute="Operator" String="operators" context="#stay"/>
+				<keyword attribute="Flow Control Keyword" String="operators" context="#stay"/>
 				<keyword attribute="Command Keyword" String="commands" context="#stay"/>
 				<keyword attribute="Flow Control Keyword" String="flow" context="#stay"/>
 				<keyword attribute="Builtin Function" String="builtinfuncs" context="#stay"/>

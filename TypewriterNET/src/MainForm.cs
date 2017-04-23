@@ -13,8 +13,6 @@ using System.Resources;
 using System.Xml;
 using System.Net;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 
 public class MainForm : Form
 {
@@ -172,6 +170,14 @@ public class MainForm : Form
 		return lastFrame != null && lastFrame.Nest == mainNest2 ? mainNest2 : mainNest;
 	}
 
+	public void ProcessViShortcut(Controller controller, string shortcut)
+	{
+		if (dialogs != null)
+		{
+			dialogs.DoOnViShortcut(controller, shortcut);
+		}
+	}
+
 	private FileTree fileTree;
 
 	private void OnLoad(object sender, EventArgs e)
@@ -230,6 +236,7 @@ public class MainForm : Form
 		fileDragger = new FileDragger(this);
 
 		tempSettings.Load(tempFilePostfix);
+		InitStartSettings();
 		allowApply = true;
 		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
@@ -256,6 +263,12 @@ public class MainForm : Form
 		Activated += OnActivated;
 
         InitMessageReceiving();
+	}
+	
+	private void InitStartSettings()
+	{
+		if (focusedTextBox != null)
+			focusedTextBox.SetViMode(settings.startWithViMode.Value);
 	}
 
     private void InitMessageReceiving()

@@ -8,8 +8,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class Frame : AFrame
@@ -59,6 +57,7 @@ public class Frame : AFrame
 		}
 
 		textBox = new MulticaretTextBox();
+		textBox.ViShortcut += OnViShortcut;
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -76,6 +75,11 @@ public class Frame : AFrame
 		tabBar.List = null;
 		buffers.list.SelectedChange -= OnTabSelected;
 		buffers.frame = null;
+	}
+	
+	private void OnViShortcut(string shortcut)
+	{
+		MainForm.ProcessViShortcut(textBox.Controller, shortcut);
 	}
 
 	public MulticaretTextBox TextBox { get { return textBox; } }

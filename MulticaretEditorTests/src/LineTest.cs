@@ -285,5 +285,27 @@ namespace UnitTests
 		{
 			return cutOff + ":" + cutOff.sizeX;
 		}
+		
+		[Test]
+		public void IndexOfPos()
+		{
+			Init("\tabcd");
+			Assert.AreEqual(1, line.IndexOfPos(4));
+			Init("");
+			Assert.AreEqual(0, line.IndexOfPos(0));
+			Assert.AreEqual(0, line.IndexOfPos(1));
+			Assert.AreEqual(0, line.IndexOfPos(-1));
+		}
+		
+		[Test]
+		public void NormalCount()
+		{
+			Init("\tabcd");
+			Assert.AreEqual(5, line.NormalCount);
+			Init("\tabcd\n");
+			Assert.AreEqual(5, line.NormalCount);
+			Init("");
+			Assert.AreEqual(0, line.NormalCount);
+		}
 	}
 }

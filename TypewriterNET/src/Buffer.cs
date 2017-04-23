@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 using KlerksSoft;
 
 public class Buffer

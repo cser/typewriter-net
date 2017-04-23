@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace MulticaretEditor.KeyMapping
+namespace MulticaretEditor
 {
 	public class KeyItem
 	{

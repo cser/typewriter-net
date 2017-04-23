@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -106,10 +105,11 @@ namespace MulticaretEditor
 			AddValue(NewLine(text, lineStart, length - lineStart));
 			charsCount = length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+
 			//sw.Stop();
 			//Console.WriteLine(sw.ElapsedMilliseconds + " ms - " + text.Length + " chars");
+			ResetTextCache();
 		}
 		
 		public void ClearAllUnsafely()
@@ -138,7 +138,9 @@ namespace MulticaretEditor
 			}
 		}
 
-		public string cachedText;
+		private string cachedText;
+		private bool charsValid;
+		private CharsRegularExpressions.Regex highlightRegex;
 
 		public string GetText()
 		{
@@ -156,6 +158,78 @@ namespace MulticaretEditor
 				cachedText = builder.ToString();
 			}
 			return cachedText;
+		}
+		
+		private CharBuffer _charBuffer;
+		
+		public char[] GetChars()
+		{
+			if (_charBuffer == null)
+			{
+				_charBuffer = new CharBuffer();
+			}
+			if (!charsValid)
+			{
+				charsValid = true;
+				_charBuffer.Resize(charsCount);
+				_charBuffer.Realocate();
+				int index = 0;
+				for (int i = 0; i < blocksCount; i++)
+				{
+					LineBlock block = blocks[i];
+					for (int j = 0; j < block.count; j++)
+					{
+						Line line = block.array[j];
+						Char[] chars = line.chars;
+						for (int k = 0, count = line.charsCount; k < count; k++)
+						{
+							_charBuffer.buffer[index++] = chars[k].c;
+						}
+					}
+				}
+			}
+			return _charBuffer.buffer;
+		}
+		
+		public void ResetTextCache()
+		{
+			cachedText = null;
+			charsValid = false;
+			highlightRegex = null;
+		}
+		
+		public void UpdateHighlight()
+		{
+			if (highlightRegex != ClipboardExecuter.ViRegex)
+			{
+				highlightRegex = ClipboardExecuter.ViRegex;
+				matches.Clear();
+				if (highlightRegex != null)
+				{
+					char[] chars = GetChars();
+					int index = 0;
+					while (index < charsCount)
+					{
+						CharsRegularExpressions.Match match = null;
+						try
+						{
+							match = highlightRegex.Match(chars, index, charsCount - index);
+						}
+						catch
+						{
+						}
+						if (match == null || !match.IsMatched(0))
+						{
+							break;
+						}
+						Selection selection = new Selection();
+						selection.anchor = match.Index;
+						selection.caret = match.Index + match.Length;
+						matches.Add(selection);
+						index = match.Index + (match.Length > 0 ? match.Length : 1);
+					}
+				}
+			}
 		}
 
 		private Line NewLine(string text, int index, int count)
@@ -278,8 +352,8 @@ namespace MulticaretEditor
 			}
 			charsCount += text.Length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
 		}
 
 		public void RemoveText(int index, int count)
@@ -433,8 +507,8 @@ namespace MulticaretEditor
 			start.Chars_ReduceBuffer();
 			charsCount -= count;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
 		}
 
 		public string GetText(int index, int count)
@@ -696,6 +770,7 @@ namespace MulticaretEditor
 		}
 
 		public readonly List<Selection> selections;
+		public readonly List<Selection> matches = new List<Selection>();
 
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();

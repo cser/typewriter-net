@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -538,6 +537,35 @@ namespace MulticaretEditor
 			else if (c1 == '\n')
 				result = "\n";
 			return result;
+		}
+		
+		public int IndexOfChar(char c, int index)
+		{
+			int count = charsCount;
+			for (int i = index; i < count; i++)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+		
+		public int LeftIndexOfChar(char c, int index)
+		{
+			if (index >= charsCount)
+			{
+				index = charsCount - 1;
+			}
+			for (int i = index; i >= 0; i--)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
 		}
 	}
 }

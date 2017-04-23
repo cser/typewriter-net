@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 
 public class Settings
 {
@@ -70,6 +69,9 @@ public class Settings
 	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
 	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
+	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
+	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
+	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
 
 	private Setter onChange;
 
@@ -137,6 +139,9 @@ public class Settings
 		Add(fileIncrementalSearchTimeout);
 		Add(hideMenu);
 		Add(fullScreenOnMaximized);
+		Add(viMapSource);
+		Add(viMapResult);
+		Add(startWithViMode);
 	}
 
 	public void DispatchChange()
@@ -236,6 +241,7 @@ public class Settings
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+		textBox.SetViMap(viMapSource.Value, viMapResult.Value);
 		textBox.Map = settingsMode != SettingsMode.FileTree && miniMap.Value;
 		textBox.MapScale = miniMapScale.Value;
 		textBox.PrintMargin = settingsMode == SettingsMode.Normal && printMargin.Value;

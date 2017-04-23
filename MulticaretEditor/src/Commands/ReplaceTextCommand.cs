@@ -1,6 +1,6 @@
 using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class ReplaceTextCommand : Command
 	{

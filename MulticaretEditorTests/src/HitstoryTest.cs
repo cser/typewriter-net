@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using MulticaretEditor;
-using MulticaretEditor.Commands;
 
 namespace UnitTests
 {
@@ -39,7 +38,7 @@ namespace UnitTests
 		
 		private TestCommand NewCommand(string name)
 		{
-			return new TestCommand(new CommandType(true), this, name);
+			return new TestCommand(new CommandType(true, false), this, name);
 		}
 		
 		private string log;

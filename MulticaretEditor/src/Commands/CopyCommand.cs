@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class CopyCommand : Command
 	{
-		public CopyCommand() : base(CommandType.Copy)
+		private readonly char register;
+		
+		public CopyCommand(char register) : base(CommandType.Copy)
 		{
+			this.register = register;
 		}
 		
 		override public bool Init()
@@ -22,7 +25,7 @@ namespace MulticaretEditor.Commands
 				first = false;
 				text.Append(lines.GetText(memento.Left, memento.Count));
 			}
-			ClipboardExecuter.PutToClipboard(text.ToString());
+			ClipboardExecuter.PutToRegister(register, text.ToString());
 			return false;
 		}
 		

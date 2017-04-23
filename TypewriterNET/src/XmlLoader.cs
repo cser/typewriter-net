@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Xml;
-using MulticaretEditor.Highlighting;
 
 public class XmlLoader
 {

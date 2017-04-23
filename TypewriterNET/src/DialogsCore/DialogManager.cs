@@ -12,8 +12,6 @@ using System.Text;
 using System.Resources;
 using System.Xml;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 
 public class DialogManager
 {
@@ -108,6 +106,7 @@ public class DialogManager
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
+	private DialogOwner<ViFindDialog> viFind;
 	private FindDialog.Data findData;
 	private DialogOwner<FindInFilesDialog> findInFiles;
 	private FindInFilesDialog.Data findInFilesData;
@@ -132,33 +131,33 @@ public class DialogManager
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null,
 			new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
-			new KeyAction("&View\\Set syntax...", DoSetSyntax, null, false)));
+			new KeyAction("&View\\Set syntax…", DoSetSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemplus, null,
-			new KeyAction("&View\\Set save encoding...", DoSetSaveEncoding, null, false)));
+			new KeyAction("&View\\Set save encoding…", DoSetSaveEncoding, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemPipe, null,
-			new KeyAction("&View\\Reload with encoding...", DoReloadWithEncoding, null, false)));
+			new KeyAction("&View\\Reload with encoding…", DoReloadWithEncoding, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.C, null,
-			new KeyAction("&View\\Preview color scheme...", DoSchemeIncrementalSearch, null, false)));
+			new KeyAction("&View\\Preview color scheme…", DoSchemeIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
-			new KeyAction("F&ind\\Find...", DoFind, null, false)));
+			new KeyAction("F&ind\\Find…", DoFind, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F, null,
-			new KeyAction("F&ind\\Find in files...", DoFindInFiles, null, false)));
+			new KeyAction("F&ind\\Find in files…", DoFindInFiles, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.H, null,
-			new KeyAction("F&ind\\Replace...", DoReplace, null, false)));
+			new KeyAction("F&ind\\Replace…", DoReplace, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.G, null,
-			new KeyAction("F&ind\\Go to line...", DoGoToLine, null, false)));
+			new KeyAction("F&ind\\Go to line…", DoGoToLine, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
-
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null,
-			new KeyAction("F&ind\\File incremental search...", DoFileIncrementalSearch, null, false)));
+			new KeyAction("F&ind\\File incremental search…", DoFileIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.O, null,
-			new KeyAction("F&ind\\Recently incremental search...", DoRecentlyIncrementalSearch, null, false)));
+			new KeyAction("F&ind\\Recently incremental search…", DoRecentlyIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.G, null,
-			new KeyAction("F&ind\\Recently dirs incremental search...", DoRecentlyDirsIncrementalSearch, null, false)));
+			new KeyAction("F&ind\\Recently dirs incremental search…", DoRecentlyDirsIncrementalSearch, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.P, null,
-			new KeyAction("F&ind\\Menu item incremental search...", DoMenuItemIncrementalSearch, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null,
-			new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false)));
+			new KeyAction("F&ind\\Menu item incremental search…", DoMenuItemIncrementalSearch, null, false)));
+		KeyAction escape = new KeyAction("F&ind\\Close dialogs", DoCloseDialogs, null, false);
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, escape));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, escape));
 
 		info = new DialogOwner<InfoDialog>(this);
 		fileIncrementalSearch = new DialogOwner<FileIncrementalSearch>(this);
@@ -171,6 +170,7 @@ public class DialogManager
 		schemeIncrementalSearch = new DialogOwner<SchemeIncrementalSearch>(this);
 		command = new DialogOwner<CommandDialog>(this);
 		find = new DialogOwner<FindDialog>(this);
+		viFind = new DialogOwner<ViFindDialog>(this);
 		findData = new FindDialog.Data(tempSettings.FindHistory);
 		findInFiles = new DialogOwner<FindInFilesDialog>(this);
 		findInFilesData = new FindInFilesDialog.Data(tempSettings.FindInFilesHistory, tempSettings.FindInFilesTempFilter, tempSettings.FindInFilesTempCurrentFilter);
@@ -530,5 +530,34 @@ public class DialogManager
 	public void CloseRename()
 	{
 		rename.Close(true);
+	}
+	
+	private bool ViDoFind(Controller controller)
+	{
+		if (viFind.SwitchOpen())
+			viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText), true);
+		return true;
+	}
+	
+	private bool ViDoFindText(string text)
+	{
+		viFind.Close(true);
+		if (mainForm.LastFrame != null)
+		{
+			mainForm.LastFrame.TextBox.ViFind(text);
+		}
+		return true;
+	}
+	
+	public void DoOnViShortcut(Controller controller, string shortcut)
+	{
+		if (shortcut == "/")
+		{
+			ViDoFind(controller);
+		}
+		else if (shortcut == ":")
+		{
+			DoInputCommand(controller);
+		}
 	}
 }

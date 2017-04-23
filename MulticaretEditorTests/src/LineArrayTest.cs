@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 using NUnit.Framework;
 
 namespace UnitTests
@@ -1277,6 +1276,52 @@ namespace UnitTests
 			AssertLines(
 				"abc\r\n", "def\r\n", "ghi\r\n", "jkl\r\n", "\n", "pqr\r\n", "stu\r\n", "vwx\r\n", "yza\r\n",
 				"bcd\r\n", "efg\r\n", "hij\r\n", "klm\r\n", "nop\r\n", "qrstu");
+		}
+
+		public void IndexOf_EmptyEnd()
+		{
+			Init();
+			
+			lines.SetText("01\n");
+			CollectionAssert.AreEqual(new string[] { "01\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines.IndexOf(new Place(0, 0)));
+			Assert.AreEqual(1, lines.IndexOf(new Place(1, 0)));
+			
+			Assert.AreEqual(3, lines.IndexOf(new Place(0, 1)));
+		}
+		
+		[Test]
+		public void NormalIndexOfPos()
+		{
+			Init();
+			
+			lines.SetText("01\n34\n");
+			CollectionAssert.AreEqual(new string[] { "01\n", "34\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(0));
+			Assert.AreEqual(1, lines[0].NormalIndexOfPos(1));
+			Assert.AreEqual(2, lines[0].NormalIndexOfPos(2));
+			Assert.AreEqual(2, lines[0].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(0));
+			Assert.AreEqual(1, lines[1].NormalIndexOfPos(1));
+			Assert.AreEqual(2, lines[1].NormalIndexOfPos(2));
+			Assert.AreEqual(2, lines[1].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[2].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[2].NormalIndexOfPos(1));
+			
+			lines.SetText("\t45\n");
+			CollectionAssert.AreEqual(new string[] { "\t45\n", "" }, lines.Debug_GetLinesText());		
+			
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(1));
+			Assert.AreEqual(0, lines[0].NormalIndexOfPos(2));
+			Assert.AreEqual(1, lines[0].NormalIndexOfPos(3));
+			
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(0));
+			Assert.AreEqual(0, lines[1].NormalIndexOfPos(1));
 		}
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Drawing;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class Scheme : Dictionary<Ds, TextStyle>
 	{
@@ -53,6 +53,9 @@ namespace MulticaretEditor.Highlighting
 		public Pen markPen2;
 		public Pen mainCaretPen;
 		public Pen caretPen;
+		public Brush mainCaretBrush;
+		public Brush caretBrush;
+		public Brush mainCaretBrush2;
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
@@ -252,6 +255,9 @@ namespace MulticaretEditor.Highlighting
 			markPen2 = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
+			mainCaretBrush = new SolidBrush(mainCaretColor);
+			caretBrush = new SolidBrush(Color.FromArgb(64, caretColor.R, caretColor.G, caretColor.B));
+			mainCaretBrush2 = new SolidBrush(Color.FromArgb(32, mainCaretColor.R, mainCaretColor.G, mainCaretColor.B));
 			printMarginPen = new Pen(printMarginColor);
 			
 			splitterBgBrush = new SolidBrush(splitterBgColor);

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class FixLineBreaksCommand : Command
 	{
@@ -83,7 +83,7 @@ namespace MulticaretEditor.Commands
 				selection.caret = lines.IndexOf(place.caret);
 			}
 			
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 
 		override public void Undo()
@@ -103,7 +103,7 @@ namespace MulticaretEditor.Commands
 				}
 			}
 			SetSelectionMementos(mementos);
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 	}
 }

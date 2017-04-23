@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class History
 	{
@@ -26,7 +26,7 @@ namespace MulticaretEditor.Commands
 			set { maxUndosCount = value; }
 		}
 
-		private Node root;
+		private HistoryNode root;
 
 		public History()
 		{
@@ -41,7 +41,7 @@ namespace MulticaretEditor.Commands
 		public void Reset()
 		{
 			_tags.Clear();
-			root = new Node(null, 0);
+			root = new HistoryNode(null, 0);
 			head = new CommandTag(_nextTagIndex++);
 			head.Prev = root;
 			_tags.Add(head);
@@ -49,13 +49,13 @@ namespace MulticaretEditor.Commands
 
 		public void ExecuteInited(Command command)
 		{
-			Node node0 = head.Prev;
+			HistoryNode node0 = head.Prev;
 			while (node0.index + indexOffset >= maxUndosCount)
 			{
-				Node oldRoot = root;
+				HistoryNode oldRoot = root;
 				root = oldRoot.nexts[0];
 				Dictionary<CommandTag, bool> tagsToRemove = new Dictionary<CommandTag, bool>();
-				foreach (Node nodeI in oldRoot.nexts)
+				foreach (HistoryNode nodeI in oldRoot.nexts)
 				{
 					nodeI.prev = null;
 					if (nodeI.main)
@@ -75,7 +75,7 @@ namespace MulticaretEditor.Commands
 					_tags.Remove(pair.Key);
 				}
 			}
-			Node node = new Node(command, node0.index + 1);
+			HistoryNode node = new HistoryNode(command, node0.index + 1);
 			if (node0.nexts.Count > 0)
 			{
 				CommandTag tag = new CommandTag(_nextTagIndex++);
@@ -99,7 +99,7 @@ namespace MulticaretEditor.Commands
 		{
 			if (head.Prev != root)
 			{
-				Node node = head.Prev;
+				HistoryNode node = head.Prev;
 				head.Prev = node.prev;
 				head.redos.Add(node);
 				node.main = false;
@@ -119,7 +119,7 @@ namespace MulticaretEditor.Commands
 			if (head.redos.Count > 0)
 			{
 				int index = head.redos.Count - 1;
-				Node node = head.redos[index];
+				HistoryNode node = head.redos[index];
 				head.redos.RemoveAt(index);
 				head.Prev = node;
 				node.main = true;
@@ -131,11 +131,11 @@ namespace MulticaretEditor.Commands
 
 		public void Checkout(CommandTag tag)
 		{
-			Node common = null;
+			HistoryNode common = null;
 			{
-				Dictionary<Node, bool> visited = new Dictionary<Node, bool>();
-				Node nodeI = head.Prev;
-				Node nodeJ = tag.Prev;
+				Dictionary<HistoryNode, bool> visited = new Dictionary<HistoryNode, bool>();
+				HistoryNode nodeI = head.Prev;
+				HistoryNode nodeJ = tag.Prev;
 				while (nodeI != null || nodeJ != null)
 				{
 					if (nodeI != null)
@@ -162,19 +162,19 @@ namespace MulticaretEditor.Commands
 			}
 			if (common != null)
 			{
-				for (Node nodeI = head.Prev; nodeI != common; nodeI = nodeI.prev)
+				for (HistoryNode nodeI = head.Prev; nodeI != common; nodeI = nodeI.prev)
 				{
 					nodeI.main = false;
 					nodeI.command.Undo();
 				}
 
-				List<Node> redos = new List<Node>();
-				for (Node nodeI = tag.Prev; nodeI != common; nodeI = nodeI.prev)
+				List<HistoryNode> redos = new List<HistoryNode>();
+				for (HistoryNode nodeI = tag.Prev; nodeI != common; nodeI = nodeI.prev)
 				{
 					redos.Add(nodeI);
 				}
 				redos.Reverse();
-				foreach (Node nodeI in redos)
+				foreach (HistoryNode nodeI in redos)
 				{
 					nodeI.main = true;
 					nodeI.command.Redo();
@@ -184,18 +184,18 @@ namespace MulticaretEditor.Commands
 			}
 		}
 
-		private void FindAllTagsOf(Node root, Dictionary<CommandTag, bool> tags)
+		private void FindAllTagsOf(HistoryNode root, Dictionary<CommandTag, bool> tags)
 		{
-			Stack<Node> stack = new Stack<Node>();
+			Stack<HistoryNode> stack = new Stack<HistoryNode>();
 			stack.Push(root);
 			while (stack.Count > 0)
 			{
-				Node nodeI = stack.Pop();
+				HistoryNode nodeI = stack.Pop();
 				foreach (CommandTag tag in nodeI.tags)
 				{
 					tags.Add(tag, true);
 				}
-				foreach (Node child in nodeI.nexts)
+				foreach (HistoryNode child in nodeI.nexts)
 				{
 					stack.Push(child);
 				}
@@ -209,7 +209,7 @@ namespace MulticaretEditor.Commands
 			return text.ToString();
 		}
 
-		private void ToDebugString(StringBuilder text, int indent, Node node)
+		private void ToDebugString(StringBuilder text, int indent, HistoryNode node)
 		{
 			text.Append(new string(' ', indent * 2));
 			text.Append(node.command);
@@ -243,7 +243,7 @@ namespace MulticaretEditor.Commands
 		private bool changed = false;
 		public bool Changed { get { return changed; } }
 
-		private Node savedNode;
+		private HistoryNode savedNode;
 
 		public void MarkAsSaved()
 		{

@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class RenameDialog : ADialog
@@ -87,7 +85,7 @@ public class RenameDialog : ADialog
 			{
 				textBox.Controller.PutNewCursor(new Place(0, i));
 			}
-			int right = line.charsCount - line.GetRN().Length;
+			int right = line.NormalCount;
 			if (isDirectory != null && i < isDirectory.Count && !isDirectory[i])
 			{
 				for (int j = right; j-- > 1;)

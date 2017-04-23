@@ -429,6 +429,13 @@ public class Properties
 			RegexData data = RegexData.Parse(value, out errors);
 			if (!string.IsNullOrEmpty(errors))
 				return errors;
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == value)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
 			this.value.Add(data);
 			return null;
 		}

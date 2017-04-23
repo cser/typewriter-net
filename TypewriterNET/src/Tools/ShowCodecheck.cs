@@ -6,8 +6,6 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 public class ShowCodecheck
 {

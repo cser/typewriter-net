@@ -2,21 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
-	public class Node
+	public class HistoryNode
 	{
 		public Command command;
 		public readonly int index;
 		
-		public Node(Command command, int index)
+		public HistoryNode(Command command, int index)
 		{
 			this.command = command;
 			this.index = index;
 		}
 		
-		public Node prev;
-		public readonly List<Node> nexts = new List<Node>(1);
+		public HistoryNode prev;
+		public readonly List<HistoryNode> nexts = new List<HistoryNode>(1);
 		public readonly List<CommandTag> tags = new List<CommandTag>(1);
 		public bool main;
 		
@@ -28,7 +28,7 @@ namespace MulticaretEditor.Commands
 			text.Append(GetSimpleText(this));
 			text.Append(") -> [");
 			bool first = true;
-			foreach (Node node in nexts)
+			foreach (HistoryNode node in nexts)
 			{
 				if (!first)
 					text.Append(", ");
@@ -39,7 +39,7 @@ namespace MulticaretEditor.Commands
 			return text.ToString();
 		}
 		
-		private string GetSimpleText(Node node)
+		private string GetSimpleText(HistoryNode node)
 		{
 			if (node == null)
 				return "null";

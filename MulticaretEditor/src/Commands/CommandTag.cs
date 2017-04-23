@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class CommandTag
 	{
@@ -12,8 +12,8 @@ namespace MulticaretEditor.Commands
 			this.id = id;
 		}
 		
-		private Node prev;
-		public Node Prev
+		private HistoryNode prev;
+		public HistoryNode Prev
 		{
 			get { return prev; }
 			set
@@ -26,7 +26,7 @@ namespace MulticaretEditor.Commands
 			}
 		}
 		
-		public readonly List<Node> redos = new List<Node>();
+		public readonly List<HistoryNode> redos = new List<HistoryNode>();
 		
 		override public string ToString()
 		{

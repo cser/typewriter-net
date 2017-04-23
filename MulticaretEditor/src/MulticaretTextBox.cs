@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using CustomScrollBar;
 
 namespace MulticaretEditor
@@ -22,9 +20,11 @@ namespace MulticaretEditor
 		public event Setter TextChange;
 		public event Setter AfterClick;
 		public event Setter AfterKeyPress;
+		public event Setter<string> ViShortcut;
 
 		private LineArray lines;
 		private Controller controller;
+		private Receiver receiver;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private StringFormat rightAlignFormat= new StringFormat(StringFormatFlags.DirectionRightToLeft);
 		private int lineInterval = 0;
@@ -32,14 +32,22 @@ namespace MulticaretEditor
 		private Timer keyTimer;
 		private Timer highlightingTimer;
 		private bool isCursorTick = true;
-		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly Dictionary<char, char> viMap = new Dictionary<char, char>();
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
-		private MacrosExecutor macrosExecutor;
 		private readonly BorderHGeometry borderH = new BorderHGeometry();
-
-		public MulticaretTextBox()
+		private readonly MacrosExecutor macrosExecutor;
+		
+		public readonly bool alwaysInputMode;
+		
+		public MulticaretTextBox() : this(false)
 		{
+		}
+
+		public MulticaretTextBox(bool alwaysInputMode)
+		{
+			this.alwaysInputMode = alwaysInputMode;
 			macrosExecutor = initMacrosExecutor ?? new MacrosExecutor(GetSelf);
 
 			bgBrush = new SolidBrush(BackColor);
@@ -102,6 +110,9 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
+						receiver = new Receiver(controller, macrosExecutor.viMode && !alwaysInputMode, alwaysInputMode);
+						receiver.viMap = viMap;
+						receiver.ViModeChanged += Receiver_ViModeChanged;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -113,9 +124,29 @@ namespace MulticaretEditor
 					else
 					{
 						lines = null;
+						receiver = null;
 					}
 					Invalidate();
 				}
+			}
+		}
+		
+		public bool ViFind(string text)
+		{
+			if (receiver != null && receiver.DoFind(text))
+			{
+				ScrollIfNeedToCaret();
+				Invalidate();
+				return true;
+			}
+			return false;
+		}
+		
+		private void Receiver_ViModeChanged()
+		{
+			if (!alwaysInputMode)
+			{
+				macrosExecutor.viMode = receiver != null ? receiver.ViMode : false;
 			}
 		}
 
@@ -437,6 +468,19 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public void SetViMap(string source, string result)
+		{
+			viMap.Clear();
+			if (source != null && result != null)
+			{
+				int count = Math.Min(source.Length, result.Length);
+				for (int i = 0; i < count; i++)
+				{
+					viMap[source[i]] = result[i];
+				}
+			}
+		}
 
 		private static SizeF GetCharSize(Font font, char c)
 		{
@@ -464,9 +508,22 @@ namespace MulticaretEditor
 			else
 				base.Invalidate();
 		}
+		
+		public void SetViMode(bool viMode)
+		{
+			if (receiver != null)
+			{
+				receiver.SetViMode(viMode);
+			}
+		}
 
 		protected override void OnGotFocus(EventArgs e)
 		{
+			bool viMode = macrosExecutor.viMode && !alwaysInputMode;
+			if (receiver.ViMode != viMode)
+			{
+				receiver.SetViMode(viMode);
+			}
 			UnblinkCursor();
 			base.OnGotFocus(e);
 			if (FocusedChange != null)
@@ -664,7 +721,9 @@ namespace MulticaretEditor
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
 			if (lines.wordWrap)
 			{
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				lines.UpdateHighlight();
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, true, true);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic, false);
 			}
 			else
 			{
@@ -773,8 +832,39 @@ namespace MulticaretEditor
 						}
 					}
 
-					if (isCursorTick && Focused)
-						g.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
+					if (Focused)
+					{
+						if (receiver != null && receiver.ViMode)
+						{
+							if (i == selectionsCount - 1)
+							{
+								if (isCursorTick)
+								{
+									g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
+									if (caret.iChar < line.charsCount)
+									{
+										char c = line.chars[caret.iChar].c;
+										g.DrawString(c + "", font, scheme.bgBrush,
+											x - charWidth / 3, y + lineInterval / 2, stringFormat);
+									}
+								}
+								else
+								{
+									g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
+								}
+							}
+							else
+							{
+								g.FillRectangle(scheme.caretBrush, x, y, charWidth, charHeight);
+							}
+						}
+						else if (isCursorTick)
+						{
+							g.DrawLine(i == selectionsCount - 1 ?
+								scheme.mainCaretPen :
+								scheme.caretPen, x, y, x, y + charHeight);
+						}
+					}
 				}
 			}
 		}
@@ -867,7 +957,7 @@ namespace MulticaretEditor
 
 		private void DrawSelections_WordWrap(
 			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic, bool highlight)
 		{
 			if (!symbolic &&
 				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
@@ -877,7 +967,7 @@ namespace MulticaretEditor
 				int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + wwILine * charHeight, clientWidth, charHeight * (line.cutOffs.count + 1));
 			}
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in highlight ? lines.matches : lines.selections)
 			{
 				if (selection.Right < start || selection.Left > end || selection.Count == 0)
 					continue;
@@ -1405,33 +1495,6 @@ namespace MulticaretEditor
 			}
 		}
 
-		private void ExecuteKeyPress(char code)
-		{
-			switch (code)
-			{
-				case '\b':
-					if (lines.AllSelectionsEmpty)
-					{
-						controller.Backspace();
-					}
-					else
-					{
-						controller.EraseSelection();
-					}
-					break;
-				case '\r':
-					controller.InsertLineBreak();
-					break;
-				default:
-					controller.InsertText(code + "");
-					break;
-			}
-			if (highlighter != null && !highlighter.LastParsingChanged)
-				highlighter.Parse(lines, 100);
-			UnblinkCursor();
-			ScrollIfNeedToCaret();
-		}
-
 		private bool actionProcessed = false;
 
 		protected override void OnKeyDown(KeyEventArgs e)
@@ -1445,11 +1508,45 @@ namespace MulticaretEditor
 			if (AfterKeyPress != null)
 				AfterKeyPress();
 		}
+		
+		private void ExecuteKeyPress(char code)
+		{
+			bool scrollToCursor = true;
+			if (receiver != null)
+			{
+				string viShortcut;
+				receiver.DoKeyPress(code, out viShortcut, out scrollToCursor);
+				if (viShortcut != null)
+				{
+					if (ViShortcut != null)
+						ViShortcut(viShortcut);
+				}
+			}
+			if (highlighter != null && !highlighter.LastParsingChanged)
+				highlighter.Parse(lines, 100);
+			UnblinkCursor();
+			if (scrollToCursor)
+			{
+				ScrollIfNeedToCaret();
+			}
+		}
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
-			actionProcessed = false;
-			keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			bool scrollToCursor;
+			if (receiver != null && receiver.DoKeyDown(keyData, out scrollToCursor))
+			{
+				UnblinkCursor();
+				if (scrollToCursor)
+				{
+					ScrollIfNeedToCaret();
+				}
+			}
+			else
+			{
+				actionProcessed = false;
+				keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			}
 		}
 
 		private bool IsMacrosKeys(KeyMap keyMap, Keys keyData)
@@ -1540,7 +1637,7 @@ namespace MulticaretEditor
 			if (mouseDownIndex == 1)
 			{
 				if (e.Button == MouseButtons.Left)
-				isMouseDown = true;
+					isMouseDown = true;
 				if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
 				{
 					if (Control.ModifierKeys == Keys.Control)
@@ -1552,6 +1649,7 @@ namespace MulticaretEditor
 						controller.ClearMinorSelections();
 						controller.PutCursor(GetMousePlace(e.Location), false);
 					}
+					ResetViInput();
 					UnblinkCursor();
 				}
 			}
@@ -1565,6 +1663,14 @@ namespace MulticaretEditor
 			}
 			if (AfterClick != null)
 				AfterClick();
+		}
+		
+		private void ResetViInput()
+		{
+			if (receiver != null)
+			{
+				receiver.ResetViInput();
+			}
 		}
 
 		protected override void OnMouseUp(MouseEventArgs e)

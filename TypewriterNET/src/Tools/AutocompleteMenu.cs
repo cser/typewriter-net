@@ -4,8 +4,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 using Microsoft.Win32;
 using CustomScrollBar;
 

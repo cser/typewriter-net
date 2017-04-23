@@ -33,6 +33,8 @@ namespace MulticaretEditor
 				this.mode = mode;
 			}
 		}
+		
+		public bool viMode;
 
 		private Getter<MulticaretTextBox> getTextBox;
 

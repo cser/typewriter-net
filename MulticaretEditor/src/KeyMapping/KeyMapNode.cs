@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MulticaretEditor.KeyMapping
+namespace MulticaretEditor
 {
 	public class KeyMapNode
 	{

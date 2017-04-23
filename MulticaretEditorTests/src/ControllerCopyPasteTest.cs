@@ -27,15 +27,6 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void PutEmptyToClipboard()
-		{
-			ClipboardExecuter.PutToClipboard("-");
-			Assert.AreEqual("-", ClipboardExecuter.GetFromClipboard());
-			ClipboardExecuter.PutToClipboard("");
-			Assert.AreEqual("-", ClipboardExecuter.GetFromClipboard());
-		}
-		
-		[Test]
 		public void Copy()
 		{
 			Init();

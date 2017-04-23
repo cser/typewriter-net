@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class SyntaxIncrementalSearch : IncrementalSearchBase

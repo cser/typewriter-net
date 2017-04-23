@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Collections.Generic;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class HighlighterUtil
 	{
