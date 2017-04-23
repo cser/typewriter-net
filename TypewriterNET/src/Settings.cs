@@ -37,7 +37,7 @@ public class Settings
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
 	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "");
-	public readonly Properties.String findInFilesIgnoreDirs = new Properties.String("findInFilesIgnoreDirs", "", false, "");
+	public readonly Properties.String findInFilesIgnoreDir = new Properties.String("findInFilesIgnoreDir", "", false, "");
 	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
 	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false, "");
 	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false, "");
@@ -105,7 +105,7 @@ public class Settings
 		Add(markBracket);
 		Add(rememberCurrentDir);
 		Add(findInFilesDir);
-		Add(findInFilesIgnoreDirs);
+		Add(findInFilesIgnoreDir);
 		Add(findInFilesFilter);
 		Add(hideInFileTree);
 		Add(renamePostfixed);

@@ -413,6 +413,7 @@ public class Commander
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
+		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
@@ -527,6 +528,29 @@ public class Commander
 		{
 			mainForm.Dialogs.ShowInfo("Error", e.Message);
 		}
+	}
+	
+	public void DoOpenInExplorer(string file)
+	{
+		if (string.IsNullOrEmpty(file))
+		{
+			file = GetFile();
+		}
+		else if (!ReplaceVars(ref file))
+		{
+			return;
+		}
+		if (string.IsNullOrEmpty(file))
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No file for open in explorer");
+			return;
+		}
+		bool isDirectory = Directory.Exists(file);
+		Process p = new Process();
+		p.StartInfo.UseShellExecute = true;
+		p.StartInfo.FileName = "explorer.exe";
+		p.StartInfo.Arguments = isDirectory ? "\"" + file + "\"" : "/select, \"" + file + "\"";
+		p.Start();
 	}
 	
 	private void DoShortcut(string text)

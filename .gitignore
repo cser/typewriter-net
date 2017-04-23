@@ -11,3 +11,4 @@ ManualTests/bin/*.pdb
 .vimrc
 tags
 nunit.framework.dll
+.dllsforautocomplete

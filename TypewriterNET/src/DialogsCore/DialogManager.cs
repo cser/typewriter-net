@@ -308,7 +308,7 @@ public class DialogManager
 			tempSettings.FindParams,
 			mainForm.Settings.findInFilesDir.Value,
 			filter,
-			mainForm.Settings.findInFilesIgnoreDirs.Value);
+			mainForm.Settings.findInFilesIgnoreDir.Value);
 		if (errors != null)
 			ShowInfo("FindInFiles", errors);
 		return true;
