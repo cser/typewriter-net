@@ -74,26 +74,27 @@ public class FileSystemScanner
 		}
 		ignoreDirs = ignoreDirsList.ToArray();
 		
-		
 		List<string> directories = new List<string>();
 		if (directory.IndexOf(';') != -1)
 		{
-			foreach (string directoryI in directory.Split(';'))
+			foreach (string rawDirectoryI in directory.Split(';'))
 			{
-				string temp = directoryI.Trim();
-				if (string.IsNullOrEmpty(temp))
+				string directoryI = rawDirectoryI.Trim();
+				if (string.IsNullOrEmpty(directoryI))
 				{
 					continue;
 				}
-				directories.Add(temp);
+				directories.Add(directoryI);
 			}
 		}
 		else
 		{
 			directories.Add(directory);
 		}
-		foreach (string directoryI in directories)
+		string currentDirectory = Directory.GetCurrentDirectory();
+		foreach (string rawDirectory in directories)
 		{
+			string directoryI = rawDirectory == "." ? currentDirectory : rawDirectory;
 			if (ignoreDirs.Length == 0 && !ignoreRoot)
 			{
 				AddFilesRecursive(directoryI, filter, hardFilter);
