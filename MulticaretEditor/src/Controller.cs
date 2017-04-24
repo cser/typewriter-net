@@ -1987,6 +1987,7 @@ namespace MulticaretEditor
 					if (place.iLine >= lines.LinesCount)
 					{
 						place.iLine = lines.LinesCount - 1;
+						place.iChar = lines[lines.LinesCount - 1].NormalCount;
 					}
 					selection.caret = lines.IndexOf(place);
 					selection.preferredPos = 0;

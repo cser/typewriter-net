@@ -676,6 +676,24 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void dd_EndLine_SeveralLines()
+		{
+			lines.SetText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht\n" +
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht");
+			Put(3, 2).Press("2dd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht");
+			AssertSelection().Both(0, 1);
+			Assert.AreEqual(
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht\n",
+				ClipboardExecuter.GetFromRegister('\0'));
+		}
+		
+		[Test]
 		public void p_Lines()
 		{
 			lines.SetText(

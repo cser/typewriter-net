@@ -12,7 +12,7 @@ namespace MulticaretEditor
 		public LineArray(int blockSize) : base(blockSize)
 		{
 			SetText("");
-			selections = new RWList<Selection>();
+			selections = new List<Selection>();
 			selections.Add(new Selection());
 			wwValidator = new WordWrapValidator(this);
 			scroller = new Scroller(this);
