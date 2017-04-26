@@ -102,6 +102,7 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
+						controller.cutCopyLineWhenSelectionIsEmpty = cutCopyLineWhenSelectionIsEmpty;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -434,6 +435,20 @@ namespace MulticaretEditor
 				{
 					map = value;
 					Invalidate();
+				}
+			}
+		}
+
+		private bool cutCopyLineWhenSelectionIsEmpty = false;
+		public bool CutCopyLineWhenSelectionIsEmpty
+		{
+			get { return cutCopyLineWhenSelectionIsEmpty; }
+			set
+			{
+				if (cutCopyLineWhenSelectionIsEmpty != value)
+				{
+					cutCopyLineWhenSelectionIsEmpty = value;
+					controller.cutCopyLineWhenSelectionIsEmpty = cutCopyLineWhenSelectionIsEmpty;
 				}
 			}
 		}
