@@ -200,6 +200,17 @@ namespace MulticaretEditor
 					newPlace = new Place(line.WWNormalIndexOfPos(selection.wwPreferredPos, 0), place.iLine + 1);
 					result = true;
 				}
+				else
+				{
+					place.iLine = lines.LinesCount - 1;
+					line = lines[place.iLine];
+					if (place.iChar != line.NormalCount)
+					{
+						place.iChar = line.NormalCount;
+						newPlace = place;
+						result = true;
+					}
+				}
 				selection.caret = lines.IndexOf(newPlace);
 				if (!shift && selection.anchor != selection.caret)
 				{
@@ -217,6 +228,16 @@ namespace MulticaretEditor
 						Line line = lines[place.iLine + 1];
 						place = new Place(Math.Min(line.charsCount, line.NormalIndexOfPos(selection.preferredPos)), place.iLine + 1);
 						result = true;
+					}
+					else
+					{
+						place.iLine = lines.LinesCount - 1;
+						Line line = lines[place.iLine];
+						if (place.iChar != line.NormalCount)
+						{
+							place.iChar = line.NormalCount;
+							result = true;
+						}
 					}
 					selection.caret = lines.IndexOf(place);
 					if (!shift && selection.anchor != selection.caret)
