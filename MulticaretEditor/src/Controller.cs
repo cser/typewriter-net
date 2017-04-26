@@ -738,7 +738,7 @@ namespace MulticaretEditor
 
 		public void Copy()
 		{
-			if (cutCopyLineWhenSelectionIsEmpty && selections.TrueForAll(delegate (Selection s) { return s.Empty; } ))
+			if (cutCopyLineWhenSelectionIsEmpty && lines.AllSelectionsEmpty)
 			{
 				MoveHome(false);
 				MoveHome(false); // move home twice to ensure we are always at the first column

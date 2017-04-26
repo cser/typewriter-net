@@ -12,6 +12,10 @@ namespace MulticaretEditor.Commands
 		override public bool Init()
 		{
 			lines.JoinSelections();
+			if (lines.AllSelectionsEmpty)
+			{
+				return false;
+			}
 			StringBuilder text = new StringBuilder();
 			SelectionMemento[] mementos = GetSelectionMementos();
 			bool first = true;
