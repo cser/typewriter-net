@@ -51,5 +51,4 @@
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
 	<item name="hideMenu" value="false"/>
 	<item name="fullScreenOnMaximized" value="false"/>
-	<item name="cutCopyLineWhenSelectionIsEmpty" value="false"/>
 </config>

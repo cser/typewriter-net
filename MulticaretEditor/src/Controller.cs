@@ -25,7 +25,6 @@ namespace MulticaretEditor
 		public bool isReadonly;
 		public bool needDispatchChange;
 		public MacrosExecutor macrosExecutor;
-		public bool cutCopyLineWhenSelectionIsEmpty;
 
 		public LineArray Lines { get { return lines; } }
 
@@ -738,7 +737,7 @@ namespace MulticaretEditor
 
 		public void Copy()
 		{
-			if (cutCopyLineWhenSelectionIsEmpty && lines.AllSelectionsEmpty)
+			if (lines.AllSelectionsEmpty)
 			{
 				MoveHome(false);
 				MoveHome(false); // move home twice to ensure we are always at the first column

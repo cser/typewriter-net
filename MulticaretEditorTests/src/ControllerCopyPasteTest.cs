@@ -352,7 +352,6 @@ namespace UnitTests
 		{
 			Init();
 			lines.lineBreak = "\n";
-			controller.cutCopyLineWhenSelectionIsEmpty = true;
 			lines.SetText("abcd\n  EFGHI\r\n1234");
 			ClipboardExecuter.PutToClipboard("-");
 			

@@ -70,7 +70,6 @@ public class Settings
 	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
 	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
-	public readonly Properties.Bool cutCopyLineWhenSelectionIsEmpty = new Properties.Bool("cutCopyLineWhenSelectionIsEmpty", false);
 
 	private Setter onChange;
 
@@ -138,7 +137,6 @@ public class Settings
 		Add(fileIncrementalSearchTimeout);
 		Add(hideMenu);
 		Add(fullScreenOnMaximized);
-		Add(cutCopyLineWhenSelectionIsEmpty);
 	}
 
 	public void DispatchChange()
@@ -244,7 +242,6 @@ public class Settings
 		textBox.PrintMarginSize = printMarginSize.Value;
 		textBox.MarkWord = markWord.Value;
 		textBox.MarkBracket = markBracket.Value;
-		textBox.CutCopyLineWhenSelectionIsEmpty = cutCopyLineWhenSelectionIsEmpty.Value;
 	}
 	
 	public void ApplySimpleParameters(MulticaretTextBox textBox, Buffer buffer)
