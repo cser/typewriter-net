@@ -73,6 +73,33 @@ namespace UnitTests
 			Assert.AreEqual("abcd\n  EFGHI\r\n", ClipboardExecuter.GetFromClipboard());
 			AssertText("1234");
 			AssertSelection().Both(0, 0).NoNext();
+			
+			controller.Undo();
+			AssertText("abcd\n  EFGHI\r\n1234");
+			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
+			
+			controller.Redo();
+			AssertText("1234");
+			AssertSelection().Both(0, 0).NoNext();
+		}
+		
+		[Test]
+		public void CONTROVERSIAL_CuttingOfLastLineDoesNotChangeLinesCount_AsInSublime()
+		{
+			Init();
+			lines.lineBreak = "\r";
+			lines.SetText("abcd\n  ABCDEF\r\n1234");
+			controller.PutCursor(new Place(1, 2), false);
+			AssertSelection().Both(1, 2).NoNext();
+			
+			controller.Cut();
+			Assert.AreEqual("1234\r", ClipboardExecuter.GetFromClipboard());
+			AssertText("abcd\n  ABCDEF\r\n");
+			AssertSelection().Both(0, 2).NoNext();
+			
+			controller.Undo();
+			AssertText("abcd\n  ABCDEF\r\n1234");
+			AssertSelection().Both(1, 2).NoNext();
 		}
 		
 		public class TestCommand : Command
