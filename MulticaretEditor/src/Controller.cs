@@ -739,17 +739,26 @@ namespace MulticaretEditor
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				MoveHome(false);
-				MoveHome(false); // move home twice to ensure we are always at the first column
-				MoveDown(true);
+				Execute(new CopyLinesCommand());
 			}
-			Execute(new CopyCommand());
+			else
+			{
+				Execute(new CopyCommand());
+			}
 		}
 
 		public void Cut()
 		{
-			Copy();
-			EraseSelection();
+			if (lines.AllSelectionsEmpty)
+			{
+				Execute(new CopyLinesCommand());
+				Execute(new EraseLinesCommand());
+			}
+			else
+			{
+				Execute(new CopyCommand());
+				EraseSelection();
+			}
 		}
 
 		public void EraseSelection()

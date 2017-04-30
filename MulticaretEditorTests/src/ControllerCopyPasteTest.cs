@@ -345,23 +345,5 @@ namespace UnitTests
 			Assert.AreEqual("12text1234567890123", lines.GetText());
 			AssertSelection().Both(6, 0).NoNext();
 		}
-		
-		[Ignore("TODO")]
-		[Test]
-		public void CopyLineWithoutSelection()
-		{
-			Init();
-			lines.lineBreak = "\n";
-			lines.SetText("abcd\n  EFGHI\r\n1234");
-			ClipboardExecuter.PutToClipboard("-");
-			
-			controller.PutCursor(new Place(1, 0), false);
-			controller.PutNewCursor(new Place(3, 0));
-			controller.PutNewCursor(new Place(2, 1));
-			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
-			controller.Copy();
-			Assert.AreEqual("abcd\n\n  EFGHI\r\n", ClipboardExecuter.GetFromClipboard());
-			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
-		}
 	}
 }
