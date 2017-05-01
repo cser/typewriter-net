@@ -737,7 +737,7 @@ namespace MulticaretEditor
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				Execute(new CopyLinesCommand('*'));
+				Execute(new CopyLinesCommand('*', GetLineRangesByLefts()));
 			}
 			else
 			{
@@ -749,8 +749,9 @@ namespace MulticaretEditor
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				Execute(new CopyLinesCommand('*'));
-				Execute(new EraseLinesCommand());
+				List<SimpleRange> ranges = GetLineRangesByLefts();
+				Execute(new CopyLinesCommand('*', ranges));
+				Execute(new EraseLinesCommand(ranges));
 			}
 			else
 			{
@@ -2003,34 +2004,6 @@ namespace MulticaretEditor
 			LastSelection.SetEmptyIfNotShift(shift);
 		}
 		
-		public void ViSelectLine(int count)
-		{
-			if (count < 1)
-			{
-				count = 1;
-			}
-			foreach (Selection selection in lines.selections)
-			{
-				{
-					Place place = lines.PlaceOf(selection.anchor);
-					place.iChar = 0;
-					selection.anchor = lines.IndexOf(place);
-				}
-				{
-					Place place = lines.PlaceOf(selection.caret);
-					place.iChar = 0;
-					place.iLine += count;
-					if (place.iLine >= lines.LinesCount)
-					{
-						place.iLine = lines.LinesCount - 1;
-						place.iChar = lines[lines.LinesCount - 1].NormalCount;
-					}
-					selection.caret = lines.IndexOf(place);
-					selection.preferredPos = 0;
-				}
-			}
-		}
-		
 		private Place ViGetPreferredPlace(Selection selection, Place place)
 		{
 			Line line = lines[place.iLine];
@@ -2101,6 +2074,97 @@ namespace MulticaretEditor
 			selections[0].caret = match.Index;
 			Place place = lines.PlaceOf(selections[0].caret);
 			lines.SetPreferredPos(selections[0], place);
+		}
+		
+		public void ViDeleteLine(char register, int count)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			Execute(new CopyLinesCommand(register, ranges));
+			Execute(new ViEraseLinesCommand(this, ranges));
+		}
+		
+		public List<SimpleRange> GetLineRangesByLefts()
+		{
+			SimpleRange[] mementos = new SimpleRange[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				Selection selection = selections[i];
+				mementos[i] = new SimpleRange(selection.Left, selection.Count);
+			}
+			Array.Sort(mementos, SimpleRange.CompareLeftToRight);
+			
+			List<SimpleRange> ranges = new List<SimpleRange>();
+			int startLine = -1;
+			int endLine = -1;
+			foreach (SimpleRange memento in mementos)
+			{
+				Place place = lines.PlaceOf(memento.index);
+				if (startLine == -1)
+				{
+					startLine = place.iLine;
+					endLine = startLine;
+				}
+				else if (place.iLine == endLine + 1)
+				{
+					endLine = place.iLine;
+				}
+				else if (place.iLine > endLine + 1)
+				{
+					ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
+					startLine = place.iLine;
+					endLine = startLine;
+				}
+			}
+			if (startLine != -1)
+			{
+				ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
+			}
+			return ranges;
+		}
+		
+		public List<SimpleRange> ViGetLineRanges(int count)
+		{
+			if (count < 1)
+			{
+				count = 1;
+			}
+			SimpleRange[] mementos = new SimpleRange[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				Selection selection = selections[i];
+				mementos[i] = new SimpleRange(selection.Left, selection.Count);
+			}
+			Array.Sort(mementos, SimpleRange.CompareLeftToRight);
+			
+			List<SimpleRange> ranges = new List<SimpleRange>();
+			SimpleRange lastRange = new SimpleRange(-1, -1);
+			foreach (SimpleRange memento in mementos)
+			{
+				Place start = lines.PlaceOf(memento.index);
+				Place end = memento.count == 0 ? start : lines.PlaceOf(memento.index + memento.count);
+				SimpleRange rangeI = new SimpleRange(start.iLine, end.iLine - start.iLine + count);
+				if (lastRange.index == -1)
+				{
+					lastRange = rangeI;
+				}
+				else
+				{
+					if (rangeI.index <= lastRange.index + lastRange.count)
+					{
+						lastRange.count = rangeI.index + rangeI.count - lastRange.index;
+					}
+					else
+					{
+						ranges.Add(lastRange);
+						lastRange = rangeI;
+					}
+				}
+			}
+			if (lastRange.index != -1)
+			{
+				ranges.Add(lastRange);
+			}
+			return ranges;
 		}
 	}
 }

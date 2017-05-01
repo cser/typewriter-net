@@ -4,12 +4,14 @@ using System.Text;
 
 namespace MulticaretEditor
 {
-	public class EraseLinesCommand : Command
+	public class ViEraseLinesCommand : Command
 	{
+		private readonly Controller controller;
 		private readonly List<SimpleRange> ranges;
 		
-		public EraseLinesCommand(List<SimpleRange> ranges) : base(CommandType.EraseLines)
+		public ViEraseLinesCommand(Controller controller, List<SimpleRange> ranges) : base(CommandType.EraseLines)
 		{
+			this.controller = controller;
 			this.ranges = ranges;
 		}
 		
@@ -33,10 +35,19 @@ namespace MulticaretEditor
 			for (int i = ranges.Count; i-- > 0;)
 			{
 				SimpleRange range = ranges[i];
-				Selection selection = selections[i];
-				selection.anchor = lines.IndexOf(new Place(0, range.index));
 				Line endLine = lines[range.index + range.count - 1];
-				selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
+				Selection selection = selections[i];
+				if (range.index > 0 && range.index + range.count == lines.LinesCount)
+				{
+					Line startLine = lines[range.index - 1];
+					selection.anchor = lines.IndexOf(new Place(startLine.NormalCount, range.index - 1));
+					selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
+				}
+				else
+				{
+					selection.anchor = lines.IndexOf(new Place(0, range.index));
+					selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
+				}
 			}
 			
 			EraseSelectionCommand eraseCommand = new EraseSelectionCommand();
@@ -47,6 +58,7 @@ namespace MulticaretEditor
 				eraseCommand.Redo();
 				this.eraseCommand = eraseCommand;
 			}
+			controller.ViMoveHome(false, true);
 		}
 		
 		override public void Undo()

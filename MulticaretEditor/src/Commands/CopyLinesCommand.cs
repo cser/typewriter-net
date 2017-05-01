@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace MulticaretEditor
@@ -6,10 +7,12 @@ namespace MulticaretEditor
 	public class CopyLinesCommand : Command
 	{
 		private readonly char register;
+		private readonly List<SimpleRange> ranges;
 		
-		public CopyLinesCommand(char register) : base(CommandType.CopyLines)
+		public CopyLinesCommand(char register, List<SimpleRange> ranges) : base(CommandType.CopyLines)
 		{
 			this.register = register;
+			this.ranges = ranges;
 		}
 		
 		override public bool Init()
@@ -20,38 +23,32 @@ namespace MulticaretEditor
 				return false;
 			}
 			StringBuilder text = new StringBuilder();
-			SelectionMemento[] mementos = GetSelectionMementos();
-			bool first = true;
-			int lastLineIndex = -1;
-			foreach (SelectionMemento memento  in mementos)
+			foreach (SimpleRange range  in ranges)
 			{
-				Place place = lines.PlaceOf(memento.caret);
-				if (first)
+				if (range.count > 0)
 				{
-					first = false;
-				}
-				else if (place.iLine == lastLineIndex)
-				{
-					continue;
-				}
-				lastLineIndex = place.iLine;
-				Line line = lines[place.iLine];
-				int normalCount = line.NormalCount;
-				Char[] chars = line.chars;
-				for (int i = 0; i < normalCount; ++i)
-				{
-					text.Append(chars[i].c);
-				}
-				if (normalCount < line.charsCount)
-				{
-					text.Append(line.GetRN());
-				}
-				else
-				{
-					text.Append(lines.lineBreak);
+					LineIterator iterator = lines.GetLineRange(range.index, range.count);
+					while (iterator.MoveNext())
+					{
+						Line line = iterator.current;
+						int normalCount = line.NormalCount;
+						Char[] chars = line.chars;
+						for (int i = 0; i < normalCount; ++i)
+						{
+							text.Append(chars[i].c);
+						}
+						if (normalCount < line.charsCount)
+						{
+							text.Append(line.GetRN());
+						}
+						else
+						{
+							text.Append(lines.lineBreak);
+						}
+					}
 				}
 			}
-			ClipboardExecuter.PutToRegister('*', text.ToString());
+			ClipboardExecuter.PutToRegister(register, text.ToString());
 			return false;
 		}
 		

@@ -53,37 +53,6 @@ namespace MulticaretEditor
 			}
 		}
 		
-		protected List<SimpleRange> GetLineRangesByCarets(SelectionMemento[] mementos)
-		{
-			List<SimpleRange> ranges = new List<SimpleRange>();
-			int startLine = -1;
-			int endLine = -1;
-			foreach (SelectionMemento memento in mementos)
-			{
-				Place place = lines.PlaceOf(memento.caret);
-				if (startLine == -1)
-				{
-					startLine = place.iLine;
-					endLine = startLine;
-				}
-				else if (place.iLine == endLine + 1)
-				{
-					endLine = place.iLine;
-				}
-				else if (place.iLine > endLine + 1)
-				{
-					ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
-					startLine = place.iLine;
-					endLine = startLine;
-				}
-			}
-			if (startLine != -1)
-			{
-				ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
-			}
-			return ranges;
-		}
-		
 		protected static int CompareSelections(SelectionMemento a, SelectionMemento b)
 		{
 			int aLeft = a.anchor < a.caret ? a.anchor : a.caret;

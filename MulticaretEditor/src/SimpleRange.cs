@@ -12,5 +12,10 @@ namespace MulticaretEditor
 			this.index = index;
 			this.count = count;
 		}
+		
+		public static int CompareLeftToRight(SimpleRange a, SimpleRange b)
+		{
+			return a.index == b.index ? a.count - b.count : a.index - b.index;
+		}
 	}
 }

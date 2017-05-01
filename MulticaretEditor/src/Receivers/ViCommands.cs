@@ -94,9 +94,7 @@ namespace MulticaretEditor
 			
 			public void Execute(Controller controller)
 			{
-				controller.ViSelectLine(count);
-				controller.ViCut(register);
-				controller.ViMoveHome(false, true);
+				controller.ViDeleteLine(register, count);
 			}
 		}
 		

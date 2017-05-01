@@ -101,34 +101,11 @@ namespace UnitTests
 			AssertSelection().Both(1, 2).NoNext();
 		}
 		
-		public class TestCommand : Command
-		{
-			public TestCommand() : base(new CommandType(false, false))
-			{
-			}
-			
-			public System.Collections.Generic.List<SimpleRange> TestGet()
-			{
-				return GetLineRangesByCarets(GetSelectionMementos());
-			}
-			
-			public override void Redo()
-			{
-			}
-			
-			public override void Undo()
-			{
-			}
-		}
-		
 		private void AssertCommandRanges(string expected)
 		{
-			TestCommand command = new TestCommand();
-			command.lines = lines;
-			command.selections = lines.selections;
 			CollectionAssert.AreEqual(
 				expected,
-				ListUtil.ToString(command.TestGet(), StringOfSimpleRange));
+				ListUtil.ToString(controller.GetLineRangesByLefts(), StringOfSimpleRange));
 		}
 		
 		private static string StringOfSimpleRange(SimpleRange range)
