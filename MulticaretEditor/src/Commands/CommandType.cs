@@ -8,9 +8,11 @@ namespace MulticaretEditor
 		public static readonly CommandType InsertText = new CommandType(true, false);
 		public static readonly CommandType ChangeCase = new CommandType(true, false);
 		public static readonly CommandType EraseSelection = new CommandType(true, false);
+		public static readonly CommandType EraseLines = new CommandType(true, false);
 		public static readonly CommandType Delete = new CommandType(true, false);
 		public static readonly CommandType Backspace = new CommandType(true, false);
 		public static readonly CommandType Copy = new CommandType(false, false);
+		public static readonly CommandType CopyLines = new CommandType(false, false);
 		public static readonly CommandType Paste = new CommandType(true, false);
 		public static readonly CommandType ShiftLeft = new CommandType(true, false);
 		public static readonly CommandType ShiftRight = new CommandType(true, false);

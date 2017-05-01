@@ -188,9 +188,6 @@ namespace UnitTests
 			controller.MoveDown(false);
 			AssertSelection().Both(1, 2);
 			
-			controller.MoveDown(false);
-			AssertSelection().Both(1, 2);
-			
 			controller.MoveUp(false);
 			AssertSelection().Both(1, 1);
 		}
@@ -252,6 +249,43 @@ namespace UnitTests
 			AssertSelection().Both(0, 2);
 			controller.MoveUp(false);
 			AssertSelection().Both(0, 1);
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void MoveDown_LastLine_MastSetCursorToRight(bool fictiveWordWrap)
+		{			
+			Init();
+			lines.SetText(SimpleText);
+			lines.wordWrap = fictiveWordWrap;
+			if (lines.wordWrap)
+			{
+				lines.wwValidator.Validate(50);
+				Assert.AreEqual(50, lines.wwSizeX);
+				Assert.AreEqual(3, lines.wwSizeY);
+			}
+			
+			AssertSelection().Both(0, 0);
+			controller.MoveRight(false);
+			controller.MoveRight(false);
+			controller.MoveDown(false);
+			controller.MoveDown(false);
+			AssertSelection().Both(2, 2);
+			
+			Assert.AreEqual(true, controller.MoveDown(false), "without selection");
+			AssertSelection().Both(12, 2);
+			
+			Assert.AreEqual(false, controller.MoveDown(false), "without selection 2");
+			AssertSelection().Both(12, 2);
+			
+			controller.MoveUp(false);
+			AssertSelection().Both(2, 1);
+			
+			controller.MoveDown(false);
+			AssertSelection().Both(2, 2);
+			
+			Assert.AreEqual(true, controller.MoveDown(true), "with selection");
+			AssertSelection().Anchor(2, 2).Caret(12, 2);
 		}
 		
 		[Test]

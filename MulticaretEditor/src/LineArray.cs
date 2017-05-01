@@ -851,6 +851,27 @@ namespace MulticaretEditor
 					selections.RemoveAt(i);
 			}
 		}
+		
+		public void ResizeSelections(int count)
+		{
+			if (selections.Count > count)
+			{
+				selections.RemoveRange(count, selections.Count - count);
+			}
+			else
+			{
+				while (selections.Count < count)
+				{
+					Selection prev = selections[selections.Count - 1];
+					Selection selection = new Selection();
+					selection.anchor = prev.anchor;
+					selection.caret = prev.caret;
+					selection.preferredPos = prev.preferredPos;
+					selection.wwPreferredPos = prev.preferredPos;
+					selections.Add(selection);
+				}
+			}
+		}
 
 		public class SelectionComparer : IComparer<Selection>
 		{
