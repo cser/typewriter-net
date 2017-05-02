@@ -661,6 +661,24 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void dd_Repeat_Overflow()
+		{
+			lines.SetText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht\n" +
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht");
+			Put(2, 2).Press("3dd").PressCommandMode().AssertText(
+				"Darf ich leben ohne Grenzen?\n" +
+				"Nein, das darfst du nicht");
+			AssertSelection().Both(0, 1);
+			Assert.AreEqual(
+				"Lieben trotz der Konsequenzen\n" +
+				"Nein, das darfst du nicht\n",
+				ClipboardExecuter.GetFromRegister('\0'));
+		}
+		
+		[Test]
 		public void dd_Indented()
 		{
 			lines.SetText(
@@ -690,6 +708,16 @@ namespace UnitTests
 			Assert.AreEqual(
 				"Lieben trotz der Konsequenzen\n" +
 				"Nein, das darfst du nicht\n",
+				ClipboardExecuter.GetFromRegister('\0'));
+		}
+		
+		[Test]
+		public void dd_EndLine_SingleLine()
+		{
+			lines.SetText("Darf ich leben ohne Grenzen?");
+			Put(3, 0).Press("2dd").PressCommandMode().AssertText("");
+			AssertSelection().Both(0, 0);
+			Assert.AreEqual("Darf ich leben ohne Grenzen?\n",
 				ClipboardExecuter.GetFromRegister('\0'));
 		}
 		

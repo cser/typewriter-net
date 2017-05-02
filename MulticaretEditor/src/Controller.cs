@@ -2138,11 +2138,16 @@ namespace MulticaretEditor
 			
 			List<SimpleRange> ranges = new List<SimpleRange>();
 			SimpleRange lastRange = new SimpleRange(-1, -1);
+			int linesCount = lines.LinesCount;
 			foreach (SimpleRange memento in mementos)
 			{
 				Place start = lines.PlaceOf(memento.index);
 				Place end = memento.count == 0 ? start : lines.PlaceOf(memento.index + memento.count);
 				SimpleRange rangeI = new SimpleRange(start.iLine, end.iLine - start.iLine + count);
+				if (rangeI.index + rangeI.count > linesCount)
+				{
+					rangeI.count = linesCount - rangeI.index;
+				}
 				if (lastRange.index == -1)
 				{
 					lastRange = rangeI;
