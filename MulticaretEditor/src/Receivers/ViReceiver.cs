@@ -282,8 +282,19 @@ namespace MulticaretEditor
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
+					case (int)'o':
+						controller.ViMoveEnd(false, 1);
+						controller.ViMoveRightFromCursor();
+						controller.InsertText("\n");
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
+					case (int)'O':
+						controller.ViMoveHome(false, false);
+						controller.InsertText("\n");
+						controller.MoveUp(false);
+						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						break;
 					case (int)'j' + ViChar.ControlIndex:
-						Console.WriteLine("action=" + parser.action);
 						for (int i = 0; i < count; i++)
 						{
 							controller.ScrollRelative(0, 1);
@@ -291,7 +302,6 @@ namespace MulticaretEditor
 						scrollToCursor = false;
 						break;
 					case (int)'k' + ViChar.ControlIndex:
-						Console.WriteLine("action=" + parser.action);
 						for (int i = 0; i < count; i++)
 						{
 							controller.ScrollRelative(0, -1);

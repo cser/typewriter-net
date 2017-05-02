@@ -288,5 +288,39 @@ namespace UnitTests
 			AssertText("line0\n    ABABABline1\nline2");
 			AssertSelection().Both(9, 1).NoNext();
 		}
+		
+		[Test]
+		public void StateEnter_o()
+		{
+			SetViMode(true);
+			lines.lineBreak = "\n";
+			lines.SetText("line0\nline1\nline2\nline3");
+			controller.PutCursor(new Place(2, 1), false);
+			AssertSelection().Both(2, 1).NoNext();
+			
+			DoKeyPress('o').AssertSelection().Both(0, 2).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(3, 2).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\nline1\nABC\nline2\nline3");
+			AssertSelection().Both(2, 2).NoNext();
+			DoKeyPress('j').AssertSelection().Both(2, 3).NoNext();
+		}
+		
+		[Test]
+		public void StateEnter_O()
+		{
+			SetViMode(true);
+			lines.lineBreak = "\n";
+			lines.SetText("line0\nline1\nline2\nline3");
+			controller.PutCursor(new Place(2, 1), false);
+			AssertSelection().Both(2, 1).NoNext();
+			
+			DoKeyPress('O').AssertSelection().Both(0, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(3, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\nABC\nline1\nline2\nline3");
+			AssertSelection().Both(2, 1).NoNext();
+			DoKeyPress('j').AssertSelection().Both(2, 2).NoNext();
+		}
 	}
 }
