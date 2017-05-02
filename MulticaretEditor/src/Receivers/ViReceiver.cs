@@ -285,7 +285,7 @@ namespace MulticaretEditor
 					case (int)'o':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
-						controller.InsertText("\n");
+						controller.InsertLineBreak();
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
 					case (int)'O':
