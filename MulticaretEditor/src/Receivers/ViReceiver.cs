@@ -23,11 +23,25 @@ namespace MulticaretEditor
 			this.startData = null;
 			if (startData != null)
 			{
-				for (int i = 1; i < startData.count; i++)
+				if (startData.action == 'o' || startData.action == 'O')
 				{
-					foreach (char c in startData.inputChars)
+					for (int i = 1; i < startData.count; i++)
 					{
-						ProcessInputChar(c);
+						controller.InsertLineBreak();
+						foreach (char c in startData.inputChars)
+						{
+							ProcessInputChar(c);
+						}
+					}
+				}
+				else
+				{
+					for (int i = 1; i < startData.count; i++)
+					{
+						foreach (char c in startData.inputChars)
+						{
+							ProcessInputChar(c);
+						}
 					}
 				}
 			}
@@ -262,37 +276,37 @@ namespace MulticaretEditor
 						ProcessRedo(count);
 						break;
 					case (int)'i':
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
 						break;
 					case (int)'a':
 						controller.ViMoveRightFromCursor();
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('a', count), false));
 						break;
 					case (int)'s':
 						controller.ViShiftRight(count);
 						controller.EraseSelection();
-						context.SetState(new InputReceiver(new ViReceiverData(1), false));
+						context.SetState(new InputReceiver(new ViReceiverData('s', 1), false));
 						break;
 					case (int)'I':
 						controller.ViMoveHome(false, true);
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('I', count), false));
 						break;
 					case (int)'A':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('A', count), false));
 						break;
 					case (int)'o':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
 						controller.InsertLineBreak();
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
 						break;
 					case (int)'O':
 						controller.ViMoveHome(false, true);
 						controller.InsertLineBreak();
 						controller.ViLogicMoveUp(false);
-						context.SetState(new InputReceiver(new ViReceiverData(count), false));
+						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						break;
 					case (int)'j' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
