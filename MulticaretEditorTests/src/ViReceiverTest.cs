@@ -348,7 +348,7 @@ namespace UnitTests
 			controller.PutCursor(new Place(2, 1), false);
 			AssertSelection().Both(2, 1).NoNext();
 			
-			DoKeyPress('O').AssertSelection().Both(0, 1).NoNext();
+			DoKeyPress('O').AssertSelection().Both(1, 1).NoNext();
 			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(4, 1).NoNext();
 			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
 			AssertText("line0\n\tABC\n\tline1\n\tline2\nline3");

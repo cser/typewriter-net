@@ -289,9 +289,9 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
 					case (int)'O':
-						controller.ViMoveHome(false, false);
-						controller.InsertText("\n");
-						controller.MoveUp(false);
+						controller.ViMoveHome(false, true);
+						controller.InsertLineBreak();
+						controller.ViLogicMoveUp(false);
 						context.SetState(new InputReceiver(new ViReceiverData(count), false));
 						break;
 					case (int)'j' + ViChar.ControlIndex:

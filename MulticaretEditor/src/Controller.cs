@@ -176,6 +176,29 @@ namespace MulticaretEditor
 			DoAfterMove();
 			return result;
 		}
+		
+		public bool ViLogicMoveUp(bool shift)
+		{
+			bool result = false;
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine > 0)
+				{
+					Line line = lines[place.iLine - 1];
+					place = new Place(Math.Min(line.NormalCount, place.iChar), place.iLine - 1);
+					result = true;
+				}
+				selection.caret = lines.IndexOf(place);
+				if (!shift && selection.anchor != selection.caret)
+				{
+					selection.anchor = selection.caret;
+					result = true;
+				}
+			}
+			DoAfterMove();
+			return result;
+		}
 
 		public bool MoveDown(bool shift)
 		{
