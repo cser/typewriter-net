@@ -38,10 +38,14 @@ public class CommandDialog : ADialog
 			new KeyAction("&View\\Cancel command", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
 			new KeyAction("&View\\Run command", DoRunCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-			new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-			new KeyAction("&View\\Next command", DoNextCommand, null, false)));
+		{
+			KeyAction prevAction = new KeyAction("&View\\Previous command", DoPrevCommand, null, false);
+			KeyAction nextAction = new KeyAction("&View\\Next command", DoNextCommand, null, false);
+			frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
+		}
 		{
 		    KeyAction action = new KeyAction("&View\\Autocomplete", DoAutocomplete, null, false);
             frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
@@ -130,6 +134,8 @@ public class CommandDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			label.FontFamily = settings.font.Value;
+			label.FontSize = settings.fontSize.Value;
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -171,9 +177,8 @@ public class CommandDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoAutocomplete(Controller controller)

@@ -54,10 +54,12 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
 			if (data.filterHistory != null)
 			{
-				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false)));
-				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false)));
+				KeyAction prevAction = new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false);
+				KeyAction nextAction = new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false);
+				frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
 			
 			filterTextBox = new MulticaretTextBox();
@@ -89,10 +91,12 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
 			if (data.history != null)
 			{
-				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+				KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+				KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+				frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
 	
 			textBox = new MulticaretTextBox();
@@ -282,9 +286,8 @@ public class FindInFilesDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool GetFilterHistoryPattern(bool isPrev)
@@ -297,8 +300,7 @@ public class FindInFilesDialog : ADialog
 			filterTextBox.Controller.ClearMinorSelections();
 			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
 			UpdateFilterText();
-			return true;
 		}
-		return false;
+		return true;
 	}
 }

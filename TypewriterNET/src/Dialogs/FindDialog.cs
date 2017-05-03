@@ -61,8 +61,12 @@ public class FindDialog : ADialog
 		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false));
 		if (data.history != null)
 		{
-			frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-			frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+			KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+			KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+			frameKeyMap.Add(Keys.Up, null, prevAction);
+			frameKeyMap.Add(Keys.Down, null, nextAction);
+			frameKeyMap.Add(Keys.Control | Keys.P, null, prevAction);
+			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
 		}
 		frameKeyMap.Add(Keys.None, null, new KeyAction("F&ind\\-", null, null, false));
 
@@ -211,9 +215,8 @@ public class FindDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoSelectAllFound(Controller controller)

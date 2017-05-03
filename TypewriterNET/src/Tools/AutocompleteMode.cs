@@ -19,9 +19,14 @@ public class AutocompleteMode
 		this.rawView = rawView;
 		
 		keyMap = new KeyMap();
-		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Up, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, action));
+		}
 		{
 			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
 			keyMap.AddItem(new KeyItem(Keys.Down, null, action));
 			if (rawView)
 				keyMap.AddItem(new KeyItem(Keys.Tab, null, action));
