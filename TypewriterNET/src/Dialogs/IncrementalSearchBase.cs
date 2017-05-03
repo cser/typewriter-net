@@ -47,10 +47,14 @@ public class IncrementalSearchBase : ADialog
 			variantsKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
 		{
-			textKeyMap.AddItem(new KeyItem(Keys.Up, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select up", DoUp, null, false)));
-			textKeyMap.AddItem(new KeyItem(Keys.Down, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select down", DoDown, null, false)));
+			KeyAction actionUp = new KeyAction("F&ind\\" + submenu + "\\Select up", DoUp, null, false);
+			KeyAction actionDown = new KeyAction("F&ind\\" + submenu + "\\Select down", DoDown, null, false);
+			textKeyMap.AddItem(new KeyItem(Keys.Up, null, actionUp));
+			textKeyMap.AddItem(new KeyItem(Keys.Down, null, actionDown));
+			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, actionUp));
+			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, actionDown));
+		}
+		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null,
 				new KeyAction("F&ind\\" + submenu + "\\Select document start", DoDocumentStart, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null,
@@ -83,7 +87,7 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.AfterKeyPress += OnVariantsTextBoxClick;
 		Controls.Add(variantsTextBox);
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddBefore(beforeKeyMap);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(textKeyMap, 1);

@@ -235,8 +235,7 @@ namespace MulticaretEditor
 		public static readonly KeyAction UnselectPrevText = Add("&Edit\\Selection\\Unselect prev text", DoUnselectPrevText, null, true);
 		private static bool DoUnselectPrevText(Controller controller)
 		{
-			controller.UnselectPrevText();
-			return true;
+			return controller.UnselectPrevText();
 		}
 		
 		public static readonly KeyAction SelectAllMatches = Add("&Edit\\Selection\\Select all matches", DoSelectAllMatches, null, true);

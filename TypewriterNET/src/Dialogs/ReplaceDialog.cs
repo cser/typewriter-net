@@ -66,8 +66,14 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false));
 		frameKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false));
 		frameKeyMap.AddInList(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false));
-		frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-		frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+		{
+			KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+			KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+			frameKeyMap.Add(Keys.Up, null, prevAction);
+			frameKeyMap.Add(Keys.Down, null, nextAction);
+			frameKeyMap.Add(Keys.Control | Keys.P, null, prevAction);
+			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
+		}
 		
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
@@ -85,7 +91,7 @@ public class ReplaceDialog : ADialog
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -95,7 +101,7 @@ public class ReplaceDialog : ADialog
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
-		replaceTextBox = new MulticaretTextBox();
+		replaceTextBox = new MulticaretTextBox(true);
 		replaceTextBox.ShowLineNumbers = false;
 		replaceTextBox.HighlightCurrentLine = false;
 		replaceTextBox.KeyMap.AddAfter(KeyMap);
@@ -323,9 +329,8 @@ public class ReplaceDialog : ADialog
 			currentTextBox.Text = newText;
 			currentTextBox.Controller.ClearMinorSelections();
 			currentTextBox.Controller.LastSelection.anchor = currentTextBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoSelectAllFound(Controller controller)

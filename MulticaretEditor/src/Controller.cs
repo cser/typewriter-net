@@ -957,12 +957,14 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void UnselectPrevText()
+		public bool UnselectPrevText()
 		{
 			if (selections.Count > 1)
 			{
 				selections.RemoveAt(selections.Count - 2);
+				return true;
 			}
+			return false;
 		}
 		
 		public void SelectAllMatches()

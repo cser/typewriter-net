@@ -35,10 +35,12 @@ public class ViFindDialog : ADialog
 			new KeyAction("F&ind\\Find next", DoFindNext, null, false)));
 		if (data.history != null)
 		{
-			frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-				new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-				new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+			KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+			KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+			frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 		}
 		
 		label = new MonospaceLabel();
@@ -156,8 +158,7 @@ public class ViFindDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 }

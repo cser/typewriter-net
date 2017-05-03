@@ -737,6 +737,8 @@ public class MainForm : Form
 
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, KeyAction.Nothing));
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, KeyAction.Nothing));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
