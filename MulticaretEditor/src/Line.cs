@@ -539,5 +539,48 @@ namespace MulticaretEditor
 				result = "\n";
 			return result;
 		}
+		
+		public string GetLineBreakFirstSpaces(int iChar)
+		{
+			int count = charsCount;
+			int spacesCount = 0;
+			for (int i = 0; i < count; ++i)
+			{
+				char c = chars[i].c;
+				if (c != '\t' && c != ' ')
+					break;
+				++spacesCount;
+			}
+			if (iChar >= spacesCount)
+			{
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < count; ++i)
+				{
+					char c = chars[i].c;
+					if (c != '\t' && c != ' ')
+						break;
+					builder.Append(c);
+				}
+				return builder.ToString();
+			}
+			return "";
+		}
+		
+		public int GetLastLeftSpace(int iChar)
+		{
+			int count = iChar;
+			if (count > NormalCount)
+			{
+				count = NormalCount;
+			}
+			while (count > 0)
+			{
+				char c = chars[count - 1].c;
+				if (c != '\t' && c != ' ')
+					break;
+				--count;
+			}
+			return count;
+		}
 	}
 }

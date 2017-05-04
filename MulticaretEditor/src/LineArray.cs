@@ -33,6 +33,7 @@ namespace MulticaretEditor
 		public int tabSize = 4;
 		public bool spacesInsteadTabs = false;
 		public string lineBreak = "\r\n";
+		public bool autoindent = false;
 
 		private void ValidateSize()
 		{

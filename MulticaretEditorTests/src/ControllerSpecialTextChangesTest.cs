@@ -96,5 +96,87 @@ namespace UnitTests
 			AssertText("\tline0\n\t   \n\t   line1\n\tline2\n\tline3");
 			AssertSelection().Both(4, 2).NoNext();
 		}
+		
+		[Test]
+		public void InsertLineBreak_AfterBra()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = false;
+			lines.SetText("\tline0\n\tline1() {\n\tline2\n\tline3");
+			controller.PutCursor(new Place(10, 1), false);
+			AssertSelection().Both(10, 1).NoNext();
+			controller.InsertLineBreak();
+			AssertText("\tline0\n\tline1() {\n\t\n\tline2\n\tline3");
+			controller.PutCursor(new Place(1, 2), false);
+		}
+		
+		[Test]
+		public void InsertLineBreak_AfterBra_Autoident()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText("\tline0\n\tline1() {\n\tline2\n\tline3");
+			controller.PutCursor(new Place(10, 1), false);
+			AssertSelection().Both(10, 1).NoNext();
+			
+			controller.InsertLineBreak();
+			AssertText("\tline0\n\tline1() {\n\t\t\n\tline2\n\tline3");
+			controller.PutCursor(new Place(2, 2), false);
+			
+			controller.InsertLineBreak();
+			AssertText("\tline0\n\tline1() {\n\t\t\n\t\t\n\tline2\n\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+		}
+		
+		[Test]
+		public void InsertLineBreak_AfterCket()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = false;
+			lines.SetText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t\t\n" +
+				"\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+			AssertSelection().Both(2, 3).NoNext();
+			controller.InsertText("}");
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t\t}\n" +
+				"\tline3");
+			controller.PutCursor(new Place(3, 3), false);
+		}
+		
+		[Ignore("TODO")]
+		[Test]
+		public void InsertLineBreak_AfterCket_Autoindent()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = false;
+			lines.SetText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t\t\n" +
+				"\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+			AssertSelection().Both(2, 3).NoNext();
+			controller.InsertText("}");
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t}\n" +
+				"\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+		}
 	}
 }

@@ -699,7 +699,16 @@ namespace MulticaretEditor
 				Selection selection = selections[i];
 				Place place = lines.PlaceOf(selection.Left);
 				Line line = lines[place.iLine];
-				texts[i] = lines.lineBreak + GetLineBreakFirstSpaces(line, place.iChar);
+				string text = line.GetLineBreakFirstSpaces(place.iChar);
+				if (lines.autoindent)
+				{
+					int firstTrimmedLength = line.GetLastLeftSpace(place.iChar);
+					if (firstTrimmedLength > 0 && line.chars[firstTrimmedLength - 1].c == '{')
+					{
+						text = (lines.spacesInsteadTabs ? new string(' ', lines.tabSize) : "\t") + text;
+					}
+				}
+				texts[i] = lines.lineBreak + text;
 			}
 			Execute(new InsertTextCommand(null, texts, true));
 		}
@@ -707,32 +716,6 @@ namespace MulticaretEditor
 		public void ReplaceText(SimpleRange[] orderedRanges, string newText)
 		{
 			Execute(new ReplaceTextCommand(orderedRanges, newText));
-		}
-
-		private static string GetLineBreakFirstSpaces(Line line, int iChar)
-		{
-			int count = line.charsCount;
-			int spacesCount = 0;
-			for (int i = 0; i < count; ++i)
-			{
-				char c = line.chars[i].c;
-				if (c != '\t' && c != ' ')
-					break;
-				++spacesCount;
-			}
-			if (iChar >= spacesCount)
-			{
-				StringBuilder builder = new StringBuilder();
-				for (int i = 0; i < count; ++i)
-				{
-					char c = line.chars[i].c;
-					if (c != '\t' && c != ' ')
-						break;
-					builder.Append(c);
-				}
-				return builder.ToString();
-			}
-			return "";
 		}
 
 		public void Copy()
