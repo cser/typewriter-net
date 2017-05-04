@@ -62,7 +62,7 @@ public class FindInFilesDialog : ADialog
 				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
 			
-			filterTextBox = new MulticaretTextBox();
+			filterTextBox = new MulticaretTextBox(true);
 			filterTextBox.FontFamily = FontFamily.GenericMonospace;
 			filterTextBox.FontSize = 10.25f;
 			filterTextBox.ShowLineNumbers = false;
