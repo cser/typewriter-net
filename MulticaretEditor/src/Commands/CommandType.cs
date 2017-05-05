@@ -6,6 +6,7 @@ namespace MulticaretEditor.Commands
 	{
 		public static readonly CommandType None = new CommandType(false);
 		public static readonly CommandType InsertText = new CommandType(true);
+		public static readonly CommandType InsertIndentedCket = new CommandType(true);
 		public static readonly CommandType ChangeCase = new CommandType(true);
 		public static readonly CommandType EraseSelection = new CommandType(true);
 		public static readonly CommandType EraseLines = new CommandType(true);

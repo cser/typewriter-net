@@ -582,5 +582,19 @@ namespace MulticaretEditor
 			}
 			return count;
 		}
+		
+		public bool IsOnlySpaces()
+		{
+			int count = NormalCount;
+			for (int i = 0; i < count; ++i)
+			{
+				char c = chars[i].c;
+				if (c != ' ' && c != '\t')
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 }
