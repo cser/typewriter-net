@@ -386,5 +386,22 @@ namespace UnitTests
 			AssertText("line0\n\tABC\n\tABC\n\tABC\n\tline1\n\tline2\nline3");
 			AssertSelection().Both(3, 3).NoNext();
 		}
+		
+		[Test]
+		public void StateEnter_O_Autoindent()
+		{
+			SetViMode(true);
+			lines.autoindent = true;
+			lines.lineBreak = "\n";
+			lines.SetText("\tline0{\n\t\tline1\n\t}\nline3");
+			controller.PutCursor(new Place(1, 2), false);
+			AssertSelection().Both(1, 2).NoNext();
+			
+			DoKeyPress('O').AssertSelection().Both(2, 2).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection().Both(5, 2).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("\tline0{\n\t\tline1\n\t\tABC\n\t}\nline3");
+			AssertSelection().Both(4, 2).NoNext();
+		}
 	}
 }

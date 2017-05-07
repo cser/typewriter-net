@@ -2,9 +2,9 @@ using System;
 
 namespace MulticaretEditor
 {
-	public class InsertIndentedCket : Command
+	public class InsertIndentedCketCommand : Command
 	{
-		public InsertIndentedCket() : base(CommandType.InsertIndentedCket)
+		public InsertIndentedCketCommand() : base(CommandType.InsertIndentedCket)
 		{
 		}
 

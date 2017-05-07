@@ -306,6 +306,10 @@ namespace MulticaretEditor
 						controller.ViMoveHome(false, true);
 						controller.InsertLineBreak();
 						controller.ViLogicMoveUp(false);
+						if (lines.autoindent)
+						{
+							controller.ViAutoindentByBottom();
+						}
 						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						break;
 					case (int)'j' + ViChar.ControlIndex:

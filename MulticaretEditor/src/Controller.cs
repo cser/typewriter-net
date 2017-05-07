@@ -708,7 +708,7 @@ namespace MulticaretEditor
 		{
 			if (lines.autoindent && text == "}")
 			{
-				Execute(new InsertIndentedCket());
+				Execute(new InsertIndentedCketCommand());
 				return;
 			}
 			if (lines.spacesInsteadTabs && text == "\t")
@@ -1376,6 +1376,11 @@ namespace MulticaretEditor
 				}
 				return dialogsExtension;
 			}
+		}
+		
+		public void ViAutoindentByBottom()
+		{
+			Execute(new InsertIndentedBeforeCommand());
 		}
 
 		public void ViResetCommandsBatching()
