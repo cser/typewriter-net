@@ -22,6 +22,7 @@ namespace MulticaretEditor
 		public Color lineNumberFgColor;
 		public Color selectionBrushColor;
 		public Color selectionPenColor;
+		public Color matchBrushColor;
 		public Color markPenColor;
 		public Color mainCaretColor;
 		public Color caretColor;
@@ -49,6 +50,7 @@ namespace MulticaretEditor
 		public Brush lineBgBrush;
 		public Brush selectionBrush;
 		public Pen selectionPen;
+		public Brush matchBrush;
 		public Pen markPen1;
 		public Pen markPen2;
 		public Pen mainCaretPen;
@@ -157,6 +159,7 @@ namespace MulticaretEditor
 			SetColor(ref lineNumberFgColor, "lineNumberFg", colors);
 			SetColor(ref selectionBrushColor, "selectionBrush", colors);
 			SetColor(ref selectionPenColor, "selectionPen", colors);
+			SetColor(ref matchBrushColor, "matchBrush", colors);
 			SetColor(ref markPenColor, "markPen", colors);
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
@@ -212,6 +215,7 @@ namespace MulticaretEditor
 			selectionBrushColor = Color.FromArgb(220, 220, 255);
 			selectionPenColor = Color.FromArgb(150, 150, 200);
 			markPenColor = Color.FromArgb(150, 150, 200);
+			matchBrushColor = Color.FromArgb(0, 255, 0);
 			mainCaretColor = Color.Black;
 			caretColor = Color.Gray;
 			printMarginColor = Color.Gray;
@@ -251,6 +255,10 @@ namespace MulticaretEditor
 			lineNumberFgPen = new Pen(lineNumberFgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
+			{
+				Color color = matchBrushColor;
+				matchBrush = new SolidBrush(Color.FromArgb(80, color.R, color.G, color.B));
+			}
 			markPen1 = new Pen(markPenColor, 1);
 			markPen2 = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);

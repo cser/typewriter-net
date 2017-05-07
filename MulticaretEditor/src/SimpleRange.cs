@@ -2,7 +2,7 @@ using System;
 
 namespace MulticaretEditor
 {
-	public class SimpleRange
+	public struct SimpleRange
 	{
 		public int index;
 		public int count;

@@ -732,15 +732,22 @@ namespace MulticaretEditor
 			int maxPos = Math.Min(lines.scroller.textSizeX, (valueX + clientWidth) / charWidth + 1);
 			int start = lines.IndexOf(new Place(0, lineMin.iLine));
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
+			lines.UpdateHighlight();
 			if (lines.wordWrap)
 			{
-				lines.UpdateHighlight();
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, true, true);
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic, false);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				if (!symbolic)
+				{
+					DrawMatches_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
+				}
 			}
 			else
 			{
 				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				if (!symbolic)
+				{
+					DrawMatches_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+				}
 			}
 			if (lines.markedBracket)
 			{
@@ -970,7 +977,7 @@ namespace MulticaretEditor
 
 		private void DrawSelections_WordWrap(
 			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic, bool highlight)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic)
 		{
 			if (!symbolic &&
 				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
@@ -980,7 +987,7 @@ namespace MulticaretEditor
 				int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + wwILine * charHeight, clientWidth, charHeight * (line.cutOffs.count + 1));
 			}
-			foreach (Selection selection in highlight ? lines.matches : lines.selections)
+			foreach (Selection selection in lines.selections)
 			{
 				if (selection.Right < start || selection.Left > end || selection.Count == 0)
 					continue;
@@ -1089,6 +1096,172 @@ namespace MulticaretEditor
 					offsetY + rectangle.iy * charHeight + lineInterval / 2,
 					rectangle.sizeX * charWidth,
 					charHeight);
+			}
+		}
+		
+		private MatchesRenderer matchesRenderer;
+		
+		private void DrawMatches_WordWrap(
+			int leftIndent,
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+		{
+			if (lines.matches.Count == 0)
+			{
+				return;
+			}
+			if (matchesRenderer == null)
+			{
+				matchesRenderer = new MatchesRenderer();
+			}
+			matchesRenderer.g = g;
+			matchesRenderer.brush = scheme.matchBrush;
+			matchesRenderer.offsetX = offsetX;
+			matchesRenderer.offsetY = offsetY;
+			matchesRenderer.charWidth = charWidth;
+			matchesRenderer.charHeight = charHeight;
+			matchesRenderer.lineInterval = lineInterval;
+			foreach (SimpleRange range in lines.matches)
+			{
+				if (range.count == 0)
+					continue;
+				matchesRenderer.start = true;
+				Place left = lines.PlaceOf(range.index);
+				Line leftLine = lines[left.iLine];
+				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
+				if (left.iChar + range.count <= leftLine.charsCount)
+				{
+					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
+					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + range.count);
+					if (pos0.iy == pos1.iy)
+					{
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, pos1.ix - pos0.ix);
+					}
+					else
+					{
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(pos0.iy) - pos0.ix);
+						int sublineLeft;
+						for (int iy = pos0.iy + 1; iy < pos1.iy; iy++)
+						{
+							sublineLeft = leftLine.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft);
+						}
+						sublineLeft = leftLine.GetSublineLeft(pos1.iy);
+						matchesRenderer.AddLine(sublineLeft, leftILine + pos1.iy, pos1.ix - sublineLeft);
+					}
+				}
+				else
+				{
+					if (left.iLine >= iLineMin.iLine)
+					{
+						int sublineLeft;
+						Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(0) - pos0.ix);
+						for (int iy = pos0.iy + 1; iy <= leftLine.cutOffs.count; iy++)
+						{
+							sublineLeft = leftLine.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft);
+						}
+					}
+					Place right = lines.PlaceOf(range.index + range.count);
+					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
+					if (right.iLine <= iLineMax.iLine)
+					{
+						int sublineLeft;
+						Line line = lines[right.iLine];
+						Pos pos1 = line.WWPosOfIndex(right.iChar);
+						for (int iy = 0; iy < pos1.iy; iy++)
+						{
+							sublineLeft = line.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, rightILine + iy, line.GetSublineSize(iy) - sublineLeft);
+						}
+						sublineLeft = line.GetSublineLeft(pos1.iy);
+						matchesRenderer.AddLine(sublineLeft, rightILine + pos1.iy, pos1.ix - sublineLeft);
+					}
+					int i0 = left.iLine + 1;
+					int i1 = right.iLine;
+					if (i1 > i0)
+					{
+						if (i0 < iLineMin.iLine)
+							i0 = iLineMin.iLine;
+						if (i1 > iLineMax.iLine + 1)
+							i1 = iLineMax.iLine + 1;
+						int wwILine = lines.wwValidator.GetWWILine(i0);
+						for (int i = i0; i < i1; i++)
+						{
+							Line line = lines[i];
+							for (int iy = 0; iy <= line.cutOffs.count; iy++)
+							{
+								int sublineLeft = line.GetSublineLeft(iy);
+								matchesRenderer.AddLine(sublineLeft, wwILine + iy, line.GetSublineSize(iy) - sublineLeft);
+							}
+							wwILine += line.cutOffs.count + 1;
+						}
+					}
+				}
+			}
+		}
+		
+		private void DrawMatches_Fixed(
+			int leftIndent,
+			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY,
+			int clientWidth, int clientHeight)
+		{
+			if (lines.matches.Count == 0)
+			{
+				return;
+			}
+			if (matchesRenderer == null)
+			{
+				matchesRenderer = new MatchesRenderer();
+			}
+			matchesRenderer.g = g;
+			matchesRenderer.brush = scheme.matchBrush;
+			matchesRenderer.offsetX = offsetX;
+			matchesRenderer.offsetY = offsetY;
+			matchesRenderer.charWidth = charWidth;
+			matchesRenderer.charHeight = charHeight;
+			matchesRenderer.lineInterval = lineInterval;
+			foreach (SimpleRange range in lines.matches)
+			{
+				if (range.count == 0)
+					continue;
+				matchesRenderer.start = true;
+				Place left = lines.PlaceOf(range.index);
+				Line leftLine = lines[left.iLine];
+				if (left.iChar + range.count <= leftLine.charsCount)
+				{
+					int pos0 = leftLine.PosOfIndex(left.iChar);
+					int pos1 = leftLine.PosOfIndex(left.iChar + range.count);
+					matchesRenderer.AddLine(pos0, left.iLine, pos1 - pos0);
+				}
+				else
+				{
+					Place right = lines.PlaceOf(range.index);
+					if (left.iLine >= iLineMin)
+					{
+						int pos0 = leftLine.PosOfIndex(left.iChar);
+						matchesRenderer.AddLine(pos0, left.iLine, leftLine.Size - pos0);
+					}
+					if (right.iLine <= iLineMax)
+					{
+						Line line = lines[right.iLine];
+						int pos1 = line.PosOfIndex(right.iChar);
+						matchesRenderer.AddLine(0, right.iLine, pos1);
+					}
+					int i0 = left.iLine + 1;
+					int i1 = right.iLine;
+					if (i1 > i0)
+					{
+						if (i0 < iLineMin)
+							i0 = iLineMin;
+						if (i1 > iLineMax + 1)
+							i1 = iLineMax + 1;
+						for (int i = i0; i < i1; i++)
+						{
+							matchesRenderer.AddLine(0, i, lines[i].Size);
+						}
+					}
+				}
 			}
 		}
 

@@ -223,10 +223,10 @@ namespace MulticaretEditor
 						{
 							break;
 						}
-						Selection selection = new Selection();
-						selection.anchor = match.Index;
-						selection.caret = match.Index + match.Length;
-						matches.Add(selection);
+						SimpleRange range = new SimpleRange();
+						range.index = match.Index;
+						range.count = match.Length;
+						matches.Add(range);
 						index = match.Index + (match.Length > 0 ? match.Length : 1);
 					}
 				}
@@ -771,7 +771,7 @@ namespace MulticaretEditor
 		}
 
 		public readonly List<Selection> selections;
-		public readonly List<Selection> matches = new List<Selection>();
+		public readonly List<SimpleRange> matches = new List<SimpleRange>();
 
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();
