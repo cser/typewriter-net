@@ -187,7 +187,6 @@ namespace UnitTests
 				"\tline3");
 		}
 		
-		[Ignore("TODO")]
 		[Test]
 		public void InsertLineBreak_AfterCket_Autoindent2()
 		{
@@ -203,7 +202,7 @@ namespace UnitTests
 			AssertSelection().Both(2, 2).NoNext();
 			
 			controller.InsertText("}");
-			lines.SetText(
+			AssertText(
 				"\tline0()\n" +
 				"\t{\n" +
 				"\t}\n" +

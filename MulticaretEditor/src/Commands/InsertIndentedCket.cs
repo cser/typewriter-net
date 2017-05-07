@@ -42,10 +42,21 @@ namespace MulticaretEditor.Commands
 						int prevSpacesSize = prevLine.GetFirstSpaceSize(out iChar);
 						if (prevSpacesSize > 0 && prevSpacesSize % lines.tabSize == 0)
 						{
-							int spacesSize = line.GetFirstSpaceSize(out iChar);	
-							if (prevSpacesSize == spacesSize)
+							int spacesSize = line.GetFirstSpaceSize(out iChar);
+							char lastPrevNotSpace = prevLine.GetLastNotSpace();
+							if (lastPrevNotSpace != '{' && prevSpacesSize == spacesSize)
 							{
 								int newPos = spacesSize - lines.tabSize;
+								int newIChar = line.IndexOfPos(newPos);
+								int newPos2 = line.PosOfIndex(newIChar);
+								if (newPos2 == newPos)
+								{
+									selection.anchor += newIChar - place.iChar;
+								}
+							}
+							else if (lastPrevNotSpace == '{' && prevSpacesSize == spacesSize - lines.tabSize)
+							{
+								int newPos = prevSpacesSize;
 								int newIChar = line.IndexOfPos(newPos);
 								int newPos2 = line.PosOfIndex(newIChar);
 								if (newPos2 == newPos)

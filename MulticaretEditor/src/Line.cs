@@ -596,5 +596,20 @@ namespace MulticaretEditor
 			}
 			return true;
 		}
+		
+		public char GetLastNotSpace()
+		{
+			int count = NormalCount;
+			while (count > 0)
+			{
+				char c = chars[count - 1].c;
+				if (c != '\t' && c != ' ')
+				{
+					return c;
+				}
+				--count;
+			}
+			return '\0';
+		}
 	}
 }
