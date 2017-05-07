@@ -6,6 +6,7 @@
 	<item name="showSpaceCharacters" value="false"/>
 	<item name="highlightCurrentLine" value="true"/>
 	<item name="tabSize" value="4"/>
+	<item name="autoindent" value="true"/>
 	<item name="spacesInsteadTabs" value="false"/>
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>

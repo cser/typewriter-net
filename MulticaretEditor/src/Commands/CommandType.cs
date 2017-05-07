@@ -23,6 +23,7 @@ namespace MulticaretEditor
 		public static readonly CommandType FixLineBreaks = new CommandType(true, false);
 		public static readonly CommandType ViSavePositions = new CommandType(true, true);
 		public static readonly CommandType ReplaceText = new CommandType(true, false);
+		public static readonly CommandType InsertIndentedCket = new CommandType(true, false);
 		
 		public readonly bool changesText;
 		public readonly bool helped;
