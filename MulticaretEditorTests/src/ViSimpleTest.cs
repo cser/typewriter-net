@@ -234,6 +234,51 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void gjk_Simple()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(4, 1).Press("gj").AssertSelection().Both(4, 2).NoNext();
+			Put(4, 1).Press("gk").AssertSelection().Both(4, 0).NoNext();
+		}
+		
+		[Test]
+		public void gjk_Subline()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Abcd efg "/*br*/ +
+				"hidklmnop\n" +
+				"   qrstuw\n" +
+				"aaaaaaa");
+			lines.wordWrap = true;
+			lines.wwValidator.Validate(10);
+			Assert.AreEqual(4, lines.wwSizeY);
+			Put(4, 0).Press("gj").AssertSelection().Both(13, 0).NoNext();
+			Put(13, 0).Press("gk").AssertSelection().Both(4, 0).NoNext();
+		}
+		
+		[Test]
+		public void gjk_EndPosition()
+		{
+			lines.SetText(
+			//	 012345678901234
+				"Abcd efg "/*br*/ +
+				"hidk\n" +
+				"   qrstuw\n" +
+				"aaaaaaa\n" +
+				"bbbbbbbb");
+			lines.wordWrap = true;
+			lines.wwValidator.Validate(10);
+			Assert.AreEqual(5, lines.wwSizeY);
+			Put(8, 0).Press("gj").AssertSelection().Both(12, 0).NoNext();
+			Put(7, 3).Press("gk").AssertSelection().Both(6, 2).NoNext();
+		}
+		
+		[Test]
 		public void hjkl_preferredPosition()
 		{
 			lines.SetText(

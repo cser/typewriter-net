@@ -1768,7 +1768,7 @@ namespace MulticaretEditor
 			ViFixPositions(false);
 		}
 		
-		private void ViFixPositions(bool setPreferredPos)
+		public void ViFixPositions(bool setPreferredPos)
 		{
 			foreach (Selection selection in lines.selections)
 			{

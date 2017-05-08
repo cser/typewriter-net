@@ -143,10 +143,24 @@ namespace MulticaretEditor
 					move = new ViMoves.MoveStep(Direction.Right);
 					break;
 				case (int)'j':
-					move = new ViMoves.MoveStep(Direction.Down);
+					if (parser.moveChar.c == 'g')
+					{
+						move = new ViMoves.SublineMoveStep(Direction.Down);
+					}
+					else
+					{
+						move = new ViMoves.MoveStep(Direction.Down);
+					}
 					break;
 				case (int)'k':
-					move = new ViMoves.MoveStep(Direction.Up);
+					if (parser.moveChar.c == 'g')
+					{
+						move = new ViMoves.SublineMoveStep(Direction.Up);
+					}
+					else
+					{
+						move = new ViMoves.MoveStep(Direction.Up);
+					}
 					break;
 				case (int)'w':
 					move = new ViMoves.MoveWord(Direction.Right);

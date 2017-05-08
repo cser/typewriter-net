@@ -205,6 +205,15 @@ namespace MulticaretEditor
 					}
 					return ParseResult.Incorrect;
 				case State.WaitChar:
+					if (!move.control && move.c == 'g')
+					{
+						if (code.c == 'j' || code.c == 'k')
+						{
+							moveChar = move;
+							move = code;
+							return ParseResult.Complete;
+						}
+					}
 					moveChar = code;
 					return ParseResult.Complete;
 				case State.WaitRegister:

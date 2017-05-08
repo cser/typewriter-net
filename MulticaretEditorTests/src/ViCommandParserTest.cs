@@ -464,5 +464,12 @@ namespace UnitTests
 			AddLast('O').AssertParsed("1:action:O;move:\\0;moveChar:\\0");
 			Add('2').AddLast('O').AssertParsed("2:action:O;move:\\0;moveChar:\\0");
 		}
+		
+		[Test]
+		public void gij()
+		{
+			Add('g').AddLast('j').AssertParsed("1:action:\\0;move:j;moveChar:g");
+			Add('2').Add('g').AddLast('k').AssertParsed("2:action:\\0;move:k;moveChar:g");
+		}
 	}
 }

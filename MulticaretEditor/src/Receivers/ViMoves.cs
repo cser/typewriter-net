@@ -41,6 +41,31 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class SublineMoveStep : IMove
+		{
+			private Direction direction;
+			
+			public SublineMoveStep(Direction direction)
+			{
+				this.direction = direction;
+			}
+			
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				switch (direction)
+				{
+					case Direction.Up:
+						controller.MoveUp(shift);
+						controller.ViFixPositions(false);
+						break;
+					case Direction.Down:
+						controller.MoveDown(shift);
+						controller.ViFixPositions(false);
+						break;
+				}
+			}
+		}
+		
 		public class MoveWord : IMove
 		{
 			private Direction direction;
