@@ -26,7 +26,7 @@ namespace MulticaretEditor
 				brush,
 				offsetX + ix * charWidth,
 				offsetY + iy * charHeight + lineInterval / 2 + (start ? 1 : 0),
-				sizeX * charWidth,
+				sizeX * charWidth - 1,
 				charHeight + (start ? -1 : 0));
 			start = false;
 		}

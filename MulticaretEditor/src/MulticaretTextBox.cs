@@ -732,7 +732,7 @@ namespace MulticaretEditor
 			int maxPos = Math.Min(lines.scroller.textSizeX, (valueX + clientWidth) / charWidth + 1);
 			int start = lines.IndexOf(new Place(0, lineMin.iLine));
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
-			lines.UpdateHighlight();
+			lines.UpdateHighlight(start, end - start);
 			if (lines.wordWrap)
 			{
 				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);

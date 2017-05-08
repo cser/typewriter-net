@@ -192,29 +192,64 @@ namespace MulticaretEditor
 			return _charBuffer.buffer;
 		}
 		
+		private bool frameValid;
+		private CharBuffer _frameChars;
+		private int _frameCharsIndex;
+		private int _frameCharsCount;
+		
+		private char[] GetFrameChars(int index, int count)
+		{
+			if (index < 0)
+			{
+				index = 0;
+			}
+			if (index + count > charsCount)
+			{
+				count = charsCount - index;
+			}
+			if (!frameValid || _frameCharsIndex != index || _frameCharsCount != count)
+			{
+				frameValid = true;
+				_frameCharsIndex = index;
+				_frameCharsCount = count;
+				CopyTextToFrame(index, count);
+			}
+			return _frameChars.buffer;
+		}
+		
 		public void ResetTextCache()
 		{
 			cachedText = null;
 			charsValid = false;
+			frameValid = false;
 			highlightRegex = null;
 		}
 		
-		public void UpdateHighlight()
+		public void UpdateHighlight(int index, int count)
 		{
-			if (highlightRegex != ClipboardExecuter.ViRegex)
+			bool moved = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
+			if (highlightRegex != ClipboardExecuter.ViRegex || moved)
 			{
 				highlightRegex = ClipboardExecuter.ViRegex;
 				matches.Clear();
 				if (highlightRegex != null)
 				{
-					char[] chars = GetChars();
-					int index = 0;
-					while (index < charsCount)
+					char[] chars;
+					if (moved)
+					{
+						chars = GetFrameChars(index - count / 2, count * 2);
+					}
+					else
+					{
+						chars = GetFrameChars(_frameCharsIndex, _frameCharsCount);
+					}
+					int ii = 0;
+					while (ii < _frameCharsCount)
 					{
 						CharsRegularExpressions.Match match = null;
 						try
 						{
-							match = highlightRegex.Match(chars, index, charsCount - index);
+							match = highlightRegex.Match(chars, ii, _frameCharsCount - ii);
 						}
 						catch
 						{
@@ -224,10 +259,10 @@ namespace MulticaretEditor
 							break;
 						}
 						SimpleRange range = new SimpleRange();
-						range.index = match.Index;
+						range.index = _frameCharsIndex + match.Index;
 						range.count = match.Length;
 						matches.Add(range);
-						index = match.Index + (match.Length > 0 ? match.Length : 1);
+						ii = match.Index + (match.Length > 0 ? match.Length : 1);
 					}
 				}
 			}
@@ -552,6 +587,52 @@ namespace MulticaretEditor
 				j++;
 			}
 			return builder.ToString();
+		}
+		
+		private void CopyTextToFrame(int index, int count)
+		{
+			if (index < 0 || index + count > charsCount)
+				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
+			if (_frameChars == null)
+			{
+				_frameChars = new CharBuffer();
+			}
+			_frameChars.Resize(count);
+			if (count == 0)
+				return;
+			int blockI;
+			int blockIChar;
+			Place place = PlaceOf(index, out blockI, out blockIChar);
+			LineBlock block = blocks[blockI];
+			int frameI = 0;
+			int i = place.iLine - block.offset;
+			int j = index - blockIChar;
+			for (int ii = 0; ii < i; ii++)
+			{
+				j -= block.array[ii].charsCount;
+			}
+			Line line = block.array[i];
+			for (int k = 0; k < count; k++)
+			{
+				if (j < line.charsCount)
+				{
+					_frameChars.buffer[frameI++] = line.chars[j].c;
+				}
+				else
+				{
+					i++;
+					if (i >= block.count)
+					{
+						blockI++;
+						block = blocks[blockI];
+						i = 0;
+					}
+					line = block.array[i];
+					j = 0;
+					_frameChars.buffer[frameI++] = line.chars[j].c;
+				}
+				j++;
+			}
 		}
 
 		public int IndexOf(Place place)
