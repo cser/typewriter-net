@@ -1122,7 +1122,7 @@ namespace MulticaretEditor
 			matchesRenderer.lineInterval = lineInterval;
 			foreach (SimpleRange range in lines.matches)
 			{
-				if (range.index < start || range.count > end || range.count == 0)
+				if (range.index < start || range.index + range.count > end || range.count == 0)
 					continue;
 				matchesRenderer.start = true;
 				Place left = lines.PlaceOf(range.index);
@@ -1223,7 +1223,7 @@ namespace MulticaretEditor
 			matchesRenderer.lineInterval = lineInterval;
 			foreach (SimpleRange range in lines.matches)
 			{
-				if (range.index < start || range.count > end || range.count == 0)
+				if (range.index < start || range.index + range.count > end || range.count == 0)
 					continue;
 				matchesRenderer.start = true;
 				Place left = lines.PlaceOf(range.index);
