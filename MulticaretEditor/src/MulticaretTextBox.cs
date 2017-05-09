@@ -1163,20 +1163,6 @@ namespace MulticaretEditor
 						}
 					}
 					Place right = lines.PlaceOf(range.index + range.count);
-					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
-					if (right.iLine <= iLineMax.iLine)
-					{
-						int sublineLeft;
-						Line line = lines[right.iLine];
-						Pos pos1 = line.WWPosOfIndex(right.iChar);
-						for (int iy = 0; iy < pos1.iy; iy++)
-						{
-							sublineLeft = line.GetSublineLeft(iy);
-							matchesRenderer.AddLine(sublineLeft, rightILine + iy, line.GetSublineSize(iy) - sublineLeft);
-						}
-						sublineLeft = line.GetSublineLeft(pos1.iy);
-						matchesRenderer.AddLine(sublineLeft, rightILine + pos1.iy, pos1.ix - sublineLeft);
-					}
 					int i0 = left.iLine + 1;
 					int i1 = right.iLine;
 					if (i1 > i0)
@@ -1196,6 +1182,20 @@ namespace MulticaretEditor
 							}
 							wwILine += line.cutOffs.count + 1;
 						}
+					}
+					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
+					if (right.iLine <= iLineMax.iLine)
+					{
+						int sublineLeft;
+						Line line = lines[right.iLine];
+						Pos pos1 = line.WWPosOfIndex(right.iChar);
+						for (int iy = 0; iy < pos1.iy; iy++)
+						{
+							sublineLeft = line.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, rightILine + iy, line.GetSublineSize(iy) - sublineLeft);
+						}
+						sublineLeft = line.GetSublineLeft(pos1.iy);
+						matchesRenderer.AddLine(sublineLeft, rightILine + pos1.iy, pos1.ix - sublineLeft);
 					}
 				}
 			}
@@ -1242,12 +1242,6 @@ namespace MulticaretEditor
 						int pos0 = leftLine.PosOfIndex(left.iChar);
 						matchesRenderer.AddLine(pos0, left.iLine, leftLine.Size - pos0);
 					}
-					if (right.iLine <= iLineMax)
-					{
-						Line line = lines[right.iLine];
-						int pos1 = line.PosOfIndex(right.iChar);
-						matchesRenderer.AddLine(0, right.iLine, pos1);
-					}
 					int i0 = left.iLine + 1;
 					int i1 = right.iLine;
 					if (i1 > i0)
@@ -1260,6 +1254,12 @@ namespace MulticaretEditor
 						{
 							matchesRenderer.AddLine(0, i, lines[i].Size);
 						}
+					}
+					if (right.iLine <= iLineMax)
+					{
+						Line line = lines[right.iLine];
+						int pos1 = line.PosOfIndex(right.iChar);
+						matchesRenderer.AddLine(0, right.iLine, pos1);
 					}
 				}
 			}
