@@ -200,22 +200,34 @@ namespace MulticaretEditor
 			highlightRegex = null;
 		}
 		
+		private bool frameValid;
+		private readonly CharBuffer _frameChars = new CharBuffer();
+		private int _frameCharsIndex;
+		private int _frameCharsCount;
+		
 		public void UpdateHighlight(int index, int count)
 		{
-			bool moved = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
-			if (highlightRegex != ClipboardExecuter.ViRegex || moved)
+			FixRange(ref index, ref count);
+			bool isOutFrame = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
+			if (highlightRegex != ClipboardExecuter.ViRegex || isOutFrame || !frameValid)
 			{
+				frameValid = true;
 				highlightRegex = ClipboardExecuter.ViRegex;
 				matches.Clear();
 				if (highlightRegex != null)
 				{
-					if (moved)
+					int frameCharsIndex = index - count / 2;
+					int frameCharsCount = count * 2;
+					FixRange(ref frameCharsIndex, ref frameCharsCount);
+					if (_frameCharsIndex != frameCharsIndex || _frameCharsCount != frameCharsCount)
 					{
-						SetFrameChars(index - count / 2, count * 2);
+						_frameCharsIndex = frameCharsIndex;
+						_frameCharsCount = frameCharsCount;
+						_frameChars.Resize(_frameCharsCount);
 					}
-					else
+					if (_frameCharsCount > 0)
 					{
-						SetFrameChars(_frameCharsIndex, _frameCharsCount);
+						GetText(_frameCharsIndex, _frameCharsCount, _frameChars.buffer);
 					}
 					char[] chars = _frameChars.buffer;
 					int ii = 0;
@@ -243,12 +255,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private bool frameValid;
-		private readonly CharBuffer _frameChars = new CharBuffer();
-		private int _frameCharsIndex;
-		private int _frameCharsCount;
-		
-		private void SetFrameChars(int index, int count)
+		private void FixRange(ref int index, ref int count)
 		{
 			if (index + count > charsCount)
 			{
@@ -260,17 +267,6 @@ namespace MulticaretEditor
 				if (index + count > charsCount)
 				{
 					count = charsCount - index;
-				}
-			}
-			if (!frameValid || _frameCharsIndex != index || _frameCharsCount != count)
-			{
-				frameValid = true;
-				_frameCharsIndex = index;
-				_frameCharsCount = count;
-				_frameChars.Resize(count);
-				if (count > 0)
-				{
-					GetText(index, count, _frameChars.buffer);
 				}
 			}
 		}

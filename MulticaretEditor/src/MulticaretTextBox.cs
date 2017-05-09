@@ -732,9 +732,15 @@ namespace MulticaretEditor
 			int maxPos = Math.Min(lines.scroller.textSizeX, (valueX + clientWidth) / charWidth + 1);
 			int start = lines.IndexOf(new Place(0, lineMin.iLine));
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
-			lines.UpdateHighlight(start, end - start);
 			if (lines.wordWrap)
 			{
+				start += lines[lineMin.iLine].WWIndexOfPos(0, lineMin.iSubline);
+				int count = (clientWidth + charWidth) / charWidth * (clientHeight + charHeight) / charHeight;
+				if (count < 1)
+				{
+					count = 1;
+				}
+				lines.UpdateHighlight(start, count);
 				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
 				if (!symbolic)
 				{
@@ -743,6 +749,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
+				lines.UpdateHighlight(start, end - start);
 				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight, symbolic);
 				if (!symbolic)
 				{
@@ -1123,7 +1130,9 @@ namespace MulticaretEditor
 			foreach (SimpleRange range in lines.matches)
 			{
 				if (range.index + range.count < start || range.index > end || range.count == 0)
+				{
 					continue;
+				}
 				matchesRenderer.start = true;
 				Place left = lines.PlaceOf(range.index);
 				Line leftLine = lines[left.iLine];
@@ -1224,7 +1233,9 @@ namespace MulticaretEditor
 			foreach (SimpleRange range in lines.matches)
 			{
 				if (range.index + range.count < start || range.index > end || range.count == 0)
+				{
 					continue;
+				}
 				matchesRenderer.start = true;
 				Place left = lines.PlaceOf(range.index);
 				Line leftLine = lines[left.iLine];
