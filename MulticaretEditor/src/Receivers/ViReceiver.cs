@@ -297,7 +297,7 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData('a', count), false));
 						break;
 					case (int)'s':
-						controller.ViShiftRight(count);
+						controller.ViSelectRight(count);
 						controller.EraseSelection();
 						context.SetState(new InputReceiver(new ViReceiverData('s', 1), false));
 						break;

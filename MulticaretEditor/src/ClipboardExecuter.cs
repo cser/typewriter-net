@@ -115,7 +115,7 @@ namespace MulticaretEditor
 				{
 					try
 					{
-						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 500);
+						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
 						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
 						if (text.Length < 50)
 						{

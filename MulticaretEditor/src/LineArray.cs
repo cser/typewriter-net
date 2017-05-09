@@ -192,31 +192,6 @@ namespace MulticaretEditor
 			return _charBuffer.buffer;
 		}
 		
-		private bool frameValid;
-		private CharBuffer _frameChars;
-		private int _frameCharsIndex;
-		private int _frameCharsCount;
-		
-		private char[] GetFrameChars(int index, int count)
-		{
-			if (index < 0)
-			{
-				index = 0;
-			}
-			if (index + count > charsCount)
-			{
-				count = charsCount - index;
-			}
-			if (!frameValid || _frameCharsIndex != index || _frameCharsCount != count)
-			{
-				frameValid = true;
-				_frameCharsIndex = index;
-				_frameCharsCount = count;
-				CopyTextToFrame(index, count);
-			}
-			return _frameChars.buffer;
-		}
-		
 		public void ResetTextCache()
 		{
 			cachedText = null;
@@ -234,15 +209,15 @@ namespace MulticaretEditor
 				matches.Clear();
 				if (highlightRegex != null)
 				{
-					char[] chars;
 					if (moved)
 					{
-						chars = GetFrameChars(index - count / 2, count * 2);
+						SetFrameChars(index - count / 2, count * 2);
 					}
 					else
 					{
-						chars = GetFrameChars(_frameCharsIndex, _frameCharsCount);
+						SetFrameChars(_frameCharsIndex, _frameCharsCount);
 					}
+					char[] chars = _frameChars.buffer;
 					int ii = 0;
 					while (ii < _frameCharsCount)
 					{
@@ -264,6 +239,38 @@ namespace MulticaretEditor
 						matches.Add(range);
 						ii = match.Index + (match.Length > 0 ? match.Length : 1);
 					}
+				}
+			}
+		}
+		
+		private bool frameValid;
+		private readonly CharBuffer _frameChars = new CharBuffer();
+		private int _frameCharsIndex;
+		private int _frameCharsCount;
+		
+		private void SetFrameChars(int index, int count)
+		{
+			if (index + count > charsCount)
+			{
+				index = charsCount - count;
+			}
+			if (index < 0)
+			{
+				index = 0;
+				if (index + count > charsCount)
+				{
+					count = charsCount - index;
+				}
+			}
+			if (!frameValid || _frameCharsIndex != index || _frameCharsCount != count)
+			{
+				frameValid = true;
+				_frameCharsIndex = index;
+				_frameCharsCount = count;
+				_frameChars.Resize(count);
+				if (count > 0)
+				{
+					GetText(index, count, _frameChars.buffer);
 				}
 			}
 		}
@@ -549,57 +556,19 @@ namespace MulticaretEditor
 
 		public string GetText(int index, int count)
 		{
-			if (index < 0 || index + count > charsCount)
-				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
 				return "";
-			int blockI;
-			int blockIChar;
-			Place place = PlaceOf(index, out blockI, out blockIChar);
-			LineBlock block = blocks[blockI];
-			StringBuilder builder = new StringBuilder(count);
-			int i = place.iLine - block.offset;
-			int j = index - blockIChar;
-			for (int ii = 0; ii < i; ii++)
-			{
-				j -= block.array[ii].charsCount;
-			}
-			Line line = block.array[i];
-			for (int k = 0; k < count; k++)
-			{
-				if (j < line.charsCount)
-				{
-					builder.Append(line.chars[j].c);
-				}
-				else
-				{
-					i++;
-					if (i >= block.count)
-					{
-						blockI++;
-						block = blocks[blockI];
-						i = 0;
-					}
-					line = block.array[i];
-					j = 0;
-					builder.Append(line.chars[j].c);
-				}
-				j++;
-			}
-			return builder.ToString();
+			char[] chars = new char[count];
+			GetText(index, count, chars);
+			return new string(chars);
 		}
 		
-		private void CopyTextToFrame(int index, int count)
+		private void GetText(int index, int count, char[] outChars)
 		{
 			if (index < 0 || index + count > charsCount)
-				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
-			if (_frameChars == null)
 			{
-				_frameChars = new CharBuffer();
+				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			}
-			_frameChars.Resize(count);
-			if (count == 0)
-				return;
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
@@ -616,7 +585,7 @@ namespace MulticaretEditor
 			{
 				if (j < line.charsCount)
 				{
-					_frameChars.buffer[frameI++] = line.chars[j].c;
+					outChars[frameI++] = line.chars[j].c;
 				}
 				else
 				{
@@ -629,7 +598,7 @@ namespace MulticaretEditor
 					}
 					line = block.array[i];
 					j = 0;
-					_frameChars.buffer[frameI++] = line.chars[j].c;
+					outChars[frameI++] = line.chars[j].c;
 				}
 				j++;
 			}

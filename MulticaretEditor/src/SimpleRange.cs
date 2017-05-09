@@ -17,5 +17,10 @@ namespace MulticaretEditor
 		{
 			return a.index == b.index ? a.count - b.count : a.index - b.index;
 		}
+		
+		public override string ToString()
+		{
+			return "(" + index + ", " + count + ")";
+		}
 	}
 }

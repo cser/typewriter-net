@@ -1791,7 +1791,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViShiftRight(int count)
+		public void ViSelectRight(int count)
 		{
 			foreach (Selection selection in lines.selections)
 			{
