@@ -33,6 +33,8 @@ namespace MulticaretEditor
 		public bool spacesInsteadTabs = false;
 		public string lineBreak = "\r\n";
 		public bool autoindent = false;
+		
+		public TabSettings TabSettings { get { return new TabSettings(spacesInsteadTabs, tabSize); } }
 
 		private void ValidateSize()
 		{
@@ -282,6 +284,8 @@ namespace MulticaretEditor
 			line.charsCount = count;
 			return line;
 		}
+		
+		public TextChangeHook hook;
 
 		public void InsertText(int index, string text)
 		{
@@ -393,6 +397,8 @@ namespace MulticaretEditor
 			size = null;
 			wwSizeX = 0;
 			ResetTextCache();
+			if (hook != null)
+				hook.InsertText(index, text);
 		}
 
 		public void RemoveText(int index, int count)
@@ -548,6 +554,8 @@ namespace MulticaretEditor
 			size = null;
 			wwSizeX = 0;
 			ResetTextCache();
+			if (hook != null)
+				hook.RemoveText(index, count);
 		}
 
 		public string GetText(int index, int count)

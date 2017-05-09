@@ -224,7 +224,7 @@ public class CommandDialog : ADialog
 							List<Variant> variants = property.GetAutocompleteVariants();
 							if (variants != null)
 							{
-								AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+								AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 								autocomplete.Show(variants, word);
 								return true;
 							}
@@ -251,7 +251,7 @@ public class CommandDialog : ADialog
 					}
 					if (variants.Count > 0)
 					{
-						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
 						return true;
 					}
@@ -263,7 +263,7 @@ public class CommandDialog : ADialog
 					List<Variant> variants = property.GetAutocompleteVariants();
 					if (variants != null)
 					{
-						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
 						return true;
 					}
@@ -315,7 +315,7 @@ public class CommandDialog : ADialog
 	
 	private void AutocompleteCommand(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		foreach (Commander.Command command in MainForm.commander.Commands)
 		{
@@ -336,7 +336,7 @@ public class CommandDialog : ADialog
 	
 	private void AutocompleteProperty(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (MainForm.Settings != null)
 		{
@@ -409,7 +409,7 @@ public class CommandDialog : ADialog
 		}
 		if ((files == null || files.Length == 0) && (dirs == null || dirs.Length == 0))
 			return;
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (dirs != null)
 		{

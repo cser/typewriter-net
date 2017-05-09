@@ -26,6 +26,7 @@ public class RunShellCommand
 	}
 
 	public const string FileVar = "%f%";
+	public const string FileNameVar = "%n%";
 	public const string FileVarSoftly = "%f?%";
 	public const string FileDirVar = "%d%";
 	public const string LineVar = "%l%";

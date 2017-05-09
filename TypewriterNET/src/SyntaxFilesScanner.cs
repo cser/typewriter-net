@@ -39,6 +39,7 @@ public class SyntaxFilesScanner
 		SValue newTemp = SValue.NewHash();
 		infos.Clear();
 		syntaxFileByName.Clear();
+		bool changed = false;
 		foreach (string fileI in files)
 		{
 			SValue tempI = temp[fileI];
@@ -57,6 +58,7 @@ public class SyntaxFilesScanner
 			}
 			else
 			{
+				changed = true;
 				XmlReaderSettings settings = new XmlReaderSettings();
 				settings.ProhibitDtd = false;
 				settings.XmlResolver = null;
@@ -107,7 +109,10 @@ public class SyntaxFilesScanner
 				}
 			}
 		}
-		File.WriteAllBytes(tempFile, SValue.Serialize(newTemp));
+		if (changed)
+		{
+			File.WriteAllBytes(tempFile, SValue.Serialize(newTemp));
+		}
 	}
 
 	private Regex[] ParsePatterns(string text)

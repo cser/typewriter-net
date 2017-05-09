@@ -821,6 +821,13 @@ namespace MulticaretEditor
 			return lines.GetText(position, count);
 		}
 		
+		public string GetWord(Place place, out int position)
+		{
+			int count;
+			GetWordSelection(place, out position, out count);
+			return lines.GetText(position, count);
+		}
+		
 		public string GetLeftWord(Place place)
 		{
 			Line line = lines[place.iLine];

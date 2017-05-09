@@ -330,7 +330,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		{
 			List<Variant> variants = menu.variants;
 			
-			bool rawView = menu.handler.RawView;
+			AutocompleteMode.Mode mode = menu.handler.Mode;
 			Graphics g = e.Graphics;
 			g.FillRectangle(menu.scheme.lineBgBrush, new Rectangle(0, 0, width, height));
 			int offset = vScrollBar.Value;
@@ -347,7 +347,7 @@ public class AutocompleteMenu : ToolStripDropDown
 					string text = variants[i].DisplayText;
 					string text0 = "";
 					string text1 = text;
-					if (!rawView)
+					if (mode != AutocompleteMode.Mode.Raw)
 					{
 						int index = -1;
 						int deep = 0;

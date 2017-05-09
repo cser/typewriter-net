@@ -229,7 +229,7 @@ public class MoveDialog : ADialog
 	
 	private void AutocompleteProperty(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (MainForm.Settings != null)
 		{
@@ -272,7 +272,7 @@ public class MoveDialog : ADialog
 		}
 		if (dirs == null || dirs.Length == 0)
 			return;
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		foreach (string file in dirs)
 		{

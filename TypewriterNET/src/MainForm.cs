@@ -39,6 +39,9 @@ public class MainForm : Form
 	
 	private SyntaxFilesScanner syntaxFilesScanner;
 	public SyntaxFilesScanner SyntaxFilesScanner { get { return syntaxFilesScanner; } }
+	
+	private SnippetFilesScanner snippetFilesScanner;
+	public SnippetFilesScanner SnippetFilesScanner { get { return snippetFilesScanner; } }
 
 	public MainForm(string[] args)
 	{
@@ -217,6 +220,9 @@ public class MainForm : Form
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
+		snippetFilesScanner = new SnippetFilesScanner(new string[] {
+			Path.Combine(AppPath.AppDataDir, AppPath.Snippets),
+			Path.Combine(AppPath.StartupDir, AppPath.Snippets) });
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log, this);
 
 		sharpManager = new SharpManager(this);
@@ -687,6 +693,9 @@ public class MainForm : Form
 				FormBorderStyle = FormBorderStyle.Sizable;
 			}
 		}
+		snippetFilesScanner.SetIgnoreFiles(
+			settings.ignoreSnippets.Value,
+			settings.forcedSnippets.Value);
 	}
 	
 	protected override void OnClientSizeChanged(EventArgs e)
@@ -760,6 +769,9 @@ public class MainForm : Form
 			new KeyAction("F&ind\\Switch replace escape sequence", DoSwitchEscape, null, false)
 			.SetGetText(GetFindEscape)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+		
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
+			new KeyAction("&Edit\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
 			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
@@ -793,7 +805,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+			new KeyAction("Prefere&nces\\Reset config…", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
@@ -814,8 +826,11 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
-			new KeyAction("Prefere&nces\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\New snippet file", DoNewSnippet, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit snippet file…", DoEditSnippetFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
@@ -1254,6 +1269,15 @@ public class MainForm : Form
 		{
 			ReloadSyntaxes();
 		}
+		else if (Path.GetExtension(buffer.FullPath).ToLowerInvariant() == ".snippets")
+		{
+			string dir = Path.GetDirectoryName(buffer.FullPath).ToLowerInvariant();
+			if (dir == AppPath.SnippetsDir.appDataPath.ToLowerInvariant() ||
+				dir == AppPath.SnippetsDir.startupPath.ToLowerInvariant())
+			{
+				snippetFilesScanner.Reset();
+			}
+		}
 		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
 		if (info != null && !string.IsNullOrEmpty(info.command))
 		{
@@ -1623,6 +1647,26 @@ public class MainForm : Form
 		buffer.InitText(File.ReadAllText(templatePath));
 		return true;
 	}
+	
+	private bool DoNewSnippet(Controller controller)
+	{
+		CreateAppDataFolders();
+		string path = Path.Combine(AppPath.SnippetsDir.appDataPath, "Untitled.snippet");
+		OpenNewAsFile(path, "extensions:*.*\r\nsnippet key\r\n\ttext", true);
+		return true;
+	}
+	
+	public void OpenNewAsFile(string path, string text, bool unsaved)
+	{
+		Buffer buffer = NewFileBuffer();
+		buffer.SetFile(path, Path.GetFileName(path));
+		buffer.InitText(text);
+		if (unsaved)
+		{
+			buffer.Controller.history.MarkAsFullyUnsaved();
+		}
+		GetMainNest().Frame.AddBuffer(buffer);
+	}
 
 	private bool DoEditCurrentSyntaxFile(Controller controller)
 	{
@@ -1670,8 +1714,14 @@ public class MainForm : Form
 			LoadFile(appDataPath);
 		}
 	}
+	
+	private bool DoEditSnippetFile(Controller controller)
+	{
+		dialogs.OpenSnippetsSearch();
+		return true;
+	}
 
-	private void CreateAppDataFolders()
+	public void CreateAppDataFolders()
 	{
 		CopyConfigIfNeed();
 		if (!Directory.Exists(AppPath.SyntaxDir.appDataPath))
@@ -1680,6 +1730,8 @@ public class MainForm : Form
 			File.Copy(AppPath.SyntaxDtd.startupPath, AppPath.SyntaxDtd.appDataPath);
 		if (!Directory.Exists(AppPath.SchemesDir.appDataPath))
 			Directory.CreateDirectory(AppPath.SchemesDir.appDataPath);
+		if (!Directory.Exists(AppPath.SnippetsDir.appDataPath))
+			Directory.CreateDirectory(AppPath.SnippetsDir.appDataPath);
 	}
 
 	private bool DoHelp(Controller controller)

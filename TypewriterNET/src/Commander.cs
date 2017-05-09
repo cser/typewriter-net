@@ -195,53 +195,90 @@ public class Commander
 		}
 		return lastBuffer.FullPath;
 	}
-
-	private bool ReplaceVars(ref string commandText)
+	
+	private static string ReplaceVar(string text, string key, string value)
 	{
+		string changedKey;
+		changedKey = key + ":upper;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.ToUpperInvariant());
+		}
+		changedKey = key + ":lower;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.ToLowerInvariant());
+		}
+		changedKey = key + ":first_upper;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.Length > 0 ?
+				char.ToUpperInvariant(value[0]) + value.Substring(1) : "");
+		}
+		changedKey = key + ":first_lower;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.Length > 0 ?
+				char.ToLowerInvariant(value[0]) + value.Substring(1) : "");
+		}
+		return text.Replace(key, value);
+	}
+	
+	public static bool ReplaceVars(MainForm mainForm, Getter<string> getFile, Settings settings,
+		ref string commandText, out string error)
+	{
+		error = null;
 		if (commandText.Contains(RunShellCommand.FileVar))
 		{
-			string file = GetFile();
+			string file = getFile();
 			if (file == null)
 			{
-			    mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
+			    error = "No opened file in current frame for replace " + RunShellCommand.FileVar;
 				return false;
 			}
-			commandText = commandText.Replace(RunShellCommand.FileVar, file);
+			commandText = ReplaceVar(commandText, RunShellCommand.FileVar, file);
+		}
+		if (commandText.Contains(RunShellCommand.FileNameVar))
+		{
+			string file = getFile();
+			if (file == null)
+			{
+			    error = "No opened file in current frame for replace " + RunShellCommand.FileNameVar;
+				return false;
+			}
+			commandText = ReplaceVar(commandText, RunShellCommand.FileNameVar, Path.GetFileNameWithoutExtension(file));
 		}
 		if (commandText.Contains(RunShellCommand.FileVarSoftly))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No last selected buffer for " + RunShellCommand.FileVarSoftly);
+				error = "No last selected buffer for " + RunShellCommand.FileVarSoftly;
 				return false;
 			}
-			string file = GetFile();
-			commandText = commandText.Replace(RunShellCommand.FileVarSoftly, file ?? "");
+			string file = getFile();
+			commandText = ReplaceVar(commandText, RunShellCommand.FileVarSoftly, file ?? "");
 		}
 		if (commandText.Contains(RunShellCommand.FileDirVar))
 		{
-			string file = GetFile();
+			string file = getFile();
 			if (file == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.FileDirVar);
+				error = "No opened file in current frame for replace " + RunShellCommand.FileDirVar;
 				return false;
 			}
 			string dir = Path.GetDirectoryName(file);
-			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
+			commandText = ReplaceVar(commandText, RunShellCommand.FileDirVar, dir);
 		}
 		if (commandText.Contains(RunShellCommand.LineVar))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.LineVar);
+				error = "No last selected buffer for " + RunShellCommand.LineVar;
 				return false;
 			}
-			commandText = commandText.Replace(
+			commandText = ReplaceVar(commandText, 
 				RunShellCommand.LineVar,
 				(lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
 			);
@@ -251,10 +288,10 @@ public class Commander
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.CharVar);
+				error = "No last selected buffer for " + RunShellCommand.CharVar;
 				return false;
 			}
-			commandText = commandText.Replace(
+			commandText = ReplaceVar(commandText, 
 				RunShellCommand.CharVar,
 				lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
 			);
@@ -264,8 +301,7 @@ public class Commander
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No buffer with selection for replace " + RunShellCommand.SelectedVar);
+				error = "No buffer with selection for replace " + RunShellCommand.SelectedVar;
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
@@ -294,7 +330,7 @@ public class Commander
 					builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
 				}	
 			}
-			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
+			commandText = ReplaceVar(commandText, RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
 		}
 		if (commandText.Contains(RunShellCommand.WordVar))
 		{
@@ -342,9 +378,20 @@ public class Commander
 					}
 				}
 			}
-			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
+			commandText = ReplaceVar(commandText, RunShellCommand.WordVar, EscapeForCommandLine(varValue));
 		}
 		return true;
+	}
+
+	private bool ReplaceVars(ref string commandText)
+	{
+		string error;
+		bool result = ReplaceVars(mainForm, GetFile, settings, ref commandText, out error);
+		if (error != null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", error);
+		}
+		return result;
 	}
 
 	public string GetHelpText()
@@ -370,21 +417,20 @@ public class Commander
 		table.NewRow();
 		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused");
 		table.NewRow();
-		table.Add("").Add("").Add("Variables: ");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file dir path");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if no saved file");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word");
+		table.Add("").Add("").Add("Variables: ").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file path").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file path (no errors)").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileNameVar + " - current file name (no extension)").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word").NewRow();
+		table.Add("").Add("").Add("Suffixes (example: %n%:upper;): ").NewRow();
+		table.Add("").Add("").Add("  :upper;").NewRow();
+		table.Add("").Add("").Add("  :lower;").NewRow();
+		table.Add("").Add("").Add("  :first_upper;").NewRow();
+		table.Add("").Add("").Add("  :first_lower;");
 		foreach (Command command in commands)
 		{
 			table.NewRow();

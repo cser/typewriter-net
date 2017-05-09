@@ -48,6 +48,7 @@ section "install"
 	file /r "bin\schemes"
 	file /r "bin\syntax"
 	file /r "bin\templates"
+	file /r "bin\snippets"
 	file /r "bin\omnisharp_server"
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration

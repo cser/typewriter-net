@@ -1,0 +1,28 @@
+extensions: *.cs
+snippet usu
+	using System.Collections.Generic;
+	using UnityEngine;
+snippet clu
+	using System.Collections.Generic;
+	using UnityEngine;
+	
+	public class ${1:%n%}
+	{
+		${0}
+	}
+snippet gc
+	GetComponent<${1}>()${0}
+snippet ac
+	AddComponent<${1}>()${0}
+snippet go
+	gameObject
+snippet st
+	protected void Start()
+	{
+		${0}
+	}
+snippet aw 
+	protected void Awake()
+	{
+		${0}
+	}

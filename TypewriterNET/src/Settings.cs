@@ -73,6 +73,8 @@ public class Settings
 	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
 	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
 	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
+	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
+	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 
 	private Setter onChange;
 
@@ -144,6 +146,8 @@ public class Settings
 		Add(viMapSource);
 		Add(viMapResult);
 		Add(startWithViMode);
+		Add(ignoreSnippets);
+		Add(forcedSnippets);
 	}
 
 	public void DispatchChange()

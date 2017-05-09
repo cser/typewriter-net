@@ -5,6 +5,7 @@ using System.Windows.Forms;
 public struct AppPath
 {
 	public const string Syntax = "syntax";
+	public const string Snippets = "snippets";
 	public const string Schemes = "schemes";
 	public const string Templates = "templates";
 
@@ -28,6 +29,9 @@ public struct AppPath
 
 	private static AppPath configPath;
 	public static AppPath ConfigPath { get { return configPath; } }
+	
+	private static AppPath snippetsDir;
+	public static AppPath SnippetsDir { get { return snippetsDir; } }
 
 	public static void Init(string startupDir, string appDataDir, string postfix)
 	{
@@ -37,6 +41,7 @@ public struct AppPath
 		AppPath.syntaxDir = new AppPath(Syntax, null);
 		AppPath.syntaxDtd = new AppPath(Path.Combine(Syntax, "language.dtd"), null);
 		AppPath.schemesDir = new AppPath(Schemes, null);
+		AppPath.snippetsDir = new AppPath(Snippets, null);
 		AppPath.configPath = new AppPath("tw-config.xml", !string.IsNullOrEmpty(postfix) ? "tw-config-" + postfix + ".xml" : null);
 	}
 

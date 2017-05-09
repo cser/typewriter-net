@@ -57,4 +57,6 @@
 	<item name="hideMenu" value="false"/>
 	<item name="fullScreenOnMaximized" value="false"/>
 	<item name="startWithViMode" value="false"/>
+	<item name="ignoreSnippets" value=""/>
+	<item name="forcedSnippets" value=""/>
 </config>

@@ -100,6 +100,7 @@ public class DialogManager
 	private DialogOwner<RecentlyDirsIncrementalSearch> recentlyDirsIncrementalSearch;
 	private DialogOwner<MenuItemIncrementalSearch> menuItemIncrementalSearch;
 	private DialogOwner<SyntaxIncrementalSearch> syntaxIncrementalSearch;
+	private DialogOwner<SnippetIncrementalSearch> snippetIncrementalSearch;
 	private DialogOwner<EncodingIncrementalSearch> saveEncodingIncrementalSearch;
 	private DialogOwner<EncodingIncrementalSearch> loadEncodingIncrementalSearch;
 	private DialogOwner<SchemeIncrementalSearch> schemeIncrementalSearch;
@@ -165,6 +166,7 @@ public class DialogManager
 		recentlyDirsIncrementalSearch = new DialogOwner<RecentlyDirsIncrementalSearch>(this);
 		menuItemIncrementalSearch = new DialogOwner<MenuItemIncrementalSearch>(this);
 		syntaxIncrementalSearch = new DialogOwner<SyntaxIncrementalSearch>(this);
+		snippetIncrementalSearch = new DialogOwner<SnippetIncrementalSearch>(this);
 		saveEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
 		loadEncodingIncrementalSearch = new DialogOwner<EncodingIncrementalSearch>(this);
 		schemeIncrementalSearch = new DialogOwner<SchemeIncrementalSearch>(this);
@@ -530,6 +532,12 @@ public class DialogManager
 	public void CloseRename()
 	{
 		rename.Close(true);
+	}
+	
+	public void OpenSnippetsSearch()
+	{
+		if (snippetIncrementalSearch.Dialog == null)
+			snippetIncrementalSearch.Open(new SnippetIncrementalSearch(tempSettings), false);
 	}
 	
 	private bool ViDoFind(Controller controller)
