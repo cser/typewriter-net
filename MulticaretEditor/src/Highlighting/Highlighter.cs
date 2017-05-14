@@ -211,7 +211,7 @@ namespace MulticaretEditor
 				string regex = rawRule.String;
 				rule.regex = new Regex(
 					HighlighterUtil.FixRegexUnicodeChars(GetBool(rawRule.minimal) ? HighlighterUtil.LazyOfRegex(regex) : regex),
-					GetBool(rawRule.insensitive) ? RegexOptions.IgnoreCase : RegexOptions.None
+					(GetBool(rawRule.insensitive) ? RegexOptions.IgnoreCase : RegexOptions.None)
 				);
 				commonRule = rule;
 				regExprRules.Add(rule);
