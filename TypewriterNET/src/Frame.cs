@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using MulticaretEditor;
 
@@ -450,11 +451,14 @@ public class Frame : AFrame
 			}
 			if (atoms.Count == 1)
 			{
-				SnippetAtom atom = atoms[0];
-				Snippet snippet = new Snippet(atom.GetIndentedText(indent, controller.Lines.TabSettings), Snippets_ReplaceValue);
-				controller.ClearMinorSelections();
-				
 				int position = selection.anchor;
+				
+				SnippetAtom atom = atoms[0];
+				Snippet snippet = new Snippet(
+					atom.GetIndentedText(indent, controller.Lines.TabSettings),
+					new SnippetReplaceValue(this, controller.Lines, position).ReplaceValue);
+				
+				controller.ClearMinorSelections();
 				controller.LastSelection.anchor = position - atom.key.Length;
 				controller.LastSelection.caret = position;
 				controller.InsertText(snippet.StartText);
@@ -473,11 +477,47 @@ public class Frame : AFrame
 		return false;
 	}
 	
-	private string Snippets_ReplaceValue(string value)
+	public class SnippetReplaceValue
 	{
-		string error;
-		Commander.ReplaceVars(Nest.MainForm, Snippets_GetFile, settings, ref value, out error);
-		return value;
+		private Frame frame;
+		private LineArray lines;
+		private int position;
+		
+		public SnippetReplaceValue(Frame frame, LineArray lines, int position)
+		{
+			this.frame = frame;
+			this.lines = lines;
+			this.position = position;
+		}
+		
+		public string ReplaceValue(string value)
+		{
+			if (value.StartsWith("Regex#"))
+			{
+				Regex regex = null;
+				try
+				{
+					regex = new Regex(value.Substring("Regex#".Length), RegexOptions.RightToLeft);
+				}
+				catch
+				{
+				}
+				if (regex != null)
+				{
+					Place place = lines.PlaceOf(position);
+					Line line = lines[place.iLine];
+					Match match = regex.Match(line.Text, 0, place.iChar);
+					if (match.Success && match.Groups.Count > 0 && match.Groups[1].Captures.Count > 0)
+					{
+						return match.Groups[1].Captures[0].Value;
+					}
+				}
+				return "";
+			}
+			string error;
+			Commander.ReplaceVars(frame.Nest.MainForm, frame.Snippets_GetFile, frame.settings, ref value, out error);
+			return value;
+		}
 	}
 	
 	private string Snippets_GetFile()

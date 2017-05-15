@@ -31,7 +31,8 @@ public class Snippet
 	
 	public readonly List<SnippetRange> ranges = new List<SnippetRange>();
 	
-	public Snippet(string rawText, Getter<string, string> replaceDefaultValue)
+	public Snippet(string rawText,
+		Getter<string, string> replaceDefaultValue)
 	{
 		List<Part> parts = ParseText(rawText.Replace("${0:${VISUAL}}", "${0}"));
 		List<SnippetRange> secondaryRanges = new List<SnippetRange>();
