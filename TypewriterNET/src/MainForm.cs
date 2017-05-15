@@ -880,6 +880,9 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
 			.SetGetText(GetCtrlShiftSpaceCommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemCloseBrackets, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlCketCommand, null, false)
+			.SetGetText(GetCtrlCketCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 	}
@@ -2163,6 +2166,16 @@ public class MainForm : Form
 	{
 		return GetCommandText(settings.shiftF12Command);
 	}
+	
+	private bool DoExecuteCtrlCketCommand(Controller controller)
+	{
+		return ExecuteCommand(settings.ctrlCketCommand.Value);
+	}
+	
+	private string GetCtrlCketCommandText()
+	{
+		return GetCommandText(settings.ctrlCketCommand);
+	}	
 	
 	private bool DoExecuteCtrlSpaceCommand(Controller controller)
 	{

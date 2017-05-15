@@ -52,6 +52,7 @@
 	<item name="f11Command:*.cs" value="omnisharp-codecheck"/>
 	<item name="shiftF11Command:*.cs" value="omnisharp-syntaxerrors"/>
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
+	<item name="ctrl]Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
 	<item name="hideMenu" value="false"/>
