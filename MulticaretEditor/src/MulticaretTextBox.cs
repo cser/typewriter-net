@@ -110,7 +110,10 @@ namespace MulticaretEditor
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
-						receiver = new Receiver(controller, macrosExecutor.viMode && !alwaysInputMode, alwaysInputMode);
+						receiver = new Receiver(
+							controller,
+							macrosExecutor.viMode && !alwaysInputMode ? ViMode.Normal : ViMode.Insert,
+							alwaysInputMode);
 						receiver.viMap = viMap;
 						receiver.ViModeChanged += Receiver_ViModeChanged;
 						lines = controller.Lines;
@@ -147,7 +150,7 @@ namespace MulticaretEditor
 		{
 			if (!alwaysInputMode)
 			{
-				macrosExecutor.viMode = receiver != null ? receiver.ViMode : false;
+				macrosExecutor.viMode = receiver != null ? (receiver.ViMode != ViMode.Insert) : false;
 			}
 		}
 
@@ -526,16 +529,16 @@ namespace MulticaretEditor
 		{
 			if (receiver != null)
 			{
-				receiver.SetViMode(viMode);
+				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
 			}
 		}
 
 		protected override void OnGotFocus(EventArgs e)
 		{
 			bool viMode = macrosExecutor.viMode && !alwaysInputMode;
-			if (receiver.ViMode != viMode)
+			if ((receiver.ViMode == ViMode.Normal) != viMode)
 			{
-				receiver.SetViMode(viMode);
+				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
 			}
 			UnblinkCursor();
 			base.OnGotFocus(e);
@@ -861,7 +864,7 @@ namespace MulticaretEditor
 
 					if (Focused)
 					{
-						if (receiver != null && receiver.ViMode)
+						if (receiver != null && receiver.ViMode != ViMode.Insert)
 						{
 							if (i == selectionsCount - 1)
 							{

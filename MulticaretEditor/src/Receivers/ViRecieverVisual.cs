@@ -5,63 +5,16 @@ using MulticaretEditor;
 
 namespace MulticaretEditor
 {
-	public class ViReceiver : AReceiver
+	public class ViReceiverVisual : AReceiver
 	{
-		private ViReceiverData startData;
-		private ViCommands.ICommand lastCommand;
-		
-		public ViReceiver(ViReceiverData startData)
+		public ViReceiverVisual()
 		{
-			this.startData = startData;
 		}
 		
 		public override bool AltMode { get { return true; } }
 		
 		public override void DoOn()
 		{
-			ViReceiverData startData = this.startData;
-			this.startData = null;
-			if (startData != null)
-			{
-				if (startData.action == 'o' || startData.action == 'O')
-				{
-					for (int i = 1; i < startData.count; i++)
-					{
-						controller.InsertLineBreak();
-						foreach (char c in startData.inputChars)
-						{
-							ProcessInputChar(c);
-						}
-					}
-				}
-				else
-				{
-					for (int i = 1; i < startData.count; i++)
-					{
-						foreach (char c in startData.inputChars)
-						{
-							ProcessInputChar(c);
-						}
-					}
-				}
-			}
-			for (int i = 0; i < lines.selections.Count; i++)
-			{
-				Selection selection = lines.selections[i];
-				if (selection.Empty)
-				{
-					Place place = lines.PlaceOf(selection.caret);
-					if (place.iChar > 0)
-					{
-						selection.anchor--;
-						selection.caret--;
-						if (selection.preferredPos > 0)
-						{
-							selection.preferredPos--;
-						}
-					}
-				}
-			}
 		}
 		
 		private readonly ViCommandParser parser = new ViCommandParser();
@@ -74,6 +27,15 @@ namespace MulticaretEditor
 		
 		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
+			if (((keysData & Keys.Control) == Keys.Control) &&
+				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
+			{
+				controller.ClearMinorSelections();
+				controller.LastSelection.SetEmpty();
+				scrollToCursor = true;
+				context.SetState(new ViReceiver(null));
+				return true;
+			}
 			string viShortcut;
 			switch (keysData)
 			{
@@ -220,26 +182,7 @@ namespace MulticaretEditor
 			ViCommands.ICommand command = null;
 			if (move != null)
 			{
-				switch (parser.action.Index)
-				{
-					case (int)'d':
-						command = new ViCommands.Delete(move, count, false, parser.register);
-						count = 1;
-						break;
-					case (int)'c':
-						command = new ViCommands.Delete(move, count, true, parser.register);
-						count = 1;
-						needInput = true;
-						break;
-					case (int)'y':
-						ProcessCopy(move, parser.register, count);
-						count = 1;
-						break;
-					default:
-						command = new ViCommands.Empty(move, count);
-						count = 1;
-						break;
-				}
+				move.Move(controller, true, false);
 			}
 			else
 			{
@@ -278,12 +221,6 @@ namespace MulticaretEditor
 						if (parser.move.IsChar('y'))
 						{
 							controller.ViCopyLine(parser.register, count);
-						}
-						break;
-					case (int)'.':
-						if (lastCommand != null)
-						{	
-							lastCommand.Execute(controller);
 						}
 						break;
 					case (int)'r' + ViChar.ControlIndex:
@@ -360,7 +297,6 @@ namespace MulticaretEditor
 				{
 					context.SetState(new InputReceiver(null, false));
 				}
-				lastCommand = command;
 			}
 		}
 		

@@ -141,6 +141,10 @@ namespace MulticaretEditor
 							case 'N':
 								move = code;
 								return ParseResult.Complete;
+							case 'v':
+							case 'V':
+								action = code;
+								return ParseResult.Complete;
 							case 'd':
 								if (action.IsChar('d'))
 								{

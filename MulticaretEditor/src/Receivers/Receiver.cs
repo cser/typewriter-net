@@ -17,10 +17,10 @@ namespace MulticaretEditor
 		
 		public Dictionary<char, char> viMap;
 		
-		private bool viMode;
-		public bool ViMode { get { return viMode; } }
+		private ViMode viMode;
+		public ViMode ViMode { get { return viMode; } }
 		
-		public Receiver(Controller controller, bool viMode, bool alwaysInputMode)
+		public Receiver(Controller controller, ViMode viMode, bool alwaysInputMode)
 		{
 			this.controller = controller;
 			this.lines = controller.Lines;
@@ -30,7 +30,7 @@ namespace MulticaretEditor
 			ProcessSetViMode(viMode);
 		}
 		
-		public void SetViMode(bool value)
+		public void SetViMode(ViMode value)
 		{
 			if (viMode != value)
 			{
@@ -38,11 +38,19 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private void ProcessSetViMode(bool value)
+		private void ProcessSetViMode(ViMode value)
 		{
-			if (value)
+			if (value == ViMode.Normal)
 			{
 				context.SetState(new ViReceiver(null));
+			}
+			else if (value == ViMode.Visual)
+			{
+				context.SetState(new ViReceiverVisual());
+			}
+			else if (value == ViMode.LinesVisual)
+			{
+				context.SetState(new ViReceiverLinesVisual());
 			}
 			else
 			{
@@ -66,9 +74,9 @@ namespace MulticaretEditor
 					receiver.state = state;
 					receiver.state.Init(receiver.controller, this);
 					receiver.state.DoOn();
-					if (receiver.viMode != receiver.state.AltMode)
+					if ((receiver.viMode != ViMode.Insert) != receiver.state.AltMode)
 					{
-						receiver.viMode = receiver.state.AltMode;
+						receiver.viMode = receiver.state.AltMode ? ViMode.Normal : ViMode.Insert;
 						if (receiver.ViModeChanged != null)
 						{
 							receiver.ViModeChanged();

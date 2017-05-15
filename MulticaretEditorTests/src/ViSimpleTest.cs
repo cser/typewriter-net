@@ -12,8 +12,8 @@ namespace UnitTests
 		
 		private void SetViMode(bool viMode)
 		{
-			receiver.SetViMode(viMode);
-			Assert.AreEqual(viMode, receiver.ViMode);
+			receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
+			Assert.AreEqual(viMode ? ViMode.Normal : ViMode.Insert, receiver.ViMode);
 		}
 		
 		private ViSimpleTest Press(string keys)
@@ -60,7 +60,7 @@ namespace UnitTests
 			ClipboardExecuter.Reset(true);
 			Init();
 			lines.lineBreak = "\n";
-			receiver = new Receiver(controller, false, false);
+			receiver = new Receiver(controller, ViMode.Insert, false);
 			SetViMode(true);
 		}
 		

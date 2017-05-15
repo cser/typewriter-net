@@ -401,7 +401,7 @@ snippet struct
 	}
 # enumeration
 snippet enum
-	enum ${1}
+	${1:public} enum ${2:%n%}
 	{
 		${0}
 	}
