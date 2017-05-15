@@ -111,12 +111,12 @@ snippet wh
 	}
 # for loop
 snippet for
-	for (int ${1:i} = 0; $1 < ${2:count}; $1${3:++})
+	for (int ${1:i} = 0; $1 < ${2:count}; $1++)
 	{
 		${0}
 	}
 snippet forr
-	for (int ${1:i} = ${2:length}; $1 >= 0; $1--)
+	for (int ${1:i} = ${2:count} - 1; $1 >= 0; $1--)
 	{
 		${0}
 	}
@@ -441,12 +441,40 @@ snippet cw
 snippet eq
 	public override bool Equals(object obj)
 	{
-		if (obj == null || GetType() != obj.GetType())
+		${1:%n%} ${2:item} = obj as $1;
+		if ((object)$2 == null)
 		{
 			return false;
 		}
-		${0:throw new NotImplementedException();}
-		return base.Equals(obj);
+		return Equals($2);
+	}
+	
+	public bool Equals($1 $2)
+	{
+		return ${3:/*compare fields*/};
+	}
+	
+	public override int GetHashCode()
+	{
+		return ${4:/*hashcode*/};
+	}
+snippet ==
+	public static bool operator ==(${1:%n%} a, $1 b)
+	{
+		if (object.ReferenceEquals(a, b))
+		{
+			return true;
+		}
+		if ((object)a == null || (object)b == null)
+		{
+			return false;
+		}
+		return ${2:/*compare fields*/};
+	}
+	
+	public static bool operator !=($1 a, $1 b)
+	{
+		return !(a == b);
 	}
 # exception
 snippet exc
@@ -530,3 +558,13 @@ snippet usi
 	{
 		${0}
 	}
+snippet test
+	[Test]
+	public void ${1:Test1}()
+	{
+		${0}
+	}
+snippet a
+	Assert.AreEqual(${0}
+snippet ca
+	CollectionAssert.AreEqual(${0}

@@ -26,3 +26,16 @@ snippet aw
 	{
 		${0}
 	}
+snippet clutest
+	using UnityEngine;
+	using UnityEditor;
+	using NUnit.Framework;
+	
+	public class ${1:%n%}
+	{
+		[Test]
+		public void ${2:Test1}()
+		{
+			${0}
+		}
+	}
