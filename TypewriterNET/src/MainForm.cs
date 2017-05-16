@@ -155,6 +155,7 @@ public class MainForm : Form
 
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	public TempSettings TempSettings { get { return tempSettings; } }
 	private string tempFilePostfix;
 	private SchemeManager schemeManager;
 

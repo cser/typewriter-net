@@ -16,19 +16,19 @@ public class MainFormMenu : MainMenu
 		this.mainForm = mainForm;
 
 		names = new List<string>();
-		AddRootItem("&File", false);
-		AddRootItem("&Edit", false);
-		AddRootItem("F&ind", false);
-		AddRootItem("&View", false);
-		AddRootItem("Prefere&nces", true);
-		AddRootItem("&?", false);
+		AddRootItem("&File", false, true);
+		AddRootItem("&Edit", false, false);
+		AddRootItem("F&ind", false, false);
+		AddRootItem("&View", false, false);
+		AddRootItem("Prefere&nces", true, false);
+		AddRootItem("&?", false, false);
 	}
 
-	private void AddRootItem(string name, bool isOther)
+	private void AddRootItem(string name, bool isOther, bool hasRecent)
 	{
 		if (!isOther)
 			names.Add(name);
-		MenuItems.Add(new DynamicMenuItem(this, name, isOther));
+		MenuItems.Add(new DynamicMenuItem(this, name, isOther, hasRecent));
 	}
 
 	public class DynamicMenuItem : MenuItem
@@ -36,12 +36,14 @@ public class MainFormMenu : MainMenu
 		private MainFormMenu menu;
 		private string name;
 		private bool isOther;
+		private bool hasRecent;
 
-		public DynamicMenuItem(MainFormMenu menu, string name, bool isOther) : base(name)
+		public DynamicMenuItem(MainFormMenu menu, string name, bool isOther, bool hasRecent) : base(name)
 		{
 			this.name = name;
 			this.menu = menu;
 			this.isOther = isOther;
+			this.hasRecent = hasRecent;
 
 			MenuItems.Add(new MenuItem(" "));
 			Popup += OnPopup;
@@ -56,6 +58,24 @@ public class MainFormMenu : MainMenu
 				MenuItem item = new MenuItem("[Empty]");
 				item.Enabled = false;
 				MenuItems.Add(item);
+			}
+			if (hasRecent)
+			{
+				MenuItem item = new MenuItem("Recent");
+				BuildRecentItems(item);
+				MenuItems.Add(item);
+			}
+		}
+		
+		private void BuildRecentItems(MenuItem root)
+		{
+			TempSettings tempSettings = menu.mainForm.TempSettings;
+			List<string> files = tempSettings.GetRecentlyFiles();
+			foreach (string file in files)
+			{
+				MenuItem item = new MenuItem(System.IO.Path.GetFileName(file),
+					new MenuItemRecentFileDelegate(menu.mainForm, file).OnClick);
+				root.MenuItems.Add(item);
 			}
 		}
 	}
@@ -205,6 +225,23 @@ public class MainFormMenu : MainMenu
 			action.doOnDown(controller);
 			if (action.doOnModeChange != null)
 				action.doOnModeChange(controller, false);
+		}
+	}
+	
+	public class MenuItemRecentFileDelegate
+	{
+		private MainForm mainForm;
+		private string file;
+		
+		public MenuItemRecentFileDelegate(MainForm mainForm, string file)
+		{
+			this.mainForm = mainForm;
+			this.file = file;
+		}
+		
+		public void OnClick(object sender, EventArgs e)
+		{
+			mainForm.LoadFile(file);
 		}
 	}
 }
