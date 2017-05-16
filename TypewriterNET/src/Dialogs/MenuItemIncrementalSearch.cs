@@ -66,7 +66,7 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 		int length = 0;
 		foreach (KeyAction action in actions)
 		{
-			if (action.name == "-" || action.name.EndsWith("\\-"))
+			if (action.name == "-" || action.name.EndsWith("|-"))
 				continue;
 			Item item = new Item();
 			item.name = action.name.Replace("&", "");
@@ -120,8 +120,8 @@ public class MenuItemIncrementalSearch : IncrementalSearchBase
 	{
 		int index0 = GetLastIndex(item0.name);
 		int index1 = GetLastIndex(item1.name);
-		int separatorCriterion0 = index0 == item0.name.LastIndexOf("\\") + 1 ? 1 : 0;
-		int separatorCriterion1 = index1 == item1.name.LastIndexOf("\\") + 1 ? 1 : 0;
+		int separatorCriterion0 = index0 == item0.name.LastIndexOf("|") + 1 ? 1 : 0;
+		int separatorCriterion1 = index1 == item1.name.LastIndexOf("|") + 1 ? 1 : 0;
 		if (separatorCriterion0 != separatorCriterion1)
 			return separatorCriterion0 - separatorCriterion1;
 		int offset0 = item0.name.Length - index0;

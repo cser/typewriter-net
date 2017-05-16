@@ -44,31 +44,31 @@ public class IncrementalSearchBase : ADialog
 		KeyMap variantsKeyMap = new KeyMap();
 		KeyMap beforeKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Close", DoClose, null, false);
+			KeyAction action = new KeyAction("F&ind|" + submenu + "|Close", DoClose, null, false);
 			textKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
 		{
 			textKeyMap.AddItem(new KeyItem(Keys.Up, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select up", DoUp, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select up", DoUp, null, false)));
 			textKeyMap.AddItem(new KeyItem(Keys.Down, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select down", DoDown, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select down", DoDown, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select document start", DoDocumentStart, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select document start", DoDocumentStart, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select document end", DoDocumentEnd, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select document end", DoDocumentEnd, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.PageUp, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select page up", DoPageUp, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select page up", DoPageUp, null, false)));
 			beforeKeyMap.AddItem(new KeyItem(Keys.PageDown, null,
-				new KeyAction("F&ind\\" + submenu + "\\Select page down", DoPageDown, null, false)));
+				new KeyAction("F&ind|" + submenu + "|Select page down", DoPageDown, null, false)));
 		}
 		{
-			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Next field", DoNextField, null, false);
+			KeyAction action = new KeyAction("F&ind|" + submenu + "|Next field", DoNextField, null, false);
 			textKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Open", DoExecute, null, false);
+			KeyAction action = new KeyAction("F&ind|" + submenu + "|Open", DoExecute, null, false);
 			textKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			textKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));

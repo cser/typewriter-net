@@ -69,43 +69,43 @@ public class FileTree
 		buffer.Controller.isReadonly = true;
 		buffer.additionKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Open item, no switch", DoOnEnterNoSwitch, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Open item, no switch", DoOnEnterNoSwitch, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Shift | Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Shift, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Open item", DoOnEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Set current directory", DoOnSetCurrentDirectory, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Set current directory", DoOnSetCurrentDirectory, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", DoCloseBuffer, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Close file tree", DoCloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
 		buffer.additionBeforeKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Remove item", DoRemoveItem, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Remove item", DoRemoveItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Add item", DoAddItem, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Add item", DoAddItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Add directory", DoAddDir, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Add directory", DoAddDir, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.N, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Move item", DoMoveItem, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Move item", DoMoveItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.M, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\File tree\\Rename item", DoRenameItem, null, false);
+			KeyAction action = new KeyAction("&View|File tree|Rename item", DoRenameItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;

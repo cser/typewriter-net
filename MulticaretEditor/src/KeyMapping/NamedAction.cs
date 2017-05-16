@@ -19,7 +19,7 @@ namespace MulticaretEditor.KeyMapping
 				if (action.name != null)
 				{
 					name = action.name;
-					int index = name.IndexOf('\\');
+					int index = name.IndexOf('|');
 					if (index != -1)
 					{
 						name = name.Substring(index + 1);

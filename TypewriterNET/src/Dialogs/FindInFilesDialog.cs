@@ -49,17 +49,17 @@ public class FindInFilesDialog : ADialog
 		{
 			KeyMap frameKeyMap = new KeyMap();
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
-				new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
+				new KeyAction("F&ind|Cancel find", DoCancel, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
+				new KeyAction("F&ind|Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
-				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
+				new KeyAction("F&ind|Switch to input field", DoSwitchToInputField, null, false)));
 			if (data.filterHistory != null)
 			{
 				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false)));
+					new KeyAction("F&ind|Previous filter", DoFilterPrevPattern, null, false)));
 				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false)));
+					new KeyAction("F&ind|Next filter", DoFilterNextPattern, null, false)));
 			}
 			
 			filterTextBox = new MulticaretTextBox();
@@ -84,17 +84,17 @@ public class FindInFilesDialog : ADialog
 		{
 			KeyMap frameKeyMap = new KeyMap();
 			frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
-				new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
+				new KeyAction("F&ind|Cancel find", DoCancel, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
+				new KeyAction("F&ind|Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
-				new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
+				new KeyAction("F&ind|Temp filter", DoSwitchToTempFilter, null, false)));
 			if (data.history != null)
 			{
 				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
+					new KeyAction("F&ind|Previous pattern", DoPrevPattern, null, false)));
 				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+					new KeyAction("F&ind|Next pattern", DoNextPattern, null, false)));
 			}
 	
 			textBox = new MulticaretTextBox();

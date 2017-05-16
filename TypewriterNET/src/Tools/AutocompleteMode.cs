@@ -20,19 +20,19 @@ public class AutocompleteMode
 		this.rawView = rawView;
 		
 		keyMap = new KeyMap();
-		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View|Autocomplete|MoveUp", DoMoveUp, null, false)));
 		{
-			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false);
+			KeyAction action = new KeyAction("&View|Autocomplete|MoveDown", DoMoveDown, null, false);
 			keyMap.AddItem(new KeyItem(Keys.Down, null, action));
 			if (rawView)
 				keyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
-		keyMap.AddItem(new KeyItem(Keys.PageUp, null, new KeyAction("&View\\Autocomplete\\MovePageUp", DoMovePageUp, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.PageDown, null, new KeyAction("&View\\Autocomplete\\MovePageDown", DoMovePageDown, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null, new KeyAction("&View\\Autocomplete\\MoveToFirst", DoMoveToFirst, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null, new KeyAction("&View\\Autocomplete\\MoveToLast", DoMoveToLast, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Autocomplete\\Close", DoClose, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Autocomplete\\Complete", DoComplete, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.PageUp, null, new KeyAction("&View|Autocomplete|MovePageUp", DoMovePageUp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.PageDown, null, new KeyAction("&View|Autocomplete|MovePageDown", DoMovePageDown, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null, new KeyAction("&View|Autocomplete|MoveToFirst", DoMoveToFirst, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null, new KeyAction("&View|Autocomplete|MoveToLast", DoMoveToLast, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View|Autocomplete|Close", DoClose, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View|Autocomplete|Complete", DoComplete, null, false)));
 	}
 	
 	public class Handler

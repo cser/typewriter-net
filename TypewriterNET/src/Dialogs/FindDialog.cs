@@ -59,24 +59,24 @@ public class FindDialog : ADialog
 	{
 		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
 		KeyMapBuilder frameKeyMap = new KeyMapBuilder(new KeyMap(), list);
-		frameKeyMap.Add(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false));
-		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false));
+		frameKeyMap.Add(Keys.Escape, null, new KeyAction("F&ind|Cancel find", DoCancel, null, false));
+		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind|Find next", DoFindNext, null, false));
 		if (data.history != null)
 		{
-			frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-			frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+			frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind|Previous pattern", DoPrevPattern, null, false));
+			frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind|Next pattern", DoNextPattern, null, false));
 		}
-		frameKeyMap.Add(Keys.None, null, new KeyAction("F&ind\\-", null, null, false));
+		frameKeyMap.Add(Keys.None, null, new KeyAction("F&ind|-", null, null, false));
 
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		if (doSelectAllFound != null)
 		{
 			beforeKeyMap.AddInList(Keys.Control | Keys.D, null,
-				new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
+				new KeyAction("F&ind|Select next found", DoSelectNextFound, null, false));
 			beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
-				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
+				new KeyAction("F&ind|Select all found", DoSelectAllFound, null, false));
 			beforeKeyMap.Add(Keys.Control | Keys.K, null,
-				new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
+				new KeyAction("F&ind|Unselect prev text", DoUnselectPrevText, null, false));
 		}
 
 		textBox = new MulticaretTextBox();

@@ -50,20 +50,20 @@ public class MoveDialog : ADialog
 
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
-			new KeyAction("&View\\File tree\\Cancel path", DoCancel, null, false)));
+			new KeyAction("&View|File tree|Cancel path", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
-			new KeyAction("&View\\File tree\\Run path", DoInput, null, false)));
+			new KeyAction("&View|File tree|Run path", DoInput, null, false)));
 		if (data.history != null)
 		{
 			frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-				new KeyAction("&View\\File tree\\Previous path", DoPrevPath, null, false)));
+				new KeyAction("&View|File tree|Previous path", DoPrevPath, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-				new KeyAction("&View\\File tree\\Next path", DoNextPath, null, false)));
+				new KeyAction("&View|File tree|Next path", DoNextPath, null, false)));
 		}
 		{
-		    KeyAction action = new KeyAction("&View\\File tree\\Autocomplete", DoAutocomplete, null, false);
-            frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
-            frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+			KeyAction action = new KeyAction("&View|File tree|Autocomplete", DoAutocomplete, null, false);
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
+			frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
 
 		textBox = new MulticaretTextBox();

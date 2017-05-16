@@ -31,8 +31,8 @@ public class InfoDialog : ADialog
 		Controls.Add(tabBar);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Close info", DoClose, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Close info", DoClose, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View|Close info", DoClose, null, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View|Close info", DoClose, null, false)));
 
 		textBox = new MulticaretTextBox();
 		textBox.KeyMap.AddAfter(KeyMap);
