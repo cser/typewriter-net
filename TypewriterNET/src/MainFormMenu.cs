@@ -1,11 +1,14 @@
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
 using MulticaretEditor;
 using MulticaretEditor.KeyMapping;
 
 public class MainFormMenu : MainMenu
 {
+	public const string RecentItemName = "Recent";
+	
 	private MainForm mainForm;
 	private List<string> names;
 
@@ -61,9 +64,22 @@ public class MainFormMenu : MainMenu
 			}
 			if (hasRecent)
 			{
-				MenuItem item = new MenuItem("Recent");
+				MenuItem item = null;
+				foreach (MenuItem itemI in MenuItems)
+				{
+					if (itemI.Text == RecentItemName)
+					{
+						item = itemI;
+						break;
+					}
+				}
+				if (item == null)
+				{
+					MenuItems.Add(new MenuItem("-"));
+					item = new MenuItem(RecentItemName);
+					MenuItems.Add(item);
+				}
 				BuildRecentItems(item);
-				MenuItems.Add(item);
 			}
 		}
 		
@@ -77,10 +93,19 @@ public class MainFormMenu : MainMenu
 				MenuItems.Add(item);
 				return;
 			}
+			string currendDir = Directory.GetCurrentDirectory().ToLowerInvariant() + "\\";
 			List<string> files = tempSettings.GetRecentlyFiles();
-			foreach (string file in files)
+			int count = 0;
+			for (int i = files.Count; i--> 0;)
 			{
-				MenuItem item = new MenuItem(System.IO.Path.GetFileName(file),
+				string file = files[i];
+				++count;
+				if (count > 20)
+				{
+					break;
+				}
+				MenuItem item = new MenuItem(
+					file.ToLowerInvariant().StartsWith(currendDir) ? file.Substring(currendDir.Length) : file,
 					new MenuItemRecentFileDelegate(menu.mainForm, file).OnClick);
 				root.MenuItems.Add(item);
 			}

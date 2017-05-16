@@ -734,6 +734,8 @@ public class MainForm : Form
 			new KeyAction("&File\\Save As...", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\" + MainFormMenu.RecentItemName, KeyAction.DoNothing, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
