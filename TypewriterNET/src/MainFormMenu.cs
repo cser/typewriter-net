@@ -70,6 +70,13 @@ public class MainFormMenu : MainMenu
 		private void BuildRecentItems(MenuItem root)
 		{
 			TempSettings tempSettings = menu.mainForm.TempSettings;
+			if (tempSettings == null)
+			{
+				MenuItem item = new MenuItem("[Not loaded yet]");
+				item.Enabled = false;
+				MenuItems.Add(item);
+				return;
+			}
 			List<string> files = tempSettings.GetRecentlyFiles();
 			foreach (string file in files)
 			{
