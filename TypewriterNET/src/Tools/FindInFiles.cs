@@ -331,7 +331,7 @@ public class FindInFiles
 		}
 		buffer.additionKeyMap = new KeyMap();
 		{
-			KeyAction action = new KeyAction("F&ind\\Navigate to found", ExecuteEnter, null, false);
+			KeyAction action = new KeyAction("F&ind|Navigate to found", ExecuteEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}

@@ -130,7 +130,7 @@ public class MainFormMenu : MainMenu
 				filtered = true;
 				foreach (string name in names)
 				{
-					if (action.name.StartsWith(name + "\\"))
+					if (action.name.StartsWith(name + "|"))
 					{
 						filtered = false;
 						break;
@@ -139,7 +139,7 @@ public class MainFormMenu : MainMenu
 			}
 			else
 			{
-				filtered = action.name.StartsWith(rootName + "\\");
+				filtered = action.name.StartsWith(rootName + "|");
 			}
 			if (filtered)
 			{
@@ -192,7 +192,7 @@ public class MainFormMenu : MainMenu
 
 	private static string GetMenuItemParentPath(string path)
 	{
-		int index = path.LastIndexOf("\\");
+		int index = path.LastIndexOf("|");
 		if (index == -1)
 			return "";
 		return path.Substring(0, index);
@@ -200,7 +200,7 @@ public class MainFormMenu : MainMenu
 
 	private static string GetMenuItemName(string path)
 	{
-		int index = path.LastIndexOf("\\");
+		int index = path.LastIndexOf("|");
 		if (index == -1)
 			return path;
 		return path.Substring(index + 1);
@@ -222,7 +222,8 @@ public class MainFormMenu : MainMenu
 			Controller controller = mainForm.FocusedController;
 			if (action.doOnModeChange != null)
 				action.doOnModeChange(controller, true);
-			action.doOnDown(controller);
+			if (action.doOnDown != null)
+				action.doOnDown(controller);
 			if (action.doOnModeChange != null)
 				action.doOnModeChange(controller, false);
 		}

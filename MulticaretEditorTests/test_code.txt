@@ -178,124 +178,124 @@
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
 
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File\\Save", DoSave, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File|New", DoNew, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File|Open", DoOpen, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.S, null, new KeyAction("&File|Save", DoSave, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File|Reload", DoReload, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
-			new KeyAction("&File\\Save As", DoSaveAs, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
+			new KeyAction("&File|Save As", DoSaveAs, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File|Exit", DoExit, null, false)));
 		
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.R, null,
-			new KeyAction("F&ind\\Switch regex", DoSwitchRegex, null, false)
+			new KeyAction("F&ind|Switch regex", DoSwitchRegex, null, false)
 			.SetGetText(GetFindRegex)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.I, null,
-			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
+			new KeyAction("F&ind|Switch ignore case", DoSwitchIgnoreCase, null, false)
 			.SetGetText(GetFindIgnoreCase)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.E, null,
-			new KeyAction("F&ind\\Switch replace escape sequrence", DoSwitchEscape, null, false)
+			new KeyAction("F&ind|Switch replace escape sequrence", DoSwitchEscape, null, false)
 			.SetGetText(GetFindEscape)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
-			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
+			new KeyAction("&View|Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null,
-			new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
+			new KeyAction("&View|Open/close find results", DoOpenCloseFindResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null,
-			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
+			new KeyAction("&View|Open/close shell command results", DoOpenCloseShellResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
-			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+			new KeyAction("&View|Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Escape, null,
-			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
+			new KeyAction("&View|Close console panel", DoCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
-			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
+			new KeyAction("&View|Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null,
-			new KeyAction("&View\\Move document right", MoveDocumentRight, null, false)));
+			new KeyAction("&View|Move document right", MoveDocumentRight, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Left, null,
-			new KeyAction("&View\\Move document left", MoveDocumentLeft, null, false)));
+			new KeyAction("&View|Move document left", MoveDocumentLeft, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.I, null,
-			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
+			new KeyAction("&View|File tree|Open/close file tree", DoOpenCloseFileTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
-			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+			new KeyAction("&View|File tree|Find file in tree", DoFindFileInTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
-			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
+			new KeyAction("&View|File tree|Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
-			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
+			new KeyAction("Prefere&nces|Edit/create current config", DoEditCreateCurrentConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F2, null,
-			new KeyAction("Prefere&nces\\Edit config", DoOpenUserConfig, null, false)));
+			new KeyAction("Prefere&nces|Edit config", DoOpenUserConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null,
-			new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
+			new KeyAction("Prefere&nces|Open base config", DoOpenBaseConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+			new KeyAction("Prefere&nces|Reset config...", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
+			new KeyAction("Prefere&nces|Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+			new KeyAction("Prefere&nces|Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
+			new KeyAction("Prefere&nces|Open AppData folder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
+			new KeyAction("Prefere&nces|Open Startup folder", DoOpenStartupFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null,
-			new KeyAction("Prefere&nces\\Open current folder", DoOpenCurrentFolder, null, false)));
+			new KeyAction("Prefere&nces|Open current folder", DoOpenCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F4, null,
-			new KeyAction("Prefere&nces\\Change current folder", DoChangeCurrentFolder, null, false)));
+			new KeyAction("Prefere&nces|Change current folder", DoChangeCurrentFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\New syntax file", DoNewSyntax, null, false)));
+			new KeyAction("Prefere&nces|New syntax file", DoNewSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
+			new KeyAction("Prefere&nces|Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
+			new KeyAction("Prefere&nces|Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF5Command, null, false)
 			.SetGetText(GetF5CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F5, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF5Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF5Command, null, false)
 			.SetGetText(GetShiftF5CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F6, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF6Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF6Command, null, false)
 			.SetGetText(GetF6CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F6, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF6Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF6Command, null, false)
 			.SetGetText(GetShiftF6CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F7, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF7Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF7Command, null, false)
 			.SetGetText(GetF7CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F7, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF7Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF7Command, null, false)
 			.SetGetText(GetShiftF7CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F8, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF8Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF8Command, null, false)
 			.SetGetText(GetF8CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F8, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF8Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF8Command, null, false)
 			.SetGetText(GetShiftF8CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F9, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF9Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF9Command, null, false)
 			.SetGetText(GetF9CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F9, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF9Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF9Command, null, false)
 			.SetGetText(GetShiftF9CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F11, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF11Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF11Command, null, false)
 			.SetGetText(GetF11CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F11, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF11Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF11Command, null, false)
 			.SetGetText(GetShiftF11CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.F12, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteF12Command, null, false)
 			.SetGetText(GetF12CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F12, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteShiftF12Command, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteShiftF12Command, null, false)
 			.SetGetText(GetShiftF12CommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlSpaceCommand, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteCtrlSpaceCommand, null, false)
 			.SetGetText(GetCtrlSpaceCommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
+			new KeyAction("Prefere&nces|Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
 			.SetGetText(GetCtrlShiftSpaceCommandText)));
 
-		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?|Help", DoHelp, null, false)));
 	}
 
 	private bool DoNew(Controller controller)

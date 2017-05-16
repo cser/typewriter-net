@@ -62,22 +62,22 @@ public class ReplaceDialog : ADialog
 		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
 		
 		KeyMapBuilder frameKeyMap = new KeyMapBuilder(new KeyMap(), list);
-		frameKeyMap.Add(Keys.Escape, null, new KeyAction("F&ind\\Cancel find", DoCancel, null, false));
-		frameKeyMap.Add(Keys.Tab, null, new KeyAction("F&ind\\Next field", DoNextField, null, false));
-		frameKeyMap.Add(Keys.Control | Keys.Tab, null, new KeyAction("F&ind\\Prev field", DoPrevField, null, false));
-		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false));
-		frameKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false));
-		frameKeyMap.AddInList(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false));
-		frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-		frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+		frameKeyMap.Add(Keys.Escape, null, new KeyAction("F&ind|Cancel find", DoCancel, null, false));
+		frameKeyMap.Add(Keys.Tab, null, new KeyAction("F&ind|Next field", DoNextField, null, false));
+		frameKeyMap.Add(Keys.Control | Keys.Tab, null, new KeyAction("F&ind|Prev field", DoPrevField, null, false));
+		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind|Find next", DoFind, null, false));
+		frameKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind|Replace", DoReplace, null, false));
+		frameKeyMap.AddInList(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind|Replace all", DoReplaceAll, null, false));
+		frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind|Previous pattern", DoPrevPattern, null, false));
+		frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind|Next pattern", DoNextPattern, null, false));
 		
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
-			new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
+			new KeyAction("F&ind|Select all found", DoSelectAllFound, null, false));
 		beforeKeyMap.AddInList(Keys.Control | Keys.D, null,
-			new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
+			new KeyAction("F&ind|Select next found", DoSelectNextFound, null, false));
 		beforeKeyMap.Add(Keys.Control | Keys.K, null,
-			new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
+			new KeyAction("F&ind|Unselect prev text", DoUnselectPrevText, null, false));
 		
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
 		tabBar.Text = Name;

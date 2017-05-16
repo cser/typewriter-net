@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using MulticaretEditor;
+using MulticaretEditor.KeyMapping;
 
 public class TempSettings
 {
@@ -21,7 +22,8 @@ public class TempSettings
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
 	private RecentlyStorage recently = new RecentlyStorage();
 	private RecentlyStorage recentlyDirs = new RecentlyStorage();
-	
+	private KeyMap recentFilesKeyMap = new KeyMap();
+
 	public int helpPosition;
 	
 	public List<string> GetRecentlyFiles()
@@ -112,14 +114,108 @@ public class TempSettings
 		scheme = state["scheme"].String;
 		if (string.IsNullOrEmpty(scheme))
 			scheme = "npp";
+		UpdateRecentsMenu();
 	}
-	
+
+	private void UpdateRecentsMenu()
+	{
+		mainForm.MenuNode.RemoveAfter(recentFilesKeyMap);
+		recentFilesKeyMap = new KeyMap();
+
+		List<string> recentlyFiles = GetRecentlyFiles();
+		int lastIndex = recentlyFiles.Count;
+		if (recentlyFiles.Count > 0)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 1], DoOpenRecent1, null, false)));
+		if (recentlyFiles.Count > 1)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 2], DoOpenRecent2, null, false)));
+		if (recentlyFiles.Count > 2)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 3], DoOpenRecent3, null, false)));
+		if (recentlyFiles.Count > 3)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 4], DoOpenRecent4, null, false)));
+		if (recentlyFiles.Count > 4)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 5], DoOpenRecent5, null, false)));
+		if (recentlyFiles.Count > 5)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 6], DoOpenRecent6, null, false)));
+		if (recentlyFiles.Count > 6)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 7], DoOpenRecent7, null, false)));
+		if (recentlyFiles.Count > 7)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 8], DoOpenRecent8, null, false)));
+		if (recentlyFiles.Count > 8)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 9], DoOpenRecent9, null, false)));
+		if (recentlyFiles.Count > 9)
+			recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|" + recentlyFiles[lastIndex - 10], DoOpenRecent10, null, false)));
+
+		recentFilesKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File|Recent|-", null, null, false)));
+		mainForm.MenuNode.AddAfter(recentFilesKeyMap);
+	}
+
+	private bool LoadRecently(int index)
+	{
+		List<string> recentlyFiles = GetRecentlyFiles();
+		int lastIndex = recentlyFiles.Count;
+		mainForm.LoadFile(recentlyFiles[lastIndex - index]);
+		return true;
+	}
+
+	private bool DoOpenRecent1(Controller controller)
+	{
+		return LoadRecently(1);
+	}
+
+	private bool DoOpenRecent2(Controller controller)
+	{
+		return LoadRecently(2);
+	}
+
+	private bool DoOpenRecent3(Controller controller)
+	{
+		return LoadRecently(3);
+	}
+
+	private bool DoOpenRecent4(Controller controller)
+	{
+		return LoadRecently(4);
+	}
+
+	private bool DoOpenRecent5(Controller controller)
+	{
+		return LoadRecently(5);
+	}
+
+	private bool DoOpenRecent6(Controller controller)
+	{
+		return LoadRecently(6);
+	}
+
+	private bool DoOpenRecent7(Controller controller)
+	{
+		return LoadRecently(7);
+	}
+
+	private bool DoOpenRecent8(Controller controller)
+	{
+		return LoadRecently(8);
+	}
+
+	private bool DoOpenRecent9(Controller controller)
+	{
+		return LoadRecently(9);
+	}
+
+	private bool DoOpenRecent10(Controller controller)
+	{
+		return LoadRecently(10);
+	}
+
 	public void MarkLoaded(Buffer buffer)
 	{
 		if (buffer.FullPath != null)
+		{
 			recently.Add(buffer.FullPath);
+			UpdateRecentsMenu();
+		}
 	}
-	
+
 	public void AddDirectory(string directory)
 	{
 		if (!string.IsNullOrEmpty(directory))
@@ -152,44 +248,44 @@ public class TempSettings
 		int caret = storage.Get(buffer.FullPath)["cursor"].Int;
 		if (lineNumber == 0)
 		{
-            buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
-            buffer.Controller.NeedScrollToCaret();
-        }
-        else
-        {
-            Place place = new Place(0, lineNumber - 1);
-            SValue value = storage.Get(buffer.FullPath);
-            value["cursor"] = SValue.NewInt(buffer.Controller.Lines.IndexOf(place));
-            buffer.Controller.PutCursor(place, false);
-            buffer.Controller.NeedScrollToCaret();
-        }
+			buffer.Controller.PutCursor(buffer.Controller.SoftNormalizedPlaceOf(caret), false);
+			buffer.Controller.NeedScrollToCaret();
+		}
+		else
+		{
+			Place place = new Place(0, lineNumber - 1);
+			SValue value = storage.Get(buffer.FullPath);
+			value["cursor"] = SValue.NewInt(buffer.Controller.Lines.IndexOf(place));
+			buffer.Controller.PutCursor(place, false);
+			buffer.Controller.NeedScrollToCaret();
+		}
 	}
 
-    public void ApplyQualitiesBeforeLoading(Buffer buffer)
-    {
-        SValue value = storage.Get(buffer.FullPath);
-        string rawEncoding = value["encoding"].String;
-        if (!string.IsNullOrEmpty(rawEncoding))
-        {
-            string error;
-            buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
-        }
-        buffer.customSyntax = value["syntax"].String;
-    }
-    
-    public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
-    {
-    	SValue value = storage.Get(fullPath);
-        string rawEncoding = value["encoding"].String;
-        if (!string.IsNullOrEmpty(rawEncoding))
-        {
-            string error;
-            EncodingPair pair = EncodingPair.ParseEncoding(rawEncoding, out error);
-            if (string.IsNullOrEmpty(error))
-            	return pair;
-        }
-        return defaultPair;
-    }
+	public void ApplyQualitiesBeforeLoading(Buffer buffer)
+	{
+		SValue value = storage.Get(buffer.FullPath);
+		string rawEncoding = value["encoding"].String;
+		if (!string.IsNullOrEmpty(rawEncoding))
+		{
+			string error;
+			buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
+		}
+		buffer.customSyntax = value["syntax"].String;
+	}
+
+	public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
+	{
+		SValue value = storage.Get(fullPath);
+		string rawEncoding = value["encoding"].String;
+		if (!string.IsNullOrEmpty(rawEncoding))
+		{
+			string error;
+			EncodingPair pair = EncodingPair.ParseEncoding(rawEncoding, out error);
+			if (string.IsNullOrEmpty(error))
+				return pair;
+		}
+		return defaultPair;
+	}
 
 	public void Save(string postfix)
 	{

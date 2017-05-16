@@ -51,9 +51,9 @@ public class Frame : AFrame
 		Controls.Add(splitLine);
 
 		KeyMap frameKeyMap = new KeyMap();
-		frameKeyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View\\Switch tab", DoTabDown, DoTabModeChange, false)));
+		frameKeyMap.AddItem(new KeyItem(Keys.Tab, Keys.Control, new KeyAction("&View|Switch tab", DoTabDown, DoTabModeChange, false)));
 		{
-			KeyAction action = new KeyAction("&View\\Close tab", DoCloseTab, null, false);
+			KeyAction action = new KeyAction("&View|Close tab", DoCloseTab, null, false);
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.W, null, action));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F4, null, action));
 		}
