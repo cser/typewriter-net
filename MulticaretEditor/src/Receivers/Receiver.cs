@@ -74,9 +74,10 @@ namespace MulticaretEditor
 					receiver.state = state;
 					receiver.state.Init(receiver.controller, this);
 					receiver.state.DoOn();
-					if ((receiver.viMode != ViMode.Insert) != receiver.state.AltMode)
+					bool oldIsVi = receiver.viMode != ViMode.Insert;
+					receiver.viMode = receiver.state.ViMode;
+					if (oldIsVi != receiver.state.AltMode)
 					{
-						receiver.viMode = receiver.state.AltMode ? ViMode.Normal : ViMode.Insert;
 						if (receiver.ViModeChanged != null)
 						{
 							receiver.ViModeChanged();

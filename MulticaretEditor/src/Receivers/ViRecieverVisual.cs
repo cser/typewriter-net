@@ -8,6 +8,8 @@ namespace MulticaretEditor
 {
 	public class ViReceiverVisual : AReceiver
 	{
+		public override ViMode ViMode { get { return _lineMode ? ViMode.LinesVisual : ViMode.Visual; } }
+		
 		private bool _lineMode;
 		
 		public ViReceiverVisual(bool lineMode)
@@ -311,7 +313,12 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							DoFind(controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret)));
+							string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
+							if (!string.IsNullOrEmpty(text))
+							{
+								DoFind("\\b" + text + "\\b");
+							}
+							context.SetState(new ViReceiver(null));
 						}
 						break;
 				}

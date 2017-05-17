@@ -6,6 +6,8 @@ namespace MulticaretEditor
 {
 	public class InputReceiver : AReceiver
 	{
+		public override ViMode ViMode { get { return ViMode.Insert; } }
+		
 		private ViReceiverData viData;
 		private readonly bool alwaysInputMode;
 		

@@ -7,6 +7,7 @@ namespace MulticaretEditor
 	public class AReceiver
 	{
 		public virtual bool AltMode { get { return false; } }
+		public virtual ViMode ViMode { get { return ViMode.Normal; } }
 		
 		protected Controller controller;
 		protected LineArray lines;

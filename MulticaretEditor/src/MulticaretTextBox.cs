@@ -936,24 +936,48 @@ namespace MulticaretEditor
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + caret.iLine * charHeight, clientWidth, charHeight);
 			}
+			bool lineMode = receiver != null && receiver.ViMode == ViMode.LinesVisual;
 			foreach (Selection selection in lines.selections)
 			{
-				if (selection.Right < start || selection.Left > end || selection.Count == 0)
+				int selectionLeft = selection.Left;
+				int selectionRight = selection.Right;
+				if (selectionRight < start || selectionLeft > end)
 					continue;
+				if (!lineMode && selectionRight - selectionLeft == 0)
+					continue;
+				if (lineMode)
+				{
+					Place place;
+					place = lines.PlaceOf(selectionLeft);
+					place.iChar = 0;
+					selectionLeft = lines.IndexOf(place);
+					place = lines.PlaceOf(selectionRight);
+					++place.iLine;
+					if (place.iLine > lines.LinesCount)
+					{
+						selectionRight = lines.charsCount;
+					}
+					else
+					{
+						place.iChar = 0;
+						selectionRight = lines.IndexOf(place);
+					}
+				}
+				int selectionCount = selectionRight - selectionLeft;
 
 				selectionRects.Clear();
 
-				Place left = lines.PlaceOf(selection.Left);
+				Place left = lines.PlaceOf(selectionLeft);
 				Line leftLine = lines[left.iLine];
-				if (left.iChar + selection.Count <= leftLine.charsCount)
+				if (left.iChar + selectionCount <= leftLine.charsCount)
 				{
 					int pos0 = leftLine.PosOfIndex(left.iChar);
-					int pos1 = leftLine.PosOfIndex(left.iChar + selection.Count);
+					int pos1 = leftLine.PosOfIndex(left.iChar + selectionCount);
 					selectionRects.Add(new DrawingLine(pos0, left.iLine, pos1 - pos0));
 				}
 				else
 				{
-					Place right = lines.PlaceOf(selection.Right);
+					Place right = lines.PlaceOf(selectionRight);
 					if (left.iLine >= iLineMin)
 					{
 						int pos0 = leftLine.PosOfIndex(left.iChar);
@@ -997,20 +1021,44 @@ namespace MulticaretEditor
 				int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + wwILine * charHeight, clientWidth, charHeight * (line.cutOffs.count + 1));
 			}
+			bool lineMode = receiver != null && receiver.ViMode == ViMode.LinesVisual;
 			foreach (Selection selection in lines.selections)
 			{
-				if (selection.Right < start || selection.Left > end || selection.Count == 0)
+				int selectionLeft = selection.Left;
+				int selectionRight = selection.Right;
+				if (selectionRight < start || selectionLeft > end)
 					continue;
+				if (!lineMode && selectionRight - selectionLeft == 0)
+					continue;
+				if (lineMode)
+				{
+					Place place;
+					place = lines.PlaceOf(selectionLeft);
+					place.iChar = 0;
+					selectionLeft = lines.IndexOf(place);
+					place = lines.PlaceOf(selectionRight);
+					++place.iLine;
+					if (place.iLine > lines.LinesCount)
+					{
+						selectionRight = lines.charsCount;
+					}
+					else
+					{
+						place.iChar = 0;
+						selectionRight = lines.IndexOf(place);
+					}
+				}
+				int selectionCount = selectionRight - selectionLeft;
 
 				selectionRects.Clear();
 
-				Place left = lines.PlaceOf(selection.Left);
+				Place left = lines.PlaceOf(selectionLeft);
 				Line leftLine = lines[left.iLine];
 				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
-				if (left.iChar + selection.Count <= leftLine.charsCount)
+				if (left.iChar + selectionCount <= leftLine.charsCount)
 				{
 					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
-					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selection.Count);
+					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selectionCount);
 					if (pos0.iy == pos1.iy)
 					{
 						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, pos1.ix - pos0.ix));
@@ -1041,7 +1089,7 @@ namespace MulticaretEditor
 							selectionRects.Add(new DrawingLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft));
 						}
 					}
-					Place right = lines.PlaceOf(selection.Right);
+					Place right = lines.PlaceOf(selectionRight);
 					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
 					if (right.iLine <= iLineMax.iLine)
 					{
