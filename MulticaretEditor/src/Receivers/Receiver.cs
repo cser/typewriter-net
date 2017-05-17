@@ -46,11 +46,11 @@ namespace MulticaretEditor
 			}
 			else if (value == ViMode.Visual)
 			{
-				context.SetState(new ViReceiverVisual());
+				context.SetState(new ViReceiverVisual(false));
 			}
 			else if (value == ViMode.LinesVisual)
 			{
-				context.SetState(new ViReceiverLinesVisual());
+				context.SetState(new ViReceiverVisual(true));
 			}
 			else
 			{

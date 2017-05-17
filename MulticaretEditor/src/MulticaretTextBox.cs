@@ -1895,6 +1895,7 @@ namespace MulticaretEditor
 			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
 				controller.PutCursor(GetMousePlace(e.Location), true);
+				UpdateOnMouseSelection();
 				UnblinkCursor();
 				if (AfterClick != null)
 					AfterClick();
@@ -1916,8 +1917,20 @@ namespace MulticaretEditor
 			{
 				UpdateScrollOnPaint();
 				controller.PutCursor(GetMousePlace(e.Location), true);
+				UpdateOnMouseSelection();
 			}
 			UnblinkCursor();
+		}
+		
+		private void UpdateOnMouseSelection()
+		{
+			if (macrosExecutor.viMode)
+			{
+				if (controller.LastSelection.Count > 0)
+				{
+					receiver.SetViMode(ViMode.Visual);
+				}
+			}
 		}
 
 		private Pos GetMousePos(Point location)

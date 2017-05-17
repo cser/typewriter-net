@@ -8,8 +8,11 @@ namespace MulticaretEditor
 {
 	public class ViReceiverVisual : AReceiver
 	{
-		public ViReceiverVisual()
+		private bool _lineMode;
+		
+		public ViReceiverVisual(bool lineMode)
 		{
+			_lineMode = lineMode;
 		}
 		
 		public override bool AltMode { get { return true; } }
@@ -279,10 +282,24 @@ namespace MulticaretEditor
 						scrollToCursor = false;
 						break;
 					case (int)'v':
-						context.SetState(new ViReceiverVisual());
+						if (_lineMode)
+						{
+							context.SetState(new ViReceiverVisual(false));
+						}
+						else
+						{
+							context.SetState(new ViReceiver(null));
+						}
 						break;
 					case (int)'V':
-						context.SetState(new ViReceiverLinesVisual());
+						if (!_lineMode)
+						{
+							context.SetState(new ViReceiverVisual(true));
+						}
+						else
+						{
+							context.SetState(new ViReceiver(null));
+						}
 						break;
 					case (int)'*':
 						if (!controller.LastSelection.Empty)

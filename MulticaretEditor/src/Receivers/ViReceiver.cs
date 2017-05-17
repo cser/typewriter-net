@@ -19,6 +19,10 @@ namespace MulticaretEditor
 		
 		public override void DoOn()
 		{
+			foreach (Selection selection in controller.Selections)
+			{
+				selection.SetEmpty();
+			}
 			ViReceiverData startData = this.startData;
 			this.startData = null;
 			if (startData != null)
@@ -341,10 +345,10 @@ namespace MulticaretEditor
 						scrollToCursor = false;
 						break;
 					case (int)'v':
-						context.SetState(new ViReceiverVisual());
+						context.SetState(new ViReceiverVisual(false));
 						break;
 					case (int)'V':
-						context.SetState(new ViReceiverLinesVisual());
+						context.SetState(new ViReceiverVisual(true));
 						break;
 					case (int)'*':
 						DoFind(controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret)));
