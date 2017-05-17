@@ -346,6 +346,9 @@ namespace MulticaretEditor
 					case (int)'V':
 						context.SetState(new ViReceiverLinesVisual());
 						break;
+					case (int)'*':
+						DoFind(controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret)));
+						break;
 				}
 			}
 			if (command != null && count != 1)

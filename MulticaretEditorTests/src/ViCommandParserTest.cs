@@ -473,6 +473,12 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Star()
+		{
+			AddLast('*').AssertParsed("1:action:*;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void vV()
 		{
 			AddLast('v').AssertParsed("1:action:v;move:\\0;moveChar:\\0");

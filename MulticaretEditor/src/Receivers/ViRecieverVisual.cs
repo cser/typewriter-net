@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using MulticaretEditor;
@@ -283,6 +284,19 @@ namespace MulticaretEditor
 					case (int)'V':
 						context.SetState(new ViReceiverLinesVisual());
 						break;
+					case (int)'*':
+						if (!controller.LastSelection.Empty)
+						{
+							string text = controller.Lines.GetText(
+								controller.LastSelection.Left, controller.LastSelection.Count);
+							DoFind(Escape(text));
+							context.SetState(new ViReceiver(null));
+						}
+						else
+						{
+							DoFind(controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret)));
+						}
+						break;
 				}
 			}
 			if (command != null && count != 1)
@@ -298,6 +312,39 @@ namespace MulticaretEditor
 					context.SetState(new InputReceiver(null, false));
 				}
 			}
+		}
+		
+		private static string Escape(string text)
+		{
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c = text[i];
+				switch (c)
+				{
+					case '\\':
+						builder.Append("\\\\");
+						break;
+					case '(':
+					case ')':
+					case '[':
+					case ']':
+					case '.':
+					case '$':
+					case '?':
+					case '{':
+					case '}':
+					case '+':
+					case '-':
+						builder.Append('\\');
+						builder.Append(c);
+						break;
+					default:
+						builder.Append(c);
+						break;
+				}
+			}
+			return builder.ToString();
 		}
 		
 		public override bool DoFind(string text)
