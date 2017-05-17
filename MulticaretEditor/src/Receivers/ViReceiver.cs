@@ -70,7 +70,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private readonly ViCommandParser parser = new ViCommandParser();
+		private readonly ViCommandParser parser = new ViCommandParser(false);
 		
 		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{

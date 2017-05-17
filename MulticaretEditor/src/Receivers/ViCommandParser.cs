@@ -24,6 +24,7 @@ namespace MulticaretEditor
 			WaitObject
 		}
 		
+		private readonly bool _visualMode;
 		private ParseResult _lastResult;
 		private State _state;
 		private string _stateText;
@@ -37,8 +38,9 @@ namespace MulticaretEditor
 		
 		public int FictiveCount { get { return rawCount > 0 ? rawCount : 1; } }
 		
-		public ViCommandParser()
+		public ViCommandParser(bool visualMode)
 		{
+			_visualMode = visualMode;
 			Reset();
 		}
 		
@@ -153,7 +155,7 @@ namespace MulticaretEditor
 									return ParseResult.Complete;
 								}
 								action = code;
-								return ParseResult.WaitNext;
+								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
 							case 'c':
 							case 'y':
 								if (action.IsChar('y'))
@@ -162,7 +164,7 @@ namespace MulticaretEditor
 									return ParseResult.Complete;
 								}
 								action = code;
-								return ParseResult.WaitNext;
+								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
 							case 'f':
 							case 'F':
 							case 't':
@@ -174,7 +176,7 @@ namespace MulticaretEditor
 							case 'r':
 								_state = State.WaitChar;
 								action = code;
-								return ParseResult.WaitNext;
+								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
 							case 'I':
 							case 'A':
 							case 'u':
@@ -189,7 +191,7 @@ namespace MulticaretEditor
 								return ParseResult.Complete;
 							case 'i':
 							case 'a':
-								if (action.c != '\0')
+								if (action.c != '\0' || _visualMode)
 								{
 									move = code;
 									_state = State.WaitObject;

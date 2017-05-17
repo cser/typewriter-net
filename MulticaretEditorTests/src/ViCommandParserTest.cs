@@ -11,10 +11,9 @@ namespace UnitTests
 	{
 		private ViCommandParser parser;
 		
-		[SetUp]
-		public void SetUp()
+		private void Init(bool lineMode)
 		{
-			parser = new ViCommandParser();
+			parser = new ViCommandParser(lineMode);
 		}
 		
 		private bool AddKey(char c)
@@ -48,9 +47,12 @@ namespace UnitTests
 			return text;
 		}
 		
-		[Test]
-		public void Move_hjkl()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Move_hjkl(bool lineMode)
 		{
+			Init(lineMode);
+			
 			Assert.AreEqual(true, AddKey('h'));
 			AssertParsed("1:action:\\0;move:h;moveChar:\\0");
 			
@@ -64,9 +66,12 @@ namespace UnitTests
 			AssertParsed("1:action:\\0;move:l;moveChar:\\0");
 		}
 		
-		[Test]
-		public void Move_repeat_hj()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Move_repeat_hj(bool lineMode)
 		{
+			Init(lineMode);
+			
 			Assert.AreEqual(false, AddKey('2'));
 			Assert.AreEqual(true, AddKey('h'));
 			AssertParsed("2:action:\\0;move:h;moveChar:\\0");
@@ -86,6 +91,8 @@ namespace UnitTests
 		[Test]
 		public void Repeat_delete_hjkl()
 		{
+			Init(false);
+			
 			Assert.AreEqual(false, AddKey('d'));
 			Assert.AreEqual(true, AddKey('h'));
 			AssertParsed("1:action:d;move:h;moveChar:\\0");
@@ -109,6 +116,8 @@ namespace UnitTests
 		[Test]
 		public void Repeat_delete_h_inversed()
 		{
+			Init(false);
+			
 			Assert.AreEqual(false, AddKey('d'));
 			Assert.AreEqual(true, AddKey('h'));
 			AssertParsed("1:action:d;move:h;moveChar:\\0");
@@ -128,6 +137,8 @@ namespace UnitTests
 		[Test]
 		public void UndoRedo()
 		{
+			Init(false);
+			
 			Assert.AreEqual(true, AddKey('u'));
 			AssertParsed("1:action:u;move:\\0;moveChar:\\0");
 			
@@ -147,50 +158,39 @@ namespace UnitTests
 		[Test]
 		public void Move_toChar()
 		{
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('a'));
-			AssertParsed("1:action:\\0;move:f;moveChar:a");
+			Init(false);
 			
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('2'));
-			AssertParsed("1:action:\\0;move:f;moveChar:2");
-			
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('0'));
-			AssertParsed("1:action:\\0;move:f;moveChar:0");
+			Add('f').AddLast('a').AssertParsed("1:action:\\0;move:f;moveChar:a");
+			Add('f').AddLast('2').AssertParsed("1:action:\\0;move:f;moveChar:2");
+			Add('f').AddLast('0').AssertParsed("1:action:\\0;move:f;moveChar:0");
 		}
 		
 		[Test]
 		public void Repeat_delete_toChar()
 		{
-			Assert.AreEqual(false, AddKey('2'));
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('a'));
-			AssertParsed("2:action:\\0;move:f;moveChar:a");
+			Init(false);
 			
-			Assert.AreEqual(false, AddKey('3'));
-			Assert.AreEqual(false, AddKey('4'));
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('a'));
-			AssertParsed("34:action:\\0;move:f;moveChar:a");
+			Add('2').Add('f').AddLast('a').AssertParsed("2:action:\\0;move:f;moveChar:a");
+			Add('3').Add('4').Add('f').AddLast('a').AssertParsed("34:action:\\0;move:f;moveChar:a");
+			Add('4').Add('9').Add('f').AddLast('2').AssertParsed("49:action:\\0;move:f;moveChar:2");
+			Add('5').Add('1').Add('d').Add('f').AddLast('2').AssertParsed("51:action:d;move:f;moveChar:2");
+		}
+		
+		[Test]
+		public void RepeatMoveChar_LINES()
+		{
+			Init(true);
 			
-			Assert.AreEqual(false, AddKey('4'));
-			Assert.AreEqual(false, AddKey('9'));
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('2'));
-			AssertParsed("49:action:\\0;move:f;moveChar:2");
-			
-			Assert.AreEqual(false, AddKey('5'));
-			Assert.AreEqual(false, AddKey('1'));
-			Assert.AreEqual(false, AddKey('d'));
-			Assert.AreEqual(false, AddKey('f'));
-			Assert.AreEqual(true, AddKey('2'));
-			AssertParsed("51:action:d;move:f;moveChar:2");
+			Add('2').Add('f').AddLast('a').AssertParsed("2:action:\\0;move:f;moveChar:a");
+			Add('3').Add('4').Add('f').AddLast('a').AssertParsed("34:action:\\0;move:f;moveChar:a");
+			Add('4').Add('9').Add('f').AddLast('2').AssertParsed("49:action:\\0;move:f;moveChar:2");
 		}
 		
 		[Test]
 		public void Repeat_delete_toChar_reversed()
 		{
+			Init(false);
+			
 			Assert.AreEqual(false, AddKey('3'));
 			Assert.AreEqual(false, AddKey('d'));
 			Assert.AreEqual(false, AddKey('5'));
@@ -203,6 +203,8 @@ namespace UnitTests
 		[Test]
 		public void Move_word()
 		{
+			Init(false);
+			
 			Assert.AreEqual(true, AddKey('w'));
 			AssertParsed("1:action:\\0;move:w;moveChar:\\0");
 			
@@ -216,6 +218,19 @@ namespace UnitTests
 			AssertParsed("1:action:d;move:b;moveChar:\\0");
 		}
 		
+		[Test]
+		public void Move_word_LINES()
+		{
+			Init(true);
+			
+			Assert.AreEqual(true, AddKey('w'));
+			AssertParsed("1:action:\\0;move:w;moveChar:\\0");
+			
+			Assert.AreEqual(false, AddKey('2'));
+			Assert.AreEqual(true, AddKey('w'));
+			AssertParsed("2:action:\\0;move:w;moveChar:\\0");
+		}
+		
 		private ViCommandParserTest Add(char c)
 		{
 			Assert.AreEqual(false, AddKey(c), "key:" + c);
@@ -224,7 +239,7 @@ namespace UnitTests
 		
 		private ViCommandParserTest AddLast(char c)
 		{
-			Assert.AreEqual(true, AddKey(c), "key:" + c);
+			Assert.AreEqual(true, AddKey(c), "last key:" + c);
 			return this;
 		}
 		
@@ -240,9 +255,12 @@ namespace UnitTests
 			return this;
 		}
 		
-		[Test]
-		public void fFtT()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void fFtT(bool lineMode)
 		{
+			Init(lineMode);
+			
 			Add('f').AddLast('a').AssertParsed("1:action:\\0;move:f;moveChar:a");
 			Add('F').AddLast('a').AssertParsed("1:action:\\0;move:F;moveChar:a");
 			Add('t').AddLast('a').AssertParsed("1:action:\\0;move:t;moveChar:a");
@@ -254,6 +272,8 @@ namespace UnitTests
 		[Test]
 		public void S6_S4_0()
 		{
+			Init(false);
+			
 			AddLast('0').AssertParsed("1:action:\\0;move:0;moveChar:\\0");
 			Add('1').Add('0').AddLast('j').AssertParsed("10:action:\\0;move:j;moveChar:\\0");
 			Add('d').AddLast('0').AssertParsed("1:action:d;move:0;moveChar:\\0");
@@ -265,24 +285,33 @@ namespace UnitTests
 			Add('2').AddLast('$').AssertParsed("2:action:\\0;move:$;moveChar:\\0");
 		}
 		
-		[Test]
-		public void gg_G()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void gg_G(bool lineMode)
 		{
+			Init(lineMode);
+			
 			Add('g').AddLast('g').AssertParsed("1:action:\\0;move:g;moveChar:g");
 			AddLast('G').AssertParsed("1:action:\\0;move:G;moveChar:\\0");
 		}
 		
-		[Test]
-		public void NumberG()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void NumberG(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('G').AssertParsedRawCount("-1:action:\\0;move:G;moveChar:\\0");
 			Add('1').AddLast('G').AssertParsedRawCount("1:action:\\0;move:G;moveChar:\\0");
 			Add('1').Add('0').AddLast('G').AssertParsedRawCount("10:action:\\0;move:G;moveChar:\\0");
 		}
 		
-		[Test]
-		public void pageUpDown()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void pageUpDown(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddControlLast('f').AssertParsed("1:action:\\0;move:<C-f>;moveChar:\\0");
 			Add('2').AddControlLast('f').AssertParsed("2:action:\\0;move:<C-f>;moveChar:\\0");
 			AddControlLast('b').AssertParsed("1:action:\\0;move:<C-b>;moveChar:\\0");
@@ -292,6 +321,8 @@ namespace UnitTests
 		[Test]
 		public void Count_iaIA()
 		{
+			Init(false);
+			
 			Add('1').Add('0').AddLast('i').AssertParsed("10:action:i;move:\\0;moveChar:\\0");
 			Add('1').Add('0').AddLast('a').AssertParsed("10:action:a;move:\\0;moveChar:\\0");
 			Add('1').Add('0').AddLast('I').AssertParsed("10:action:I;move:\\0;moveChar:\\0");
@@ -301,61 +332,109 @@ namespace UnitTests
 		[Test]
 		public void r()
 		{
+			Init(false);
+			
 			Add('r').AddLast('x').AssertParsed("1:action:r;move:\\0;moveChar:x");
 			Add('5').Add('r').AddLast('x').AssertParsed("5:action:r;move:\\0;moveChar:x");
 		}
 		
 		[Test]
+		public void r_LINES()
+		{
+			Init(true);
+			
+			AddLast('r').AssertParsed("1:action:r;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void c()
 		{
+			Init(false);
+			
 			Add('c').AddLast('w').AssertParsed("1:action:c;move:w;moveChar:\\0");
 			Add('5').Add('c').AddLast('w').AssertParsed("5:action:c;move:w;moveChar:\\0");
 		}
 		
 		[Test]
+		public void c_LINES()
+		{
+			Init(true);
+			
+			AddLast('c').AssertParsed("1:action:c;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void x()
 		{
+			Init(false);
+			
 			AddLast('x').AssertParsed("1:action:x;move:\\0;moveChar:\\0");
 			Add('5').AddLast('x').AssertParsed("5:action:x;move:\\0;moveChar:\\0");
 		}
 		
 		[Test]
+		public void x_LINES()
+		{
+			Init(true);
+			
+			AddLast('x').AssertParsed("1:action:x;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void y()
 		{
+			Init(false);
+			
 			Add('y').AddLast('w').AssertParsed("1:action:y;move:w;moveChar:\\0");
 			Add('8').Add('y').AddLast('w').AssertParsed("8:action:y;move:w;moveChar:\\0");
 		}
 		
-		[Test]
-		public void p()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void P(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('p').AssertParsed("1:action:p;move:\\0;moveChar:\\0");
 			Add('8').AddLast('p').AssertParsed("8:action:p;move:\\0;moveChar:\\0");
-		}
-		
-		[Test]
-		public void P()
-		{
+			
+			Init(lineMode);
+			
 			AddLast('P').AssertParsed("1:action:P;move:\\0;moveChar:\\0");
 			Add('8').AddLast('P').AssertParsed("8:action:P;move:\\0;moveChar:\\0");
 		}
 		
-		[Test]
-		public void e()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void e(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('e').AssertParsed("1:action:\\0;move:e;moveChar:\\0");
 		}
 		
 		[Test]
 		public void J()
 		{
+			Init(false);
+			
 			AddLast('J').AssertParsed("1:action:J;move:\\0;moveChar:\\0");
 			Add('2').AddLast('J').AssertParsed("2:action:J;move:\\0;moveChar:\\0");
 		}
 		
 		[Test]
+		public void J_LINES()
+		{
+			Init(true);
+			
+			AddLast('J').AssertParsed("1:action:J;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void Registers()
 		{
+			Init(false);
+			
 			/*
 			"0 - default
 			"a-z - simple
@@ -373,8 +452,17 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Registers_LINES()
+		{
+			Init(true);
+			Add('"').Add('*').AddLast('y').AssertParsed("1:action:y;move:\\0;moveChar:\\0;register:*");
+		}
+		
+		[Test]
 		public void TextObjects()
 		{
+			Init(false);
+			
 			Add('d').Add('i').AddLast('w').AssertParsed("1:action:d;move:i;moveChar:w");
 			Add('1').Add('0').Add('d').Add('i').AddLast('w').AssertParsed("10:action:d;move:i;moveChar:w");
 			Add('c').Add('a').AddLast('w').AssertParsed("1:action:c;move:a;moveChar:w");
@@ -398,22 +486,71 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void TextObjects_LINES()
+		{
+			Init(true);
+			
+			Add('i').AddLast('w').AssertParsed("1:action:\\0;move:i;moveChar:w");
+			Add('1').Add('0').Add('i').AddLast('w').AssertParsed("10:action:\\0;move:i;moveChar:w");
+			Add('a').AddLast('w').AssertParsed("1:action:\\0;move:a;moveChar:w");
+			Add('i').AddLast('"').AssertParsed("1:action:\\0;move:i;moveChar:\"");
+			Add('i').AddLast('\'').AssertParsed("1:action:\\0;move:i;moveChar:'");
+			Add('i').AddLast('`').AssertParsed("1:action:\\0;move:i;moveChar:`");
+			Add('i').AddLast('{').AssertParsed("1:action:\\0;move:i;moveChar:{");
+			Add('i').AddLast('}').AssertParsed("1:action:\\0;move:i;moveChar:}");
+			
+			Add('i').AddLast('(').AssertParsed("1:action:\\0;move:i;moveChar:(");
+			Add('i').AddLast(')').AssertParsed("1:action:\\0;move:i;moveChar:)");
+			Add('i').AddLast('b').AssertParsed("1:action:\\0;move:i;moveChar:b");
+			
+			Add('i').AddLast('[').AssertParsed("1:action:\\0;move:i;moveChar:[");
+			Add('i').AddLast('p').AssertParsed("1:action:\\0;move:i;moveChar:p");//paragraph
+			Add('i').AddLast('<').AssertParsed("1:action:\\0;move:i;moveChar:<");
+			Add('i').AddLast('>').AssertParsed("1:action:\\0;move:i;moveChar:>");
+			Add('i').AddLast('t').AssertParsed("1:action:\\0;move:i;moveChar:t");
+			
+			Add('i').AddLast('s').AssertParsed("1:action:\\0;move:i;moveChar:s");//sentence
+		}
+		
+		[Test]
 		public void s()
 		{
+			Init(false);
+			
 			AddLast('s').AssertParsed("1:action:s;move:\\0;moveChar:\\0");
 			Add('4').AddLast('s').AssertParsed("4:action:s;move:\\0;moveChar:\\0");
 		}
 		
 		[Test]
+		public void s_LINES()
+		{
+			Init(true);
+			
+			AddLast('s').AssertParsed("1:action:s;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void dd()
 		{
+			Init(false);
+			
 			Add('d').AddLast('d').AssertParsed("1:action:d;move:d;moveChar:\\0");
 			Add('2').Add('d').AddLast('d').AssertParsed("2:action:d;move:d;moveChar:\\0");
 		}
 		
 		[Test]
+		public void d_LINES()
+		{
+			Init(true);
+			
+			AddLast('d').AssertParsed("1:action:d;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void Dot()
 		{
+			Init(false);
+			
 			AddLast('.').AssertParsed("1:action:.;move:\\0;moveChar:\\0");
 			Add('2').AddLast('.').AssertParsed("2:action:.;move:\\0;moveChar:\\0");
 		}
@@ -421,13 +558,26 @@ namespace UnitTests
 		[Test]
 		public void yy()
 		{
+			Init(false);
+			
 			Add('y').AddLast('y').AssertParsed("1:action:y;move:y;moveChar:\\0");
 			Add('2').Add('y').AddLast('y').AssertParsed("2:action:y;move:y;moveChar:\\0");
 		}
 		
 		[Test]
-		public void Shortcuts()
+		public void y_LINES()
 		{
+			Init(true);
+			
+			AddLast('y').AssertParsed("1:action:y;move:\\0;moveChar:\\0");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Shortcuts(bool lineMode)
+		{
+			Init(lineMode);
+			
 			AddLast('/');
 			Assert.AreEqual("/", parser.shortcut);
 			
@@ -435,9 +585,12 @@ namespace UnitTests
 			Assert.AreEqual(":", parser.shortcut);
 		}
 		
-		[Test]
-		public void ScrollUpDown()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void ScrollUpDown(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddControlLast('k').AssertParsed("1:action:<C-k>;move:\\0;moveChar:\\0");
 			AddControlLast('j').AssertParsed("1:action:<C-j>;move:\\0;moveChar:\\0");
 			
@@ -445,9 +598,12 @@ namespace UnitTests
 			Add('1').Add('0').AddControlLast('j').AssertParsed("10:action:<C-j>;move:\\0;moveChar:\\0");
 		}
 		
-		[Test]
-		public void FindNextPrevious()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void FindNextPrevious(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('n').AssertParsed("1:action:\\0;move:n;moveChar:\\0");
 			AddLast('N').AssertParsed("1:action:\\0;move:N;moveChar:\\0");
 			
@@ -458,6 +614,8 @@ namespace UnitTests
 		[Test]
 		public void o()
 		{
+			Init(false);
+			
 			AddLast('o').AssertParsed("1:action:o;move:\\0;moveChar:\\0");
 			Add('2').AddLast('o').AssertParsed("2:action:o;move:\\0;moveChar:\\0");
 			
@@ -466,21 +624,39 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void gij()
+		public void o_LINES()
 		{
+			Init(true);
+			
+			AddLast('o').AssertParsed("1:action:o;move:\\0;moveChar:\\0");			
+			AddLast('O').AssertParsed("1:action:O;move:\\0;moveChar:\\0");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void gij(bool lineMode)
+		{
+			Init(lineMode);
+			
 			Add('g').AddLast('j').AssertParsed("1:action:\\0;move:j;moveChar:g");
 			Add('2').Add('g').AddLast('k').AssertParsed("2:action:\\0;move:k;moveChar:g");
 		}
 		
-		[Test]
-		public void Star()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Star(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('*').AssertParsed("1:action:*;move:\\0;moveChar:\\0");
 		}
 		
-		[Test]
-		public void vV()
+		[TestCase(false)]
+		[TestCase(true)]
+		public void vV(bool lineMode)
 		{
+			Init(lineMode);
+			
 			AddLast('v').AssertParsed("1:action:v;move:\\0;moveChar:\\0");
 			AddLast('V').AssertParsed("1:action:V;move:\\0;moveChar:\\0");
 		}
