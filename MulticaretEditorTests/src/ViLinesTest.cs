@@ -25,14 +25,24 @@ namespace UnitTests
 		public void CommandRanges1()
 		{
 			Init();
-			
 			lines.SetText("line0\nline1\r\nline2");
+			
 			controller.PutCursor(new Place(1, 0), false);
 			AssertCommandRanges("[0/1]", 1);
 			
-			lines.SetText("line0\nline1\r\nline2");
 			controller.PutCursor(new Place(1, 0), false);
 			AssertCommandRanges("[0/2]", 2);
+		}
+		
+		[Test]
+		public void CommandRanges2()
+		{
+			Init();
+			lines.SetText("line0\nline1\r\nline2");
+			
+			controller.PutCursor(new Place(1, 0), false);
+			controller.PutCursor(new Place(1, 1), true);
+			AssertCommandRanges("[0/2]", 1);
 		}
 	}
 }

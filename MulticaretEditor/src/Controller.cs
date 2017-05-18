@@ -1902,23 +1902,8 @@ namespace MulticaretEditor
 		
 		public void ViCopyLine(char register, int count)
 		{
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
-			{
-				Selection selection = lines.selections[i];
-				Place place = lines.PlaceOf(selection.caret);
-				for (int j = 0; j < count; j++)
-				{
-					Line line = lines[place.iLine];
-					builder.Append(line.Text);
-					place.iLine++;
-					if (place.iLine >= lines.LinesCount)
-					{
-						break;
-					}
-				}
-			}
-			ClipboardExecuter.PutToRegister(register, builder.ToString());
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			Execute(new CopyLinesCommand(register, ranges));
 		}
 		
 		public void ViSavePositions()

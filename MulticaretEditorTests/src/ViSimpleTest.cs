@@ -879,5 +879,13 @@ namespace UnitTests
 			AssertText("acbd");
 			AssertSelection().Both(2, 0);
 		}
+		
+		[Test]
+		public void RemoveLines()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			Put(1, 1).Press("V").Press("j").Press("d");
+			AssertText("Oooo\ndddddddd");
+		}
 	}
 }

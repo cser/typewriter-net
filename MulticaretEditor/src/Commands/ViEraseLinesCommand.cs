@@ -21,10 +21,6 @@ namespace MulticaretEditor
 		override public bool Init()
 		{
 			lines.JoinSelections();
-			if (!lines.AllSelectionsEmpty)
-			{
-				return false;
-			}
 			mementos = GetSelectionMementos();
 			return true;
 		}
