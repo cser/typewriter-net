@@ -3,6 +3,7 @@
 	<item name="spacesInsteadTabs:*.cs" value="false"/>
 	<item name="findInFilesFilter" value="*.cs;*.txt;*.md;*.xml"/>
 	<item name="findInFilesIgnoreDir" value=".git;.dllsforautocomplete"/>
+	<item name="findInFilesDir" value=""/>
 	<item name="f5Command" value="!c:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:tw"/>
 	<item name="f6Command" value="shortcut !C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:"/>
 	<item name="shiftF6Command" value="!^python run_tests.py"/>

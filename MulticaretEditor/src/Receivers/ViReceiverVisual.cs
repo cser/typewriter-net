@@ -94,8 +94,8 @@ namespace MulticaretEditor
 			}
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
-			int count = parser.FictiveCount;
 			bool needInput = false;
+			int count = parser.FictiveCount;
 			switch (parser.move.Index)
 			{
 				case (int)'f' + ViChar.ControlIndex:
@@ -171,8 +171,8 @@ namespace MulticaretEditor
 					if (parser.moveChar.IsChar('g'))
 					{
 						move = new ViMoves.DocumentStart();
+						count = 1;
 					}
-					count = 1;
 					break;
 				case (int)'i':
 				case (int)'a':
@@ -188,7 +188,10 @@ namespace MulticaretEditor
 			ViCommands.ICommand command = null;
 			if (move != null)
 			{
-				move.Move(controller, true, false);
+				for (int i = 0; i < count; i++)
+				{
+					move.Move(controller, true, false);
+				}
 			}
 			else
 			{
@@ -196,13 +199,10 @@ namespace MulticaretEditor
 				{
 					case (int)'u':
 						ProcessUndo(count);
+						count = 1;
 						break;
 					case (int)'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
-						break;
-					case (int)'x':
-						command = new ViCommands.Delete(
-							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
 						count = 1;
 						break;
 					case (int)'p':
@@ -217,17 +217,27 @@ namespace MulticaretEditor
 						command = new ViCommands.J();
 						break;
 					case (int)'d':
-						if (parser.move.IsChar('d'))
+					case (int)'x':
+						if (_lineMode)
 						{
-							command = new ViCommands.DeleteLine(count, parser.register);
-							count = 1;
+							controller.ViDeleteLine(parser.register, 1);
 						}
+						else
+						{
+							controller.ViCut(parser.register);
+						}
+						context.SetState(new ViReceiver(null));
 						break;
 					case (int)'y':
-						if (parser.move.IsChar('y'))
+						if (_lineMode)
 						{
 							controller.ViCopyLine(parser.register, count);
 						}
+						else
+						{
+							controller.ViCopy(parser.register);
+						}
+						context.SetState(new ViReceiver(null));
 						break;
 					case (int)'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
@@ -322,10 +332,6 @@ namespace MulticaretEditor
 						}
 						break;
 				}
-			}
-			if (command != null && count != 1)
-			{
-				command = new ViCommands.Repeat(command, count);
 			}
 			if (command != null)
 			{
