@@ -660,5 +660,22 @@ namespace UnitTests
 			AddLast('v').AssertParsed("1:action:v;move:\\0;moveChar:\\0");
 			AddLast('V').AssertParsed("1:action:V;move:\\0;moveChar:\\0");
 		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Ctrl_d_Ctrl_D(bool lineMode)
+		{
+			Init(lineMode);
+			
+			Assert.AreEqual(true, AddKey('d', true));
+			AssertParsed("1:action:<C-d>;move:\\0;moveChar:\\0");
+			Assert.AreEqual(true, AddKey('D', true));
+			AssertParsed("1:action:<C-D>;move:\\0;moveChar:\\0");
+			
+			Assert.AreEqual(true, AddKey('n', true));
+			AssertParsed("1:action:<C-n>;move:\\0;moveChar:\\0");
+			Assert.AreEqual(true, AddKey('N', true));
+			AssertParsed("1:action:<C-N>;move:\\0;moveChar:\\0");
+		}
 	}
 }

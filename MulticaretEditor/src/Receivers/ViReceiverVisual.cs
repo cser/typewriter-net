@@ -36,8 +36,11 @@ namespace MulticaretEditor
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
-				controller.ClearMinorSelections();
-				controller.LastSelection.SetEmpty();
+				controller.JoinSelections();
+				foreach (Selection selection in controller.Selections)
+				{
+					selection.SetEmpty();
+				}
 				scrollToCursor = true;
 				context.SetState(new ViReceiver(null));
 				return true;
@@ -71,6 +74,18 @@ namespace MulticaretEditor
 					return true;
 				case Keys.Control | Keys.K:
 					ProcessKey(new ViChar('k', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.D:
+					ProcessKey(new ViChar('d', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.Shift | Keys.D:
+					ProcessKey(new ViChar('D', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.N:
+					ProcessKey(new ViChar('n', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.Shift | Keys.N:
+					ProcessKey(new ViChar('N', true), out viShortcut, out scrollToCursor);
 					return true;
 				default:
 					scrollToCursor = false;
@@ -239,6 +254,14 @@ namespace MulticaretEditor
 						}
 						context.SetState(new ViReceiver(null));
 						break;
+					case (int)'d' + ViChar.ControlIndex:
+					case (int)'n' + ViChar.ControlIndex:
+						controller.SelectNextText();
+						break;
+					case (int)'D' + ViChar.ControlIndex:
+					case (int)'N' + ViChar.ControlIndex:
+						controller.SelectAllMatches();
+						break;
 					case (int)'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
 						break;
@@ -264,20 +287,13 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData('A', count), false));
 						break;
 					case (int)'o':
-						controller.ViMoveEnd(false, 1);
-						controller.ViMoveRightFromCursor();
-						controller.InsertLineBreak();
-						context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
-						break;
 					case (int)'O':
-						controller.ViMoveHome(false, true);
-						controller.InsertLineBreak();
-						controller.ViLogicMoveUp(false);
-						if (lines.autoindent)
+						foreach (Selection selection in controller.Selections)
 						{
-							controller.ViAutoindentByBottom();
+							int position = selection.anchor;
+							selection.anchor = selection.caret;
+							selection.caret = position;
 						}
-						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						break;
 					case (int)'j' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
