@@ -74,6 +74,8 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Space, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.O, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 		{
