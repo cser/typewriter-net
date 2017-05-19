@@ -314,6 +314,12 @@ namespace MulticaretEditor
 							controller.ViCopyLine(parser.register, count);
 						}
 						break;
+					case (int)'>':
+						if (parser.move.IsChar('>'))
+						{
+							controller.ViShift(1, count, false);
+						}
+						break;
 					case (int)'.':
 						if (lastCommand != null)
 						{	

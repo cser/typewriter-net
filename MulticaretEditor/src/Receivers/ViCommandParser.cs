@@ -169,6 +169,22 @@ namespace MulticaretEditor
 								}
 								action = code;
 								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
+							case '>':
+								if (action.IsChar('>'))
+								{
+									move = code;
+									return ParseResult.Complete;
+								}
+								action = code;
+								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
+							case '<':
+								if (action.IsChar('<'))
+								{
+									move = code;
+									return ParseResult.Complete;
+								}
+								action = code;
+								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
 							case 'f':
 							case 'F':
 							case 't':

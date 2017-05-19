@@ -677,5 +677,28 @@ namespace UnitTests
 			Assert.AreEqual(true, AddKey('N', true));
 			AssertParsed("1:action:<C-N>;move:\\0;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Shift()
+		{
+			Init(false);
+			
+			Add('>').AddLast('>').AssertParsed("1:action:>;move:>;moveChar:\\0");
+			Add('2').Add('>').AddLast('>').AssertParsed("2:action:>;move:>;moveChar:\\0");
+			Add('<').AddLast('<').AssertParsed("1:action:<;move:<;moveChar:\\0");
+			Add('1').Add('4').Add('<').AddLast('<').AssertParsed("14:action:<;move:<;moveChar:\\0");
+		}
+		
+		[Test]
+		public void Shift_LINES()
+		{
+			Init(true);
+			
+			AddLast('>').AssertParsed("1:action:>;move:\\0;moveChar:\\0");
+			Add('2').AddLast('>').AssertParsed("2:action:>;move:\\0;moveChar:\\0");
+			
+			AddLast('<').AssertParsed("1:action:<;move:\\0;moveChar:\\0");
+			Add('2').AddLast('<').AssertParsed("2:action:<;move:\\0;moveChar:\\0");
+		}
 	}
 }

@@ -887,5 +887,15 @@ namespace UnitTests
 			Put(1, 1).Press("V").Press("j").Press("d");
 			AssertText("Oooo\ndddddddd");
 		}
+		
+		[Test]
+		public void Shift()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press(">>");
+			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
+			Press("<<");
+			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
+		}
 	}
 }

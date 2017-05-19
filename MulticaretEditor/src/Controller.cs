@@ -1906,6 +1906,12 @@ namespace MulticaretEditor
 			Execute(new CopyLinesCommand(register, ranges));
 		}
 		
+		public void ViShift(int indents, int count, bool isLeft)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			Execute(new ViShiftCommand(ranges, isLeft));
+		}
+		
 		public void ViSavePositions()
 		{
 			Execute(new ViSavePositions());
