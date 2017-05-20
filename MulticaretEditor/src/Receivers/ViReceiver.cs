@@ -162,19 +162,19 @@ namespace MulticaretEditor
 			bool needInput = false;
 			switch (parser.move.Index)
 			{
-				case (int)'f' + ViChar.ControlIndex:
+				case 'f' + ViChar.ControlIndex:
 					move = new ViMoves.PageUpDown(false);
 					break;
-				case (int)'b' + ViChar.ControlIndex:
+				case 'b' + ViChar.ControlIndex:
 					move = new ViMoves.PageUpDown(true);
 					break;
-				case (int)'h':
+				case 'h':
 					move = new ViMoves.MoveStep(Direction.Left);
 					break;
-				case (int)'l':
+				case 'l':
 					move = new ViMoves.MoveStep(Direction.Right);
 					break;
-				case (int)'j':
+				case 'j':
 					if (parser.moveChar.c == 'g')
 					{
 						move = new ViMoves.SublineMoveStep(Direction.Down);
@@ -184,7 +184,7 @@ namespace MulticaretEditor
 						move = new ViMoves.MoveStep(Direction.Down);
 					}
 					break;
-				case (int)'k':
+				case 'k':
 					if (parser.moveChar.c == 'g')
 					{
 						move = new ViMoves.SublineMoveStep(Direction.Up);
@@ -194,33 +194,33 @@ namespace MulticaretEditor
 						move = new ViMoves.MoveStep(Direction.Up);
 					}
 					break;
-				case (int)'w':
+				case 'w':
 					move = new ViMoves.MoveWord(Direction.Right);
 					break;
-				case (int)'b':
+				case 'b':
 					move = new ViMoves.MoveWord(Direction.Left);
 					break;
-				case (int)'e':
+				case 'e':
 					move = new ViMoves.MoveWordE();
 					break;
-				case (int)'f':
-				case (int)'F':
-				case (int)'t':
-				case (int)'T':
+				case 'f':
+				case 'F':
+				case 't':
+				case 'T':
 					move = new ViMoves.Find(parser.move.c, parser.moveChar.c, count);
 					count = 1;
 					break;
-				case (int)'0':
+				case '0':
 					move = new ViMoves.Home(false);
 					break;
-				case (int)'^':
+				case '^':
 					move = new ViMoves.Home(true);
 					break;
-				case (int)'$':
+				case '$':
 					move = new ViMoves.End(count);
 					count = 1;
 					break;
-				case (int)'G':
+				case 'G':
 					if (parser.rawCount == -1)
 					{
 						move = new ViMoves.DocumentEnd();
@@ -231,21 +231,21 @@ namespace MulticaretEditor
 					}
 					count = 1;
 					break;
-				case (int)'g':
+				case 'g':
 					if (parser.moveChar.IsChar('g'))
 					{
 						move = new ViMoves.DocumentStart();
 					}
 					count = 1;
 					break;
-				case (int)'i':
-				case (int)'a':
+				case 'i':
+				case 'a':
 					move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i');
 					break;
-				case (int)'n':
+				case 'n':
 					move = new ViMoves.FindForwardPattern();
 					break;
-				case (int)'N':
+				case 'N':
 					move = new ViMoves.FindBackwardPattern();
 					break;
 			}
@@ -254,16 +254,16 @@ namespace MulticaretEditor
 			{
 				switch (parser.action.Index)
 				{
-					case (int)'d':
+					case 'd':
 						command = new ViCommands.Delete(move, count, false, parser.register);
 						count = 1;
 						break;
-					case (int)'c':
+					case 'c':
 						command = new ViCommands.Delete(move, count, true, parser.register);
 						count = 1;
 						needInput = true;
 						break;
-					case (int)'y':
+					case 'y':
 						ProcessCopy(move, parser.register, count);
 						count = 1;
 						break;
@@ -277,106 +277,106 @@ namespace MulticaretEditor
 			{
 				switch (parser.action.Index)
 				{
-					case (int)'u':
+					case 'u':
 						ProcessUndo(count);
 						break;
-					case (int)'r':
+					case 'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
 						break;
-					case (int)'x':
+					case 'x':
 						command = new ViCommands.Delete(
 							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
 						count = 1;
 						break;
-					case (int)'p':
+					case 'p':
 						command = new ViCommands.Paste(Direction.Right, parser.register, count);
 						count = 1;
 						break;
-					case (int)'P':
+					case 'P':
 						command = new ViCommands.Paste(Direction.Left, parser.register, count);
 						count = 1;
 						break;
-					case (int)'J':
+					case 'J':
 						command = new ViCommands.J();
 						break;
-					case (int)'d':
+					case 'd':
 						if (parser.move.IsChar('d'))
 						{
 							command = new ViCommands.DeleteLine(count, parser.register);
 							count = 1;
 						}
 						break;
-					case (int)'d' + ViChar.ControlIndex:
-					case (int)'n' + ViChar.ControlIndex:
+					case 'd' + ViChar.ControlIndex:
+					case 'n' + ViChar.ControlIndex:
 						controller.SelectNextText();
 						if (!controller.AllSelectionsEmpty)
 						{
 							context.SetState(new ViReceiverVisual(false));
 						}
 						break;
-					case (int)'D' + ViChar.ControlIndex:
-					case (int)'N' + ViChar.ControlIndex:
+					case 'D' + ViChar.ControlIndex:
+					case 'N' + ViChar.ControlIndex:
 						controller.SelectAllMatches();
 						if (!controller.AllSelectionsEmpty)
 						{
 							context.SetState(new ViReceiverVisual(false));
 						}
 						break;
-					case (int)'y':
+					case 'y':
 						if (parser.move.IsChar('y'))
 						{
 							controller.ViCopyLine(parser.register, count);
 						}
 						break;
-					case (int)'>':
+					case '>':
 						if (parser.move.IsChar('>'))
 						{
 							controller.ViShift(1, count, false);
 						}
 						break;
-					case (int)'<':
+					case '<':
 						if (parser.move.IsChar('<'))
 						{
 							controller.ViShift(1, count, true);
 						}
 						break;
-					case (int)'.':
+					case '.':
 						if (lastCommand != null)
 						{	
 							lastCommand.Execute(controller);
 						}
 						break;
-					case (int)'r' + ViChar.ControlIndex:
+					case 'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
 						break;
-					case (int)'i':
+					case 'i':
 						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
 						break;
-					case (int)'a':
+					case 'a':
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData('a', count), false));
 						break;
-					case (int)'s':
+					case 's':
 						controller.ViSelectRight(count);
 						controller.EraseSelection();
 						context.SetState(new InputReceiver(new ViReceiverData('s', 1), false));
 						break;
-					case (int)'I':
+					case 'I':
 						controller.ViMoveHome(false, true);
 						context.SetState(new InputReceiver(new ViReceiverData('I', count), false));
 						break;
-					case (int)'A':
+					case 'A':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData('A', count), false));
 						break;
-					case (int)'o':
+					case 'o':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
 						controller.InsertLineBreak();
 						context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
 						break;
-					case (int)'O':
+					case 'O':
 						controller.ViMoveHome(false, true);
 						controller.InsertLineBreak();
 						controller.ViLogicMoveUp(false);
@@ -386,33 +386,32 @@ namespace MulticaretEditor
 						}
 						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						break;
-					case (int)'j' + ViChar.ControlIndex:
+					case 'j' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
 						{
 							controller.ScrollRelative(0, 1);
 						}
 						scrollToCursor = false;
 						break;
-					case (int)'k' + ViChar.ControlIndex:
+					case 'k' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
 						{
 							controller.ScrollRelative(0, -1);
 						}
 						scrollToCursor = false;
 						break;
-					case (int)'v':
+					case 'v':
 						context.SetState(new ViReceiverVisual(false));
 						break;
-					case (int)'V':
+					case 'V':
 						context.SetState(new ViReceiverVisual(true));
 						break;
-					case (int)'*':
+					case '*':
 						string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
 						if (!string.IsNullOrEmpty(text))
 						{
 							DoFind("\\b" + text + "\\b");
 						}
-						context.SetState(new ViReceiver(null, false));
 						break;
 				}
 			}
