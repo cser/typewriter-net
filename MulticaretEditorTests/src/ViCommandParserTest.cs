@@ -671,11 +671,19 @@ namespace UnitTests
 			AssertParsed("1:action:<C-d>;move:\\0;moveChar:\\0");
 			Assert.AreEqual(true, AddKey('D', true));
 			AssertParsed("1:action:<C-D>;move:\\0;moveChar:\\0");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void CtrlShiftJK(bool lineMode)
+		{
+			Init(lineMode);
 			
-			Assert.AreEqual(true, AddKey('n', true));
-			AssertParsed("1:action:<C-n>;move:\\0;moveChar:\\0");
-			Assert.AreEqual(true, AddKey('N', true));
-			AssertParsed("1:action:<C-N>;move:\\0;moveChar:\\0");
+			Assert.AreEqual(true, AddKey('J', true));
+			AssertParsed("1:action:<C-J>;move:\\0;moveChar:\\0");
+			Add('1').Add('6');
+			Assert.AreEqual(true, AddKey('K', true));
+			AssertParsed("16:action:<C-K>;move:\\0;moveChar:\\0");
 		}
 		
 		[Test]

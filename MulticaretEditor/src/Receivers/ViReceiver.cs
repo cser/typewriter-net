@@ -130,11 +130,11 @@ namespace MulticaretEditor
 				case Keys.Control | Keys.Shift | Keys.D:
 					ProcessKey(new ViChar('D', true), out viShortcut, out scrollToCursor);
 					return true;
-				case Keys.Control | Keys.N:
-					ProcessKey(new ViChar('n', true), out viShortcut, out scrollToCursor);
+				case Keys.Control | Keys.Shift | Keys.J:
+					ProcessKey(new ViChar('J', true), out viShortcut, out scrollToCursor);
 					return true;
-				case Keys.Control | Keys.Shift | Keys.N:
-					ProcessKey(new ViChar('N', true), out viShortcut, out scrollToCursor);
+				case Keys.Control | Keys.Shift | Keys.K:
+					ProcessKey(new ViChar('K', true), out viShortcut, out scrollToCursor);
 					return true;
 				default:
 					scrollToCursor = false;
@@ -307,7 +307,6 @@ namespace MulticaretEditor
 						}
 						break;
 					case 'd' + ViChar.ControlIndex:
-					case 'n' + ViChar.ControlIndex:
 						controller.SelectNextText();
 						if (!controller.AllSelectionsEmpty)
 						{
@@ -315,11 +314,22 @@ namespace MulticaretEditor
 						}
 						break;
 					case 'D' + ViChar.ControlIndex:
-					case 'N' + ViChar.ControlIndex:
 						controller.SelectAllMatches();
 						if (!controller.AllSelectionsEmpty)
 						{
 							context.SetState(new ViReceiverVisual(false));
+						}
+						break;
+					case 'J' + ViChar.ControlIndex:
+						for (int i = 0; i < count; i++)
+						{
+							controller.PutCursorDown();
+						}
+						break;
+					case 'K' + ViChar.ControlIndex:
+						for (int i = 0; i < count; i++)
+						{
+							controller.PutCursorUp();
 						}
 						break;
 					case 'y':

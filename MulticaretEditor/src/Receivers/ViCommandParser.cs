@@ -122,8 +122,8 @@ namespace MulticaretEditor
 							case 'k':
 							case 'd':
 							case 'D':
-							case 'n':
-							case 'N':
+							case 'J':
+							case 'K':
 								action = code;
 								return ParseResult.Complete;
 						}
