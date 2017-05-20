@@ -134,6 +134,7 @@ public class CommandDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 			label.FontFamily = settings.font.Value;
 			label.FontSize = settings.fontSize.Value;
 		}
@@ -154,8 +155,13 @@ public class CommandDialog : ADialog
 	{
 		Commander commander = MainForm.commander;
 		DispatchNeedClose();
-		commander.Execute(textBox.Text, false, false);
+		commander.Execute(textBox.Text, false, false, GetAltCommandText);
 		return true;
+	}
+	
+	private string GetAltCommandText(string text)
+	{
+		return !ClipboardExecuter.IsEnLayout() ? textBox.GetMapped(text) : text;
 	}
 
 	private bool DoPrevCommand(Controller controller)

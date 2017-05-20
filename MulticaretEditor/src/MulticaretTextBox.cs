@@ -81,6 +81,17 @@ namespace MulticaretEditor
 			InitScrollBars();
 			Controller = new Controller(new LineArray());
 		}
+		
+		public string GetMapped(string text)
+		{
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c;
+				builder.Append(viMap.TryGetValue(text[i], out c) ? c : text[i]);
+			}
+			return builder.ToString();
+		}
 
 		private MulticaretTextBox GetSelf()
 		{

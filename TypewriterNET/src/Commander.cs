@@ -55,7 +55,8 @@ public class Commander
 		return first;
 	}
 
-	public void Execute(string text, bool dontPutInHistory, bool showCommandInOutput)
+	public void Execute(
+		string text, bool dontPutInHistory, bool showCommandInOutput, Getter<string, string> getAltCommandText)
 	{
 		if (string.IsNullOrEmpty(text))
 			return;
@@ -73,6 +74,18 @@ public class Commander
 			{
 				command = commandI;
 				break;
+			}
+		}
+		if (command == null && getAltCommandText != null)
+		{
+			name = getAltCommandText(name);
+			foreach (Command commandI in commands)
+			{
+				if (commandI.name == name)
+				{
+					command = commandI;
+					break;
+				}
 			}
 		}
 		if (command != null)
@@ -1101,7 +1114,7 @@ public class Commander
 		}
 		else if (output != null)
 		{
-			Execute("!" + output, true, true);
+			Execute("!" + output, true, true, null);
 		}
 		else
 		{
