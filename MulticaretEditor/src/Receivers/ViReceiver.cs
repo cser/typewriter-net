@@ -11,10 +11,12 @@ namespace MulticaretEditor
 		
 		private ViReceiverData startData;
 		private ViCommands.ICommand lastCommand;
+		private bool offsetOnStart;
 		
-		public ViReceiver(ViReceiverData startData)
+		public ViReceiver(ViReceiverData startData, bool offsetOnStart)
 		{
 			this.startData = startData;
+			this.offsetOnStart = offsetOnStart;
 		}
 		
 		public override bool AltMode { get { return true; } }
@@ -51,19 +53,22 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			for (int i = 0; i < lines.selections.Count; i++)
+			if (offsetOnStart)
 			{
-				Selection selection = lines.selections[i];
-				if (selection.Empty)
+				for (int i = 0; i < lines.selections.Count; i++)
 				{
-					Place place = lines.PlaceOf(selection.caret);
-					if (place.iChar > 0)
+					Selection selection = lines.selections[i];
+					if (selection.Empty)
 					{
-						selection.anchor--;
-						selection.caret--;
-						if (selection.preferredPos > 0)
+						Place place = lines.PlaceOf(selection.caret);
+						if (place.iChar > 0)
 						{
-							selection.preferredPos--;
+							selection.anchor--;
+							selection.caret--;
+							if (selection.preferredPos > 0)
+							{
+								selection.preferredPos--;
+							}
 						}
 					}
 				}
@@ -80,6 +85,15 @@ namespace MulticaretEditor
 		
 		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
+			if (((keysData & Keys.Control) == Keys.Control) &&
+				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
+			{
+				if (controller.ClearMinorSelections())
+				{
+					scrollToCursor = true;
+					return true;
+				}
+			}
 			string viShortcut;
 			switch (keysData)
 			{
@@ -398,7 +412,7 @@ namespace MulticaretEditor
 						{
 							DoFind("\\b" + text + "\\b");
 						}
-						context.SetState(new ViReceiver(null));
+						context.SetState(new ViReceiver(null, false));
 						break;
 				}
 			}

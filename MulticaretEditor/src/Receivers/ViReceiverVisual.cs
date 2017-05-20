@@ -37,12 +37,8 @@ namespace MulticaretEditor
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
 				controller.JoinSelections();
-				foreach (Selection selection in controller.Selections)
-				{
-					selection.SetEmpty();
-				}
 				scrollToCursor = true;
-				context.SetState(new ViReceiver(null));
+				SetViMode();
 				return true;
 			}
 			string viShortcut;
@@ -241,7 +237,7 @@ namespace MulticaretEditor
 						{
 							controller.ViCut(parser.register);
 						}
-						context.SetState(new ViReceiver(null));
+						SetViMode();
 						break;
 					case (int)'c':
 						if (_lineMode)
@@ -264,7 +260,7 @@ namespace MulticaretEditor
 						{
 							controller.ViCopy(parser.register);
 						}
-						context.SetState(new ViReceiver(null));
+						SetViMode();
 						break;
 					case (int)'d' + ViChar.ControlIndex:
 					case (int)'n' + ViChar.ControlIndex:
@@ -276,11 +272,11 @@ namespace MulticaretEditor
 						break;
 					case (int)'>':
 						controller.ViShift(count, 1, false);
-						context.SetState(new ViReceiver(null));
+						SetViMode();
 						break;
 					case (int)'<':
 						controller.ViShift(count, 1, true);
-						context.SetState(new ViReceiver(null));
+						SetViMode();
 						break;
 					case (int)'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
@@ -329,7 +325,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							context.SetState(new ViReceiver(null));
+							SetViMode();
 						}
 						break;
 					case (int)'V':
@@ -339,7 +335,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							context.SetState(new ViReceiver(null));
+							SetViMode();
 						}
 						break;
 					case (int)'*':
@@ -348,7 +344,7 @@ namespace MulticaretEditor
 							string text = controller.Lines.GetText(
 								controller.LastSelection.Left, controller.LastSelection.Count);
 							DoFind(Escape(text));
-							context.SetState(new ViReceiver(null));
+							SetViMode();
 						}
 						else
 						{
@@ -357,7 +353,7 @@ namespace MulticaretEditor
 							{
 								DoFind("\\b" + text + "\\b");
 							}
-							context.SetState(new ViReceiver(null));
+							SetViMode();
 						}
 						break;
 				}
@@ -404,6 +400,22 @@ namespace MulticaretEditor
 				}
 			}
 			return builder.ToString();
+		}
+		
+		private void SetViMode()
+		{
+			foreach (Selection selection in controller.Selections)
+			{
+				if (selection.Count > 0)
+				{
+					if (selection.caret > selection.anchor)
+					{
+						--selection.caret;
+					}
+					selection.SetEmpty();
+				}
+			}
+			context.SetState(new ViReceiver(null, false));
 		}
 		
 		public override bool DoFind(string text)

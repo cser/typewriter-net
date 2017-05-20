@@ -42,7 +42,7 @@ namespace MulticaretEditor
 		{
 			if (value == ViMode.Normal)
 			{
-				context.SetState(new ViReceiver(null));
+				context.SetState(new ViReceiver(null, true));
 			}
 			else if (value == ViMode.Visual)
 			{
