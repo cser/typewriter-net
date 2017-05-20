@@ -77,7 +77,7 @@ namespace MulticaretEditor
 				{
 					move.Move(controller, true, change);
 				}
-				controller.ViCut(register);
+				controller.ViCut(register, false);
 			}
 		}
 		

@@ -1995,6 +1995,10 @@ namespace MulticaretEditor
 				{
 					receiver.SetViMode(ViMode.Visual);
 				}
+				else if (controller.SelectionsCount == 1 && controller.LastSelection.Count == 0)
+				{
+					receiver.SetViMode(ViMode.Normal);
+				}
 			}
 		}
 

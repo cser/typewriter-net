@@ -1888,11 +1888,14 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViCut(char register)
+		public void ViCut(char register, bool fixPositions)
 		{
 			Execute(new CopyCommand(register));
 			EraseSelection();
-			ViFixPositions(true);
+			if (fixPositions)
+			{
+				ViFixPositions(true);
+			}
 		}
 		
 		public void ViCopy(char register)

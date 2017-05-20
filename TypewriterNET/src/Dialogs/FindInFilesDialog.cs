@@ -99,7 +99,7 @@ public class FindInFilesDialog : ADialog
 				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
 	
-			textBox = new MulticaretTextBox();
+			textBox = new MulticaretTextBox(true);
 			textBox.KeyMap.AddAfter(KeyMap);
 			textBox.KeyMap.AddAfter(frameKeyMap, 1);
 			textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);

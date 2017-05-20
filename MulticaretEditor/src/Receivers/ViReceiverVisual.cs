@@ -105,7 +105,6 @@ namespace MulticaretEditor
 			}
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
-			bool needInput = false;
 			int count = parser.FictiveCount;
 			switch (parser.move.Index)
 			{
@@ -235,7 +234,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							controller.ViCut(parser.register);
+							controller.ViCut(parser.register, true);
 						}
 						SetViMode();
 						break;
@@ -247,7 +246,7 @@ namespace MulticaretEditor
 						}
 						else
 						{
-							controller.ViCut(parser.register);
+							controller.ViCut(parser.register, false);
 						}
 						context.SetState(new InputReceiver(null, false));
 						break;
@@ -362,10 +361,6 @@ namespace MulticaretEditor
 			{
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
-				if (needInput)
-				{
-					context.SetState(new InputReceiver(null, false));
-				}
 			}
 		}
 		
