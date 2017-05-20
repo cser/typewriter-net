@@ -285,13 +285,6 @@ namespace MulticaretEditor
 					case (int)'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
 						break;
-					case (int)'i':
-						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
-						break;
-					case (int)'a':
-						controller.ViMoveRightFromCursor();
-						context.SetState(new InputReceiver(new ViReceiverData('a', count), false));
-						break;
 					case (int)'s':
 						controller.ViSelectRight(count);
 						controller.EraseSelection();

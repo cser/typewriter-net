@@ -1935,8 +1935,17 @@ namespace MulticaretEditor
 						Line line = lines[place.iLine];
 						place.iChar = line.NormalCount;
 						selection.anchor = lines.IndexOf(place);
-						selection.caret = selection.anchor + line.GetRN().Length;
-						texts[i] = " ";
+						++place.iLine;
+						if (place.iLine < lines.LinesCount)
+						{
+							Line nextLine = lines[place.iLine];
+							selection.caret = selection.anchor + line.GetRN().Length + nextLine.GetFirstSpaces();
+							texts[i] = " ";
+						}
+						else
+						{
+							texts[i] = "";
+						}
 					}
 					else
 					{

@@ -603,6 +603,18 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void J_Indented()
+		{
+			lines.SetText(
+			//   012345678901
+				"Du hast mich\n" +
+				"\taaaa\n" +
+				"bbbb");
+			Put(3, 0).Press("J").AssertText("Du hast mich aaaa\nbbbb");
+			AssertSelection().Both(12, 0);
+		}
+		
+		[Test]
 		public void Registers()
 		{
 			lines.SetText(
