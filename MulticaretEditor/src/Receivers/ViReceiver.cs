@@ -320,6 +320,12 @@ namespace MulticaretEditor
 							controller.ViShift(1, count, false);
 						}
 						break;
+					case (int)'<':
+						if (parser.move.IsChar('<'))
+						{
+							controller.ViShift(1, count, true);
+						}
+						break;
 					case (int)'.':
 						if (lastCommand != null)
 						{	

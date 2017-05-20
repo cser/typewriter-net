@@ -896,6 +896,34 @@ namespace UnitTests
 			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
 			Press("<<");
 			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
+			Press("2<<");
+			AssertText("Oooo\naaaa\nccc\ndddddddd");
+		}
+		
+		[Test]
+		public void Shift_UndoRedo()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press(">>");
+			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
+			controller.Undo();
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			controller.Redo();
+			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
+			Press("<<");
+			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
+			controller.Undo();
+			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
+			controller.Redo();
+			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
+		}
+		
+		[Test]
+		public void Shift_VISUAL()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press("v").Press("2>");
+			AssertText("Oooo\n\t\taaaa\n\tccc\ndddddddd");
 		}
 	}
 }

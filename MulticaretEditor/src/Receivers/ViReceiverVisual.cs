@@ -243,6 +243,18 @@ namespace MulticaretEditor
 						}
 						context.SetState(new ViReceiver(null));
 						break;
+					case (int)'c':
+						if (_lineMode)
+						{
+							controller.ViCopyLine('0', 1);
+							controller.ViDeleteLine('0', 1);
+						}
+						else
+						{
+							controller.ViCut(parser.register);
+						}
+						context.SetState(new InputReceiver(null, false));
+						break;
 					case (int)'y':
 						if (_lineMode)
 						{
@@ -261,6 +273,14 @@ namespace MulticaretEditor
 					case (int)'D' + ViChar.ControlIndex:
 					case (int)'N' + ViChar.ControlIndex:
 						controller.SelectAllMatches();
+						break;
+					case (int)'>':
+						controller.ViShift(count, 1, false);
+						context.SetState(new ViReceiver(null));
+						break;
+					case (int)'<':
+						controller.ViShift(count, 1, true);
+						context.SetState(new ViReceiver(null));
 						break;
 					case (int)'r' + ViChar.ControlIndex:
 						ProcessRedo(count);

@@ -828,13 +828,19 @@ namespace MulticaretEditor
 				}
 			}
 			{
+				bool viMode = receiver != null && receiver.ViMode != ViMode.Insert;
 				int selectionsCount = lines.selections.Count;
 				for (int i = selectionsCount; i-- > 0;)
 				{
 					Selection selection = lines.selections[i];
 					if (selection.Right < start || selection.Left > end)
 						continue;
-					Place caret = lines.PlaceOf(selection.caret);
+					int selectionCaret = selection.caret;
+					if (viMode && selection.Count > 0 && selection.caret > selection.anchor)
+					{
+						--selectionCaret;
+					}
+					Place caret = lines.PlaceOf(selectionCaret);
 					Line line = lines[caret.iLine];
 					int x;
 					int y;
