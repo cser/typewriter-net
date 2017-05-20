@@ -81,6 +81,8 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Set current directory", DoOnSetCurrentDirectory, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Space, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.O, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
 		{
