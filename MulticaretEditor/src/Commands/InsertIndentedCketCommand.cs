@@ -40,7 +40,7 @@ namespace MulticaretEditor
 						Line prevLine = lines[place.iLine - 1];
 						int iChar;
 						int prevSpacesSize = prevLine.GetFirstSpaceSize(out iChar);
-						if (prevSpacesSize > 0 && prevSpacesSize % lines.tabSize == 0)
+						if (prevSpacesSize % lines.tabSize == 0)
 						{
 							int spacesSize = line.GetFirstSpaceSize(out iChar);
 							char lastPrevNotSpace = prevLine.GetLastNotSpace();

@@ -216,5 +216,35 @@ namespace UnitTests
 				"\t\t\n" +
 				"\tline3");
 		}
+		
+		[Test]
+		public void InsertLineBreak_AfterCket_Autoindent3()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText(
+				"line0()\n" +
+				"{\n" +
+				"\t\n" +
+				"line3");
+			controller.PutCursor(new Place(1, 2), false);
+			AssertSelection().Both(1, 2).NoNext();
+			
+			controller.InsertText("}");
+			AssertText(
+				"line0()\n" +
+				"{\n" +
+				"}\n" +
+				"line3");
+			controller.PutCursor(new Place(1, 2), false);
+			
+			controller.Undo();
+			AssertText(
+				"line0()\n" +
+				"{\n" +
+				"\t\n" +
+				"line3");
+		}
 	}
 }
