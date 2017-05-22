@@ -1,10 +1,13 @@
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
 using MulticaretEditor;
 
 public class MainFormMenu : MainMenu
 {
+	public const string RecentItemName = "Recent";
+	
 	private MainForm mainForm;
 	private List<string> names;
 
@@ -15,19 +18,19 @@ public class MainFormMenu : MainMenu
 		this.mainForm = mainForm;
 
 		names = new List<string>();
-		AddRootItem("&File", false);
-		AddRootItem("&Edit", false);
-		AddRootItem("F&ind", false);
-		AddRootItem("&View", false);
-		AddRootItem("Prefere&nces", true);
-		AddRootItem("&?", false);
+		AddRootItem("&File", false, true);
+		AddRootItem("&Edit", false, false);
+		AddRootItem("F&ind", false, false);
+		AddRootItem("&View", false, false);
+		AddRootItem("Prefere&nces", true, false);
+		AddRootItem("&?", false, false);
 	}
 
-	private void AddRootItem(string name, bool isOther)
+	private void AddRootItem(string name, bool isOther, bool hasRecent)
 	{
 		if (!isOther)
 			names.Add(name);
-		MenuItems.Add(new DynamicMenuItem(this, name, isOther));
+		MenuItems.Add(new DynamicMenuItem(this, name, isOther, hasRecent));
 	}
 
 	public class DynamicMenuItem : MenuItem
@@ -35,12 +38,14 @@ public class MainFormMenu : MainMenu
 		private MainFormMenu menu;
 		private string name;
 		private bool isOther;
+		private bool hasRecent;
 
-		public DynamicMenuItem(MainFormMenu menu, string name, bool isOther) : base(name)
+		public DynamicMenuItem(MainFormMenu menu, string name, bool isOther, bool hasRecent) : base(name)
 		{
 			this.name = name;
 			this.menu = menu;
 			this.isOther = isOther;
+			this.hasRecent = hasRecent;
 
 			MenuItems.Add(new MenuItem(" "));
 			Popup += OnPopup;
@@ -55,6 +60,53 @@ public class MainFormMenu : MainMenu
 				MenuItem item = new MenuItem("[Empty]");
 				item.Enabled = false;
 				MenuItems.Add(item);
+			}
+			if (hasRecent)
+			{
+				MenuItem item = null;
+				foreach (MenuItem itemI in MenuItems)
+				{
+					if (itemI.Text == RecentItemName)
+					{
+						item = itemI;
+						break;
+					}
+				}
+				if (item == null)
+				{
+					MenuItems.Add(new MenuItem("-"));
+					item = new MenuItem(RecentItemName);
+					MenuItems.Add(item);
+				}
+				BuildRecentItems(item);
+			}
+		}
+		
+		private void BuildRecentItems(MenuItem root)
+		{
+			TempSettings tempSettings = menu.mainForm.TempSettings;
+			if (tempSettings == null)
+			{
+				MenuItem item = new MenuItem("[Not loaded yet]");
+				item.Enabled = false;
+				MenuItems.Add(item);
+				return;
+			}
+			string currendDir = Directory.GetCurrentDirectory().ToLowerInvariant() + "\\";
+			List<string> files = tempSettings.GetRecentlyFiles();
+			int count = 0;
+			for (int i = files.Count; i--> 0;)
+			{
+				string file = files[i];
+				++count;
+				if (count > 20)
+				{
+					break;
+				}
+				MenuItem item = new MenuItem(
+					file.ToLowerInvariant().StartsWith(currendDir) ? file.Substring(currendDir.Length) : file,
+					new MenuItemRecentFileDelegate(menu.mainForm, file).OnClick);
+				root.MenuItems.Add(item);
 			}
 		}
 	}
@@ -204,6 +256,23 @@ public class MainFormMenu : MainMenu
 			action.doOnDown(controller);
 			if (action.doOnModeChange != null)
 				action.doOnModeChange(controller, false);
+		}
+	}
+	
+	public class MenuItemRecentFileDelegate
+	{
+		private MainForm mainForm;
+		private string file;
+		
+		public MenuItemRecentFileDelegate(MainForm mainForm, string file)
+		{
+			this.mainForm = mainForm;
+			this.file = file;
+		}
+		
+		public void OnClick(object sender, EventArgs e)
+		{
+			mainForm.LoadFile(file);
 		}
 	}
 }

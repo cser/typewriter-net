@@ -404,7 +404,7 @@ namespace MulticaretEditor
 		}
 
 		public static readonly KeyAction Nothing = new KeyAction("Nothing", DoNothing, null, false);
-		private static bool DoNothing(Controller controller)
+		public static bool DoNothing(Controller controller)
 		{
 			return true;
 		}

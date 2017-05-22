@@ -156,6 +156,7 @@ public class MainForm : Form
 
 	private FileDragger fileDragger;
 	private TempSettings tempSettings;
+	public TempSettings TempSettings { get { return tempSettings; } }
 	private string tempFilePostfix;
 	private SchemeManager schemeManager;
 
@@ -756,6 +757,8 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.S, null,
 			new KeyAction("&File\\Save As...", DoSaveAs, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, new KeyAction("&File\\Reload", DoReload, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\" + MainFormMenu.RecentItemName, KeyAction.DoNothing, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&File\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.F4, null, new KeyAction("&File\\Exit", DoExit, null, false)));
 		
