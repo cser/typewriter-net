@@ -42,7 +42,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
         <DetectSpaces />
         <keyword attribute="Keyword" context="#stay" String="keywords"/>
-        <AnyChar attribute="Operator" context="#stay" String="=;"/>
+        <AnyChar attribute="Operator" context="#stay" String="=;.,{}&lt;&gt;"/>
         <keyword attribute="Data Type" context="#stay" String="datatypes"/>
         <RegExpr attribute="Keyword" context="Imports" String="\b(package|import)\b" />
         <DetectIdentifier />
