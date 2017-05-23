@@ -70,7 +70,7 @@ public class FindInFiles
 		}
 		alert = new AlertForm(mainForm, OnCanceled);
 		
-		tabSize = mainForm.Settings.tabSize.Value;
+		tabSize = mainForm.Settings.tabSize.GetValue(null);
 		thread = new Thread(
 			new ThreadStart(delegate()
 			{

@@ -564,6 +564,23 @@ public class Properties
 		}
 	}
 	
+	public class IntInfo
+	{
+		public string pattern;
+		public int value;
+		public FileNameFilter filter;
+		
+		public IntInfo(int value, string pattern)
+		{
+			this.pattern = pattern;
+			this.value = value;
+			if (this.pattern != null)
+			{
+				filter = new FileNameFilter(pattern);
+			}
+		}
+	}
+	
 	public class BoolList : Property
 	{
 		private bool defaultValue;
@@ -675,6 +692,121 @@ public class Properties
 		{
 			value.Clear();
 			value.Add(new BoolInfo(defaultValue, null));
+		}
+	}
+	
+	public class IntList : Property
+	{
+		private int defaultValue;
+		
+		public IntList(string name, int value) : base(name)
+		{
+			defaultValue = value;
+			this.value.Add(new IntInfo(defaultValue, null));
+		}
+
+		private readonly RWList<IntInfo> value = new RWList<IntInfo>();
+		public IRList<IntInfo> Value { get { return value; } }
+		public override string DefaultValue { get { return defaultValue + ""; } }
+		
+		public int GetValue(Buffer buffer)
+		{
+			string name = buffer != null ? buffer.Name : null;
+			IntInfo info = null;
+			if (name != null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					IntInfo infoI = value[i];
+					if (infoI.filter != null && infoI.filter.Match(name))
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			if (info == null)
+			{
+				for (int i = value.Count; i-- > 0;)
+				{
+					IntInfo infoI = value[i];
+					if (infoI.filter == null)
+					{
+						info = infoI;
+						break;
+					}
+				}
+			}
+			return Math.Max(min, Math.Min(max, info.value));
+		}
+		
+		public override string PossibleValues
+		{
+			get
+			{
+				string text = "";
+				foreach (IntInfo info in value)
+				{
+					if (text != "")
+						text += "\n";
+					text += "=" + info.value + (info.pattern != null ? ":" + info.pattern : "");
+				}
+				return text;
+			}
+		}
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (IntInfo info in value)
+				{
+					if (!first)
+						builder.Append("; ");
+					first = false;
+					builder.Append(info.value + ":" + info.pattern);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == subvalue)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			int parsedValue;
+			if (int.TryParse(value, out parsedValue))
+			{
+				this.value.Add(new IntInfo(parsedValue, subvalue));
+			}
+			return null;
+		}
+
+		public override string Type { get { return "bool"; } }		
+		public override string ShowedName { get { return name + "[:<filter>]"; } }
+		public override string TypeHelp { get { return "filter example: *.txt;*.md"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
+			value.Add(new IntInfo(defaultValue, null));
+		}
+		
+		private int min = int.MinValue;
+		private int max = int.MaxValue;
+
+		public IntList SetMinMax(int min, int max)
+		{
+			this.min = min;
+			this.max = max;
+			return this;
 		}
 	}
 

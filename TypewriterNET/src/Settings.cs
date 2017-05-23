@@ -14,7 +14,7 @@ public class Settings
 	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
-	public readonly Properties.Int tabSize = new Properties.Int("tabSize", 4).SetMinMax(0, 128);
+	public readonly Properties.IntList tabSize = new Properties.IntList("tabSize", 4).SetMinMax(0, 128);
 	public readonly Properties.BoolList spacesInsteadTabs = new Properties.BoolList("spacesInsteadTabs", false);
 	public readonly Properties.Bool autoindent = new Properties.Bool("autoindent", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
@@ -230,7 +230,7 @@ public class Settings
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
-		textBox.TabSize = tabSize.Value;
+		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.Autoindent = autoindent.Value;
 		textBox.LineBreak = lineBreak.Value;
@@ -259,7 +259,7 @@ public class Settings
 		textBox.ShowLineBreaks = showLineBreaks.Value;
 		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = false;
-		textBox.TabSize = tabSize.Value;
+		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
 		textBox.Autoindent = autoindent.Value;
 		textBox.LineBreak = lineBreak.Value;
@@ -280,7 +280,7 @@ public class Settings
 
 	public void ApplyToLabel(MonospaceLabel label)
 	{
-		label.TabSize = tabSize.Value;
+		label.TabSize = tabSize.GetValue(null);
 		label.FontFamily = font.Value;
 		label.FontSize = fontSize.Value;
 	}
