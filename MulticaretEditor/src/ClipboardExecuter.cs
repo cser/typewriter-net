@@ -113,22 +113,30 @@ namespace MulticaretEditor
 				}
 				else
 				{
-					try
+					for (int i = 0; i < 2; i++)
 					{
-						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
-						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
-						if (text.Length < 50)
+						if (i == 1)
 						{
-							options |= CharsRegularExpressions.RegexOptions.Compiled;
+							text = ViReceiverVisual.Escape(text);
 						}
-						_viRegex = new CharsRegularExpressions.Regex(text, options, span);
-						_viBackwardRegex = new CharsRegularExpressions.Regex(
-							text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
-					}
-					catch
-					{
-						_viRegex = null;
-						_viBackwardRegex = null;
+						try
+						{
+							System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
+							CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
+							if (text.Length < 50)
+							{
+								options |= CharsRegularExpressions.RegexOptions.Compiled;
+							}
+							_viRegex = new CharsRegularExpressions.Regex(text, options, span);
+							_viBackwardRegex = new CharsRegularExpressions.Regex(
+								text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
+							break;
+						}
+						catch
+						{
+							_viRegex = null;
+							_viBackwardRegex = null;
+						}
 					}
 				}
 			}

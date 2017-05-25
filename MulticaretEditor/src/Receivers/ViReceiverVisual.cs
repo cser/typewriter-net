@@ -368,7 +368,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private static string Escape(string text)
+		public static string Escape(string text)
 		{
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < text.Length; i++)
