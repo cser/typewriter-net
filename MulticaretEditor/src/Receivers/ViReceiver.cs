@@ -396,6 +396,17 @@ namespace MulticaretEditor
 						}
 						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						break;
+					case 'C':
+						controller.ViMoveEnd(true, parser.FictiveCount);
+						count = 1;
+						controller.ViCut(parser.register, false);
+						context.SetState(new InputReceiver(new ViReceiverData('C', count), false));
+						break;
+					case 'D':
+						controller.ViMoveEnd(true, parser.FictiveCount);
+						count = 1;
+						controller.ViCut(parser.register, true);
+						break;
 					case 'j' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
 						{

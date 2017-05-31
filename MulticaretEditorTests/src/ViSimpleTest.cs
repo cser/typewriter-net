@@ -937,5 +937,45 @@ namespace UnitTests
 			Put(1, 1).Press("v").Press("2>");
 			AssertText("Oooo\n\t\taaaa\n\tccc\ndddddddd");
 		}
+		
+		[Test]
+		public void C()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press("C");
+			AssertText("Oooo\na\n\tccc\ndddddddd");
+			AssertViClipboard("aaa");
+			AssertSelection().Both(1, 1).NoNext();
+		}
+		
+		[Test]
+		public void C_Repeat()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press("2").Press("C");
+			AssertText("Oooo\na\ndddddddd");
+			AssertViClipboard("aaa\n\tccc");
+			AssertSelection().Both(1, 1).NoNext();
+		}
+		
+		[Test]
+		public void D()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(2, 1).Press("D");
+			AssertText("Oooo\naa\n\tccc\ndddddddd");
+			AssertViClipboard("aa");
+			AssertSelection().Both(1, 1).NoNext();
+		}
+		
+		[Test]
+		public void D_Repeat()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(1, 1).Press("2").Press("D");
+			AssertText("Oooo\na\ndddddddd");
+			AssertViClipboard("aaa\n\tccc");
+			AssertSelection().Both(0, 1).NoNext();
+		}
 	}
 }

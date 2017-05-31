@@ -708,5 +708,15 @@ namespace UnitTests
 			AddLast('<').AssertParsed("1:action:<;move:\\0;moveChar:\\0");
 			Add('2').AddLast('<').AssertParsed("2:action:<;move:\\0;moveChar:\\0");
 		}
+		
+		[Test]
+		public void CD()
+		{
+			Init(true);
+			AddLast('C').AssertParsed("1:action:C;move:\\0;moveChar:\\0");
+			AddLast('D').AssertParsed("1:action:D;move:\\0;moveChar:\\0");
+			Add('2').AddLast('C').AssertParsed("2:action:C;move:\\0;moveChar:\\0");
+			Add('1').Add('0').AddLast('D').AssertParsed("10:action:D;move:\\0;moveChar:\\0");
+		}
 	}
 }
