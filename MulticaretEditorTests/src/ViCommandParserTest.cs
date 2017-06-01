@@ -233,13 +233,13 @@ namespace UnitTests
 		
 		private ViCommandParserTest Add(char c)
 		{
-			Assert.AreEqual(false, AddKey(c), "key:" + c);
+			Assert.AreEqual(false, AddKey(c), "key:" + c + " - expected not last");
 			return this;
 		}
 		
 		private ViCommandParserTest AddLast(char c)
 		{
-			Assert.AreEqual(true, AddKey(c), "last key:" + c);
+			Assert.AreEqual(true, AddKey(c), "last key:" + c + " - expected last");
 			return this;
 		}
 		
@@ -712,11 +712,19 @@ namespace UnitTests
 		[Test]
 		public void CD()
 		{
-			Init(true);
+			Init(false);
 			AddLast('C').AssertParsed("1:action:C;move:\\0;moveChar:\\0");
 			AddLast('D').AssertParsed("1:action:D;move:\\0;moveChar:\\0");
 			Add('2').AddLast('C').AssertParsed("2:action:C;move:\\0;moveChar:\\0");
 			Add('1').Add('0').AddLast('D').AssertParsed("10:action:D;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
+		public void cc()
+		{
+			Init(false);
+			Add('c').AddLast('c').AssertParsed("1:action:c;move:c;moveChar:\\0");
+			Add('2').Add('c').AddLast('c').AssertParsed("2:action:c;move:c;moveChar:\\0");
 		}
 	}
 }

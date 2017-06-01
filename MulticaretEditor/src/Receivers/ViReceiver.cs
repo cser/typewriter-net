@@ -306,6 +306,17 @@ namespace MulticaretEditor
 							count = 1;
 						}
 						break;
+					case 'c':
+						if (parser.move.IsChar('c'))
+						{
+							controller.ViDeleteLine(parser.register, count);
+							controller.ViLogicMoveUp(false);
+							controller.ViMoveEnd(false, 1);
+							controller.ViMoveRightFromCursor();
+							controller.InsertLineBreak();
+							context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
+						}
+						break;
 					case 'd' + ViChar.ControlIndex:
 						controller.SelectNextText();
 						if (!controller.AllSelectionsEmpty)
