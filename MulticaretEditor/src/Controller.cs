@@ -2116,6 +2116,13 @@ namespace MulticaretEditor
 			Execute(new ViEraseLinesCommand(this, ranges));
 		}
 		
+		public void ViDeleteLineForChange(char register, int count)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			Execute(new CopyLinesCommand(register, ranges));
+			Execute(new ViEraseLinesForChangeCommand(this, ranges));
+		}
+		
 		public List<SimpleRange> GetLineRangesByLefts()
 		{
 			SimpleRange[] mementos = new SimpleRange[selections.Count];

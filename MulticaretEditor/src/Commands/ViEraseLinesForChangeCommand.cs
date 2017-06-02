@@ -4,19 +4,19 @@ using System.Text;
 
 namespace MulticaretEditor
 {
-	public class ViEraseLinesCommand : Command
+	public class ViEraseLinesForChangeCommand : Command
 	{
 		private readonly Controller controller;
 		private readonly List<SimpleRange> ranges;
 		
-		public ViEraseLinesCommand(Controller controller, List<SimpleRange> ranges) : base(CommandType.EraseLines)
+		public ViEraseLinesForChangeCommand(Controller controller, List<SimpleRange> ranges) : base(CommandType.EraseLines)
 		{
 			this.controller = controller;
 			this.ranges = ranges;
 		}
 		
 		private SelectionMemento[] mementos;
-		private EraseSelectionCommand eraseCommand;
+		private InsertTextCommand eraseCommand;
 		
 		override public bool Init()
 		{
@@ -28,6 +28,7 @@ namespace MulticaretEditor
 		override public void Redo()
 		{
 			lines.ResizeSelections(ranges.Count);
+			bool[] isLast = new bool[selections.Count];
 			for (int i = ranges.Count; i-- > 0;)
 			{
 				SimpleRange range = ranges[i];
@@ -35,6 +36,7 @@ namespace MulticaretEditor
 				Selection selection = selections[i];
 				if (range.index > 0 && range.index + range.count == lines.LinesCount)
 				{
+					isLast[i] = true;
 					Line startLine = lines[range.index - 1];
 					selection.anchor = lines.IndexOf(new Place(startLine.NormalCount, range.index - 1));
 					selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
@@ -46,19 +48,27 @@ namespace MulticaretEditor
 				}
 			}
 			
-			EraseSelectionCommand eraseCommand = new EraseSelectionCommand();
+			InsertTextCommand eraseCommand = new InsertTextCommand(lines.lineBreak, null, true);
 			eraseCommand.lines = lines;
-			eraseCommand.selections = lines.selections;
+			eraseCommand.selections = selections;
 			if (eraseCommand.Init())
 			{
 				eraseCommand.Redo();
+				for (int i = 0; i < selections.Count; i++)
+				{
+					Selection selection = selections[i];
+					if (!isLast[i])
+					{
+						selection.anchor = selection.caret = selection.caret - lines.lineBreak.Length;
+					}
+				}
 				this.eraseCommand = eraseCommand;
 			}
 			else
 			{
 				this.eraseCommand = null;
 			}
-			controller.ViMoveHome(false, true);
+			//controller.ViMoveHome(false, true);
 		}
 		
 		override public void Undo()

@@ -309,12 +309,9 @@ namespace MulticaretEditor
 					case 'c':
 						if (parser.move.IsChar('c'))
 						{
-							controller.ViDeleteLine(parser.register, count);
-							controller.ViLogicMoveUp(false);
-							controller.ViMoveEnd(false, 1);
-							controller.ViMoveRightFromCursor();
-							controller.InsertLineBreak();
+							controller.ViDeleteLineForChange(parser.register, count);
 							context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
+							count = 1;
 						}
 						break;
 					case 'd' + ViChar.ControlIndex:

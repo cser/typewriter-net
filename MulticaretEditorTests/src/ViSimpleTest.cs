@@ -987,5 +987,25 @@ namespace UnitTests
 			AssertViClipboard("aaaa\n");
 			AssertSelection().Both(0, 1).NoNext();
 		}
+		
+		[Test]
+		public void cc_FirstLine()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(2, 0).Press("cc");
+			AssertText("\naaaa\n\tccc\ndddddddd");
+			AssertViClipboard("Oooo\n");
+			AssertSelection().Both(0, 0).NoNext();
+		}
+		
+		[Test]
+		public void cc_LastLine()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(2, 3).Press("cc");
+			AssertText("Oooo\naaaa\n\tccc\n");
+			AssertViClipboard("dddddddd\n");
+			AssertSelection().Both(0, 3).NoNext();
+		}
 	}
 }
