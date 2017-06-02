@@ -49,7 +49,7 @@ namespace MulticaretEditor
 							char nextPrevNotSpace = nextLine.GetLastNotSpace();
 							if (nextPrevNotSpace == '}' && nextSpacesSize == spacesSize)
 							{
-								texts[i] = lines.spacesInsteadTabs ? new string(' ', lines.tabSize) : "\t";
+								texts[i] = lines.TabSettings.Tab;
 							}
 						}
 					}

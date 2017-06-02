@@ -1001,9 +1001,9 @@ namespace UnitTests
 		[Test]
 		public void cc_LastLine()
 		{
-			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
 			Put(2, 3).Press("cc");
-			AssertText("Oooo\naaaa\n\tccc\n");
+			AssertText("Oooo\naaaa\nccc\n");
 			AssertViClipboard("dddddddd\n");
 			AssertSelection().Both(0, 3).NoNext();
 		}
