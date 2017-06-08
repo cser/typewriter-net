@@ -206,6 +206,7 @@ public class RunShellCommand
 			}
 		}
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
+		mainForm.CheckFilesChanges();
 		return null;
 	}
 
