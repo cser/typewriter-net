@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language name="HOCON" section="Markup" version="1.0" kateversion="2.0" extensions="*.hocon" mimetype="application/json" author="" license="GPL">
+<highlighting>
+	<list name="Constants">
+		<item>null</item>
+		<item>true</item>
+		<item>false</item>
+	</list>
+	<contexts>
+		<context name="Normal" lineEndContext="#stay" attribute="dsError">
+			<Detect2Chars char="/" char1="/" context="Comment" attribute="dsComment"/>
+			<DetectChar char="#" context="Comment" attribute="dsComment"/>
+			<DetectChar char="&quot;"  context="String_Key" attribute="keyString" />
+			<RegExpr String="[a-zA-Z][a-zA-Z0-9\-\.]+" context="#stay" attribute = "key"/>
+			<DetectChar char=":" context="Value" attribute="dsOperator" />
+			<DetectChar char="=" context="Value" attribute="dsOperator" />
+			<DetectChar char="{" context="Pair" attribute="dsOperator" />
+			<DetectChar char="}" context="#stay" attribute="dsError" />
+			<DetectChar char="," context="#stay" attribute="dsOperator" />
+			<DetectSpaces context="#stay" attribute="dsDataType" />
+		</context>
+		<context name="Pair" lineEndContext="#stay" attribute="dsError">
+			<Detect2Chars char="/" char1="/" context="Comment" attribute="dsComment"/>
+			<DetectChar char="#" context="Comment" attribute="dsComment"/>
+			<DetectChar char="&quot;"  context="String_Key" attribute="keyString" />
+			<RegExpr String="[a-zA-Z][a-zA-Z0-9\-\.]*" context="#stay" attribute = "key"/>
+			<DetectChar char=":" context="Value" attribute="dsOperator" />
+			<DetectChar char="=" context="Value" attribute="dsOperator" />
+			<DetectChar char="{" context="Pair" attribute="dsOperator" />
+			<DetectChar char="}" context="#pop" attribute="dsOperator" />
+			<DetectChar char="," context="#stay" attribute="dsOperator" />
+			<DetectSpaces context="#stay" attribute="dsDataType" />
+		</context>
+		<context name="Comment" lineEndContext="#pop" attribute="dsComment">
+			<IncludeRules context="##Alerts"/>
+		</context>
+		<context name="String_Key" lineEndContext="#stay" attribute="keyString">
+			<DetectChar char="&quot;"  context="#pop" attribute="keyString" />
+			<RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" insensitive="false" minimal="false" attribute="dsChar" />
+		</context>
+		<context name="Value" lineEndContext="#pop" attribute="dsError" >
+			<Detect2Chars char="/" char1="/" context="Comment" attribute="dsComment"/>
+			<DetectChar char="#" context="Comment" attribute="dsComment"/>
+			<DetectChar char="&quot;"  context="String_Value" attribute="valueString" />
+			<DetectChar char="{" context="Pair" attribute="dsOperator" />
+			<DetectChar char="[" context="Array" attribute="dsOperator" />
+			<DetectChar char="}" context="#pop" lookAhead="true" />	
+			<DetectSpaces context="#stay" attribute="dsDataType" />	
+			<keyword String="Constants" context="#stay" attribute="dsKeyword" />	
+			<RegExpr String="-?(?:[0-9]|[1-9][0-9]+)\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="dsFloat" />
+			<RegExpr String="-?(?:[0-9]|[1-9][0-9]+)(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="dsDecVal" />
+			<RegExpr String="[a-zA-Z][a-zA-Z0-9\-\.]*" context="#pop" attribute = "value"/>
+		</context>	
+		<context name="String_Value" lineEndContext="#stay" attribute="valueString">
+			<DetectChar char="&quot;"  context="#pop" attribute="valueString" />
+			<RegExpr String="\\(?:[&quot;\\/bfnrt]|u[0-9a-fA-f]{4})" context="#stay" insensitive="false" minimal="false" attribute="dsChar" />
+		</context>	
+		<context name="Array" lineEndContext="#stay" attribute="dsError">
+			<DetectChar char="," context="#stay" attribute="dsOperator" />
+			<DetectChar char="]" context="#pop" attribute="dsOperator" />	
+			<DetectChar char="{" context="Pair" attribute="dsOperator" />
+			<DetectChar char="[" context="Array" attribute="dsOperator" />
+			<DetectChar char="&quot;"  context="String_Value" attribute="dsString2" />	
+			<DetectSpaces context="#stay" attribute="dsDataType" />	
+			<keyword String="Constants" context="#stay" attribute="dsKeyword" />	
+			<RegExpr String="-?(?:[0-9]|[1-9][0-9]+)\.[0-9]+(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="dsFloat" />
+			<RegExpr String="-?(?:[0-9]|[1-9][0-9]+)(?:[eE][+-]?[0-9]+)?" context="#stay" insensitive="false" minimal="false" attribute="dsDecVal" />
+			<RegExpr String="[a-zA-Z][a-zA-Z0-9\-\.]*" context="#stay" attribute = "value"/>
+		</context>
+	</contexts>
+	<itemDatas>
+		<itemData name="key" defStyleNum="dsNormal"/>
+		<itemData name="value" defStyleNum="dsString"/>
+		<itemData name="keyString" defStyleNum="dsFunction"/>
+		<itemData name="valueString" defStyleNum="dsOthers"/>
+		<itemData name="dsNormal" defStyleNum="dsNormal"/>
+		<itemData name="dsKeyword" defStyleNum="dsKeyword"/>
+		<itemData name="dsDataType" defStyleNum="dsDataType"/>
+		<itemData name="dsDecVal" defStyleNum="dsDecVal"/>
+		<itemData name="dsBaseN" defStyleNum="dsBaseN"/>
+		<itemData name="dsFloat" defStyleNum="dsFloat"/>
+		<itemData name="dsChar" defStyleNum="dsChar"/>
+		<itemData name="dsString" defStyleNum="dsString"/>
+		<itemData name="dsComment" defStyleNum="dsComment"/>
+		<itemData name="dsOthers" defStyleNum="dsOthers"/>
+		<itemData name="dsAlert" defStyleNum="dsAlert"/>
+		<itemData name="dsFunction" defStyleNum="dsFunction"/>
+		<itemData name="dsRegionMarker" defStyleNum="dsRegionMarker"/>
+		<itemData name="dsError" defStyleNum="dsError"/>
+		<itemData name="dsOperator" defStyleNum="dsOperator"/>
+		<itemData name="dsConstructor" defStyleNum="dsConstructor"/>
+		<itemData name="dsNormal2" defStyleNum="dsNormal2"/>
+		<itemData name="dsKeyword2" defStyleNum="dsKeyword2"/>
+		<itemData name="dsString2" defStyleNum="dsString2"/>
+		<itemData name="dsOthers2" defStyleNum="dsOthers2"/>
+		<itemData name="dsDataType2" defStyleNum="dsDataType2"/>
+	</itemDatas>
+</highlighting>
+</language>
