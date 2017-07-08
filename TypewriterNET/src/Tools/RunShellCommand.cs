@@ -69,10 +69,7 @@ public class RunShellCommand
 		string errors = p.StandardError.ReadToEnd();
 		string text = (showCommandInOutput ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
-		if (!string.IsNullOrEmpty(text) || !silentIfNoOutput)
-		{
-			ShowInOutput(output, errors, text, regexList, stayTop, silentIfNoOutput, parameters);
-		}
+		ShowInOutput(output, errors, text, regexList, stayTop, silentIfNoOutput, parameters);
 	}
 	
 	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, bool silentIfNoOutput, string parameters)
@@ -117,6 +114,12 @@ public class RunShellCommand
 			string left = !string.IsNullOrEmpty(output) ? output + "\n" : output;
 			text = left + errors;
 			ranges.Add(new StyleRange(left.Length, errors.Length, Ds.Error.index));
+		}
+		if (string.IsNullOrEmpty(text) && silentIfNoOutput)
+		{
+			mainForm.CloseConsoleBuffer(MainForm.ShellResultsId);
+			mainForm.CheckFilesChanges();
+			return;
 		}
 
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);

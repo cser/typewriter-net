@@ -1800,6 +1800,20 @@ public class MainForm : Form
 				consoleNest.Frame.Focus();
 		}
 	}
+	
+	public void CloseConsoleBuffer(string id)
+	{
+		Buffer oldBuffer;
+		consoleBuffers.TryGetValue(id, out oldBuffer);
+		if (oldBuffer != null)
+		{
+			if (oldBuffer.Frame != null)
+				oldBuffer.Frame.RemoveBuffer(oldBuffer);
+			else
+				consoleNest.buffers.list.Remove(oldBuffer);
+			consoleBuffers.Remove(id);
+		}
+	}
 
 	public void RegisterConsoleBuffer(string id, Buffer buffer)
 	{
