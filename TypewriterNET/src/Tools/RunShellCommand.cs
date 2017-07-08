@@ -45,9 +45,9 @@ public class RunShellCommand
 	private Buffer buffer;
 	private Dictionary<int, List<Position>> positions;
 
-	public string Execute(
+	public void Execute(
 		string commandText, bool showCommandInOutput, IRList<RegexData> regexList,
-		bool stayTop, string parameters)
+		bool stayTop, bool silentIfNoOutput, string parameters)
 	{
 		positions = new Dictionary<int, List<Position>>();
 
@@ -60,18 +60,25 @@ public class RunShellCommand
 		p.StartInfo.UseShellExecute = false;
 		p.StartInfo.FileName = "cmd.exe";
 		p.StartInfo.Arguments = "/C " + commandText;
+		if (silentIfNoOutput)
+		{
+			p.StartInfo.CreateNoWindow = true;
+		}
 		p.Start();
 		string output = p.StandardOutput.ReadToEnd();
 		string errors = p.StandardError.ReadToEnd();
 		string text = (showCommandInOutput ? ">> " + commandText + "\n" + output : output);
 		p.WaitForExit();
-		return ShowInOutput(output, errors, text, regexList, stayTop, parameters);
+		if (!string.IsNullOrEmpty(text) || !silentIfNoOutput)
+		{
+			ShowInOutput(output, errors, text, regexList, stayTop, silentIfNoOutput, parameters);
+		}
 	}
 	
-	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, string parameters)
+	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, bool silentIfNoOutput, string parameters)
 	{
 		positions = new Dictionary<int, List<Position>>();
-		ShowInOutput(null, null, text, regexList, stayTop, parameters);
+		ShowInOutput(null, null, text, regexList, stayTop, silentIfNoOutput, parameters);
 	}
 	
 	private Encoding GetEncoding(string parameters)
@@ -100,9 +107,9 @@ public class RunShellCommand
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}
 	
-	private string ShowInOutput(
+	private void ShowInOutput(
 		string output, string errors, string text, IRList<RegexData> regexList,
-		bool stayTop, string parameters)
+		bool stayTop, bool silentIfNoOutput, string parameters)
 	{
 		List<StyleRange> ranges = new List<StyleRange>();
 		if (!string.IsNullOrEmpty(errors))
@@ -201,7 +208,6 @@ public class RunShellCommand
 		}
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		mainForm.CheckFilesChanges();
-		return null;
 	}
 
 	private bool ExecuteEnter(Controller controller)

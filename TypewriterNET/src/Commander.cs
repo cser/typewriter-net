@@ -98,10 +98,16 @@ public class Commander
 		{
 			string commandText = text.Substring(3);
 			bool dontChangeFocus = false;
+			bool silentIfNoOutput = false;
 			if (commandText.StartsWith("!"))
 			{
 				commandText = commandText.Substring(1);
 				dontChangeFocus = true;
+			}
+			if (commandText.StartsWith("?"))
+			{
+				commandText = commandText.Substring(1);
+				silentIfNoOutput = true;
 			}
 			if (ReplaceVars(ref commandText))
 			{
@@ -114,6 +120,10 @@ public class Commander
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.FileName = "cmd.exe";
 				p.StartInfo.Arguments = "/C " + commandText;
+				if (silentIfNoOutput)
+				{
+					p.StartInfo.CreateNoWindow = true;
+				}
 				p.Start();
 				string output = p.StandardOutput.ReadToEnd();
 				string errors = p.StandardError.ReadToEnd();
@@ -130,7 +140,10 @@ public class Commander
 						infoText += "\n";
 					infoText += output;
 				}
-				mainForm.Dialogs.ShowInfo(commandText, infoText);
+				if (!string.IsNullOrEmpty(infoText) || !silentIfNoOutput)
+				{
+					mainForm.Dialogs.ShowInfo(commandText, infoText);
+				}
 				if (dontChangeFocus && mainForm.LastFrame != null)
 					mainForm.LastFrame.Focus();
 				if (needFileTreeReload)
@@ -152,12 +165,27 @@ public class Commander
 		else if (name.StartsWith("!"))
 		{
 			bool scrollUp = false;
+			bool silentIfNoOutput = false;
 			string parameters = null;
 			string commandText = text.Substring(1);
-			if (commandText.StartsWith("^"))
+			if (commandText.StartsWith("?^"))
 			{
-				commandText = commandText.Substring(1);
+				commandText = commandText.Substring(2);
 				scrollUp = true;
+				silentIfNoOutput = true;
+			}
+			else
+			{
+				if (commandText.StartsWith("^"))
+				{
+					commandText = commandText.Substring(1);
+					scrollUp = true;
+				}
+				if (commandText.StartsWith("?"))
+				{
+					commandText = commandText.Substring(1);
+					silentIfNoOutput = true;
+				}
 			}
 			if (commandText.StartsWith("{"))
 			{
@@ -171,7 +199,7 @@ public class Commander
 			commandText = commandText.Trim();
 			if (ReplaceVars(ref commandText))
 			{
-				ExecuteShellCommand(commandText, showCommandInOutput, scrollUp, parameters);
+				ExecuteShellCommand(commandText, showCommandInOutput, scrollUp, silentIfNoOutput, parameters);
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 		    }
@@ -365,6 +393,13 @@ public class Commander
 		table.NewRow();
 		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
 		table.NewRow();
+		table.Add("!?command").Add("*").Add("Run and show only non-empty output\n" + 
+			"  Usable for syntax checkers\n" +
+			"  For example, if you have jshint,\n" +
+			"  write line in config (open by F2):\n" +
+			"    <item name=\"afterSaveCommand:*.js\"\n" +
+			"          value=\"!?jshint %f%\"/>");
+		table.NewRow();
 		table.Add("!!command").Add("*").Add("Run without output capture");
 		table.NewRow();
 		table.Add("!!!command").Add("*").Add("Run with output to info panel");
@@ -486,11 +521,11 @@ public class Commander
 		}
 	}
 
-	private void ExecuteShellCommand(string commandText, bool showCommandInOutput, bool stayTop, string parameters)
+	private void ExecuteShellCommand(string commandText, bool showCommandInOutput, bool stayTop, bool silentIfNoOutput, string parameters)
 	{
 		new RunShellCommand(mainForm).Execute(
 			commandText, showCommandInOutput, settings.shellRegexList.Value,
-			stayTop, parameters);
+			stayTop, silentIfNoOutput, parameters);
 	}
 
 	private void DoEditFile(string file)
