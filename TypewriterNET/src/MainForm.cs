@@ -593,6 +593,8 @@ public class MainForm : Form
 	{
 		return focusedTextBox;
 	}
+	
+	private Buffer lastFileBuffer;
 
 	private Frame lastFrame;
 	public Frame LastFrame { get { return lastFrame; } }
@@ -602,7 +604,13 @@ public class MainForm : Form
 		focusedTextBox = textBox;
 		menu.node = node;
 		if (frame != null)
+		{
 			lastFrame = frame;
+			if (frame.SelectedBuffer != null && (frame.SelectedBuffer.tags & BufferTag.File) != 0)
+			{
+				lastFileBuffer = frame.SelectedBuffer;
+			}
+		}
 		UpdateTitle();
 	}
 	
@@ -788,7 +796,7 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Open AppData folder", DoOpenAppDataFolder, null, false)));
+			new KeyAction("Prefere&nces\\Open AppData subfolder", DoOpenAppDataFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open Startup folder", DoOpenStartupFolder, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F4, null,
@@ -1964,6 +1972,21 @@ public class MainForm : Form
 			if (position > buffer.Controller.Lines.charsCount)
 				position = buffer.Controller.Lines.charsCount;
 			Place place1 = buffer.Controller.Lines.PlaceOf(position);
+			buffer.Controller.PutCursor(place0, false);
+			buffer.Controller.PutCursor(place1, true);
+			if (buffer.Frame != null)
+			{
+				buffer.Frame.Focus();
+				buffer.Frame.TextBox.MoveToCaret();
+			}
+		}
+	}
+	
+	public void NavigateTo(Place place0, Place place1)
+	{
+		Buffer buffer = lastFileBuffer;
+		if (buffer != null)
+		{
 			buffer.Controller.PutCursor(place0, false);
 			buffer.Controller.PutCursor(place1, true);
 			if (buffer.Frame != null)

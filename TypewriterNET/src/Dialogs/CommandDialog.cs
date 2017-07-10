@@ -385,6 +385,10 @@ public class CommandDialog : ADialog
 				dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
 			}
 		}
+		if (dir.Contains(RunShellCommand.AppDataDirVar))
+		{
+			dir = dir.Replace(RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+		}
 		string[] dirs = null;
 		string[] files = null;
 		try

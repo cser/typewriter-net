@@ -238,6 +238,21 @@ public class Commander
 			}
 			commandText = commandText.Replace(RunShellCommand.FileVar, file);
 		}
+		if (commandText.Contains(RunShellCommand.AppDataDirVar))
+		{
+			commandText = commandText.Replace(RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+		}
+		if (commandText.Contains(RunShellCommand.FileNameVar))
+		{
+			string file = GetFile();
+			if (file == null)
+			{
+			    mainForm.Dialogs.ShowInfo(
+			    	"Error", "No opened file in current frame for replace " + RunShellCommand.FileNameVar);
+				return false;
+			}
+			commandText = commandText.Replace(RunShellCommand.FileNameVar, Path.GetFileNameWithoutExtension(file));
+		}
 		if (commandText.Contains(RunShellCommand.FileVarSoftly))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
@@ -410,6 +425,8 @@ public class Commander
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file dir path");
 		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileNameVar + " - current file name (no extension)");
+		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if no saved file");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path");
@@ -421,6 +438,8 @@ public class Commander
 		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
 		table.NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word");
+		table.NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.AppDataDirVar + " - AppData subfolder");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
