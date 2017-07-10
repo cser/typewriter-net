@@ -279,6 +279,10 @@ public class Commander
 			}
 			commandText = ReplaceVar(commandText, RunShellCommand.FileVar, file);
 		}
+		if (commandText.Contains(RunShellCommand.AppDataDirVar))
+		{
+			commandText = ReplaceVar(commandText, RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+		}
 		if (commandText.Contains(RunShellCommand.FileNameVar))
 		{
 			string file = getFile();
@@ -474,6 +478,7 @@ public class Commander
 		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor").NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line").NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.AppDataDirVar + " - AppData subfolder").NewRow();
 		table.Add("").Add("").Add("Suffixes (example: %n%:upper;): ").NewRow();
 		table.Add("").Add("").Add("  :upper;").NewRow();
 		table.Add("").Add("").Add("  :lower;").NewRow();

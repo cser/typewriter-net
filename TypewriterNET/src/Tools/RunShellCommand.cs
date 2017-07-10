@@ -33,6 +33,7 @@ public class RunShellCommand
 	public const string CharVar = "%c%";
 	public const string SelectedVar = "%s%";
 	public const string WordVar = "%w%";
+	public const string AppDataDirVar = "%a%";
 
 	private MainForm mainForm;
 
@@ -237,6 +238,11 @@ public class RunShellCommand
 					position = positionI;
 					break;
 				}
+			}
+			if (string.IsNullOrEmpty(position.fileName) || position.fileName.Trim() == "")
+			{
+				mainForm.NavigateTo(position.place, position.place);
+				return true;
 			}
 			string fullPath = null;
 			try
