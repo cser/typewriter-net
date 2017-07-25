@@ -110,8 +110,12 @@ public class ShowUsages
 	private bool ExecuteEnter(Controller controller)
 	{
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
-		Position position = positions[place.iLine];
-		mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
-		return true;
+		if (place.iLine >= 0 && place.iLine < positions.Count)
+		{
+			Position position = positions[place.iLine];
+			mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
+			return true;
+		}
+		return false;
 	}
 }
