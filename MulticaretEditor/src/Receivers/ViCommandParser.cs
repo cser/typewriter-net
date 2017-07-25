@@ -231,6 +231,9 @@ namespace MulticaretEditor
 							case 's':
 								action = code;
 								return ParseResult.Complete;
+							case '\b':
+								action = code;
+								return ParseResult.Complete;
 						}
 						if (char.IsNumber(code.c))
 						{

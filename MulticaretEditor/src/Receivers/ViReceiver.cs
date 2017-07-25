@@ -442,6 +442,19 @@ namespace MulticaretEditor
 							DoFind("\\b" + text + "\\b");
 						}
 						break;
+					case '\b':
+						for (int i = 0; i < count; i++)
+						{
+							if (lines.AllSelectionsEmpty)
+							{
+								controller.Backspace();
+							}
+							else
+							{
+								controller.EraseSelection();
+							}
+						}
+						break;
 				}
 			}
 			if (command != null && count != 1)

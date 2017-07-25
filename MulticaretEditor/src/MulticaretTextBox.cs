@@ -847,7 +847,6 @@ namespace MulticaretEditor
 					if (selection.Right < start || selection.Left > end)
 						continue;
 					int selectionCaret = selection.caret;
-					bool viSelection = receiver.ViMode == ViMode.Visual;
 					Place caret = lines.PlaceOf(selectionCaret);
 					Line line = lines[caret.iLine];
 					int x;
@@ -878,52 +877,40 @@ namespace MulticaretEditor
 
 					if (Focused)
 					{
-						if (receiver != null && receiver.ViMode != ViMode.Insert)
+						bool isMain = i == selectionsCount - 1;
+						if (receiver != null && receiver.ViMode == ViMode.Normal)
 						{
-							if (i == selectionsCount - 1)
+							if (isMain)
 							{
 								if (isCursorTick)
 								{
-									if (viSelection)
+									g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
+									if (caret.iChar < line.charsCount)
 									{
-										g.DrawLine(scheme.mainCaretPen, x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
-									}
-									else
-									{
-										g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
-										if (caret.iChar < line.charsCount)
-										{
-											char c = line.chars[caret.iChar].c;
-											g.DrawString(c + "", font, scheme.bgBrush,
-												x - charWidth / 3, y + lineInterval / 2, stringFormat);
-										}
+										char c = line.chars[caret.iChar].c;
+										g.DrawString(c + "", font, scheme.bgBrush,
+											x - charWidth / 3, y + lineInterval / 2, stringFormat);
 									}
 								}
 								else
 								{
-									if (!viSelection)
-									{
-										g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
-									}
+									g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
 								}
 							}
 							else
 							{
-								if (viSelection)
-								{
-									g.DrawLine(scheme.mainCaretPen, x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
-								}
-								else
-								{
-									g.FillRectangle(scheme.caretBrush, x, y, charWidth, charHeight);
-								}
+								g.FillRectangle(scheme.caretBrush, x, y, charWidth, charHeight);
 							}
+						}
+						else if (receiver != null && receiver.ViMode != ViMode.Insert)
+						{
+							g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
+								x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
 						}
 						else if (isCursorTick)
 						{
-							g.DrawLine(i == selectionsCount - 1 ?
-								scheme.mainCaretPen :
-								scheme.caretPen, x, y, x, y + charHeight);
+							g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
+								x, y, x, y + charHeight);
 						}
 					}
 				}
