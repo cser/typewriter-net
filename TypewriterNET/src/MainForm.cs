@@ -901,7 +901,7 @@ public class MainForm : Form
 	private bool DoPasteInOutput(Controller controller)
 	{
 		new RunShellCommand(this).ShowInOutput(
-			ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false, false, null);
+			ClipboardExecutor.GetFromClipboard(), settings.shellRegexList.Value, false, false, null);
 		return true;
 	}
 

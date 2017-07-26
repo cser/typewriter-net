@@ -211,10 +211,10 @@ namespace MulticaretEditor
 		{
 			FixRange(ref index, ref count);
 			bool isOutFrame = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
-			if (highlightRegex != ClipboardExecuter.ViRegex || isOutFrame || !frameValid)
+			if (highlightRegex != ClipboardExecutor.ViRegex || isOutFrame || !frameValid)
 			{
 				frameValid = true;
-				highlightRegex = ClipboardExecuter.ViRegex;
+				highlightRegex = ClipboardExecutor.ViRegex;
 				matches.Clear();
 				if (highlightRegex != null)
 				{

@@ -59,7 +59,7 @@ namespace MulticaretEditor
 			return false;
 		}
 		
-		public virtual bool DoFind(string text)
+		public virtual bool DoFind(Pattern pattern)
 		{
 			return false;
 		}

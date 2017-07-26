@@ -1967,7 +1967,7 @@ namespace MulticaretEditor
 				ViSavePositions();
 				ViMoveRightFromCursor();
 			}
-			string text = ClipboardExecuter.GetFromRegister(register);
+			string text = ClipboardExecutor.GetFromRegister(register);
 			if (text == null || text == "")
 			{
 				return;

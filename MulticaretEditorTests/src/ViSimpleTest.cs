@@ -57,7 +57,7 @@ namespace UnitTests
 		[SetUp]
 		public void SetUp()
 		{
-			ClipboardExecuter.Reset(true);
+			ClipboardExecutor.Reset(true);
 			Init();
 			lines.lineBreak = "\n";
 			receiver = new Receiver(controller, ViMode.Insert, false);
@@ -623,13 +623,13 @@ namespace UnitTests
 				"aaaa\n" +
 				"bbbb");
 			Put(3, 0).Press("\"ayw").AssertText("Du hast mich\naaaa\nbbbb");
-			Assert.AreEqual("hast ", ClipboardExecuter.GetFromRegister('a'));
+			Assert.AreEqual("hast ", ClipboardExecutor.GetFromRegister('a'));
 			
 			Put(8, 0).Press("\"bye").AssertText("Du hast mich\naaaa\nbbbb");
 			Put(3, 0).Press("ye").AssertText("Du hast mich\naaaa\nbbbb");
-			Assert.AreEqual("mich", ClipboardExecuter.GetFromRegister('b'));
-			Assert.AreEqual("hast ", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("hast", ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual("mich", ClipboardExecutor.GetFromRegister('b'));
+			Assert.AreEqual("hast ", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("hast", ClipboardExecutor.GetFromRegister('\0'));
 			
 			Put(0, 1).Press("\"ap").AssertText("Du hast mich\nahast aaa\nbbbb");
 			Put(0, 2).Press("\"bp").AssertText("Du hast mich\nahast aaa\nbmichbbb");
@@ -641,8 +641,8 @@ namespace UnitTests
 		{
 			lines.SetText("Abcd efghij klmnop");
 			Put(5, 0).Press("\"adw").AssertText("Abcd klmnop");
-			Assert.AreEqual("efghij ", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual("efghij ", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('\0'));
 		}
 		
 		[Test]
@@ -691,12 +691,12 @@ namespace UnitTests
 				"Lieben trotz der Konsequenzen\n" +
 				"Nein, das darfst du nicht");
 			AssertSelection().Both(0, 1);
-			Assert.AreEqual("Nein, das darfst du nicht\n", ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual("Nein, das darfst du nicht\n", ClipboardExecutor.GetFromRegister('\0'));
 			
 			Put(2, 1).Press("\"ddd").PressCommandMode().AssertText(
 				"Darf ich leben ohne Grenzen?\n" +
 				"Nein, das darfst du nicht");
-			Assert.AreEqual("Lieben trotz der Konsequenzen\n", ClipboardExecuter.GetFromRegister('d'));
+			Assert.AreEqual("Lieben trotz der Konsequenzen\n", ClipboardExecutor.GetFromRegister('d'));
 		}
 		
 		[Test]
@@ -714,7 +714,7 @@ namespace UnitTests
 			Assert.AreEqual(
 				"Nein, das darfst du nicht\n" +
 				"Lieben trotz der Konsequenzen\n",
-				ClipboardExecuter.GetFromRegister('\0'));
+				ClipboardExecutor.GetFromRegister('\0'));
 		}
 		
 		[Test]
@@ -732,7 +732,7 @@ namespace UnitTests
 			Assert.AreEqual(
 				"Lieben trotz der Konsequenzen\n" +
 				"Nein, das darfst du nicht\n",
-				ClipboardExecuter.GetFromRegister('\0'));
+				ClipboardExecutor.GetFromRegister('\0'));
 		}
 		
 		[Test]
@@ -765,7 +765,7 @@ namespace UnitTests
 			Assert.AreEqual(
 				"Lieben trotz der Konsequenzen\n" +
 				"Nein, das darfst du nicht\n",
-				ClipboardExecuter.GetFromRegister('\0'));
+				ClipboardExecutor.GetFromRegister('\0'));
 		}
 		
 		[Test]
@@ -775,7 +775,7 @@ namespace UnitTests
 			Put(3, 0).Press("2dd").PressCommandMode().AssertText("");
 			AssertSelection().Both(0, 0);
 			Assert.AreEqual("Darf ich leben ohne Grenzen?\n",
-				ClipboardExecuter.GetFromRegister('\0'));
+				ClipboardExecutor.GetFromRegister('\0'));
 		}
 		
 		[Test]
@@ -785,7 +785,7 @@ namespace UnitTests
 				"Mein Leben könnte gar nicht besser sein\n" +
 				"    Und plötzlich läufst du mir ins Messer rein\n" +
 				"    Du sagst zum Leben fehlt mir der Mut");
-			ClipboardExecuter.PutToRegister('\0', " aaaaaa\n");
+			ClipboardExecutor.PutToRegister('\0', " aaaaaa\n");
 			Put(10, 1).Press("p").AssertText(
 				"Mein Leben könnte gar nicht besser sein\n" +
 				"    Und plötzlich läufst du mir ins Messer rein\n" +
@@ -801,7 +801,7 @@ namespace UnitTests
 				"Mein Leben könnte gar nicht besser sein\n" +
 				"    Und plötzlich läufst du mir ins Messer rein\n" +
 				"    Du sagst zum Leben fehlt mir der Mut");
-			ClipboardExecuter.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
+			ClipboardExecutor.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
 			Put(10, 1).Press("p").AssertText(
 				"Mein Leben könnte gar nicht besser sein\n" +
 				"    Und plötzlich läufst du mir ins Messer rein\n" +
@@ -818,7 +818,7 @@ namespace UnitTests
 				"Mein Leben könnte gar nicht besser sein\n" +
 				"    Und plötzlich läufst du mir ins Messer rein\n" +
 				"    Du sagst zum Leben fehlt mir der Mut");
-			ClipboardExecuter.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
+			ClipboardExecutor.PutToRegister('\0', " aaaaaa\nbbbbbbbb\n");
 			Put(10, 1).Press("P").AssertText(
 				"Mein Leben könnte gar nicht besser sein\n" +
 				" aaaaaa\n" +
@@ -834,7 +834,7 @@ namespace UnitTests
 			lines.SetText(
 				"11111\n" +
 				"222");
-			ClipboardExecuter.PutToRegister('\0', "aa\nbb\n");
+			ClipboardExecutor.PutToRegister('\0', "aa\nbb\n");
 			Put(1, 0).Press("pp").AssertText(
 				"11111\n" +
 				"aa\n" +
@@ -847,7 +847,7 @@ namespace UnitTests
 			lines.SetText(
 				"11111\n" +
 				"222");
-			ClipboardExecuter.PutToRegister('\0', "aa\nbb\n");
+			ClipboardExecutor.PutToRegister('\0', "aa\nbb\n");
 			Put(1, 0).Press("2p").AssertText(
 				"11111\n" +
 				"aa\n" +
@@ -874,11 +874,11 @@ namespace UnitTests
 			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
 			
 			Put(1, 1).Press("yy");
-			Assert.AreEqual("aaaa\n", ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual("aaaa\n", ClipboardExecutor.GetFromRegister('\0'));
 			AssertSelection().Both(1, 1);
 			
 			Put(1, 1).Press("2yy");
-			Assert.AreEqual("aaaa\nccc\n", ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual("aaaa\nccc\n", ClipboardExecutor.GetFromRegister('\0'));
 			AssertSelection().Both(1, 1);
 		}
 		

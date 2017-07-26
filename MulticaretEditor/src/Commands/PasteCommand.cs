@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace MulticaretEditor
 {
@@ -18,7 +18,7 @@ namespace MulticaretEditor
 		override public bool Init()
 		{
 			lines.JoinSelections();
-			string text = ClipboardExecuter.GetFromRegister(register);
+			string text = ClipboardExecutor.GetFromRegister(register);
 			if (string.IsNullOrEmpty(text))
 				return false;
 			

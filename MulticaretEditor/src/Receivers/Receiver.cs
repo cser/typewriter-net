@@ -88,7 +88,7 @@ namespace MulticaretEditor
 			
 			public char GetMapped(char c)
 			{
-				if (receiver.viMap != null && !ClipboardExecuter.IsEnLayout())
+				if (receiver.viMap != null && !ClipboardExecutor.IsEnLayout())
 				{
 					char result;
 					if (receiver.viMap.TryGetValue(c, out result))
@@ -110,9 +110,9 @@ namespace MulticaretEditor
 			return state.DoKeyDown(keysData, out scrollToCursor);
 		}
 		
-		public bool DoFind(string text)
+		public bool DoFind(Pattern pattern)
 		{
-			return state.DoFind(text);
+			return state.DoFind(pattern);
 		}
 		
 		public void ResetViInput()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using MulticaretEditor;
 
@@ -343,7 +343,7 @@ namespace UnitTests
 			controller.PutCursor(new Pos(3, 1), true);
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 			
-			ClipboardExecuter.PutToClipboard("a\ntext\nanother text");
+			ClipboardExecutor.PutToClipboard("a\ntext\nanother text");
 			controller.Paste();
 			// Dua|\n
 			// Dtext|another text|ast mich

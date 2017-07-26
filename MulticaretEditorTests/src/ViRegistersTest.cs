@@ -11,117 +11,117 @@ namespace UnitTests
 		[SetUp]
 		public void SetUp()
 		{
-			ClipboardExecuter.Reset(true);
+			ClipboardExecutor.Reset(true);
 		}
 		
 		[Test]
 		public void Alphabetical()
 		{
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('a'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('a'));
 			
-			ClipboardExecuter.PutToRegister('a', "XXX");
-			ClipboardExecuter.PutToRegister('z', "YYY");
+			ClipboardExecutor.PutToRegister('a', "XXX");
+			ClipboardExecutor.PutToRegister('z', "YYY");
 			
-			Assert.AreEqual("XXX", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("YYY", ClipboardExecuter.GetFromRegister('z'));
+			Assert.AreEqual("XXX", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("YYY", ClipboardExecutor.GetFromRegister('z'));
 		}
 		
 		[Test]
 		public void AlphabeticalAccumulation()
 		{
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('A'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('A'));
 			
-			ClipboardExecuter.PutToRegister('a', "one");
-			ClipboardExecuter.PutToRegister('A', "two");
-			ClipboardExecuter.PutToRegister('A', "three");
+			ClipboardExecutor.PutToRegister('a', "one");
+			ClipboardExecutor.PutToRegister('A', "two");
+			ClipboardExecutor.PutToRegister('A', "three");
 			
-			ClipboardExecuter.PutToRegister('z', "four");
-			ClipboardExecuter.PutToRegister('Z', "five");
+			ClipboardExecutor.PutToRegister('z', "four");
+			ClipboardExecutor.PutToRegister('Z', "five");
 			
-			Assert.AreEqual("onetwothree", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("onetwothree", ClipboardExecuter.GetFromRegister('A'));
-			Assert.AreEqual("fourfive", ClipboardExecuter.GetFromRegister('z'));
-			Assert.AreEqual("fourfive", ClipboardExecuter.GetFromRegister('Z'));
+			Assert.AreEqual("onetwothree", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("onetwothree", ClipboardExecutor.GetFromRegister('A'));
+			Assert.AreEqual("fourfive", ClipboardExecutor.GetFromRegister('z'));
+			Assert.AreEqual("fourfive", ClipboardExecutor.GetFromRegister('Z'));
 			
-			ClipboardExecuter.PutToRegister('a', "XXX");
+			ClipboardExecutor.PutToRegister('a', "XXX");
 			
-			Assert.AreEqual("XXX", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("XXX", ClipboardExecuter.GetFromRegister('A'));
+			Assert.AreEqual("XXX", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("XXX", ClipboardExecutor.GetFromRegister('A'));
 		}
 		
 		[Test]
 		public void AlphabeticalAccumulation_FromEmpty()
 		{
-			ClipboardExecuter.PutToRegister('A', "abcd");
-			Assert.AreEqual("abcd", ClipboardExecuter.GetFromRegister('a'));
-			Assert.AreEqual("abcd", ClipboardExecuter.GetFromRegister('A'));
+			ClipboardExecutor.PutToRegister('A', "abcd");
+			Assert.AreEqual("abcd", ClipboardExecutor.GetFromRegister('a'));
+			Assert.AreEqual("abcd", ClipboardExecutor.GetFromRegister('A'));
 		}
 		
 		[Test]
 		public void UnusedRegisterAlwaysEmpty()
 		{
-			ClipboardExecuter.PutToRegister('`', "ZZZ");
-			ClipboardExecuter.PutToRegister('[', "ZZZ");
+			ClipboardExecutor.PutToRegister('`', "ZZZ");
+			ClipboardExecutor.PutToRegister('[', "ZZZ");
 			
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('`'));
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('['));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('`'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('['));
 		}
 		
 		[TestCase('*')]
 		[TestCase('-')]
 		public void Clipboard(char register)
 		{
-			ClipboardExecuter.PutToRegister(register, "AAAA");
-			Assert.AreEqual("AAAA", ClipboardExecuter.GetFromRegister(register));
-			Assert.AreEqual("AAAA", ClipboardExecuter.GetFromClipboard());
-			ClipboardExecuter.PutToClipboard("BBBB");
-			Assert.AreEqual("BBBB", ClipboardExecuter.GetFromRegister(register));
-			Assert.AreEqual("BBBB", ClipboardExecuter.GetFromClipboard());
+			ClipboardExecutor.PutToRegister(register, "AAAA");
+			Assert.AreEqual("AAAA", ClipboardExecutor.GetFromRegister(register));
+			Assert.AreEqual("AAAA", ClipboardExecutor.GetFromClipboard());
+			ClipboardExecutor.PutToClipboard("BBBB");
+			Assert.AreEqual("BBBB", ClipboardExecutor.GetFromRegister(register));
+			Assert.AreEqual("BBBB", ClipboardExecutor.GetFromClipboard());
 		}
 		
 		[Test]
 		public void LastSearch()
 		{
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('/'));
-			ClipboardExecuter.PutToRegister('/', "ABC");
-			Assert.AreEqual("ABC", ClipboardExecuter.GetFromRegister('/'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('/'));
+			ClipboardExecutor.PutToRegister('/', "ABC");
+			Assert.AreEqual("ABC", ClipboardExecutor.GetFromRegister('/'));
 		}
 		
 		[Test]
 		public void Readonly()
 		{
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister(':'));
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('.'));
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('%'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(':'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('.'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('%'));
 			
-			ClipboardExecuter.viLastCommand = "command";
-			ClipboardExecuter.viLastInsertText = "last insert text";
-			ClipboardExecuter.viFileName = "file name";
+			ClipboardExecutor.viLastCommand = "command";
+			ClipboardExecutor.viLastInsertText = "last insert text";
+			ClipboardExecutor.viFileName = "file name";
 			
-			Assert.AreEqual("command", ClipboardExecuter.GetFromRegister(':'));
-			Assert.AreEqual("last insert text", ClipboardExecuter.GetFromRegister('.'));
-			Assert.AreEqual("file name", ClipboardExecuter.GetFromRegister('%'));
+			Assert.AreEqual("command", ClipboardExecutor.GetFromRegister(':'));
+			Assert.AreEqual("last insert text", ClipboardExecutor.GetFromRegister('.'));
+			Assert.AreEqual("file name", ClipboardExecutor.GetFromRegister('%'));
 			
-			ClipboardExecuter.PutToRegister(':', "A");
-			ClipboardExecuter.PutToRegister('.', "B");
-			ClipboardExecuter.PutToRegister('%', "C");
+			ClipboardExecutor.PutToRegister(':', "A");
+			ClipboardExecutor.PutToRegister('.', "B");
+			ClipboardExecutor.PutToRegister('%', "C");
 			
-			Assert.AreEqual("command", ClipboardExecuter.GetFromRegister(':'));
-			Assert.AreEqual("last insert text", ClipboardExecuter.GetFromRegister('.'));
-			Assert.AreEqual("file name", ClipboardExecuter.GetFromRegister('%'));
+			Assert.AreEqual("command", ClipboardExecutor.GetFromRegister(':'));
+			Assert.AreEqual("last insert text", ClipboardExecutor.GetFromRegister('.'));
+			Assert.AreEqual("file name", ClipboardExecutor.GetFromRegister('%'));
 		}
 		
 		[Test]
 		public void Default()
 		{
-			Assert.AreEqual("", ClipboardExecuter.GetFromRegister('0'));
-			ClipboardExecuter.PutToRegister('0', "AAAAAAAAAA");
-			Assert.AreEqual("AAAAAAAAAA", ClipboardExecuter.GetFromRegister('0'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister('0'));
+			ClipboardExecutor.PutToRegister('0', "AAAAAAAAAA");
+			Assert.AreEqual("AAAAAAAAAA", ClipboardExecutor.GetFromRegister('0'));
 			
-			ClipboardExecuter.PutToRegister('\0', "BBB");
-			Assert.AreEqual("BBB", ClipboardExecuter.GetFromRegister('\0'));
-			Assert.AreEqual("BBB", ClipboardExecuter.GetFromRegister('0'));
+			ClipboardExecutor.PutToRegister('\0', "BBB");
+			Assert.AreEqual("BBB", ClipboardExecutor.GetFromRegister('\0'));
+			Assert.AreEqual("BBB", ClipboardExecutor.GetFromRegister('0'));
 		}
 	}
 }

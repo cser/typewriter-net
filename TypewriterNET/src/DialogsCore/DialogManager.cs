@@ -547,12 +547,12 @@ public class DialogManager
 		return true;
 	}
 	
-	private bool ViDoFindText(string text)
+	private bool ViDoFindText(string text, Pattern pattern)
 	{
 		viFind.Close(true);
 		if (mainForm.LastFrame != null)
 		{
-			mainForm.LastFrame.TextBox.ViFind(text);
+			mainForm.LastFrame.TextBox.ViFind(pattern);
 		}
 		return true;
 	}

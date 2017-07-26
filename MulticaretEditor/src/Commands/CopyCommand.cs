@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace MulticaretEditor
@@ -29,7 +29,7 @@ namespace MulticaretEditor
 				first = false;
 				text.Append(lines.GetText(memento.Left, memento.Count));
 			}
-			ClipboardExecuter.PutToRegister(register, text.ToString());
+			ClipboardExecutor.PutToRegister(register, text.ToString());
 			return false;
 		}
 		

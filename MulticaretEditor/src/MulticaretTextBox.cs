@@ -146,9 +146,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public bool ViFind(string text)
+		public bool ViFind(Pattern pattern)
 		{
-			if (receiver != null && receiver.DoFind(text))
+			if (receiver != null && receiver.DoFind(pattern))
 			{
 				ScrollIfNeedToCaret();
 				Invalidate();

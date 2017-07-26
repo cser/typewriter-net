@@ -161,7 +161,7 @@ public class CommandDialog : ADialog
 	
 	private string GetAltCommandText(string text)
 	{
-		return !ClipboardExecuter.IsEnLayout() ? textBox.GetMapped(text) : text;
+		return !ClipboardExecutor.IsEnLayout() ? textBox.GetMapped(text) : text;
 	}
 
 	private bool DoPrevCommand(Controller controller)

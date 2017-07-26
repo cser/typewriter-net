@@ -44,7 +44,7 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			ClipboardExecuter.PutToRegister(register, text.ToString());
+			ClipboardExecutor.PutToRegister(register, text.ToString());
 			return false;
 		}
 		

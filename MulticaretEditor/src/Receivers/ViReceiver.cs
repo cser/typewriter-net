@@ -439,7 +439,7 @@ namespace MulticaretEditor
 						string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
 						if (!string.IsNullOrEmpty(text))
 						{
-							DoFind("\\b" + text + "\\b");
+							DoFind(new Pattern("\\b" + text + "\\b", true, false));
 						}
 						break;
 					case '\b':
@@ -473,12 +473,12 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public override bool DoFind(string text)
+		public override bool DoFind(Pattern pattern)
 		{
-			ClipboardExecuter.PutToRegister('/', text);
-			if (ClipboardExecuter.ViRegex != null)
+			ClipboardExecutor.PutToSearch(pattern);
+			if (ClipboardExecutor.ViRegex != null)
 			{
-				controller.ViFindForward(ClipboardExecuter.ViRegex);
+				controller.ViFindForward(ClipboardExecutor.ViRegex);
 			}
 			return true;
 		}

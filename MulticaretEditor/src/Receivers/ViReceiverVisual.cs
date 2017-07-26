@@ -346,7 +346,7 @@ namespace MulticaretEditor
 						{
 							string text = controller.Lines.GetText(
 								controller.LastSelection.Left, controller.LastSelection.Count);
-							DoFind(Escape(text));
+							DoFind(new Pattern(text, false, false));
 							SetViMode();
 						}
 						else
@@ -354,7 +354,7 @@ namespace MulticaretEditor
 							string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
 							if (!string.IsNullOrEmpty(text))
 							{
-								DoFind("\\b" + text + "\\b");
+								DoFind(new Pattern("\\b" + text + "\\b", true, false));
 							}
 							SetViMode();
 						}
@@ -366,39 +366,6 @@ namespace MulticaretEditor
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
 			}
-		}
-		
-		public static string Escape(string text)
-		{
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < text.Length; i++)
-			{
-				char c = text[i];
-				switch (c)
-				{
-					case '\\':
-						builder.Append("\\\\");
-						break;
-					case '(':
-					case ')':
-					case '[':
-					case ']':
-					case '.':
-					case '$':
-					case '?':
-					case '{':
-					case '}':
-					case '+':
-					case '-':
-						builder.Append('\\');
-						builder.Append(c);
-						break;
-					default:
-						builder.Append(c);
-						break;
-				}
-			}
-			return builder.ToString();
 		}
 		
 		private void SetViMode()
@@ -417,12 +384,12 @@ namespace MulticaretEditor
 			context.SetState(new ViReceiver(null, false));
 		}
 		
-		public override bool DoFind(string text)
+		public override bool DoFind(Pattern pattern)
 		{
-			ClipboardExecuter.PutToRegister('/', text);
-			if (ClipboardExecuter.ViRegex != null)
+			ClipboardExecutor.PutToSearch(pattern);
+			if (ClipboardExecutor.ViRegex != null)
 			{
-				controller.ViFindForward(ClipboardExecuter.ViRegex);
+				controller.ViFindForward(ClipboardExecutor.ViRegex);
 			}
 			return true;
 		}

@@ -1,11 +1,12 @@
 using System;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 namespace MulticaretEditor
 {
-	public class ClipboardExecuter
+	public class ClipboardExecutor
 	{
 		public string text;
 		
@@ -46,7 +47,7 @@ namespace MulticaretEditor
 		
 		public static void Reset(bool useFake)
 		{
-			ClipboardExecuter.useFake = useFake;
+			ClipboardExecutor.useFake = useFake;
 			fakeText = "";
 			registers = new string[RegistersCount];
 			viLastCommand = "";
@@ -63,7 +64,7 @@ namespace MulticaretEditor
 				fakeText = text;
 				return;
 			}
-			ClipboardExecuter executer = new ClipboardExecuter();
+			ClipboardExecutor executer = new ClipboardExecutor();
 			executer.text = text;
 			Thread thread = new Thread(executer.PutTo);
 			thread.SetApartmentState(ApartmentState.STA);
@@ -77,12 +78,59 @@ namespace MulticaretEditor
 			{
 				return fakeText;
 			}
-			ClipboardExecuter executer = new ClipboardExecuter();
+			ClipboardExecutor executer = new ClipboardExecutor();
 			Thread thread = new Thread(executer.GetFrom);
 			thread.SetApartmentState(ApartmentState.STA);
 			thread.Start();
 			thread.Join();
 			return executer.text;
+		}
+		
+		public static void PutToSearch(Pattern pattern)
+		{
+			string text = pattern.text;
+			if (!pattern.regex)
+			{
+				text = Escape(pattern.text);
+			}
+			registers[26] = text;
+			if (string.IsNullOrEmpty(text))
+			{
+				_viRegex = null;
+				_viBackwardRegex = null;
+			}
+			else
+			{
+				for (int i = 0; i < 2; i++)
+				{
+					if (i == 1)
+					{
+						text = Escape(text);
+					}
+					try
+					{
+						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
+						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
+						if (text.Length < 50)
+						{
+							options |= CharsRegularExpressions.RegexOptions.Compiled;
+						}
+						if (pattern.ignoreCase)
+						{
+							options |= CharsRegularExpressions.RegexOptions.IgnoreCase;
+						}
+						_viRegex = new CharsRegularExpressions.Regex(text, options, span);
+						_viBackwardRegex = new CharsRegularExpressions.Regex(
+							text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
+						break;
+					}
+					catch
+					{
+						_viRegex = null;
+						_viBackwardRegex = null;
+					}
+				}
+			}
 		}
 		
 		public static void PutToRegister(char c, string text)
@@ -106,39 +154,6 @@ namespace MulticaretEditor
 			else if (c == '/')
 			{
 				registers[26] = text;
-				if (string.IsNullOrEmpty(text))
-				{
-					_viRegex = null;
-					_viBackwardRegex = null;
-				}
-				else
-				{
-					for (int i = 0; i < 2; i++)
-					{
-						if (i == 1)
-						{
-							text = ViReceiverVisual.Escape(text);
-						}
-						try
-						{
-							System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
-							CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
-							if (text.Length < 50)
-							{
-								options |= CharsRegularExpressions.RegexOptions.Compiled;
-							}
-							_viRegex = new CharsRegularExpressions.Regex(text, options, span);
-							_viBackwardRegex = new CharsRegularExpressions.Regex(
-								text, CharsRegularExpressions.RegexOptions.RightToLeft | options, span);
-							break;
-						}
-						catch
-						{
-							_viRegex = null;
-							_viBackwardRegex = null;
-						}
-					}
-				}
 			}
 		}
 		
@@ -189,6 +204,39 @@ namespace MulticaretEditor
 				result = fakeEnLayout;
 			}
 			return result;
+		}
+		
+		public static string Escape(string text)
+		{
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c = text[i];
+				switch (c)
+				{
+					case '\\':
+						builder.Append("\\\\");
+						break;
+					case '(':
+					case ')':
+					case '[':
+					case ']':
+					case '.':
+					case '$':
+					case '?':
+					case '{':
+					case '}':
+					case '+':
+					case '-':
+						builder.Append('\\');
+						builder.Append(c);
+						break;
+					default:
+						builder.Append(c);
+						break;
+				}
+			}
+			return builder.ToString();
 		}
 	}
 }

@@ -186,12 +186,12 @@ namespace UnitTests
 		
 		protected void PutToViClipboard(string text)
 		{
-			ClipboardExecuter.PutToRegister('\0', text);
+			ClipboardExecutor.PutToRegister('\0', text);
 		}
 		
 		protected void AssertViClipboard(string text)
 		{
-			Assert.AreEqual(text, ClipboardExecuter.GetFromRegister('\0'));
+			Assert.AreEqual(text, ClipboardExecutor.GetFromRegister('\0'));
 		}
 	}
 }

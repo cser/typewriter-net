@@ -163,7 +163,7 @@ namespace MulticaretEditor
 		{
 			public void Move(Controller controller, bool shift, bool change)
 			{
-				controller.ViFindForward(ClipboardExecuter.ViRegex);
+				controller.ViFindForward(ClipboardExecutor.ViRegex);
 			}
 		}
 		
@@ -171,7 +171,7 @@ namespace MulticaretEditor
 		{
 			public void Move(Controller controller, bool shift, bool change)
 			{
-				controller.ViFindBackward(ClipboardExecuter.ViBackwardRegex);
+				controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
 			}
 		}
 		

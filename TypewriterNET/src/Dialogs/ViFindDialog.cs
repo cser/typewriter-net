@@ -14,11 +14,12 @@ public class ViFindDialog : ADialog
 {
 	private FindDialog.Data data;
 	private FindParams findParams;
-	private Getter<string, bool> doFind;
+	private Getter<string, Pattern, bool> doFind;
+	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 	private MonospaceLabel label;
 
-	public ViFindDialog(FindDialog.Data data, FindParams findParams, Getter<string, bool> doFind)
+	public ViFindDialog(FindDialog.Data data, FindParams findParams, Getter<string, Pattern, bool> doFind)
 	{
 		this.data = data;
 		this.findParams = findParams;
@@ -28,6 +29,8 @@ public class ViFindDialog : ADialog
 
 	override protected void DoCreate()
 	{
+		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
+		
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("F&ind\\Cancel find", DoCancel, null, false)));
@@ -57,7 +60,33 @@ public class ViFindDialog : ADialog
 		textBox.TextChange += OnTextChange;
 		Controls.Add(textBox);
 		
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
+		tabBar.Text = "Find";
+		tabBar.ButtonMode = true;
+		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
+		tabBar.TabClick += OnTabClick;
+		tabBar.CloseClick += OnCloseClick;
+		tabBar.MouseDown += OnTabBarMouseDown;
+		Controls.Add(tabBar);
+		
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
+		UpdateFindParams();
+	}
+	
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = findParams != null ? findParams.GetIndicationText() : "";
+	}
+	
+	private void OnTabClick(NamedAction action)
+	{
+		action.Execute(textBox.Controller);
+	}
+	
+	private void OnTabBarMouseDown(object sender, EventArgs e)
+	{
+		textBox.Focus();
 	}
 	
 	private void OnTextChange()
@@ -79,7 +108,7 @@ public class ViFindDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight * 1); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
 
 	override public void Focus()
 	{
@@ -100,6 +129,7 @@ public class ViFindDialog : ADialog
 	{
 		if (Destroyed)
 			return;
+		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 	}
@@ -107,9 +137,11 @@ public class ViFindDialog : ADialog
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		label.Location = new Point(0, 0);
-		textBox.Location = new Point(textBox.CharWidth, 0);
-		textBox.Size = new Size(Width - textBox.CharWidth, Height + 1);
+		int tabBarHeight = tabBar.Height;
+		tabBar.Size = new Size(Width, tabBarHeight);
+		label.Location = new Point(0, tabBarHeight);
+		textBox.Location = new Point(textBox.CharWidth, tabBarHeight);
+		textBox.Size = new Size(Width - textBox.CharWidth, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -122,6 +154,10 @@ public class ViFindDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			label.TextColor = settings.ParsedScheme.fgColor;
+		}
+		else if (phase == UpdatePhase.FindParams)
+		{
+			UpdateFindParams();
 		}
 	}
 
@@ -136,7 +172,7 @@ public class ViFindDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		return doFind(text);
+		return doFind(text, new Pattern(text, findParams.regex, findParams.ignoreCase));
 	}
 	
 	private bool DoPrevPattern(Controller controller)

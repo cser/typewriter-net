@@ -188,8 +188,8 @@ namespace UnitTests
 		[Test]
 		public void StateEnter_hjkl_mapped()
 		{
-			ClipboardExecuter.fakeLayout = true;
-			ClipboardExecuter.fakeEnLayout = false;
+			ClipboardExecutor.fakeLayout = true;
+			ClipboardExecutor.fakeEnLayout = false;
 			receiver.viMap = GetRuMap();
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
