@@ -29,7 +29,6 @@ public class FindDialog : ADialog
 	private Getter<string, bool> doSelectAllFound;
 	private Getter<string, bool> doSelectNextFound;
 	private Getter<bool> doUnselectPrevText;
-	private Getter<string> getFilterText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 
@@ -40,8 +39,7 @@ public class FindDialog : ADialog
 		Getter<string, bool> doSelectAllFound,
 		Getter<string, bool> doSelectNextFound,
 		Getter<bool> doUnselectPrevText,
-		string name,
-		Getter<string> getFilterText)
+		string name)
 	{
 		this.data = data;
 		this.findParams = findParams;
@@ -49,7 +47,6 @@ public class FindDialog : ADialog
 		this.doSelectAllFound = doSelectAllFound;
 		this.doSelectNextFound = doSelectNextFound;
 		this.doUnselectPrevText = doUnselectPrevText;
-		this.getFilterText = getFilterText;
 		Name = name;
 	}
 
@@ -90,6 +87,7 @@ public class FindDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
+		tabBar.Text = Name;
 		tabBar.ButtonMode = true;
 		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
@@ -174,7 +172,6 @@ public class FindDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			tabBar.Text = Name + (getFilterText != null ? " - " + getFilterText() : "");
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{

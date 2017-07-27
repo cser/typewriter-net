@@ -61,7 +61,7 @@ public class ViFindDialog : ADialog
 		Controls.Add(textBox);
 		
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
-		tabBar.Text = "Find";
+		tabBar.Text = Name;
 		tabBar.ButtonMode = true;
 		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
@@ -153,6 +153,7 @@ public class ViFindDialog : ADialog
 		else if (phase == UpdatePhase.Parsed)
 		{
 			textBox.Scheme = settings.ParsedScheme;
+			tabBar.Scheme = settings.ParsedScheme;
 			label.TextColor = settings.ParsedScheme.fgColor;
 		}
 		else if (phase == UpdatePhase.FindParams)
