@@ -1924,7 +1924,9 @@ namespace MulticaretEditor
 				mouseDownIndex = 0;
 				actionProcessed = false;
 				if (!keyMap.Enumerate<bool>(ProcessDoubleClick, false))
-					controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
+				{
+					Mouse_SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
+				}
 				Invalidate();
 			}
 			if (AfterClick != null)
@@ -2158,6 +2160,18 @@ namespace MulticaretEditor
 				}
 			}
 			controller.PutCursor(place, moving);
+		}
+		
+		private void Mouse_SelectWordAtPlace(Place place, bool newSelection)
+		{
+			controller.SelectWordAtPlace(place, newSelection);
+			if (receiver != null)
+			{
+				if (receiver.ViMode == ViMode.Normal && !controller.AllSelectionsEmpty)
+				{
+					receiver.SetViMode(ViMode.Visual);
+				}
+			}
 		}
 	}
 }

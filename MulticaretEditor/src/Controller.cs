@@ -407,7 +407,6 @@ namespace MulticaretEditor
 			{
 				place.iChar = count - 1;
 				selection.caret = lines.IndexOf(place);
-				selection.anchor = selection.caret;
 			}
 			
 			DoAfterMove();
