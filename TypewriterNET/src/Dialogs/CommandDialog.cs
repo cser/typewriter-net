@@ -19,8 +19,8 @@ public class CommandDialog : ADialog
 		public string oldText = "";
 	}
 
+	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
-	private MonospaceLabel label;
 	private Data data;
 	private string text;
 
@@ -33,6 +33,8 @@ public class CommandDialog : ADialog
 
 	override protected void DoCreate()
 	{
+		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
+		
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("&View\\Cancel command", DoCancel, null, false)));
@@ -52,10 +54,6 @@ public class CommandDialog : ADialog
             frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
 		
-		label = new MonospaceLabel();
-		label.Text = ":";
-		Controls.Add(label);
-
 		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
@@ -63,22 +61,45 @@ public class CommandDialog : ADialog
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.TextChange += OnTextChange;
 		Controls.Add(textBox);
+		
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
+		tabBar.Text = Name;
+		tabBar.ButtonMode = true;
+		tabBar.TabClick += OnTabClick;
+		tabBar.CloseClick += OnCloseClick;
+		tabBar.MouseDown += OnTabBarMouseDown;
+		Controls.Add(tabBar);
 
+		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 	}
 	
 	private void OnTextChange()
 	{
-		Nest.size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
-		textBox.Controller.NeedScrollToCaret();
-		SetNeedResize();
+		int size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1) + tabBar.Height;
+		if (size > Nest.size)
+		{
+			Nest.size = size + 1;
+			textBox.Controller.NeedScrollToCaret();
+			SetNeedResize();
+		}
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
 
+	private void OnTabClick(NamedAction action)
+	{
+		action.Execute(textBox.Controller);
+	}
+	
 	private void OnCloseClick()
 	{
 		DispatchNeedClose();
+	}
+
+	private void OnTabBarMouseDown(object sender, EventArgs e)
+	{
+		textBox.Focus();
 	}
 
 	override protected void DoDestroy()
@@ -86,8 +107,8 @@ public class CommandDialog : ADialog
 		data.oldText = textBox.Text;
 	}
 
-	override public Size MinSize { get { return new Size(textBox.CharHeight * 3, textBox.CharHeight); } }
-
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
+	
 	override public void Focus()
 	{
 		textBox.Focus();
@@ -108,11 +129,6 @@ public class CommandDialog : ADialog
 		}
 	}
 
-	private void OnTabBarMouseDown(object sender, EventArgs e)
-	{
-		textBox.Focus();
-	}
-
 	private void OnTextBoxFocusedChange()
 	{
 		if (Destroyed)
@@ -124,9 +140,10 @@ public class CommandDialog : ADialog
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		label.Location = new Point(0, 0);
-		textBox.Location = new Point(textBox.CharWidth, 0);
-		textBox.Size = new Size(Width - textBox.CharWidth, Height + 1);
+		int tabBarHeight = tabBar.Height;
+		tabBar.Size = new Size(Width, tabBarHeight);
+		textBox.Location = new Point(0, tabBarHeight);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -135,13 +152,11 @@ public class CommandDialog : ADialog
 		{
 			settings.ApplySimpleParameters(textBox, null);
 			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
-			label.FontFamily = settings.font.Value;
-			label.FontSize = settings.fontSize.Value;
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
 			textBox.Scheme = settings.ParsedScheme;
-			label.TextColor = settings.ParsedScheme.fgColor;
+			tabBar.Scheme = settings.ParsedScheme;
 		}
 	}
 

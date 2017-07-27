@@ -17,7 +17,6 @@ public class ViFindDialog : ADialog
 	private Getter<string, Pattern, bool> doFind;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
-	private MonospaceLabel label;
 
 	public ViFindDialog(FindDialog.Data data, FindParams findParams, Getter<string, Pattern, bool> doFind)
 	{
@@ -46,10 +45,6 @@ public class ViFindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 		}
 		
-		label = new MonospaceLabel();
-		label.Text = "/";
-		Controls.Add(label);
-		
 		KeyMap beforeKeyMap = new KeyMap();
 		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddBefore(beforeKeyMap);
@@ -61,7 +56,7 @@ public class ViFindDialog : ADialog
 		Controls.Add(textBox);
 		
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
-		tabBar.Text = Name;
+		tabBar.Text = "/" + Name;
 		tabBar.ButtonMode = true;
 		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
@@ -84,6 +79,11 @@ public class ViFindDialog : ADialog
 		action.Execute(textBox.Controller);
 	}
 	
+	private void OnCloseClick()
+	{
+		DispatchNeedClose();
+	}
+
 	private void OnTabBarMouseDown(object sender, EventArgs e)
 	{
 		textBox.Focus();
@@ -91,17 +91,16 @@ public class ViFindDialog : ADialog
 	
 	private void OnTextChange()
 	{
-		Nest.size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
-		textBox.Controller.NeedScrollToCaret();
-		SetNeedResize();
+		int size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1) + tabBar.Height;
+		if (size > Nest.size)
+		{
+			Nest.size = size + 1;
+			textBox.Controller.NeedScrollToCaret();
+			SetNeedResize();
+		}
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
-
-	private void OnCloseClick()
-	{
-		DispatchNeedClose();
-	}
 
 	override protected void DoDestroy()
 	{
@@ -139,9 +138,8 @@ public class ViFindDialog : ADialog
 		base.OnResize(e);
 		int tabBarHeight = tabBar.Height;
 		tabBar.Size = new Size(Width, tabBarHeight);
-		label.Location = new Point(0, tabBarHeight);
-		textBox.Location = new Point(textBox.CharWidth, tabBarHeight);
-		textBox.Size = new Size(Width - textBox.CharWidth, Height - tabBarHeight + 1);
+		textBox.Location = new Point(0, tabBarHeight);
+		textBox.Size = new Size(Width, Height - tabBarHeight + 1);
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -154,7 +152,6 @@ public class ViFindDialog : ADialog
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			label.TextColor = settings.ParsedScheme.fgColor;
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{
