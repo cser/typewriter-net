@@ -1913,7 +1913,7 @@ namespace MulticaretEditor
 					else
 					{
 						controller.ClearMinorSelections();
-						controller.PutCursor(GetMousePlace(e.Location), false);
+						Mouse_PutCursor(GetMousePlace(e.Location), false);
 					}
 					ResetViInput();
 					UnblinkCursor();
@@ -1960,8 +1960,7 @@ namespace MulticaretEditor
 			}
 			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
-				controller.PutCursor(GetMousePlace(e.Location), true);
-				UpdateOnMouseSelection();
+				Mouse_PutCursor(GetMousePlace(e.Location), true);
 				UnblinkCursor();
 				if (AfterClick != null)
 					AfterClick();
@@ -1982,23 +1981,11 @@ namespace MulticaretEditor
 			if (isMouseDown)
 			{
 				UpdateScrollOnPaint();
-				controller.PutCursor(GetMousePlace(e.Location), true);
-				UpdateOnMouseSelection();
+				Mouse_PutCursor(GetMousePlace(e.Location), true);
 			}
 			UnblinkCursor();
 		}
 		
-		private void UpdateOnMouseSelection()
-		{
-			if (macrosExecutor.viMode)
-			{
-				if (controller.LastSelection.Count > 0)
-				{
-					receiver.SetViMode(ViMode.Visual);
-				}
-			}
-		}
-
 		private Pos GetMousePos(Point location)
 		{
 			return new Pos(
@@ -2144,6 +2131,33 @@ namespace MulticaretEditor
 			int valueY = vScrollBar.Value;
 			lines.scroller.UpdateScrollOnPaint(info, ref valueX, ref valueY);
 			return lines.wwSizeY;
+		}
+		
+		private void Mouse_PutCursor(Place place, bool moving)
+		{
+			if (receiver != null)
+			{
+				if (receiver.ViMode == ViMode.Normal)
+				{
+					controller.ViNormal_PutCursor(place, moving);
+					if (!controller.AllSelectionsEmpty)
+					{
+						receiver.SetViMode(ViMode.Visual);
+					}
+					return;
+				}
+				if (receiver.ViMode == ViMode.Visual || receiver.ViMode == ViMode.LinesVisual)
+				{
+					if (controller.SelectionsCount == 1 && !moving)
+					{
+						receiver.SetViMode(ViMode.Normal);
+						controller.PutCursor(place, moving);
+						controller.ViFixPositions(true);
+						return;
+					}
+				}
+			}
+			controller.PutCursor(place, moving);
 		}
 	}
 }
