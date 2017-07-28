@@ -229,9 +229,8 @@ namespace MulticaretEditor
 								action = code;
 								return ParseResult.Complete;
 							case 's':
-								action = code;
-								return ParseResult.Complete;
 							case '\b':
+							case '\r':
 								action = code;
 								return ParseResult.Complete;
 						}

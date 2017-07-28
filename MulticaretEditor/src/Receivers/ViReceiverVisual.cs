@@ -359,6 +359,25 @@ namespace MulticaretEditor
 							SetViMode();
 						}
 						break;
+					case '\b':
+						for (int i = 0; i < count; i++)
+						{
+							if (lines.AllSelectionsEmpty)
+							{
+								controller.Backspace();
+							}
+							else
+							{
+								controller.EraseSelection();
+							}
+						}
+						break;
+					case '\r':
+						for (int i = 0; i < count; i++)
+						{
+							controller.InsertLineBreak();
+						}
+						break;
 				}
 			}
 			if (command != null)

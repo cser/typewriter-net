@@ -455,6 +455,12 @@ namespace MulticaretEditor
 							}
 						}
 						break;
+					case '\r':
+						for (int i = 0; i < count; i++)
+						{
+							controller.InsertLineBreak();
+						}
+						break;
 				}
 			}
 			if (command != null && count != 1)
