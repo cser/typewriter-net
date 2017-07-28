@@ -21,5 +21,21 @@ namespace MulticaretEditor
 		public int Right { get { return anchor < caret ? caret : anchor; } }
 		public int Count { get { return anchor > caret ? anchor - caret : caret - anchor; } }
 		public bool Empty { get { return anchor == caret; } }
+		
+		public static int CompareSelections(SelectionMemento a, SelectionMemento b)
+		{
+			int aLeft = a.anchor < a.caret ? a.anchor : a.caret;
+			int bLeft = b.anchor < b.caret ? b.anchor : b.caret;
+			int result;
+			if (aLeft == bLeft)
+			{
+				result = (a.anchor < a.caret ? a.caret : a.anchor) - (b.anchor < b.caret ? b.caret : b.anchor);
+			}
+			else
+			{
+				result = aLeft - bLeft;
+			}
+			return result;
+		}
 	}
 }

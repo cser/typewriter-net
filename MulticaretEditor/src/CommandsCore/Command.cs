@@ -35,7 +35,7 @@ namespace MulticaretEditor
 				mementos[i] = selections[i].Memento;
 				mementos[i].index = i;
 			}
-			Array.Sort(mementos, CompareSelections);
+			Array.Sort(mementos, SelectionMemento.CompareSelections);
 			return mementos;
 		}
 		
@@ -51,22 +51,6 @@ namespace MulticaretEditor
 			{
 				selections[mementos[i].index].Memento = mementos[i];
 			}
-		}
-		
-		protected static int CompareSelections(SelectionMemento a, SelectionMemento b)
-		{
-			int aLeft = a.anchor < a.caret ? a.anchor : a.caret;
-			int bLeft = b.anchor < b.caret ? b.anchor : b.caret;
-			int result;
-			if (aLeft == bLeft)
-			{
-				result = (a.anchor < a.caret ? a.caret : a.anchor) - (b.anchor < b.caret ? b.caret : b.anchor);
-			}
-			else
-			{
-				result = aLeft - bLeft;
-			}
-			return result;
 		}
 	}
 }

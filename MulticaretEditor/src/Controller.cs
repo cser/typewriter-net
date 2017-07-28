@@ -621,7 +621,7 @@ namespace MulticaretEditor
 
 		private void ResetCommandsBatching()
 		{
-			lastCommandType = CommandType.None;
+			lastCommandType = null;
 			lastTime = 0;
 		}
 		
@@ -636,7 +636,7 @@ namespace MulticaretEditor
 
 		private bool Execute(Command command)
 		{
-			if (isReadonly && command.type.changesText)
+			if (isReadonly)
 				return false;
 			command.lines = lines;
 			command.selections = selections;
@@ -750,11 +750,11 @@ namespace MulticaretEditor
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				Execute(new CopyLinesCommand('*', GetLineRangesByLefts()));
+				CopyLines('*', GetLineRangesByLefts());
 			}
 			else
 			{
-				Execute(new CopyCommand('*'));
+				ViCopy('*');
 			}
 		}
 
@@ -763,14 +763,46 @@ namespace MulticaretEditor
 			if (lines.AllSelectionsEmpty)
 			{
 				List<SimpleRange> ranges = GetLineRangesByLefts();
-				Execute(new CopyLinesCommand('*', ranges));
+				CopyLines('*', ranges);
 				Execute(new EraseLinesCommand(ranges));
 			}
 			else
 			{
-				Execute(new CopyCommand('*'));
+				ViCopy('*');
 				EraseSelection();
 			}
+		}
+		
+		private void CopyLines(char register, List<SimpleRange> ranges)
+		{
+			lines.JoinSelections();
+			StringBuilder text = new StringBuilder();
+			foreach (SimpleRange range  in ranges)
+			{
+				if (range.count > 0)
+				{
+					LineIterator iterator = lines.GetLineRange(range.index, range.count);
+					while (iterator.MoveNext())
+					{
+						Line line = iterator.current;
+						int normalCount = line.NormalCount;
+						Char[] chars = line.chars;
+						for (int i = 0; i < normalCount; ++i)
+						{
+							text.Append(chars[i].c);
+						}
+						if (normalCount < line.charsCount)
+						{
+							text.Append(line.GetRN());
+						}
+						else
+						{
+							text.Append(lines.lineBreak);
+						}
+					}
+				}
+			}
+			ClipboardExecutor.PutToRegister(register, text.ToString());
 		}
 
 		public void EraseSelection()
@@ -1909,7 +1941,7 @@ namespace MulticaretEditor
 		
 		public void ViCut(char register, bool fixPositions)
 		{
-			Execute(new CopyCommand(register));
+			ViCopy(register);
 			EraseSelection();
 			if (fixPositions)
 			{
@@ -1919,13 +1951,40 @@ namespace MulticaretEditor
 		
 		public void ViCopy(char register)
 		{
-			Execute(new CopyCommand(register));
+			lines.JoinSelections();
+			if (lines.AllSelectionsEmpty)
+			{
+				return;
+			}
+			StringBuilder text = new StringBuilder();
+			SelectionMemento[] mementos = GetSelectionMementos();
+			bool first = true;
+			foreach (SelectionMemento memento  in mementos)
+			{
+				if (!first)
+					text.Append('\n');
+				first = false;
+				text.Append(lines.GetText(memento.Left, memento.Count));
+			}
+			ClipboardExecutor.PutToRegister(register, text.ToString());
+		}
+		
+		protected SelectionMemento[] GetSelectionMementos()
+		{
+			SelectionMemento[] mementos = new SelectionMemento[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				mementos[i] = selections[i].Memento;
+				mementos[i].index = i;
+			}
+			Array.Sort(mementos, SelectionMemento.CompareSelections);
+			return mementos;
 		}
 		
 		public void ViCopyLine(char register, int count)
 		{
 			List<SimpleRange> ranges = ViGetLineRanges(count);
-			Execute(new CopyLinesCommand(register, ranges));
+			CopyLines(register, ranges);
 		}
 		
 		public void ViShift(int indents, int count, bool isLeft)
@@ -2131,14 +2190,14 @@ namespace MulticaretEditor
 		public void ViDeleteLine(char register, int count)
 		{
 			List<SimpleRange> ranges = ViGetLineRanges(count);
-			Execute(new CopyLinesCommand(register, ranges));
+			CopyLines(register, ranges);
 			Execute(new ViEraseLinesCommand(this, ranges));
 		}
 		
 		public void ViDeleteLineForChange(char register, int count)
 		{
 			List<SimpleRange> ranges = ViGetLineRanges(count);
-			Execute(new CopyLinesCommand(register, ranges));
+			CopyLines(register, ranges);
 			Execute(new ViEraseLinesForChangeCommand(this, ranges));
 		}
 		
@@ -2229,6 +2288,11 @@ namespace MulticaretEditor
 				ranges.Add(lastRange);
 			}
 			return ranges;
+		}
+		
+		public void RecoverSelection()
+		{
+			//TODO
 		}
 	}
 }

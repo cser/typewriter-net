@@ -229,6 +229,10 @@ namespace MulticaretEditor
 					{
 						move = new ViMoves.DocumentStart();
 					}
+					if (parser.moveChar.IsChar('v'))
+					{
+						controller.RecoverSelection();
+					}
 					count = 1;
 					break;
 				case 'i':
