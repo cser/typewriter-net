@@ -392,26 +392,6 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 		
-		public void ViNormal_PutCursor(Place place, bool moving)
-		{
-			Selection selection = selections[selections.Count - 1];
-			Place caret = lines.Normalize(place);
-			selection.caret = lines.IndexOf(caret);
-			if (!moving)
-				selection.anchor = selection.caret;
-			lines.SetPreferredPos(selection, caret);
-			
-			Line line = lines[place.iLine];
-			int count = line.NormalCount;
-			if (count > 0 && place.iChar >= count)
-			{
-				place.iChar = count - 1;
-				selection.caret = lines.IndexOf(place);
-			}
-			
-			DoAfterMove();
-		}
-		
 		public void PutCursorForcedly(Place place, bool moving)
 		{
 			Selection selection = selections[selections.Count - 1];
@@ -1814,6 +1794,25 @@ namespace MulticaretEditor
 				if (setPreferredPos)
 				{
 					lines.SetPreferredPos(selection, place);
+				}
+			}
+		}
+		
+		public void ViNormal_FixCaret(bool setPreferredPos)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				int count = line.NormalCount;
+				if (count > 0 && place.iChar >= count)
+				{
+					place.iChar = count - 1;
+					selection.caret = lines.IndexOf(place);
+					if (setPreferredPos)
+					{
+						lines.SetPreferredPos(selection, place);
+					}
 				}
 			}
 		}
