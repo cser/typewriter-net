@@ -2141,7 +2141,8 @@ namespace MulticaretEditor
 			{
 				if (receiver.ViMode == ViMode.Normal)
 				{
-					controller.ViNormal_PutCursor(place, moving);
+					controller.PutCursor(place, moving);
+					controller.ViFixPositions(true);
 					if (!controller.AllSelectionsEmpty)
 					{
 						receiver.SetViMode(ViMode.Visual);
