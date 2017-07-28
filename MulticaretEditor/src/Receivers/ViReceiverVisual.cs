@@ -44,19 +44,12 @@ namespace MulticaretEditor
 			string viShortcut;
 			switch (keysData)
 			{
-				case Keys.Left:
-					ProcessKey(new ViChar('h', false), out viShortcut, out scrollToCursor);
-					return true;
-				case Keys.Right:
-					ProcessKey(new ViChar('l', false), out viShortcut, out scrollToCursor);
-					return true;
-				case Keys.Down:
-					ProcessKey(new ViChar('j', false), out viShortcut, out scrollToCursor);
-					return true;
-				case Keys.Up:
-					ProcessKey(new ViChar('k', false), out viShortcut, out scrollToCursor);
-					return true;
 				case Keys.Control | Keys.R:
+					if (controller.isReadonly)
+					{
+						scrollToCursor = false;
+						return false;
+					}
 					ProcessKey(new ViChar('r', true), out viShortcut, out scrollToCursor);
 					return true;
 				case Keys.Control | Keys.F:
