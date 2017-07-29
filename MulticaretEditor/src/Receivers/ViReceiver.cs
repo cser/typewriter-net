@@ -231,7 +231,7 @@ namespace MulticaretEditor
 					}
 					if (parser.moveChar.IsChar('v'))
 					{
-						controller.ViRecoverSelection();
+						controller.ViRecoverSelections();
 						if (!controller.AllSelectionsEmpty)
 						{
 							context.SetState(new ViReceiverVisual(false));

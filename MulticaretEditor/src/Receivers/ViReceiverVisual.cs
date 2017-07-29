@@ -38,6 +38,7 @@ namespace MulticaretEditor
 			{
 				controller.JoinSelections();
 				scrollToCursor = true;
+				controller.ViStoreSelections();
 				SetViMode();
 				return true;
 			}
@@ -236,6 +237,7 @@ namespace MulticaretEditor
 					case 'c':
 						if (_lineMode)
 						{
+							controller.ViStoreSelections();
 							controller.ViCopyLine('0', 1);
 							controller.ViDeleteLine('0', 1);
 						}
@@ -248,10 +250,12 @@ namespace MulticaretEditor
 					case 'y':
 						if (_lineMode)
 						{
+							controller.ViStoreSelections();
 							controller.ViCopyLine(parser.register, count);
 						}
 						else
 						{
+							controller.ViStoreSelections();
 							controller.ViCopy(parser.register);
 						}
 						SetViMode();

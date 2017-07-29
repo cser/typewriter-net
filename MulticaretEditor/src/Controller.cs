@@ -1888,7 +1888,7 @@ namespace MulticaretEditor
 			ClipboardExecutor.PutToRegister(register, text.ToString());
 		}
 		
-		protected SelectionMemento[] GetSelectionMementos()
+		private SelectionMemento[] GetSelectionMementos()
 		{
 			SelectionMemento[] mementos = new SelectionMemento[selections.Count];
 			for (int i = 0; i < mementos.Length; i++)
@@ -2212,7 +2212,7 @@ namespace MulticaretEditor
 			return ranges;
 		}
 		
-		protected void SetSelectionMementos(SelectionMemento[] mementos)
+		private void SetSelectionMementos(SelectionMemento[] mementos)
 		{
 			for (int i = selections.Count; i < mementos.Length; i++)
 			{
@@ -2226,7 +2226,12 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViRecoverSelection()
+		public void ViStoreSelections()
+		{
+			lines.mementos = GetSelectionMementos();
+		}
+		
+		public void ViRecoverSelections()
 		{
 			if (lines.mementos != null)
 			{
