@@ -419,10 +419,10 @@ namespace UnitTests
 			AssertText("\tline0{\n\t\tline1\n\t\tABC\n\t}\nline3");
 			AssertSelection().Both(4, 2).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tline0{\n\t\tline1\n\t\t\n\t}\nline3");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tline0{\n\t\tline1\n\t}\nline3");
 		}
 	}

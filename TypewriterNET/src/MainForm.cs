@@ -460,7 +460,7 @@ public class MainForm : Form
 			{
 				if (settings.checkContentBeforeReloading.Value && IsFileEqualToBuffer(buffer))
 				{
-					buffer.Controller.history.MarkAsSaved();
+					buffer.Controller.processor.MarkAsSaved();
 				}
 				else
 				{
@@ -476,7 +476,7 @@ public class MainForm : Form
 					else
 					{
 						buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
-						buffer.Controller.history.MarkAsFullyUnsaved();
+						buffer.Controller.processor.MarkAsFullyUnsaved();
 					}
 				}
 			}
@@ -1225,7 +1225,7 @@ public class MainForm : Form
 				Log.Open();
 				return;
 			}
-			buffer.Controller.history.MarkAsSaved();
+			buffer.Controller.processor.MarkAsSaved();
 			Log.WriteInfo("Responce", text);
 			return;
 		}
@@ -1260,7 +1260,7 @@ public class MainForm : Form
 			MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
-		buffer.Controller.history.MarkAsSaved();
+		buffer.Controller.processor.MarkAsSaved();
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
@@ -1677,7 +1677,7 @@ public class MainForm : Form
 		buffer.InitText(text);
 		if (unsaved)
 		{
-			buffer.Controller.history.MarkAsFullyUnsaved();
+			buffer.Controller.processor.MarkAsFullyUnsaved();
 		}
 		GetMainNest().Frame.AddBuffer(buffer);
 	}

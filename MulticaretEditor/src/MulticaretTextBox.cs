@@ -639,9 +639,9 @@ namespace MulticaretEditor
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
 
-			if (controller != null && controller.needDispatchChange)
+			if (controller != null && controller.processor.needDispatchChange)
 			{
-				controller.needDispatchChange = false;
+				controller.processor.needDispatchChange = false;
 				if (TextChange != null)
 					TextChange();
 			}

@@ -918,15 +918,15 @@ namespace UnitTests
 			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
 			Put(1, 1).Press(">>");
 			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
-			controller.Undo();
+			controller.processor.Undo();
 			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
 			Press("<<");
 			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("Oooo\n\taaaa\n\tccc\ndddddddd");
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("Oooo\naaaa\n\tccc\ndddddddd");
 		}
 		

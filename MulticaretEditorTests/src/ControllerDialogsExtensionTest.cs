@@ -305,11 +305,11 @@ namespace UnitTests
 			AssertText("aaa bbbb CC\neeee aaa CC fff");
 			AssertSelection().Both(11, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("aaa bbbb ccccc\neeee aaa ccccc fff");
 			AssertSelection().Both(5, 0).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("aaa bbbb CC\neeee aaa CC fff");
 			AssertSelection().Both(11, 1).NoNext();
 		}
@@ -500,7 +500,7 @@ namespace UnitTests
 			Assert.AreEqual("rh\r", lines[0].Text);
 			Assert.AreEqual("GSsf", lines[1].Text);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("rh\r\nsf");
 			Assert.AreEqual("rh\r\n", lines[0].Text);
 			Assert.AreEqual("sf", lines[1].Text);

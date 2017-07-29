@@ -10,18 +10,16 @@ namespace MulticaretEditor
 		private readonly LineArray lines;
 		private readonly List<Selection> selections;
 
-		public readonly History history;
-
 		public Controller(LineArray lines)
 		{
 			this.lines = lines;
 			this.selections = lines.selections;
-			history = new History();
-			ResetCommandsBatching();
+			processor = new CommandProcessor(this, lines, selections);
+			processor.ResetCommandsBatching();
 		}
 
+		public readonly CommandProcessor processor;
 		public bool isReadonly;
-		public bool needDispatchChange;
 		public MacrosExecutor macrosExecutor;
 
 		public LineArray Lines { get { return lines; } }
@@ -29,13 +27,12 @@ namespace MulticaretEditor
 		public void InitText(string text)
 		{
 			lines.SetText(text);
-			history.Reset();
-			history.MarkAsSaved();
+			processor.DoAfterInitText();
 		}
 		
 		private void DoAfterMove()
 		{
-			ResetCommandsBatching();
+			processor.ResetCommandsBatching();
 		}
 
 		public bool MoveRight(bool shift)
@@ -616,106 +613,28 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		private CommandType lastCommandType;
-		private long lastTime;
-
-		private void ResetCommandsBatching()
-		{
-			lastCommandType = null;
-			lastTime = 0;
-		}
-		
-		public long debugNowMilliseconds = -1;
-		
-		public long GetNowMilliseconds()
-		{
-			return debugNowMilliseconds != -1 ?
-				debugNowMilliseconds :
-				(long)(new TimeSpan(DateTime.UtcNow.Ticks).TotalMilliseconds);
-		}
-
-		private bool Execute(Command command)
-		{
-			if (isReadonly)
-				return false;
-			command.lines = lines;
-			command.selections = selections;
-			long time = GetNowMilliseconds();
-			if (command.type != lastCommandType && !command.type.helped &&
-				!(lastCommandType != null && lastCommandType.helped))
-			{
-				if (history.LastCommand != null)
-					history.LastCommand.marked = true;
-				lastCommandType = command.type;
-				lastTime = time;
-			}
-			else if (time - lastTime > 1000)
-			{
-				if (history.LastCommand != null)
-					history.LastCommand.marked = true;
-				lastCommandType = command.type;
-				lastTime = time;
-			}
-			bool result = command.Init();
-			if (result)
-				history.ExecuteInited(command);
-			needDispatchChange = true;
-			return result;
-		}
-
-		public void Undo()
-		{
-			ResetCommandsBatching();
-			bool changed = false;
-			while (true)
-			{
-				if (history.Undo())
-					changed = true;
-				if (history.LastCommand == null || history.LastCommand.marked)
-					break;
-			}
-			if (changed)
-				needDispatchChange = true;
-		}
-
-		public void Redo()
-		{
-			ResetCommandsBatching();
-			while (true)
-			{
-				if (history.NextCommand == null)
-					break;
-				if (history.NextCommand.marked)
-				{
-					history.Redo();
-					break;
-				}
-				history.Redo();
-			}
-		}
-
 		public void Backspace()
 		{
-			Execute(new BackspaceCommand());
+			processor.Execute(new BackspaceCommand());
 		}
 
 		public void Delete()
 		{
-			Execute(new DeleteCommand());
+			processor.Execute(new DeleteCommand());
 		}
 
 		public void InsertText(string text)
 		{
 			if (lines.autoindent && text == "}")
 			{
-				Execute(new InsertIndentedCketCommand());
+				processor.Execute(new InsertIndentedCketCommand());
 				return;
 			}
 			if (lines.spacesInsteadTabs && text == "\t")
 			{
 				text = new string(' ', lines.tabSize);
 			}
-			Execute(new InsertTextCommand(text, null, true));
+			processor.Execute(new InsertTextCommand(text, null, true));
 		}
 
 		public void InsertLineBreak()
@@ -738,12 +657,12 @@ namespace MulticaretEditor
 				}
 				texts[i] = lines.lineBreak + text;
 			}
-			Execute(new InsertTextCommand(null, texts, true));
+			processor.Execute(new InsertTextCommand(null, texts, true));
 		}
 		
 		public void ReplaceText(SimpleRange[] orderedRanges, string newText)
 		{
-			Execute(new ReplaceTextCommand(orderedRanges, newText));
+			processor.Execute(new ReplaceTextCommand(orderedRanges, newText));
 		}
 
 		public void Copy()
@@ -764,7 +683,7 @@ namespace MulticaretEditor
 			{
 				List<SimpleRange> ranges = GetLineRangesByLefts();
 				CopyLines('*', ranges);
-				Execute(new EraseLinesCommand(ranges));
+				processor.Execute(new EraseLinesCommand(ranges));
 			}
 			else
 			{
@@ -807,42 +726,42 @@ namespace MulticaretEditor
 
 		public void EraseSelection()
 		{
-			Execute(new EraseSelectionCommand());
+			processor.Execute(new EraseSelectionCommand());
 		}
 
 		public void Paste()
 		{
-			Execute(new PasteCommand('*'));
+			processor.Execute(new PasteCommand('*'));
 		}
 
 		public bool ShiftLeft()
 		{
-			return Execute(new ShiftCommand(true));
+			return processor.Execute(new ShiftCommand(true));
 		}
 
 		public bool ShiftRight()
 		{
-			return Execute(new ShiftCommand(false));
+			return processor.Execute(new ShiftCommand(false));
 		}
 
 		public bool RemoveWordLeft()
 		{
-			return Execute(new RemoveWordCommand(true));
+			return processor.Execute(new RemoveWordCommand(true));
 		}
 
 		public bool RemoveWordRight()
 		{
-			return Execute(new RemoveWordCommand(false));
+			return processor.Execute(new RemoveWordCommand(false));
 		}
 
 		public bool MoveLineUp()
 		{
-			return Execute(new MoveLineCommand(true));
+			return processor.Execute(new MoveLineCommand(true));
 		}
 
 		public bool MoveLineDown()
 		{
-			return Execute(new MoveLineCommand(false));
+			return processor.Execute(new MoveLineCommand(false));
 		}
 		
 		public string GetWord(Place place)
@@ -1050,7 +969,7 @@ namespace MulticaretEditor
 				texts[i] = upper ? text.ToUpperInvariant() : text.ToLowerInvariant();
 			}
 			if (needChange)
-				Execute(new InsertTextCommand(null, texts, false));
+				processor.Execute(new InsertTextCommand(null, texts, false));
 		}
 
 		public bool AllSelectionsEmpty { get { return lines.AllSelectionsEmpty; } }
@@ -1400,7 +1319,7 @@ namespace MulticaretEditor
 		
 		public bool FixLineBreaks()
 		{
-			return Execute(new FixLineBreaksCommand());
+			return processor.Execute(new FixLineBreaksCommand());
 		}
 		
 		private ControllerDialogsExtension dialogsExtension;
@@ -1419,12 +1338,12 @@ namespace MulticaretEditor
 		
 		public void ViAutoindentByBottom()
 		{
-			Execute(new InsertIndentedBeforeCommand());
+			processor.Execute(new InsertIndentedBeforeCommand());
 		}
 
 		public void ViResetCommandsBatching()
 		{
-			ResetCommandsBatching();
+			processor.ResetCommandsBatching();
 		}
 		
 		public void ViMoveToCharLeft(char charToFind, bool shift, int count, bool at)
@@ -1927,7 +1846,7 @@ namespace MulticaretEditor
 					texts[i] = builder.ToString();
 				}
 			}
-			Execute(new InsertTextCommand(null, texts, true));
+			processor.Execute(new InsertTextCommand(null, texts, true));
 			if (selections.Count == texts.Length)
 			{
 				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
@@ -1992,13 +1911,13 @@ namespace MulticaretEditor
 			List<SimpleRange> ranges = ViGetLineRanges(count);
 			for (int i = 0; i < indents; ++i)
 			{
-				Execute(new ViShiftCommand(ranges, isLeft));
+				processor.Execute(new ViShiftCommand(ranges, isLeft));
 			}
 		}
 		
 		public void ViSavePositions()
 		{
-			Execute(new ViSavePositions());
+			processor.Execute(new ViSavePositions());
 		}
 		
 		public void ViJ()
@@ -2034,12 +1953,13 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			Execute(new InsertTextCommand(null, texts, true));
+			processor.Execute(new InsertTextCommand(null, texts, true));
 			ViMoveLeft(false);
 		}
 		
 		public void ViPaste(char register, Direction direction, int count)
 		{
+			processor.batchMode = true;
 			if (direction == Direction.Right)
 			{
 				ViSavePositions();
@@ -2048,6 +1968,7 @@ namespace MulticaretEditor
 			string text = ClipboardExecutor.GetFromRegister(register);
 			if (text == null || text == "")
 			{
+				processor.batchMode = false;
 				return;
 			}
 			bool isLineInsert = text.EndsWith("\n") || text.EndsWith("\r");
@@ -2066,7 +1987,7 @@ namespace MulticaretEditor
 					selection.caret = lines.IndexOf(caret);
 					selection.SetEmpty();
 				}
-				Execute(new InsertTextCommand(text, null, false));
+				processor.Execute(new InsertTextCommand(text, null, false));
 				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
 				{
 					Selection selection = lines.selections[i];
@@ -2083,7 +2004,7 @@ namespace MulticaretEditor
 				{
 					if (subdivider.GetLinesCount() != selections.Count)
 					{
-						Execute(new InsertTextCommand(text, null, true));
+						processor.Execute(new InsertTextCommand(text, null, true));
 					}
 					else
 					{
@@ -2092,7 +2013,7 @@ namespace MulticaretEditor
 						{
 							texts[i] = LineSubdivider.GetWithoutEndRN(texts[i]);
 						}
-						Execute(new InsertTextCommand(null, texts, true));
+						processor.Execute(new InsertTextCommand(null, texts, true));
 					}
 				}
 				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
@@ -2103,6 +2024,7 @@ namespace MulticaretEditor
 				}
 			}
 			ViSavePositions();
+			processor.batchMode = false;
 		}
 		
 		public void ViGoToLine(int iLine, bool shift)
@@ -2191,14 +2113,14 @@ namespace MulticaretEditor
 		{
 			List<SimpleRange> ranges = ViGetLineRanges(count);
 			CopyLines(register, ranges);
-			Execute(new ViEraseLinesCommand(this, ranges));
+			processor.Execute(new ViEraseLinesCommand(this, ranges));
 		}
 		
 		public void ViDeleteLineForChange(char register, int count)
 		{
 			List<SimpleRange> ranges = ViGetLineRanges(count);
 			CopyLines(register, ranges);
-			Execute(new ViEraseLinesForChangeCommand(this, ranges));
+			processor.Execute(new ViEraseLinesForChangeCommand(this, ranges));
 		}
 		
 		public List<SimpleRange> GetLineRangesByLefts()

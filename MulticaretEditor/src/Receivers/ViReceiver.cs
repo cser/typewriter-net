@@ -490,16 +490,16 @@ namespace MulticaretEditor
 		{
 			for (int i = 0; i < count; i++)
 			{
-				controller.Redo();
+				controller.processor.Redo();
 			}
-			controller.ViCollapseSelections();
+			controller.ViFixPositions(true);
 		}
 		
 		private void ProcessUndo(int count)
 		{
 			for (int i = 0; i < count; i++)
 			{
-				controller.Undo();
+				controller.processor.Undo();
 			}
 			controller.ViCollapseSelections();
 		}

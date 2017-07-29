@@ -228,7 +228,7 @@ public class Frame : AFrame
 				buffer.softRemove = false;
 			}
 			buffer.owner = buffers;
-			buffer.Controller.history.ChangedChange += OnChangedChange;
+			buffer.Controller.processor.ChangedChange += OnChangedChange;
 			buffers.list.Add(buffer);
 			if (buffer.onAdd != null)
 				buffer.onAdd(buffer);
@@ -247,7 +247,7 @@ public class Frame : AFrame
 			return;
 		if (!buffer.softRemove && buffer.onRemove != null && !buffer.onRemove(buffer))
 			return;
-		buffer.Controller.history.ChangedChange -= OnChangedChange;
+		buffer.Controller.processor.ChangedChange -= OnChangedChange;
 		buffer.owner = null;
 		buffers.list.Remove(buffer);
 		if (buffers.list.Count == 0)

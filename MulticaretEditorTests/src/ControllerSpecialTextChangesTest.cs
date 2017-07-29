@@ -178,7 +178,7 @@ namespace UnitTests
 				"\tline3");
 			controller.PutCursor(new Place(2, 3), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"\tline0() {\n" +
 				"\t\tline1\n" +
@@ -209,7 +209,7 @@ namespace UnitTests
 				"\tline3");
 			controller.PutCursor(new Place(2, 2), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"\tline0()\n" +
 				"\t{\n" +
@@ -239,7 +239,7 @@ namespace UnitTests
 				"line3");
 			controller.PutCursor(new Place(1, 2), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"line0()\n" +
 				"{\n" +

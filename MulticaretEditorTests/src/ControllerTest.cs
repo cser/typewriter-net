@@ -828,19 +828,19 @@ namespace UnitTests
 			controller.ShiftLeft();
 			AssertText("Du\nDu hast\nDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("Du\nDu hast\nDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 			
 			controller.ShiftRight();
 			AssertText("\t\tDu\n\tDu hast\n\t\tDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 		}
 		
@@ -856,19 +856,19 @@ namespace UnitTests
 			controller.ShiftLeft();
 			AssertText("   Du\nDu hast\nDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\t   Du\n Du hast\n    Du hast mich");
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("   Du\nDu hast\nDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\t   Du\n Du hast\n    Du hast mich");
 			
 			controller.ShiftRight();
 			AssertText("\t\t   Du\n\t Du hast\n\t\tDu hast mich");
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\t   Du\n Du hast\n    Du hast mich");
 		}
 		
@@ -915,11 +915,11 @@ namespace UnitTests
 			AssertText("line0  line2 line3 line4");
 			AssertSelection().Both(6, 0).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("line0 line1 line2 line3 line4");
 			AssertSelection().Both(11, 0).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("line0  line2 line3 line4");
 			AssertSelection().Both(6, 0).NoNext();
 		}
@@ -937,11 +937,11 @@ namespace UnitTests
 			
 			//Then not Npp behavour (npp moves cursor on undo), but seems to be more nice
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertSelection().Both(6, 0).NoNext();
 			AssertText("line0 line1 line2 line3 line4");
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("line0 line2 line3 line4");
 			AssertSelection().Both(6, 0).NoNext();
 		}
@@ -1088,11 +1088,11 @@ namespace UnitTests
 			AssertText("line0\nline3\nline1\nline2\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 1).Caret(2, 2).Next().Anchor(2, 4).Caret(2, 6).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("line0\nline3\nline1\nline2\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 		}
@@ -1112,11 +1112,11 @@ namespace UnitTests
 			AssertText("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 1).Caret(2, 2).Next().Anchor(2, 4).Caret(2, 6).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("line0\nline3\nline1\nline2\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 1).Caret(2, 2).Next().Anchor(2, 4).Caret(2, 6).NoNext();
 		}
@@ -1138,12 +1138,12 @@ namespace UnitTests
 				"line0\r\nline3\r\nline1\r\nline2\r\nline7\r\nline4\r\nline5\r\nline6\r\nline8\r\nline9\r\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			
 			AssertText("line0\nline3\nline1\nline2\r\nline7\nline4\nline5\nline6\nline8\nline9\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText(
 				"line0\r\nline3\r\nline1\r\nline2\r\nline7\r\nline4\r\nline5\r\nline6\r\nline8\r\nline9\r\nline10");
 			AssertSelection().Anchor(2, 2).Caret(2, 3).Next().Anchor(2, 5).Caret(2, 7).NoNext();

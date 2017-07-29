@@ -36,9 +36,12 @@ namespace UnitTests
 			}
 		}
 		
+		private int _commandType;
+		
 		private TestCommand NewCommand(string name)
 		{
-			return new TestCommand(new CommandType(false), this, name);
+			_commandType++;
+			return new TestCommand((CommandType)_commandType, this, name);
 		}
 		
 		private string log;

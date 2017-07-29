@@ -73,11 +73,11 @@ namespace UnitTests
 			AssertText("1234");
 			AssertSelection().Both(0, 0).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("abcd\n  EFGHI\r\n1234");
 			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("1234");
 			AssertSelection().Both(0, 0).NoNext();
 		}
@@ -96,7 +96,7 @@ namespace UnitTests
 			AssertText("abcd\n  ABCDEF\r\n");
 			AssertSelection().Both(0, 2).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("abcd\n  ABCDEF\r\n1234");
 			AssertSelection().Both(1, 2).NoNext();
 		}

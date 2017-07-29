@@ -290,15 +290,15 @@ namespace UnitTests
 			AssertText("Du\nDu hast\nDu hast mich");
 			AssertSelection().Anchor(0, 0).Caret(2, 2).NoNext();
 
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 			AssertSelection().Anchor(1, 0).Caret(6, 2).NoNext();
 
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("Du\nDu hast\nDu hast mich");
 			AssertSelection().Anchor(0, 0).Caret(2, 2).NoNext();
 
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 			AssertSelection().Anchor(1, 0).Caret(6, 2).NoNext();
 
@@ -306,7 +306,7 @@ namespace UnitTests
 			AssertText("\t\tDu\n\tDu hast\n\t\tDu hast mich");
 			AssertSelection().Anchor(2, 0).Caret(4, 2).NoNext();
 
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 			AssertSelection().Anchor(1, 0).Caret(6, 2).NoNext();
 		}
@@ -328,9 +328,9 @@ namespace UnitTests
 			AssertText("\tDu\nDu hast\n\tDu hast mich");
 			AssertSelection().Anchor(1, 0).Caret(13, 2).NoNext();
 
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\t\tDu\n\tDu hast\n\t\tDu hast mich");
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("\tDu\nDu hast\n    Du hast mich");
 		}
 

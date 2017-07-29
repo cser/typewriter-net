@@ -23,8 +23,8 @@ public class Buffer
 	private readonly Controller controller;
 	public Controller Controller { get { return controller; } }
 
-	public bool HasHistory { get { return controller.history.CanUndo || controller.history.CanRedo; } }
-	public bool Changed { get { return controller.history.Changed; } }
+	public bool HasHistory { get { return controller.processor.CanUndo || controller.processor.CanRedo; } }
+	public bool Changed { get { return controller.processor.Changed; } }
 	public bool IsEmpty { get { return controller.Lines.IsEmpty; } }
 
 	private string fullPath;

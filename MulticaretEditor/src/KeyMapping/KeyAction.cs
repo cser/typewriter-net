@@ -304,32 +304,32 @@ namespace MulticaretEditor
 		public static readonly KeyAction Undo = Add("&Edit\\Undo", DoUndo, null, true);
 		private static bool DoUndo(Controller controller)
 		{
-			controller.Undo();
+			controller.processor.Undo();
 			return true;
 		}
 
 		public static readonly KeyAction Redo = Add("&Edit\\Redo", DoRedo, null, true);
 		private static bool DoRedo(Controller controller)
 		{
-			controller.Redo();
+			controller.processor.Redo();
 			return true;
 		}
 
 		public static readonly KeyAction SwitchBranch = Add("&Edit\\Switch redo branch", DoSwitchBranch, DoSwitchBranchCangeMode, true);
 		private static bool DoSwitchBranch(Controller controller)
 		{
-			controller.history.TagsDown();
+			controller.processor.TagsDown();
 			return true;
 		}
 		private static void DoSwitchBranchCangeMode(Controller controller, bool mode)
 		{
 			if (mode)
 			{
-				controller.history.TagsModeOn();
+				controller.processor.TagsModeOn();
 			}
 			else
 			{
-				controller.history.TagsModeOff();
+				controller.processor.TagsModeOff();
 			}
 		}
 
