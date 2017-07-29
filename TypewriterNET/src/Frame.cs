@@ -380,8 +380,14 @@ public class Frame : AFrame
 			Selection selection = buffer.Controller.LastSelection;
 			Place place = controller.Lines.PlaceOf(selection.anchor);
 			SnippetFilesScanner scanner = Nest.MainForm.SnippetFilesScanner;
-			scanner.TryRescan();
 			Line line = controller.Lines[place.iLine];
+			{
+				if (place.iChar <= line.GetFirstSpaces())
+				{
+					return false;
+				}
+			}	
+			scanner.TryRescan();
 			string indent;
 			int tabsCount;
 			line.GetFirstIntegerTabs(out indent, out tabsCount);

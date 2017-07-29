@@ -20,7 +20,7 @@ public class Buffer
 
 	public Frame Frame { get { return owner != null ? owner.frame : null; } }
 
-	private Controller controller;
+	private readonly Controller controller;
 	public Controller Controller { get { return controller; } }
 
 	public bool HasHistory { get { return controller.history.CanUndo || controller.history.CanRedo; } }
