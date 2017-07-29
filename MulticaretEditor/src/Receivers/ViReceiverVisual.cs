@@ -189,6 +189,7 @@ namespace MulticaretEditor
 					break;
 			}
 			ViCommands.ICommand command = null;
+			bool needViMode = false;
 			if (move != null)
 			{
 				for (int i = 0; i < count; i++)
@@ -206,6 +207,7 @@ namespace MulticaretEditor
 						break;
 					case 'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
+						needViMode = true;
 						count = 1;
 						break;
 					case 'p':
@@ -377,6 +379,10 @@ namespace MulticaretEditor
 			{
 				command.Execute(controller);
 				controller.ViResetCommandsBatching();
+				if (needViMode)
+				{
+					SetViMode();
+				}
 			}
 		}
 		
@@ -421,16 +427,6 @@ namespace MulticaretEditor
 			{
 				controller.processor.Undo();
 			}
-			controller.ViCollapseSelections();
-		}
-		
-		private void ProcessCopy(ViMoves.IMove move, char register, int count)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				move.Move(controller, true, false);
-			}
-			controller.ViCopy(register);
 			controller.ViCollapseSelections();
 		}
 	}

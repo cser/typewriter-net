@@ -80,6 +80,7 @@ namespace MulticaretEditor
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.mementos = mementos;
 		}
 	}
 }

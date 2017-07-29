@@ -203,7 +203,7 @@ namespace MulticaretEditor
 							case 'r':
 								_state = State.WaitChar;
 								action = code;
-								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
+								return ParseResult.WaitNext;
 							case 'I':
 							case 'A':
 							case 'u':

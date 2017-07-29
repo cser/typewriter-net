@@ -178,6 +178,7 @@ namespace MulticaretEditor
 			deleted = null;
 			SetSelectionMementos(mementos);
 			lines.ResetTextCache();
+			lines.mementos = mementos;
 		}
 	}
 }

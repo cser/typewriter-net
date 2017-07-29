@@ -42,6 +42,7 @@ namespace MulticaretEditor
 		{
 			eraseSelection.Undo();
 			SetSelectionMementos(mementos);
+			lines.mementos = mementos;
 		}
 	}
 }

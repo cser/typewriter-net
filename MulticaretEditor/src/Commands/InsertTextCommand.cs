@@ -91,6 +91,7 @@ namespace MulticaretEditor
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.mementos = mementos;
 		}
 
 		private string GetText(int index)

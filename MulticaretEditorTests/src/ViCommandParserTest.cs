@@ -339,6 +339,15 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void r_VISUAL()
+		{
+			Init(true);
+			
+			Add('r').AddLast('x').AssertParsed("1:action:r;move:\\0;moveChar:x");
+			Add('5').Add('r').AddLast('x').AssertParsed("5:action:r;move:\\0;moveChar:x");
+		}
+		
+		[Test]
 		public void r_LINES()
 		{
 			Init(true);

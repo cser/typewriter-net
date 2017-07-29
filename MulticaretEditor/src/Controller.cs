@@ -2212,9 +2212,26 @@ namespace MulticaretEditor
 			return ranges;
 		}
 		
-		public void RecoverSelection()
+		protected void SetSelectionMementos(SelectionMemento[] mementos)
 		{
-			//TODO
+			for (int i = selections.Count; i < mementos.Length; i++)
+			{
+				selections.Add(new Selection());
+			}
+			if (selections.Count > mementos.Length)
+				selections.RemoveRange(mementos.Length, selections.Count - mementos.Length);
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				selections[mementos[i].index].Memento = mementos[i];
+			}
+		}
+		
+		public void ViRecoverSelection()
+		{
+			if (lines.mementos != null)
+			{
+				SetSelectionMementos(lines.mementos);
+			}
 		}
 	}
 }
