@@ -24,6 +24,41 @@ namespace MulticaretEditor
 			WaitObject
 		}
 		
+		public class LastCommand
+		{
+			public int rawCount;
+			public ViChar move;
+			public ViChar moveChar;
+			public ViChar action;
+			public char register;
+			public string shortcut;
+		}
+		
+		public LastCommand GetLastCommand()
+		{
+			LastCommand info = new LastCommand();
+			info.rawCount = rawCount;
+			info.move = move;
+			info.moveChar = moveChar;
+			info.action = action;
+			info.register = register;
+			info.shortcut = shortcut;
+			return info;
+		}
+		
+		public void SetLastCommand(LastCommand info)
+		{
+			_lastResult = ParseResult.Complete;
+			_state = State.Init;
+			_stateText = "";
+			rawCount = info.rawCount;
+			move = info.move;
+			moveChar = info.moveChar;
+			action = info.action;
+			register = info.register;
+			shortcut = info.shortcut;
+		}
+		
 		private readonly bool _visualMode;
 		private ParseResult _lastResult;
 		private State _state;

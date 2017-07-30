@@ -62,6 +62,8 @@ namespace MulticaretEditor
 		{
 			private Receiver receiver;
 			
+			public ViCommandParser.LastCommand lastCommand;
+			
 			public Context(Receiver receiver)
 			{
 				this.receiver = receiver;

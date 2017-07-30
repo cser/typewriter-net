@@ -10,7 +10,6 @@ namespace MulticaretEditor
 		public override ViMode ViMode { get { return ViMode.Normal; } }
 		
 		private ViReceiverData startData;
-		private ViCommands.ICommand lastCommand;
 		private bool offsetOnStart;
 		
 		public ViReceiver(ViReceiverData startData, bool offsetOnStart)
@@ -149,6 +148,11 @@ namespace MulticaretEditor
 				scrollToCursor = false;
 				return;
 			}
+			ProcessParserCommand(out scrollToCursor);
+		}
+		
+		private void ProcessParserCommand(out bool scrollToCursor)
+		{
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
 			int count = parser.FictiveCount;
@@ -266,20 +270,19 @@ namespace MulticaretEditor
 				{
 					case 'd':
 						command = new ViCommands.Delete(move, count, false, parser.register);
-						count = 1;
 						break;
 					case 'c':
 						command = new ViCommands.Delete(move, count, true, parser.register);
-						count = 1;
 						needInput = true;
 						break;
 					case 'y':
 						ProcessCopy(move, parser.register, count);
-						count = 1;
 						break;
 					default:
-						command = new ViCommands.Empty(move, count);
-						count = 1;
+						for (int i = 0; i < count; i++)
+						{
+							move.Move(controller, false, false);
+						}
 						break;
 				}
 			}
@@ -292,28 +295,26 @@ namespace MulticaretEditor
 						break;
 					case 'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
+						command = new ViCommands.Repeat(command, count);
 						break;
 					case 'x':
 						command = new ViCommands.Delete(
 							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
-						count = 1;
 						break;
 					case 'p':
 						command = new ViCommands.Paste(Direction.Right, parser.register, count);
-						count = 1;
 						break;
 					case 'P':
 						command = new ViCommands.Paste(Direction.Left, parser.register, count);
-						count = 1;
 						break;
 					case 'J':
 						command = new ViCommands.J();
+						command = new ViCommands.Repeat(command, count);
 						break;
 					case 'd':
 						if (parser.move.IsChar('d'))
 						{
 							command = new ViCommands.DeleteLine(count, parser.register);
-							count = 1;
 						}
 						break;
 					case 'c':
@@ -321,7 +322,6 @@ namespace MulticaretEditor
 						{
 							controller.ViDeleteLineForChange(parser.register, count);
 							context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
-							count = 1;
 						}
 						break;
 					case 'd' + ViChar.ControlIndex:
@@ -369,9 +369,21 @@ namespace MulticaretEditor
 						}
 						break;
 					case '.':
-						if (lastCommand != null)
+						if (context.lastCommand != null)
 						{	
-							lastCommand.Execute(controller);
+							ViCommandParser.LastCommand lastCommand = context.lastCommand;
+							context.lastCommand = null;
+							for (int i = 0; i < count; i++)
+							{
+								parser.SetLastCommand(lastCommand);
+								bool temp;
+								ProcessParserCommand(out temp);
+								if (temp)
+								{
+									scrollToCursor = true;
+								}
+							}
+							return;
 						}
 						break;
 					case 'r' + ViChar.ControlIndex:
@@ -416,13 +428,11 @@ namespace MulticaretEditor
 						break;
 					case 'C':
 						controller.ViMoveEnd(true, parser.FictiveCount);
-						count = 1;
 						controller.ViCut(parser.register, false);
 						context.SetState(new InputReceiver(new ViReceiverData('C', count), false));
 						break;
 					case 'D':
 						controller.ViMoveEnd(true, parser.FictiveCount);
-						count = 1;
 						controller.ViCut(parser.register, true);
 						break;
 					case 'j' + ViChar.ControlIndex:
@@ -473,10 +483,6 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			if (command != null && count != 1)
-			{
-				command = new ViCommands.Repeat(command, count);
-			}
 			if (command != null)
 			{
 				command.Execute(controller);
@@ -485,7 +491,7 @@ namespace MulticaretEditor
 				{
 					context.SetState(new InputReceiver(null, false));
 				}
-				lastCommand = command;
+				context.lastCommand = parser.GetLastCommand();
 			}
 		}
 		

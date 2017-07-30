@@ -32,26 +32,6 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public class Empty : ICommand
-		{
-			private ViMoves.IMove move;
-			private int count;
-			
-			public Empty(ViMoves.IMove move, int count)
-			{
-				this.move = move;
-				this.count = count;
-			}
-			
-			public void Execute(Controller controller)
-			{
-				for (int i = 0; i < count; i++)
-				{
-					move.Move(controller, false, false);
-				}
-			}
-		}
-		
 		public class Delete : ICommand
 		{
 			private ViMoves.IMove move;
