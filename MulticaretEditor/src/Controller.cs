@@ -430,12 +430,9 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				moves.NPWordRight(shiftMove);
+				moves.NPP_WordRight(shiftMove);
 				selection.caret = moves.Position;
-				if (!shift)
-				{
-					selection.anchor = moves.Position;
-				}
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
@@ -445,12 +442,9 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				moves.NPWordLeft();
+				moves.NPP_WordLeft();
 				selection.caret = moves.Position;
-				if (!shift)
-				{
-					selection.anchor = moves.Position;
-				}
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
@@ -1386,52 +1380,11 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				if (GetCharType(iterator.RightChar) == CharType.Identifier)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Identifier)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-					if (!change)
-					if (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						while (IsSpaceOrNewLine(iterator.RightChar))
-						{
-							if (!iterator.MoveRightWithRN())
-								break;
-						}
-					}
-				}
-				else if (GetCharType(iterator.RightChar) == CharType.Punctuation)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Punctuation)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-					if (!change)
-					if (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						while (IsSpaceOrNewLine(iterator.RightChar))
-						{
-							if (!iterator.MoveRightWithRN())
-								break;
-						}
-					}
-				}
-				else if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_w(change);
+				selection.caret = moves.Position;
 				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 		
@@ -1439,68 +1392,11 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				iterator.MoveLeftWithRN();
-				if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				while (GetCharType(iterator.LeftChar) == type)
-				{
-					if (!iterator.MoveLeftWithRN())
-						break;
-				}
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_b();
+				selection.caret = moves.Position;
 				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
-			}
-		}
-		
-		public void ViBigMoveWordLeft(bool shift, bool change)
-		{
-			foreach (Selection selection in lines.selections)
-			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				iterator.MoveLeftWithRN();
-				if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation)
-				{
-					while (true)
-					{
-						type = GetCharType(iterator.LeftChar);
-						if (!(type == CharType.Identifier || type == CharType.Punctuation))
-							break;
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				else
-				{
-					while (true)
-					{
-						type = GetCharType(iterator.LeftChar);
-						if (!(type == CharType.Space || type == CharType.Special))
-							break;
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				selection.caret = iterator.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 		
@@ -1508,56 +1404,23 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				CharType type = GetCharType(iterator.RightChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation)
-				{
-					while (true)
-					{
-						type = GetCharType(iterator.RightChar);
-						if (!(type == CharType.Identifier || type == CharType.Punctuation))
-							break;
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-					if (!change)
-					if (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						while (IsSpaceOrNewLine(iterator.RightChar))
-						{
-							if (!iterator.MoveRightWithRN())
-								break;
-						}
-					}
-				}
-				else if (GetCharType(iterator.RightChar) == CharType.Punctuation)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Punctuation)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-					if (!change)
-					if (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						while (IsSpaceOrNewLine(iterator.RightChar))
-						{
-							if (!iterator.MoveRightWithRN())
-								break;
-						}
-					}
-				}
-				else if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (IsSpaceOrNewLine(iterator.RightChar))
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_W(change);
+				selection.caret = moves.Position;
 				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
+				lines.SetPreferredPos(selection, moves.Place);
+			}
+		}
+		
+		public void ViBigMoveWordLeft(bool shift, bool change)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_B();
+				selection.caret = moves.Position;
+				selection.SetEmptyIfNotShift(shift);
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 		
@@ -1565,11 +1428,11 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				ViMoveWordE_Move(iterator, shift);
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_e(shift);
+				selection.caret = moves.Position;
 				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 		
@@ -1577,153 +1440,11 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				ViBigMoveWordE_Move(iterator, shift);
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_E(shift);
+				selection.caret = moves.Position;
 				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, iterator.Place);
-			}
-		}
-		
-		private void ViMoveWordE_Move(PlaceIterator iterator, bool shift)
-		{
-			char c = iterator.RightChar;
-			if (IsSpaceOrNewLine(c))
-			{
-				while (true)
-				{
-					if (!iterator.MoveRightWithRN())
-						return;
-					if (!IsSpaceOrNewLine(iterator.RightChar))
-						break;
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				while (true)
-				{
-					if (!iterator.MoveRightWithRN())
-						return;
-					if (GetCharType(iterator.RightChar) != type)
-						break;
-				}
-				if (!shift)
-				{
-					iterator.MoveLeftWithRN();
-				}
-			}
-			else
-			{
-				if (!iterator.MoveRightWithRN())
-					return;
-				if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						if (!IsSpaceOrNewLine(iterator.RightChar))
-							break;
-					}
-					CharType type = GetCharType(iterator.RightChar);
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						if (GetCharType(iterator.RightChar) != type)
-							break;
-					}
-					if (!shift)
-					{
-						iterator.MoveLeftWithRN();
-					}
-				}
-				else
-				{
-					CharType type = GetCharType(iterator.RightChar);
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						if (GetCharType(iterator.RightChar) != type)
-							break;
-					}
-					if (!shift)
-					{
-						iterator.MoveLeftWithRN();
-					}
-				}
-			}
-		}
-		
-		private void ViBigMoveWordE_Move(PlaceIterator iterator, bool shift)
-		{
-			char c = iterator.RightChar;
-			if (IsSpaceOrNewLine(c))
-			{
-				while (true)
-				{
-					if (!iterator.MoveRightWithRN())
-						return;
-					if (!IsSpaceOrNewLine(iterator.RightChar))
-						break;
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				bool isSpace = type == CharType.Space || type == CharType.Special;
-				while (true)
-				{
-					if (!iterator.MoveRightWithRN())
-						return;
-					type = GetCharType(iterator.RightChar);
-					if ((type == CharType.Space || type == CharType.Special) != isSpace)
-						break;
-				}
-				if (!shift)
-				{
-					iterator.MoveLeftWithRN();
-				}
-			}
-			else
-			{
-				if (!iterator.MoveRightWithRN())
-					return;
-				if (IsSpaceOrNewLine(iterator.RightChar))
-				{
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						if (!IsSpaceOrNewLine(iterator.RightChar))
-							break;
-					}
-					CharType type = GetCharType(iterator.RightChar);
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						if (GetCharType(iterator.RightChar) != type)
-							break;
-					}
-					if (!shift)
-					{
-						iterator.MoveLeftWithRN();
-					}
-				}
-				else
-				{
-					CharType type = GetCharType(iterator.RightChar);
-					bool isSpace = type == CharType.Space || type == CharType.Special;
-					while (true)
-					{
-						if (!iterator.MoveRightWithRN())
-							return;
-						type = GetCharType(iterator.RightChar);
-						if ((type == CharType.Space || type == CharType.Special) != isSpace)
-							break;
-					}
-					if (!shift)
-					{
-						iterator.MoveLeftWithRN();
-					}
-				}
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 		
