@@ -348,14 +348,6 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void r_LINES()
-		{
-			Init(true);
-			
-			AddLast('r').AssertParsed("1:action:r;move:\\0;moveChar:\\0");
-		}
-		
-		[Test]
 		public void c()
 		{
 			Init(false);
@@ -757,6 +749,21 @@ namespace UnitTests
 		{
 			Init(false);
 			Add('g').AddLast('v').AssertParsed("1:action:\\0;move:g;moveChar:v");
+		}
+		
+		[Test]
+		public void W_E_B()
+		{
+			Init(false);
+			AddLast('W').AssertParsed("1:action:\\0;move:W;moveChar:\\0");
+			AddLast('E').AssertParsed("1:action:\\0;move:E;moveChar:\\0");
+			AddLast('B').AssertParsed("1:action:\\0;move:B;moveChar:\\0");
+			Add('2').AddLast('W').AssertParsed("2:action:\\0;move:W;moveChar:\\0");
+			Add('2').AddLast('E').AssertParsed("2:action:\\0;move:E;moveChar:\\0");
+			Add('2').AddLast('B').AssertParsed("2:action:\\0;move:B;moveChar:\\0");
+			Add('d').AddLast('W').AssertParsed("1:action:d;move:W;moveChar:\\0");
+			Add('d').AddLast('E').AssertParsed("1:action:d;move:E;moveChar:\\0");
+			Add('d').AddLast('B').AssertParsed("1:action:d;move:B;moveChar:\\0");
 		}
 	}
 }

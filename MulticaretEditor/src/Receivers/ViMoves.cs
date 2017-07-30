@@ -89,6 +89,29 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class BigMoveWord : IMove
+		{
+			private Direction direction;
+			
+			public BigMoveWord(Direction direction)
+			{
+				this.direction = direction;
+			}
+			
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				switch (direction)
+				{
+					case Direction.Left:
+						controller.ViBigMoveWordLeft(shift, change);
+						break;
+					case Direction.Right:
+						controller.ViBigMoveWordRight(shift, change);
+						break;
+				}
+			}
+		}
+		
 		public class MoveObject : IMove
 		{
 			private char o;
@@ -122,6 +145,21 @@ namespace MulticaretEditor
 				else
 				{
 					controller.ViMoveWordE(shift);
+				}
+			}
+		}
+		
+		public class BigMoveWordE : IMove
+		{	
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				if (change)
+				{
+					controller.ViBigMoveWordRight(shift, change);
+				}
+				else
+				{
+					controller.ViBigMoveWordE(shift);
 				}
 			}
 		}

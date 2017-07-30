@@ -382,6 +382,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void cB()
+		{
+			lines.SetText("Du a,hast!! mich");
+			Put(11, 0).Press("cB").AssertSelection().Both(3, 0).NoNext();
+			Press("BBB").PressCommandMode().AssertSelection().Both(5, 0).NoNext();
+			AssertText("Du BBB mich");
+			
+			lines.SetText("Du a,hast!! mich");
+			Put(12, 0).Press("cB").AssertSelection().Both(3, 0).NoNext();
+			Press("BBB").PressCommandMode().AssertSelection().Both(5, 0).NoNext();
+			AssertText("Du BBBmich");
+		}
+		
+		[Test]
 		public void x()
 		{
 			lines.SetText("Du hast\nDu hast mich");
@@ -588,6 +602,36 @@ namespace UnitTests
 				"Du has\n" +
 				"aaaa");
 			AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void dW_cW()
+		{
+			lines.SetText("Du hast mich gefragt");
+			Put(0, 0).Press("2dW").AssertText("mich gefragt");
+			
+			lines.SetText("Du,a,. hast! mich gefragt");
+			Put(0, 0).Press("2dW").AssertText("mich gefragt");
+			
+			lines.SetText("Du hast mich gefragt");
+			Put(0, 0).Press("2cW").Press("AAA").PressCommandMode().AssertText("AAA mich gefragt");
+			
+			lines.SetText("Du,a,. hast! mich gefragt");
+			Put(0, 0).Press("2cW").Press("AAA").PressCommandMode().AssertText("AAA mich gefragt");
+		}
+		
+		[Test]
+		public void dE()
+		{
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(3, 0).Press("dE").AssertText("Du  ;. AAAA..lkd d  asdf");
+			AssertSelection().Both(3, 0);
+			
+			//             0123456789012345678901234567
+			lines.SetText("Du hast ;. AAAA..lkd d  asdf");
+			Put(11, 0).Press("dE").AssertText("Du hast ;.  d  asdf");
+			AssertSelection().Both(11, 0);
 		}
 		
 		[Test]

@@ -190,11 +190,20 @@ namespace MulticaretEditor
 				case 'w':
 					move = new ViMoves.MoveWord(Direction.Right);
 					break;
+				case 'W':
+					move = new ViMoves.BigMoveWord(Direction.Right);
+					break;
 				case 'b':
 					move = new ViMoves.MoveWord(Direction.Left);
 					break;
+				case 'B':
+					move = new ViMoves.BigMoveWord(Direction.Left);
+					break;
 				case 'e':
 					move = new ViMoves.MoveWordE();
+					break;
+				case 'E':
+					move = new ViMoves.BigMoveWordE();
 					break;
 				case 'f':
 				case 'F':

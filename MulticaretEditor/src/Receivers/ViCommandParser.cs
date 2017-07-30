@@ -137,8 +137,11 @@ namespace MulticaretEditor
 							case 'h':
 							case 'l':
 							case 'w':
+							case 'W':
 							case 'e':
+							case 'E':
 							case 'b':
+							case 'B':
 							case '0':
 							case '^':
 							case '$':
