@@ -37,19 +37,19 @@ namespace MulticaretEditor
 
 		public bool MoveRight(bool shift)
 		{
-			bool result = MoveRight(lines, shift);
+			bool result = PrivateMoveRight(lines, shift);
 			DoAfterMove();
 			return result;
 		}
 
 		public bool MoveLeft(bool shift)
 		{
-			bool result = MoveLeft(lines, shift);
+			bool result = PrivateMoveLeft(lines, shift);
 			DoAfterMove();
 			return result;
 		}
 
-		public static bool MoveRight(LineArray lines, bool shift)
+		private bool PrivateMoveRight(LineArray lines, bool shift)
 		{
 			bool result = false;
 			foreach (Selection selection in lines.selections)
@@ -86,7 +86,7 @@ namespace MulticaretEditor
 			return result;
 		}
 
-		public static bool MoveLeft(LineArray lines, bool shift)
+		private bool PrivateMoveLeft(LineArray lines, bool shift)
 		{
 			bool result = false;
 			foreach (Selection selection in lines.selections)
@@ -415,17 +415,17 @@ namespace MulticaretEditor
 
 		public void MoveWordRight(bool shift)
 		{
-			MoveWordRight(lines, shift, shift);
+			PrivateMoveWordRight(shift, shift);
 			DoAfterMove();
 		}
 
 		public void MoveWordLeft(bool shift)
 		{
-			MoveWordLeft(lines, shift);
+			PrivateMoveWordLeft(shift);
 			DoAfterMove();
 		}
 
-		private void MoveWordRight(LineArray lines, bool shift, bool shiftMove)
+		private void PrivateMoveWordRight(bool shift, bool shiftMove)
 		{
 			foreach (Selection selection in lines.selections)
 			{
@@ -435,7 +435,7 @@ namespace MulticaretEditor
 			}
 		}
 
-		private void MoveWordLeft(LineArray lines, bool shift)
+		private void PrivateMoveWordLeft(bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
@@ -700,7 +700,7 @@ namespace MulticaretEditor
 			}
 			processor.batchMode = true;
 			processor.Execute(new SavePositions());
-			MoveWordLeft(lines, true);
+			PrivateMoveWordLeft(true);
 			bool result = processor.Execute(new EraseSelectionCommand());
 			processor.batchMode = false;
 			return result;
@@ -714,7 +714,7 @@ namespace MulticaretEditor
 			}
 			processor.batchMode = true;
 			processor.Execute(new SavePositions());
-			MoveWordRight(lines, true, false);
+			PrivateMoveWordRight(true, false);
 			bool result = processor.Execute(new EraseSelectionCommand());
 			processor.batchMode = false;
 			return result;
