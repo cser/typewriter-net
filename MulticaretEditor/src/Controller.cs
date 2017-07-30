@@ -399,14 +399,6 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		public enum CharType
-		{
-			Identifier,
-			Space,
-			Punctuation,
-			Special
-		}
-
 		private static CharType GetCharType(char c)
         {
 			if (c == ' ' || c == '\t')
@@ -437,37 +429,14 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				if (shiftMove)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Space)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
-				{
-					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.RightChar))
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				if (!shiftMove)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Space)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.NPWordRight(shiftMove);
+				selection.caret = moves.Position;
 				if (!shift)
-					selection.anchor = iterator.Position;
-				lines.SetPreferredPos(selection, iterator.Place);
+				{
+					selection.anchor = moves.Position;
+				}
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 
@@ -475,25 +444,14 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				while (GetCharType(iterator.LeftChar) == CharType.Space)
-				{
-					if (!iterator.MoveLeftWithRN())
-						break;
-				}
-				CharType type = GetCharType(iterator.LeftChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
-				{
-					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.LeftChar))
-					{
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.NPWordLeft();
+				selection.caret = moves.Position;
 				if (!shift)
-					selection.anchor = iterator.Position;
-				lines.SetPreferredPos(selection, iterator.Place);
+				{
+					selection.anchor = moves.Position;
+				}
+				lines.SetPreferredPos(selection, moves.Place);
 			}
 		}
 
