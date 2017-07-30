@@ -10,6 +10,7 @@ namespace MulticaretEditor
 		public readonly int count;
 		public readonly char action;
 		public readonly List<char> inputChars = new List<char>();
+		public bool forcedInput;
 		
 		public ViReceiverData(char action, int count)
 		{

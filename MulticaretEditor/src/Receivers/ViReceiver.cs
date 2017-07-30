@@ -22,17 +22,30 @@ namespace MulticaretEditor
 		
 		public override void DoOn()
 		{
+			ViReceiverData startData = this.startData;
+			this.startData = null;
+			if (context.lastCommand != null && startData != null)
+			{
+				foreach (char c in startData.inputChars)
+				{
+				}
+				context.lastCommand.startData = startData;
+			}
+			ProcessOnStart(startData, offsetOnStart);
+		}
+		
+		private void ProcessOnStart(ViReceiverData startData, bool offsetOnStart)
+		{
 			foreach (Selection selection in controller.Selections)
 			{
 				selection.SetEmpty();
 			}
-			ViReceiverData startData = this.startData;
-			this.startData = null;
 			if (startData != null)
 			{
+				int count = startData.count + (startData.forcedInput ? 1 : 0);
 				if (startData.action == 'o' || startData.action == 'O')
 				{
-					for (int i = 1; i < startData.count; i++)
+					for (int i = 1; i < count; i++)
 					{
 						controller.InsertLineBreak();
 						foreach (char c in startData.inputChars)
@@ -43,7 +56,7 @@ namespace MulticaretEditor
 				}
 				else
 				{
-					for (int i = 1; i < startData.count; i++)
+					for (int i = 1; i < count; i++)
 					{
 						foreach (char c in startData.inputChars)
 						{
@@ -264,6 +277,7 @@ namespace MulticaretEditor
 					break;
 			}
 			ViCommands.ICommand command = null;
+			bool forceLastCommand = false;
 			if (move != null)
 			{
 				switch (parser.action.Index)
@@ -273,7 +287,7 @@ namespace MulticaretEditor
 						break;
 					case 'c':
 						command = new ViCommands.Delete(move, count, true, parser.register);
-						needInput = true;
+						context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
 						break;
 					case 'y':
 						ProcessCopy(move, parser.register, count);
@@ -382,6 +396,11 @@ namespace MulticaretEditor
 								{
 									scrollToCursor = true;
 								}
+								if (lastCommand.startData != null)
+								{
+									lastCommand.startData.forcedInput = true;
+									context.SetState(new ViReceiver(lastCommand.startData, true));
+								}
 							}
 							return;
 						}
@@ -391,10 +410,12 @@ namespace MulticaretEditor
 						break;
 					case 'i':
 						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
+						forceLastCommand = true;
 						break;
 					case 'a':
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData('a', count), false));
+						forceLastCommand = true;
 						break;
 					case 's':
 						controller.ViSelectRight(count);
@@ -404,17 +425,20 @@ namespace MulticaretEditor
 					case 'I':
 						controller.ViMoveHome(false, true);
 						context.SetState(new InputReceiver(new ViReceiverData('I', count), false));
+						forceLastCommand = true;
 						break;
 					case 'A':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
 						context.SetState(new InputReceiver(new ViReceiverData('A', count), false));
+						forceLastCommand = true;
 						break;
 					case 'o':
 						controller.ViMoveEnd(false, 1);
 						controller.ViMoveRightFromCursor();
 						controller.InsertLineBreak();
 						context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
+						forceLastCommand = true;
 						break;
 					case 'O':
 						controller.ViMoveHome(false, true);
@@ -425,15 +449,18 @@ namespace MulticaretEditor
 							controller.ViAutoindentByBottom();
 						}
 						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
+						forceLastCommand = true;
 						break;
 					case 'C':
 						controller.ViMoveEnd(true, parser.FictiveCount);
 						controller.ViCut(parser.register, false);
 						context.SetState(new InputReceiver(new ViReceiverData('C', count), false));
+						forceLastCommand = true;
 						break;
 					case 'D':
 						controller.ViMoveEnd(true, parser.FictiveCount);
 						controller.ViCut(parser.register, true);
+						forceLastCommand = true;
 						break;
 					case 'j' + ViChar.ControlIndex:
 						for (int i = 0; i < count; i++)
@@ -474,12 +501,14 @@ namespace MulticaretEditor
 								controller.EraseSelection();
 							}
 						}
+						forceLastCommand = true;
 						break;
 					case '\r':
 						for (int i = 0; i < count; i++)
 						{
 							controller.InsertLineBreak();
 						}
+						forceLastCommand = true;
 						break;
 				}
 			}
@@ -491,6 +520,9 @@ namespace MulticaretEditor
 				{
 					context.SetState(new InputReceiver(null, false));
 				}
+			}
+			if (command != null || forceLastCommand)
+			{
 				context.lastCommand = parser.GetLastCommand();
 			}
 		}

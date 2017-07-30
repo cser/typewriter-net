@@ -32,6 +32,8 @@ namespace MulticaretEditor
 			public ViChar action;
 			public char register;
 			public string shortcut;
+			
+			public ViReceiverData startData;
 		}
 		
 		public LastCommand GetLastCommand()
