@@ -3,9 +3,9 @@ using System.Text;
 
 namespace MulticaretEditor
 {
-	public class ViSavePositions : Command
+	public class SavePositions : Command
 	{
-		public ViSavePositions() : base(CommandType.ViSavePositions)
+		public SavePositions() : base(CommandType.ViSavePositions)
 		{
 		}
 		

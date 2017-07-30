@@ -80,10 +80,10 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMoveWordLeft(shift, change);
+						controller.ViMove_b(shift, change);
 						break;
 					case Direction.Right:
-						controller.ViMoveWordRight(shift, change);
+						controller.ViMove_w(shift, change);
 						break;
 				}
 			}
@@ -103,10 +103,10 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViBigMoveWordLeft(shift, change);
+						controller.ViMove_B(shift, change);
 						break;
 					case Direction.Right:
-						controller.ViBigMoveWordRight(shift, change);
+						controller.ViMove_W(shift, change);
 						break;
 				}
 			}
@@ -140,11 +140,11 @@ namespace MulticaretEditor
 			{
 				if (change)
 				{
-					controller.ViMoveWordRight(shift, change);
+					controller.ViMove_w(shift, change);
 				}
 				else
 				{
-					controller.ViMoveWordE(shift);
+					controller.ViMove_e(shift);
 				}
 			}
 		}
@@ -155,11 +155,11 @@ namespace MulticaretEditor
 			{
 				if (change)
 				{
-					controller.ViBigMoveWordRight(shift, change);
+					controller.ViMove_W(shift, change);
 				}
 				else
 				{
-					controller.ViBigMoveWordE(shift);
+					controller.ViMove_E(shift);
 				}
 			}
 		}

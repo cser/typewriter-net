@@ -5,6 +5,7 @@ namespace MulticaretEditor
 {
 	public struct Moves
 	{
+		private LineArray _lines;
 		private PlaceIterator _iterator;
 		
 		public int Position { get { return _iterator.Position; } }
@@ -12,6 +13,7 @@ namespace MulticaretEditor
 		
 		public Moves(LineArray lines, int position)
 		{
+			_lines = lines;
 			_iterator = lines.GetCharIterator(position);
 		}
 		
@@ -296,6 +298,23 @@ namespace MulticaretEditor
 						break;
 				}
 			}
+		}
+		
+		public void Vi_WordStart()
+		{
+			CharType type = GetCharType(_iterator.RightChar);
+			while (GetCharType(_iterator.LeftChar) == type &&
+				_iterator.MoveLeftWithRN());
+		}
+		
+		public void Apply(Selection selection, bool shift)
+		{
+			selection.caret = Position;
+			if (!shift)
+			{
+				selection.anchor = selection.caret;
+			}
+			_lines.SetPreferredPos(selection, Place);
 		}
 		
 		private static CharType GetCharType(char c)

@@ -425,27 +425,23 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		public static void MoveWordRight(LineArray lines, bool shift, bool shiftMove)
+		private void MoveWordRight(LineArray lines, bool shift, bool shiftMove)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.NPP_WordRight(shiftMove);
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 
-		public static void MoveWordLeft(LineArray lines, bool shift)
+		private void MoveWordLeft(LineArray lines, bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.NPP_WordLeft();
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 
@@ -698,12 +694,30 @@ namespace MulticaretEditor
 
 		public bool RemoveWordLeft()
 		{
-			return processor.Execute(new RemoveWordCommand(true));
+			if (!lines.AllSelectionsEmpty)
+			{
+				return false;
+			}
+			processor.batchMode = true;
+			processor.Execute(new SavePositions());
+			MoveWordLeft(lines, true);
+			bool result = processor.Execute(new EraseSelectionCommand());
+			processor.batchMode = false;
+			return result;
 		}
 
 		public bool RemoveWordRight()
 		{
-			return processor.Execute(new RemoveWordCommand(false));
+			if (!lines.AllSelectionsEmpty)
+			{
+				return false;
+			}
+			processor.batchMode = true;
+			processor.Execute(new SavePositions());
+			MoveWordRight(lines, true, false);
+			bool result = processor.Execute(new EraseSelectionCommand());
+			processor.batchMode = false;
+			return result;
 		}
 
 		public bool MoveLineUp()
@@ -1376,75 +1390,63 @@ namespace MulticaretEditor
 			JoinSelections();
 		}
 		
-		public void ViMoveWordRight(bool shift, bool change)
+		public void ViMove_w(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_w(change);
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
-		public void ViMoveWordLeft(bool shift, bool change)
+		public void ViMove_b(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_b();
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
-		public void ViBigMoveWordRight(bool shift, bool change)
+		public void ViMove_W(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_W(change);
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
-		public void ViBigMoveWordLeft(bool shift, bool change)
+		public void ViMove_B(bool shift, bool change)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_B();
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
-		public void ViMoveWordE(bool shift)
+		public void ViMove_e(bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_e(shift);
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
-		public void ViBigMoveWordE(bool shift)
+		public void ViMove_E(bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
 				moves.Vi_E(shift);
-				selection.caret = moves.Position;
-				selection.SetEmptyIfNotShift(shift);
-				lines.SetPreferredPos(selection, moves.Place);
+				moves.Apply(selection, shift);
 			}
 		}
 		
@@ -1452,17 +1454,13 @@ namespace MulticaretEditor
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				CharType type = GetCharType(iterator.RightChar);
-				while (GetCharType(iterator.LeftChar) == type)
-				{
-					if (!iterator.MoveLeftWithRN())
-						break;
-				}
-				selection.caret = iterator.Position;
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_WordStart();
+				selection.caret = moves.Position;
 				selection.SetEmpty();
+				moves.Vi_w(inside);
+				moves.Apply(selection, true);
 			}
-			ViMoveWordRight(shift, inside);
 		}
 		
 		public void ViMoveHome(bool shift, bool indented)
@@ -1779,9 +1777,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViSavePositions()
+		public void SavePositions()
 		{
-			processor.Execute(new ViSavePositions());
+			processor.Execute(new SavePositions());
 		}
 		
 		public void ViJ()
@@ -1826,7 +1824,7 @@ namespace MulticaretEditor
 			processor.batchMode = true;
 			if (direction == Direction.Right)
 			{
-				ViSavePositions();
+				SavePositions();
 				ViMoveRightFromCursor();
 			}
 			string text = ClipboardExecutor.GetFromRegister(register);
@@ -1887,7 +1885,7 @@ namespace MulticaretEditor
 					selection.SetEmpty();
 				}
 			}
-			ViSavePositions();
+			SavePositions();
 			processor.batchMode = false;
 		}
 		
