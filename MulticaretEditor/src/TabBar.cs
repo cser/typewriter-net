@@ -620,7 +620,8 @@ namespace MulticaretEditor
 		private void DrawArrow(Graphics g, bool isLeft)
 		{
 			Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
-			int tx = leftRect.Value.X + leftRect.Value.Width / 2;
+			Rectangle rect = isLeft ? leftRect.Value : rightRect.Value;
+			int tx = rect.X + rect.Width / 2;
 			int ty = charHeight / 2;
 			int td = charHeight / 6;
 			if (isLeft)
