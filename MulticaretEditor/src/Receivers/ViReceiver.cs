@@ -26,9 +26,6 @@ namespace MulticaretEditor
 			this.startData = null;
 			if (context.lastCommand != null && startData != null)
 			{
-				foreach (char c in startData.inputChars)
-				{
-				}
 				context.lastCommand.startData = startData;
 			}
 			ProcessOnStart(startData, offsetOnStart);
@@ -561,6 +558,7 @@ namespace MulticaretEditor
 				controller.processor.Undo();
 			}
 			controller.ViCollapseSelections();
+			controller.ViFixPositions(true);
 		}
 		
 		private void ProcessCopy(ViMoves.IMove move, char register, int count)
