@@ -698,11 +698,11 @@ namespace MulticaretEditor
 			{
 				return false;
 			}
-			processor.batchMode = true;
+			processor.BeginBatch();
 			processor.Execute(new SavePositions());
 			PrivateMoveWordLeft(true);
 			bool result = processor.Execute(new EraseSelectionCommand());
-			processor.batchMode = false;
+			processor.EndBatch();
 			return result;
 		}
 
@@ -712,11 +712,11 @@ namespace MulticaretEditor
 			{
 				return false;
 			}
-			processor.batchMode = true;
+			processor.BeginBatch();
 			processor.Execute(new SavePositions());
 			PrivateMoveWordRight(true, false);
 			bool result = processor.Execute(new EraseSelectionCommand());
-			processor.batchMode = false;
+			processor.EndBatch();
 			return result;
 		}
 
@@ -1821,7 +1821,7 @@ namespace MulticaretEditor
 		
 		public void ViPaste(char register, Direction direction, int count)
 		{
-			processor.batchMode = true;
+			processor.BeginBatch();
 			if (direction == Direction.Right)
 			{
 				SavePositions();
@@ -1830,7 +1830,7 @@ namespace MulticaretEditor
 			string text = ClipboardExecutor.GetFromRegister(register);
 			if (text == null || text == "")
 			{
-				processor.batchMode = false;
+				processor.EndBatch();
 				return;
 			}
 			bool isLineInsert = text.EndsWith("\n") || text.EndsWith("\r");
@@ -1886,7 +1886,7 @@ namespace MulticaretEditor
 				}
 			}
 			SavePositions();
-			processor.batchMode = false;
+			processor.EndBatch();
 		}
 		
 		public void ViGoToLine(int iLine, bool shift)

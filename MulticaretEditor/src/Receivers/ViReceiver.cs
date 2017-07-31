@@ -387,20 +387,28 @@ namespace MulticaretEditor
 						{	
 							ViCommandParser.LastCommand lastCommand = context.lastCommand;
 							context.lastCommand = null;
-							for (int i = 0; i < count; i++)
+							try
 							{
-								parser.SetLastCommand(lastCommand);
-								bool temp;
-								ProcessParserCommand(out temp);
-								if (temp)
+								controller.processor.BeginBatch();
+								for (int i = 0; i < count; i++)
 								{
-									scrollToCursor = true;
+									parser.SetLastCommand(lastCommand);
+									bool temp;
+									ProcessParserCommand(out temp);
+									if (temp)
+									{
+										scrollToCursor = true;
+									}
+									if (lastCommand.startData != null)
+									{
+										lastCommand.startData.forcedInput = true;
+										context.SetState(new ViReceiver(lastCommand.startData, true));
+									}
 								}
-								if (lastCommand.startData != null)
-								{
-									lastCommand.startData.forcedInput = true;
-									context.SetState(new ViReceiver(lastCommand.startData, true));
-								}
+							}
+							finally
+							{
+								controller.processor.EndBatch();
 							}
 							return;
 						}

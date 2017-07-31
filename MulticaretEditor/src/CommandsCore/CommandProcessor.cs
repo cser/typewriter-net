@@ -16,7 +16,7 @@ namespace MulticaretEditor
 		private readonly List<Selection> selections;
 		
 		public bool needDispatchChange;
-		public bool batchMode;
+		public int forceBatchLevel;
 		public readonly History history = new History();
 		
 		public CommandProcessor(Controller controller, LineArray lines, List<Selection> selections)
@@ -32,13 +32,26 @@ namespace MulticaretEditor
 			history.MarkAsSaved();
 		}
 		
+		public void BeginBatch()
+		{
+			++forceBatchLevel;
+		}
+		
+		public void EndBatch()
+		{
+			--forceBatchLevel;
+		}
+		
 		private CommandType lastCommandType = CommandType.None;
 		private long lastTime;
 
 		public void ResetCommandsBatching()
 		{
-			lastCommandType = CommandType.None;
-			lastTime = 0;
+			if (forceBatchLevel <= 0)
+			{
+				lastCommandType = CommandType.None;
+				lastTime = 0;
+			}
 		}
 		
 		public long debugNowMilliseconds = -1;
@@ -57,7 +70,7 @@ namespace MulticaretEditor
 			command.lines = lines;
 			command.selections = selections;
 			long time = GetNowMilliseconds();
-			if (!batchMode && command.type != lastCommandType ||
+			if (forceBatchLevel <= 0 && command.type != lastCommandType ||
 				time - lastTime > 1000)
 			{
 				if (history.LastCommand != null)
