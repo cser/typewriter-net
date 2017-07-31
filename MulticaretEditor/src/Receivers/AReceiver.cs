@@ -13,6 +13,8 @@ namespace MulticaretEditor
 		protected LineArray lines;
 		protected Receiver.Context context;
 		
+		public virtual bool IsIdle { get { return true; } }
+		
 		public void Init(Controller controller, Receiver.Context context)
 		{
 			this.controller = controller;

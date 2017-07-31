@@ -30,6 +30,8 @@ namespace MulticaretEditor
 			ProcessSetViMode(viMode);
 		}
 		
+		public bool IsIdle { get { return state == null || state.IsIdle; } }
+		
 		public void SetViMode(ViMode value)
 		{
 			if (viMode != value)

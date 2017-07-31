@@ -884,17 +884,31 @@ namespace MulticaretEditor
 							{
 								if (isCursorTick)
 								{
-									g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
-									if (caret.iChar < line.charsCount)
+									if (receiver.IsIdle)
 									{
-										char c = line.chars[caret.iChar].c;
-										g.DrawString(c + "", font, scheme.bgBrush,
-											x - charWidth / 3, y + lineInterval / 2, stringFormat);
+										g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
+										if (caret.iChar < line.charsCount)
+										{
+											char c = line.chars[caret.iChar].c;
+											g.DrawString(c + "", font, scheme.bgBrush,
+												x - charWidth / 3, y + lineInterval / 2, stringFormat);
+										}
+									}
+									else
+									{
+										g.FillRectangle(scheme.mainCaretBrush, x, y + charHeight / 2, charWidth, charHeight / 2);
 									}
 								}
 								else
 								{
-									g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
+									if (receiver.IsIdle)
+									{
+										g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
+									}
+									else
+									{
+										g.FillRectangle(scheme.mainCaretBrush2, x, y + charHeight / 2, charWidth, charHeight / 2);
+									}
 								}
 							}
 							else

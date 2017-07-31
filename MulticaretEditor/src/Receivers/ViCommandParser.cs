@@ -73,6 +73,9 @@ namespace MulticaretEditor
 		public char register;
 		public string shortcut;
 		
+		public bool IsIdle { get { return _lastResult == ParseResult.Complete ||
+			_lastResult == ParseResult.Incorrect; } }
+		
 		public int FictiveCount { get { return rawCount > 0 ? rawCount : 1; } }
 		
 		public ViCommandParser(bool visualMode)

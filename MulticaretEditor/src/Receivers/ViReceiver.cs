@@ -86,6 +86,8 @@ namespace MulticaretEditor
 		
 		private readonly ViCommandParser parser = new ViCommandParser(false);
 		
+		public override bool IsIdle { get { return parser.IsIdle; } }
+		
 		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{
 			code = context.GetMapped(code);
