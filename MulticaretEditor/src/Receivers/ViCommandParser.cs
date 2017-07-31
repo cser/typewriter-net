@@ -86,7 +86,7 @@ namespace MulticaretEditor
 		
 		public void Reset()
 		{
-			_lastResult = ParseResult.WaitNext;
+			_lastResult = ParseResult.Complete;
 			_state = State.Init;
 			_stateText = "";
 			
