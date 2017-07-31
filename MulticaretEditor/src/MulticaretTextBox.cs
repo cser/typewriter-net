@@ -904,8 +904,11 @@ namespace MulticaretEditor
 						}
 						else if (receiver != null && receiver.ViMode != ViMode.Insert)
 						{
-							g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
-								x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
+							if (isCursorTick)
+							{
+								g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
+									x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
+							}
 						}
 						else if (isCursorTick)
 						{
