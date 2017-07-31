@@ -16,6 +16,13 @@ namespace UnitTests
 			Assert.AreEqual(viMode ? ViMode.Normal : ViMode.Insert, receiver.ViMode);
 		}
 		
+		private void EscapeNormalViMode()
+		{
+			bool scrollToCursor;
+			receiver.DoKeyDown(Keys.OemOpenBrackets | Keys.Control, out scrollToCursor);
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+		}
+		
 		private ViSimpleTest Press(string keys)
 		{
 			foreach (char c in keys)
@@ -903,13 +910,45 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Dot()
+		public void Dot_dw()
 		{
 			lines.SetText("In meiner Hand ein Bild von dir");
 			Put(3, 0).Press("2dw").AssertText("In ein Bild von dir");
 			AssertSelection().Both(3, 0);
 			Press(".").AssertText("In von dir");
 			AssertSelection().Both(3, 0);
+		}
+		
+		[Test]
+		public void Dot_cw()
+		{
+			lines.SetText("In meiner Hand ein Bild von dir");
+			Put(3, 0).Press("2cw[_]").AssertText("In [_] ein Bild von dir");
+			EscapeNormalViMode();
+			AssertSelection().Both(5, 0);
+			Press(".").AssertText("In [_[_] Bild von dir");
+			AssertSelection().Both(7, 0);
+		}
+		
+		[Test]
+		public void Dot_df_Repeat()
+		{
+			lines.SetText("In meiner Hand ein Bild von dir");
+			Put(3, 0).Press("dfi").AssertText("In ner Hand ein Bild von dir");
+			AssertSelection().Both(3, 0);
+			Press("2.").AssertText("In ld von dir");
+			AssertSelection().Both(3, 0);
+		}
+		
+		[Test]
+		public void Dot_dw_MovesIgnoredByDot()
+		{
+			lines.SetText("In meiner Hand ein Bild von dir");
+			Put(3, 0).Press("dw").AssertText("In Hand ein Bild von dir");
+			AssertSelection().Both(3, 0);
+			Press("e");
+			AssertSelection().Both(6, 0);
+			Press(".").AssertText("In Hanein Bild von dir");
 		}
 		
 		[Test]

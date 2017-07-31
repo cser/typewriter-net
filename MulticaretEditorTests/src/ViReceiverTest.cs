@@ -36,7 +36,7 @@ namespace UnitTests
 			receiver = new Receiver(controller, ViMode.Insert, false);
 		}
 		
-		private void EscpetNormalViMode()
+		private void EscapeNormalViMode()
 		{
 			bool scrollToCursor;
 			receiver.DoKeyDown(Keys.OemOpenBrackets | Keys.Control, out scrollToCursor);
@@ -73,7 +73,7 @@ namespace UnitTests
 			controller.PutCursor(new Place(1, 1), false);
 			AssertSelection().Both(1, 1).NoNext();
 			
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(0, 1).NoNext();
 		}
 		
@@ -86,7 +86,7 @@ namespace UnitTests
 			controller.PutCursor(new Place(1, 1), false);
 			AssertSelection().Both(1, 1).NoNext();
 			
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(0, 1).NoNext();
 			
 			SetViMode(false);
@@ -97,7 +97,7 @@ namespace UnitTests
 			controller.MoveRight(false);
 			AssertSelection().Both(4, 1).NoNext();
 			
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(3, 1).NoNext();
 			
 			SetViMode(false);
@@ -106,7 +106,7 @@ namespace UnitTests
 			controller.MoveRight(false);
 			AssertSelection().Both(5, 1).NoNext();
 			
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(4, 1).NoNext();
 			SetViMode(false);
 			AssertSelection().Both(4, 1).NoNext();
@@ -115,7 +115,7 @@ namespace UnitTests
 			controller.MoveLeft(false);
 			controller.MoveLeft(false);
 			AssertSelection().Both(0, 1).NoNext();
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(0, 1).NoNext();
 		}
 		
@@ -170,7 +170,7 @@ namespace UnitTests
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
 			controller.PutCursor(new Place(2, 1), false);
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(1, 1).NoNext();
 			
 			DoKeyPress('h');
@@ -192,7 +192,7 @@ namespace UnitTests
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
 			controller.PutCursor(new Place(2, 1), false);
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(1, 1).NoNext();
 			
 			DoKeyPress('р');
@@ -211,7 +211,7 @@ namespace UnitTests
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2\nline3");
 			controller.PutCursor(new Place(3, 1), false);
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(2, 1).NoNext();
 			
 			DoKeyPress('h').AssertSelection().Both(1, 1).NoNext();
@@ -229,7 +229,7 @@ namespace UnitTests
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2___________\nline3");
 			controller.PutCursor(new Place(3, 1), false);
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(2, 1).NoNext();
 			
 			DoKeyPress('h').AssertSelection().Both(1, 1).NoNext();
@@ -247,7 +247,7 @@ namespace UnitTests
 			SetViMode(false);
 			lines.SetText("line0\nline1\nline2___________\nline3");
 			controller.PutCursor(new Place(3, 1), false);
-			EscpetNormalViMode();
+			EscapeNormalViMode();
 			AssertSelection().Both(2, 1).NoNext();
 			
 			DoKeyPress('3').DoKeyPress('a').AssertSelection().Both(3, 1).NoNext();
