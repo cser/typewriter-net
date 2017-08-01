@@ -308,7 +308,6 @@ namespace MulticaretEditor
 						break;
 					case 'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
-						command = new ViCommands.Repeat(command, count);
 						break;
 					case 'x':
 						command = new ViCommands.Delete(

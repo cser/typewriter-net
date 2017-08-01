@@ -348,12 +348,29 @@ namespace UnitTests
 		public void r_Repeat()
 		{
 			lines.SetText("Du hast");
-			Put(3, 0).Press("3rx").AssertSelection().Both(3, 0).NoNext();
+			Put(3, 0).Press("3rx").AssertSelection().Both(5, 0).NoNext();
 			AssertText("Du xxxt");
-			Put(3, 0).Press("4ry").AssertSelection().Both(3, 0).NoNext();
+		}
+		
+		[Test]
+		public void r_RepeatExtremal()
+		{
+			lines.SetText("Du hast");
+			Put(3, 0).Press("3rx").AssertSelection().Both(5, 0).NoNext();
+			AssertText("Du xxxt");
+			Put(3, 0).Press("4ry").AssertSelection().Both(6, 0).NoNext();
 			AssertText("Du yyyy");
 			Put(3, 0).Press("5rz").AssertSelection().Both(3, 0).NoNext();
 			AssertText("Du yyyy");
+		}
+		
+		[Test]
+		public void r_PreferredPos()
+		{
+			lines.SetText("Du hast\nDu hast mich");
+			Put(3, 0).Press("rx").AssertSelection().Both(3, 0).NoNext();
+			AssertText("Du xast\nDu hast mich");
+			Press("j").AssertSelection().Both(3, 1);
 		}
 		
 		[Test]
@@ -376,6 +393,14 @@ namespace UnitTests
 			Put(0, 1).Press("2cw").AssertSelection().Both(0, 1).NoNext();
 			Press("AAA").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
 			AssertText("Du hast\nAAA mich");
+		}
+		
+		[Ignore]
+		[Test]
+		public void w_DocumentEnd()
+		{
+			lines.SetText("Abcdef");
+			Put(2, 0).Press("w").AssertSelection().Both(5, 0);
 		}
 		
 		[Test]

@@ -1669,6 +1669,7 @@ namespace MulticaretEditor
 		
 		public void ViReplaceChar(char c, int count)
 		{
+			bool allEmpty = true;
 			foreach (Selection selection in selections)
 			{
 				if (selection.Empty)
@@ -1679,6 +1680,10 @@ namespace MulticaretEditor
 					{
 						selection.caret += count;
 					}
+				}
+				else
+				{
+					allEmpty = false;
 				}
 			}
 			lines.JoinSelections();
@@ -1714,8 +1719,11 @@ namespace MulticaretEditor
 				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
 				{
 					Selection selection = lines.selections[i];
-					selection.caret -= texts[i].Length;
+					int textLength = texts[i].Length;
+					selection.caret -= allEmpty && textLength > 0 ? 1 : textLength;
 					selection.anchor = selection.caret;
+					Place place = lines.PlaceOf(selection.caret);
+					lines.SetPreferredPos(selection, place);
 				}
 			}
 		}
