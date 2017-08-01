@@ -53,6 +53,8 @@ public class CommandDialog : ADialog
             frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
             frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 		
 		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -459,5 +461,12 @@ public class CommandDialog : ADialog
 			}
 		}
 		autocomplete.Show(variants, name);
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
+		return true;
 	}
 }

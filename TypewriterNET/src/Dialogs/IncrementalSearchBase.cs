@@ -53,6 +53,8 @@ public class IncrementalSearchBase : ADialog
 			textKeyMap.AddItem(new KeyItem(Keys.Down, null, actionDown));
 			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, actionUp));
 			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, actionDown));
+			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 		}
 		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null,
@@ -382,5 +384,12 @@ public class IncrementalSearchBase : ADialog
 
 	virtual protected void Execute(int line, string lineText)
 	{
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
+		return true;
 	}
 }

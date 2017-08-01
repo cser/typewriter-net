@@ -44,6 +44,8 @@ public class ViFindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 		}
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 		
 		KeyMap beforeKeyMap = new KeyMap();
 		textBox = new MulticaretTextBox(true);
@@ -193,6 +195,13 @@ public class ViFindDialog : ADialog
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
 		}
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
 		return true;
 	}
 }
