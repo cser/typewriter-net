@@ -9,11 +9,13 @@ namespace MulticaretEditor
 		public const int ControlIndex = 0x10000;
 		
 		public char c;
+		public char origin;
 		public bool control;
 		
 		public ViChar(char c, bool control)
 		{
 			this.c = c;
+			this.origin = c;
 			this.control = control;
 		}
 		

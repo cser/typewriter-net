@@ -90,8 +90,9 @@ namespace MulticaretEditor
 		
 		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
 		{
-			code = context.GetMapped(code);
-			ProcessKey(new ViChar(code, false), out viShortcut, out scrollToCursor);
+			ViChar viChar = new ViChar(code, false);
+			viChar.c = context.GetMapped(code);
+			ProcessKey(viChar, out viShortcut, out scrollToCursor);
 		}
 		
 		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
@@ -307,7 +308,7 @@ namespace MulticaretEditor
 						ProcessUndo(count);
 						break;
 					case 'r':
-						command = new ViCommands.ReplaceChar(parser.moveChar.c, count);
+						command = new ViCommands.ReplaceChar(parser.moveChar.origin, count);
 						break;
 					case 'x':
 						command = new ViCommands.Delete(

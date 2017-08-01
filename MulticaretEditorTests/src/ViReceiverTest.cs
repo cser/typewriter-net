@@ -16,8 +16,8 @@ namespace UnitTests
 			if (ruMap == null)
 			{
 				ruMap = new Dictionary<char, char>();
-				string en = "abcdefghijklmnopqastuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ";
-				string ru = "фисвуапршолдьтщзйфыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ";
+				string en = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ";
+				string ru = "фисвуапршолдьтщзйкыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ";
 				for (int i = 0; i < en.Length; i++)
 				{
 					ruMap[ru[i]] = en[i];
