@@ -164,7 +164,7 @@ namespace MulticaretEditor
 		
 		private string GetKey(int index, int count)
 		{
-			string symbols = "abcdefghijklmnopqrstuvwxyz;,.";
+			string symbols = ";abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			int length = 1;
 			while (count >= symbols.Length)
 			{
