@@ -154,7 +154,7 @@ namespace MulticaretEditor
 					if (c == firstChar)
 					{
 						Position position = positions[positionIndex];
-						position.text = GetKey(positionIndex, positions.Count);
+						position.text = GetKey(Symbols, positionIndex, positions.Count);
 						positions[positionIndex] = position;
 						++positionIndex;
 						if (position.text.StartsWith(text))
@@ -167,13 +167,15 @@ namespace MulticaretEditor
 			}
 		}
 		
-		private char[] keyCache = new char[1];
+		private const string Symbols =
+			";abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		
-		private string GetKey(int index, int count)
+		private static char[] keyCache = new char[1];
+		
+		public static string GetKey(string symbols, int index, int count)
 		{
-			string symbols = ";abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			int length = 1;
-			while (count >= symbols.Length)
+			while (count > symbols.Length)
 			{
 				++length;
 				count /= symbols.Length;
