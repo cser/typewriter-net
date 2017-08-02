@@ -27,7 +27,6 @@ namespace MulticaretEditor
 		private Receiver receiver;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private StringFormat rightAlignFormat= new StringFormat(StringFormatFlags.DirectionRightToLeft);
-		private int lineInterval = 0;
 		private Timer cursorTimer;
 		private Timer keyTimer;
 		private Timer highlightingTimer;
@@ -401,7 +400,7 @@ namespace MulticaretEditor
 
 			SizeF size = GetCharSize(fonts[0], 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
-			charHeight = lineInterval + (int)Math.Round(size.Height * 1f) + 1;
+			charHeight = (int)Math.Round(size.Height * 1f) + 1;
 
 			Invalidate();
 		}
@@ -599,6 +598,12 @@ namespace MulticaretEditor
 				{
 					Array.Clear(jumpMap, 0, jumpMap.Length);
 				}
+				receiver.Jump.scrollX = valueX;
+				receiver.Jump.scrollY = valueY;
+				receiver.Jump.leftIndent = leftIndent;
+				receiver.Jump.charWidth = charWidth;
+				receiver.Jump.charHeight = charHeight;
+				receiver.Jump.map = jumpMap;
 			}
 			else
 			{
@@ -654,7 +659,7 @@ namespace MulticaretEditor
 			
 			if (jumpMap != null)
 			{
-				receiver.Jump.DoPaint(g, font, stringFormat, scheme, lineInterval, jumpMap, charWidth, charHeight);
+				receiver.Jump.DoPaint(g, font, stringFormat, scheme);
 			}
 
 			base.OnPaint(e);
@@ -820,7 +825,7 @@ namespace MulticaretEditor
 							x = offsetX + line.PosOfIndex(place.iChar) * charWidth;
 							y = offsetY + place.iLine * charHeight;
 						}
-						y += charHeight + lineInterval / 2;
+						y += charHeight;
                         g.DrawRectangle(scheme.markPen2, x, y - charHeight, charWidth, charHeight);
 					}
 				}
@@ -915,7 +920,7 @@ namespace MulticaretEditor
 										{
 											char c = line.chars[caret.iChar].c;
 											g.DrawString(c + "", font, scheme.bgBrush,
-												x - charWidth / 3, y + lineInterval / 2, stringFormat);
+												x - charWidth / 3, y, stringFormat);
 										}
 									}
 									else
@@ -1199,7 +1204,7 @@ namespace MulticaretEditor
 				g.DrawRectangle(
 					selectionPen,
 					offsetX + rectangle.ix * charWidth,
-					offsetY + rectangle.iy * charHeight + lineInterval / 2,
+					offsetY + rectangle.iy * charHeight,
 					rectangle.sizeX * charWidth,
 					charHeight);
 			}
@@ -1210,7 +1215,7 @@ namespace MulticaretEditor
 				g.FillRectangle(
 					selectionBrush,
 					offsetX + rectangle.ix * charWidth,
-					offsetY + rectangle.iy * charHeight + lineInterval / 2,
+					offsetY + rectangle.iy * charHeight,
 					rectangle.sizeX * charWidth,
 					charHeight);
 			}
@@ -1236,7 +1241,6 @@ namespace MulticaretEditor
 			matchesRenderer.offsetY = offsetY;
 			matchesRenderer.charWidth = charWidth;
 			matchesRenderer.charHeight = charHeight;
-			matchesRenderer.lineInterval = lineInterval;
 			foreach (SimpleRange range in lines.matches)
 			{
 				if (range.index + range.count < start || range.index > end || range.count == 0)
@@ -1339,7 +1343,6 @@ namespace MulticaretEditor
 			matchesRenderer.offsetY = offsetY;
 			matchesRenderer.charWidth = charWidth;
 			matchesRenderer.charHeight = charHeight;
-			matchesRenderer.lineInterval = lineInterval;
 			foreach (SimpleRange range in lines.matches)
 			{
 				if (range.index + range.count < start || range.index > end || range.count == 0)
@@ -1407,7 +1410,7 @@ namespace MulticaretEditor
 		{
 			int count = line.charsCount;
 			int tabSize = lines.tabSize;
-			float y = position.Y + lineInterval / 2;
+			float y = position.Y;
 			float x = position.X - charWidth / 3;
 
 			int[] indices = null;
@@ -1426,7 +1429,7 @@ namespace MulticaretEditor
 				if (markI != -1 && i == indices[markI])
 				{
 					int length = lines.markedWord.Length;
-					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
+					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y - 1, length * charWidth + 1, charHeight + 1);
 					if (markI < indices.Length - 1)
 						markI++;
 				}
@@ -1497,7 +1500,7 @@ namespace MulticaretEditor
 			int iLine, int iiLine, int iiMin, int iiMax, bool symbolic)
 		{
 			int tabSize = lines.tabSize;
-			float y0 = position.Y + lineInterval / 2;
+			float y0 = position.Y;
 			float x = position.X - charWidth / 3;
 
 			int[] indices = null;
@@ -1541,13 +1544,13 @@ namespace MulticaretEditor
 						int length = lines.markedWord.Length;
 						if (i + length <= i1)
 						{
-							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
+							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y - 1, length * charWidth + 1, charHeight + 1);
 							if (markI < indices.Length - 1)
 								markI++;
 						}
 						else
 						{
-							int top = (int)(y + lineInterval / 2);
+							int top = (int)y;
 							borderH.Begin();
 							borderH.AddLine(
 								position.X + pos * charWidth,
@@ -1626,13 +1629,7 @@ namespace MulticaretEditor
 							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
 							if (jumpMap != null)
 							{
-								int xi = (int)(x / charWidth + pos);
-								int yi = (int)(y / charHeight);
-								if (xi >= 0 && xi < jumpMap.GetLength(0) &&
-									yi >= 0 && yi < jumpMap.GetLength(1))
-								{
-									jumpMap[xi, yi] = c.c;
-								}
+								receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
 							}
 						}
 					}

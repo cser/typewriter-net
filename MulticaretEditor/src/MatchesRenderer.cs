@@ -17,7 +17,6 @@ namespace MulticaretEditor
 		public int offsetY;
 		public int charWidth;
 		public int charHeight;
-		public int lineInterval;
 		public bool start;
 		
 		public void AddLine(int ix, int iy, int sizeX)
@@ -25,7 +24,7 @@ namespace MulticaretEditor
 			g.FillRectangle(
 				brush,
 				offsetX + ix * charWidth,
-				offsetY + iy * charHeight + lineInterval / 2 + (start ? 1 : 0),
+				offsetY + iy * charHeight + (start ? 1 : 0),
 				sizeX * charWidth - 1,
 				charHeight + (start ? -1 : 0));
 			start = false;
