@@ -88,7 +88,7 @@ namespace MulticaretEditor
 				{
 					if (position.text == text)
 					{
-						controller.PutCursor(new Pos(position.x, position.y + scrollY / charHeight), false);
+						controller.PutCursor(new Pos(position.x + scrollX / charHeight, position.y + scrollY / charHeight), false);
 						context.SetState(new ViReceiver(null, false));
 						hasStartsWith = true;
 						break;
@@ -144,7 +144,6 @@ namespace MulticaretEditor
 					char c = map[i, j];
 					int x = leftIndent + i * charWidth;
 					int y = j * charHeight;
-					//g.DrawString(c + "", font, scheme.fgBrush, x - charWidth / 3, y, stringFormat);
 					if (c == firstChar)
 					{
 						Position position = positions[positionIndex];

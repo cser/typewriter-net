@@ -1472,6 +1472,10 @@ namespace MulticaretEditor
 						else
 						{
 							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							if (jumpMap != null)
+							{
+								receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
+							}
 						}
 					}
 				}
