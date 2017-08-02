@@ -592,7 +592,7 @@ namespace MulticaretEditor
 			{
 				if (jumpMap == null)
 				{
-					jumpMap = new char[clientWidth / charWidth + 1, clientHeight / charHeight + 1];
+					jumpMap = new char[clientWidth / charWidth, clientHeight / charHeight];
 				}
 				else
 				{

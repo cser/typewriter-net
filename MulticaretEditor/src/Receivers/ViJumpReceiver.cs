@@ -150,7 +150,6 @@ namespace MulticaretEditor
 					char c = map[i, j];
 					int x = leftIndent + i * charWidth;
 					int y = j * charHeight;
-					g.DrawString(c + "", font, scheme.fgBrush, x - charWidth / 3, y, stringFormat);
 					if (c == firstChar)
 					{
 						Position position = positions[positionIndex];
@@ -175,11 +174,19 @@ namespace MulticaretEditor
 		public static string GetKey(string symbols, int index, int count)
 		{
 			int length = 1;
+			//Console.WriteLine("!/" + count + "/" + length);
 			while (count > symbols.Length)
 			{
 				++length;
+				int oldCount = count;
 				count /= symbols.Length;
+				if (oldCount % symbols.Length > 0)
+				{
+					++count;
+				}
+				//Console.WriteLine("!count:" + count);
 			}
+			//Console.WriteLine("!\\" + count + "/" + length);
 			if (keyCache.Length != length)
 			{
 				keyCache = new char[length];
