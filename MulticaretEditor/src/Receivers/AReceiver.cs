@@ -14,6 +14,7 @@ namespace MulticaretEditor
 		protected Receiver.Context context;
 		
 		public virtual bool IsIdle { get { return true; } }
+		public virtual ViJumpReceiver AsJump { get { return null; } }
 		
 		public void Init(Controller controller, Receiver.Context context)
 		{

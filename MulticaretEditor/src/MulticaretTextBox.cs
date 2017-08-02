@@ -566,6 +566,8 @@ namespace MulticaretEditor
 
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();
 		private int mouseAreaRight;
+		private bool jumpMode;
+		private char[,] jumpMap;
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
@@ -585,6 +587,23 @@ namespace MulticaretEditor
 			int clientHeight = lines.scroller.textAreaHeight;
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
+			
+			jumpMode = receiver != null && receiver.Jump != null;
+			if (jumpMode)
+			{
+				if (jumpMap == null)
+				{
+					jumpMap = new char[clientWidth / charWidth, clientWidth / charWidth];
+				}
+				else
+				{
+					Array.Clear(jumpMap, 0, jumpMap.Length);
+				}
+			}
+			else
+			{
+				jumpMap = null;
+			}
 
 			Graphics g = e.Graphics;
 			g.SmoothingMode = SmoothingMode.None;
@@ -632,6 +651,11 @@ namespace MulticaretEditor
 
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
 				g.FillRectangle(scheme.scrollBgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
+			
+			if (jumpMap != null)
+			{
+				receiver.Jump.DoPaint(g, font, stringFormat, scheme, lineInterval, jumpMap, charWidth, charHeight);
+			}
 
 			base.OnPaint(e);
 

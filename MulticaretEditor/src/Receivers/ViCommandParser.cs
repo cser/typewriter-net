@@ -244,6 +244,7 @@ namespace MulticaretEditor
 								move = code;
 								return ParseResult.WaitNext;
 							case 'r':
+							case ' ':
 								_state = State.WaitChar;
 								action = code;
 								return ParseResult.WaitNext;

@@ -20,6 +20,8 @@ namespace MulticaretEditor
 		private ViMode viMode;
 		public ViMode ViMode { get { return viMode; } }
 		
+		public ViJumpReceiver Jump { get { return state != null ? state.AsJump : null; } }
+		
 		public Receiver(Controller controller, ViMode viMode, bool alwaysInputMode)
 		{
 			this.controller = controller;

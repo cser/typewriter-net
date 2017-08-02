@@ -348,6 +348,14 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Jump()
+		{
+			Init(false);
+			
+			Add(' ').AddLast('x').AssertParsed("1:action: ;move:\\0;moveChar:x");
+		}
+		
+		[Test]
 		public void c()
 		{
 			Init(false);

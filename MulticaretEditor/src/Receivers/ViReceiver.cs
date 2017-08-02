@@ -310,6 +310,9 @@ namespace MulticaretEditor
 					case 'r':
 						command = new ViCommands.ReplaceChar(parser.moveChar.origin, count);
 						break;
+					case ' ':
+						context.SetState(new ViJumpReceiver(parser.moveChar.c));
+						break;
 					case 'x':
 						command = new ViCommands.Delete(
 							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
