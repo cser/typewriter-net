@@ -593,7 +593,7 @@ namespace MulticaretEditor
 			{
 				if (jumpMap == null)
 				{
-					jumpMap = new char[clientWidth / charWidth, clientWidth / charWidth];
+					jumpMap = new char[clientWidth / charWidth, clientHeight / charHeight];
 				}
 				else
 				{
@@ -1624,6 +1624,16 @@ namespace MulticaretEditor
 						else
 						{
 							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							if (jumpMap != null)
+							{
+								int xi = (int)(x / charWidth + pos);
+								int yi = (int)(y / charHeight);
+								if (xi >= 0 && xi < jumpMap.GetLength(0) &&
+									yi >= 0 && yi < jumpMap.GetLength(1))
+								{
+									jumpMap[xi, yi] = c.c;
+								}
+							}
 						}
 					}
 					if (c.c == '\t')

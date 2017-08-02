@@ -68,8 +68,13 @@ namespace MulticaretEditor
 				for (int x = 0; x < sizeX; ++x)
 				{
 					char c = map[x, y];
-					g.DrawString("X", font, scheme.fgBrush,
-						x * charWidth - charWidth / 3, y * charHeight + lineInterval / 2, stringFormat);
+					g.DrawString(
+						c + "",
+						font,
+						scheme.fgBrush,
+						x * charWidth - charWidth / 3,
+						y * charHeight + lineInterval / 2,
+						stringFormat);
 				}
 			}
 		}
