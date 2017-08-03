@@ -311,7 +311,13 @@ namespace MulticaretEditor
 						command = new ViCommands.ReplaceChar(parser.moveChar.origin, count);
 						break;
 					case ' ':
-						context.SetState(new ViJumpReceiver(parser.moveChar.c));
+						context.SetState(new ViJumpReceiver(parser.moveChar.c, ViJumpReceiver.Mode.Single));
+						break;
+					case ',':
+						if (parser.move.IsChar(' '))
+						{
+							context.SetState(new ViJumpReceiver(parser.moveChar.c, ViJumpReceiver.Mode.New));
+						}
 						break;
 					case 'x':
 						command = new ViCommands.Delete(

@@ -356,6 +356,23 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Jump_VISUAL()
+		{
+			Init(true);
+			
+			Add(' ').AddLast('x').AssertParsed("1:action: ;move:\\0;moveChar:x");
+		}
+		
+		[Test]
+		public void Jump_NewCursor()
+		{
+			Init(false);
+			
+			Add(',').Add(' ').AddLast('x').AssertParsed("1:action:,;move: ;moveChar:x");
+			Add('\\').Add(' ').AddLast('x').AssertParsed("1:action:,;move: ;moveChar:x");
+		}
+		
+		[Test]
 		public void c()
 		{
 			Init(false);

@@ -21,7 +21,8 @@ namespace MulticaretEditor
 			Action,
 			WaitChar,
 			WaitRegister,
-			WaitObject
+			WaitObject,
+			Leader
 		}
 		
 		public class LastCommand
@@ -277,10 +278,15 @@ namespace MulticaretEditor
 							case '\r':
 								action = code;
 								return ParseResult.Complete;
+							case ',':
+							case '\\':
+								action = new ViChar(',', false);
+								_state = State.Leader;
+								_stateText = "";
+								return ParseResult.WaitNext;
 						}
 						if (char.IsNumber(code.c))
 						{
-							_stateText = "";
 							_state = State.Count;
 							return Parse(code);
 						}
@@ -305,6 +311,14 @@ namespace MulticaretEditor
 				case State.WaitObject:
 					moveChar = code;
 					return ParseResult.Complete;
+				case State.Leader:
+					if (code.IsChar(' '))
+					{
+						move = code;
+						_state = State.WaitChar;
+						return ParseResult.WaitNext;
+					}
+					return ParseResult.Incorrect;
 			}
 			return ParseResult.Incorrect;
 		}

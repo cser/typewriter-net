@@ -10,16 +10,26 @@ namespace MulticaretEditor
 {
 	public class ViJumpReceiver : AReceiver
 	{
+		public enum Mode
+		{
+			Single,
+			Selection,
+			LinesSelection,
+			New
+		}
+		
 		public override ViMode ViMode { get { return ViMode.Normal; } }
 		
 		public override ViJumpReceiver AsJump { get { return this; } }
 		
 		private readonly char firstChar;
+		private readonly Mode mode;
 		private string text = "";
 		
-		public ViJumpReceiver(char firstChar)
+		public ViJumpReceiver(char firstChar, Mode mode)
 		{
 			this.firstChar = firstChar;
+			this.mode = mode;
 		}
 		
 		public override bool AltMode { get { return true; } }
@@ -88,8 +98,26 @@ namespace MulticaretEditor
 				{
 					if (position.text == text)
 					{
-						controller.PutCursor(GetPlace(position), false);
-						context.SetState(new ViReceiver(null, false));
+						if (mode == Mode.Single)
+						{
+							controller.PutCursor(GetPlace(position), false);
+							context.SetState(new ViReceiver(null, false));
+						}
+						else if (mode == Mode.Selection)
+						{
+							controller.PutCursor(GetPlace(position), true);
+							context.SetState(new ViReceiverVisual(false));
+						}
+						else if (mode == Mode.LinesSelection)
+						{
+							controller.PutCursor(GetPlace(position), true);
+							context.SetState(new ViReceiverVisual(true));
+						}
+						else if (mode == Mode.New)
+						{
+							controller.PutNewCursor(GetPlace(position));
+							context.SetState(new ViReceiver(null, false));
+						}
 						hasStartsWith = true;
 						break;
 					}

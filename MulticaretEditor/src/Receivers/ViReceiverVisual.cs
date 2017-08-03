@@ -211,6 +211,10 @@ namespace MulticaretEditor
 						needViMode = true;
 						count = 1;
 						break;
+					case ' ':
+						context.SetState(new ViJumpReceiver(parser.moveChar.c,
+							_lineMode ? ViJumpReceiver.Mode.LinesSelection : ViJumpReceiver.Mode.Selection));
+						break;
 					case 'p':
 						command = new ViCommands.Paste(Direction.Right, parser.register, count);
 						count = 1;
