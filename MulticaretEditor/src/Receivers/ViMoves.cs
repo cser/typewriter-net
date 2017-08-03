@@ -130,6 +130,22 @@ namespace MulticaretEditor
 					case 'w':
 						controller.ViMoveInWord(shift, inside);
 						break;
+					case '{':
+					case '}':
+						controller.ViMoveInBrackets(shift, inside, '{', '}');
+						break;
+					case '(':
+					case ')':
+						controller.ViMoveInBrackets(shift, inside, '(', ')');
+						break;
+					case '[':
+					case ']':
+						controller.ViMoveInBrackets(shift, inside, '[', ']');
+						break;
+					case '<':
+					case '>':
+						controller.ViMoveInBrackets(shift, inside, '<', '>');
+						break;
 				}
 			}
 		}

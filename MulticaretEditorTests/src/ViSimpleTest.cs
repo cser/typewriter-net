@@ -738,6 +738,13 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void diBracket()
+		{
+			lines.SetText("One {two three four} five");
+			Put(6, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
 		public void s()
 		{
 			lines.SetText("01234567");

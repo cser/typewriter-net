@@ -33,13 +33,14 @@ namespace UnitTests
 			return builder.ToString();
 		}
 		
-		protected void AssertText(string text)
+		protected ControllerTestBase AssertText(string text)
 		{
 			Assert.AreEqual(text, lines.GetText());
 			Assert.AreEqual(text.Length, lines.charsCount, "Chars count");
+			return this;
 		}
 		
-		protected class SelectionAssertion
+		public class SelectionAssertion
 		{
 			private LineArray provider;
 			private int index;
@@ -141,12 +142,12 @@ namespace UnitTests
 			}
 		}
 		
-		protected SelectionAssertion AssertSelection()
+		public SelectionAssertion AssertSelection()
 		{
 			return new SelectionAssertion(lines, 0, null);
 		}
 		
-		protected SelectionAssertion AssertSelection(string description)
+		public SelectionAssertion AssertSelection(string description)
 		{
 			return new SelectionAssertion(lines, 0, description);
 		}

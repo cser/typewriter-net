@@ -307,6 +307,32 @@ namespace MulticaretEditor
 				_iterator.MoveLeftWithRN());
 		}
 		
+		public void Vi_BracketStart(char bra, char ket)
+		{
+			while (true)
+			{
+				char c;
+				if (!_iterator.MoveLeft(out c) || c == bra)
+				{
+					_iterator.MoveRight();
+					break;
+				}
+			}
+		}
+		
+		public void Vi_BracketEnd(char bra, char ket)
+		{
+			while (true)
+			{
+				char c;
+				if (!_iterator.MoveRight(out c) || c == ket)
+				{
+					_iterator.MoveLeft();
+					break;
+				}
+			}
+		}
+		
 		public void Apply(Selection selection, bool shift)
 		{
 			selection.caret = Position;
