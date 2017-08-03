@@ -956,6 +956,17 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Dot_s()
+		{
+			lines.SetText("In meiner Hand ein Bild von dir");
+			Put(3, 0).Press("2sX").AssertText("In Xiner Hand ein Bild von dir");
+			EscapeNormalViMode();
+			AssertSelection().Both(3, 0);
+			Put(14, 0).Press(".").AssertText("In Xiner Hand Xn Bild von dir");
+			AssertSelection().Both(14, 0);
+		}
+		
+		[Test]
 		public void Dot_df_Repeat()
 		{
 			lines.SetText("In meiner Hand ein Bild von dir");

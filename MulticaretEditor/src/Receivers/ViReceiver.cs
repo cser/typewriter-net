@@ -437,6 +437,7 @@ namespace MulticaretEditor
 						controller.ViSelectRight(count);
 						controller.EraseSelection();
 						context.SetState(new InputReceiver(new ViReceiverData('s', 1), false));
+						forceLastCommand = true;
 						break;
 					case 'I':
 						controller.ViMoveHome(false, true);
