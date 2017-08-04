@@ -737,11 +737,41 @@ namespace UnitTests
 			AssertSelection().Both(4, 0);
 		}
 		
-		[Test]
-		public void diBracket()
+		[TestCase("di{")]
+		[TestCase("di}")]
+		public void diBracket(string command)
 		{
 			lines.SetText("One {two three four} five");
+			Put(6, 0).Press(command).AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diBracket_Nested_Left()
+		{
+			lines.SetText("One {two {three} four} five");
 			Put(6, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diBracket_Nested_Right()
+		{
+			lines.SetText("One {two {three} four} five");
+			Put(19, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diBracket_NestedNear_Left()
+		{
+			lines.SetText("One {{two three} four} five");
+			Put(4, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diBracket_NestedNear_Right()
+		{
+			lines.SetText("One {two {three four}} five");
+			Put(21, 0).Press("di{");
+			AssertText("One {} five").AssertSelection().Both(5, 0);
 		}
 		
 		[Test]

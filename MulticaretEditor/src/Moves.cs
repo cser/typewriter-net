@@ -309,12 +309,34 @@ namespace MulticaretEditor
 		
 		public void Vi_BracketStart(char bra, char ket)
 		{
+			int depth = 0;
+			if (_iterator.RightChar == bra)
+			{
+				_iterator.MoveRight();
+				return;
+			}
+			if (_iterator.RightChar == ket)
+			{
+				_iterator.MoveLeft();
+			}
 			while (true)
 			{
-				char c;
-				if (!_iterator.MoveLeft(out c) || c == bra)
+				char c = _iterator.RightChar;
+				if (c == ket)
 				{
-					_iterator.MoveRight();
+					++depth;
+				}
+				if (c == bra)
+				{
+					if (depth <= 0)
+					{
+						_iterator.MoveRight();
+						break;
+					}
+					--depth;
+				}
+				if (!_iterator.MoveLeft())
+				{
 					break;
 				}
 			}
@@ -322,12 +344,24 @@ namespace MulticaretEditor
 		
 		public void Vi_BracketEnd(char bra, char ket)
 		{
+			int depth = 0;
 			while (true)
 			{
-				char c;
-				if (!_iterator.MoveRight(out c) || c == ket)
+				char c = _iterator.RightChar;
+				if (c == bra)
 				{
-					_iterator.MoveLeft();
+					++depth;
+				}
+				if (c == ket)
+				{
+					if (depth <= 0)
+					{
+						break;
+					}
+					--depth;
+				}
+				if (!_iterator.MoveRight())
+				{
 					break;
 				}
 			}

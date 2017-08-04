@@ -129,10 +129,10 @@ namespace MulticaretEditor
 		public bool MoveRight()
 		{
 			bool result = position < charsCount;
-			rightChar = '\0';
 			if (result)
 			{
 				leftChar = rightChar;
+				rightChar = '\0';
 				LineBlock block = blocks[blockI];
 				Line line = block.array[blockILine];
 				if (iChar == line.charsCount - 1)
@@ -164,6 +164,10 @@ namespace MulticaretEditor
 					rightChar = line.chars[iChar].c;
 				}
 				position++;
+			}
+			else
+			{
+				rightChar = '\0';
 			}
 			return result;
 		}
