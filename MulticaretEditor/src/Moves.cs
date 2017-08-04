@@ -307,13 +307,13 @@ namespace MulticaretEditor
 				_iterator.MoveLeftWithRN());
 		}
 		
-		public void Vi_BracketStart(char bra, char ket)
+		public bool Vi_BracketStart(char bra, char ket)
 		{
 			int depth = 0;
 			if (_iterator.RightChar == bra)
 			{
 				_iterator.MoveRight();
-				return;
+				return true;
 			}
 			if (_iterator.RightChar == ket)
 			{
@@ -331,18 +331,18 @@ namespace MulticaretEditor
 					if (depth <= 0)
 					{
 						_iterator.MoveRight();
-						break;
+						return true;
 					}
 					--depth;
 				}
 				if (!_iterator.MoveLeft())
 				{
-					break;
+					return false;
 				}
 			}
 		}
 		
-		public void Vi_BracketEnd(char bra, char ket)
+		public bool Vi_BracketEnd(char bra, char ket)
 		{
 			int depth = 0;
 			while (true)
@@ -356,13 +356,13 @@ namespace MulticaretEditor
 				{
 					if (depth <= 0)
 					{
-						break;
+						return true;
 					}
 					--depth;
 				}
 				if (!_iterator.MoveRight())
 				{
-					break;
+					return false;
 				}
 			}
 		}

@@ -770,8 +770,15 @@ namespace UnitTests
 		public void diBracket_NestedNear_Right()
 		{
 			lines.SetText("One {two {three four}} five");
-			Put(21, 0).Press("di{");
-			AssertText("One {} five").AssertSelection().Both(5, 0);
+			Put(21, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diBracket_Empty()
+		{
+			lines.SetText("One two three four five");
+			Put(6, 0).Press("di{");
+			AssertText("One two three four five").AssertSelection().Both(6, 0);
 		}
 		
 		[Test]

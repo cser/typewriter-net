@@ -1468,11 +1468,16 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				moves.Vi_BracketStart(bra, ket);
-				selection.caret = moves.Position;
-				selection.SetEmpty();
-				moves.Vi_BracketEnd(bra, ket);
-				moves.Apply(selection, true);
+				if (moves.Vi_BracketStart(bra, ket))
+				{
+					int position = moves.Position;
+					if (moves.Vi_BracketEnd(bra, ket))
+					{
+						selection.caret = position;
+						selection.SetEmpty();
+						moves.Apply(selection, true);
+					}
+				}
 			}
 		}
 		
