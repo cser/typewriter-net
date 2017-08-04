@@ -1473,9 +1473,9 @@ namespace MulticaretEditor
 					int position = moves.Position;
 					if (moves.Vi_BracketEnd(bra, ket))
 					{
-						selection.caret = position;
+						selection.caret = position - (inside ? 0 : 1);
 						selection.SetEmpty();
-						moves.Apply(selection, true);
+						moves.Apply(selection, true, (inside ? 0 : 1));
 					}
 				}
 			}

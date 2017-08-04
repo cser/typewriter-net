@@ -377,6 +377,16 @@ namespace MulticaretEditor
 			_lines.SetPreferredPos(selection, Place);
 		}
 		
+		public void Apply(Selection selection, bool shift, int offset)
+		{
+			selection.caret = Position + offset;
+			if (!shift)
+			{
+				selection.anchor = selection.caret;
+			}
+			_lines.SetPreferredPos(selection, Place);
+		}
+		
 		private static CharType GetCharType(char c)
         {
 	        switch (c)
