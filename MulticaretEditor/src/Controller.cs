@@ -1463,12 +1463,12 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket)
+		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket, int count)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				if (moves.Vi_BracketStart(bra, ket))
+				if (moves.Vi_BracketStart(bra, ket, count))
 				{
 					int position = moves.Position;
 					if (moves.Vi_BracketEnd(bra, ket))

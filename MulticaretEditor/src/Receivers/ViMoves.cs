@@ -116,11 +116,13 @@ namespace MulticaretEditor
 		{
 			private char o;
 			private bool inside;
+			private int count;
 			
-			public MoveObject(char o, bool inside)
+			public MoveObject(char o, bool inside, int count)
 			{
 				this.o = o;
 				this.inside = inside;
+				this.count = count;
 			}
 			
 			public void Move(Controller controller, bool shift, bool change)
@@ -132,19 +134,19 @@ namespace MulticaretEditor
 						break;
 					case '{':
 					case '}':
-						controller.ViMoveInBrackets(shift, inside, '{', '}');
+						controller.ViMoveInBrackets(shift, inside, '{', '}', count);
 						break;
 					case '(':
 					case ')':
-						controller.ViMoveInBrackets(shift, inside, '(', ')');
+						controller.ViMoveInBrackets(shift, inside, '(', ')', count);
 						break;
 					case '[':
 					case ']':
-						controller.ViMoveInBrackets(shift, inside, '[', ']');
+						controller.ViMoveInBrackets(shift, inside, '[', ']', count);
 						break;
 					case '<':
 					case '>':
-						controller.ViMoveInBrackets(shift, inside, '<', '>');
+						controller.ViMoveInBrackets(shift, inside, '<', '>', count);
 						break;
 				}
 			}

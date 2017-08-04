@@ -307,14 +307,9 @@ namespace MulticaretEditor
 				_iterator.MoveLeftWithRN());
 		}
 		
-		public bool Vi_BracketStart(char bra, char ket)
+		public bool Vi_BracketStart(char bra, char ket, int count)
 		{
-			int depth = 0;
-			if (_iterator.RightChar == bra)
-			{
-				_iterator.MoveRight();
-				return true;
-			}
+			int depth = count - 1;
 			if (_iterator.RightChar == ket)
 			{
 				_iterator.MoveLeft();
