@@ -796,6 +796,13 @@ namespace UnitTests
 			Put(14, 0).Press("2di{").AssertText("One {} five").AssertSelection().Both(5, 0);
 		}
 		
+		[Test]
+		public void diBracket_Repeat_Complex()
+		{
+			lines.SetText("{One {two {three} four} five}");
+			Put(14, 0).Press("2di{").AssertText("{One {} five}").AssertSelection().Both(6, 0);
+		}
+		
 		[TestCase(9)]
 		[TestCase(15)]
 		public void diBracket_Repeat_StartsWithKet(int position)

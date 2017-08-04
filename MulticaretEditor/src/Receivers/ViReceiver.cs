@@ -268,6 +268,7 @@ namespace MulticaretEditor
 				case 'i':
 				case 'a':
 					move = new ViMoves.MoveObject(parser.moveChar.c, parser.move.c == 'i', count);
+					count = 1;
 					break;
 				case 'n':
 					move = new ViMoves.FindForwardPattern();
