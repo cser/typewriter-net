@@ -773,12 +773,13 @@ namespace UnitTests
 			Put(21, 0).Press("di{").AssertText("One {} five").AssertSelection().Both(5, 0);
 		}
 		
-		[Test]
-		public void diBracket_Empty()
+		[TestCase("One two three four five")]
+		[TestCase("One {two three four five")]
+		[TestCase("One two three four}} five")]
+		public void diBracket_Empty(string text)
 		{
-			lines.SetText("One two three four five");
-			Put(6, 0).Press("di{");
-			AssertText("One two three four five").AssertSelection().Both(6, 0);
+			lines.SetText(text);
+			Put(6, 0).Press("di{").AssertText(text).AssertSelection().Both(6, 0);
 		}
 		
 		[Test]
