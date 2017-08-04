@@ -148,6 +148,10 @@ namespace MulticaretEditor
 					case '>':
 						controller.ViMoveInBrackets(shift, inside, '<', '>', count);
 						break;
+					case '"':
+					case '\'':
+						controller.ViMoveInQuotes(shift, inside, o);
+						break;
 				}
 			}
 		}

@@ -1481,6 +1481,24 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViMoveInQuotes(bool shift, bool inside, char quote)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				if (moves.Vi_QuotesStart(quote))
+				{
+					int position = moves.Position;
+					if (moves.Vi_QuotesEnd(quote))
+					{
+						selection.caret = position - (inside ? 0 : 1);
+						selection.SetEmpty();
+						moves.Apply(selection, true, (inside ? 0 : 1));
+					}
+				}
+			}
+		}
+		
 		public void ViMoveHome(bool shift, bool indented)
 		{
 			foreach (Selection selection in selections)

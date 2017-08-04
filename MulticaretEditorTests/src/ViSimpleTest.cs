@@ -812,6 +812,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void diString()
+		{
+			lines.SetText("One \"two three\" four \"five\"");
+			Put(7, 0).Press("di\"").AssertText("One \"\" four \"five\"").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void daString()
+		{
+			lines.SetText("One \"two three\" four \"five\"");
+			Put(7, 0).Press("da\"").AssertText("One  four \"five\"").AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
 		public void s()
 		{
 			lines.SetText("01234567");
