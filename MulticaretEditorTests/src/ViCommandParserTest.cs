@@ -798,5 +798,12 @@ namespace UnitTests
 			Add('d').AddLast('%').AssertParsed("1:action:d;move:%;moveChar:\\0");
 			AddLast('%').AssertParsed("1:action:\\0;move:%;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Percents_VISUAL()
+		{
+			Init(true);
+			AddLast('%').AssertParsed("1:action:\\0;move:%;moveChar:\\0");
+		}
 	}
 }

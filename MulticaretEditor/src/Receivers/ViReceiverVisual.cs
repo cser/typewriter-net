@@ -188,6 +188,9 @@ namespace MulticaretEditor
 				case 'N':
 					move = new ViMoves.FindBackwardPattern();
 					break;
+				case '%':
+					move = new ViMoves.FindPairBracket();
+					break;
 			}
 			ViCommands.ICommand command = null;
 			bool needViMode = false;

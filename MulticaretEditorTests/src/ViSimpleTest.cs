@@ -934,6 +934,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Percents_d()
+		{
+			lines.SetText("012{abc}d");
+			Put(3, 0).Press("d%").AssertText("012d").AssertSelection().Both(3, 0);
+		}
+		
+		[Test]
+		public void Percents_Selection()
+		{
+			lines.SetText("012{abc}d");
+			Put(3, 0).Press("v%").AssertSelection().Anchor(3, 0).Caret(8, 0);
+		}
+		
+		[Test]
 		public void dd()
 		{
 			lines.SetText(
