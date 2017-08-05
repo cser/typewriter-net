@@ -369,8 +369,11 @@ namespace MulticaretEditor
 				char c = _iterator.RightChar;
 				if (c == quote)
 				{
-					_iterator.MoveRight();
-					return true;
+					if (_iterator.LeftChar != '\\')
+					{
+						_iterator.MoveRight();
+						return true;
+					}
 				}
 				if (!_iterator.MoveLeft())
 				{
@@ -384,7 +387,14 @@ namespace MulticaretEditor
 			while (true)
 			{
 				char c = _iterator.RightChar;
-				if (c == quote)
+				if (c == '\\')
+				{
+					if (!_iterator.MoveRight())
+					{
+						return false;
+					}
+				}
+				else if (c == quote)
 				{
 					return true;
 				}

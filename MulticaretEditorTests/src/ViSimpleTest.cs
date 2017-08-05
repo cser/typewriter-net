@@ -819,10 +819,59 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void diString2()
+		{
+			lines.SetText("One 'two three' four 'five'");
+			Put(7, 0).Press("di'").AssertText("One '' four 'five'").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
 		public void daString()
 		{
 			lines.SetText("One \"two three\" four \"five\"");
 			Put(7, 0).Press("da\"").AssertText("One  four \"five\"").AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void diString_BeforeEscaped()
+		{
+			lines.SetText("One 'two \\'three' four 'five'");
+			Put(7, 0).Press("di'").AssertText("One '' four 'five'").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diString_AfterEscaped()
+		{
+			lines.SetText("One 'two \\'three' four 'five'");
+			Put(14, 0).Press("di'").AssertText("One '' four 'five'").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diString_BeforeEscapedSlash()
+		{
+			lines.SetText(@"One 'two \\'three' four 'five'");
+			Put(7, 0).Press("di'").AssertText("One ''three' four 'five'").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diString_AfterEscapedSlash()
+		{
+			lines.SetText(@"One 'two \\'three' four 'five'");
+			Put(14, 0).Press("di'").AssertText("One ''three' four 'five'").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diString_EscapedComplex()
+		{
+			lines.SetText("One \"two \\\"'three'\" four five");
+			Put(7, 0).Press("di\"").AssertText("One \"\" four five").AssertSelection().Both(5, 0);
+		}
+		
+		[Test]
+		public void diString_EscapedComplex2()
+		{
+			lines.SetText(@"One 'two \\th\\nree' four five");
+			Put(7, 0).Press("di'").AssertText("One '' four five").AssertSelection().Both(5, 0);
 		}
 		
 		[Test]
