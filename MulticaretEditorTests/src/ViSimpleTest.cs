@@ -875,6 +875,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Percents_ToRight()
+		{
+			lines.SetText("012{abc}d");
+			Put(3, 0).Press("%").AssertSelection().Both(7, 0);
+		}
+		
+		[Test]
+		public void Percents_ToLeft()
+		{
+			lines.SetText("012{abc}d");
+			Put(7, 0).Press("%").AssertSelection().Both(3, 0);
+		}
+		
+		[Test]
 		public void s()
 		{
 			lines.SetText("01234567");

@@ -790,5 +790,13 @@ namespace UnitTests
 			Add('d').AddLast('E').AssertParsed("1:action:d;move:E;moveChar:\\0");
 			Add('d').AddLast('B').AssertParsed("1:action:d;move:B;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Percents()
+		{
+			Init(false);
+			Add('d').AddLast('%').AssertParsed("1:action:d;move:%;moveChar:\\0");
+			AddLast('%').AssertParsed("1:action:\\0;move:%;moveChar:\\0");
+		}
 	}
 }

@@ -186,6 +186,14 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class FindPairBracket : IMove
+		{
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				controller.ViPairBracket(shift);
+			}
+		}
+		
 		public class Find : IMove
 		{
 			private char type;

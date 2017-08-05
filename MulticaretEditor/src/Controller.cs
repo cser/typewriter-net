@@ -1450,6 +1450,16 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViPairBracket(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_PairBracket(shift);
+				moves.Apply(selection, shift);
+			}
+		}
+		
 		public void ViMoveInWord(bool shift, bool inside)
 		{
 			foreach (Selection selection in lines.selections)

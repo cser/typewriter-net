@@ -405,6 +405,22 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void Vi_PairBracket(bool shift)
+		{
+			char c = _iterator.RightChar;
+			if (c == '{')
+			{
+				_iterator.MoveRight();
+				Vi_BracketEnd('{', '}');
+			}
+			else if (c == '}')
+			{
+				_iterator.MoveLeft();
+				Vi_BracketStart('{', '}', 1);
+				_iterator.MoveLeft();
+			}
+		}
+		
 		public void Apply(Selection selection, bool shift)
 		{
 			selection.caret = Position;
