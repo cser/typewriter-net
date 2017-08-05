@@ -1455,8 +1455,10 @@ namespace MulticaretEditor
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				moves.Vi_PairBracket(shift);
-				moves.Apply(selection, shift);
+				if (moves.Vi_PairBracket(shift))
+				{
+					moves.Apply(selection, shift);
+				}
 			}
 		}
 		

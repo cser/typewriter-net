@@ -920,6 +920,20 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Percents_StartsWithFirstBracketOnLine1()
+		{
+			lines.SetText("012{abc}d");
+			Put(1, 0).Press("%").AssertSelection().Both(7, 0);
+		}
+		
+		[Test]
+		public void Percents_StartsWithFirstBracketOnLine2()
+		{
+			lines.SetText("012\n{abc}d");
+			Put(1, 0).Press("%").AssertSelection().Both(1, 0);
+		}
+		
+		[Test]
 		public void dd()
 		{
 			lines.SetText(

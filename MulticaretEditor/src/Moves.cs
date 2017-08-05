@@ -405,39 +405,69 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void Vi_PairBracket(bool shift)
+		public bool Vi_PairBracket(bool shift)
 		{
 			char c = _iterator.RightChar;
-			for (int i = 0; i < 3; ++i)
+			char bra;
+			char ket;
+			GetBrackets(c, out bra, out ket);
+			if (bra == '\0')
 			{
-				char bra;
-				char ket;
-				if (i == 0)
+				while (true)
 				{
-					bra = '{';
-					ket = '}';
+					if (!_iterator.MoveRight())
+					{
+						return false;
+					}
+					c = _iterator.RightChar;
+					if (c == '\n' || c == '\r')
+					{
+						return false;
+					}
+					GetBrackets(c, out bra, out ket);
+					if (bra != '\0')
+					{
+						break;
+					}
 				}
-				else if (i == 1)
-				{
-					bra = '(';
-					ket = ')';
-				}
-				else
-				{
-					bra = '[';
-					ket = ']';
-				}
+			}
+			if (bra != '\0')
+			{
 				if (c == bra)
 				{
 					_iterator.MoveRight();
 					Vi_BracketEnd(bra, ket);
+					return true;
 				}
-				else if (c == ket)
+				if (c == ket)
 				{
 					_iterator.MoveLeft();
 					Vi_BracketStart(bra, ket, 1);
 					_iterator.MoveLeft();
+					return true;
 				}
+			}
+			return false;
+		}
+		
+		private void GetBrackets(char c, out char bra, out char ket)
+		{
+			bra = '\0';
+			ket = '\0';
+			if (c == '{' || c == '}')
+			{
+				bra = '{';
+				ket = '}';
+			}
+			else if (c == '(' || c == ')')
+			{
+				bra = '(';
+				ket = ')';
+			}
+			else if (c == '[' || c == ']')
+			{
+				bra = '[';
+				ket = ']';
 			}
 		}
 		
