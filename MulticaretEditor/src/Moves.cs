@@ -408,16 +408,36 @@ namespace MulticaretEditor
 		public void Vi_PairBracket(bool shift)
 		{
 			char c = _iterator.RightChar;
-			if (c == '{')
+			for (int i = 0; i < 3; ++i)
 			{
-				_iterator.MoveRight();
-				Vi_BracketEnd('{', '}');
-			}
-			else if (c == '}')
-			{
-				_iterator.MoveLeft();
-				Vi_BracketStart('{', '}', 1);
-				_iterator.MoveLeft();
+				char bra;
+				char ket;
+				if (i == 0)
+				{
+					bra = '{';
+					ket = '}';
+				}
+				else if (i == 1)
+				{
+					bra = '(';
+					ket = ')';
+				}
+				else
+				{
+					bra = '[';
+					ket = ']';
+				}
+				if (c == bra)
+				{
+					_iterator.MoveRight();
+					Vi_BracketEnd(bra, ket);
+				}
+				else if (c == ket)
+				{
+					_iterator.MoveLeft();
+					Vi_BracketStart(bra, ket, 1);
+					_iterator.MoveLeft();
+				}
 			}
 		}
 		
