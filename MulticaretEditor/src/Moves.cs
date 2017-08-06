@@ -437,6 +437,10 @@ namespace MulticaretEditor
 				{
 					_iterator.MoveRight();
 					Vi_BracketEnd(bra, ket);
+					if (shift)
+					{
+						_iterator.MoveRight();
+					}
 					return true;
 				}
 				if (c == ket)
