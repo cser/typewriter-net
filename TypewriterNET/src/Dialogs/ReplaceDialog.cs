@@ -74,6 +74,8 @@ public class ReplaceDialog : ADialog
 			frameKeyMap.Add(Keys.Control | Keys.P, null, prevAction);
 			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
 		}
+		frameKeyMap.Add(Keys.Control | Keys.F, null,
+			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false));
 		
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
@@ -251,9 +253,13 @@ public class ReplaceDialog : ADialog
 			return;
 		tabBar.Selected = textBox.Focused || replaceTextBox.Focused;
 		if (textBox.Focused)
+		{
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+		}
 		if (replaceTextBox.Focused)
+		{
 			Nest.MainForm.SetFocus(replaceTextBox, textBox.KeyMap, null);
+		}
 	}
 
 	override public bool Focused { get { return textBox.Focused || replaceTextBox.Focused; } }
@@ -359,6 +365,21 @@ public class ReplaceDialog : ADialog
 	private bool DoUnselectPrevText(Controller controller)
 	{
 		doUnselectPrevText();
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		if (textBox.Controller == controller)
+		{
+			textBox.SetViMode(true);
+			textBox.Controller.ViFixPositions(false);
+		}
+		else if (replaceTextBox.Controller == controller)
+		{
+			replaceTextBox.SetViMode(true);
+			replaceTextBox.Controller.ViFixPositions(false);
+		}
 		return true;
 	}
 }
