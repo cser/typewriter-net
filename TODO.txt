@@ -16,3 +16,7 @@ Fix position by mouse on half-tab
 - Fuzzy search caching, update new version in background
 - Fix unfocus on reloading undo
 - Fix floating top indents
+- More complex removing in TabList
+- Hide console by Ctrl+[
+- Line selection in brackets
+- Fix cw on line end

@@ -23,6 +23,7 @@ public class TempSettings
 	private RecentlyStorage recentlyDirs = new RecentlyStorage();
 	
 	public int helpPosition;
+	public int viHelpPosition;
 	
 	public List<string> GetRecentlyFiles()
 	{
@@ -109,6 +110,7 @@ public class TempSettings
 				mainForm.MainNest.Frame.Focus();
 		}
 		helpPosition = state["helpPosition"].Int;
+		viHelpPosition = state["viHelpPosition"].Int;
 		scheme = state["scheme"].String;
 		if (string.IsNullOrEmpty(scheme))
 			scheme = "npp";
@@ -252,6 +254,7 @@ public class TempSettings
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		state["helpPosition"] = SValue.NewInt(helpPosition);
+		state["viHelpPosition"] = SValue.NewInt(viHelpPosition);
 		state["scheme"] = SValue.NewString(scheme);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}

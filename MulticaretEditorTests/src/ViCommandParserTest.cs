@@ -817,5 +817,17 @@ namespace UnitTests
 			Init(true);
 			AddLast('%').AssertParsed("1:action:\\0;move:%;moveChar:\\0");
 		}
+		
+		[Test]
+		public void ViHelp()
+		{
+			Init(true);
+			
+			Add(',').AddLast('h');
+			Assert.AreEqual("\\h", parser.shortcut);
+			
+			Add(',').AddLast('H');
+			Assert.AreEqual("\\H", parser.shortcut);
+		}
 	}
 }

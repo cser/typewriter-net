@@ -188,6 +188,16 @@ public class MainForm : Form
 			}
 			return;
 		}
+		if (shortcut == "\\h")
+		{
+			ProcessHelp();
+			return;
+		}
+		if (shortcut == "\\H")
+		{
+			ProcessViHelp();
+			return;
+		}
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);
@@ -408,19 +418,9 @@ public class MainForm : Form
 		}
 	}
 	
-	private string GetExeHelp()
-	{
-	    return "<fileName>\n" +
-            "-connect <fictiveFileName> <httpServer>\n" +
-            "-temp <tempFilePostfix> - use different temp settings\n" +
-            "-config <tempFilePostfix> - use different config\n" +
-            "-help\n" + 
-            "-line=<line>";
-	}
-
     private void WriteHelp()
     {
-        Console.Write("Options: " + GetExeHelp());
+        Console.Write("Options: " + Help.GetExeHelp());
     }
 
 	public bool SetCurrentDirectory(string path, out string error)
@@ -914,6 +914,7 @@ public class MainForm : Form
 			.SetGetText(GetCtrlCketCommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F1, null, new KeyAction("&?\\Vi mode help", DoViHelp, null, false)));
 	}
 	
 	private bool DoPasteInOutput(Controller controller)
@@ -1822,48 +1823,22 @@ public class MainForm : Form
 		ProcessHelp();
 		return true;
 	}
+	
+	private bool DoViHelp(Controller controller)
+	{
+		ProcessViHelp();
+		return true;
+	}
 
 	private Buffer _helpBuffer;
+	private Buffer _viHelpBuffer;
 
 	public void ProcessHelp()
 	{
 		if (_helpBuffer == null || _helpBuffer.Frame == null)
 		{
-			List<StyleRange> ranges = new List<StyleRange>();
-			StringBuilder builder = new StringBuilder();
-			builder.AppendLine("# About");
-			builder.AppendLine();
-			builder.AppendLine(Application.ProductName);
-			builder.AppendLine("Build " + Application.ProductVersion);
-			builder.AppendLine();
-			builder.AppendLine("# Command line options");
-			builder.AppendLine();
-			builder.AppendLine(GetExeHelp());
-			builder.AppendLine();
-			builder.AppendLine("# Actions");
-			builder.AppendLine();
-			builder.AppendLine("All actions are represented in menu.");
-			builder.AppendLine("Menu subitems are depended on frame with cursor");
-			builder.AppendLine("[] in menu item denotes complex shortcut,");
-			builder.AppendLine("i.e. for [Ctrl+Tab]:");
-			builder.AppendLine("\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
-			builder.AppendLine("\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
-			builder.AppendLine();
-			builder.AppendLine(commander.GetHelpText());
-			builder.AppendLine(settings.GetHelpText());
-			builder.AppendLine("# Syntax highlighting styles");
-			builder.AppendLine();
-			foreach (Ds ds in Ds.all)
-			{
-				ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
-				builder.AppendLine(ds.name);
-			}
-			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Help);
-			_helpBuffer.tags = BufferTag.Other;
+			_helpBuffer = Help.NewHelpBuffer(settings, commander);
 			_helpBuffer.onRemove = OnHelpBufferRemove;
-			_helpBuffer.Controller.isReadonly = true;
-			_helpBuffer.Controller.InitText(builder.ToString());
-			_helpBuffer.Controller.Lines.ranges = ranges;
 			if (tempSettings.helpPosition < 0)
 				tempSettings.helpPosition = 0;
 			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
@@ -1886,6 +1861,37 @@ public class MainForm : Form
 			tempSettings.helpPosition = buffer.Controller.LastSelection.caret;
 		}
 		_helpBuffer = null;
+		return true;
+	}
+	
+	public void ProcessViHelp()
+	{
+		if (_viHelpBuffer == null || _viHelpBuffer.Frame == null)
+		{
+			_viHelpBuffer = Help.NewViHelpBuffer(settings, commander);
+			_viHelpBuffer.onRemove = OnViHelpBufferRemove;
+			if (tempSettings.viHelpPosition < 0)
+				tempSettings.viHelpPosition = 0;
+			else if (tempSettings.viHelpPosition > _viHelpBuffer.Controller.Lines.charsCount)
+				tempSettings.viHelpPosition = _viHelpBuffer.Controller.Lines.charsCount;
+			ShowBuffer(GetMainNest(), _viHelpBuffer);
+			_viHelpBuffer.Controller.PutCursor(_viHelpBuffer.Controller.Lines.PlaceOf(tempSettings.viHelpPosition), false);
+			_viHelpBuffer.Controller.NeedScrollToCaret();
+		}
+		else
+		{
+			_viHelpBuffer.Frame.RemoveBuffer(_viHelpBuffer);
+			_viHelpBuffer = null;
+		}
+	}
+	
+	private bool OnViHelpBufferRemove(Buffer buffer)
+	{
+		if (buffer != null)
+		{
+			tempSettings.viHelpPosition = buffer.Controller.LastSelection.caret;
+		}
+		_viHelpBuffer = null;
 		return true;
 	}
 	

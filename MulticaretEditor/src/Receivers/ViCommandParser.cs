@@ -351,6 +351,16 @@ namespace MulticaretEditor
 						shortcut = "\\b";
 						return ParseResult.Complete;
 					}
+					if (code.IsChar('h'))
+					{
+						shortcut = "\\h";
+						return ParseResult.Complete;
+					}
+					if (code.IsChar('H'))
+					{
+						shortcut = "\\H";
+						return ParseResult.Complete;
+					}
 					return ParseResult.Incorrect;
 			}
 			return ParseResult.Incorrect;
