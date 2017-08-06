@@ -611,6 +611,18 @@ namespace UnitTests
 			Assert.AreEqual(":", parser.shortcut);
 		}
 		
+		[Test]
+		public void Leader_b()
+		{
+			Init(false);
+			
+			Add('\\').AddLast('b');
+			Assert.AreEqual("\\b", parser.shortcut);
+			
+			Add(',').AddLast('b');
+			Assert.AreEqual("\\b", parser.shortcut);
+		}
+		
 		[TestCase(false)]
 		[TestCase(true)]
 		public void ScrollUpDown(bool lineMode)

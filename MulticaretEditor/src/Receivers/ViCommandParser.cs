@@ -319,6 +319,11 @@ namespace MulticaretEditor
 						_state = State.WaitChar;
 						return ParseResult.WaitNext;
 					}
+					if (code.IsChar('b'))
+					{
+						shortcut = "\\b";
+						return ParseResult.Complete;
+					}
 					return ParseResult.Incorrect;
 			}
 			return ParseResult.Incorrect;

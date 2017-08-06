@@ -176,6 +176,14 @@ public class MainForm : Form
 
 	public void ProcessViShortcut(Controller controller, string shortcut)
 	{
+		if (shortcut == "\\b")
+		{
+			if (tabList != null)
+			{
+				tabList.Open();
+			}
+			return;
+		}
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);
@@ -183,6 +191,7 @@ public class MainForm : Form
 	}
 
 	private FileTree fileTree;
+	private TabList tabList;
 
 	private void OnLoad(object sender, EventArgs e)
 	{
@@ -232,6 +241,7 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 		
 		fileTree = new FileTree(this);
+		tabList = new TabList(this);
 
 		leftNest.buffers = new BufferList();
 
@@ -959,6 +969,33 @@ public class MainForm : Form
 		}
 		return mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
 	}
+	
+	public void SelectIfExists(Buffer buffer)
+	{
+		if (buffer == null)
+		{
+			return;
+		}
+		foreach (Buffer bufferI in mainNest.buffers.list)
+		{
+			if (bufferI == buffer && bufferI.Frame != null)
+			{
+				bufferI.Frame.SelectedBuffer = bufferI;
+				return;
+			}
+		}
+		if (mainNest2.Frame != null)
+		{
+			foreach (Buffer bufferI in mainNest2.buffers.list)
+			{
+				if (bufferI == buffer && bufferI.Frame != null)
+				{
+					bufferI.Frame.SelectedBuffer = bufferI;
+					return;
+				}
+			}
+		}
+	}
 
 	public Buffer LoadFile(string file, string httpServer, Nest nest)
 	{
@@ -1000,7 +1037,7 @@ public class MainForm : Form
 		RemoveEmptyIfNeed();
 		return buffer;
 	}
-
+	
 	public Buffer ForcedLoadFile(string file)
 	{
 		string fullPath = null;
