@@ -7,5 +7,6 @@ public enum UpdatePhase
 	ChangeCurrentDirectory,
 	FindParams,
 	FileSaved,
-	Scheme
+	Scheme,
+	CustomRemoveTab
 }

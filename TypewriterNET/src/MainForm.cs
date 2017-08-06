@@ -176,6 +176,10 @@ public class MainForm : Form
 
 	public void ProcessViShortcut(Controller controller, string shortcut)
 	{
+		if (string.IsNullOrEmpty(shortcut))
+		{
+			return;
+		}
 		if (shortcut == "\\b")
 		{
 			if (tabList != null)
@@ -187,6 +191,10 @@ public class MainForm : Form
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);
+		}
+		if (tabList != null)
+		{
+			tabList.DoOnViShortcut(controller, shortcut);
 		}
 	}
 
@@ -993,6 +1001,30 @@ public class MainForm : Form
 					bufferI.Frame.SelectedBuffer = bufferI;
 					return;
 				}
+			}
+		}
+	}
+	
+	public void CloseIfExists(Buffer buffer)
+	{
+		if (buffer == null)
+		{
+			return;
+		}
+		if (mainNest.Frame != null)
+		{
+			if (mainNest.Frame.ContainsBuffer(buffer))
+			{
+				mainNest.Frame.RemoveBuffer(buffer);
+				frames.UpdateSettings(settings, UpdatePhase.CustomRemoveTab);
+			}
+		}
+		else if (mainNest2.Frame != null)
+		{
+			if (mainNest2.Frame.ContainsBuffer(buffer))
+			{
+				mainNest2.Frame.RemoveBuffer(buffer);
+				frames.UpdateSettings(settings, UpdatePhase.CustomRemoveTab);
 			}
 		}
 	}

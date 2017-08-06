@@ -45,11 +45,29 @@ public class TabList
 		{
 			KeyAction action = new KeyAction("&View\\Tab list\\Close tab list", DoCloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemCloseBrackets, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
 		}
 		{
 			KeyAction action = new KeyAction("&View\\Tab list\\Select tab", DoOpenTab, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+		}
+	}
+	
+	public void DoOnViShortcut(Controller controller, string shortcut)
+	{
+		if (buffer == null)
+		{
+			return;
+		}
+		if (shortcut == "dd")
+		{
+			Selection selection = buffer.Controller.LastSelection;
+			int index = buffer.Controller.Lines.PlaceOf(selection.caret).iLine;
+			if (index >= 0 && index < buffers.Count)
+			{
+				mainForm.CloseIfExists(buffers[index]);
+				Rebuild();
+			}
 		}
 	}
 
@@ -61,6 +79,7 @@ public class TabList
 	private bool OnBufferRemove(Buffer buffer)
 	{
 		buffers.Clear();
+		buffer = null;
 		return true;
 	}
 

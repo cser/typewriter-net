@@ -202,6 +202,10 @@ public class Frame : AFrame
 			tabBar.Invalidate();
 		    settings.ApplyOnlyFileParameters(textBox, buffer);
 		}
+		else if (phase == UpdatePhase.CustomRemoveTab)
+		{
+			tabBar.Invalidate();
+		}
 
 		if (buffer != null && buffer.onUpdateSettings != null)
 			buffer.onUpdateSettings(buffer, phase);
@@ -238,7 +242,7 @@ public class Frame : AFrame
 			buffers.list.Add(buffer);
 		}
 	}
-
+	
 	public void RemoveBuffer(Buffer buffer)
 	{
 		CloseAutocomplete();

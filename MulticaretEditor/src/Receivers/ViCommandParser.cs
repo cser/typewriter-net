@@ -74,6 +74,33 @@ namespace MulticaretEditor
 		public char register;
 		public string shortcut;
 		
+		public string GetFictiveShortcut()
+		{
+			string shortcut = this.shortcut;
+			if (!string.IsNullOrEmpty(shortcut))
+			{
+				return shortcut;
+			}
+			if (action.control || move.control || moveChar.control || moveChar.c != '\0' || register != '\0')
+			{
+				return null;
+			}
+			shortcut = "";
+			if (rawCount > 0)
+			{
+				shortcut += rawCount;
+			}
+			if (action.c != '\0')
+			{
+				shortcut += action.c;
+			}
+			if (move.c != '\0')
+			{
+				shortcut += move.c;
+			}
+			return shortcut;
+		}
+		
 		public bool IsIdle { get { return _lastResult == ParseResult.Complete ||
 			_lastResult == ParseResult.Incorrect; } }
 		

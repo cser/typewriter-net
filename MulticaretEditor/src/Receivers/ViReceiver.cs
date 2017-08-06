@@ -161,11 +161,12 @@ namespace MulticaretEditor
 				scrollToCursor = false;
 				return;
 			}
-			ProcessParserCommand(out scrollToCursor);
+			ProcessParserCommand(out viShortcut, out scrollToCursor);
 		}
 		
-		private void ProcessParserCommand(out bool scrollToCursor)
+		private void ProcessParserCommand(out string viShortcut, out bool scrollToCursor)
 		{
+			viShortcut = null;
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
 			int count = parser.FictiveCount;
@@ -405,9 +406,10 @@ namespace MulticaretEditor
 								for (int i = 0; i < count; i++)
 								{
 									parser.SetLastCommand(lastCommand);
-									bool temp;
-									ProcessParserCommand(out temp);
-									if (temp)
+									string tempShortcut;
+									bool tempScrollToCursor;
+									ProcessParserCommand(out tempShortcut, out tempScrollToCursor);
+									if (tempScrollToCursor)
 									{
 										scrollToCursor = true;
 									}
@@ -545,6 +547,10 @@ namespace MulticaretEditor
 			if (command != null || forceLastCommand)
 			{
 				context.lastCommand = parser.GetLastCommand();
+				if (controller.isReadonly)
+				{
+					viShortcut = parser.GetFictiveShortcut();
+				}
 			}
 		}
 		
