@@ -20,3 +20,4 @@ Fix position by mouse on half-tab
 - Hide console by Ctrl+[
 - Line selection in brackets
 - Fix cw on line end
+- Fix special registers
