@@ -68,7 +68,7 @@ public class Settings
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
-	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
+	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 8);
 	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
 	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");

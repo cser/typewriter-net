@@ -34,7 +34,7 @@
 	<item name="hideInFileTree" value="*.meta"/>
 	<item name="renamePostfixed" value=".meta"/>
 	<item name="checkContentBeforeReloading" value="true"/>
-	<item name="fileIncrementalSearchTimeout" value="10"/>
+	<item name="fileIncrementalSearchTimeout" value="8"/>
 	<item name="altCharsSource" value="1234567890-=\qwertyuiop[]asdl;'zcnm,/!$+QWERTYUIOPASDL:ZCN&lt;&quot;"/>
 	<item name="altCharsResult" value="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°Æ¢ÑÇ¨"/>
 	<item name="viMapSource"

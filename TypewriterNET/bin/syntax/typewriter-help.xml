@@ -3,38 +3,46 @@
 <highlighting>
 	<contexts>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
+			<RegExpr attribute="Normal Text" context="FirstColumn" String="^\s(?=\S)"/>
 			<DetectSpaces attribute="" context="#stay"/>
 			<RegExpr attribute="Operator" context="Title2" String="~\s*"/>
 			<DetectChar attribute="Title" context="Title" char="#"/>
-			<StringDetect attribute="V" context="#stay" String="[v]" insensitive="true"/>
-			<StringDetect attribute="X" context="#stay" String="[x]" insensitive="true"/>
-			<StringDetect attribute="V" context="V" String="[v " insensitive="true"/>
-			<StringDetect attribute="X" context="X" String="[x " insensitive="true"/>
 			<IncludeRules context="Common"/>
 			<StringDetect attribute="Http" context="Http" String="http:"/>
+			<StringDetect attribute="Http" context="Http" String="https:"/>
 			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()_-+=\|/?" attribute="Operator"/>
 			<DetectChar attribute="String" context="String" char="&quot;"/>
 			<DetectChar attribute="String2" context="String2" char="`"/>
 			<Int attribute="Decimal" context="#stay"/>
+			<Detect2Chars attribute="Title" context="Meta 2" char="[" char1="["/>
 			<DetectChar attribute="Meta" context="Meta 1" char="["/>
 		</context>
+		<context attribute="Normal Text" lineEndContext="#pop" name="FirstColumn">
+			<Detect2Chars attribute="Operator" context="#pop" char=" " char1="|"/>
+			<Int attribute="Decimal" context="#stay"/>
+			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()[]{}_-+=\|/?" attribute="Operator"/>
+		</context>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Common">
-			<IncludeRules context="##Doxygen"/>
 			<Detect2Chars attribute="Strikeout" context="Strikeout" char="\" char1="\"/>
 			<Detect2Chars attribute="Strikeout" context="Strikeout2" char="\" char1="*"/>
 			<Detect2Chars attribute="Comment" context="Commentar 1" char="/" char1="/"/>
         	<Detect2Chars attribute="Comment" context="Commentar 2" char="/" char1="*"/>
-			<StringDetect attribute="Region" context="XML" String=":xml:"/>
-			<StringDetect attribute="Region" context="CS" String=":cs:"/>
 		</context>
 		<context attribute="Meta" lineEndContext="#stay" name="CommonMeta">
 			<StringDetect attribute="Operator" context="HttpMeta" String="http:"/>
+			<StringDetect attribute="Operator" context="HttpMeta" String="https:"/>
 			<DetectChar attribute="Operator" context="String01" char="&quot;"/>
 			<DetectChar attribute="Operator" context="String02" char="`"/>
 			<Int attribute="Decimal" context="#stay"/>
 		</context>
 		<context attribute="Meta" lineEndContext="#stay" name="Meta 1">
 			<DetectChar attribute="Meta" context="#pop" char="]"/>
+			<Int attribute="Operator" context="#stay"/>
+			<IncludeRules context="Common"/>
+			<IncludeRules context="CommonMeta"/>
+		</context>
+		<context attribute="Title" lineEndContext="#stay" name="Meta 2">
+			<Detect2Chars attribute="Title" context="#pop" char="]" char1="]"/>
 			<Int attribute="Operator" context="#stay"/>
 			<IncludeRules context="Common"/>
 			<IncludeRules context="CommonMeta"/>
@@ -59,14 +67,6 @@
 			<HlCStringChar attribute="Meta" context="#stay"/>
 			<DetectChar attribute="Operator" context="#pop" char="`"/>
 		</context>
-		<context attribute="Normal Text" lineEndContext="#stay" name="XML">
-			<StringDetect attribute="Region" context="#pop" String=":xml:"/>
-			<IncludeRules context="##XML"/>
-		</context>
-		<context attribute="Normal Text" lineEndContext="#stay" name="CS">
-			<StringDetect attribute="Region" context="#pop" String=":cs:"/>
-			<IncludeRules context="##C#"/>
-		</context>
 		<context attribute="Http" lineEndContext="#pop" name="Http">
 			<DetectSpaces attribute="Normal Text" context="#pop"/>
 			<AnyChar attribute="Normal Text" context="#pop" String="(){}[]&lt;&gt;" lookAhead="true"/>
@@ -87,20 +87,12 @@
 		<context attribute="Comment" lineEndContext="#stay" name="Commentar 2">
 			<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/"/>
 		</context>
-		<context attribute="V" lineEndContext="#stay" name="V">
-			<DetectChar attribute="V" context="#pop" char="]"/>
-		</context>
-		<context attribute="X" lineEndContext="#stay" name="X">
-			<DetectChar attribute="X" context="#pop" char="]"/>
-		</context>
 	</contexts>
 	<itemDatas>
 		<itemData name="Normal Text" defStyleNum="dsNormal"/>
 		<itemData name="Strikeout" defStyleNum="dsNormal" strikeout="1"/>
 		<itemData name="Title" defStyleNum="dsKeyword"/>
 		<itemData name="Title2" defStyleNum="dsNormal" underline="1"/>
-		<itemData name="V" defStyleNum="dsKeyword2"/>
-		<itemData name="X" defStyleNum="dsConstructor"/>
 		<itemData name="Region" defStyleNum="dsRegionMarker"/>
 		<itemData name="Http" defStyleNum="dsDataType"/>
 		<itemData name="String" defStyleNum="dsString"/>
