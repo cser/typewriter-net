@@ -132,7 +132,6 @@ public class TabList
 	
 	private bool DoOpenTab(Controller controller)
 	{
-		CloseBuffer();
 		if (buffer != null)
 		{
 			Selection selection = buffer.Controller.LastSelection;
@@ -140,6 +139,7 @@ public class TabList
 			if (index >= 0 && index < buffers.Count)
 			{
 				mainForm.SelectIfExists(buffers[index]);
+				CloseBuffer();
 			}
 		}
 		return true;

@@ -985,23 +985,15 @@ public class MainForm : Form
 		{
 			return;
 		}
-		foreach (Buffer bufferI in mainNest.buffers.list)
+		if (mainNest.Frame.ContainsBuffer(buffer))
 		{
-			if (bufferI == buffer && bufferI.Frame != null)
-			{
-				bufferI.Frame.SelectedBuffer = bufferI;
-				return;
-			}
+			mainNest.Frame.SelectedBuffer = buffer;
 		}
 		if (mainNest2.Frame != null)
 		{
-			foreach (Buffer bufferI in mainNest2.buffers.list)
+			if (mainNest2.Frame.ContainsBuffer(buffer))
 			{
-				if (bufferI == buffer && bufferI.Frame != null)
-				{
-					bufferI.Frame.SelectedBuffer = bufferI;
-					return;
-				}
+				mainNest2.Frame.SelectedBuffer = buffer;
 			}
 		}
 	}

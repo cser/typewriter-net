@@ -21,4 +21,3 @@ Fix position by mouse on half-tab
 - Line selection in brackets
 - Fix cw on line end
 - Fix special registers
-- Fix tab list Enter
