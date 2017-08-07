@@ -61,6 +61,8 @@ public class FindInFilesDialog : ADialog
 				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
 				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("F&ind\\Vi normal mode", DoNormalMode, null, true)));
 			
 			filterTextBox = new MulticaretTextBox(true);
 			filterTextBox.FontFamily = FontFamily.GenericMonospace;
@@ -89,6 +91,8 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 			if (data.history != null)
 			{
 				KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
@@ -301,6 +305,13 @@ public class FindInFilesDialog : ADialog
 			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
 			UpdateFilterText();
 		}
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
 		return true;
 	}
 }
