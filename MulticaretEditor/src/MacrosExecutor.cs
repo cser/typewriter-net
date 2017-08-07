@@ -36,7 +36,7 @@ namespace MulticaretEditor
 		
 		public bool viMode;
 
-		private Getter<MulticaretTextBox> getTextBox;
+		private readonly Getter<MulticaretTextBox> getTextBox;
 
 		public MacrosExecutor(Getter<MulticaretTextBox> getTextBox)
 		{
@@ -72,6 +72,22 @@ namespace MulticaretEditor
 				Action action = recorded[i];
 				tb.ProcessMacrosAction(action);
 			}
+		}
+		
+		public int maxViPositions = 20;
+		
+		public void ViPositionAdd(PositionNode node)
+		{
+		}
+		
+		public PositionNode ViPositionPrev()
+		{
+			return new PositionNode();
+		}
+		
+		public PositionNode ViPositionNext()
+		{
+			return new PositionNode();
 		}
 	}
 }

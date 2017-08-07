@@ -21,3 +21,4 @@ Fix position by mouse on half-tab
 - Line selection in brackets
 - Fix cw on line end
 - Fix special registers
+- Custom commands with output into buffer
