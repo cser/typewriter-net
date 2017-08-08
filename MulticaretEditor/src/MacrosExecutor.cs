@@ -76,45 +76,45 @@ namespace MulticaretEditor
 		
 		public int maxViPositions = 20;
 		
-		private PositionNode[] viPositions;
-		private int viStart = 0;
-		private int viIndex = -1;
-		private int viCount = 0;
+		private List<PositionNode> _prev = new List<PositionNode>();
+		private List<PositionNode> _next = new List<PositionNode>();
 		
-		public void ViPositionAdd(string file, int position, bool asNew)
+		public void ViPositionAdd(string file, int position)
 		{
-			if (viPositions == null)
+			if (_next.Count > 0)
 			{
-				viPositions = new PositionNode[maxViPositions];
+				_prev.Add(_next[_next.Count - 1]);
+				_next.Clear();
 			}
-			viIndex = (viIndex + 1) % maxViPositions;
-			viPositions[viIndex] = new PositionNode(file, position);
-			++viCount;
-			if (viCount > maxViPositions)
+			_next.Add(new PositionNode(file, position));
+			if (_prev.Count + _next.Count > maxViPositions)
 			{
-				viCount = maxViPositions;
-				viStart = (viStart + 1) % maxViPositions;
+				_prev.RemoveAt(0);
 			}
 		}
 		
 		public PositionNode ViPositionPrev()
 		{
-			Console.Write("!" + viCount);
-			--viCount;
-			if (viCount < 0)
+			PositionNode node = null;
+			if (_prev.Count > 0)
 			{
-				viCount = 0;
-				return null;
+				node = _prev[_prev.Count - 1];
+				_prev.RemoveAt(_prev.Count - 1);
+				_next.Add(node);
 			}
-			viIndex = (viIndex + maxViPositions - 1) % maxViPositions;
-			return viPositions[viIndex];
+			return node;
 		}
 		
 		public PositionNode ViPositionNext()
 		{
-			viIndex = (viIndex + 1) % maxViPositions;
-			PositionNode node = viPositions[viIndex];
-			return node;
+			if (_next.Count == 0)
+			{
+				return null;
+			}
+			PositionNode node = _next[_next.Count - 1];
+			_next.RemoveAt(_next.Count - 1);
+			_prev.Add(node);
+			return _next.Count > 0 ? _next[_next.Count - 1] : null;
 		}
 	}
 }

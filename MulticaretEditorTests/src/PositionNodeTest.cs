@@ -24,8 +24,8 @@ namespace UnitTests
 		[Test]
 		public void Simple()
 		{
-			_executor.ViPositionAdd("File0", 1, true);
-			_executor.ViPositionAdd("File1", 2, true);
+			_executor.ViPositionAdd("File0", 1);
+			_executor.ViPositionAdd("File1", 2);
 			AssertPosition("File0", 1, _executor.ViPositionPrev());
 			AssertPosition("File1", 2, _executor.ViPositionNext());
 			AssertPosition("File0", 1, _executor.ViPositionPrev());
@@ -34,10 +34,10 @@ namespace UnitTests
 		[Test]
 		public void WorksAfterMaxCountReached()
 		{
-			_executor.ViPositionAdd("File0", 1, true);
-			_executor.ViPositionAdd("File0", 2, true);
-			_executor.ViPositionAdd("File0", 3, true);
-			_executor.ViPositionAdd("File0", 4, true);
+			_executor.ViPositionAdd("File0", 1);
+			_executor.ViPositionAdd("File0", 2);
+			_executor.ViPositionAdd("File0", 3);
+			_executor.ViPositionAdd("File0", 4);
 			AssertPosition("File0", 3, _executor.ViPositionPrev());
 			AssertPosition("File0", 2, _executor.ViPositionPrev());
 			AssertPosition("File0", 3, _executor.ViPositionNext());
@@ -47,10 +47,10 @@ namespace UnitTests
 		[Test]
 		public void NullAfterMaxCountOverflow()
 		{
-			_executor.ViPositionAdd("File0", 1, true);
-			_executor.ViPositionAdd("File0", 2, true);
-			_executor.ViPositionAdd("File0", 3, true);
-			_executor.ViPositionAdd("File0", 4, true);
+			_executor.ViPositionAdd("File0", 1);
+			_executor.ViPositionAdd("File0", 2);
+			_executor.ViPositionAdd("File0", 3);
+			_executor.ViPositionAdd("File0", 4);
 			AssertPosition("File0", 3, _executor.ViPositionPrev());
 			AssertPosition("File0", 2, _executor.ViPositionPrev());
 			Assert.AreEqual(null, _executor.ViPositionPrev());

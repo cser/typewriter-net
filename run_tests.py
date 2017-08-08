@@ -11,6 +11,9 @@ elif "ProcessModel: Default    DomainUsage: Multiple" in out:
 pattern = "c:\\workspace\\typewriter-net\\makefile.proj(24,3): error MSB3073"
 if pattern in out:
 	out = out[:out.index(pattern)]
+pattern = "Tests Not Run:"
+if pattern in out:
+	out = out[:out.index(pattern)]
 out = out.replace('\r\n', '\n')
 lines = []
 for line in out.split('\n'):
