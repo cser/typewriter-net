@@ -76,18 +76,18 @@ namespace MulticaretEditor
 		
 		public int maxViPositions = 20;
 		
-		public void ViPositionAdd(PositionNode node)
+		public void ViPositionAdd(string file, int position, bool asNew)
 		{
 		}
 		
 		public PositionNode ViPositionPrev()
 		{
-			return new PositionNode();
+			return null;
 		}
 		
 		public PositionNode ViPositionNext()
 		{
-			return new PositionNode();
+			return null;
 		}
 	}
 }

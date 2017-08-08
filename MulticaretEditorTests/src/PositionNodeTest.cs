@@ -9,6 +9,11 @@ namespace UnitTests
 	{
 		private MacrosExecutor _executor;
 		
+		private void AssertPosition(string expectedFile, int expectedPosition, PositionNode was)
+		{
+			Assert.AreEqual(file + ":" + position, was != null ? was.file + ":" + was.position : "null");
+		}
+		
 		[SetUp]
 		public void SetUp()
 		{
@@ -16,53 +21,14 @@ namespace UnitTests
 			_executor.maxViPositions = 3;
 		}
 		
-		private readonly PositionNode Node0 = new PositionNode("Node0", 0);
-		private readonly PositionNode Node1 = new PositionNode("Node1", 1);
-		private readonly PositionNode Node2 = new PositionNode("Node2", 2);
-		
 		[Test]
 		public void SingleNode()
 		{
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionNext());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionPrev());
-			_executor.ViPositionAdd(Node0);
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionPrev());
-			Assert.AreEqual(Node0, _executor.ViPositionNext());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionPrev());
-		}
-		
-		[Test]
-		public void SingleNode_ReturnsNoneIfMissing()
-		{
-			_executor.ViPositionAdd(Node0);
-			Assert.AreEqual(Node0, _executor.ViPositionNext());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionNext());
-		}
-		
-		[Test]
-		public void Next()
-		{
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionNext());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionPrev());
-			_executor.ViPositionAdd(Node0);
-			_executor.ViPositionAdd(Node1);
-			Assert.AreEqual(Node0, _executor.ViPositionNext());
-			Assert.AreEqual(Node1, _executor.ViPositionNext());
-			Assert.AreEqual(Node0, _executor.ViPositionPrev());
-		}
-		
-		[Test]
-		public void Next_ClearNextIfNewPosition()
-		{
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionNext());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionPrev());
-			_executor.ViPositionAdd(Node0);
-			_executor.ViPositionAdd(Node1);
-			Assert.AreEqual(Node0, _executor.ViPositionNext());
-			Assert.AreEqual(Node1, _executor.ViPositionNext());
-			_executor.ViPositionAdd(Node2);
-			Assert.AreEqual(Node2, _executor.ViPositionPrev());
-			Assert.AreEqual(new PositionNode(), _executor.ViPositionNext());
+			_executor.ViPositionAdd("File0", 1, true);
+			_executor.ViPositionAdd("File1", 2, true);
+			AssertPosition("File0", 1, _executor.ViPositionPrev());
+			AssertPosition("File1", 2, _executor.ViPositionNext());
+			AssertPosition("File0", 1, _executor.ViPositionPrev());
 		}
 	}
 }
