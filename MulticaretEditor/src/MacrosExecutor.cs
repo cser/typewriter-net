@@ -76,18 +76,45 @@ namespace MulticaretEditor
 		
 		public int maxViPositions = 20;
 		
+		private PositionNode[] viPositions;
+		private int viStart = 0;
+		private int viIndex = -1;
+		private int viCount = 0;
+		
 		public void ViPositionAdd(string file, int position, bool asNew)
 		{
+			if (viPositions == null)
+			{
+				viPositions = new PositionNode[maxViPositions];
+			}
+			viIndex = (viIndex + 1) % maxViPositions;
+			viPositions[viIndex] = new PositionNode(file, position);
+			++viCount;
+			if (viCount > maxViPositions)
+			{
+				viCount = maxViPositions;
+				viStart = (viStart + 1) % maxViPositions;
+			}
 		}
 		
 		public PositionNode ViPositionPrev()
 		{
-			return null;
+			Console.Write("!" + viCount);
+			--viCount;
+			if (viCount < 0)
+			{
+				viCount = 0;
+				return null;
+			}
+			viIndex = (viIndex + maxViPositions - 1) % maxViPositions;
+			return viPositions[viIndex];
 		}
 		
 		public PositionNode ViPositionNext()
 		{
-			return null;
+			viIndex = (viIndex + 1) % maxViPositions;
+			PositionNode node = viPositions[viIndex];
+			return node;
 		}
 	}
 }
