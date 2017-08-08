@@ -22,3 +22,4 @@ Fix position by mouse on half-tab
 - Fix cw on line end
 - Fix special registers
 - Custom commands with output into buffer
+- Fix indentation repetition

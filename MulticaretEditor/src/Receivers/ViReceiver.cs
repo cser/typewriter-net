@@ -97,6 +97,7 @@ namespace MulticaretEditor
 		
 		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
 		{
+			Console.WriteLine("!DoKeyDown(" + keysData + ")");
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
@@ -141,6 +142,12 @@ namespace MulticaretEditor
 				case Keys.Control | Keys.Shift | Keys.K:
 					ProcessKey(new ViChar('K', true), out viShortcut, out scrollToCursor);
 					return true;
+				case Keys.Control | Keys.O:
+					ProcessKey(new ViChar('o', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.I:
+					ProcessKey(new ViChar('i', true), out viShortcut, out scrollToCursor);
+					return true;
 				default:
 					scrollToCursor = false;
 					return false;
@@ -149,6 +156,7 @@ namespace MulticaretEditor
 		
 		private void ProcessKey(ViChar code, out string viShortcut, out bool scrollToCursor)
 		{
+			Console.WriteLine("!ProcessKey(" + code + ")");
 			viShortcut = null;
 			if (!parser.AddKey(code))
 			{
@@ -429,6 +437,12 @@ namespace MulticaretEditor
 						break;
 					case 'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
+						return;
+					case 'o' + ViChar.ControlIndex:
+						viShortcut = "C-o";
+						return;
+					case 'i' + ViChar.ControlIndex:
+						viShortcut = "C-i";
 						break;
 					case 'i':
 						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
@@ -534,6 +548,10 @@ namespace MulticaretEditor
 						forceLastCommand = true;
 						break;
 				}
+			}
+			if (move != null && controller.macrosExecutor != null)
+			{
+				controller.macrosExecutor.ViPositionAdd(controller.LastSelection.caret);
 			}
 			if (command != null)
 			{

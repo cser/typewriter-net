@@ -1833,7 +1833,9 @@ namespace MulticaretEditor
 			if (receiver != null)
 			{
 				string viShortcut;
+				Console.WriteLine("!MulticaretTextBox: /DoKeyPress:");
 				receiver.DoKeyPress(code, out viShortcut, out scrollToCursor);
+				Console.WriteLine("!MulticaretTextBox: \\DoKeyPress: shortcut: " + viShortcut);
 				if (viShortcut != null)
 				{
 					if (ViShortcut != null)

@@ -202,7 +202,6 @@ namespace MulticaretEditor
 		public static string GetKey(string symbols, int index, int count)
 		{
 			int length = 1;
-			//Console.WriteLine("!/" + count + "/" + length);
 			while (count > symbols.Length)
 			{
 				++length;
@@ -212,9 +211,7 @@ namespace MulticaretEditor
 				{
 					++count;
 				}
-				//Console.WriteLine("!count:" + count);
 			}
-			//Console.WriteLine("!\\" + count + "/" + length);
 			if (keyCache.Length != length)
 			{
 				keyCache = new char[length];

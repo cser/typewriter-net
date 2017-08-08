@@ -180,6 +180,7 @@ public class MainForm : Form
 		{
 			return;
 		}
+		Console.WriteLine("!" + shortcut);
 		if (shortcut == "\\b")
 		{
 			if (tabList != null)
@@ -196,6 +197,21 @@ public class MainForm : Form
 		if (shortcut == "\\H")
 		{
 			ProcessViHelp();
+			return;
+		}
+		if (shortcut == "C-o" || shortcut == "C-i")
+		{
+			PositionNode node = shortcut == "C-o" ?
+				MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
+				MulticaretTextBox.initMacrosExecutor.ViPositionNext();
+			if (node != null)
+			{
+				Buffer buffer = LoadFile(node.file);
+				if (buffer != null && buffer.FullPath == node.file)
+				{
+					buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(node.position), false);
+				}
+			}
 			return;
 		}
 		if (dialogs != null)
@@ -639,6 +655,7 @@ public class MainForm : Form
 	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
 	{
 		focusedTextBox = textBox;
+		MulticaretTextBox.initMacrosExecutor.currentFile = null;
 		menu.node = node;
 		if (frame != null)
 		{
@@ -646,6 +663,10 @@ public class MainForm : Form
 			if (frame.SelectedBuffer != null && (frame.SelectedBuffer.tags & BufferTag.File) != 0)
 			{
 				lastFileBuffer = frame.SelectedBuffer;
+				if (lastFileBuffer != null)
+				{
+					MulticaretTextBox.initMacrosExecutor.currentFile = lastFileBuffer.FullPath;
+				}
 			}
 		}
 		UpdateTitle();

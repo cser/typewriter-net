@@ -75,18 +75,23 @@ namespace MulticaretEditor
 		}
 		
 		public int maxViPositions = 20;
+		public string currentFile;
 		
 		private List<PositionNode> _prev = new List<PositionNode>();
 		private List<PositionNode> _next = new List<PositionNode>();
 		
-		public void ViPositionAdd(string file, int position)
+		public void ViPositionAdd(int position)
 		{
+			if (currentFile == null)
+			{
+				return;
+			}
 			if (_next.Count > 0)
 			{
 				_prev.Add(_next[_next.Count - 1]);
 				_next.Clear();
 			}
-			_next.Add(new PositionNode(file, position));
+			_next.Add(new PositionNode(currentFile, position));
 			if (_prev.Count + _next.Count > maxViPositions)
 			{
 				_prev.RemoveAt(0);

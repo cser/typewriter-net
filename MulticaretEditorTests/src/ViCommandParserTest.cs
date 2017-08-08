@@ -829,5 +829,17 @@ namespace UnitTests
 			Add(',').AddLast('H');
 			Assert.AreEqual("\\H", parser.shortcut);
 		}
+		
+		[Test]
+		public void PrevNextPosition()
+		{
+			Init(false);
+			
+			Assert.AreEqual(true, AddKey('o', true));
+			AssertParsed("1:action:<C-o>;move:\\0;moveChar:\\0");
+			
+			Assert.AreEqual(true, AddKey('i', true));
+			AssertParsed("1:action:<C-i>;move:\\0;moveChar:\\0");
+		}
 	}
 }
