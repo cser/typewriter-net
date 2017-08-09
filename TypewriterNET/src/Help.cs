@@ -107,7 +107,11 @@ public static class Help
 			table.Add(" G").Add("Move to document end").NewRow();
 			table.Add(" <number>G").Add("Move to line number").NewRow();
 			table.Add(" %").Add("Move to bracket under cursor pair").NewRow();
-			table.Add(" Ctrl+]").Add("OmniSharp navigate to");
+			table.Add(" Ctrl+]").Add("OmniSharp navigate to").NewRow();
+			table.Add(" Ctrl+o").Add("Go to previous place").NewRow();
+			table.Add(" Ctrl+i").Add("Return back").NewRow();
+			table.Add(" \\n").Add("Open/close file tree").NewRow();
+			table.Add(" ,n").Add("Open/close file tree");
 			table.AddLine();
 			table.Add(" Sequence").Add("Action");
 			table.AddLine();

@@ -363,6 +363,11 @@ namespace MulticaretEditor
 						shortcut = "\\H";
 						return ParseResult.Complete;
 					}
+					if (code.IsChar('n'))
+					{
+						shortcut = "\\n";
+						return ParseResult.Complete;
+					}
 					return ParseResult.Incorrect;
 			}
 			return ParseResult.Incorrect;

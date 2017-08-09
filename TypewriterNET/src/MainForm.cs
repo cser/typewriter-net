@@ -213,6 +213,11 @@ public class MainForm : Form
 			}
 			return;
 		}
+		if (shortcut == "\\n")
+		{
+			DoOpenCloseFileTree(null);
+			return;
+		}
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);

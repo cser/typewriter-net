@@ -831,6 +831,15 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void FileTree()
+		{
+			Init(true);
+			
+			Add(',').AddLast('n');
+			Assert.AreEqual("\\n", parser.shortcut);
+		}
+		
+		[Test]
 		public void PrevNextPosition()
 		{
 			Init(false);
