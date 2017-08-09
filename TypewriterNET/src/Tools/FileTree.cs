@@ -894,15 +894,7 @@ public class FileTree
 		Buffer buffer = mainForm.GetBuffer(oldFile);
 		if (buffer != null)
 			buffer.SetFile(newFile, Path.GetFileName(newFile));
-		PositionNode[] positionHistory = MulticaretTextBox.initMacrosExecutor.PositionHistory;
-		for (int i = 0; i < positionHistory.Length; ++i)
-		{
-			PositionNode node = positionHistory[i];
-			if (node != null && node.file == oldFile)
-			{
-				node.file = newFile;
-			}
-		}
+		MulticaretTextBox.initMacrosExecutor.ViRenameFile(oldFile, newFile);
 	}
 	
 	private void DirectoryMove(string oldDir, string newDir)

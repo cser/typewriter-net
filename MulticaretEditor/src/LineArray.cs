@@ -286,6 +286,7 @@ namespace MulticaretEditor
 		}
 		
 		public TextChangeHook hook;
+		public TextChangeHook hook2;
 
 		public void InsertText(int index, string text)
 		{
@@ -399,6 +400,8 @@ namespace MulticaretEditor
 			ResetTextCache();
 			if (hook != null)
 				hook.InsertText(index, text);
+			if (hook2 != null)
+				hook2.InsertText(index, text);
 		}
 
 		public void RemoveText(int index, int count)
@@ -556,6 +559,8 @@ namespace MulticaretEditor
 			ResetTextCache();
 			if (hook != null)
 				hook.RemoveText(index, count);
+			if (hook2 != null)
+				hook2.RemoveText(index, count);
 		}
 
 		public string GetText(int index, int count)

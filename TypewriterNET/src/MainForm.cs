@@ -200,15 +200,24 @@ public class MainForm : Form
 		}
 		if (shortcut == "C-o" || shortcut == "C-i")
 		{
-			PositionNode node = shortcut == "C-o" ?
-				MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
-				MulticaretTextBox.initMacrosExecutor.ViPositionNext();
-			if (node != null)
+			while (true)
 			{
-				Buffer buffer = LoadFile(node.file);
-				if (buffer != null && buffer.FullPath == node.file)
+				PositionNode node = shortcut == "C-o" ?
+					MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
+					MulticaretTextBox.initMacrosExecutor.ViPositionNext();
+				if (node == null)
+				{
+					break;
+				}
+				PositionFile file = node.file;
+				Buffer buffer = LoadFile(node.file.path);
+				if (buffer != null && buffer.FullPath == node.file.path)
 				{
 					int position = node.position;
+					if (position == buffer.Controller.Lines.LastSelection.caret)
+					{
+						continue;
+					}
 					if (position > buffer.Controller.Lines.charsCount)
 					{
 						position = buffer.Controller.Lines.charsCount;
@@ -216,6 +225,7 @@ public class MainForm : Form
 					Place place = buffer.Controller.Lines.PlaceOf(position);
 					buffer.Controller.PutCursor(place, false);
 				}
+				break;
 			}
 			return;
 		}
@@ -670,7 +680,7 @@ public class MainForm : Form
 	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
 	{
 		focusedTextBox = textBox;
-		MulticaretTextBox.initMacrosExecutor.currentFile = null;
+		string currentFile = null;
 		menu.node = node;
 		if (frame != null)
 		{
@@ -680,10 +690,11 @@ public class MainForm : Form
 				lastFileBuffer = frame.SelectedBuffer;
 				if (lastFileBuffer != null)
 				{
-					MulticaretTextBox.initMacrosExecutor.currentFile = lastFileBuffer.FullPath;
+					currentFile = lastFileBuffer.FullPath;
 				}
 			}
 		}
+		MulticaretTextBox.initMacrosExecutor.ViSetCurrentFile(currentFile);
 		UpdateTitle();
 	}
 	

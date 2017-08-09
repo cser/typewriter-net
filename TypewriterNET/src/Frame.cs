@@ -290,10 +290,22 @@ public class Frame : AFrame
 		if (Nest != null)
 		{
 			Nest.MainForm.UpdateTitle();
-			if (buffer != null && buffer.FullPath != null)
+			if (buffer != null)
 			{
-				Nest.MainForm.MarkShowed(buffer);
-				MulticaretTextBox.initMacrosExecutor.currentFile = buffer.FullPath;
+				if (buffer.FullPath != null)
+				{
+					Nest.MainForm.MarkShowed(buffer);
+					MulticaretTextBox.initMacrosExecutor.ViSetCurrentFile(buffer.FullPath);
+					buffer.Controller.Lines.hook2 = MulticaretTextBox.initMacrosExecutor.currentFile != null ?
+						new PositionHook(
+							MulticaretTextBox.initMacrosExecutor.positionHistory,
+							MulticaretTextBox.initMacrosExecutor.currentFile) :
+						null;
+				}
+				else
+				{
+					buffer.Controller.Lines.hook2 = null;
+				}
 			}
 		}
 	}

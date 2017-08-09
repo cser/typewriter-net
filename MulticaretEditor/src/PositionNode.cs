@@ -4,10 +4,10 @@ namespace MulticaretEditor
 {
 	public class PositionNode
 	{
-		public string file;
+		public readonly PositionFile file;
         public int position;
 
-        public PositionNode(string file, int position)
+        public PositionNode(PositionFile file, int position)
         {
 	        this.file = file;
 	        this.position = position;
@@ -15,7 +15,7 @@ namespace MulticaretEditor
         
         public override string ToString()
         {
-            return "(" + file + ":" + position + ")";
+            return "(" + file.path + ":" + position + ")";
         }
 	}
 }

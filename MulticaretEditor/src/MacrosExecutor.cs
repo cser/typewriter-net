@@ -37,10 +37,16 @@ namespace MulticaretEditor
 		public bool viMode;
 
 		private readonly Getter<MulticaretTextBox> getTextBox;
+		
+		public MacrosExecutor(Getter<MulticaretTextBox> getTextBox) : this(getTextBox, 20)
+		{
+		}
 
-		public MacrosExecutor(Getter<MulticaretTextBox> getTextBox)
+		public MacrosExecutor(Getter<MulticaretTextBox> getTextBox, int maxViPositions)
 		{
 			this.getTextBox = getTextBox;
+			_maxViPositions = maxViPositions;
+			positionHistory = new PositionNode[_maxViPositions];
 		}
 
 		public List<Action> current;
@@ -74,38 +80,68 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public int maxViPositions = 20;
-		public string currentFile;
+		private int _maxViPositions;
 		
-		private PositionNode[] _nodes;
+		public PositionFile currentFile;
+		public readonly PositionNode[] positionHistory;
+		
+		private PositionFile[] _files;
+		private int _filesIndex;
+		
+		public void ViSetCurrentFile(string path)
+		{
+			if (_files == null)
+			{
+				_files = new PositionFile[_maxViPositions];
+			}
+			for (int i = 0; i < _files.Length; ++i)
+			{
+				PositionFile file = _files[i];
+				if (file != null && file.path == path)
+				{
+					currentFile = file;
+					return;
+				}
+			}
+			currentFile = new PositionFile(path);
+			_files[_filesIndex] = currentFile;
+			_filesIndex = (_filesIndex + 1) % _maxViPositions;
+		}
+		
+		public void ViRenameFile(string oldFile, string newFile)
+		{
+			for (int i = 0; i < _files.Length; ++i)
+			{
+				PositionFile file = _files[i];
+				if (file != null && file.path == oldFile)
+				{
+					file.path = newFile;
+				}
+			}
+		}
+		
 		private int _offset;
 		private int _prevCount;
 		private int _nextCount;
-		
-		public PositionNode[] PositionHistory { get { return _nodes; } }
 		
 		public void ViPositionAdd(int position)
 		{
 			if (currentFile != null)
 			{
-				if (_nodes == null)
-				{
-					_nodes = new PositionNode[maxViPositions];
-				}
 				if (_nextCount > 0)
 				{
 					++_prevCount;
-					for (int i = 0; i < _nextCount - 1; i++)
+					for (int i = 0; i < _nextCount - 1; ++i)
 					{
-						_nodes[(_offset + _prevCount + i) % maxViPositions] = null;
+						positionHistory[(_offset + _prevCount + i) % _maxViPositions] = null;
 					}
 					_nextCount = 0;
 				}
-				_nodes[(_offset + _prevCount) % maxViPositions] = new PositionNode(currentFile, position);
+				positionHistory[(_offset + _prevCount) % _maxViPositions] = new PositionNode(currentFile, position);
 				++_nextCount;
-				if (_prevCount + _nextCount > maxViPositions)
+				if (_prevCount + _nextCount > _maxViPositions)
 				{
-					_offset = (_offset + 1) % maxViPositions;
+					_offset = (_offset + 1) % _maxViPositions;
 					--_prevCount;
 				}
 			}
@@ -116,7 +152,7 @@ namespace MulticaretEditor
 			PositionNode node = null;
 			if (_prevCount > 0)
 			{
-				node = _nodes[(_offset + _prevCount - 1) % maxViPositions];
+				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
 				--_prevCount;
 				++_nextCount;
 			}
@@ -131,7 +167,7 @@ namespace MulticaretEditor
 			}
 			++_prevCount;
 			--_nextCount;
-			return _nextCount > 0 ? _nodes[(_offset + _prevCount) % maxViPositions] : null;
+			return _nextCount > 0 ? positionHistory[(_offset + _prevCount) % _maxViPositions] : null;
 		}
 	}
 }
