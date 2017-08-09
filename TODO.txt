@@ -18,6 +18,7 @@ Fix position by mouse on half-tab
 - Fix floating top indents
 - More complex removing in TabList
 - Hide console by Ctrl+[
+- Hide file tree by Ctrl+[
 - Line selection in brackets
 - Fix cw on line end
 - Fix special registers

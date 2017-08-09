@@ -111,7 +111,9 @@ public static class Help
 			table.Add(" Ctrl+o").Add("Go to previous place").NewRow();
 			table.Add(" Ctrl+i").Add("Return back").NewRow();
 			table.Add(" \\n").Add("Open/close file tree").NewRow();
-			table.Add(" ,n").Add("Open/close file tree");
+			table.Add(" ,n").Add("Open/close file tree").NewRow();
+			table.Add(" \\N").Add("Open/close file tree with current file").NewRow();
+			table.Add(" ,N").Add("Open/close file tree with current file");
 			table.AddLine();
 			table.Add(" Sequence").Add("Action");
 			table.AddLine();

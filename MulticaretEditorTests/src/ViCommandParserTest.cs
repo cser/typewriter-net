@@ -837,6 +837,9 @@ namespace UnitTests
 			
 			Add(',').AddLast('n');
 			Assert.AreEqual("\\n", parser.shortcut);
+			
+			Add(',').AddLast('N');
+			Assert.AreEqual("\\N", parser.shortcut);
 		}
 		
 		[Test]

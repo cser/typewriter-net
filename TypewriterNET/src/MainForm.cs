@@ -218,6 +218,11 @@ public class MainForm : Form
 			DoOpenCloseFileTree(null);
 			return;
 		}
+		if (shortcut == "\\N")
+		{
+			DoFindFileInTree(null);
+			return;
+		}
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);
