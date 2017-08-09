@@ -4,8 +4,8 @@ namespace MulticaretEditor
 {
 	public class PositionHook : TextChangeHook
 	{
-		private PositionNode[] _nodes;
-		private PositionFile _file;
+		private readonly PositionNode[] _nodes;
+		private readonly PositionFile _file;
 		
         public PositionHook(PositionNode[] nodes, PositionFile file)
         {
@@ -18,7 +18,7 @@ namespace MulticaretEditor
 			for (int i = 0; i < _nodes.Length; ++i)
 			{
 				PositionNode node = _nodes[i];
-				if (node.file == _file && node.position > index)
+				if (node != null && node.file == _file && node.position > index)
 				{
 					node.position += text.Length;
 				}
@@ -30,7 +30,7 @@ namespace MulticaretEditor
 			for (int i = 0; i < _nodes.Length; ++i)
 			{
 				PositionNode node = _nodes[i];
-				if (node.file == _file && node.position > index)
+				if (node != null && node.file == _file && node.position > index)
 				{
 					node.position -= count;
 					if (node.position < index)
