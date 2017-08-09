@@ -38,8 +38,9 @@ namespace UnitTests
 		
 		private void EscapeNormalViMode()
 		{
+			string viShortcut;
 			bool scrollToCursor;
-			receiver.DoKeyDown(Keys.OemOpenBrackets | Keys.Control, out scrollToCursor);
+			receiver.DoKeyDown(Keys.OemOpenBrackets | Keys.Control, out viShortcut, out scrollToCursor);
 			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
 		}
 		
@@ -59,8 +60,9 @@ namespace UnitTests
 		
 		private ViReceiverTest DoKeyDown(Keys keysData)
 		{
+			string viShortcut;
 			bool scrollToCursor;
-			Assert.AreEqual(true, receiver.DoKeyDown(keysData, out scrollToCursor));
+			Assert.AreEqual(true, receiver.DoKeyDown(keysData, out viShortcut, out scrollToCursor));
 			return this;
 		}
 		

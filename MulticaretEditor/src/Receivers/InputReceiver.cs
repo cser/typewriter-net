@@ -28,8 +28,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public override bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
+			viShortcut = null;
 			scrollToCursor = true;
 			if (!alwaysInputMode &&
 				((keysData & Keys.Control) == Keys.Control) &&

@@ -31,8 +31,9 @@ namespace MulticaretEditor
 			ProcessKey(new ViChar(code, false), out viShortcut, out scrollToCursor);
 		}
 		
-		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public override bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
+			viShortcut = null;
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
@@ -42,7 +43,6 @@ namespace MulticaretEditor
 				SetViMode();
 				return true;
 			}
-			string viShortcut;
 			switch (keysData)
 			{
 				case Keys.Control | Keys.R:

@@ -180,7 +180,6 @@ public class MainForm : Form
 		{
 			return;
 		}
-		Console.WriteLine("!" + shortcut);
 		if (shortcut == "\\b")
 		{
 			if (tabList != null)

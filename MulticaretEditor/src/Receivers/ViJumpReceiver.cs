@@ -80,8 +80,9 @@ namespace MulticaretEditor
 			ProcessKey(viChar, out viShortcut, out scrollToCursor);
 		}
 		
-		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public override bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
+			viShortcut = null;
 			scrollToCursor = false;
 			return true;
 		}

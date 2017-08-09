@@ -291,7 +291,10 @@ public class Frame : AFrame
 		{
 			Nest.MainForm.UpdateTitle();
 			if (buffer != null && buffer.FullPath != null)
+			{
 				Nest.MainForm.MarkShowed(buffer);
+				MulticaretTextBox.initMacrosExecutor.currentFile = buffer.FullPath;
+			}
 		}
 	}
 

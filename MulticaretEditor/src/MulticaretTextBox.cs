@@ -1833,9 +1833,7 @@ namespace MulticaretEditor
 			if (receiver != null)
 			{
 				string viShortcut;
-				Console.WriteLine("!MulticaretTextBox: /DoKeyPress:");
 				receiver.DoKeyPress(code, out viShortcut, out scrollToCursor);
-				Console.WriteLine("!MulticaretTextBox: \\DoKeyPress: shortcut: " + viShortcut);
 				if (viShortcut != null)
 				{
 					if (ViShortcut != null)
@@ -1853,9 +1851,15 @@ namespace MulticaretEditor
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
+			string viShortcut;
 			bool scrollToCursor;
-			if (receiver != null && receiver.DoKeyDown(keyData, out scrollToCursor))
+			if (receiver != null && receiver.DoKeyDown(keyData, out viShortcut, out scrollToCursor))
 			{
+				if (viShortcut != null)
+				{
+					if (ViShortcut != null)
+						ViShortcut(viShortcut);
+				}
 				UnblinkCursor();
 				if (scrollToCursor)
 				{

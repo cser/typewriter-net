@@ -95,9 +95,9 @@ namespace MulticaretEditor
 			ProcessKey(viChar, out viShortcut, out scrollToCursor);
 		}
 		
-		public override bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public override bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
-			Console.WriteLine("!DoKeyDown(" + keysData + ")");
+			viShortcut = null;
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
@@ -107,7 +107,6 @@ namespace MulticaretEditor
 					return true;
 				}
 			}
-			string viShortcut;
 			switch (keysData)
 			{
 				case Keys.Control | Keys.R:
@@ -156,7 +155,6 @@ namespace MulticaretEditor
 		
 		private void ProcessKey(ViChar code, out string viShortcut, out bool scrollToCursor)
 		{
-			Console.WriteLine("!ProcessKey(" + code + ")");
 			viShortcut = null;
 			if (!parser.AddKey(code))
 			{
@@ -443,7 +441,7 @@ namespace MulticaretEditor
 						return;
 					case 'i' + ViChar.ControlIndex:
 						viShortcut = "C-i";
-						break;
+						return;
 					case 'i':
 						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
 						forceLastCommand = true;

@@ -56,8 +56,9 @@ namespace MulticaretEditor
 			scrollToCursor = false;
 		}
 		
-		public virtual bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public virtual bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
+			viShortcut = null;
 			scrollToCursor = false;
 			return false;
 		}

@@ -111,9 +111,9 @@ namespace MulticaretEditor
 			state.DoKeyPress(code, out viShortcut, out scrollToCursor);
 		}
 		
-		public bool DoKeyDown(Keys keysData, out bool scrollToCursor)
+		public bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
-			return state.DoKeyDown(keysData, out scrollToCursor);
+			return state.DoKeyDown(keysData, out viShortcut, out scrollToCursor);
 		}
 		
 		public bool DoFind(Pattern pattern)
