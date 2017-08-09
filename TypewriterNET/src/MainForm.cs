@@ -208,7 +208,13 @@ public class MainForm : Form
 				Buffer buffer = LoadFile(node.file);
 				if (buffer != null && buffer.FullPath == node.file)
 				{
-					buffer.Controller.PutCursor(buffer.Controller.Lines.PlaceOf(node.position), false);
+					int position = node.position;
+					if (position > buffer.Controller.Lines.charsCount)
+					{
+						position = buffer.Controller.Lines.charsCount;
+					}
+					Place place = buffer.Controller.Lines.PlaceOf(position);
+					buffer.Controller.PutCursor(place, false);
 				}
 			}
 			return;
