@@ -77,49 +77,61 @@ namespace MulticaretEditor
 		public int maxViPositions = 20;
 		public string currentFile;
 		
-		private List<PositionNode> _prev = new List<PositionNode>();
-		private List<PositionNode> _next = new List<PositionNode>();
+		private PositionNode[] _nodes;
+		private int _offset;
+		private int _prevCount;
+		private int _nextCount;
+		
+		public PositionNode[] PositionHistory { get { return _nodes; } }
 		
 		public void ViPositionAdd(int position)
 		{
-			if (currentFile == null)
+			if (currentFile != null)
 			{
-				return;
-			}
-			if (_next.Count > 0)
-			{
-				_prev.Add(_next[_next.Count - 1]);
-				_next.Clear();
-			}
-			_next.Add(new PositionNode(currentFile, position));
-			if (_prev.Count + _next.Count > maxViPositions)
-			{
-				_prev.RemoveAt(0);
+				if (_nodes == null)
+				{
+					_nodes = new PositionNode[maxViPositions];
+				}
+				if (_nextCount > 0)
+				{
+					++_prevCount;
+					for (int i = 0; i < _nextCount - 1; i++)
+					{
+						_nodes[(_offset + _prevCount + i) % maxViPositions] = null;
+					}
+					_nextCount = 0;
+				}
+				_nodes[(_offset + _prevCount) % maxViPositions] = new PositionNode(currentFile, position);
+				++_nextCount;
+				if (_prevCount + _nextCount > maxViPositions)
+				{
+					_offset = (_offset + 1) % maxViPositions;
+					--_prevCount;
+				}
 			}
 		}
 		
 		public PositionNode ViPositionPrev()
 		{
 			PositionNode node = null;
-			if (_prev.Count > 0)
+			if (_prevCount > 0)
 			{
-				node = _prev[_prev.Count - 1];
-				_prev.RemoveAt(_prev.Count - 1);
-				_next.Add(node);
+				node = _nodes[(_offset + _prevCount - 1) % maxViPositions];
+				--_prevCount;
+				++_nextCount;
 			}
 			return node;
 		}
 		
 		public PositionNode ViPositionNext()
 		{
-			if (_next.Count == 0)
+			if (_nextCount <= 0)
 			{
 				return null;
 			}
-			PositionNode node = _next[_next.Count - 1];
-			_next.RemoveAt(_next.Count - 1);
-			_prev.Add(node);
-			return _next.Count > 0 ? _next[_next.Count - 1] : null;
+			++_prevCount;
+			--_nextCount;
+			return _nextCount > 0 ? _nodes[(_offset + _prevCount) % maxViPositions] : null;
 		}
 	}
 }
