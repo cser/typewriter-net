@@ -89,5 +89,67 @@ namespace UnitTests
 			AssertPosition("File0", 4, _executor.positionHistory[1]);
 			Assert.AreEqual(null, _executor.positionHistory[2]);
 		}
+		
+		[Test]
+		public void Circle()
+		{
+			_executor.ViPositionAdd(1);
+			_executor.ViPositionAdd(2);
+			_executor.ViPositionAdd(3);
+			_executor.ViPositionAdd(4);
+			_executor.ViPositionAdd(5);
+			_executor.ViPositionAdd(6);
+			_executor.ViPositionAdd(7);
+			_executor.ViPositionAdd(8);
+			_executor.ViPositionAdd(9);
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			AssertPosition("File0", 7, _executor.ViPositionPrev());
+			Assert.AreEqual(null, _executor.ViPositionPrev());
+			AssertPosition("File0", 8, _executor.ViPositionNext());
+			AssertPosition("File0", 9, _executor.ViPositionNext());
+			Assert.AreEqual(null, _executor.ViPositionNext());
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			AssertPosition("File0", 7, _executor.ViPositionPrev());
+			Assert.AreEqual(null, _executor.ViPositionPrev());
+			AssertPosition("File0", 8, _executor.ViPositionNext());
+			AssertPosition("File0", 9, _executor.ViPositionNext());
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			_executor.ViPositionAdd(19);
+			Assert.AreEqual(null, _executor.ViPositionNext());
+		}
+		
+		[Test]
+		public void ViPositionSet()
+		{
+			_executor.ViPositionAdd(1);
+			_executor.ViPositionAdd(2);
+			_executor.ViPositionAdd(3);
+			_executor.ViPositionAdd(4);
+			_executor.ViPositionAdd(5);
+			_executor.ViPositionAdd(6);
+			_executor.ViPositionAdd(7);
+			_executor.ViPositionAdd(8);
+			_executor.ViPositionAdd(9);
+			_executor.ViPositionSet(19);
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			AssertPosition("File0", 7, _executor.ViPositionPrev());
+			AssertPosition("File0", 8, _executor.ViPositionNext());
+			AssertPosition("File0", 19, _executor.ViPositionNext());
+			Assert.AreEqual(null, _executor.ViPositionNext());
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			AssertPosition("File0", 19, _executor.ViPositionNext());
+			Assert.AreEqual(null, _executor.ViPositionNext());
+			_executor.ViPositionSet(29);
+			_executor.ViPositionSet(39);
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			AssertPosition("File0", 39, _executor.ViPositionNext());
+			AssertPosition("File0", 8, _executor.ViPositionPrev());
+			_executor.ViPositionSet(18);
+			AssertPosition("File0", 7, _executor.positionHistory[0]);
+			AssertPosition("File0", 18, _executor.positionHistory[1]);
+			Assert.AreEqual(null, _executor.positionHistory[2]);
+			Assert.AreEqual(null, _executor.ViPositionNext());
+			AssertPosition("File0", 7, _executor.ViPositionPrev());
+		}
 	}
 }

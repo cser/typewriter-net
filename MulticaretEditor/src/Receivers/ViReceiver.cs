@@ -175,6 +175,7 @@ namespace MulticaretEditor
 			viShortcut = null;
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
+			bool needHistoryMove = true;
 			int count = parser.FictiveCount;
 			bool needInput = false;
 			switch (parser.move.Index)
@@ -187,9 +188,11 @@ namespace MulticaretEditor
 					break;
 				case 'h':
 					move = new ViMoves.MoveStep(Direction.Left);
+					needHistoryMove = count > 1;
 					break;
 				case 'l':
 					move = new ViMoves.MoveStep(Direction.Right);
+					needHistoryMove = count > 1;
 					break;
 				case 'j':
 					if (parser.moveChar.c == 'g')
@@ -200,6 +203,7 @@ namespace MulticaretEditor
 					{
 						move = new ViMoves.MoveStep(Direction.Down);
 					}
+					needHistoryMove = count > 1;
 					break;
 				case 'k':
 					if (parser.moveChar.c == 'g')
@@ -210,6 +214,7 @@ namespace MulticaretEditor
 					{
 						move = new ViMoves.MoveStep(Direction.Up);
 					}
+					needHistoryMove = count > 1;
 					break;
 				case 'w':
 					move = new ViMoves.MoveWord(Direction.Right);
@@ -547,9 +552,16 @@ namespace MulticaretEditor
 						break;
 				}
 			}
-			if (move != null && controller.macrosExecutor != null)
+			if ((move != null || needInput) && controller.macrosExecutor != null)
 			{
-				controller.macrosExecutor.ViPositionAdd(controller.LastSelection.caret);
+				if (needHistoryMove)
+				{
+					controller.macrosExecutor.ViPositionAdd(controller.LastSelection.caret);
+				}
+				else
+				{
+					controller.macrosExecutor.ViPositionSet(controller.LastSelection.caret);
+				}
 			}
 			if (command != null)
 			{
