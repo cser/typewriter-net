@@ -143,13 +143,29 @@ namespace MulticaretEditor
 					_nextCount = 0;
 				}
 				positionHistory[(_offset + _prevCount) % _maxViPositions] = new PositionNode(currentFile, position);
-				++_nextCount;
+				++_prevCount;
 				if (_prevCount + _nextCount > _maxViPositions)
 				{
 					_offset = (_offset + 1) % _maxViPositions;
 					--_prevCount;
 				}
 			}
+		}
+		
+		public string GetDebugText()
+		{
+			string text = "[";
+			for (int i = 0; i < _prevCount; ++i)
+			{
+				text += positionHistory[(_offset + i) % _maxViPositions] + ";";
+			}
+			text += "][";
+			for (int i = 0; i < _nextCount; ++i)
+			{
+				text += positionHistory[(_offset + _prevCount + i) % _maxViPositions] + ";";
+			}
+			text += "]";
+			return text;
 		}
 		
 		public void ViPositionSet(int position)
@@ -190,11 +206,11 @@ namespace MulticaretEditor
 		public PositionNode ViPositionNext()
 		{
 			PositionNode node = null;
-			if (_nextCount > 1)
+			if (_nextCount > 0)
 			{
 				++_prevCount;
 				--_nextCount;
-				node = positionHistory[(_offset + _prevCount) % _maxViPositions];
+				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
 			}
 			return node;
 		}
