@@ -202,17 +202,18 @@ namespace MulticaretEditor
 			if (_prevCount > 0)
 			{
 				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
-				--_prevCount;
-				++_nextCount;
 				int nextIndex = (_offset + _prevCount) % _maxViPositions;
+				--_prevCount;
 				PositionNode nextNode = positionHistory[nextIndex];
 				if (nextNode != null && nextNode.file == currentFile)
 				{
 					nextNode.position = current;
+					++_nextCount;
 				}
 				else if (currentFile != null)
 				{
 					positionHistory[nextIndex] = new PositionNode(currentFile, current);
+					++_nextCount;
 				}
 			}
 			return node;

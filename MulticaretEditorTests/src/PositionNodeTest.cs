@@ -25,14 +25,17 @@ namespace UnitTests
 		public void Prev()
 		{
 			_executor.ViPosition_AddPrev(1);
+			Assert.AreEqual("[(A:1)][]", _executor.GetDebugText());
 			_executor.ViSetCurrentFile("B");
 			_executor.ViPosition_AddPrev(2);
 			Assert.AreEqual("[(A:1)(B:2)][]", _executor.GetDebugText());
 			AssertPosition("B", 2, _executor.ViPosition_Prev(3));
+			Assert.AreEqual("[(A:1)][(B:2)(B:3)]", _executor.GetDebugText());
 			AssertPosition("A", 1, _executor.ViPosition_Prev(2));
+			Assert.AreEqual("[][(A:1)(B:2)(B:3)]", _executor.GetDebugText());
 		}
 		
-		[Test]
+		/*[Test]
 		public void PrevNext()
 		{
 			_executor.ViPosition_AddPrev(1);
@@ -42,7 +45,7 @@ namespace UnitTests
 			Assert.AreEqual("[(A:1)(A:2)][(A:3)]", _executor.GetDebugText());
 			AssertPosition("A", 3, _executor.ViPosition_Next(2));
 			Console.Write("!" + _executor.GetDebugText());
-		}
+		}*/
 		
 		[Test]
 		public void Simple_DontFailIfNoOneElement()
