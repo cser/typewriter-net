@@ -200,24 +200,18 @@ public class MainForm : Form
 		}
 		if (shortcut == "C-o" || shortcut == "C-i")
 		{
-			while (true)
+			PositionNode prevNode = null;
+			PositionNode node = shortcut == "C-o" ?
+				MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
+				MulticaretTextBox.initMacrosExecutor.ViPositionNext();
+			if (node != null &&
+				(prevNode == null || prevNode.file == node.file && prevNode.position == node.position))
 			{
-				PositionNode node = shortcut == "C-o" ?
-					MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
-					MulticaretTextBox.initMacrosExecutor.ViPositionNext();
-				if (node == null)
-				{
-					break;
-				}
-				PositionFile file = node.file;
+				prevNode = node;
 				Buffer buffer = LoadFile(node.file.path);
 				if (buffer != null && buffer.FullPath == node.file.path)
 				{
 					int position = node.position;
-					if (position == buffer.Controller.Lines.LastSelection.caret)
-					{
-						continue;
-					}
 					if (position > buffer.Controller.Lines.charsCount)
 					{
 						position = buffer.Controller.Lines.charsCount;
@@ -225,7 +219,6 @@ public class MainForm : Form
 					Place place = buffer.Controller.Lines.PlaceOf(position);
 					buffer.Controller.PutCursor(place, false);
 				}
-				break;
 			}
 			return;
 		}
@@ -2141,6 +2134,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+				}
 			}
 		}
 	}
@@ -2162,6 +2159,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+				}
 			}
 		}
 	}
@@ -2177,6 +2178,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+				}
 			}
 		}
 	}

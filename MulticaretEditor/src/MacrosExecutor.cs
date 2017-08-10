@@ -85,6 +85,9 @@ namespace MulticaretEditor
 		public PositionFile currentFile;
 		public readonly PositionNode[] positionHistory;
 		
+		private PositionFile _lastFile;
+		private int _lastPosition = -1;
+		
 		private PositionFile[] _files;
 		private int _filesIndex;
 		
@@ -126,8 +129,10 @@ namespace MulticaretEditor
 		
 		public void ViPositionAdd(int position)
 		{
-			if (currentFile != null)
+			if (currentFile != null && (_lastFile != currentFile || _lastPosition != position))
 			{
+				_lastFile = currentFile;
+				_lastPosition = position;
 				if (_nextCount > 0)
 				{
 					++_prevCount;
