@@ -853,5 +853,17 @@ namespace UnitTests
 			Assert.AreEqual(true, AddKey('i', true));
 			AssertParsed("1:action:<C-i>;move:\\0;moveChar:\\0");
 		}
+		
+		[Test]
+		public void Leader_s()
+		{
+			Init(false);
+			
+			Add(',').AddLast('s');
+			Assert.AreEqual("\\s", parser.shortcut);
+			
+			Add('\\').AddLast('s');
+			Assert.AreEqual("\\s", parser.shortcut);
+		}
 	}
 }

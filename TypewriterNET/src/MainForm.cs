@@ -232,6 +232,11 @@ public class MainForm : Form
 			DoFindFileInTree(null);
 			return;
 		}
+		if (shortcut == "\\s")
+		{
+			DoSave(null);
+			return;
+		}
 		if (dialogs != null)
 		{
 			dialogs.DoOnViShortcut(controller, shortcut);

@@ -129,6 +129,11 @@ namespace MulticaretEditor
 		
 		public void ViPositionAdd(int position)
 		{
+			throw new Exception("Remove me");
+		}
+		
+		public void ViPosition_AddPrev(int position)
+		{
 			if (currentFile != null && (_lastFile != currentFile || _lastPosition != position))
 			{
 				_lastFile = currentFile;
@@ -157,12 +162,12 @@ namespace MulticaretEditor
 			string text = "[";
 			for (int i = 0; i < _prevCount; ++i)
 			{
-				text += positionHistory[(_offset + i) % _maxViPositions] + ";";
+				text += positionHistory[(_offset + i) % _maxViPositions];
 			}
 			text += "][";
 			for (int i = 0; i < _nextCount; ++i)
 			{
-				text += positionHistory[(_offset + _prevCount + i) % _maxViPositions] + ";";
+				text += positionHistory[(_offset + _prevCount + i) % _maxViPositions];
 			}
 			text += "]";
 			return text;
@@ -191,7 +196,7 @@ namespace MulticaretEditor
 			ViPositionAdd(position);
 		}
 		
-		public PositionNode ViPositionPrev()
+		public PositionNode ViPosition_Prev(int current)
 		{
 			PositionNode node = null;
 			if (_prevCount > 0)
@@ -199,11 +204,26 @@ namespace MulticaretEditor
 				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
 				--_prevCount;
 				++_nextCount;
+				int nextIndex = (_offset + _prevCount) % _maxViPositions;
+				PositionNode nextNode = positionHistory[nextIndex];
+				if (nextNode != null && nextNode.file == currentFile)
+				{
+					nextNode.position = current;
+				}
+				else if (currentFile != null)
+				{
+					positionHistory[nextIndex] = new PositionNode(currentFile, current);
+				}
 			}
 			return node;
 		}
 		
-		public PositionNode ViPositionNext()
+		public PositionNode ViPositionPrev()
+		{
+			throw new Exception("Delte me");
+		}
+		
+		public PositionNode ViPosition_Next(int current)
 		{
 			PositionNode node = null;
 			if (_nextCount > 0)
@@ -213,6 +233,11 @@ namespace MulticaretEditor
 				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
 			}
 			return node;
+		}
+		
+		public PositionNode ViPositionNext()
+		{
+			throw new Exception("Delte me");
 		}
 	}
 }

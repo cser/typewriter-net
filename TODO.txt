@@ -13,6 +13,7 @@ System.ArgumentOutOfRangeException: Индекс за пределами диа�
 
 Fix position by mouse on half-tab
 
+- Indent } after new line if cursor before
 - Fuzzy search caching, update new version in background
 - Fix unfocus on reloading undo
 - Fix floating top indents

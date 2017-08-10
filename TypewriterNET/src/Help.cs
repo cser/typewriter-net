@@ -113,7 +113,8 @@ public static class Help
 			table.Add(" \\n").Add("Open/close file tree").NewRow();
 			table.Add(" ,n").Add("Open/close file tree").NewRow();
 			table.Add(" \\N").Add("Open/close file tree with current file").NewRow();
-			table.Add(" ,N").Add("Open/close file tree with current file");
+			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
+			table.Add(" ,s").Add("Save file");
 			table.AddLine();
 			table.Add(" Sequence").Add("Action");
 			table.AddLine();
@@ -164,6 +165,11 @@ public static class Help
 			table.Add(" \"/").Add("Find register");
 			builder.Append(table);
 		}
+		builder.AppendLine();
+		builder.AppendLine("Also don't foget for input mode shortcuts, that hasn't vi-mode analouges:");
+		builder.AppendLine("  `Ctrl+E` - switch betwean frames");
+		builder.AppendLine("  `Ctrl+Shift+O` - open previous files");
+		builder.AppendLine("  `Ctrl+Shift+P` - open other shortcuts list (context-depenent)");
 		Buffer buffer = new Buffer(null, "Vi-help.twh", SettingsMode.Help);
 		buffer.tags = BufferTag.Other;
 		buffer.Controller.isReadonly = true;

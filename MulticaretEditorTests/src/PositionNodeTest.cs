@@ -18,27 +18,37 @@ namespace UnitTests
 		public void SetUp()
 		{
 			_executor = new MacrosExecutor(null, 3);
-			_executor.ViSetCurrentFile("File0");
+			_executor.ViSetCurrentFile("A");
 		}
 		
 		[Test]
-		public void Simple()
+		public void Prev()
 		{
-			_executor.ViPositionAdd(1);
-			_executor.ViSetCurrentFile("File1");
-			_executor.ViPositionAdd(2);
-			Console.WriteLine("!" + _executor.GetDebugText());
-			AssertPosition("File1", 2, _executor.ViPositionPrev());
-			AssertPosition("File0", 1, _executor.ViPositionPrev());
-			Console.WriteLine("!" + _executor.GetDebugText());
-			AssertPosition("File1", 2, _executor.ViPositionNext());
+			_executor.ViPosition_AddPrev(1);
+			_executor.ViSetCurrentFile("B");
+			_executor.ViPosition_AddPrev(2);
+			Assert.AreEqual("[(A:1)(B:2)][]", _executor.GetDebugText());
+			AssertPosition("B", 2, _executor.ViPosition_Prev(3));
+			AssertPosition("A", 1, _executor.ViPosition_Prev(2));
+		}
+		
+		[Test]
+		public void PrevNext()
+		{
+			_executor.ViPosition_AddPrev(1);
+			_executor.ViPosition_AddPrev(2);
+			Assert.AreEqual("[(A:1)(A:2)][]", _executor.GetDebugText());
+			AssertPosition("A", 2, _executor.ViPosition_Prev(3));
+			Assert.AreEqual("[(A:1)(A:2)][(A:3)]", _executor.GetDebugText());
+			AssertPosition("A", 3, _executor.ViPosition_Next(2));
+			Console.Write("!" + _executor.GetDebugText());
 		}
 		
 		[Test]
 		public void Simple_DontFailIfNoOneElement()
 		{
-			Assert.AreEqual(null, _executor.ViPositionPrev());
-			Assert.AreEqual(null, _executor.ViPositionNext());
+			Assert.AreEqual(null, _executor.ViPosition_Prev(1));
+			//Assert.AreEqual(null, _executor.ViPosition_Next(1));
 		}
 		/*
 		[Test]

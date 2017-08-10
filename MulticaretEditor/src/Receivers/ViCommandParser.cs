@@ -342,36 +342,33 @@ namespace MulticaretEditor
 					moveChar = code;
 					return ParseResult.Complete;
 				case State.Leader:
-					if (code.IsChar(' '))
+					if (!code.control)
 					{
-						move = code;
-						_state = State.WaitChar;
-						return ParseResult.WaitNext;
-					}
-					if (code.IsChar('b'))
-					{
-						shortcut = "\\b";
-						return ParseResult.Complete;
-					}
-					if (code.IsChar('h'))
-					{
-						shortcut = "\\h";
-						return ParseResult.Complete;
-					}
-					if (code.IsChar('H'))
-					{
-						shortcut = "\\H";
-						return ParseResult.Complete;
-					}
-					if (code.IsChar('n'))
-					{
-						shortcut = "\\n";
-						return ParseResult.Complete;
-					}
-					if (code.IsChar('N'))
-					{
-						shortcut = "\\N";
-						return ParseResult.Complete;
+						switch (code.c)
+						{
+							case ' ':
+								move = code;
+								_state = State.WaitChar;
+								return ParseResult.WaitNext;
+							case 'b':
+								shortcut = "\\b";
+								return ParseResult.Complete;
+							case 'h':
+								shortcut = "\\h";
+								return ParseResult.Complete;
+							case 'H':
+								shortcut = "\\H";
+								return ParseResult.Complete;
+							case 'n':
+								shortcut = "\\n";
+								return ParseResult.Complete;
+							case 'N':
+								shortcut = "\\N";
+								return ParseResult.Complete;
+							case 's':
+								shortcut = "\\s";
+								return ParseResult.Complete;
+						}
 					}
 					return ParseResult.Incorrect;
 			}
