@@ -271,8 +271,14 @@ namespace MulticaretEditor
 							case 't':
 							case 'T':
 							case 'g':
+							case '\'':
+							case '`':
 								_state = State.WaitChar;
 								move = code;
+								return ParseResult.WaitNext;
+							case 'm':
+								_state = State.WaitChar;
+								action = code;
 								return ParseResult.WaitNext;
 							case 'r':
 							case ' ':

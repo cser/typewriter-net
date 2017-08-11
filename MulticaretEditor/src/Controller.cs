@@ -2175,21 +2175,29 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public int[] markbooks;
+		public readonly List<char> markbookNames = new List<char>(4);
+		public readonly List<int> markbooks = new List<int>(4);
 		
 		public void SetMarkbook(char c, int position)
 		{
-			if (markbooks == null && position != -1)
-			{
-				markbooks = new int[26];
-				for (int i = 0; i < markbooks.Length; ++i)
-				{
-					markbooks[i] = -1;
-				}
-			}
 			if (c >= 'a' && c <= 'z')
 			{
-				markbooks[c - 'a'] = position;
+				for (int i = markbooks.Count; i-- > 0;)
+				{
+					if (markbookNames[i] == c)
+					{
+						if (position != -1)
+						{
+							markbooks[i] = position;
+							return;
+						}
+						markbookNames.RemoveAt(i);
+						markbooks.RemoveAt(i);
+						return;
+					}
+				}
+				markbookNames.Add(c);
+				markbooks.Add(position);
 			}
 		}
 	}

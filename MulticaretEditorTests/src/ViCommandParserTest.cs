@@ -865,5 +865,21 @@ namespace UnitTests
 			Add('\\').AddLast('s');
 			Assert.AreEqual("\\s", parser.shortcut);
 		}
+		
+		[Test]
+		public void Bookmarks()
+		{
+			Init(false);
+			
+			Add('m').AddLast('a');
+			AssertParsed("1:action:m;move:\\0;moveChar:a");
+			Add('m').AddLast('z');
+			AssertParsed("1:action:m;move:\\0;moveChar:z");
+			
+			Add('\'').AddLast('a');
+			AssertParsed("1:action:\\0;move:';moveChar:a");
+			Add('`').AddLast('a');
+			AssertParsed("1:action:\\0;move:`;moveChar:a");
+		}
 	}
 }

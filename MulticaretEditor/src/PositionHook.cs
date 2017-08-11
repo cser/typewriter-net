@@ -22,15 +22,12 @@ namespace MulticaretEditor
 					node.position += text.Length;
 				}
 			}
-			if (_controller != null)
+			for (int i = _controller.markbooks.Count; i-- > 0;)
 			{
-				for (int i = 0; i < _controller.markbooks.Length; ++i)
+				int position = _controller.markbooks[i];
+				if (position != -1 && position > index)
 				{
-					int position = _controller.markbooks[i];
-					if (position != -1 && position > index)
-					{
-						_controller.markbooks[i] = position + text.Length;
-					}
+					_controller.markbooks[i] = position + text.Length;
 				}
 			}
 		}
@@ -50,22 +47,20 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			if (_controller != null)
+			for (int i = _controller.markbooks.Count; i-- > 0;)
 			{
-				for (int i = 0; i < _controller.markbooks.Length; ++i)
+				int position = _controller.markbooks[i];
+				if (position != -1 && position > index)
 				{
-					int position = _controller.markbooks[i];
-					if (position != -1 && position > index)
+					position -= count;
+					if (position < index)
 					{
-						position -= count;
-						if (position < index)
-						{
-							_controller.markbooks[i] = -1;
-						}
-						else
-						{
-							_controller.markbooks[i] = position;
-						}
+						_controller.markbookNames.RemoveAt(i);
+						_controller.markbooks.RemoveAt(i);
+					}
+					else
+					{
+						_controller.markbooks[i] = position;
 					}
 				}
 			}
