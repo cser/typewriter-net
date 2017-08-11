@@ -160,6 +160,7 @@ namespace MulticaretEditor
 		public string GetDebugText()
 		{
 			string text = "[";
+			bool hasIncorrectNulls = false;
 			for (int i = 0; i < _prevCount; ++i)
 			{
 				text += positionHistory[(_offset + i) % _maxViPositions];
@@ -170,6 +171,22 @@ namespace MulticaretEditor
 				text += positionHistory[(_offset + _prevCount + i) % _maxViPositions];
 			}
 			text += "]";
+			if (_prevCount + _nextCount > _maxViPositions)
+			{
+				text += ":OVERFLOW";
+			}
+			int nullsCount = 0;
+			for (int i = 0; i < positionHistory.Length; ++i)
+			{
+				if (positionHistory[i] == null)
+				{
+					++nullsCount;
+				}
+			}
+			if (_prevCount + _nextCount + nullsCount != _maxViPositions)
+			{
+				text += ":UNNULLED";
+			}
 			return text;
 		}
 		
@@ -224,6 +241,11 @@ namespace MulticaretEditor
 						int nextIndex = (_offset + _prevCount + 1) % _maxViPositions;
 						positionHistory[nextIndex] = new PositionNode(currentFile, current);
 						++_nextCount;
+						if (_prevCount + _nextCount > _maxViPositions)
+						{
+							++_offset;
+							--_prevCount;
+						}
 					}
 				}
 			}
@@ -238,14 +260,11 @@ namespace MulticaretEditor
 		public PositionNode ViPosition_Next(int current)
 		{
 			PositionNode node = null;
-			if (_nextCount > 0)
+			if (_nextCount > 1)
 			{
 				++_prevCount;
 				--_nextCount;
-				if (_nextCount > 0)
-				{
-					node = positionHistory[(_offset + _prevCount) % _maxViPositions];
-				}
+				node = positionHistory[(_offset + _prevCount) % _maxViPositions];
 			}
 			return node;
 		}

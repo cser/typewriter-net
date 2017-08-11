@@ -296,13 +296,30 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData('s', 1), false));
 						break;
 					case 'I':
-						controller.ViMoveHome(false, true);
-						context.SetState(new InputReceiver(new ViReceiverData('I', count), false));
+						if (!controller.AllSelectionsEmpty)
+						{
+							controller.ViStoreSelections();
+							foreach (Selection selection in controller.Selections)
+							{
+								int left = selection.Left;
+								selection.anchor = left;
+								selection.caret = left;
+							}
+						}
+						context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
 						break;
 					case 'A':
-						controller.ViMoveEnd(false, 1);
-						controller.ViMoveRightFromCursor();
-						context.SetState(new InputReceiver(new ViReceiverData('A', count), false));
+						if (!controller.AllSelectionsEmpty)
+						{
+							controller.ViStoreSelections();
+							foreach (Selection selection in controller.Selections)
+							{
+								int right = selection.Right;
+								selection.anchor = right;
+								selection.caret = right;
+							}
+							context.SetState(new InputReceiver(new ViReceiverData('i', count), false));
+						}
 						break;
 					case 'o':
 					case 'O':
