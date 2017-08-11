@@ -15,7 +15,6 @@
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
-	<item name="maxFileQualitiesCount" value="200"/>
 	<item name="alwaysOnTop" value="false"/>
 	<item name="connectionTimeout" value="1000"/>
 	<item name="miniMap" value="false"/>

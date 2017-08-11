@@ -25,7 +25,7 @@ public class Settings
 	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false, "Output chars with right Alt");
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
-	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
+	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 200).SetMinMax(0, int.MaxValue);//May be don't used
 	public readonly Properties.Bool alwaysOnTop = new Properties.Bool("alwaysOnTop", false);
 	public readonly Properties.Int connectionTimeout = new Properties.Int("connectionTimeout", 1000).SetMinMax(1, int.MaxValue);
 	public readonly Properties.RegexList shellRegexList = new Properties.RegexList("shellRegex");

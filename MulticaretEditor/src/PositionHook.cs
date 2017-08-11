@@ -22,6 +22,17 @@ namespace MulticaretEditor
 					node.position += text.Length;
 				}
 			}
+			if (_controller != null)
+			{
+				for (int i = 0; i < _controller.markbooks.Length; ++i)
+				{
+					int position = _controller.markbooks[i];
+					if (position != -1 && position > index)
+					{
+						_controller.markbooks[i] = position + text.Length;
+					}
+				}
+			}
 		}
 
 		public override void RemoveText(int index, int count)
@@ -36,6 +47,25 @@ namespace MulticaretEditor
 					if (node.position < index)
 					{
 						node.position = index;
+					}
+				}
+			}
+			if (_controller != null)
+			{
+				for (int i = 0; i < _controller.markbooks.Length; ++i)
+				{
+					int position = _controller.markbooks[i];
+					if (position != -1 && position > index)
+					{
+						position -= count;
+						if (position < index)
+						{
+							_controller.markbooks[i] = -1;
+						}
+						else
+						{
+							_controller.markbooks[i] = position;
+						}
 					}
 				}
 			}

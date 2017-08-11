@@ -2174,5 +2174,23 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public int[] markbooks;
+		
+		public void SetMarkbook(char c, int position)
+		{
+			if (markbooks == null && position != -1)
+			{
+				markbooks = new int[26];
+				for (int i = 0; i < markbooks.Length; ++i)
+				{
+					markbooks[i] = -1;
+				}
+			}
+			if (c >= 'a' && c <= 'z')
+			{
+				markbooks[c - 'a'] = position;
+			}
+		}
 	}
 }
