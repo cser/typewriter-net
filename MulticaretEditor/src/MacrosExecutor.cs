@@ -202,18 +202,29 @@ namespace MulticaretEditor
 			if (_prevCount > 0)
 			{
 				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
-				int nextIndex = (_offset + _prevCount) % _maxViPositions;
 				--_prevCount;
-				PositionNode nextNode = positionHistory[nextIndex];
-				if (nextNode != null && nextNode.file == currentFile)
+				++_nextCount;
+				if (_nextCount > 1)
 				{
-					nextNode.position = current;
-					++_nextCount;
+					int nextIndex = (_offset + _prevCount + 1) % _maxViPositions;
+					PositionNode nextNode = positionHistory[nextIndex];
+					if (nextNode != null && nextNode.file == currentFile)
+					{
+						nextNode.position = current;
+					}
+					else if (currentFile != null)
+					{
+						positionHistory[nextIndex] = new PositionNode(currentFile, current);
+					}
 				}
-				else if (currentFile != null)
+				else
 				{
-					positionHistory[nextIndex] = new PositionNode(currentFile, current);
-					++_nextCount;
+					if (currentFile != null)
+					{
+						int nextIndex = (_offset + _prevCount + 1) % _maxViPositions;
+						positionHistory[nextIndex] = new PositionNode(currentFile, current);
+						++_nextCount;
+					}
 				}
 			}
 			return node;
@@ -231,7 +242,10 @@ namespace MulticaretEditor
 			{
 				++_prevCount;
 				--_nextCount;
-				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
+				if (_nextCount > 0)
+				{
+					node = positionHistory[(_offset + _prevCount) % _maxViPositions];
+				}
 			}
 			return node;
 		}

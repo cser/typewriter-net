@@ -11,7 +11,8 @@ namespace UnitTests
 		
 		private void AssertPosition(string expectedFile, int expectedPosition, PositionNode was)
 		{
-			Assert.AreEqual(expectedFile + ":" + expectedPosition, was != null ? was.file.path + ":" + was.position : "null");
+			Assert.AreEqual(expectedFile + ":" + expectedPosition, was != null ? was.file.path + ":" + was.position : "null",
+				_executor.GetDebugText());
 		}
 		
 		[SetUp]
@@ -35,17 +36,31 @@ namespace UnitTests
 			Assert.AreEqual("[][(A:1)(B:2)(B:3)]", _executor.GetDebugText());
 		}
 		
-		/*[Test]
+		[Test]
 		public void PrevNext()
 		{
 			_executor.ViPosition_AddPrev(1);
 			_executor.ViPosition_AddPrev(2);
 			Assert.AreEqual("[(A:1)(A:2)][]", _executor.GetDebugText());
 			AssertPosition("A", 2, _executor.ViPosition_Prev(3));
-			Assert.AreEqual("[(A:1)(A:2)][(A:3)]", _executor.GetDebugText());
+			Assert.AreEqual("[(A:1)][(A:2)(A:3)]", _executor.GetDebugText());
 			AssertPosition("A", 3, _executor.ViPosition_Next(2));
-			Console.Write("!" + _executor.GetDebugText());
-		}*/
+			Assert.AreEqual("[(A:1)(A:2)][(A:3)]", _executor.GetDebugText());
+		}
+		
+		[Test]
+		public void PrevNextPrev()
+		{
+			_executor.ViPosition_AddPrev(1);
+			_executor.ViPosition_AddPrev(2);
+			Assert.AreEqual("[(A:1)(A:2)][]", _executor.GetDebugText());
+			AssertPosition("A", 2, _executor.ViPosition_Prev(3));
+			Assert.AreEqual("[(A:1)][(A:2)(A:3)]", _executor.GetDebugText());
+			AssertPosition("A", 3, _executor.ViPosition_Next(2));
+			Assert.AreEqual("[(A:1)(A:2)][(A:3)]", _executor.GetDebugText());
+			AssertPosition("A", 2, _executor.ViPosition_Prev(3));
+			Assert.AreEqual("[(A:1)][(A:2)(A:3)]", _executor.GetDebugText());
+		}
 		
 		[Test]
 		public void Simple_DontFailIfNoOneElement()
