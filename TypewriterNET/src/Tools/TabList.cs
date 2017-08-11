@@ -99,7 +99,7 @@ public class TabList
 				{
 					builder.Append("\n");
 				}
-				builder.Append(bufferI.Name);
+				builder.Append(bufferI.Name + (bufferI.Changed ? "*" : ""));
 				buffers.Add(bufferI);
 			}
 		}

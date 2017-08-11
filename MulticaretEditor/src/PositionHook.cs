@@ -22,12 +22,12 @@ namespace MulticaretEditor
 					node.position += text.Length;
 				}
 			}
-			for (int i = _controller.markbooks.Count; i-- > 0;)
+			for (int i = _controller.bookmarks.Count; i-- > 0;)
 			{
-				int position = _controller.markbooks[i];
+				int position = _controller.bookmarks[i];
 				if (position != -1 && position > index)
 				{
-					_controller.markbooks[i] = position + text.Length;
+					_controller.bookmarks[i] = position + text.Length;
 				}
 			}
 		}
@@ -47,20 +47,20 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			for (int i = _controller.markbooks.Count; i-- > 0;)
+			for (int i = _controller.bookmarks.Count; i-- > 0;)
 			{
-				int position = _controller.markbooks[i];
+				int position = _controller.bookmarks[i];
 				if (position != -1 && position > index)
 				{
 					position -= count;
 					if (position < index)
 					{
-						_controller.markbookNames.RemoveAt(i);
-						_controller.markbooks.RemoveAt(i);
+						_controller.bookmarkNames.RemoveAt(i);
+						_controller.bookmarks.RemoveAt(i);
 					}
 					else
 					{
-						_controller.markbooks[i] = position;
+						_controller.bookmarks[i] = position;
 					}
 				}
 			}

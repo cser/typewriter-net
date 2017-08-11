@@ -1381,6 +1381,22 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViMoveTo(int position, bool shift)
+		{
+			if (position < 0)
+			{
+				position = 0;
+			}
+			else if (position > lines.charsCount)
+			{
+				position = lines.charsCount;
+			}
+			ClearMinorSelections();
+			LastSelection.caret = position;
+			lines.SetPreferredPos(LastSelection, lines.PlaceOf(position));
+			LastSelection.SetEmptyIfNotShift(shift);
+		}
+		
 		public void ViCollapseSelections()
 		{
 			foreach (Selection selection in selections)
@@ -2175,30 +2191,45 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public readonly List<char> markbookNames = new List<char>(4);
-		public readonly List<int> markbooks = new List<int>(4);
+		public readonly List<char> bookmarkNames = new List<char>(4);
+		public readonly List<int> bookmarks = new List<int>(4);
 		
-		public void SetMarkbook(char c, int position)
+		public void SetBookmark(char c, int position)
 		{
 			if (c >= 'a' && c <= 'z')
 			{
-				for (int i = markbooks.Count; i-- > 0;)
+				for (int i = bookmarks.Count; i-- > 0;)
 				{
-					if (markbookNames[i] == c)
+					if (bookmarkNames[i] == c)
 					{
 						if (position != -1)
 						{
-							markbooks[i] = position;
+							bookmarks[i] = position;
 							return;
 						}
-						markbookNames.RemoveAt(i);
-						markbooks.RemoveAt(i);
+						bookmarkNames.RemoveAt(i);
+						bookmarks.RemoveAt(i);
 						return;
 					}
 				}
-				markbookNames.Add(c);
-				markbooks.Add(position);
+				bookmarkNames.Add(c);
+				bookmarks.Add(position);
 			}
+		}
+		
+		public int GetBookmark(char c)
+		{
+			if (c >= 'a' && c <= 'z')
+			{
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					if (bookmarkNames[i] == c)
+					{
+						return bookmarks[i];
+					}
+				}
+			}
+			return -1;
 		}
 	}
 }

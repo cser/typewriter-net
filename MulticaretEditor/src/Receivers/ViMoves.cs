@@ -227,6 +227,36 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class JumpBookmark : IMove
+		{
+			private char type;
+			private char charToJump;
+			
+			public JumpBookmark(char type, char charToJump)
+			{
+				this.type = type;
+				this.charToJump = charToJump;
+			}
+			
+			public void Move(Controller controller, bool shift, bool change)
+			{
+				int position = controller.GetBookmark(charToJump);
+				if (position != -1)
+				{
+					switch (type)
+					{
+						case '`':
+							controller.ViMoveTo(position, shift);
+							break;
+						case '\'':
+							controller.ViMoveTo(position, shift);
+							controller.ViMoveHome(shift, true);
+							break;
+					}
+				}
+			}
+		}
+		
 		public class FindForwardPattern : IMove
 		{
 			public void Move(Controller controller, bool shift, bool change)

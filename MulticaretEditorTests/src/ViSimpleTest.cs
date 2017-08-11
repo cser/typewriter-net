@@ -1322,5 +1322,26 @@ namespace UnitTests
 			AssertViClipboard("dddddddd\n");
 			AssertSelection().Both(0, 3).NoNext();
 		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToPosition()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			Put(2, 3).Press("ma");
+			Put(3, 1).Press("mz");
+			Put(1, 0).AssertSelection().Both(1, 0);
+			Press("`a").AssertSelection().Both(2, 3);
+			Press("`z").AssertSelection().Both(3, 1);
+			Press("`a").AssertSelection().Both(2, 3);
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToLine()
+		{
+			lines.SetText("Oooo\naaaa\nccc\n    dddddddd");
+			Put(7, 3).Press("ma");
+			Put(1, 0).Press("`a").AssertSelection().Both(7, 3);
+			Put(1, 0).Press("'a").AssertSelection().Both(4, 3);
+		}
 	}
 }
