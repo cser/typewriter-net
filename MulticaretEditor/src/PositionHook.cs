@@ -4,21 +4,20 @@ namespace MulticaretEditor
 {
 	public class PositionHook : TextChangeHook
 	{
-		private readonly PositionNode[] _nodes;
-		private readonly PositionFile _file;
+		private readonly Controller _controller;
 		
-        public PositionHook(PositionNode[] nodes, PositionFile file)
+        public PositionHook(Controller controller)
         {
-	        _nodes = nodes;
-	        _file = file;
+	        _controller = controller;
         }
         
 		public override void InsertText(int index, string text)
 		{
-			for (int i = 0; i < _nodes.Length; ++i)
+			MacrosExecutor executor = _controller.macrosExecutor;
+			for (int i = 0; i < executor.positionHistory.Length; ++i)
 			{
-				PositionNode node = _nodes[i];
-				if (node != null && node.file == _file && node.position > index)
+				PositionNode node = executor.positionHistory[i];
+				if (node != null && node.file == executor.currentFile && node.position > index)
 				{
 					node.position += text.Length;
 				}
@@ -27,10 +26,11 @@ namespace MulticaretEditor
 
 		public override void RemoveText(int index, int count)
 		{
-			for (int i = 0; i < _nodes.Length; ++i)
+			MacrosExecutor executor = _controller.macrosExecutor;
+			for (int i = 0; i < executor.positionHistory.Length; ++i)
 			{
-				PositionNode node = _nodes[i];
-				if (node != null && node.file == _file && node.position > index)
+				PositionNode node = executor.positionHistory[i];
+				if (node != null && node.file == executor.currentFile && node.position > index)
 				{
 					node.position -= count;
 					if (node.position < index)

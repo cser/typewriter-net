@@ -7,6 +7,8 @@ using KlerksSoft;
 public class Buffer
 {
 	public readonly SettingsMode settingsMode;
+	
+	private PositionHook positionHook;
 
 	public Buffer(string fullPath, string name, SettingsMode settingsMode)
 	{
@@ -15,6 +17,7 @@ public class Buffer
 		controller.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
+		controller.Lines.hook2 = !string.IsNullOrEmpty(fullPath) ? new PositionHook(controller) : null;
 	}
 	
 	public BufferList owner;
@@ -46,6 +49,14 @@ public class Buffer
 		controller.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
+		if (controller.Lines.hook2 == null)
+		{
+			controller.Lines.hook2 = !string.IsNullOrEmpty(fullPath) ? new PositionHook(controller) : null;
+		}
+		else if (string.IsNullOrEmpty(fullPath))
+		{
+			controller.Lines.hook2 = null;
+		}
 	}
 
 	public bool needSaveAs;
