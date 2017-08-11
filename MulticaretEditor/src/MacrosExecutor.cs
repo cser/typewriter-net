@@ -129,11 +129,6 @@ namespace MulticaretEditor
 		
 		public void ViPositionAdd(int position)
 		{
-			throw new Exception("Remove me");
-		}
-		
-		public void ViPosition_AddPrev(int position)
-		{
 			if (currentFile != null && (_lastFile != currentFile || _lastPosition != position))
 			{
 				_lastFile = currentFile;
@@ -148,7 +143,7 @@ namespace MulticaretEditor
 					_nextCount = 0;
 				}
 				positionHistory[(_offset + _prevCount) % _maxViPositions] = new PositionNode(currentFile, position);
-				++_prevCount;
+				++_nextCount;
 				if (_prevCount + _nextCount > _maxViPositions)
 				{
 					_offset = (_offset + 1) % _maxViPositions;
@@ -157,10 +152,56 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViPositionSet(int position)
+		{
+			if (_nextCount > 0)
+			{
+				PositionNode node = positionHistory[(_offset + _prevCount) % _maxViPositions];
+				if (node.file == currentFile && _lastFile == currentFile)
+				{
+					_lastPosition = position;
+					node.position = position;
+					if (_nextCount > 0)
+					{
+						for (int i = 1; i < _nextCount; ++i)
+						{
+							positionHistory[(_offset + _prevCount + i) % _maxViPositions] = null;
+						}
+						_nextCount = 1;
+					}
+					return;
+				}
+			}
+			ViPositionAdd(position);
+		}
+		
+		public PositionNode ViPositionPrev()
+		{
+			PositionNode node = null;
+			if (_prevCount > 0)
+			{
+				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
+				--_prevCount;
+				++_nextCount;
+			}
+			return node;
+		}
+		
+		public PositionNode ViPositionNext()
+		{
+			PositionNode node = null;
+			if (_nextCount > 1)
+			{
+				++_prevCount;
+				--_nextCount;
+				node = positionHistory[(_offset + _prevCount) % _maxViPositions];
+			}
+			return node;
+		}
+		
 		public string GetDebugText()
 		{
 			string text = "[";
-			bool hasIncorrectNulls = false;
 			for (int i = 0; i < _prevCount; ++i)
 			{
 				text += positionHistory[(_offset + i) % _maxViPositions];
@@ -188,90 +229,6 @@ namespace MulticaretEditor
 				text += ":UNNULLED";
 			}
 			return text;
-		}
-		
-		public void ViPositionSet(int position)
-		{
-			if (_nextCount > 0)
-			{
-				PositionNode node = positionHistory[(_offset + _prevCount) % _maxViPositions];
-				if (node.file == currentFile && _lastFile == currentFile)
-				{
-					_lastPosition = position;
-					node.position = position;
-					if (_nextCount > 0)
-					{
-						for (int i = 1; i < _nextCount; ++i)
-						{
-							positionHistory[(_offset + _prevCount + i) % _maxViPositions] = null;
-						}
-						_nextCount = 1;
-					}
-					return;
-				}
-			}
-			ViPositionAdd(position);
-		}
-		
-		public PositionNode ViPosition_Prev(int current)
-		{
-			PositionNode node = null;
-			if (_prevCount > 0)
-			{
-				node = positionHistory[(_offset + _prevCount - 1) % _maxViPositions];
-				--_prevCount;
-				++_nextCount;
-				if (_nextCount > 1)
-				{
-					int nextIndex = (_offset + _prevCount + 1) % _maxViPositions;
-					PositionNode nextNode = positionHistory[nextIndex];
-					if (nextNode != null && nextNode.file == currentFile)
-					{
-						nextNode.position = current;
-					}
-					else if (currentFile != null)
-					{
-						positionHistory[nextIndex] = new PositionNode(currentFile, current);
-					}
-				}
-				else
-				{
-					if (currentFile != null)
-					{
-						int nextIndex = (_offset + _prevCount + 1) % _maxViPositions;
-						positionHistory[nextIndex] = new PositionNode(currentFile, current);
-						++_nextCount;
-						if (_prevCount + _nextCount > _maxViPositions)
-						{
-							++_offset;
-							--_prevCount;
-						}
-					}
-				}
-			}
-			return node;
-		}
-		
-		public PositionNode ViPositionPrev()
-		{
-			throw new Exception("Delte me");
-		}
-		
-		public PositionNode ViPosition_Next(int current)
-		{
-			PositionNode node = null;
-			if (_nextCount > 1)
-			{
-				++_prevCount;
-				--_nextCount;
-				node = positionHistory[(_offset + _prevCount) % _maxViPositions];
-			}
-			return node;
-		}
-		
-		public PositionNode ViPositionNext()
-		{
-			throw new Exception("Delte me");
 		}
 	}
 }
