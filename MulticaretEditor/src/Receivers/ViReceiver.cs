@@ -474,21 +474,27 @@ namespace MulticaretEditor
 						forceLastCommand = true;
 						break;
 					case 'o':
-						controller.ViMoveEnd(false, 1);
-						controller.ViMoveRightFromCursor();
-						controller.InsertLineBreak();
-						context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
+						if (!controller.isReadonly)
+						{
+							controller.ViMoveEnd(false, 1);
+							controller.ViMoveRightFromCursor();
+							controller.InsertLineBreak();
+							context.SetState(new InputReceiver(new ViReceiverData('o', count), false));
+						}
 						forceLastCommand = true;
 						break;
 					case 'O':
-						controller.ViMoveHome(false, true);
-						controller.InsertLineBreak();
-						controller.ViLogicMoveUp(false);
-						if (lines.autoindent)
+						if (!controller.isReadonly)
 						{
-							controller.ViAutoindentByBottom();
+							controller.ViMoveHome(false, true);
+							controller.InsertLineBreak();
+							controller.ViLogicMoveUp(false);
+							if (lines.autoindent)
+							{
+								controller.ViAutoindentByBottom();
+							}
+							context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						}
-						context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						forceLastCommand = true;
 						break;
 					case 'C':
@@ -554,14 +560,7 @@ namespace MulticaretEditor
 			}
 			if ((move != null || needInput) && controller.macrosExecutor != null)
 			{
-				if (needHistoryMove)
-				{
-					controller.macrosExecutor.ViPositionAdd(controller.LastSelection.caret);
-				}
-				else
-				{
-					controller.macrosExecutor.ViPositionSet(controller.LastSelection.caret);
-				}
+				controller.ViAddHistoryPosition(needHistoryMove);
 			}
 			if (command != null)
 			{

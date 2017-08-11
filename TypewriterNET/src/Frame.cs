@@ -295,7 +295,6 @@ public class Frame : AFrame
 				if (buffer.FullPath != null)
 				{
 					Nest.MainForm.MarkShowed(buffer);
-					MulticaretTextBox.initMacrosExecutor.ViSetCurrentFile(buffer.FullPath);
 					buffer.Controller.Lines.hook2 = MulticaretTextBox.initMacrosExecutor.currentFile != null ?
 						new PositionHook(
 							MulticaretTextBox.initMacrosExecutor.positionHistory,

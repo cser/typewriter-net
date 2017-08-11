@@ -74,8 +74,6 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Open item", DoOnEnter, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Space, null, action));
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.O, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
 		{
@@ -1091,5 +1089,25 @@ public class FileTree
             }
         }
 		return null;
+	}
+	
+	public bool DoOnViShortcut(Controller controller, string shortcut)
+	{
+		if (buffer.Controller == controller)
+		{
+			if (shortcut == "o")
+			{
+				return DoOnEnter(controller);
+			}
+			if (shortcut == "O")
+			{
+				return DoOnEnterNoSwitch(controller);
+			}
+			if (shortcut == "dd")
+			{
+				return DoRemoveItem(controller);
+			}
+		}
+		return false;
 	}
 }

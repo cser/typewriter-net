@@ -93,6 +93,10 @@ namespace MulticaretEditor
 		
 		public void ViSetCurrentFile(string path)
 		{
+			if (currentFile != null && currentFile.path == path)
+			{
+				return;
+			}
 			if (_files == null)
 			{
 				_files = new PositionFile[_maxViPositions];

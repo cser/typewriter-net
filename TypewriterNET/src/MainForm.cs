@@ -237,13 +237,17 @@ public class MainForm : Form
 			DoSave(null);
 			return;
 		}
-		if (dialogs != null)
+		if (dialogs != null && dialogs.DoOnViShortcut(controller, shortcut))
 		{
-			dialogs.DoOnViShortcut(controller, shortcut);
+			return;
 		}
-		if (tabList != null)
+		if (tabList != null && tabList.DoOnViShortcut(controller, shortcut))
 		{
-			tabList.DoOnViShortcut(controller, shortcut);
+			return;
+		}
+		if (fileTree != null && fileTree.DoOnViShortcut(controller, shortcut))
+		{
+			return;
 		}
 	}
 
@@ -336,6 +340,10 @@ public class MainForm : Form
 
 		Activated += OnActivated;
 
+		if (focusedTextBox != null && focusedTextBox.Controller != null)
+		{
+			focusedTextBox.Controller.ViAddHistoryPosition(false);
+		}
         InitMessageReceiving();
 	}
 	
@@ -358,18 +366,6 @@ public class MainForm : Form
         }
     }
 
-	public struct FileArg
-	{
-		public string file;
-		public string httpServer;
-
-		public FileArg(string file, string httpServer)
-		{
-			this.file = file;
-			this.httpServer = httpServer;
-		}
-	}
-	
 	private int openFileLine = 0;
 
 	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
@@ -692,7 +688,6 @@ public class MainForm : Form
 				}
 			}
 		}
-		MulticaretTextBox.initMacrosExecutor.ViSetCurrentFile(currentFile);
 		UpdateTitle();
 	}
 	
@@ -1033,12 +1028,14 @@ public class MainForm : Form
 		if (mainNest.Frame.ContainsBuffer(buffer))
 		{
 			mainNest.Frame.SelectedBuffer = buffer;
+			buffer.Controller.ViAddHistoryPosition(true);
 		}
 		if (mainNest2.Frame != null)
 		{
 			if (mainNest2.Frame.ContainsBuffer(buffer))
 			{
 				mainNest2.Frame.SelectedBuffer = buffer;
+				buffer.Controller.ViAddHistoryPosition(true);
 			}
 		}
 	}
@@ -2141,7 +2138,7 @@ public class MainForm : Form
 				buffer.Frame.TextBox.MoveToCaret();
 				if (buffer.FullPath != null)
 				{
-					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+					buffer.Controller.ViAddHistoryPosition(true);
 				}
 			}
 		}
@@ -2166,7 +2163,7 @@ public class MainForm : Form
 				buffer.Frame.TextBox.MoveToCaret();
 				if (buffer.FullPath != null)
 				{
-					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+					buffer.Controller.ViAddHistoryPosition(true);
 				}
 			}
 		}
@@ -2185,7 +2182,7 @@ public class MainForm : Form
 				buffer.Frame.TextBox.MoveToCaret();
 				if (buffer.FullPath != null)
 				{
-					MulticaretTextBox.initMacrosExecutor.ViPositionAdd(buffer.Controller.LastSelection.caret);
+					buffer.Controller.ViAddHistoryPosition(true);
 				}
 			}
 		}

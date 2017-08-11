@@ -53,11 +53,11 @@ public class TabList
 		}
 	}
 	
-	public void DoOnViShortcut(Controller controller, string shortcut)
+	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
 		if (buffer == null)
 		{
-			return;
+			return false;
 		}
 		if (shortcut == "dd")
 		{
@@ -67,8 +67,10 @@ public class TabList
 			{
 				mainForm.CloseIfExists(buffers[index]);
 				Rebuild();
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private void OnBufferSelected(Buffer buffer)

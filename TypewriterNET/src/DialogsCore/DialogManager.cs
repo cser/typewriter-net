@@ -552,19 +552,21 @@ public class DialogManager
 		if (mainForm.LastFrame != null)
 		{
 			mainForm.LastFrame.TextBox.ViFind(pattern);
+			mainForm.LastFrame.TextBox.Controller.ViAddHistoryPosition(true);
 		}
 		return true;
 	}
 	
-	public void DoOnViShortcut(Controller controller, string shortcut)
+	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
 		if (shortcut == "/")
 		{
-			ViDoFind(controller);
+			return ViDoFind(controller);
 		}
-		else if (shortcut == ":")
+		if (shortcut == ":")
 		{
-			DoInputCommand(controller);
+			return DoInputCommand(controller);
 		}
+		return false;
 	}
 }

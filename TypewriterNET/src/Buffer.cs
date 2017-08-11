@@ -11,8 +11,10 @@ public class Buffer
 	public Buffer(string fullPath, string name, SettingsMode settingsMode)
 	{
 		this.settingsMode = settingsMode;
-		SetFile(fullPath, name);
 		controller = new Controller(new LineArray());
+		controller.viFullPath = fullPath;
+		this.fullPath = fullPath;
+		this.name = name;
 	}
 	
 	public BufferList owner;
@@ -41,6 +43,7 @@ public class Buffer
 
 	public void SetFile(string fullPath, string name)
 	{
+		controller.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
 	}

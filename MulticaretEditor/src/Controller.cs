@@ -2156,5 +2156,23 @@ namespace MulticaretEditor
 				SetSelectionMementos(lines.mementos);
 			}
 		}
+		
+		public string viFullPath;
+		
+		public void ViAddHistoryPosition(bool forced)
+		{
+			if (macrosExecutor != null && !string.IsNullOrEmpty(viFullPath))
+			{
+				macrosExecutor.ViSetCurrentFile(viFullPath);
+				if (forced)
+				{
+					macrosExecutor.ViPositionAdd(LastSelection.caret);
+				}
+				else
+				{
+					macrosExecutor.ViPositionSet(LastSelection.caret);
+				}
+			}
+		}
 	}
 }

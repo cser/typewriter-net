@@ -57,6 +57,7 @@ public static class Help
 		builder.AppendLine("  For expample see base config by `Shift+F12`");
 		builder.AppendLine("- There are no vi macroses implemented,");
 		builder.AppendLine("  use simple `Ctrl+q`(begin), `Ctrl+q`(end), `Ctrl+Q`(execute)");
+		builder.AppendLine("- Usualy you can use `\\` instead leader `,` (both works at the same time)");
 		builder.AppendLine();
 		builder.AppendLine("# Vi modes");
 		builder.AppendLine();
@@ -75,9 +76,7 @@ public static class Help
 			TextTable table = new TextTable().SetMaxColWidth(40);
 			table.Add(" Sequence").Add("Help").NewRow();
 			table.AddLine();
-			table.Add(" \\h").Add("Show/Hide common help").NewRow();
 			table.Add(" ,h").Add("Show/Hide common help").NewRow();
-			table.Add(" \\H").Add("Show/Hide vi-mode help").NewRow();
 			table.Add(" ,H").Add("Show/Hide vi-mode help");
 			table.AddLine();
 			table.Add(" Sequence").Add("Move").NewRow();
@@ -142,9 +141,7 @@ public static class Help
 			table.Add(" ,b").Add("Show tab list, inside:\n`Enter` - Select tab\n`dd`- Close tab\n`Ctrl+[` - Exit tab list").NewRow();
 			table.Add(" <space><symbol><showed_symbols>").Add("Jump where you look:\n<symbol> - symbol, what you look,\n<showed_symbols> - symbols,\nshowed after <symbol> entered").NewRow();
 			table.Add(" ,<space><symbol><showed_symbols>").Add("Jump with new cursor").NewRow();
-			table.Add(" \\n").Add("Open/close file tree").NewRow();
-			table.Add(" ,n").Add("Open/close file tree").NewRow();
-			table.Add(" \\N").Add("Open/close file tree with current file").NewRow();
+			table.Add(" ,n").Add("Open/close file tree, inside:\n`o` - open\n`O` - open without switch\n`dd` - delete file").NewRow();
 			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
 			table.Add(" ,s").Add("Save file").NewRow();
 			table.AddLine();
