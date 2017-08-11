@@ -229,6 +229,11 @@ namespace MulticaretEditor
 		
 		public class JumpBookmark : IMove
 		{
+			public static bool IsFileBased(char charToJump)
+			{
+				return charToJump >= 'A' && charToJump <= 'Z';
+			}
+			
 			private char type;
 			private char charToJump;
 			

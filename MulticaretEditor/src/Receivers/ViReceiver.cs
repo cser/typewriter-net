@@ -243,6 +243,11 @@ namespace MulticaretEditor
 					break;
 				case '`':
 				case '\'':
+					if (ViMoves.JumpBookmark.IsFileBased(parser.moveChar.c))
+					{
+						viShortcut = "" + parser.move.c + parser.moveChar.c;
+						return;
+					}
 					move = new ViMoves.JumpBookmark(parser.move.c, parser.moveChar.c);
 					break;
 				case '0':
@@ -561,6 +566,14 @@ namespace MulticaretEditor
 						forceLastCommand = true;
 						break;
 					case 'm':
+						if (ViMoves.JumpBookmark.IsFileBased(parser.moveChar.c))
+						{
+							if (controller.macrosExecutor != null)
+							{
+								controller.macrosExecutor.SetBookmark(parser.moveChar.c, controller.viFullPath, controller.LastSelection.caret);
+							}
+							return;
+						}
 						controller.SetBookmark(parser.moveChar.c, controller.LastSelection.anchor);
 						break;
 				}

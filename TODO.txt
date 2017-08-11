@@ -29,3 +29,6 @@ Fix position by mouse on half-tab
 - Upper/lower cases
 - . betwean files
 - Redo open file from fuzzy search
+- Save file bookmarks
+- Bookmarks change range with '
+- Global bookmarks offsets

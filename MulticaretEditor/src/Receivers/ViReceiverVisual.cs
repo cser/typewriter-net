@@ -150,6 +150,15 @@ namespace MulticaretEditor
 					move = new ViMoves.Find(parser.move.c, parser.moveChar.c, count);
 					count = 1;
 					break;
+				case '`':
+				case '\'':
+					if (ViMoves.JumpBookmark.IsFileBased(parser.moveChar.c))
+					{
+						viShortcut = "" + parser.move.c + parser.moveChar.c;
+						return;
+					}
+					move = new ViMoves.JumpBookmark(parser.move.c, parser.moveChar.c);
+					break;
 				case '0':
 					move = new ViMoves.Home(false);
 					break;

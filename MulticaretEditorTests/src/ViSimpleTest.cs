@@ -1343,5 +1343,40 @@ namespace UnitTests
 			Put(1, 0).Press("`a").AssertSelection().Both(7, 3);
 			Put(1, 0).Press("'a").AssertSelection().Both(4, 3);
 		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToPosition_VISUAL()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd");
+			Put(7, 3).Press("ma");
+			Put(1, 0).Press("v");
+			Press("`a").AssertSelection().Anchor(1, 0).Caret(7, 3);
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToLine_VISUAL()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd");
+			Put(7, 3).Press("ma");
+			Put(1, 0).Press("v");
+			Press("'a").AssertSelection().Anchor(1, 0).Caret(4, 3);
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToPosition_Delete()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd");
+			Put(7, 3).Press("ma");
+			Put(2, 1).Press("d`a").AssertText("Oooo\naaddddd").AssertSelection().Both(2, 1);
+		}
+		
+		[Ignore]
+		[Test]
+		public void InsideFileBookmarks_JumpToLine_Delete()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd");
+			Put(7, 3).Press("ma");
+			Put(2, 1).Press("d'a").AssertText("Oooo\n    dddddddd").AssertSelection().Both(4, 1);
+		}
 	}
 }

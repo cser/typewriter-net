@@ -881,5 +881,21 @@ namespace UnitTests
 			Add('`').AddLast('a');
 			AssertParsed("1:action:\\0;move:`;moveChar:a");
 		}
+		
+		[Test]
+		public void BookmarksUppercase()
+		{
+			Init(false);
+			
+			Add('m').AddLast('A');
+			AssertParsed("1:action:m;move:\\0;moveChar:A");
+			Add('m').AddLast('Z');
+			AssertParsed("1:action:m;move:\\0;moveChar:Z");
+			
+			Add('\'').AddLast('A');
+			AssertParsed("1:action:\\0;move:';moveChar:A");
+			Add('`').AddLast('A');
+			AssertParsed("1:action:\\0;move:`;moveChar:A");
+		}
 	}
 }

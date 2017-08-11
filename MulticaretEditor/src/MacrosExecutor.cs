@@ -234,5 +234,46 @@ namespace MulticaretEditor
 			}
 			return text;
 		}
+		
+		public readonly List<char> bookmarkNames = new List<char>(4);
+		public readonly List<PositionNode> bookmarks = new List<PositionNode>(4);
+		
+		public void SetBookmark(char c, string file, int position)
+		{
+			if (c >= 'A' && c <= 'Z')
+			{
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					if (bookmarkNames[i] == c)
+					{
+						if (position != -1 && file != null)
+						{
+							bookmarks[i] = new PositionNode(new PositionFile(file), position);
+							return;
+						}
+						bookmarkNames.RemoveAt(i);
+						bookmarks.RemoveAt(i);
+						return;
+					}
+				}
+				bookmarkNames.Add(c);
+				bookmarks.Add(new PositionNode(new PositionFile(file), position));
+			}
+		}
+		
+		public PositionNode GetBookmark(char c)
+		{
+			if (c >= 'A' && c <= 'Z')
+			{
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					if (bookmarkNames[i] == c)
+					{
+						return bookmarks[i];
+					}
+				}
+			}
+			return null;
+		}
 	}
 }

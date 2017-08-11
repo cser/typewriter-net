@@ -237,6 +237,27 @@ public class MainForm : Form
 			DoSave(null);
 			return;
 		}
+		if (shortcut.Length == 2 && shortcut.StartsWith("`") || shortcut.StartsWith("\'"))
+		{
+			PositionNode node = MulticaretTextBox.initMacrosExecutor.GetBookmark(shortcut[1]);
+			if (node != null)
+			{
+				Buffer buffer = LoadFile(node.file.path);
+				if (buffer != null && buffer.FullPath == node.file.path)
+				{
+					if (shortcut.StartsWith("`"))
+					{
+						buffer.Controller.ViMoveTo(node.position, false);
+					}
+					else if (shortcut.StartsWith("\'"))
+					{
+						buffer.Controller.ViMoveTo(node.position, false);
+						buffer.Controller.ViMoveHome(false, true);
+					}
+				}
+			}
+			return;
+		}
 		if (dialogs != null && dialogs.DoOnViShortcut(controller, shortcut))
 		{
 			return;
