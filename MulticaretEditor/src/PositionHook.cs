@@ -13,19 +13,21 @@ namespace MulticaretEditor
         
 		public override void InsertText(int index, string text)
 		{
-			MacrosExecutor executor = _controller.macrosExecutor;
-			for (int i = 0; i < executor.positionHistory.Length; ++i)
+			PositionFile currentFile = _controller.macrosExecutor.currentFile;
+			PositionNode[] positionHistory = _controller.macrosExecutor.positionHistory;
+			for (int i = 0; i < positionHistory.Length; ++i)
 			{
-				PositionNode node = executor.positionHistory[i];
-				if (node != null && node.file == executor.currentFile && node.position > index)
+				PositionNode node = positionHistory[i];
+				if (node != null && node.file == currentFile && node.position > index)
 				{
 					node.position += text.Length;
 				}
 			}
-			for (int i = 0; i < executor.bookmarks.Length; ++i)
+			PositionNode[] bookmarks = _controller.macrosExecutor.bookmarks;
+			for (int i = 0; i < bookmarks.Length; ++i)
 			{
-				PositionNode node = executor.bookmarks[i];
-				if (node != null && node.file == executor.currentFile && node.position > index)
+				PositionNode node = bookmarks[i];
+				if (node != null && node.file == currentFile && node.position > index)
 				{
 					node.position += text.Length;
 				}
@@ -42,11 +44,12 @@ namespace MulticaretEditor
 
 		public override void RemoveText(int index, int count)
 		{
-			MacrosExecutor executor = _controller.macrosExecutor;
-			for (int i = 0; i < executor.positionHistory.Length; ++i)
+			PositionFile currentFile = _controller.macrosExecutor.currentFile;
+			PositionNode[] positionHistory = _controller.macrosExecutor.positionHistory;
+			for (int i = 0; i < positionHistory.Length; ++i)
 			{
-				PositionNode node = executor.positionHistory[i];
-				if (node != null && node.file == executor.currentFile && node.position > index)
+				PositionNode node = positionHistory[i];
+				if (node != null && node.file == currentFile && node.position > index)
 				{
 					node.position -= count;
 					if (node.position < index)
@@ -55,15 +58,16 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			for (int i = 0; i < executor.bookmarks.Length; ++i)
+			PositionNode[] bookmarks = _controller.macrosExecutor.bookmarks;
+			for (int i = 0; i < bookmarks.Length; ++i)
 			{
-				PositionNode node = executor.bookmarks[i];
-				if (node != null && node.file == executor.currentFile && node.position > index)
+				PositionNode node = bookmarks[i];
+				if (node != null && node.file == currentFile && node.position > index)
 				{
 					node.position -= count;
 					if (node.position < index)
 					{
-						executor.bookmarks[i] = null;
+						bookmarks[i] = null;
 					}
 				}
 			}
