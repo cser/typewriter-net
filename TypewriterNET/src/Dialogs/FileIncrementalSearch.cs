@@ -121,7 +121,11 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	{
 		if (!string.IsNullOrEmpty(lineText) && lineText != Dots)
 		{
-			MainForm.LoadFile(lineText);
+			Buffer buffer = MainForm.LoadFile(lineText);
+			if (buffer != null)
+			{
+				buffer.Controller.ViAddHistoryPosition(true);
+			}
 			DispatchNeedClose();
 		}
 	}
