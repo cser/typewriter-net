@@ -288,6 +288,7 @@ namespace MulticaretEditor
 							case 'I':
 							case 'A':
 							case 'u':
+							case 'U':
 							case 'x':
 							case 'p':
 							case 'P':
@@ -373,6 +374,9 @@ namespace MulticaretEditor
 								return ParseResult.Complete;
 							case 's':
 								shortcut = "\\s";
+								return ParseResult.Complete;
+							case 'c':
+								shortcut = "\\c";
 								return ParseResult.Complete;
 						}
 					}

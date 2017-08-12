@@ -74,10 +74,14 @@ public static class Help
 		builder.AppendLine();
 		{
 			TextTable table = new TextTable().SetMaxColWidth(40);
-			table.Add(" Help").NewRow();
+			table.Add(" Leader actions").NewRow();
 			table.AddLine();
 			table.Add(" ,h").Add("Show/Hide common help").NewRow();
-			table.Add(" ,H").Add("Show/Hide vi-mode help");
+			table.Add(" ,H").Add("Show/Hide vi-mode help").NewRow();
+			table.Add(" ,b").Add("Show tab list, inside:\n  `Enter` - Select tab\n  `dd`- Close tab\n  `Ctrl+[` - Exit tab list").NewRow();
+			table.Add(" ,n").Add("Open/close file tree, inside:\n  `o` - open\n  `O` - open without switch\n  `dd` - delete file").NewRow();
+			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
+			table.Add(" ,s").Add("Save file").NewRow();
 			table.AddLine();
 			table.Add(" Moves").NewRow();
 			table.AddLine();
@@ -137,15 +141,11 @@ public static class Help
 			table.Add(" >>").Add("Indent right").NewRow();
 			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
 			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
-			table.Add(" *").Add("Put word or selection into find register and find next").NewRow();
+			table.Add(" *").Add("Put word or selection into\n  find register and find next").NewRow();
 			table.Add(" n").Add("Find next").NewRow();
 			table.Add(" N").Add("Find previous").NewRow();
-			table.Add(" ,b").Add("Show tab list, inside:\n  `Enter` - Select tab\n  `dd`- Close tab\n  `Ctrl+[` - Exit tab list").NewRow();
 			table.Add(" <space><symbol><showed_symbols>").Add("Jump where you look:\n  <symbol> - symbol, what you look,\n  <showed_symbols> - symbols,  \nshowed after <symbol> entered").NewRow();
 			table.Add(" ,<space><symbol><showed_symbols>").Add("Jump with new cursor").NewRow();
-			table.Add(" ,n").Add("Open/close file tree, inside:\n  `o` - open\n  `O` - open without switch\n  `dd` - delete file").NewRow();
-			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
-			table.Add(" ,s").Add("Save file").NewRow();
 			table.Add(" Gv").Add("Recover last selection").NewRow();
 			table.AddLine();
 			table.Add(" Text objects").NewRow();
@@ -189,6 +189,8 @@ public static class Help
 			table.Add(" Moves").NewRow();
 			table.AddLine();
 			table.Add(" o").Add("Switch anchor and caret of selection").NewRow();
+			table.Add(" U").Add("Uppercase selection").NewRow();
+			table.Add(" u").Add("Lowercase selection").NewRow();
 			builder.Append(table);
 		}
 		builder.AppendLine();

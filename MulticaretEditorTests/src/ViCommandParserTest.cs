@@ -156,6 +156,17 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void UppercaseLowercase()
+		{
+			Init(true);
+			
+			AddLast('u');
+			AssertParsed("1:action:u;move:\\0;moveChar:\\0");
+			AddLast('U');
+			AssertParsed("1:action:U;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void Move_toChar()
 		{
 			Init(false);
@@ -896,6 +907,15 @@ namespace UnitTests
 			AssertParsed("1:action:\\0;move:';moveChar:A");
 			Add('`').AddLast('A');
 			AssertParsed("1:action:\\0;move:`;moveChar:A");
+		}
+		
+		[Test]
+		public void Console()
+		{
+			Init(false);
+			
+			Add(',').AddLast('c');
+			Assert.AreEqual("\\c", parser.shortcut);
 		}
 	}
 }

@@ -1378,5 +1378,15 @@ namespace UnitTests
 			Put(7, 3).Press("ma");
 			Put(2, 1).Press("d'a").AssertText("Oooo\n    dddddddd").AssertSelection().Both(4, 1);
 		}
+		
+		[Test]
+		public void UpperLower()
+		{
+			lines.SetText("Abcdefghij");
+			Put(2, 0).Press("vlll").AssertSelection().Anchor(2, 0).Caret(5, 0);
+			Press("U").AssertText("AbCDEfghij").AssertSelection().Both(2, 0);
+			Put(0, 0).Press("vl").AssertSelection().Anchor(0, 0).Caret(1, 0);
+			Press("u").AssertText("abCDEfghij").AssertSelection().Both(0, 0);
+		}
 	}
 }

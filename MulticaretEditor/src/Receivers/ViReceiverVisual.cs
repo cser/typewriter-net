@@ -215,7 +215,17 @@ namespace MulticaretEditor
 				switch (parser.action.Index)
 				{
 					case 'u':
-						ProcessUndo(count);
+						controller.ViStoreSelections();
+						controller.ChangeCase(false);
+						controller.MoveLeft(false);
+						context.SetState(new ViReceiver(null, false));
+						count = 1;
+						break;
+					case 'U':
+						controller.ViStoreSelections();
+						controller.ChangeCase(true);
+						controller.MoveLeft(false);
+						context.SetState(new ViReceiver(null, false));
 						count = 1;
 						break;
 					case 'r':
@@ -456,15 +466,6 @@ namespace MulticaretEditor
 				controller.processor.Redo();
 			}
 			controller.ViFixPositions(true);
-		}
-		
-		private void ProcessUndo(int count)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				controller.processor.Undo();
-			}
-			controller.ViCollapseSelections();
 		}
 	}
 }

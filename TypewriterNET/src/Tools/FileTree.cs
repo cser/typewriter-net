@@ -86,6 +86,7 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", DoCloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
 		}
 		buffer.additionBeforeKeyMap = new KeyMap();
 		{

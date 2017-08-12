@@ -237,6 +237,11 @@ public class MainForm : Form
 			DoSave(null);
 			return;
 		}
+		if (shortcut == "\\c")
+		{
+			DoOpenCloseShellResults(null);
+			return;
+		}
 		if (shortcut.Length == 2 && shortcut.StartsWith("`") || shortcut.StartsWith("\'"))
 		{
 			string path;
@@ -874,8 +879,11 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
 			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, 
-			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Escape, null,  action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
+		}
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null,
