@@ -91,38 +91,64 @@ namespace MulticaretEditor
 		private PositionFile[] _files;
 		private int _filesIndex;
 		
+		private PositionFile GetFile(string path)
+		{
+			if (currentFile != null && currentFile.path == path)
+			{
+				return currentFile;
+			}
+			if (_files != null)
+			{
+				for (int i = 0; i < _files.Length; ++i)
+				{
+					PositionFile file = _files[i];
+					if (file != null && file.path == path)
+					{
+						return _files[i];
+					}
+				}
+			}
+			for (int i = 0; i < bookmarks.Length; ++i)
+			{
+				PositionNode node = bookmarks[i];
+				if (node != null && node.file.path == path)
+				{
+					return node.file;
+				}
+			}
+			return null;
+		}
+		
 		public void ViSetCurrentFile(string path)
 		{
 			if (currentFile != null && currentFile.path == path)
 			{
 				return;
 			}
-			if (_files == null)
+			currentFile = GetFile(path);
+			if (currentFile == null)
 			{
-				_files = new PositionFile[_maxViPositions];
-			}
-			for (int i = 0; i < _files.Length; ++i)
-			{
-				PositionFile file = _files[i];
-				if (file != null && file.path == path)
+				currentFile = new PositionFile(path);
+				if (_files == null)
 				{
-					currentFile = file;
-					return;
+					_files = new PositionFile[_maxViPositions];
 				}
+				_files[_filesIndex] = currentFile;
+				_filesIndex = (_filesIndex + 1) % _maxViPositions;
 			}
-			currentFile = new PositionFile(path);
-			_files[_filesIndex] = currentFile;
-			_filesIndex = (_filesIndex + 1) % _maxViPositions;
 		}
 		
 		public void ViRenameFile(string oldFile, string newFile)
 		{
-			for (int i = 0; i < _files.Length; ++i)
+			if (_files != null)
 			{
-				PositionFile file = _files[i];
-				if (file != null && file.path == oldFile)
+				for (int i = 0; i < _files.Length; ++i)
 				{
-					file.path = newFile;
+					PositionFile file = _files[i];
+					if (file != null && file.path == oldFile)
+					{
+						file.path = newFile;
+					}
 				}
 			}
 		}
@@ -235,29 +261,13 @@ namespace MulticaretEditor
 			return text;
 		}
 		
-		public readonly List<char> bookmarkNames = new List<char>(4);
-		public readonly List<PositionNode> bookmarks = new List<PositionNode>(4);
+		public readonly PositionNode[] bookmarks = new PositionNode['Z' - 'A' + 1];
 		
-		public void SetBookmark(char c, string file, int position)
+		public void SetBookmark(char c, string path, int position)
 		{
 			if (c >= 'A' && c <= 'Z')
 			{
-				for (int i = bookmarks.Count; i-- > 0;)
-				{
-					if (bookmarkNames[i] == c)
-					{
-						if (position != -1 && file != null)
-						{
-							bookmarks[i] = new PositionNode(new PositionFile(file), position);
-							return;
-						}
-						bookmarkNames.RemoveAt(i);
-						bookmarks.RemoveAt(i);
-						return;
-					}
-				}
-				bookmarkNames.Add(c);
-				bookmarks.Add(new PositionNode(new PositionFile(file), position));
+				bookmarks[c - 'A'] = new PositionNode(GetFile(path) ?? new PositionFile(path), position);
 			}
 		}
 		
@@ -265,13 +275,7 @@ namespace MulticaretEditor
 		{
 			if (c >= 'A' && c <= 'Z')
 			{
-				for (int i = bookmarks.Count; i-- > 0;)
-				{
-					if (bookmarkNames[i] == c)
-					{
-						return bookmarks[i];
-					}
-				}
+				return bookmarks[c - 'A'];
 			}
 			return null;
 		}

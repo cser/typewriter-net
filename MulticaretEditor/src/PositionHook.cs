@@ -22,6 +22,14 @@ namespace MulticaretEditor
 					node.position += text.Length;
 				}
 			}
+			for (int i = 0; i < executor.bookmarks.Length; ++i)
+			{
+				PositionNode node = executor.bookmarks[i];
+				if (node != null && node.file == executor.currentFile && node.position > index)
+				{
+					node.position += text.Length;
+				}
+			}
 			for (int i = _controller.bookmarks.Count; i-- > 0;)
 			{
 				int position = _controller.bookmarks[i];
@@ -44,6 +52,18 @@ namespace MulticaretEditor
 					if (node.position < index)
 					{
 						node.position = index;
+					}
+				}
+			}
+			for (int i = 0; i < executor.bookmarks.Length; ++i)
+			{
+				PositionNode node = executor.bookmarks[i];
+				if (node != null && node.file == executor.currentFile && node.position > index)
+				{
+					node.position -= count;
+					if (node.position < index)
+					{
+						executor.bookmarks[i] = null;
 					}
 				}
 			}

@@ -8,8 +8,6 @@ public class Buffer
 {
 	public readonly SettingsMode settingsMode;
 	
-	private PositionHook positionHook;
-
 	public Buffer(string fullPath, string name, SettingsMode settingsMode)
 	{
 		this.settingsMode = settingsMode;
