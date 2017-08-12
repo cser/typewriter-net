@@ -108,12 +108,12 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			for (int i = 0; i < bookmarks.Length; ++i)
+			for (int i = bookmarkFiles.Count; i-- > 0;)
 			{
-				PositionNode node = bookmarks[i];
-				if (node != null && node.file.path == path)
+				PositionFile file = bookmarkFiles[i];
+				if (file.path == path)
 				{
-					return node.file;
+					return file;
 				}
 			}
 			return null;
@@ -261,23 +261,68 @@ namespace MulticaretEditor
 			return text;
 		}
 		
-		public readonly PositionNode[] bookmarks = new PositionNode['Z' - 'A' + 1];
+		public readonly List<PositionFile> bookmarkFiles = new List<PositionFile>(8);
+		public readonly List<List<PositionChar>> bookmarks = new List<List<PositionChar>>();
 		
 		public void SetBookmark(char c, string path, int position)
 		{
 			if (c >= 'A' && c <= 'Z')
 			{
-				bookmarks[c - 'A'] = new PositionNode(GetFile(path) ?? new PositionFile(path), position);
+				PositionFile file = GetFile(path) ?? new PositionFile(path);
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					List<PositionChar> pcs = bookmarks[i];
+					for (int j = pcs.Count; j-- > 0;)
+					{
+						PositionChar pc = pcs[j];
+						if (pc.c == c)
+						{
+							pcs.RemoveAt(j);
+							break;
+						}
+					}
+					if (pcs.Count == 0)
+					{
+						bookmarks.RemoveAt(i);
+					}
+				}
+				int index = bookmarkFiles.IndexOf(file);
+				if (index == -1)
+				{
+					index = bookmarkFiles.Count;
+					bookmarkFiles.Add(file);
+					bookmarks.Add(new List<PositionChar>(4));
+				}
+				bookmarks[index].Add(new PositionChar(c, position));
 			}
 		}
 		
-		public PositionNode GetBookmark(char c)
+		public void GetBookmark(char c, out string path, out int position)
 		{
+			path = null;
+			position = -1;
 			if (c >= 'A' && c <= 'Z')
 			{
-				return bookmarks[c - 'A'];
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					List<PositionChar> pcs = bookmarks[i];
+					for (int j = pcs.Count; j-- > 0;)
+					{
+						PositionChar pc = pcs[j];
+						if (pc.c == c)
+						{
+							path = bookmarkFiles[i].path;
+							position = pc.position;
+							return;
+						}
+					}
+					if (pcs.Count == 0)
+					{
+						bookmarks.RemoveAt(i);
+					}
+				}
 			}
-			return null;
+			return;
 		}
 	}
 }

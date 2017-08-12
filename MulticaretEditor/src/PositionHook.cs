@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace MulticaretEditor
 {
@@ -23,13 +24,18 @@ namespace MulticaretEditor
 					node.position += text.Length;
 				}
 			}
-			PositionNode[] bookmarks = _controller.macrosExecutor.bookmarks;
-			for (int i = 0; i < bookmarks.Length; ++i)
+			int pcIndex = _controller.macrosExecutor.bookmarkFiles.IndexOf(currentFile);
+			if (pcIndex != -1)
 			{
-				PositionNode node = bookmarks[i];
-				if (node != null && node.file == currentFile && node.position > index)
+				List<PositionChar> pcs = _controller.macrosExecutor.bookmarks[pcIndex];
+				for (int i = pcs.Count; i-- > 0;)
 				{
-					node.position += text.Length;
+					PositionChar pc = pcs[i];
+					if (pc.position > pcIndex)
+					{
+						pc.position += text.Length;
+						pcs[i] = pc;
+					}
 				}
 			}
 			for (int i = _controller.bookmarks.Count; i-- > 0;)
@@ -58,16 +64,29 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			PositionNode[] bookmarks = _controller.macrosExecutor.bookmarks;
-			for (int i = 0; i < bookmarks.Length; ++i)
+			int pcIndex = _controller.macrosExecutor.bookmarkFiles.IndexOf(currentFile);
+			if (pcIndex != -1)
 			{
-				PositionNode node = bookmarks[i];
-				if (node != null && node.file == currentFile && node.position > index)
+				List<PositionChar> pcs = _controller.macrosExecutor.bookmarks[pcIndex];
+				for (int i = pcs.Count; i-- > 0;)
 				{
-					node.position -= count;
-					if (node.position < index)
+					PositionChar pc = pcs[i];
+					if (pc.position > pcIndex)
 					{
-						bookmarks[i] = null;
+						pc.position -= count;
+						if (pc.position < pcIndex)
+						{
+							pcs.RemoveAt(i);
+							if (pcs.Count == 0)
+							{
+								_controller.bookmarks.RemoveAt(pcIndex);
+								break;
+							}
+						}
+						else
+						{
+							pcs[i] = pc;
+						}
 					}
 				}
 			}

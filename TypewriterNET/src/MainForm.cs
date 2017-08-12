@@ -239,19 +239,21 @@ public class MainForm : Form
 		}
 		if (shortcut.Length == 2 && shortcut.StartsWith("`") || shortcut.StartsWith("\'"))
 		{
-			PositionNode node = MulticaretTextBox.initMacrosExecutor.GetBookmark(shortcut[1]);
-			if (node != null)
+			string path;
+			int position;
+			MulticaretTextBox.initMacrosExecutor.GetBookmark(shortcut[1], out path, out position);
+			if (path != null)
 			{
-				Buffer buffer = LoadFile(node.file.path);
-				if (buffer != null && buffer.FullPath == node.file.path)
+				Buffer buffer = LoadFile(path);
+				if (buffer != null && buffer.FullPath == path)
 				{
 					if (shortcut.StartsWith("`"))
 					{
-						buffer.Controller.ViMoveTo(node.position, false);
+						buffer.Controller.ViMoveTo(position, false);
 					}
 					else if (shortcut.StartsWith("\'"))
 					{
-						buffer.Controller.ViMoveTo(node.position, false);
+						buffer.Controller.ViMoveTo(position, false);
 						buffer.Controller.ViMoveHome(false, true);
 					}
 				}
