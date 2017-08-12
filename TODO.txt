@@ -28,6 +28,7 @@ Fix position by mouse on half-tab
 - Fix indentation repetition
 - Upper/lower cases
 - . betwean files
-- Redo open file from fuzzy search
 - Save file bookmarks
+- Save global bookmarks
 - Bookmarks change range with '
+- Methods list
