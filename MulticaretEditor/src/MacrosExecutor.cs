@@ -68,14 +68,24 @@ namespace MulticaretEditor
 
 		public void Execute()
 		{
-			if (recorded == null || getTextBox == null)
+			PrivateExecute(recorded);
+		}
+		
+		public void Execute(List<Action> sequence)
+		{
+			PrivateExecute(sequence);
+		}
+		
+		public void PrivateExecute(List<Action> sequence)
+		{
+			if (sequence == null || getTextBox == null)
 				return;
-			for (int i = 0, count = recorded.Count; i < recorded.Count; i++)
+			for (int i = 0, count = sequence.Count; i < sequence.Count; i++)
 			{
 				MulticaretTextBox tb = getTextBox();
 				if (tb == null)
 					return;
-				Action action = recorded[i];
+				Action action = sequence[i];
 				tb.ProcessMacrosAction(action);
 			}
 		}

@@ -449,6 +449,62 @@ public class Properties
 			value.Clear();
 		}
 	}
+	
+	public class CommandList : Property
+	{
+		public CommandList(string name) : base(name)
+		{
+		}
+
+		private readonly RWList<CommandData> value = new RWList<CommandData>();
+		public IRList<CommandData> Value { get { return value; } }
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (CommandData data in value)
+				{
+					if (!first)
+						builder.Append("\n");
+					first = false;
+					builder.Append(data.name);
+					builder.Append("|");
+					builder.Append(data.sequence);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			string errors;
+			CommandData data = CommandData.Parse(value, out errors);
+			if (!string.IsNullOrEmpty(errors))
+				return errors;
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				CommandData dataI = this.value[i];
+				if (dataI.name == data.name && dataI.sequence == data.sequence)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			this.value.Add(data);
+			return null;
+		}
+		
+		public override string Type { get { return "command"; } }
+		
+		public override string PossibleValues { get { return "name|sequence, multinodes allowed"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
+		}
+	}
 
 	public class EncodingProperty : Property
 	{

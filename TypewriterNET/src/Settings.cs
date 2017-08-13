@@ -76,6 +76,7 @@ public class Settings
 	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
+	public readonly Properties.CommandList command = new Properties.CommandList("command");
 
 	private Setter onChange;
 
@@ -150,6 +151,7 @@ public class Settings
 		Add(startWithViMode);
 		Add(ignoreSnippets);
 		Add(forcedSnippets);
+		Add(command);
 	}
 
 	public void DispatchChange()

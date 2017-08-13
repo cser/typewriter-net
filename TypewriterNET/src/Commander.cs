@@ -101,6 +101,23 @@ public class Commander
 			command.execute(args);
 			return;
 		}
+		foreach (CommandData data in settings.command.Value)
+		{
+			if (data.name == name)
+			{
+				close.Execute();
+				if (MulticaretTextBox.initMacrosExecutor != null)
+				{
+					List<MacrosExecutor.Action> actions = new List<MacrosExecutor.Action>();
+					foreach (char c in data.sequence)
+					{
+						actions.Add(new MacrosExecutor.Action(c));
+					}
+					MulticaretTextBox.initMacrosExecutor.Execute(actions);
+				}
+				return;
+			}
+		}
 		if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
 		{
 			close.Execute();
