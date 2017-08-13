@@ -85,9 +85,7 @@ public static class Help
 			table.AddLine();
 			table.Add(" Commands").NewRow();
 			table.AddLine();
-			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
-			table.Add(" :w").Add("Save").NewRow();
-			table.Add(" :e <file>").Add("Edit/new file").NewRow();
+			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog\n  Full command list can be found in\n  input mode help - `F1` or `,h`").NewRow();
 			table.AddLine();
 			table.Add(" Moves").NewRow();
 			table.AddLine();
