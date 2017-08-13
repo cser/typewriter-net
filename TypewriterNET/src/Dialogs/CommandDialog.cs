@@ -211,7 +211,7 @@ public class CommandDialog : ADialog
 		{
 			text = text.Substring(0, place.iChar);
 		}
-		if (!text.StartsWith("!"))
+		if (!text.StartsWith("!") && !text.StartsWith("<") && !text.StartsWith(">"))
 		{
 			if (text.IndexOf(' ') == -1 && text.IndexOf('\t') == -1)
 			{
@@ -257,7 +257,9 @@ public class CommandDialog : ADialog
 		}
 		else
 		{
-			if ((text.StartsWith("!{") || text.StartsWith("!^{")) && !text.Contains("}"))
+			if ((text.StartsWith("!{") || text.StartsWith("!^{") ||
+				text.StartsWith("<{") || text.StartsWith(">{") || text.StartsWith("<>{")) &&
+				!text.Contains("}"))
 			{
 				int prefixIndex;
 				prefixIndex = text.LastIndexOf("s:");
@@ -301,6 +303,10 @@ public class CommandDialog : ADialog
 		else if (text.StartsWith("!^"))
 			text = text.Substring(2);
 		else if (text.StartsWith("!"))
+			text = text.Substring(1);
+		else if (text.StartsWith("<>"))
+			text = text.Substring(2);
+		else if (text.StartsWith("<") || text.StartsWith(">"))
 			text = text.Substring(1);
 		int quotesCount = 0;
 		int quotesIndex = 0;

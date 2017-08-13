@@ -224,22 +224,42 @@ public class Commander
 		    }
 		    return;
 		}
-		if (name.StartsWith("<"))
+		if (name.StartsWith("<") || name.StartsWith(">"))
 		{
-			string commandText = text.Substring(1);
+			string commandText = text;
+			bool writeStdOutput = commandText.StartsWith("<");
+			if (writeStdOutput)
+			{
+				commandText = commandText.Substring(1);
+			}
+			bool writeStdInput = commandText.StartsWith(">");
+			if (writeStdInput)
+			{
+				commandText = commandText.Substring(1);
+			}
 			string parameters = RunShellCommand.CutParametersFromLeft(ref commandText);
 			Encoding encoding = RunShellCommand.GetEncoding(mainForm, parameters);
 			if (ReplaceVars(ref commandText))
 			{
+				Buffer buffer = mainForm.LastBuffer;
 				Process p = new Process();
 				p.StartInfo.RedirectStandardOutput = true;
 				p.StartInfo.RedirectStandardError = true;
+				if (writeStdInput)
+				{
+					p.StartInfo.RedirectStandardInput = true;
+				}
 				p.StartInfo.StandardOutputEncoding = encoding;
 				p.StartInfo.StandardErrorEncoding = encoding;
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.FileName = "cmd.exe";
 				p.StartInfo.Arguments = "/C " + commandText;
 				p.Start();
+				if (writeStdInput && buffer != null)
+				{
+					p.StandardInput.Write(buffer.Controller.GetSelectedText());
+					p.StandardInput.Close();
+				}
 				string output = p.StandardOutput.ReadToEnd();
 				string errors = p.StandardError.ReadToEnd();
 				p.WaitForExit();
@@ -249,7 +269,6 @@ public class Commander
 				}
 				else
 				{
-					Buffer buffer = mainForm.LastBuffer;
 					if (buffer != null)
 					{
 						if (output.EndsWith("\r\n"))
@@ -260,10 +279,18 @@ public class Commander
 						{
 							output = output.Substring(0, output.Length - 1);
 						}
-						buffer.Controller.processor.BeginBatch();
-						buffer.Controller.EraseSelection();
-						buffer.Controller.InsertText(output);
-						buffer.Controller.processor.EndBatch();
+						if (writeStdOutput)
+						{
+							buffer.Controller.processor.BeginBatch();
+							buffer.Controller.EraseSelection();
+							buffer.Controller.InsertText(output);
+							buffer.Controller.processor.EndBatch();
+						}
+						else
+						{
+							new RunShellCommand(mainForm).ShowInOutput(
+								output, settings.shellRegexList.Value, false, false, parameters);
+						}
 					}
 					else
 					{
@@ -517,7 +544,8 @@ public class Commander
 			"    <item name=\"afterSaveCommand:*.js\"\n" +
 			"          value=\"!?jshint %f%\"/>").NewRow();
 		table.Add("<command").Add("*").Add("Shell command output into document").NewRow();
-		table.NewRow();
+		table.Add(">command").Add("*").Add("Selected text writes into command stdin,\n  output into console").NewRow();
+		table.Add("<>command").Add("*").Add("Selected text writes into command stdin,\n  output writes back into document").NewRow();
 		table.Add("!!command").Add("*").Add("Run without output capture").NewRow();
 		table.Add("!!!command").Add("*").Add("Run with output to info panel").NewRow();
 		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused").NewRow();

@@ -30,3 +30,4 @@ Fix position by mouse on half-tab
 - Save global bookmarks
 - Bookmarks change range with '
 - Methods list
+- Recover selection by gv after refocus
