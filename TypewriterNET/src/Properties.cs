@@ -498,7 +498,31 @@ public class Properties
 		
 		public override string Type { get { return "command"; } }
 		
-		public override string PossibleValues { get { return "name|sequence, multinodes allowed"; } }
+		public override string PossibleValues
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				builder.Append("name|sequence, multinodes allowed\n");
+				builder.Append("e.g.: test|:!echo AAA[CR]\n");
+				builder.Append("\\ - escape next symbol\n");
+				builder.Append("[C-x] - Ctrl+x\n");
+				foreach (KeyValuePair<string, MacrosExecutor.Action> pair in CommandData.GetSpecials())
+				{
+					builder.Append("[");
+					builder.Append(pair.Key);
+					builder.Append("]");
+					string actionText = pair.Value.ToString();
+					if (actionText.Trim().Length != 0)
+					{
+						builder.Append(" - ");
+						builder.Append(actionText);
+					}
+					builder.Append("\n");
+				}
+				return builder.ToString();
+			}
+		}
 
 		public override void Reset()
 		{

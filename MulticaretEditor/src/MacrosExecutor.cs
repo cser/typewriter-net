@@ -32,6 +32,24 @@ namespace MulticaretEditor
 				this.keys = keys;
 				this.mode = mode;
 			}
+			
+			public override string ToString()
+			{
+				string text = "";
+				if (keys != Keys.None)
+				{
+					text += keys;
+				}
+				if (code != '\0')
+				{
+					if (text.Length > 0)
+					{
+						text += "+";
+					}
+					text += code;
+				}
+				return text;
+			}
 		}
 		
 		public ViMode viMode;

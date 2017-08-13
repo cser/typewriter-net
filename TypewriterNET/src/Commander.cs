@@ -108,12 +108,16 @@ public class Commander
 				close.Execute();
 				if (MulticaretTextBox.initMacrosExecutor != null)
 				{
-					List<MacrosExecutor.Action> actions = new List<MacrosExecutor.Action>();
-					foreach (char c in data.sequence)
+					StringBuilder errors = new StringBuilder();
+					List<MacrosExecutor.Action> actions = data.GetActions(errors);
+					if (errors.Length == 0)
 					{
-						actions.Add(new MacrosExecutor.Action(c));
+						MulticaretTextBox.initMacrosExecutor.Execute(actions);
 					}
-					MulticaretTextBox.initMacrosExecutor.Execute(actions);
+					else
+					{
+						mainForm.Dialogs.ShowInfo("Error sequence of \"" + data.name + "\"", errors.ToString());
+					}
 				}
 				return;
 			}
