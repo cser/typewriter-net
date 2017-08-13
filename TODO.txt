@@ -13,19 +13,22 @@ System.ArgumentOutOfRangeException: Индекс за пределами диа�
 
 Fix position by mouse on half-tab
 
-- Indent } after new line if cursor before
-- Fuzzy search caching, update new version in background
-- Fix unfocus on reloading undo
-- Fix floating top indents
-- More complex removing in TabList
-- Line selection in brackets
-- Fix cw on line end
-- Fix special registers
-- Fix indentation repetition
-- Upper/lower cases
-- . betwean files
-- Save file bookmarks
-- Save global bookmarks
-- Bookmarks change range with '
-- Methods list
-- Recover selection by gv after refocus
+- custom commands autocomplete
+- bookmarks: store for file
+- bookmarks: store global bookmarks
+- bookmarks: fix change with '
+- TabList: more power removing
+- FileSearch: update new version in background
+- FileTree: close by file selection shortcut
+- ShellCommandResults: close by file selection shortcut
+- indent } after new line if cursor before
+- objects: brackets for line mode
+- fix unfocus on reloading undo
+- fix cw on line end
+- fix special registers
+- fix . with indentation
+- fix line appending at last 
+- save . betwean files
+- methods list
+- ,r - reload file
+- recover selection by gv after refocus
