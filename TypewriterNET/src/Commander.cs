@@ -56,15 +56,22 @@ public class Commander
 	}
 
 	public void Execute(
-		string text, bool dontPutInHistory, bool showCommandInOutput, Getter<string, string> getAltCommandText)
+		string text, bool dontPutInHistory, bool showCommandInOutput, Getter<string, string> getAltCommandText,
+		OnceCallback close)
 	{
 		if (string.IsNullOrEmpty(text))
+		{
+			close.Execute();
 			return;
+		}
 		bool needFileTreeReload = mainForm.FileTreeFocused;
 		string args;
 		string name = FirstWord(text, out args);
 		if (name == "")
+		{
+			close.Execute();
 			return;
+		}
 		if (!dontPutInHistory)
 			history.Add(text);
 		Command command = null;
@@ -90,10 +97,13 @@ public class Commander
 		}
 		if (command != null)
 		{
+			close.Execute();
 			command.execute(args);
+			return;
 		}
-		else if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
+		if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
 		{
+			close.Execute();
 			if (args != "")
 			{
 				string errors = settings[Properties.NameOfName(name)].SetText(args, Properties.SubvalueOfName(name));
@@ -105,9 +115,11 @@ public class Commander
 			{
 				mainForm.Dialogs.ShowInfo("Value of \"" + Properties.NameOfName(name) + "\"", settings[name].Text);
 			}
+			return;
 		}
-		else if (name.StartsWith("!!!"))
+		if (name.StartsWith("!!!"))
 		{
+			close.Execute();
 			string commandText = text.Substring(3);
 			bool dontChangeFocus = false;
 			bool silentIfNoOutput = false;
@@ -161,9 +173,11 @@ public class Commander
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 			}
+			return;
 		}
-		else if (name.StartsWith("!!"))
+		if (name.StartsWith("!!"))
 		{
+			close.Execute();
 			string commandText = text.Substring(2);
 			if (ReplaceVars(ref commandText))
 			{
@@ -173,12 +187,13 @@ public class Commander
 				p.StartInfo.Arguments = "/C " + commandText;
 				p.Start();
 			}
+			return;
 		}
-		else if (name.StartsWith("!"))
+		if (name.StartsWith("!"))
 		{
+			close.Execute();
 			bool scrollUp = false;
 			bool silentIfNoOutput = false;
-			string parameters = null;
 			string commandText = text.Substring(1);
 			if (commandText.StartsWith("?^"))
 			{
@@ -199,15 +214,7 @@ public class Commander
 					silentIfNoOutput = true;
 				}
 			}
-			if (commandText.StartsWith("{"))
-			{
-				int index = commandText.IndexOf("}");
-				if (index != -1)
-				{
-					parameters = commandText.Substring(1, index - 1);
-					commandText = commandText.Substring(index + 1);
-				}
-			}
+			string parameters = RunShellCommand.CutParametersFromLeft(ref commandText);
 			commandText = commandText.Trim();
 			if (ReplaceVars(ref commandText))
 			{
@@ -215,11 +222,62 @@ public class Commander
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 		    }
+		    return;
 		}
-		else
+		if (name.StartsWith("<"))
 		{
-			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
+			string commandText = text.Substring(1);
+			string parameters = RunShellCommand.CutParametersFromLeft(ref commandText);
+			Encoding encoding = RunShellCommand.GetEncoding(mainForm, parameters);
+			if (ReplaceVars(ref commandText))
+			{
+				Process p = new Process();
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.RedirectStandardError = true;
+				p.StartInfo.StandardOutputEncoding = encoding;
+				p.StartInfo.StandardErrorEncoding = encoding;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.FileName = "cmd.exe";
+				p.StartInfo.Arguments = "/C " + commandText;
+				p.Start();
+				string output = p.StandardOutput.ReadToEnd();
+				string errors = p.StandardError.ReadToEnd();
+				p.WaitForExit();
+				if (!string.IsNullOrEmpty(errors))
+				{
+					mainForm.Dialogs.ShowInfo("Error", errors);
+				}
+				else
+				{
+					Buffer buffer = mainForm.LastBuffer;
+					if (buffer != null)
+					{
+						if (output.EndsWith("\r\n"))
+						{
+							output = output.Substring(0, output.Length - 2);
+						}
+						else if (output.EndsWith("\n") || output.EndsWith("\r"))
+						{
+							output = output.Substring(0, output.Length - 1);
+						}
+						buffer.Controller.processor.BeginBatch();
+						buffer.Controller.EraseSelection();
+						buffer.Controller.InsertText(output);
+						buffer.Controller.processor.EndBatch();
+					}
+					else
+					{
+						mainForm.Dialogs.ShowInfo("Error", "No buffer for output");
+					}
+					if (needFileTreeReload)
+						mainForm.FileTreeReload();
+				}
+		    }
+			close.Execute();
+		    return;
 		}
+		close.Execute();
+		mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
 	}
 	
 	private string GetFile()
@@ -448,27 +506,21 @@ public class Commander
 		TextTable table = new TextTable().SetMaxColWidth(40);
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
-		table.Add("!command").Add("*").Add("Run shell command");
-		table.NewRow();
-		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
-		table.NewRow();
-		table.Add("!^command").Add("*").Add("Run shell command, stay output up");
-		table.NewRow();
-		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
-		table.NewRow();
+		table.Add("!command").Add("*").Add("Run shell command").NewRow();
+		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
+		table.Add("!^command").Add("*").Add("Run shell command, stay output up").NewRow();
+		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
 		table.Add("!?command").Add("*").Add("Run and show only non-empty output\n" + 
 			"  Usable for syntax checkers\n" +
 			"  For example, if you have jshint,\n" +
 			"  write line in config (open by F2):\n" +
 			"    <item name=\"afterSaveCommand:*.js\"\n" +
-			"          value=\"!?jshint %f%\"/>");
+			"          value=\"!?jshint %f%\"/>").NewRow();
+		table.Add("<command").Add("*").Add("Shell command output into document").NewRow();
 		table.NewRow();
-		table.Add("!!command").Add("*").Add("Run without output capture");
-		table.NewRow();
-		table.Add("!!!command").Add("*").Add("Run with output to info panel");
-		table.NewRow();
-		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused");
-		table.NewRow();
+		table.Add("!!command").Add("*").Add("Run without output capture").NewRow();
+		table.Add("!!!command").Add("*").Add("Run with output to info panel").NewRow();
+		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused").NewRow();
 		table.Add("").Add("").Add("Variables: ").NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file path").NewRow();
 		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file path (no errors)").NewRow();
@@ -1154,7 +1206,7 @@ public class Commander
 		}
 		else if (output != null)
 		{
-			Execute("!" + output, true, true, null);
+			Execute("!" + output, true, true, null, new OnceCallback());
 		}
 		else
 		{

@@ -51,7 +51,7 @@ public class RunShellCommand
 	{
 		positions = new Dictionary<int, List<Position>>();
 
-		Encoding encoding = GetEncoding(parameters);
+		Encoding encoding = GetEncoding(mainForm, parameters);
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
@@ -78,7 +78,7 @@ public class RunShellCommand
 		ShowInOutput(null, null, text, regexList, stayTop, silentIfNoOutput, parameters);
 	}
 	
-	private Encoding GetEncoding(string parameters)
+	public static Encoding GetEncoding(MainForm mainForm, string parameters)
 	{
 		if (!string.IsNullOrEmpty(parameters))
 		{
@@ -104,6 +104,22 @@ public class RunShellCommand
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}
 	
+	public static string CutParametersFromLeft(ref string commandText)
+	{
+		commandText = commandText.Trim();
+		string parameters = "";
+		if (commandText.StartsWith("{"))
+		{
+			int index = commandText.IndexOf("}");
+			if (index != -1)
+			{
+				parameters = commandText.Substring(1, index - 1);
+				commandText = commandText.Substring(index + 1);
+			}
+		}
+		return parameters;
+	}
+	
 	private void ShowInOutput(
 		string output, string errors, string text, IRList<RegexData> regexList,
 		bool stayTop, bool silentIfNoOutput, string parameters)
@@ -125,7 +141,7 @@ public class RunShellCommand
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(text);
-		buffer.encodingPair = new EncodingPair(GetEncoding(parameters), false);
+		buffer.encodingPair = new EncodingPair(GetEncoding(mainForm, parameters), false);
 		if (regexList != null)
 		{
 			foreach (RegexData regexData in regexList)

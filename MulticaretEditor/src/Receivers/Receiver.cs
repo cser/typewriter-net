@@ -80,7 +80,7 @@ namespace MulticaretEditor
 					receiver.state = state;
 					receiver.state.Init(receiver.controller, this);
 					receiver.state.DoOn();
-					bool oldIsVi = receiver.viMode != ViMode.Insert;
+					bool oldIsVi = receiver.viMode != ViMode.Insert;//Is chaning mode to Normal after exit from dialog needed?
 					receiver.viMode = receiver.state.ViMode;
 					if (oldIsVi != receiver.state.AltMode)
 					{

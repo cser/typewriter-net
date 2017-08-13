@@ -1430,7 +1430,7 @@ public class MainForm : Form
 		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
 		if (info != null && !string.IsNullOrEmpty(info.command))
 		{
-			commander.Execute(info.command, true, false, null);
+			commander.Execute(info.command, true, false, null, new OnceCallback());
 		}
 	}
 	
@@ -2430,7 +2430,7 @@ public class MainForm : Form
 		Properties.CommandInfo info = GetCommandInfo(infos, LastBuffer);
 		if (info != null)
 		{
-			commander.Execute(info.command, true, false, null);
+			commander.Execute(info.command, true, false, null, new OnceCallback());
 		}
 		return true;
 	}

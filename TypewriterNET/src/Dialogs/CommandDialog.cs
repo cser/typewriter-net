@@ -171,8 +171,7 @@ public class CommandDialog : ADialog
 	private bool DoRunCommand(Controller controller)
 	{
 		Commander commander = MainForm.commander;
-		DispatchNeedClose();
-		commander.Execute(textBox.Text, false, false, GetAltCommandText);
+		commander.Execute(textBox.Text, false, false, GetAltCommandText, new OnceCallback(DispatchNeedClose));
 		return true;
 	}
 	
