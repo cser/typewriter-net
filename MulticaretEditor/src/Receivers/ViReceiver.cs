@@ -348,6 +348,10 @@ namespace MulticaretEditor
 						command = new ViCommands.Delete(
 							new ViMoves.MoveStep(Direction.Right), count, false, parser.register);
 						break;
+					case '~':
+						command = new ViCommands.SwitchUpperLower(
+							new ViMoves.MoveStep(Direction.Right), count);
+						break;
 					case 'p':
 						command = new ViCommands.Paste(Direction.Right, parser.register, count);
 						break;

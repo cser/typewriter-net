@@ -156,7 +156,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void UppercaseLowercase()
+		public void UpperLower_VISUAL()
 		{
 			Init(true);
 			
@@ -164,6 +164,18 @@ namespace UnitTests
 			AssertParsed("1:action:u;move:\\0;moveChar:\\0");
 			AddLast('U');
 			AssertParsed("1:action:U;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
+		public void UpperLower()
+		{
+			Init(false);
+			
+			AddLast('~');
+			AssertParsed("1:action:~;move:\\0;moveChar:\\0");
+			
+			Add('1').Add('4').AddLast('~');
+			AssertParsed("14:action:~;move:\\0;moveChar:\\0");
 		}
 		
 		[Test]

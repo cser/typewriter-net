@@ -1380,13 +1380,22 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void UpperLower()
+		public void UpperLower_VISUAL()
 		{
 			lines.SetText("Abcdefghij");
 			Put(2, 0).Press("vlll").AssertSelection().Anchor(2, 0).Caret(5, 0);
 			Press("U").AssertText("AbCDEfghij").AssertSelection().Both(2, 0);
 			Put(0, 0).Press("vl").AssertSelection().Anchor(0, 0).Caret(1, 0);
 			Press("u").AssertText("abCDEfghij").AssertSelection().Both(0, 0);
+		}
+		
+		[Test]
+		public void UpperLower()
+		{
+			lines.SetText("abcdef");
+			Put(1, 0).Press("~").AssertText("aBcdef").AssertSelection().Both(2, 0);
+			Put(1, 0).Press("~").AssertText("abcdef").AssertSelection().Both(2, 0);
+			Put(1, 0).Press("2~").AssertText("aBCdef").AssertSelection().Both(3, 0);
 		}
 	}
 }

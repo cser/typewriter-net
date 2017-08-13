@@ -1822,6 +1822,22 @@ namespace MulticaretEditor
 			ClipboardExecutor.PutToRegister(register, text.ToString());
 		}
 		
+		public string GetSelectedText()
+		{
+			lines.JoinSelections();
+			StringBuilder text = new StringBuilder();
+			SelectionMemento[] mementos = GetSelectionMementos();
+			bool first = true;
+			foreach (SelectionMemento memento  in mementos)
+			{
+				if (!first)
+					text.Append('\n');
+				first = false;
+				text.Append(lines.GetText(memento.Left, memento.Count));
+			}
+			return text.ToString();
+		}
+		
 		private SelectionMemento[] GetSelectionMementos()
 		{
 			SelectionMemento[] mementos = new SelectionMemento[selections.Count];

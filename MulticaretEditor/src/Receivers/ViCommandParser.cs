@@ -290,6 +290,7 @@ namespace MulticaretEditor
 							case 'u':
 							case 'U':
 							case 'x':
+							case '~':
 							case 'p':
 							case 'P':
 							case 'J':

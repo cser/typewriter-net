@@ -61,6 +61,40 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public class SwitchUpperLower : ICommand
+		{
+			private ViMoves.IMove move;
+			private int count;
+			
+			public SwitchUpperLower(ViMoves.IMove move, int count)
+			{
+				this.move = move;
+				this.count = count;
+			}
+			
+			public void Execute(Controller controller)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					move.Move(controller, true, false);
+				}
+				char[] chars = controller.GetSelectedText().ToCharArray();
+				for (int i = 0; i < chars.Length; ++i)
+				{
+					char c = chars[i];
+					if (char.IsUpper(c))
+					{
+						chars[i] = char.ToLower(c);
+					}
+					else if (char.IsLower(c))
+					{
+						chars[i] = char.ToUpper(c);
+					}
+				}
+				controller.InsertText(new string(chars));
+			}
+		}
+		
 		public class DeleteLine : ICommand
 		{
 			private int count;

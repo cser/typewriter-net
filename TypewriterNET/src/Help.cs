@@ -83,6 +83,12 @@ public static class Help
 			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
 			table.Add(" ,s").Add("Save file").NewRow();
 			table.AddLine();
+			table.Add(" Commands").NewRow();
+			table.AddLine();
+			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
+			table.Add(" :w").Add("Save").NewRow();
+			table.Add(" :e <file>").Add("Edit/new file").NewRow();
+			table.AddLine();
 			table.Add(" Moves").NewRow();
 			table.AddLine();
 			table.Add(" h").Add("Move left").NewRow();
@@ -124,6 +130,7 @@ public static class Help
 			table.Add(" d<move>").Add("Remove").NewRow();
 			table.Add(" x").Add("Remove char").NewRow();
 			table.Add(" s").Add("Remove char and switch to input").NewRow();
+			table.Add(" ~").Add("Switch char upper/lowercase").NewRow();
 			table.Add(" y<move>").Add("Copy").NewRow();
 			table.Add(" yy").Add("Copy line").NewRow();
 			table.Add(" p").Add("Past").NewRow();
@@ -139,7 +146,6 @@ public static class Help
 			table.Add(" D").Add("Remove to line end").NewRow();
 			table.Add(" <<").Add("Indent left").NewRow();
 			table.Add(" >>").Add("Indent right").NewRow();
-			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
 			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
 			table.Add(" *").Add("Put word or selection into\n  find register and find next").NewRow();
 			table.Add(" n").Add("Find next").NewRow();
