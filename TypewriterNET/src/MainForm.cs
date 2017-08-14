@@ -189,26 +189,26 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\g")
 		{
-			if (textNodesList != null)
+			if (textNodesList != null && textNodesList.Controller == FocusedController)
 			{
-				if (textNodesList.Controller == FocusedController)
-				{
-					textNodesList.Close();
-					textNodesList = null;
-					return;
-				}
 				textNodesList.Close();
 				textNodesList = null;
+				return;
 			}
 			Frame frame = GetMainNest().Frame;
-			if (frame != null && lastFileBuffer != null && settings != null)
+			if (frame != null && settings != null)
 			{
-				Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, lastFileBuffer);
+				Buffer buffer = frame.SelectedBuffer;
+				Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, buffer);
 				if (commandInfo != null)
 				{
 					string error;
-					textNodesList = new TextNodesList();
-					textNodesList.Build(lastFileBuffer, commandInfo, settings.shellEncoding.Value.encoding, out error);
+					if (textNodesList != null)
+					{
+						textNodesList.CloseSilent();
+					}
+					textNodesList = new TextNodesList(buffer);
+					textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error);
 					if (error != null && dialogs != null)
 					{
 						dialogs.ShowInfo("Text nodes error", error);
@@ -458,7 +458,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-connect requires fileName and httpServer");
 					break;
 				}
 			}
@@ -477,7 +476,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-temp requires tempFilePostfix");
 					break;
 				}
 			}
@@ -491,7 +489,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-config requires configFilePostfix");
 					break;
 				}
 			}
@@ -508,7 +505,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-line requires number");
 					break;
 				}
 			}
@@ -516,7 +512,6 @@ public class MainForm : Form
 			{
 				if (i < args.Length)
                 {
-					Console.Error.WriteLine("Unexpected parameter: " + args[i]);
                     WriteHelp();
                 }
 				break;

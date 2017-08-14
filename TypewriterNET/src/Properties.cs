@@ -338,6 +338,11 @@ public class Properties
 		public string pattern;
 		public string command;
 		public FileNameFilter filter;
+		
+		public override string ToString()
+		{
+			return "(" + command + ":" + pattern + ")";
+		}
 	}
 	
 	public class Command : Property
