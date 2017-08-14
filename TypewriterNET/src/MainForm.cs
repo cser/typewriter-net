@@ -224,12 +224,12 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\n")
 		{
-			DoOpenCloseFileTree(null);
+			DoOpenCloseFileTree(controller);
 			return;
 		}
 		if (shortcut == "\\N")
 		{
-			DoFindFileInTree(null);
+			DoFindFileInTree(controller);
 			return;
 		}
 		if (shortcut == "\\s")
@@ -244,7 +244,12 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\c")
 		{
-			DoOpenCloseShellResults(null);
+			DoOpenCloseShellResults(controller);
+			return;
+		}
+		if (shortcut == "\\f")
+		{
+			DoOpenCloseFindResults(controller);
 			return;
 		}
 		if (shortcut.Length == 2 && shortcut.StartsWith("`") || shortcut.StartsWith("\'"))

@@ -892,7 +892,7 @@ namespace UnitTests
 			Assert.AreEqual("\\r", parser.shortcut);
 			
 			Add('\\').AddLast('r');
-			Assert.AreEqual("\\s", parser.shortcut);
+			Assert.AreEqual("\\r", parser.shortcut);
 		}
 		
 		[Test]
@@ -934,6 +934,9 @@ namespace UnitTests
 			
 			Add(',').AddLast('c');
 			Assert.AreEqual("\\c", parser.shortcut);
+			
+			Add(',').AddLast('f');
+			Assert.AreEqual("\\f", parser.shortcut);
 		}
 	}
 }

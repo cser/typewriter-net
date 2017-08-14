@@ -82,6 +82,9 @@ public static class Help
 			table.Add(" ,n").Add("Open/close file tree, inside:\n  `o` - open\n  `O` - open without switch\n  `dd` - delete file").NewRow();
 			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
 			table.Add(" ,s").Add("Save file").NewRow();
+			table.Add(" ,r").Add("Reload file").NewRow();
+			table.Add(" ,c").Add("Open/close shell command results").NewRow();
+			table.Add(" ,f").Add("Open/close find results").NewRow();
 			table.AddLine();
 			table.Add(" Commands").NewRow();
 			table.AddLine();
