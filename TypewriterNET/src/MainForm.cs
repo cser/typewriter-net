@@ -169,7 +169,7 @@ public class MainForm : Form
 	private Log log;
 	public Log Log { get { return log; } }
 	
-	private Nest GetMainNest()
+	public Nest GetMainNest()
 	{
 		return lastFrame != null && lastFrame.Nest == mainNest2 ? mainNest2 : mainNest;
 	}
@@ -200,12 +200,23 @@ public class MainForm : Form
 				textNodesList.Close();
 				textNodesList = null;
 			}
-			Frame frame = MainNest.Frame;
-			if (frame != null)
+			Frame frame = GetMainNest().Frame;
+			if (frame != null && lastFileBuffer != null && settings != null)
 			{
-				textNodesList = new TextNodesList();
-				frame.AddBuffer(textNodesList);
-				frame.Focus();
+				Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, lastFileBuffer);
+				if (commandInfo != null)
+				{
+					string error;
+					textNodesList = new TextNodesList();
+					textNodesList.Build(lastFileBuffer, commandInfo, settings.shellEncoding.Value.encoding, out error);
+					if (error != null && dialogs != null)
+					{
+						dialogs.ShowInfo("Text nodes error", error);
+						return;
+					}
+					frame.AddBuffer(textNodesList);
+					frame.Focus();
+				}
 			}
 			return;
 		}

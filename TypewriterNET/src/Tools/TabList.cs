@@ -118,7 +118,7 @@ public class TabList
 	
 	public void Open()
 	{
-		Frame frame = mainForm.MainNest.Frame;
+		Frame frame = mainForm.GetMainNest().Frame;
 		if (frame != null)
 		{
 			frame.AddBuffer(buffer);

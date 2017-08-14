@@ -59,4 +59,5 @@
 	<item name="startWithViMode" value="false"/>
 	<item name="ignoreSnippets" value=""/>
 	<item name="forcedSnippets" value=""/>
+	<item name="getTextNodes:cs" value="get_text_nodes_cs.py"/>
 </config>

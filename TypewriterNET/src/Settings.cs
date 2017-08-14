@@ -77,6 +77,7 @@ public class Settings
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
+	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes");
 
 	private Setter onChange;
 
@@ -152,6 +153,7 @@ public class Settings
 		Add(ignoreSnippets);
 		Add(forcedSnippets);
 		Add(command);
+		Add(getTextNodes);
 	}
 
 	public void DispatchChange()
