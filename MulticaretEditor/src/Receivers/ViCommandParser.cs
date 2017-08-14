@@ -385,6 +385,9 @@ namespace MulticaretEditor
 							case 'f':
 								shortcut = "\\f";
 								return ParseResult.Complete;
+							case 'g':
+								shortcut = "\\g";
+								return ParseResult.Complete;
 						}
 					}
 					return ParseResult.Incorrect;

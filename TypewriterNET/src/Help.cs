@@ -79,6 +79,7 @@ public static class Help
 			table.Add(" ,h").Add("Show/Hide common help").NewRow();
 			table.Add(" ,H").Add("Show/Hide vi-mode help").NewRow();
 			table.Add(" ,b").Add("Show tab list, inside:\n  `Enter` - Select tab\n  `dd`- Close tab\n  `Ctrl+[` - Exit tab list").NewRow();
+			table.Add(" ,g").Add("Show text nodes list, inside:\n  `Enter` - Jump to node\n  `Ctrl+[` - Exit tab list").NewRow();
 			table.Add(" ,n").Add("Open/close file tree, inside:\n  `o` - open\n  `O` - open without switch\n  `dd` - delete file").NewRow();
 			table.Add(" ,N").Add("Open/close file tree with current file").NewRow();
 			table.Add(" ,s").Add("Save file").NewRow();

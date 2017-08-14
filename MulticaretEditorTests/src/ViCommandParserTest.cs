@@ -893,6 +893,12 @@ namespace UnitTests
 			
 			Add('\\').AddLast('r');
 			Assert.AreEqual("\\r", parser.shortcut);
+			
+			Add(',').AddLast('g');
+			Assert.AreEqual("\\g", parser.shortcut);
+			
+			Add('\\').AddLast('g');
+			Assert.AreEqual("\\g", parser.shortcut);
 		}
 		
 		[Test]

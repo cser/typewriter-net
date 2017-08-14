@@ -186,6 +186,27 @@ public class MainForm : Form
 			{
 				tabList.Open();
 			}
+		}
+		if (shortcut == "\\g")
+		{
+			if (textNodesList != null)
+			{
+				if (textNodesList.Controller == FocusedController)
+				{
+					textNodesList.Close();
+					textNodesList = null;
+					return;
+				}
+				textNodesList.Close();
+				textNodesList = null;
+			}
+			Frame frame = MainNest.Frame;
+			if (frame != null)
+			{
+				textNodesList = new TextNodesList();
+				frame.AddBuffer(textNodesList);
+				frame.Focus();
+			}
 			return;
 		}
 		if (shortcut == "\\h")
@@ -291,6 +312,7 @@ public class MainForm : Form
 
 	private FileTree fileTree;
 	private TabList tabList;
+	private TextNodesList textNodesList;
 
 	private void OnLoad(object sender, EventArgs e)
 	{
