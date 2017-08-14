@@ -878,7 +878,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Leader_s()
+		public void Leader_AdditionShortcuts()
 		{
 			Init(false);
 			
@@ -886,6 +886,12 @@ namespace UnitTests
 			Assert.AreEqual("\\s", parser.shortcut);
 			
 			Add('\\').AddLast('s');
+			Assert.AreEqual("\\s", parser.shortcut);
+			
+			Add(',').AddLast('r');
+			Assert.AreEqual("\\r", parser.shortcut);
+			
+			Add('\\').AddLast('r');
 			Assert.AreEqual("\\s", parser.shortcut);
 		}
 		

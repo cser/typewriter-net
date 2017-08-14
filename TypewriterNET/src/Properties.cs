@@ -505,7 +505,9 @@ public class Properties
 				StringBuilder builder = new StringBuilder();
 				builder.Append("name|sequence, multinodes allowed\n");
 				builder.Append("e.g.: test|:!echo AAA[cr]\n");
-				builder.Append("[C-x] - Ctrl+x\n");
+				builder.Append("[C-x] - Ctrl+X\n");
+				builder.Append("[C-X] - Ctrl+Shift+X\n");
+				builder.Append("[C-]] - Ctrl+]\n");
 				foreach (KeyValuePair<string, MacrosExecutor.Action> pair in CommandData.GetSpecials())
 				{
 					builder.Append("[");

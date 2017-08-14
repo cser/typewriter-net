@@ -234,7 +234,12 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\s")
 		{
-			DoSave(null);
+			DoSave(controller);
+			return;
+		}
+		if (shortcut == "\\r")
+		{
+			DoReload(controller);
 			return;
 		}
 		if (shortcut == "\\c")

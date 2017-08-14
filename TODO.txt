@@ -30,5 +30,4 @@ Fix position by mouse on half-tab
 - fix line appending at last 
 - save . betwean files
 - methods list
-- ,r - reload file
 - recover selection by gv after refocus
