@@ -35,13 +35,20 @@ public class TextNodesList : Buffer
 		
 		error = null;
 		Node node = null;
-		try
+		if (!string.IsNullOrEmpty(errors))
 		{
-			node = new Parser().Load(output);
+			error = errors;
 		}
-		catch (Exception e)
+		else
 		{
-			error = "Parsing error: " + e.Message;
+			try
+			{
+				node = new Parser().Load(output);
+			}
+			catch (Exception e)
+			{
+				error = "Parsing error: " + e.Message;
+			}
 		}
 		
 		StringBuilder builder = new StringBuilder();
