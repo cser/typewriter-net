@@ -32,3 +32,4 @@ Fix position by mouse on half-tab
 - save . betwean files
 - methods list
 - recover selection by gv after refocus
+- fix dG, yG - need select to end

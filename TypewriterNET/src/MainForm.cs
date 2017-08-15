@@ -189,35 +189,7 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\g")
 		{
-			if (textNodesList != null && textNodesList.Controller == FocusedController)
-			{
-				textNodesList.Close();
-				textNodesList = null;
-				return;
-			}
-			Frame frame = GetMainNest().Frame;
-			if (frame != null && settings != null)
-			{
-				Buffer buffer = frame.SelectedBuffer;
-				Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, buffer);
-				if (commandInfo != null)
-				{
-					string error;
-					if (textNodesList != null)
-					{
-						textNodesList.CloseSilent();
-					}
-					textNodesList = new TextNodesList(buffer);
-					textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error);
-					if (error != null && dialogs != null)
-					{
-						dialogs.ShowInfo("Text nodes error", error);
-						return;
-					}
-					frame.AddBuffer(textNodesList);
-					frame.Focus();
-				}
-			}
+			DoShowTextNodes(controller);
 			return;
 		}
 		if (shortcut == "\\h")
@@ -935,6 +907,8 @@ public class MainForm : Form
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
 			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemcomma, null,
+			new KeyAction("&View\\File tree\\Show text nodes", DoShowTextNodes, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
@@ -1672,6 +1646,40 @@ public class MainForm : Form
 		else
 		{
 			WindowState = FormWindowState.Normal;
+		}
+		return true;
+	}
+	
+	private bool DoShowTextNodes(Controller controller)
+	{
+		if (textNodesList != null && textNodesList.Controller == FocusedController)
+		{
+			textNodesList.Close();
+			textNodesList = null;
+			return true;
+		}
+		Frame frame = GetMainNest().Frame;
+		if (frame != null && settings != null)
+		{
+			Buffer buffer = frame.SelectedBuffer;
+			Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, buffer);
+			if (commandInfo != null)
+			{
+				string error;
+				if (textNodesList != null)
+				{
+					textNodesList.CloseSilent();
+				}
+				textNodesList = new TextNodesList(buffer);
+				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error);
+				if (error != null && dialogs != null)
+				{
+					dialogs.ShowInfo("Text nodes error", error);
+					return true;
+				}
+				frame.AddBuffer(textNodesList);
+				frame.Focus();
+			}
 		}
 		return true;
 	}

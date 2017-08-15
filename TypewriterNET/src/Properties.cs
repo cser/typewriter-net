@@ -390,11 +390,19 @@ public class Properties
 			this.value.Add(info);
 			return null;
 		}
+		
+		private string desc;
+		
+		public Command SetDesc(string desc)
+		{
+			this.desc = desc;
+			return this;
+		}
 
 		public override string Type { get { return "command"; } }		
 		public override string ShowedName { get { return name + "[:<filter>]"; } }
 		public override string TypeHelp { get { return "filter example: *.txt;*.md\ntab names allowed too: File tree"; } }
-		public override string PossibleValues { get { return "(several nodes allowed)"; } }
+		public override string PossibleValues { get { return desc ?? "(several nodes allowed)"; } }
 
 		public override void Reset()
 		{

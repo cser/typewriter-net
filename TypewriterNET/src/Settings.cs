@@ -77,7 +77,16 @@ public class Settings
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
-	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes");
+	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes").SetDesc(
+		"command, that receive buffer\n" + 
+		"text by stdin and out JSON:\n" +
+		"{\n" +
+		"  \"line\":Number,\n" + 
+		"  \"col\":Number,\n" + 
+		"  \"name\":String,\n" + 
+		"  \"childs\":[{\"line\":...}, {...]\n" + 
+		"}\n" +
+		"(several nodes allowed)");
 
 	private Setter onChange;
 
