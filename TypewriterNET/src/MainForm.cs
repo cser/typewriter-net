@@ -907,7 +907,7 @@ public class MainForm : Form
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
 			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemcomma, null,
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null,
 			new KeyAction("&View\\File tree\\Show text nodes", DoShowTextNodes, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
@@ -1665,16 +1665,23 @@ public class MainForm : Form
 			Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, buffer);
 			if (commandInfo != null)
 			{
-				string error;
 				if (textNodesList != null)
 				{
 					textNodesList.CloseSilent();
 				}
 				textNodesList = new TextNodesList(buffer);
-				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error);
+				string error;
+				string shellError;
+				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error, out shellError);
 				if (error != null && dialogs != null)
 				{
 					dialogs.ShowInfo("Text nodes error", error);
+					return true;
+				}
+				if (shellError != null)
+				{
+					new RunShellCommand(this).ShowInOutput(
+						shellError, settings.shellRegexList.Value, false, false, null);
 					return true;
 				}
 				frame.AddBuffer(textNodesList);

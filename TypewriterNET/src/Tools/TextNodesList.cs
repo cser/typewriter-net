@@ -15,7 +15,7 @@ public class TextNodesList : Buffer
 		this.buffer = buffer;
 	}
 	
-	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error)
+	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
 	{
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
@@ -34,10 +34,11 @@ public class TextNodesList : Buffer
 		p.WaitForExit();
 		
 		error = null;
+		shellError = null;
 		Node node = null;
 		if (!string.IsNullOrEmpty(errors))
 		{
-			error = errors;
+			shellError = errors;
 		}
 		else
 		{
@@ -57,6 +58,10 @@ public class TextNodesList : Buffer
 		if (node != null)
 		{
 			AppendNode(builder, node, "");
+		}
+		if (builder.Length > 0 && builder[builder.Length - 1] == '\n')
+		{
+			--builder.Length;
 		}
 		Controller.InitText(builder.ToString());
 		
@@ -83,7 +88,8 @@ public class TextNodesList : Buffer
 			return;
 		}
 		Node name = node["name"];
-		builder.Append(name != null ? name : "[NO NAME]");
+		string nameText = name != null ? name.ToString().Trim() : "";
+		builder.Append(string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]");
 		Node childs = node["childs"];
 		if (childs != null && childs.IsArray())
 		{
@@ -96,6 +102,7 @@ public class TextNodesList : Buffer
 				}
 			}
 		}
+		builder.Append("\n");
 	}
 	
 	private bool DoCloseBuffer(Controller controller)

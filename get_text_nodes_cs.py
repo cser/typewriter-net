@@ -11,5 +11,9 @@ while True:
 	if not line:
 		break
 	
-data = {"name":"asljdflsjadfj"}
+data = {"name":"asljdflsjadfj", "childs":[]}
+for i, line in enumerate(lines):
+	if "class" in line:
+		data["name"] = line.strip()
+	data["childs"].append({"name":line});
 print json.dumps(data)
