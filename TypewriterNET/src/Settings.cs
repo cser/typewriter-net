@@ -77,6 +77,22 @@ public class Settings
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
+	
+	private static string GetBuildinParsers()
+	{
+		StringBuilder builder = new StringBuilder();
+		foreach (TextNodeParser parser in TextNodesList.buildinParsers)
+		{
+			if (builder.Length > 0)
+			{
+				builder.Append("\n");
+			}
+			builder.Append("  ");
+			builder.Append(parser.name);
+		}
+		return builder.ToString();
+	}
+	
 	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes").SetDesc(
 		"command, that receive buffer\n" + 
 		"text by stdin and out JSON:\n" +
@@ -86,7 +102,9 @@ public class Settings
 		"  \"name\":String,\n" + 
 		"  \"childs\":[{\"line\":...}, {...]\n" + 
 		"}\n" +
-		"(several nodes allowed)");
+		"(several nodes allowed)\n\n" +
+		"instead external script you\n" +
+		"can use buildin parsers:\n" + GetBuildinParsers());
 
 	private Setter onChange;
 

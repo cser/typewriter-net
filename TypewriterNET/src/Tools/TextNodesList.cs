@@ -7,6 +7,10 @@ using TinyJSON;
 
 public class TextNodesList : Buffer
 {
+	public static IRList<TextNodeParser> buildinParsers = new RWList<TextNodeParser>(new TextNodeParser[] {
+		new CSTextNodeParser("buildin-cs")
+	});
+	
 	private Buffer buffer;
 	private MainForm mainForm;
 	private LineArray lines;
@@ -21,50 +25,72 @@ public class TextNodesList : Buffer
 	
 	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
 	{
-		Process p = new Process();
-		p.StartInfo.RedirectStandardOutput = true;
-		p.StartInfo.RedirectStandardError = true;
-		p.StartInfo.RedirectStandardInput = true;
-		p.StartInfo.StandardOutputEncoding = encoding;
-		p.StartInfo.StandardErrorEncoding = encoding;
-		p.StartInfo.UseShellExecute = false;
-		p.StartInfo.FileName = "cmd.exe";
-		p.StartInfo.Arguments = "/C " + commandInfo.command;
-		p.Start();
-		p.StandardInput.Write(buffer.Controller.Lines.GetText());
-		p.StandardInput.Close();
-		string output = p.StandardOutput.ReadToEnd();
-		string errors = p.StandardError.ReadToEnd();
-		p.WaitForExit();
+		TextNodeParser buildinParser = null;
+		foreach (TextNodeParser parser in buildinParsers)
+		{
+			if (parser.name == commandInfo.command)
+			{
+				buildinParser = parser;
+				break;
+			}
+		}
 		
 		error = null;
 		shellError = null;
 		Node node = null;
-		if (!string.IsNullOrEmpty(errors))
+		if (buildinParser != null)
 		{
-			shellError = errors;
+			node = buildinParser.Parse(buffer.Controller.Lines);
 		}
 		else
 		{
-			try
+			Process p = new Process();
+			p.StartInfo.RedirectStandardOutput = true;
+			p.StartInfo.RedirectStandardError = true;
+			p.StartInfo.RedirectStandardInput = true;
+			p.StartInfo.StandardOutputEncoding = encoding;
+			p.StartInfo.StandardErrorEncoding = encoding;
+			p.StartInfo.UseShellExecute = false;
+			p.StartInfo.FileName = "cmd.exe";
+			p.StartInfo.Arguments = "/C " + commandInfo.command;
+			p.Start();
+			p.StandardInput.Write(buffer.Controller.Lines);
+			p.StandardInput.Close();
+			string output = p.StandardOutput.ReadToEnd();
+			string errors = p.StandardError.ReadToEnd();
+			p.WaitForExit();
+			
+			if (!string.IsNullOrEmpty(errors))
 			{
-				node = new Parser().Load(output);
+				shellError = errors;
 			}
-			catch (System.Exception e)
+			else
 			{
-				error = "Parsing error: " + e.Message;
+				try
+				{
+					node = new Parser().Load(output);
+				}
+				catch (System.Exception e)
+				{
+					error = "Parsing error: " + e.Message +
+						"\nSee \"" + mainForm.Settings.getTextNodes.name + "\" for more info";
+				}
 			}
 		}
-		
+		if (node == null)
+		{
+			if (error == null)
+			{
+				error = "Empty output\nSee \"" + mainForm.Settings.getTextNodes.name + "\" for more info";
+			}
+			return;
+		}
 		tabSize = mainForm.Settings.tabSize.GetValue(null);
 		lines = Controller.Lines;
 		lines.ClearAllUnsafely();
 		places = new List<Place>();
 		AddLine(buffer.Name, new Place(-1, -1), true);
-		if (node != null)
-		{
-			AppendNode(node, "");
-		}
+		AppendNode(node, "");
 		if (lines.LinesCount == 0)
 		{
 			lines.AddLineUnsafely(new Line(32));
@@ -119,7 +145,6 @@ public class TextNodesList : Buffer
 	{
 		Line line = new Line(text.Length + 1);
 		line.tabSize = tabSize;
-		short style;
 		AddText(line, text, title ? Ds.Comment : Ds.Normal);
 		if (!title)
 		{
@@ -135,7 +160,6 @@ public class TextNodesList : Buffer
 		line.Chars_Add(new Char('\n', 0));
 		lines.AddLineUnsafely(line);
 		places.Add(place);
-		System.Console.WriteLine("!" + text);
 	}
 	
 	private void AppendNode(Node node, string indent)
