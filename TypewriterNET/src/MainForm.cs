@@ -1669,7 +1669,7 @@ public class MainForm : Form
 				{
 					textNodesList.CloseSilent();
 				}
-				textNodesList = new TextNodesList(buffer);
+				textNodesList = new TextNodesList(buffer, this);
 				string error;
 				string shellError;
 				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error, out shellError);

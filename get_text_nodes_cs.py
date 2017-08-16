@@ -11,9 +11,13 @@ while True:
 	if not line:
 		break
 	
-data = {"name":"asljdflsjadfj", "childs":[]}
+data = None
 for i, line in enumerate(lines):
-	if "class" in line:
-		data["name"] = line.strip()
-	data["childs"].append({"name":line});
+	line = line.strip()
+	if not data:
+		if "class" in line:
+			data = {"name":line, "line":i, "childs":[]}
+	else:
+		if "private" in line or "public" in line:
+			data["childs"].append({"name":line, "line":i});
 print json.dumps(data)

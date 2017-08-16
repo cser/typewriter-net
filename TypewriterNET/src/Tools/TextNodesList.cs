@@ -9,14 +9,21 @@ using TinyJSON;
 public class TextNodesList : Buffer
 {
 	private Buffer buffer;
+	private MainForm mainForm;
+	private List<string> lines;
+	private List<Place> places;
 	
-	public TextNodesList(Buffer buffer) : base(null, "Nodes list", SettingsMode.TabList)
+	public TextNodesList(Buffer buffer, MainForm mainForm) : base(null, "Nodes list", SettingsMode.TabList)
 	{
 		this.buffer = buffer;
+		this.mainForm = mainForm;
 	}
 	
 	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
 	{
+		lines = new List<string>();
+		places = new List<Place>();
+		
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
@@ -52,18 +59,12 @@ public class TextNodesList : Buffer
 			}
 		}
 		
-		StringBuilder builder = new StringBuilder();
-		builder.Append(buffer.Name);
-		builder.AppendLine();
+		AddLine(buffer.Name, new Place(-1, -1));
 		if (node != null)
 		{
-			AppendNode(builder, node, "");
+			AppendNode(lines, node, "");
 		}
-		if (builder.Length > 0 && builder[builder.Length - 1] == '\n')
-		{
-			--builder.Length;
-		}
-		Controller.InitText(builder.ToString());
+		Controller.InitText(string.Join("\n", lines.ToArray()));
 		
 		showEncoding = false;
 		Controller.isReadonly = true;
@@ -74,35 +75,49 @@ public class TextNodesList : Buffer
 			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\Nodes list\\Jump to node", DoOpenTab, null, false);
+			KeyAction action = new KeyAction("&View\\Nodes list\\Jump to node", DoJumpTo, null, false);
 			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
 	}
 	
-	private void AppendNode(StringBuilder builder, Node node, string indent)
+	private void AddLine(string line, Place place)
 	{
-		builder.Append(indent + "-");
+		lines.Add(line);
+		places.Add(place);
+	}
+	
+	private void AppendNode(List<string> lines, Node node, string indent)
+	{
 		if (node == null)
 		{
-			builder.Append("[NO NODE]");
+			AddLine(indent + "- [NO NODE]", new Place(-1, -1));
 			return;
 		}
 		Node name = node["name"];
 		string nameText = name != null ? name.ToString().Trim() : "";
-		builder.Append(string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]");
+		Place place = new Place(-1, -1);
+		if (node["line"] != null && node["line"].IsInt())
+		{
+			place.iLine = (int)node["line"];
+		}
+		if (node["col"] != null && node["col"].IsInt())
+		{
+			place.iChar = (int)node["col"];
+		}
+		AddLine(indent + "- " + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]") +
+			": (" + place.iLine + (place.iChar >= 0 ? ", " + place.iChar : "") + ")", place);
 		Node childs = node["childs"];
 		if (childs != null && childs.IsArray())
 		{
 			List<Node> nodes = (List<Node>)childs;
-			if (nodes != null)
+			if (nodes != null && nodes.Count > 0)
 			{
 				foreach (Node nodeI in nodes)
 				{
-					AppendNode(builder, nodeI, "  " + indent);
+					AppendNode(lines, nodeI, "    " + indent);
 				}
 			}
 		}
-		builder.Append("\n");
 	}
 	
 	private bool DoCloseBuffer(Controller controller)
@@ -111,9 +126,42 @@ public class TextNodesList : Buffer
 		return true;
 	}
 	
-	private bool DoOpenTab(Controller controller)
+	private bool DoJumpTo(Controller controller)
 	{
-		return true;
+		Place place = controller.Lines.SoftNormalizedPlaceOf(controller.LastSelection.caret);
+		if (place.iLine >= 0 && place.iLine < places.Count)
+		{
+			Place target = places[place.iLine];
+			if (target.iLine < 0)
+			{
+				return false;
+			}
+			if (buffer.FullPath != null)
+			{
+				buffer.Controller.ViAddHistoryPosition(false);
+			}
+			Close();
+			if (target.iLine >= buffer.Controller.Lines.LinesCount)
+			{
+				target.iLine = buffer.Controller.Lines.LinesCount;
+			}
+			if (target.iChar < 0)
+			{
+				Line line = buffer.Controller.Lines[target.iLine];
+				target.iChar = line.GetFirstSpaces();
+			}
+			buffer.Controller.PutCursor(target, false);
+			if (buffer.Frame != null)
+			{
+				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					buffer.Controller.ViAddHistoryPosition(true);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void Close()
