@@ -192,16 +192,6 @@ public class MainForm : Form
 			DoShowTextNodes(controller);
 			return;
 		}
-		if (shortcut == "\\h")
-		{
-			ProcessHelp();
-			return;
-		}
-		if (shortcut == "\\H")
-		{
-			ProcessViHelp();
-			return;
-		}
 		if (shortcut == "C-o" || shortcut == "C-i")
 		{
 			PositionNode prevNode = null;

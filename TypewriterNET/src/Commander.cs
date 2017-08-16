@@ -605,6 +605,7 @@ public class Commander
 
 		history = tempSettings.CommandHistory;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("vi-help", "", "Open/close tab with vi-help text", DoViHelp));
 		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
@@ -627,8 +628,10 @@ public class Commander
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
-		commands.Add(new Command("e", "", "Edit file", DoEditFile));
+		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
 		commands.Add(new Command("q", "", "Close window", DoExit));
+		commands.Add(new Command("h", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("vh", "", "Open/close tab with vi-help text", DoViHelp));
 	}
 	
 	private void DoViSaveFile(string args)
@@ -639,6 +642,11 @@ public class Commander
 	private void DoHelp(string args)
 	{
 		mainForm.ProcessHelp();
+	}
+	
+	private void DoViHelp(string args)
+	{
+		mainForm.ProcessViHelp();
 	}
 
 	private void DoExit(string args)

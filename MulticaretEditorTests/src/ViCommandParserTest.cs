@@ -842,18 +842,6 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void ViHelp()
-		{
-			Init(true);
-			
-			Add(',').AddLast('h');
-			Assert.AreEqual("\\h", parser.shortcut);
-			
-			Add(',').AddLast('H');
-			Assert.AreEqual("\\H", parser.shortcut);
-		}
-		
-		[Test]
 		public void FileTree()
 		{
 			Init(true);

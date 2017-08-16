@@ -32,4 +32,3 @@ Fix position by mouse on half-tab
 - methods list
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
-- add vi-help, remove ,h and ,H

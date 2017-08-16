@@ -24,7 +24,7 @@ public static class Help
 		builder.AppendLine("\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
 		builder.AppendLine();
 		builder.AppendLine("To enter vi-mode press `Ctrl+]`");
-		builder.AppendLine("See more info in vi-mode help - `Shift+F1` or `\\H` / `,H` in vi-mode");
+		builder.AppendLine("See more info in vi-mode help - `Shift+F1` or `:vi-help` in vi-mode");
 		builder.AppendLine();
 		builder.AppendLine(commander.GetHelpText());
 		builder.AppendLine(settings.GetHelpText());
@@ -76,8 +76,6 @@ public static class Help
 			TextTable table = new TextTable().SetMaxColWidth(40);
 			table.Add(" Leader actions").NewRow();
 			table.AddLine();
-			table.Add(" ,h").Add("Show/Hide common help").NewRow();
-			table.Add(" ,H").Add("Show/Hide vi-mode help").NewRow();
 			table.Add(" ,b").Add("Show tab list, inside:\n  `Enter` - Select tab\n  `dd`- Close tab\n  `Ctrl+[` - Exit tab list").NewRow();
 			table.Add(" ,g").Add("Show text nodes list, inside:\n  `Enter` - Jump to node\n  `Ctrl+[` - Exit tab list").NewRow();
 			table.Add(" ,n").Add("Open/close file tree, inside:\n  `o` - open\n  `O` - open without switch\n  `dd` - delete file").NewRow();
@@ -89,7 +87,7 @@ public static class Help
 			table.AddLine();
 			table.Add(" Commands").NewRow();
 			table.AddLine();
-			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog\n  Full command list can be found in\n  input mode help - `F1` or `,h`").NewRow();
+			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog\n  Full command list can be found in\n  input mode help - `F1` or `:help`").NewRow();
 			table.AddLine();
 			table.Add(" Moves").NewRow();
 			table.AddLine();
