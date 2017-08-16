@@ -320,7 +320,7 @@ namespace MulticaretEditor
 					default:
 						for (int i = 0; i < count; i++)
 						{
-							move.Move(controller, false, false);
+							move.Move(controller, false, MoveMode.Move);
 						}
 						break;
 				}
@@ -638,7 +638,7 @@ namespace MulticaretEditor
 		{
 			for (int i = 0; i < count; i++)
 			{
-				move.Move(controller, true, false);
+				move.Move(controller, true, MoveMode.Copy);
 			}
 			controller.ViCopy(register);
 			controller.ViCollapseSelections();

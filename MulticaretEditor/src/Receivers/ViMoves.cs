@@ -9,7 +9,7 @@ namespace MulticaretEditor
 	{
 		public interface IMove
 		{
-			void Move(Controller controller, bool shift, bool change);
+			void Move(Controller controller, bool shift, MoveMode mode);
 		}
 		
 		public class MoveStep : IMove
@@ -21,7 +21,7 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (direction)
 				{
@@ -50,7 +50,7 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (direction)
 				{
@@ -75,15 +75,15 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMove_b(shift, change);
+						controller.ViMove_b(shift, mode == MoveMode.Change);
 						break;
 					case Direction.Right:
-						controller.ViMove_w(shift, change);
+						controller.ViMove_w(shift, mode == MoveMode.Change);
 						break;
 				}
 			}
@@ -98,15 +98,15 @@ namespace MulticaretEditor
 				this.direction = direction;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMove_B(shift, change);
+						controller.ViMove_B(shift, mode == MoveMode.Change);
 						break;
 					case Direction.Right:
-						controller.ViMove_W(shift, change);
+						controller.ViMove_W(shift, mode == MoveMode.Change);
 						break;
 				}
 			}
@@ -125,7 +125,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (o)
 				{
@@ -158,11 +158,11 @@ namespace MulticaretEditor
 		
 		public class MoveWordE : IMove
 		{	
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				if (change)
+				if (mode == MoveMode.Change)
 				{
-					controller.ViMove_w(shift, change);
+					controller.ViMove_w(shift, true);
 				}
 				else
 				{
@@ -173,11 +173,11 @@ namespace MulticaretEditor
 		
 		public class BigMoveWordE : IMove
 		{	
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				if (change)
+				if (mode == MoveMode.Change)
 				{
-					controller.ViMove_W(shift, change);
+					controller.ViMove_W(shift, true);
 				}
 				else
 				{
@@ -188,7 +188,7 @@ namespace MulticaretEditor
 		
 		public class FindPairBracket : IMove
 		{
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViPairBracket(shift);
 			}
@@ -207,7 +207,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				switch (type)
 				{
@@ -243,7 +243,7 @@ namespace MulticaretEditor
 				this.charToJump = charToJump;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				int position = controller.GetBookmark(charToJump);
 				if (position != -1)
@@ -264,7 +264,7 @@ namespace MulticaretEditor
 		
 		public class FindForwardPattern : IMove
 		{
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViFindForward(ClipboardExecutor.ViRegex);
 			}
@@ -272,7 +272,7 @@ namespace MulticaretEditor
 		
 		public class FindBackwardPattern : IMove
 		{
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
 			}
@@ -287,7 +287,7 @@ namespace MulticaretEditor
 				this.indented = indented;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.MoveHome(shift);
 				controller.ViMoveHome(shift, indented);
@@ -303,7 +303,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViMoveEnd(shift, count);
 			}
@@ -311,7 +311,7 @@ namespace MulticaretEditor
 		
 		public class DocumentStart : IMove
 		{
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.DocumentStart(shift);
 			}
@@ -319,9 +319,9 @@ namespace MulticaretEditor
 		
 		public class DocumentEnd : IMove
 		{
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				controller.ViDocumentEnd(shift);
+				controller.ViDocumentEnd(shift, mode);
 			}
 		}
 		
@@ -334,7 +334,7 @@ namespace MulticaretEditor
 				this.count = count;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViGoToLine(count - 1, shift);
 			}
@@ -349,7 +349,7 @@ namespace MulticaretEditor
 				this.isUp = isUp;
 			}
 			
-			public void Move(Controller controller, bool shift, bool change)
+			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ScrollPage(isUp, shift);
 			}

@@ -25,11 +25,10 @@ Fix position by mouse on half-tab
 - indent } after new line if cursor before
 - objects: brackets for line mode
 - fix unfocus on reloading undo
-- fix cw on line end
 - fix special registers
 - fix . with indentation
 - fix line appending at last 
 - save . betwean files
 - methods list
 - recover selection by gv after refocus
-- fix dG, yG - need select to end
+- dG, cG, yG works with lines

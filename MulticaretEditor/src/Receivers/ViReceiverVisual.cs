@@ -207,7 +207,7 @@ namespace MulticaretEditor
 			{
 				for (int i = 0; i < count; i++)
 				{
-					move.Move(controller, true, false);
+					move.Move(controller, true, MoveMode.Move);
 				}
 			}
 			else

@@ -1577,16 +1577,24 @@ namespace MulticaretEditor
 			ViFixPositions(true);
 		}
 		
-		public void ViDocumentEnd(bool shift)
+		public void ViDocumentEnd(bool shift, MoveMode mode)
 		{
-			Place place = new Place(0, lines.LinesCount - 1);
-			int position = lines.IndexOf(place);
-			foreach (Selection selection in selections)
+			int position;
+			Place place;
+			if (mode == MoveMode.Change || mode == MoveMode.Delete || mode == MoveMode.Copy)
 			{
-				selection.caret = position;
-				selection.SetEmptyIfNotShift(shift);
+				Line line = lines[lines.LinesCount - 1];
+				place = new Place(line.charsCount, lines.LinesCount - 1);
+				position = lines.charsCount;
 			}
-			lines.JoinSelections();
+			else
+			{
+				place = new Place(0, lines.LinesCount - 1);
+				position = lines.IndexOf(place);
+			}
+			ClearMinorSelections();
+			lines.LastSelection.caret = position;
+			lines.LastSelection.SetEmptyIfNotShift(shift);
 			lines.SetPreferredPos(lines.LastSelection, place);
 		}
 		

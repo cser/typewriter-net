@@ -51,13 +51,13 @@ namespace MulticaretEditor
 			{
 				for (int i = 0; i < count - 1; i++)
 				{
-					move.Move(controller, true, false);
+					move.Move(controller, true, MoveMode.Delete);
 				}
 				if (count > 0)
 				{
-					move.Move(controller, true, change);
+					move.Move(controller, true, change ? MoveMode.Change : MoveMode.Delete);
 				}
-				controller.ViCut(register, true);
+				controller.ViCut(register, !change);
 			}
 		}
 		
@@ -76,7 +76,7 @@ namespace MulticaretEditor
 			{
 				for (int i = 0; i < count; i++)
 				{
-					move.Move(controller, true, false);
+					move.Move(controller, true, MoveMode.Move);
 				}
 				char[] chars = controller.GetSelectedText().ToCharArray();
 				for (int i = 0; i < chars.Length; ++i)

@@ -216,6 +216,39 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void cG()
+		{
+			lines.SetText(
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(3, 0).Press("cGx").AssertText(
+				"Du x").AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void dG()
+		{
+			lines.SetText(
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(3, 0).Press("dG").AssertText(
+				"Du ").AssertSelection().Both(2, 0);
+		}
+		
+		[Test]
+		public void yG()
+		{
+			lines.SetText(
+				"Du hast\n" +
+				"   Du hast mich\n" +
+				"aaaaaaa");
+			Put(3, 0).Press("yG");
+			Assert.AreEqual("hast\n   Du hast mich\naaaaaaa", ClipboardExecutor.GetFromRegister('0'));
+		}
+		
+		[Test]
 		public void hjkl()
 		{
 			lines.SetText(
@@ -396,6 +429,15 @@ namespace UnitTests
 			Put(0, 1).Press("2cw").AssertSelection().Both(0, 1).NoNext();
 			Press("AAA").PressCommandMode().AssertSelection().Both(2, 1).NoNext();
 			AssertText("Du hast\nAAA mich");
+		}
+		
+		[Test]
+		public void cw_AtTheLineEnd()
+		{
+			lines.SetText("Du hast\nDu hast mich");
+			
+			Put(3, 0).Press("cw").AssertSelection().Both(3, 0).NoNext();
+			Press("x").AssertText("Du x\nDu hast mich").AssertSelection().Both(4, 0);
 		}
 		
 		[Ignore]
