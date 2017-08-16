@@ -73,6 +73,24 @@ public class TextNodesList : Buffer
 		{
 			lines.CutLastLineBreakUnsafely();
 		}
+		Place target = buffer.Controller.Lines.SoftNormalizedPlaceOf(buffer.Controller.LastSelection.caret);
+		for (int i = places.Count; i-- > 0;)
+		{
+			if (places[i].iLine <= target.iLine)
+			{
+				Place place = new Place(0, i);
+				if (place.iLine < 0)
+				{
+					place.iLine = 0;
+				}
+				else if (place.iLine >= buffer.Controller.Lines.LinesCount)
+				{
+					place.iLine = buffer.Controller.Lines.LinesCount;
+				}
+				Controller.PutCursor(place, false);
+				break;
+			}
+		}
 		
 		showEncoding = false;
 		Controller.isReadonly = true;
@@ -106,17 +124,16 @@ public class TextNodesList : Buffer
 		if (!title)
 		{
 			AddText(line, ": (", Ds.Operator);
-			AddText(line, place.iLine + "", Ds.DecVal);
+			AddText(line, (place.iLine + 1) + "", Ds.DecVal);
 			if (place.iChar >= 0)
 			{
 				AddText(line, ", ", Ds.Operator);
-				AddText(line, place.iChar + "", Ds.DecVal);
+				AddText(line, (place.iChar + 1) + "", Ds.DecVal);
 			}
 			AddText(line, ")", Ds.Operator);
 		}
 		line.Chars_Add(new Char('\n', 0));
 		lines.AddLineUnsafely(line);
-		buffer.Controller.Lines.AddLineUnsafely(line);
 		places.Add(place);
 		System.Console.WriteLine("!" + text);
 	}
@@ -133,11 +150,11 @@ public class TextNodesList : Buffer
 		Place place = new Place(-1, -1);
 		if (node["line"] != null && node["line"].IsInt())
 		{
-			place.iLine = (int)node["line"];
+			place.iLine = (int)node["line"] - 1;
 		}
 		if (node["col"] != null && node["col"].IsInt())
 		{
-			place.iChar = (int)node["col"];
+			place.iChar = (int)node["col"] - 1;
 		}
 		AddLine(indent + "- " + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]"), place, false);
 		Node childs = node["childs"];
