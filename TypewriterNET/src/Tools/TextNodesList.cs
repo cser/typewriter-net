@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -10,8 +9,9 @@ public class TextNodesList : Buffer
 {
 	private Buffer buffer;
 	private MainForm mainForm;
-	private List<string> lines;
+	private LineArray lines;
 	private List<Place> places;
+	private int tabSize;
 	
 	public TextNodesList(Buffer buffer, MainForm mainForm) : base(null, "Nodes list", SettingsMode.TabList)
 	{
@@ -21,9 +21,6 @@ public class TextNodesList : Buffer
 	
 	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
 	{
-		lines = new List<string>();
-		places = new List<Place>();
-		
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
@@ -53,18 +50,29 @@ public class TextNodesList : Buffer
 			{
 				node = new Parser().Load(output);
 			}
-			catch (Exception e)
+			catch (System.Exception e)
 			{
 				error = "Parsing error: " + e.Message;
 			}
 		}
 		
-		AddLine(buffer.Name, new Place(-1, -1));
+		tabSize = mainForm.Settings.tabSize.GetValue(null);
+		lines = Controller.Lines;
+		lines.ClearAllUnsafely();
+		places = new List<Place>();
+		AddLine(buffer.Name, new Place(-1, -1), true);
 		if (node != null)
 		{
-			AppendNode(lines, node, "");
+			AppendNode(node, "");
 		}
-		Controller.InitText(string.Join("\n", lines.ToArray()));
+		if (lines.LinesCount == 0)
+		{
+			lines.AddLineUnsafely(new Line(32));
+		}
+		else
+		{
+			lines.CutLastLineBreakUnsafely();
+		}
 		
 		showEncoding = false;
 		Controller.isReadonly = true;
@@ -80,17 +88,44 @@ public class TextNodesList : Buffer
 		}
 	}
 	
-	private void AddLine(string line, Place place)
+	private void AddText(Line line, string text, Ds ds)
 	{
-		lines.Add(line);
-		places.Add(place);
+		short style = ds.index;
+		for (int i = 0; i < text.Length; i++)
+		{
+			line.Chars_Add(new Char(text[i], style));
+		}
 	}
 	
-	private void AppendNode(List<string> lines, Node node, string indent)
+	private void AddLine(string text, Place place, bool title)
+	{
+		Line line = new Line(text.Length + 1);
+		line.tabSize = tabSize;
+		short style;
+		AddText(line, text, title ? Ds.Comment : Ds.Normal);
+		if (!title)
+		{
+			AddText(line, ": (", Ds.Operator);
+			AddText(line, place.iLine + "", Ds.DecVal);
+			if (place.iChar >= 0)
+			{
+				AddText(line, ", ", Ds.Operator);
+				AddText(line, place.iChar + "", Ds.DecVal);
+			}
+			AddText(line, ")", Ds.Operator);
+		}
+		line.Chars_Add(new Char('\n', 0));
+		lines.AddLineUnsafely(line);
+		buffer.Controller.Lines.AddLineUnsafely(line);
+		places.Add(place);
+		System.Console.WriteLine("!" + text);
+	}
+	
+	private void AppendNode(Node node, string indent)
 	{
 		if (node == null)
 		{
-			AddLine(indent + "- [NO NODE]", new Place(-1, -1));
+			AddLine(indent + "- [NO NODE]", new Place(-1, -1), false);
 			return;
 		}
 		Node name = node["name"];
@@ -104,8 +139,7 @@ public class TextNodesList : Buffer
 		{
 			place.iChar = (int)node["col"];
 		}
-		AddLine(indent + "- " + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]") +
-			": (" + place.iLine + (place.iChar >= 0 ? ", " + place.iChar : "") + ")", place);
+		AddLine(indent + "- " + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]"), place, false);
 		Node childs = node["childs"];
 		if (childs != null && childs.IsArray())
 		{
@@ -114,7 +148,7 @@ public class TextNodesList : Buffer
 			{
 				foreach (Node nodeI in nodes)
 				{
-					AppendNode(lines, nodeI, "    " + indent);
+					AppendNode(nodeI, "\t" + indent);
 				}
 			}
 		}
