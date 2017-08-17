@@ -17,6 +17,9 @@ public class CSTextNodeParser : TextNodeParser
 		StringBuilder builder = new StringBuilder();
 		int NORMAL = 0;
 		int WAIT_OPEN = 1;
+		int WAIT_COMMENT_CLOSE = 2;
+		int WAIT_TEXT_CLOSE = 3;
+		int WAIT_CHAR_CLOSE = 4;
 		int state = NORMAL;
 		Node root = (Node)(new Dictionary<string, Node>());
 		root["name"] = "FILE";
@@ -26,11 +29,13 @@ public class CSTextNodeParser : TextNodeParser
 		while (iterator.MoveNext())
 		{
 			string line = iterator.current.Text;
-			for (int i = 0; i < line.Length; ++i)
+			bool nextLine = false;
+			for (int i = 0; i < line.Length && !nextLine; ++i)
 			{
+				char c = line[i];
+				nextLine = false;
 				if (state == NORMAL)
 				{
-					char c = line[i];
 					if (c == 'c' && i + 6 < line.Length && line[i + 1] == 'l' && line[i + 2] == 'a' &&
 						line[i + 3] == 's' && line[i + 4] == 's' && (i == 0 || char.IsWhiteSpace(line[i - 1])) &&
 						(char.IsWhiteSpace(line[i + 5])))
@@ -65,7 +70,7 @@ public class CSTextNodeParser : TextNodeParser
 						stack.Add(node);
 						state = WAIT_OPEN;
 					}
-					if (c == 'n' && i + 9 < line.Length && line[i + 1] == 'a' && line[i + 2] == 'm' &&
+					else if (c == 'n' && i + 9 < line.Length && line[i + 1] == 'a' && line[i + 2] == 'm' &&
 						line[i + 3] == 'e' && line[i + 4] == 's' && line[i + 5] == 'p' && line[i + 6] == 'a' &&
 						line[i + 7] == 'c' && line[i + 8] == 'e' && (i == 0 || char.IsWhiteSpace(line[i - 1])) &&
 						(char.IsWhiteSpace(line[i + 9])))
@@ -99,6 +104,22 @@ public class CSTextNodeParser : TextNodeParser
 						}
 						stack.Add(node);
 						state = WAIT_OPEN;
+					}
+					else if (c == '/' && i + 1 < line.Length && line[i + 1] == '/')
+					{
+						nextLine = true;
+					}
+					else if (c == '/' && i + 1 < line.Length && line[i + 1] == '*')
+					{
+						state = WAIT_COMMENT_CLOSE;
+					}
+					else if (c == '"')
+					{
+						state = WAIT_TEXT_CLOSE;
+					}
+					else if (c == '\'')
+					{
+						state = WAIT_CHAR_CLOSE;
 					}
 					else if (c == '}')
 					{
@@ -162,6 +183,27 @@ public class CSTextNodeParser : TextNodeParser
 							state = NORMAL;
 							break;
 						}
+					}
+				}
+				else if (state == WAIT_COMMENT_CLOSE)
+				{
+					if (c == '*' && i + 1 < line.Length && line[i + 1] == '/')
+					{
+						state = NORMAL;
+					}
+				}
+				else if (state == WAIT_TEXT_CLOSE)
+				{
+					if (c == '"' && (i <= 0 || line[i - 1] != '\\') && (i >= line.Length || line[i + 1] != '"'))
+					{
+						state = NORMAL;
+					}
+				}
+				else if (state == WAIT_CHAR_CLOSE)
+				{
+					if (c == '\'' && (i <= 0 || line[i - 1] != '\\'))
+					{
+						state = NORMAL;
 					}
 				}
 			}

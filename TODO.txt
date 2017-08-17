@@ -23,6 +23,7 @@ Fix position by mouse on half-tab
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
 - indent } after new line if cursor before
+- fix {} highlighting if { inside string
 - objects: brackets for line mode
 - fix unfocus on reloading undo
 - fix special registers
