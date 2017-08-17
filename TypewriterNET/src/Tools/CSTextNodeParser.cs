@@ -260,14 +260,22 @@ public class CSTextNodeParser : TextNodeParser
 				}
 				else if (state == WAIT_TEXT_CLOSE)
 				{
-					if (c == '"' && (i <= 0 || line[i - 1] != '\\') && (i >= line.Length || line[i + 1] != '"'))
+					if (c == '\\')
+					{
+						++i;
+					}
+					else if (c == '"')
 					{
 						state = NORMAL;
 					}
 				}
 				else if (state == WAIT_CHAR_CLOSE)
 				{
-					if (c == '\'' && (i <= 0 || line[i - 1] != '\\'))
+					if (c == '\\')
+					{
+						++i;
+					}
+					else if (c == '\'')
 					{
 						state = NORMAL;
 					}

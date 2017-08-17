@@ -19,6 +19,7 @@ Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing
 - TabList: close by ,b
+- TextNodesList: highlight type
 - FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
