@@ -54,8 +54,8 @@ public class TabList : Buffer
 	{
 		if (shortcut == "dd")
 		{
-			Selection selection = buffer.Controller.LastSelection;
-			int index = buffer.Controller.Lines.PlaceOf(selection.caret).iLine;
+			Selection selection = Controller.LastSelection;
+			int index = Controller.Lines.PlaceOf(selection.caret).iLine;
 			if (index >= 0 && index < buffers.Count)
 			{
 				mainForm.CloseIfExists(buffers[index]);
