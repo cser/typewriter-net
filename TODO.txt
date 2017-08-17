@@ -13,13 +13,11 @@ System.ArgumentOutOfRangeException: Индекс за пределами диа�
 
 Fix position by mouse on half-tab
 
-- custom commands autocomplete
 - bookmarks: store for file
 - bookmarks: store global bookmarks
 - bookmarks: fix change with '
 - TabList: more power removing
 - TabList: close by ,b
-- TextNodesList: highlight type
 - FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut

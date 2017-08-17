@@ -534,6 +534,20 @@ public class Properties
 					}
 					builder.Append("\n");
 				}
+				builder.Append("commands in config:");
+				if (value.Count > 0)
+				{
+					builder.Append("\n");
+					foreach (CommandData data in value)
+					{
+						builder.Append("  ");
+						builder.Append(data.name);
+					}
+				}
+				else
+				{
+					builder.Append(" missing");
+				}
 				return builder.ToString();
 			}
 		}

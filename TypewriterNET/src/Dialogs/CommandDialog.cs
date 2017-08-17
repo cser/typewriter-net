@@ -354,6 +354,14 @@ public class CommandDialog : ADialog
 		}
 		if (MainForm.Settings != null)
 		{
+			foreach (CommandData data in MainForm.Settings.command.Value)
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = data.name;
+				variant.DisplayText = data.name + " - " +
+					(data.sequence.Length < 50 ? data.sequence : data.sequence.Substring(0, 50) + "…");
+				variants.Add(variant);
+			}
 			foreach (Properties.Property property in MainForm.Settings.GetProperties())
 			{
 				variants.Add(GetPropertyVariant(property));
