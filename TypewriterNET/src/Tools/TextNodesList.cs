@@ -148,7 +148,7 @@ public class TextNodesList : Buffer
 		AddText(line, text, title ? Ds.Comment : Ds.Normal);
 		if (!title)
 		{
-			AddText(line, ": (", Ds.Operator);
+			AddText(line, " (", Ds.Operator);
 			AddText(line, (place.iLine + 1) + "", Ds.DecVal);
 			if (place.iChar >= 0)
 			{
@@ -166,7 +166,7 @@ public class TextNodesList : Buffer
 	{
 		if (node == null)
 		{
-			AddLine(indent + "- [NO NODE]", new Place(-1, -1), false);
+			AddLine(indent + "[NO NODE]", new Place(-1, -1), false);
 			return;
 		}
 		Node name = node["name"];
@@ -180,7 +180,7 @@ public class TextNodesList : Buffer
 		{
 			place.iChar = (int)node["col"] - 1;
 		}
-		AddLine(indent + "- " + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]"), place, false);
+		AddLine(indent + (!string.IsNullOrEmpty(nameText) ? nameText : "[NO NAME]"), place, false);
 		Node childs = node["childs"];
 		if (childs != null && childs.IsArray())
 		{
