@@ -1676,6 +1676,7 @@ public class MainForm : Form
 				}
 				frame.AddBuffer(textNodesList);
 				frame.Focus();
+				frame.TextBox.MoveToCaret();
 			}
 		}
 		return true;
