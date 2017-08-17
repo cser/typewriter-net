@@ -94,17 +94,14 @@ public class Settings
 	}
 	
 	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes").SetDesc(
-		"command, that receive buffer\n" + 
-		"text by stdin and out JSON:\n" +
+		"your_script[:<coloring_syntax>]\nPress `Ctrl+L` or `,g` in vi-mode\nScript must receive document text\nby stdin and put JSON to stdout:\n\n" +
 		"{\n" +
 		"  \"line\":Number,\n" + 
 		"  \"col\":Number,\n" + 
 		"  \"name\":String,\n" + 
 		"  \"childs\":[{\"line\":...}, {...]\n" + 
-		"}\n" +
-		"(several nodes allowed)\n\n" +
-		"instead external script you\n" +
-		"can use buildin parsers:\n" + GetBuildinParsers());
+		"}\n\n" +
+		"Instead external script you\ncan use buildin parsers:\n" + GetBuildinParsers());
 
 	private Setter onChange;
 

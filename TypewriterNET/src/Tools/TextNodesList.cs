@@ -26,9 +26,16 @@ public class TextNodesList : Buffer
 	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
 	{
 		TextNodeParser buildinParser = null;
+		string command = commandInfo.command;
+		int index = command.IndexOf(':');
+		if (index != -1)
+		{
+			customSyntax = command.Substring(index + 1).Trim();
+			command = command.Substring(0, index).Trim();
+		}
 		foreach (TextNodeParser parser in buildinParsers)
 		{
-			if (parser.name == commandInfo.command)
+			if (parser.name == command)
 			{
 				buildinParser = parser;
 				break;
@@ -52,7 +59,7 @@ public class TextNodesList : Buffer
 			p.StartInfo.StandardErrorEncoding = encoding;
 			p.StartInfo.UseShellExecute = false;
 			p.StartInfo.FileName = "cmd.exe";
-			p.StartInfo.Arguments = "/C " + commandInfo.command;
+			p.StartInfo.Arguments = "/C " + command;
 			p.Start();
 			p.StandardInput.Write(buffer.Controller.Lines);
 			p.StandardInput.Close();
