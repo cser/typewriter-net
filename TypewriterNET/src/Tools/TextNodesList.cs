@@ -11,8 +11,8 @@ public class TextNodesList : Buffer
 		new CSTextNodeParser("buildin-cs")
 	});
 	
-	private Buffer buffer;
-	private MainForm mainForm;
+	private readonly Buffer buffer;
+	private readonly MainForm mainForm;
 	private LineArray lines;
 	private List<Place> places;
 	private int tabSize;

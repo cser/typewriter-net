@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using MulticaretEditor;
 using System.Threading;
 
-public class TabList
+public class TabList : Buffer
 {
 	public class Node
 	{
@@ -25,40 +25,33 @@ public class TabList
 		public int line = -1;
 	}
 
-	private MainForm mainForm;
+	private readonly Buffer buffer;
+	private readonly MainForm mainForm;
 	private Dictionary<int, bool> expanded;
 
-	private Buffer buffer;
-	public Buffer Buffer { get { return buffer; } }
-
-	public TabList(MainForm mainForm)
+	public TabList(Buffer buffer, MainForm mainForm) : base(null, "Tab list", SettingsMode.TabList)
 	{
+		this.buffer = buffer;
 		this.mainForm = mainForm;
         
 		expanded = new Dictionary<int, bool>();
-		buffer = new Buffer(null, "Tab list", SettingsMode.TabList);
-		buffer.showEncoding = false;
-		buffer.Controller.isReadonly = true;
-		buffer.onSelected = OnBufferSelected;
-		buffer.onRemove = OnBufferRemove;
-		buffer.additionKeyMap = new KeyMap();
+		showEncoding = false;
+		Controller.isReadonly = true;
+		onSelected = OnBufferSelected;
+		additionKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("&View\\Tab list\\Close tab list", DoCloseBuffer, null, false);
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
 		}
 		{
 			KeyAction action = new KeyAction("&View\\Tab list\\Select tab", DoOpenTab, null, false);
-			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
 	}
 	
 	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
-		if (buffer == null)
-		{
-			return false;
-		}
 		if (shortcut == "dd")
 		{
 			Selection selection = buffer.Controller.LastSelection;
@@ -78,13 +71,6 @@ public class TabList
 		Rebuild();
 	}
 	
-	private bool OnBufferRemove(Buffer buffer)
-	{
-		buffers.Clear();
-		buffer = null;
-		return true;
-	}
-
 	private List<Buffer> buffers = new List<Buffer>();
 
 	private void Rebuild()
@@ -103,17 +89,17 @@ public class TabList
 				buffers.Add(bufferI);
 			}
 		}
-		buffer.Controller.InitText(builder.ToString());
+		Controller.InitText(builder.ToString());
 	
-		int charsCount = buffer.Controller.Lines.charsCount;
-		foreach (Selection selection in buffer.Controller.Selections)
+		int charsCount = Controller.Lines.charsCount;
+		foreach (Selection selection in Controller.Selections)
 		{
 			if (selection.anchor > charsCount)
 				selection.anchor = charsCount;
 			if (selection.caret > charsCount)
 				selection.caret = charsCount;
 		}
-		buffer.Controller.JoinSelections();
+		Controller.JoinSelections();
 	}
 	
 	public void Open()
@@ -128,7 +114,7 @@ public class TabList
 
 	private bool DoCloseBuffer(Controller controller)
 	{
-		CloseBuffer();
+		Close();
 		return true;
 	}
 	
@@ -136,22 +122,35 @@ public class TabList
 	{
 		if (buffer != null)
 		{
-			Selection selection = buffer.Controller.LastSelection;
-			int index = buffer.Controller.Lines.PlaceOf(selection.caret).iLine;
+			Selection selection = Controller.LastSelection;
+			int index = Controller.Lines.PlaceOf(selection.caret).iLine;
 			if (index >= 0 && index < buffers.Count)
 			{
 				mainForm.SelectIfExists(buffers[index]);
-				CloseBuffer();
+				CloseSilent();
 			}
 		}
 		return true;
 	}
 	
-	private void CloseBuffer()
+	public void Close()
 	{
-		if (buffer != null && buffer.Frame != null)
+		Frame frame = Frame;
+		if (frame != null)
 		{
-			buffer.Frame.RemoveBuffer(buffer);
+			if (frame.ContainsBuffer(buffer))
+			{
+				frame.SelectedBuffer = buffer;
+			}
+			frame.RemoveBuffer(this);
+		}
+	}
+	
+	public void CloseSilent()
+	{
+		if (Frame != null)
+		{
+			Frame.RemoveBuffer(this);
 		}
 	}
 }

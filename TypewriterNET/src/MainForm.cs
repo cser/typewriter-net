@@ -182,10 +182,7 @@ public class MainForm : Form
 		}
 		if (shortcut == "\\b")
 		{
-			if (tabList != null)
-			{
-				tabList.Open();
-			}
+			ShowTabList();
 		}
 		if (shortcut == "\\g")
 		{
@@ -335,7 +332,6 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 		
 		fileTree = new FileTree(this);
-		tabList = new TabList(this);
 
 		leftNest.buffers = new BufferList();
 
@@ -1680,6 +1676,29 @@ public class MainForm : Form
 			}
 		}
 		return true;
+	}
+	
+	private void ShowTabList()
+	{
+		if (tabList != null && tabList.Controller == FocusedController)
+		{
+			tabList.Close();
+			tabList = null;
+			return;
+		}
+		Frame frame = GetMainNest().Frame;
+		if (frame != null && settings != null)
+		{
+			Buffer buffer = frame.SelectedBuffer;
+			if (tabList != null)
+			{
+				tabList.CloseSilent();
+			}
+			tabList = new TabList(buffer, this);
+			frame.AddBuffer(tabList);
+			frame.Focus();
+			frame.TextBox.MoveToCaret();
+		}
 	}
 
 	private bool DoEditCreateCurrentConfig(Controller controller)

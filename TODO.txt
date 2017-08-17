@@ -17,7 +17,6 @@ Fix position by mouse on half-tab
 - bookmarks: store global bookmarks
 - bookmarks: fix change with '
 - TabList: more power removing
-- TabList: close by ,b
 - FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
@@ -32,3 +31,4 @@ Fix position by mouse on half-tab
 - methods list
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
+- Y
