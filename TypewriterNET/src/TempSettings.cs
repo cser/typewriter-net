@@ -141,6 +141,10 @@ public class TempSettings
 			value.With("syntax", SValue.NewString(buffer.customSyntax.ToString()));
 		else
 			value.With("syntax", SValue.None);
+		if (buffer.Controller.bookmarks.Count > 0)
+		{
+			value.With("bm", SValue.NewBytes(EncodeBookmarks(buffer.Controller)));
+		}
 	}
 
 	public void ResetQualitiesEncoding(Buffer buffer)
@@ -177,6 +181,11 @@ public class TempSettings
             buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
         }
         buffer.customSyntax = value["syntax"].String;
+        byte[] bookmarks = value["bm"].Bytes;
+        if (bookmarks != null)
+        {
+	        DecodeBookmarks(buffer.Controller, bookmarks);
+	    }
     }
     
     public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
@@ -356,5 +365,38 @@ public class TempSettings
 	{
 		get { return scheme; }
 		set { scheme = value; }
+	}
+	
+	private byte[] EncodeBookmarks(Controller controller)
+	{
+		int count = Math.Min(controller.bookmarks.Count, controller.bookmarkNames.Count);
+		byte[] bytes = new byte[count * 5];
+		for (int i = 0; i < count; ++i)
+		{
+			int position = controller.bookmarks[i];
+			char c = controller.bookmarkNames[i];
+			bytes[i * 5] = (byte)(position & 0xff);
+			bytes[i * 5 + 1] = (byte)((position >> 8) & 0xff);
+			bytes[i * 5 + 2] = (byte)((position >> 16) & 0xff);
+			bytes[i * 5 + 3] = (byte)((position >> 24) & 0xff);
+			bytes[i * 5 + 4] = (byte)c;
+		}
+		return bytes;
+	}
+	
+	private void DecodeBookmarks(Controller controller, byte[] bytes)
+	{
+		controller.bookmarks.Clear();
+		controller.bookmarkNames.Clear();
+		int count = bytes.Length / 5;
+		for (int i = 0; i < count; ++i)
+		{
+			int position = bytes[i * 5] |
+				(bytes[i * 5 + 1] << 8) |
+				(bytes[i * 5 + 2] << 16) |
+				(bytes[i * 5 + 3] << 24);
+			controller.bookmarks.Add(position);
+			controller.bookmarkNames.Add((char)bytes[i * 5 + 4]);
+		}
 	}
 }
