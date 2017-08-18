@@ -312,12 +312,13 @@ namespace MulticaretEditor
 					if (pcs.Count == 0)
 					{
 						bookmarks.RemoveAt(i);
+						bookmarkFiles.RemoveAt(i);
 					}
 				}
 				int index = bookmarkFiles.IndexOf(file);
 				if (index == -1)
 				{
-					index = bookmarkFiles.Count;
+					index = bookmarks.Count;
 					bookmarkFiles.Add(file);
 					bookmarks.Add(new List<PositionChar>(4));
 				}

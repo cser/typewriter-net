@@ -13,7 +13,6 @@ System.ArgumentOutOfRangeException: Индекс за пределами диа�
 
 Fix position by mouse on half-tab
 
-- bookmakrs: fix fail on global bookmarks setting
 - bookmarks: fix change with '
 - TabList: more power removing
 - FileSearch: update new version in background

@@ -409,13 +409,14 @@ public class TempSettings
 			IRList<SValue> list = data.List;
 			if (list != null)
 			{
-				for (int i = 0; i + 1 < list.Count && i <= 'Z'; i += 2)
+				int count = ('Z' - 'A' + 1) * 2;
+				for (int i = 0; i + 1 < list.Count && i < count; i += 2)
 				{
 					string path = list[i].String;
-					int position = list[i].Int;
+					int position = list[i + 1].Int;
 					if (!string.IsNullOrEmpty(path))
 					{
-						MulticaretTextBox.initMacrosExecutor.SetBookmark((char)(i + 'A'), path, position);
+						MulticaretTextBox.initMacrosExecutor.SetBookmark((char)(i / 2 + 'A'), path, position);
 					}
 				}
 			}
