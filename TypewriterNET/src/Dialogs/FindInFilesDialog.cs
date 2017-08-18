@@ -310,6 +310,8 @@ public class FindInFilesDialog : ADialog
 	
 	private bool DoNormalMode(Controller controller)
 	{
+		filterTextBox.SetViMode(true);
+		filterTextBox.Controller.ViFixPositions(false);
 		textBox.SetViMode(true);
 		textBox.Controller.ViFixPositions(false);
 		return true;

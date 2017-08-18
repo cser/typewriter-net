@@ -31,3 +31,4 @@ Fix position by mouse on half-tab
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
 - Put cursor to start after copy
+- fix dialogs normal mode layout keys
