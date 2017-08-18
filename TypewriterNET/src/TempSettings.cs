@@ -63,6 +63,7 @@ public class TempSettings
 		storage.Unserialize(state["storage"]);
 		recently.Unserialize(state["recently"]);
 		recentlyDirs.Unserialize(state["recentlyDirs"]);
+		DecodeGlobalBookmarks(state["bm"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
 			{
@@ -247,6 +248,7 @@ public class TempSettings
 		state["storage"] = storage.Serialize();
 		state["recently"] = recently.Serialize();
 		state["recentlyDirs"] = recentlyDirs.Serialize();
+		state["bm"] = EncodeGlobalBookmakrs();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();
@@ -398,5 +400,42 @@ public class TempSettings
 			controller.bookmarks.Add(position);
 			controller.bookmarkNames.Add((char)bytes[i * 5 + 4]);
 		}
+	}
+	
+	private void DecodeGlobalBookmarks(SValue data)
+	{
+		if (MulticaretTextBox.initMacrosExecutor != null)
+		{
+			IRList<SValue> list = data.List;
+			if (list != null)
+			{
+				for (int i = 0; i + 1 < list.Count && i <= 'Z'; i += 2)
+				{
+					string path = list[i].String;
+					int position = list[i].Int;
+					if (!string.IsNullOrEmpty(path))
+					{
+						MulticaretTextBox.initMacrosExecutor.SetBookmark((char)(i + 'A'), path, position);
+					}
+				}
+			}
+		}
+	}
+	
+	private SValue EncodeGlobalBookmakrs()
+	{
+		SValue data = SValue.NewList();
+		if (MulticaretTextBox.initMacrosExecutor != null)
+		{
+			for (char c = 'A'; c <= 'Z'; ++c)
+			{
+				string path;
+				int position;
+				MulticaretTextBox.initMacrosExecutor.GetBookmark(c, out path, out position);
+				data.Add(SValue.NewString(path));
+				data.Add(SValue.NewInt(position));
+			}
+		}
+		return data;
 	}
 }
