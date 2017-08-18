@@ -614,6 +614,15 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Y()
+		{
+			Init(false);
+			
+			AddLast('Y').AssertParsed("1:action:Y;move:\\0;moveChar:\\0");
+			Add('2').AddLast('Y').AssertParsed("2:action:Y;move:\\0;moveChar:\\0");
+		}
+		
+		[Test]
 		public void y_LINES()
 		{
 			Init(true);

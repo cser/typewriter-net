@@ -407,6 +407,9 @@ namespace MulticaretEditor
 							controller.ViCopyLine(parser.register, count);
 						}
 						break;
+					case 'Y':
+						controller.ViCopyLine(parser.register, count);
+						break;
 					case '>':
 						if (parser.move.IsChar('>'))
 						{

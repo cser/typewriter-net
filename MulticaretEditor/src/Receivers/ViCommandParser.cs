@@ -250,6 +250,9 @@ namespace MulticaretEditor
 								}
 								action = code;
 								return _visualMode ? ParseResult.Complete : ParseResult.WaitNext;
+							case 'Y':
+								action = code;
+								return ParseResult.Complete;
 							case '>':
 								if (action.IsChar('>'))
 								{

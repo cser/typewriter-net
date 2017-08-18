@@ -1240,6 +1240,29 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Y()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			
+			Put(1, 1).Press("Y");
+			Assert.AreEqual("aaaa\n", ClipboardExecutor.GetFromRegister('\0'));
+			AssertSelection().Both(1, 1);
+			
+			Put(1, 1).Press("2Y");
+			Assert.AreEqual("aaaa\nccc\n", ClipboardExecutor.GetFromRegister('\0'));
+			AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void Y_Selection()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			
+			Put(3, 0).Press("vj").Press("Y");
+			Assert.AreEqual("Oooo\naaaa\n", ClipboardExecutor.GetFromRegister('\0'));
+		}
+		
+		[Test]
 		public void xp()
 		{
 			lines.SetText("abcd");

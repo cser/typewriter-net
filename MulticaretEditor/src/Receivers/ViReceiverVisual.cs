@@ -286,6 +286,11 @@ namespace MulticaretEditor
 						}
 						SetViMode();
 						break;
+					case 'Y':
+						controller.ViStoreSelections();
+						controller.ViCopyLine(parser.register, count);
+						SetViMode();
+						break;
 					case 'd' + ViChar.ControlIndex:
 						controller.SelectNextText();
 						break;
