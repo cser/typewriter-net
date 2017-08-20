@@ -112,7 +112,11 @@ public class Snippet
 		ranges.Sort(SnippetRange.Compare);
 	}
 	
-	private List<Part> ParseText(string rawText)
+	protected Snippet()
+	{
+	}
+	
+	protected List<Part> ParseText(string rawText)
 	{
 		List<Part> parts = new List<Part>();
 		int prevI = 0;
@@ -160,7 +164,7 @@ public class Snippet
 		return parts;
 	}
 	
-	private string ParseEntry(string rawText, int i, out string order, out string defaultValue, out bool secondary)
+	protected string ParseEntry(string rawText, int i, out string order, out string defaultValue, out bool secondary)
 	{
 		order = "0";
 		defaultValue = "";
