@@ -70,5 +70,17 @@ namespace SnippetTest
 				"${1:pattern}",
 				snippet.ParseEntry("text text ${1:pattern} text", 10, out order, out defaultValue, out secondary));
 		}
+		
+		[Test]
+		public void ParseEntry_Nested()
+		{
+			string order;
+			string defaultValue;
+			bool secondary;
+			Assert.AreEqual(
+				"${1:when ${2:pattern} : T}",
+				snippet.ParseEntry("text text ${1:when ${2:pattern} : T} text", 10, out order, out defaultValue, out secondary));
+			Assert.AreEqual("when ${2:pattern} : T", defaultValue);
+		}
 	}
 }

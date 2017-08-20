@@ -224,12 +224,30 @@ public class Snippet
 			}
 			else
 			{
+				int depth = 0;
 				while (index < length)
 				{
 					char c = rawText[index];
+					if (c == '$')
+					{
+						++index;
+						if (index < length)
+						{
+							builder.Append(c);
+							c = rawText[index];
+							if (c == '{')
+							{
+								++depth;
+							}
+						}
+					}
 					if (c == '}')
 					{
-						break;
+						if (depth <= 0)
+						{
+							break;
+						}
+						--depth;
 					}
 					builder.Append(c);
 					++index;
