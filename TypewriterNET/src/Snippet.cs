@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -32,9 +33,13 @@ public class Snippet
 	public readonly List<SnippetRange> ranges = new List<SnippetRange>();
 	
 	public Snippet(string rawText,
+		Settings settings,	
 		Getter<string, string> replaceDefaultValue)
 	{
-		List<Part> parts = ParseText(rawText.Replace("${0:${VISUAL}}", "${0}"));
+		rawText = rawText.Replace("${0:${VISUAL}}", "${0}");
+		rawText = rawText.Replace("`g:snips_author`", settings.snipsAuthor.Value);
+		rawText = ReplaceTime(rawText);
+		List<Part> parts = ParseText(rawText);
 		List<SnippetRange> secondaryRanges = new List<SnippetRange>();
 		foreach (Part part in parts)
 		{
@@ -261,5 +266,49 @@ public class Snippet
 		}
 		++index;
 		return rawText.Substring(i, index - i);
+	}
+	
+	protected string ReplaceTime(string text)
+	{
+		string bra = "`strftime(\"";
+		string ket = "\")`";
+		if (text.IndexOf(bra) == -1)
+		{
+			return text;
+		}
+		DateTime time = DateTime.Now;
+		StringBuilder builder = new StringBuilder();
+		int prevIndex = 0;
+		while (true)
+		{
+			int braIndex = text.IndexOf(bra, prevIndex);
+			if (braIndex == -1)
+			{
+				builder.Append(text, prevIndex, text.Length - prevIndex);
+				break;
+			}
+			builder.Append(text, prevIndex, braIndex);
+			int ketIndex = text.IndexOf(ket, braIndex + bra.Length);
+			if (ketIndex == -1)
+			{
+				builder.Append(text, prevIndex, text.Length - prevIndex);
+				break;
+			}
+			string timeText = text.Substring(braIndex + bra.Length, ketIndex - braIndex - bra.Length);
+			builder.Append(time.ToString(timeText
+				.Replace("%Y", "yyyy")
+				.Replace("%m", "MM")
+				.Replace("%d", "dd")
+				.Replace("%H", "HH")
+				.Replace("%M", "mm")
+				.Replace("%S", "ss")
+				.Replace("%a", "ddd")
+				.Replace("%A", "dddd")
+				.Replace("%b", "MMM")
+				.Replace("%B", "MMMM")
+			, CultureInfo.InvariantCulture));
+			prevIndex = ketIndex + ket.Length;
+		}
+		return builder.ToString();
 	}
 }

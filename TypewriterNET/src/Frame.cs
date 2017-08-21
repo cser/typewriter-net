@@ -475,6 +475,7 @@ public class Frame : AFrame
 				SnippetAtom atom = atoms[0];
 				Snippet snippet = new Snippet(
 					atom.GetIndentedText(indent, controller.Lines.TabSettings),
+					settings,
 					new SnippetReplaceValue(this, controller.Lines, position).ReplaceValue);
 				
 				controller.ClearMinorSelections();

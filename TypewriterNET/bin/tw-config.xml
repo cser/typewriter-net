@@ -60,4 +60,5 @@
 	<item name="ignoreSnippets" value=""/>
 	<item name="forcedSnippets" value=""/>
 	<item name="getTextNodes:*.cs" value="buildin-cs:c#"/>
+	<item name="snipsAuthor" value="John Doe"/>
 </config>

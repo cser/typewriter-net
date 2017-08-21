@@ -102,6 +102,7 @@ public class Settings
 		"  \"childs\":[{\"line\":...}, {...]\n" + 
 		"}\n\n" +
 		"Instead external script you\ncan use buildin parsers:\n" + GetBuildinParsers());
+	public readonly Properties.String snipsAuthor = new Properties.String("snipsAuthor", "No name", false, "replace `g:snips_author`");
 
 	private Setter onChange;
 
@@ -178,6 +179,7 @@ public class Settings
 		Add(forcedSnippets);
 		Add(command);
 		Add(getTextNodes);
+		Add(snipsAuthor);
 	}
 
 	public void DispatchChange()

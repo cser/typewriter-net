@@ -63,7 +63,7 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 9. jsx syntax file
 	https://github.com/brunocodutra/kate-jsx
 
-10. Snippets
+10. Snippets (supported particulary)
 	https://github.com/honza/vim-snippets
 
 Installation without building

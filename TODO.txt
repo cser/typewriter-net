@@ -31,5 +31,4 @@ Fix position by mouse on half-tab
 - dG, cG, yG works with lines
 - Put cursor to start after copy
 - fix dialogs normal mode layout keys
-- snippets: time
 - snippets: inner entries
