@@ -96,6 +96,28 @@ public class Snippet
 		{
 			if (part.isEntry)
 			{
+				if (part.entry_value.IndexOf("${") != -1)
+				{	
+					List<Part> nested = ParseText(part.entry_value);
+					StringBuilder nestedBuilder = new StringBuilder();
+					foreach (Part partI in nested)
+					{
+						if (partI.isEntry)
+						{
+							partI.entry_range = new SnippetRange(partI.entry_order);
+							partI.entry_range.nested = part.entry_range.nested;
+							part.entry_range.nested = partI.entry_range;
+							partI.entry_range.index = nestedBuilder.Length;
+							partI.entry_range.count = partI.entry_value.Length;
+							nestedBuilder.Append(partI.entry_value);
+						}
+						else
+						{
+							nestedBuilder.Append(partI.text_value);
+						}
+					}
+					part.entry_range.defaultValue = nestedBuilder.ToString();
+				}
 				part.entry_range.index = builder.Length;
 				part.entry_range.count = part.entry_range.defaultValue.Length;
 				builder.Append(part.entry_range.defaultValue);

@@ -13,6 +13,7 @@ public class SnippetRange
 	
 	public SnippetRange next;
 	public SnippetRange subrange;
+	public SnippetRange nested;
 	public int index;
 	public int count;
 	public string defaultValue;

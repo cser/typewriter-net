@@ -38,6 +38,7 @@ public class SnippetMode : TextChangeHook
 			KeyAction action = new KeyAction("&Edit\\Snippets\\Exit", DoExitWithConsume, null, false);
 			keyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
+		UpdateRanges();
 	}
 	
 	public void Show()
@@ -83,9 +84,35 @@ public class SnippetMode : TextChangeHook
 	}
 	
 	private int state = 0;
+	private bool allowNested;
+	private bool needNext;
 	
 	public void NextEntry()
 	{
+		if (needNext)
+		{
+			needNext = false;
+			if (allowNested)
+			{
+				allowNested = false;
+				SnippetRange range = snippet.ranges[state].nested;
+				snippet.ranges.RemoveAt(state);
+				for (; range != null; range = range.nested)
+				{
+					Console.WriteLine("!" + range);
+					range.index += snippet.ranges[state].index;
+					snippet.ranges.Insert(state, range);
+				}
+			}
+			else
+			{
+				++state;
+				if (state >= snippet.ranges.Count)
+				{
+					Close();
+				}
+			}
+		}
 		if (state < snippet.ranges.Count)
 		{
 			SnippetRange range = snippet.ranges[state];
@@ -103,10 +130,18 @@ public class SnippetMode : TextChangeHook
 				controller.LastSelection.caret = controller.LastSelection.anchor + range.subrange.count;
 			}
 		}
-		++state;
-		if (state >= snippet.ranges.Count)
+		if (snippet.ranges[state].nested == null)
 		{
-			Close();
+			++state;
+			if (state >= snippet.ranges.Count)
+			{
+				Close();
+			}
+		}
+		else
+		{
+			needNext = true;
+			allowNested = true;
 		}
 	}
 	
@@ -157,6 +192,8 @@ public class SnippetMode : TextChangeHook
 				}
 			}
 		}
+		allowNested = false;
+		UpdateRanges();
 	}
 	
 	public override void RemoveText(int index, int count)
@@ -205,6 +242,8 @@ public class SnippetMode : TextChangeHook
 				}
 			}
 		}
+		allowNested = false;
+		UpdateRanges();
 	}
 	
 	private void OnAfterKeyPress()
@@ -237,6 +276,16 @@ public class SnippetMode : TextChangeHook
 					Close();
 				}
 			}
+		}
+	}
+	
+	private void UpdateRanges()
+	{
+		List<SimpleRange> matches = textBox.Controller.Lines.matches;
+		matches.Clear();
+		foreach (SnippetRange range in snippet.ranges)
+		{
+			matches.Add(new SimpleRange(range.index, range.count));
 		}
 	}
 }
