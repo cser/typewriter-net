@@ -24,25 +24,6 @@ public class SnippetMode : TextChangeHook
 		this.position = position;
 		this.onClose = onClose;
 		
-		foreach (SnippetRange range in snippet.ranges)
-		{
-			Console.WriteLine("- " + range.order + ": [" + range.index + ", " + range.count + "]: " + range.defaultValue);
-			Console.WriteLine("    next:");
-			for (SnippetRange subrange = range.next; subrange != null; subrange = subrange.next)
-			{
-				Console.WriteLine("    - " + subrange.order + ": [" + subrange.index + ", " + subrange.count + "]: " + subrange.defaultValue);
-			}
-			Console.WriteLine("    subrange:");
-			for (SnippetRange subrange = range.subrange; subrange != null; subrange = subrange.next)
-			{
-				Console.WriteLine("    - " + subrange.order + ": [" + subrange.index + ", " + subrange.count + "]: " + subrange.defaultValue);
-			}
-			Console.WriteLine("    nested:");
-			for (SnippetRange subrange = range.nested; subrange != null; subrange = subrange.next)
-			{
-				Console.WriteLine("    - " + subrange.order + ": [" + subrange.index + ", " + subrange.count + "]: " + subrange.defaultValue);
-			}
-		}
 		keyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("&Edit\\Snippets\\Exit", DoExit, null, false);
