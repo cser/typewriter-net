@@ -61,6 +61,30 @@ namespace SnippetTest
 		}
 		
 		[Test]
+		public void Test1()
+		{
+			Assert.AreEqual(
+				"[(TEXT'text text '), (1:ENTRY'pattern'), (2:ENTRY'pattern2'), (TEXT' text')]",
+				ListUtil.ToString(snippet.ParseText("text text ${1:pattern}${2:pattern2} text"), StringOf));
+		}
+		
+		[Test]
+		public void Test2()
+		{
+			Assert.AreEqual(
+				"[(TEXT'text text '), (1:ENTRY'p1'), (2:ENTRY'p2${3:p3}${4:p4}'), (TEXT' text')]",
+				ListUtil.ToString(snippet.ParseText("text text ${1:p1}${2:p2${3:p3}${4:p4}} text"), StringOf));
+		}
+		
+		[Test]
+		public void Test3()
+		{
+			Assert.AreEqual(
+				"[(TEXT'for('), (1:ENTRY'i'), (2:ENTRY',${4:len}=${5:item}.length'), (TEXT';'), (1:ENTRY_S''), (TEXT'<'), (3:ENTRY'count'), (TEXT';'), (1:ENTRY_S''), (TEXT'++){'), (0:ENTRY''), (TEXT'}')]",
+				ListUtil.ToString(snippet.ParseText("for(${1:i}${2:,${4:len}=${5:item}.length};$1<${3:count};$1++){${0}}"), StringOf));
+		}
+		
+		[Test]
 		public void ParseEntry()
 		{
 			string order;

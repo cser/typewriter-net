@@ -99,16 +99,18 @@ public class Snippet
 				if (part.entry_value.IndexOf("${") != -1)
 				{	
 					List<Part> nested = ParseText(part.entry_value);
+					SnippetRange current = part.entry_range;
 					StringBuilder nestedBuilder = new StringBuilder();
 					foreach (Part partI in nested)
 					{
 						if (partI.isEntry)
 						{
 							partI.entry_range = new SnippetRange(partI.entry_order);
-							partI.entry_range.nested = part.entry_range.nested;
-							part.entry_range.nested = partI.entry_range;
-							partI.entry_range.index = nestedBuilder.Length;
-							partI.entry_range.count = partI.entry_value.Length;
+							current.nested = partI.entry_range;
+							current = current.nested;
+							current.index = nestedBuilder.Length;
+							current.count = partI.entry_value.Length;
+							current.defaultValue = partI.entry_value;
 							nestedBuilder.Append(partI.entry_value);
 						}
 						else
@@ -158,6 +160,7 @@ public class Snippet
 				string entry = ParseEntry(rawText, i, out order, out defaultValue, out secondary);
 				if (entry != null)
 				{
+					if (i - prevI > 0)
 					{
 						Part part = new Part(false);
 						part.text_value = rawText.Substring(prevI, i - prevI);
@@ -183,6 +186,7 @@ public class Snippet
 				++i;
 			}
 		}
+		if (prevI < rawText.Length)
 		{
 			Part part = new Part(false);
 			part.text_value = rawText.Substring(prevI);
