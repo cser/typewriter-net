@@ -209,7 +209,6 @@ namespace MulticaretEditor
 		
 		public void UpdateHighlight(int index, int count)
 		{
-			return;
 			FixRange(ref index, ref count);
 			bool isOutFrame = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
 			if (highlightRegex != ClipboardExecutor.ViRegex || isOutFrame || !frameValid)

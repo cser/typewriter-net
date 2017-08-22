@@ -38,7 +38,6 @@ public class SnippetMode : TextChangeHook
 			KeyAction action = new KeyAction("&Edit\\Snippets\\Exit", DoExitWithConsume, null, false);
 			keyMap.AddItem(new KeyItem(Keys.Escape, null, action));
 		}
-		UpdateRanges();
 	}
 	
 	public void Show()
@@ -98,10 +97,12 @@ public class SnippetMode : TextChangeHook
 				SnippetRange prev = snippet.ranges[state];
 				SnippetRange range = prev.nested;
 				++state;
+				int index = state;
 				for (; range != null; range = range.nested)
 				{
 					range.index += prev.index;
-					snippet.ranges.Insert(state, range);
+					snippet.ranges.Insert(index, range);
+					++index;
 				}
 			}
 			else
@@ -193,7 +194,6 @@ public class SnippetMode : TextChangeHook
 			}
 		}
 		allowNested = false;
-		UpdateRanges();
 	}
 	
 	public override void RemoveText(int index, int count)
@@ -243,16 +243,14 @@ public class SnippetMode : TextChangeHook
 			}
 		}
 		allowNested = false;
-		UpdateRanges();
 	}
 	
 	private void OnAfterKeyPress()
 	{
-		AfterInsert();
-	}
-	
-	public void AfterInsert()
-	{
+		if (needNext)
+		{
+			return;
+		}
 		SnippetRange current = snippet.ranges[state - 1];
 		{
 			for (SnippetRange rangeI = current; rangeI != null; rangeI = rangeI.next)
@@ -276,16 +274,6 @@ public class SnippetMode : TextChangeHook
 					Close();
 				}
 			}
-		}
-	}
-	
-	private void UpdateRanges()
-	{
-		List<SimpleRange> matches = textBox.Controller.Lines.matches;
-		matches.Clear();
-		foreach (SnippetRange range in snippet.ranges)
-		{
-			matches.Add(new SimpleRange(range.index, range.count));
 		}
 	}
 }
