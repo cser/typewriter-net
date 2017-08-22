@@ -105,8 +105,7 @@ public class Snippet
 					{
 						if (partI.isEntry)
 						{
-							partI.entry_range = new SnippetRange(partI.entry_order);
-							current.nested = partI.entry_range;
+							current.nested = new SnippetRange(partI.entry_order);
 							current = current.nested;
 							current.index = nestedBuilder.Length;
 							current.count = partI.entry_value.Length;
@@ -119,6 +118,7 @@ public class Snippet
 						}
 					}
 					part.entry_range.defaultValue = nestedBuilder.ToString();
+					part.entry_range.count = part.entry_range.defaultValue.Length;
 				}
 				part.entry_range.index = builder.Length;
 				part.entry_range.count = part.entry_range.defaultValue.Length;

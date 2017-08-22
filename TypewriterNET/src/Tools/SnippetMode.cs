@@ -100,7 +100,6 @@ public class SnippetMode : TextChangeHook
 				++state;
 				for (; range != null; range = range.nested)
 				{
-					Console.WriteLine("!" + range);
 					range.index += prev.index;
 					snippet.ranges.Insert(state, range);
 				}
