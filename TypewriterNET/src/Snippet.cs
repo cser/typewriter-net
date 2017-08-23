@@ -75,6 +75,36 @@ public class Snippet
 				}
 			}
 		}
+		foreach (SnippetRange rangeI in ranges)
+		{
+			if (rangeI.defaultValue.IndexOf('$') != -1)
+			{
+				string value = rangeI.defaultValue;
+				for (int i = 0; i < value.Length;)
+				{
+					char c = value[i];
+					if (c == '$')
+					{
+						string order = "";
+						++i;
+						for (;i < value.Length && char.IsDigit(value[i]); ++i)
+						{
+							order += value[i];
+						}
+						if (order != "")
+						{
+							SnippetRange subrange = new SnippetRange(order);
+							subrange.next = rangeI.subrange;
+							rangeI.subrange = subrange;
+						}
+					}
+					else
+					{
+						++i;
+					}
+				}
+			}
+		}
 		StringBuilder builder = new StringBuilder();
 		foreach (Part part in parts)
 		{

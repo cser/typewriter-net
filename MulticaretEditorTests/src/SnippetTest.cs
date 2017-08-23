@@ -76,7 +76,7 @@ namespace SnippetTest
 				if (range.subrange != null)
 				{
 					builder.Append("  subrange:\n");
-					for (SnippetRange subrange = range.subrange; subrange != null; subrange = subrange.next)
+					for (SnippetRange subrange = range.subrange; subrange != null; subrange = subrange.subrange)
 					{
 						builder.Append("  " + StringOf(subrange) + "\n");
 					}
