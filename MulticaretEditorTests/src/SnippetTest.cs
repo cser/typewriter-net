@@ -177,6 +177,25 @@ namespace SnippetTest
 		}
 		
 		[Test]
+		public void Subranges()
+		{
+			Snippet snippet = new Snippet("aa${1:i}b${2:cc$1d${3:ee}}$1${0}",
+				new Settings(null), null);
+			//aaibccideei
+			AssertRanges(
+				"-1:2,1:i\n" +
+				"  next:\n" +
+				"  -1:10,1:i\n" +
+				"-2:4,6:ccidee\n" +
+				"  subrange:\n" +
+				"  -1:2,1:i\n" +
+				"  nested:\n" +
+				"  -3:4,2:ee\n" +
+				"-0:11,0:\n" +
+				"", snippet.ranges);
+		}
+		
+		[Test]
 		public void TimeReplacing()
 		{
 			Assert.AreEqual(

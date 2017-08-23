@@ -75,57 +75,61 @@ public class Snippet
 				}
 			}
 		}
-		foreach (SnippetRange rangeI in ranges)
-		{
-			if (rangeI.defaultValue.IndexOf('$') != -1)
-			{
-				string value = rangeI.defaultValue;
-				for (int i = 0; i < value.Length;)
-				{
-					char c = value[i];
-					if (c == '$')
-					{
-						string order = "";
-						++i;
-						for (;i < value.Length && char.IsDigit(value[i]); ++i)
-						{
-							order += value[i];
-						}
-						if (order != "")
-						{
-							SnippetRange subrange = new SnippetRange(order);
-							subrange.next = rangeI.subrange;
-							rangeI.subrange = subrange;
-						}
-					}
-					else
-					{
-						++i;
-					}
-				}
-			}
-		}
 		StringBuilder builder = new StringBuilder();
 		foreach (Part part in parts)
 		{
 			if (part.isEntry)
 			{
 				int index = part.entry_value.IndexOf("${");
-				if (index != -1 && index + 2 < part.entry_value.Length && char.IsDigit(part.entry_value[index + 2]))
+				bool needParse =
+					index != -1 &&
+					index + 2 < part.entry_value.Length &&
+					char.IsDigit(part.entry_value[index + 2]);
+				if (!needParse)
+				{
+					for (int i = part.entry_value.Length - 1; i-- > 0;)
+					{
+						if (part.entry_value[i] == '$' && char.IsDigit(part.entry_value[i + 1]))
+						{
+							needParse = true;
+							break;
+						}
+					}
+				}
+				if (needParse)
 				{	
 					List<Part> nested = ParseText(part.entry_value);
 					SnippetRange current = part.entry_range;
+					SnippetRange subrange = part.entry_range;
 					StringBuilder nestedBuilder = new StringBuilder();
 					foreach (Part partI in nested)
 					{
 						if (partI.isEntry)
 						{
-							current.nested = new SnippetRange(partI.entry_order);
-							current = current.nested;
-							current.index = nestedBuilder.Length;
-							current.count = partI.entry_value.Length;
-							current.defaultValue = partI.entry_value;
-							nestedBuilder.Append(partI.entry_value);
+							if (partI.entry_secondary)
+							{
+								subrange.subrange = new SnippetRange(partI.entry_order);
+								subrange = subrange.subrange;
+								subrange.index = nestedBuilder.Length;
+								foreach (Part partJ in parts)
+								{
+									if (partJ.isEntry && !partJ.entry_secondary && partJ.entry_order == subrange.order)
+									{
+										subrange.defaultValue = partJ.entry_value;
+									}
+								}
+								subrange.count = subrange.defaultValue.Length;
+								nestedBuilder.Append(subrange.defaultValue);
+							}
+							else
+							{
+								current.nested = new SnippetRange(partI.entry_order);
+								current = current.nested;
+								current.index = nestedBuilder.Length;
+								current.count = partI.entry_value.Length;
+								current.defaultValue = partI.entry_value;
+								nestedBuilder.Append(current.defaultValue);
+							}
 						}
 						else
 						{
