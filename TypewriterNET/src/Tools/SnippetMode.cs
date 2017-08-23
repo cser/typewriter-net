@@ -125,10 +125,16 @@ public class SnippetMode : TextChangeHook
 				controller.PutNewCursor(controller.Lines.PlaceOf(position + rangeI.index));
 				controller.LastSelection.caret = controller.LastSelection.anchor + rangeI.count;
 			}
-			if (range.subrange != null)
+			foreach (SnippetRange rangeI in snippet.ranges)
 			{
-				controller.PutNewCursor(controller.Lines.PlaceOf(position + range.subrange.index));
-				controller.LastSelection.caret = controller.LastSelection.anchor + range.subrange.count;
+				for (SnippetRange rangeJ = rangeI.subrange; rangeJ != null; rangeJ = rangeJ.subrange)
+				{
+					if (rangeJ.order == range.order)
+					{
+						controller.PutNewCursor(controller.Lines.PlaceOf(position + rangeI.index + rangeJ.index));
+						controller.LastSelection.caret = controller.LastSelection.anchor + rangeJ.count;
+					}
+				}
 			}
 			controller.NeedScrollToCaret();
 		}
@@ -158,44 +164,18 @@ public class SnippetMode : TextChangeHook
 		{
 			return;
 		}
-		SnippetRange current = snippet.ranges[state - 1];
-		{
-			for (SnippetRange rangeI = current; rangeI != null; rangeI = rangeI.next)
-			{
-				if (index == position + rangeI.index + rangeI.count)
-				{
-					rangeI.count += text.Length;
-				}
-				else if (index < position + rangeI.index)
-				{
-					rangeI.index += text.Length;
-				}
-			}
-			if (current.subrange != null)
-			{
-				SnippetRange subrange = current.subrange;
-				if (index == position + subrange.index + subrange.count)
-				{
-					subrange.count += text.Length;
-				}
-				else if (index < position + subrange.index)
-				{
-					subrange.index += text.Length;
-				}
-			}
-		}
 		int offset = text.Length;
 		foreach (SnippetRange range in snippet.ranges)
 		{
-			if (range == current || range == current.subrange)
-			{
-				continue;
-			}
 			for (SnippetRange rangeI = range; rangeI != null; rangeI = rangeI.next)
 			{
 				if (position + rangeI.index >= index)
 				{
 					rangeI.index += offset;
+				}
+				else if (position + rangeI.index + rangeI.count >= index)
+				{
+					rangeI.count += offset;
 				}
 			}
 		}
@@ -208,43 +188,17 @@ public class SnippetMode : TextChangeHook
 		{
 			return;
 		}
-		SnippetRange current = snippet.ranges[state - 1];
-		{
-			for (SnippetRange rangeI = current; rangeI != null; rangeI = rangeI.next)
-			{
-				if (index + count == position + rangeI.index + rangeI.count)
-				{
-					rangeI.count -= count;
-				}
-				else if (index < position + rangeI.index)
-				{
-					rangeI.index -= count;
-				}
-			}
-			if (current.subrange != null)
-			{
-				SnippetRange subrange = current.subrange;
-				if (index + count == position + subrange.index + subrange.count)
-				{
-					subrange.count -= count;
-				}
-				else if (index < position + subrange.index)
-				{
-					subrange.index -= count;
-				}
-			}
-		}
 		foreach (SnippetRange range in snippet.ranges)
 		{
-			if (range == current || range == current.subrange)
-			{
-				continue;
-			}
 			for (SnippetRange rangeI = range; rangeI != null; rangeI = rangeI.next)
 			{
 				if (position + rangeI.index >= index)
 				{
 					rangeI.index -= count;
+				}
+				else if (position + rangeI.index + rangeI.count >= index)
+				{
+					rangeI.count -= count;
 				}
 			}
 		}
@@ -267,10 +221,6 @@ public class SnippetMode : TextChangeHook
 				foreach (Selection selection in controller.Selections)
 				{
 					if (selection.caret >= position0 && selection.caret <= position1)
-					{
-						isInside = true;
-					}
-					else if (selection.anchor >= position0 && selection.anchor <= position1)
 					{
 						isInside = true;
 					}
