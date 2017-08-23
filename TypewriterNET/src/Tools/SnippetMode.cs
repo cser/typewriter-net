@@ -130,6 +130,7 @@ public class SnippetMode : TextChangeHook
 				controller.PutNewCursor(controller.Lines.PlaceOf(position + range.subrange.index));
 				controller.LastSelection.caret = controller.LastSelection.anchor + range.subrange.count;
 			}
+			controller.NeedScrollToCaret();
 		}
 		if (state >= snippet.ranges.Count)
 		{

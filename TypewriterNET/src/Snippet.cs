@@ -36,7 +36,7 @@ public class Snippet
 		Settings settings,	
 		Getter<string, string> replaceDefaultValue)
 	{
-		rawText = rawText.Replace("${0:${VISUAL}}", "${0}");
+		rawText = new Regex(@"\$\{(\d):\$\{VISUAL\}\}").Replace(rawText, @"${$1}");
 		rawText = rawText.Replace("`g:snips_author`", settings.snipsAuthor.Value);
 		rawText = ReplaceTime(rawText);
 		List<Part> parts = ParseText(rawText);
