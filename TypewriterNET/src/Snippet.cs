@@ -75,28 +75,13 @@ public class Snippet
 				}
 			}
 		}
-		foreach (SnippetRange rangeI in ranges)
-		{
-			if (rangeI.defaultValue.StartsWith("$"))
-			{
-				string order = rangeI.defaultValue.Substring(1);
-				foreach (SnippetRange rangeJ in ranges)
-				{
-					if (rangeJ.order == order)
-					{
-						rangeJ.subrange = rangeI;
-						rangeI.defaultValue = rangeJ.defaultValue;
-						break;
-					}
-				}
-			}
-		}
 		StringBuilder builder = new StringBuilder();
 		foreach (Part part in parts)
 		{
 			if (part.isEntry)
 			{
-				if (part.entry_value.IndexOf("${") != -1)
+				int index = part.entry_value.IndexOf("${");
+				if (index != -1 && index + 2 < part.entry_value.Length && char.IsDigit(part.entry_value[index + 2]))
 				{	
 					List<Part> nested = ParseText(part.entry_value);
 					SnippetRange current = part.entry_range;
