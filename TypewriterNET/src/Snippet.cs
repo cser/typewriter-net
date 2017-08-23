@@ -295,6 +295,11 @@ public class Snippet
 		return rawText.Substring(i, index - i);
 	}
 	
+	protected virtual DateTime GetNow()
+	{
+		return DateTime.Now;
+	}
+	
 	protected string ReplaceTime(string text)
 	{
 		string bra = "`strftime(\"";
@@ -303,7 +308,7 @@ public class Snippet
 		{
 			return text;
 		}
-		DateTime time = DateTime.Now;
+		DateTime time = GetNow();
 		StringBuilder builder = new StringBuilder();
 		int prevIndex = 0;
 		while (true)
@@ -314,7 +319,7 @@ public class Snippet
 				builder.Append(text, prevIndex, text.Length - prevIndex);
 				break;
 			}
-			builder.Append(text, prevIndex, braIndex);
+			builder.Append(text, prevIndex, braIndex - prevIndex);
 			int ketIndex = text.IndexOf(ket, braIndex + bra.Length);
 			if (ketIndex == -1)
 			{

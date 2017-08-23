@@ -11,19 +11,28 @@ namespace SnippetTest
 	{
 		public class ExtendedSnippet : Snippet
 		{
-			public ExtendedSnippet() : base()
-			{
-			}
-			
 			public List<Snippet.Part> TestParseText(string text)
 			{
-				return base.ParseText(text);
+				return ParseText(text);
+			}
+			
+			public DateTime time;
+			
+			protected override DateTime GetNow()
+			{
+				return time;
 			}
 			
 			public string TestParseEntry(string text, int i,
 				out string order, out string defaultValue, out bool secondary)
 			{
-				return base.ParseEntry(text, i, out order, out defaultValue, out secondary);
+				return ParseEntry(text, i, out order, out defaultValue, out secondary);
+			}
+			
+			public string TestReplaceTime(string text, DateTime time)
+			{
+				this.time = time;
+				return ReplaceTime(text);
 			}
 		}
 		
@@ -165,6 +174,16 @@ namespace SnippetTest
 				"-3:24,5:count\n" +
 				"-0:35,0:\n" +
 				"", snippet.ranges);
+		}
+		
+		[Test]
+		public void TimeReplacing()
+		{
+			Assert.AreEqual(
+				"${2:`g:snips_author`} ${3:2000}-2000",
+				snippet.TestReplaceTime(
+					"${2:`g:snips_author`} ${3:`strftime(\"%Y\")`}-`strftime(\"%Y\")`",
+					new DateTime(2000, 1, 1)));
 		}
 	}
 }

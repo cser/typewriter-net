@@ -9,8 +9,8 @@ snippet inline
 	{-# INLINE ${0:name} #-}
 snippet info
 	-- |
-	-- Module      :  ${1:`substitute(substitute(expand('%:r'), '[/\\]','.','g'),'^\%(\l*\.\)\?','','')`}
-	-- Copyright   :  ${2:Author} ${3:2011-2012}
+	-- Module      :  ${1:%n%}
+	-- Copyright   :  ${2:`g:snips_author`} ${3:`strftime("%Y")`}-`strftime("%Y")`
 	-- License     :  ${4:BSD3}
 	--
 	-- Maintainer  :  ${5:email@something.com}
@@ -42,10 +42,13 @@ snippet class
 	class ${1:Class} a where
 		${0}
 snippet module
-	module `substitute(substitute(expand('%:r'), '[/\\]','.','g'),'^\%(\l*\.\)\?','','')` (
+	module ${1:%n%} (
+	) where${0}
+snippet mmodule
+	module ${1:%n%} (
 	) where
-	`expand('%') =~ 'Main' ? "\nmain :: IO ()\nmain = undefined" : ""`
-
+	main :: IO ()
+	main = ${0:undefined}
 snippet main
 	main :: IO ()
 	main = ${0:undefined}
@@ -93,7 +96,7 @@ snippet where
 	where
 		${1:fn} = ${0:undefined}
 snippet spec
-	module `substitute(substitute(expand('%:r'), '[/\\]','.','g'),'^\%(\l*\.\)\?','','')` (main, spec) where
+	module ${1:%n%} (main, spec) where
 
 	import Test.Hspec
 	import Test.QuickCheck
@@ -103,7 +106,7 @@ snippet spec
 
 	spec :: Spec
 	spec =
-		describe "${1}" $ do
+		describe "${2}" $ do
 			$0
 snippet desc
 	describe "${1}" $ do

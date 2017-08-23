@@ -4,10 +4,15 @@ snippet xml
 	<?xml version="1.0" encoding="UTF-8"?>
 # tag
 snippet t
-	<${1:}>
-		${2}
+	<${1:item}${2:}>
+		${0}
 	</$1>
 # inline tag
 snippet ti
-	<${1:}>${2}</$1>
-
+	<${1:item}>${0}</$1>
+snippet <
+	<${1:item}${0}/>
+snippet cd
+	<![CDATA[${0}]]>
+snippet //
+	<!-- ${0} -->
