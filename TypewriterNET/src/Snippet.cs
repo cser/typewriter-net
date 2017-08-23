@@ -129,15 +129,16 @@ public class Snippet
 				builder.Append(part.text_value);
 			}
 		}
+		int builderLength = builder.Length;
+		if (builderLength >= 2 && builder[builderLength - 2] == '\r' && builder[builderLength - 1] == '\n')
+		{
+			builder.Length -= 2;
+		}
+		else if (builderLength >= 1 && (builder[builderLength - 1] == '\n' || builder[builderLength - 1] == '\r'))
+		{
+			--builder.Length;
+		}
 		_startText = builder.ToString();
-		if (_startText.EndsWith("\r\n"))
-		{
-			_startText = _startText.Substring(0, _startText.Length - 2);
-		}
-		else if (_startText.EndsWith("\n") || _startText.EndsWith("\r"))
-		{
-			_startText = _startText.Substring(0, _startText.Length - 1);
-		}
 		ranges.Sort(SnippetRange.Compare);
 	}
 	

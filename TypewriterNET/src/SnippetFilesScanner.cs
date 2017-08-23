@@ -94,7 +94,7 @@ public class SnippetFilesScanner
 			{
 				SnippetInfo info = new SnippetInfo();
 				info.path = pathI;
-				info.patterns = ParseExtenstions(tempI["extensions"].String);
+				info.patterns = ParseExtenstions(tempI["patterns"].String);
 				infos.Add(info);
 
 				newTemp[fileName] = tempI;
@@ -118,6 +118,7 @@ public class SnippetFilesScanner
 				
 				SValue newTempI = SValue.NewHash();
 				newTempI["patterns"] = SValue.NewString(patterns);
+				newTempI["ticks"] = SValue.NewLong(newTicks);
 				newTemp[fileName] = newTempI;
 				
 				SnippetInfo info = new SnippetInfo();

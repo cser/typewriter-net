@@ -131,6 +131,11 @@ public class SnippetMode : TextChangeHook
 				controller.LastSelection.caret = controller.LastSelection.anchor + range.subrange.count;
 			}
 		}
+		if (state >= snippet.ranges.Count)
+		{
+			Close();
+			return;
+		}
 		if (snippet.ranges[state].nested == null)
 		{
 			++state;
