@@ -473,19 +473,40 @@ public class Frame : AFrame
 				int position = selection.anchor;
 				
 				SnippetAtom atom = atoms[0];
-				Snippet snippet = new Snippet(
-					atom.GetIndentedText(indent, controller.Lines.TabSettings),
-					settings,
-					new SnippetReplaceValue(this, controller.Lines, position).ReplaceValue);
-				
-				controller.ClearMinorSelections();
-				controller.LastSelection.anchor = position - atom.key.Length;
-				controller.LastSelection.caret = position;
-				controller.InsertText(snippet.StartText);
-				
-				snippetsMode = new SnippetMode(
-					textBox, controller, snippet, position - atom.key.Length, Snippets_OnAutocompleteClose);
-				snippetsMode.Show();
+				if (atom.desc != null && atom.desc.Trim().StartsWith("action:"))
+				{
+					controller.ClearMinorSelections();
+					controller.LastSelection.anchor = position - atom.key.Length;
+					controller.LastSelection.caret = position;
+					controller.EraseSelection();
+					CommandData command = new CommandData("", atom.text.Trim());
+					StringBuilder errors = new StringBuilder();
+					List<MacrosExecutor.Action> actions = command.GetActions(errors);
+					if (errors.Length == 0)
+					{
+						MulticaretTextBox.initMacrosExecutor.Execute(actions);
+					}
+					else
+					{
+						controller.InsertText("ERROR: " + errors.ToString());
+					}
+				}
+				else
+				{
+					Snippet snippet = new Snippet(
+						atom.GetIndentedText(indent, controller.Lines.TabSettings),
+						settings,
+						new SnippetReplaceValue(this, controller.Lines, position).ReplaceValue);
+					
+					controller.ClearMinorSelections();
+					controller.LastSelection.anchor = position - atom.key.Length;
+					controller.LastSelection.caret = position;
+					controller.InsertText(snippet.StartText);
+	
+					snippetsMode = new SnippetMode(
+						textBox, controller, snippet, position - atom.key.Length, Snippets_OnAutocompleteClose);
+					snippetsMode.Show();
+				}
 				return true;
 			}
 			if (atoms.Count > 1)

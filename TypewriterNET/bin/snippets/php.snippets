@@ -215,7 +215,7 @@ snippet doc_i "interface someClass {}"
 	/**
 	 * $1
 	 * @package ${2:default}
-	 * @author ${3:`!v g:snips_author`}
+	 * @author ${3:`g:snips_author`}
 	 **/
 	interface ${1:someClass}
 	{${4}
@@ -265,7 +265,7 @@ snippet class
 		}
 	}
 snippet nc
-	namespace ${1:`substitute(substitute(expand("%:h"), '\v^\w+\/(\u)', '\1', ''), '\/', '\\\', 'g')`};
+	namespace ${1:%n%:lower;};
 
 	${2:abstract }class ${3:%n%}
 	{

@@ -99,7 +99,11 @@ public struct CommandData
 			specials = new Dictionary<string, MacrosExecutor.Action>();
 			specials["space"] = new MacrosExecutor.Action(' ');
 			specials["escape"] = new MacrosExecutor.Action(Keys.Escape);
-			specials["cr"] = new MacrosExecutor.Action(Keys.Enter);
+			//specials["cr"] = new MacrosExecutor.Action(Keys.Enter);
+			//specials["bs"] = new MacrosExecutor.Action(Keys.Back);
+			specials["cr"] = new MacrosExecutor.Action('\r');
+			specials["bs"] = new MacrosExecutor.Action('\b');
+			specials["del"] = new MacrosExecutor.Action(Keys.Delete);
 			specials["tab"] = new MacrosExecutor.Action(Keys.Tab);
 			specials["leader"] = new MacrosExecutor.Action('\\');
 			specials["lt"] = new MacrosExecutor.Action('<');
@@ -142,8 +146,8 @@ public struct CommandData
 	{
 		switch (c)
 		{
-			case ']': return Keys.OemOpenBrackets;
-			case '[': return Keys.OemCloseBrackets;
+			case ']': return Keys.OemCloseBrackets;
+			case '[': return Keys.OemOpenBrackets;
 			case 'a': return Keys.A;
 			case 'A': return Keys.A | Keys.Shift;
 			case 'b': return Keys.B;

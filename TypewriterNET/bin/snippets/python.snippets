@@ -177,7 +177,10 @@ snippet a=
 	self.assertEqual(${0}, ${1})
 # test function/method
 snippet test
-	def test_${1:description}(${2:`indent('.') ? 'self' : ''`}):
+	def test_${1:description}():
+		${0}
+snippet testm
+	def test_${1:description}(self):
 		${0}
 # test case
 snippet testcase
@@ -233,7 +236,7 @@ snippet epydoc
 	"""
 snippet dol
 	def ${1:__init__}(self, *args, **kwargs):
-	    super(${0:ClassName}, self).$1(*args, **kwargs)
+		super(${0:ClassName}, self).$1(*args, **kwargs)
 snippet kwg
 	self.${1:var_name} = kwargs.get('$1', ${2:None})
 snippet lkwg

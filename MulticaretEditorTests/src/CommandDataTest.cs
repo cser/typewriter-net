@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Text;
 using NUnit.Framework;
@@ -40,6 +41,14 @@ namespace UnitTests
 		{
 			CommandData data = new CommandData("name", "[C-A][C-b]c");
 			AssertActions("[(A, Shift, Control), (B, Control), c]", data);
+		}
+		
+		[Test]
+		public void ControlBra()
+		{
+			CommandData data = new CommandData("name", "[C-[]");
+			List<MacrosExecutor.Action> actions = data.GetActions(new StringBuilder());
+			Assert.AreEqual(Keys.Control | Keys.OemOpenBrackets, actions[0].keys);
 		}
 	}
 }
