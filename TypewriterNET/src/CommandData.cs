@@ -148,6 +148,7 @@ public struct CommandData
 		{
 			case ']': return Keys.OemCloseBrackets;
 			case '[': return Keys.OemOpenBrackets;
+			case ':': return Keys.OemSemicolon;
 			case 'a': return Keys.A;
 			case 'A': return Keys.A | Keys.Shift;
 			case 'b': return Keys.B;

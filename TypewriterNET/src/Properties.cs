@@ -500,7 +500,7 @@ public class Properties
 			for (int i = this.value.Count; i-- > 0;)
 			{
 				CommandData dataI = this.value[i];
-				if (dataI.name == data.name && dataI.sequence == data.sequence)
+				if (dataI.name == data.name)
 				{
 					this.value.RemoveAt(i);
 				}
@@ -517,7 +517,7 @@ public class Properties
 			{
 				StringBuilder builder = new StringBuilder();
 				builder.Append("name|sequence, multinodes allowed\n");
-				builder.Append("e.g.: test|:!echo AAA[cr]\n");
+				builder.Append("e.g.: test|[C-:]!echo AAA[cr]\n");
 				builder.Append("[C-x] - Ctrl+X\n");
 				builder.Append("[C-X] - Ctrl+Shift+X\n");
 				builder.Append("[C-]] - Ctrl+]\n");
