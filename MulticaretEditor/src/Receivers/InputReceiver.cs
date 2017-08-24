@@ -41,6 +41,11 @@ namespace MulticaretEditor
 				context.SetState(new ViReceiver(viData, true));
 				return true;
 			}
+			if (keysData == Keys.Enter)
+			{
+				controller.InsertLineBreak();
+				return true;
+			}
 			return false;
 		}
 		

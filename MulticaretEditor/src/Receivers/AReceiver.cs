@@ -37,9 +37,6 @@ namespace MulticaretEditor
 						controller.EraseSelection();
 					}
 					break;
-				case '\r':
-					controller.InsertLineBreak();
-					break;
 				default:
 					controller.InsertText(code + "");
 					break;
