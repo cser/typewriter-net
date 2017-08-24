@@ -1758,29 +1758,6 @@ namespace MulticaretEditor
 			return true;
 		}
 
-		private bool actionProcessed = false;
-
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			actionProcessed = false;
-			base.OnKeyDown(e);
-			if (Focused)
-			{
-				Keys keys = e.KeyData;
-				if ((keys & Keys.Control) == Keys.Control ||
-					(keys & Keys.Enter) == Keys.Enter ||
-					(keys & Keys.Escape) == Keys.Escape ||
-					(keys & Keys.Left) == Keys.Left ||
-					(keys & Keys.Right) == Keys.Right ||
-					(keys & Keys.Up) == Keys.Up ||
-					(keys & Keys.Down) == Keys.Down)
-				{
-					ProcessKeyUniversal('\0', keys);
-					actionProcessed = true;
-				}
-			}
-		}
-
 		protected override bool ProcessMnemonic(char charCode)
 		{
 			if (!Focused)
@@ -1790,54 +1767,70 @@ namespace MulticaretEditor
 			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
 			{
 				ProcessKeyUniversal(altChar, Keys.None);
-				actionProcessed = true;
 				return true;
 			}
 			return false;
 		}
+
+		private bool actionProcessed = false;
 
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
 			base.OnKeyPress(e);
 			if (Focused)
 			{
-				if (!actionProcessed)
-				{
-					ProcessKeyUniversal(e.KeyChar, Keys.None);
-				}
+				ProcessKeyUniversal(e.KeyChar, Keys.None);
 			}
 		}
 		
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			if (Focused)
+			{
+				ProcessKeyUniversal('\0', e.KeyData);
+			}
+		}
+
 		private void ProcessKeyUniversal(char code, Keys keys)
 		{
 			if (code != '\0')
 			{
-				if (macrosExecutor.current != null)
-					macrosExecutor.current.Add(new MacrosExecutor.Action(code));
-				ExecuteKeyPress(code);
+				if (!actionProcessed)
+				{
+					if (macrosExecutor.current != null)
+						macrosExecutor.current.Add(new MacrosExecutor.Action(code));
+					ExecuteKeyPress(code);
+				}
+				actionProcessed = false;
+				if (AfterKeyPress != null)
+					AfterKeyPress();
 			}
 			else
 			{
 				if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, keys))
 					macrosExecutor.current.Add(new MacrosExecutor.Action(keys));
 				ExecuteKeyDown(keys);
+				if (AfterKeyPress != null)
+					AfterKeyPress();
 			}
-			if (AfterKeyPress != null)
-				AfterKeyPress();
 		}
 		
 		public void ProcessMacrosAction(MacrosExecutor.Action action)
 		{
-			if (action.mode != null)
-			{
-				Keys oldKeys = modePressedKeys;
-				modePressedKeys = action.keys;
-				keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
-				modePressedKeys = oldKeys;
-			}
 			if (action.keys != Keys.None)
 			{
-				ExecuteKeyDown(action.keys);
+				if (action.mode != null)
+				{
+					Keys oldKeys = modePressedKeys;
+					modePressedKeys = action.keys;
+					keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
+					modePressedKeys = oldKeys;
+				}
+				else
+				{
+					ExecuteKeyDown(action.keys);
+				}
 			}
 			else
 			{
@@ -1886,7 +1879,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				//actionProcessed = false;
+				actionProcessed = false;
 				keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
 			}
 		}
@@ -1906,7 +1899,7 @@ namespace MulticaretEditor
 
 		private bool ProcessKeyDown(KeyMap keyMap, Keys keyData)
 		{
-			//if (!actionProcessed)
+			if (!actionProcessed)
 			{
 				KeyItem keyItem = keyMap.GetItem(keyData);
 				while (keyItem != null)
@@ -1917,7 +1910,7 @@ namespace MulticaretEditor
 					if (keyItem.modeKeys == null || (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
 					if (action.doOnDown(controller))
 					{
-						//actionProcessed = true;
+						actionProcessed = true;
 						UnblinkCursor();
 						if (action.needScroll)
 							ScrollIfNeedToCaret();
@@ -1931,7 +1924,7 @@ namespace MulticaretEditor
 
 		private bool ProcessDoubleClick(KeyMap keyMap, bool _)
 		{
-			//if (!actionProcessed)
+			if (!actionProcessed)
 			{
 				for (KeyItem keyItem = keyMap.GetDoubleClickItem(); keyItem != null; keyItem = keyItem.next)
 				{
@@ -1941,7 +1934,7 @@ namespace MulticaretEditor
 						keyItem.modeKeys != null && (keyItem.modeKeys.Value & modePressedKeys) == keyItem.modeKeys.Value)
 					if (action.doOnDown(controller))
 					{
-						//actionProcessed = true;
+						actionProcessed = true;
 						UnblinkCursor();
 						if (action.needScroll)
 							ScrollIfNeedToCaret();
@@ -1998,7 +1991,7 @@ namespace MulticaretEditor
 			else if (mouseDownIndex == 2)
 			{
 				mouseDownIndex = 0;
-				//actionProcessed = false;
+				actionProcessed = false;
 				if (!keyMap.Enumerate<bool>(ProcessDoubleClick, false))
 				{
 					Mouse_SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
