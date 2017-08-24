@@ -1766,28 +1766,56 @@ namespace MulticaretEditor
 			char altChar;
 			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
 			{
-				controller.InsertText(altChar + "");
-				actionProcessed = false;
+				ProcessKeyUniversal(altChar, Keys.None);
 				return true;
 			}
 			return false;
 		}
 
+		private bool actionProcessed = false;
+
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
-			char code = e.KeyChar;
-			if (Focused && !actionProcessed)
-			{
-				if (macrosExecutor.current != null)
-					macrosExecutor.current.Add(new MacrosExecutor.Action(code));
-				ExecuteKeyPress(code);
-			}
-			actionProcessed = false;
 			base.OnKeyPress(e);
-			if (AfterKeyPress != null)
-				AfterKeyPress();
+			if (Focused)
+			{
+				ProcessKeyUniversal(e.KeyChar, Keys.None);
+			}
+		}
+		
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			if (Focused)
+			{
+				ProcessKeyUniversal('\0', e.KeyData);
+			}
 		}
 
+		private void ProcessKeyUniversal(char code, Keys keys)
+		{
+			if (code != '\0')
+			{
+				if (!actionProcessed)
+				{
+					if (macrosExecutor.current != null)
+						macrosExecutor.current.Add(new MacrosExecutor.Action(code));
+					ExecuteKeyPress(code);
+				}
+				actionProcessed = false;
+				if (AfterKeyPress != null)
+					AfterKeyPress();
+			}
+			else
+			{
+				if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, keys))
+					macrosExecutor.current.Add(new MacrosExecutor.Action(keys));
+				ExecuteKeyDown(keys);
+				if (AfterKeyPress != null)
+					AfterKeyPress();
+			}
+		}
+		
 		public void ProcessMacrosAction(MacrosExecutor.Action action)
 		{
 			if (action.keys != Keys.None)
@@ -1808,20 +1836,6 @@ namespace MulticaretEditor
 			{
 				ExecuteKeyPress(action.code);
 			}
-		}
-
-		private bool actionProcessed = false;
-
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-			if (!Focused)
-				return;
-			if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, e.KeyData))
-				macrosExecutor.current.Add(new MacrosExecutor.Action(e.KeyData));
-			ExecuteKeyDown(e.KeyData);
-			if (AfterKeyPress != null)
-				AfterKeyPress();
 		}
 		
 		private void ExecuteKeyPress(char code)
