@@ -99,10 +99,8 @@ public struct CommandData
 			specials = new Dictionary<string, MacrosExecutor.Action>();
 			specials["space"] = new MacrosExecutor.Action(' ');
 			specials["escape"] = new MacrosExecutor.Action(Keys.Escape);
-			//specials["cr"] = new MacrosExecutor.Action(Keys.Enter);
-			//specials["bs"] = new MacrosExecutor.Action(Keys.Back);
-			specials["cr"] = new MacrosExecutor.Action('\r');
-			specials["bs"] = new MacrosExecutor.Action('\b');
+			specials["cr"] = new MacrosExecutor.Action(Keys.Enter);
+			specials["bs"] = new MacrosExecutor.Action(Keys.Back);
 			specials["del"] = new MacrosExecutor.Action(Keys.Delete);
 			specials["tab"] = new MacrosExecutor.Action(Keys.Tab);
 			specials["leader"] = new MacrosExecutor.Action('\\');
@@ -223,5 +221,21 @@ public struct CommandData
 			return new CommandData(null, null);
 		}
 		return new CommandData(name, sequence);
+	}
+	
+	public static List<MacrosExecutor.Action> WithWorkaround(List<MacrosExecutor.Action> actions)
+	{
+		for (int i = actions.Count; i-- > 0;)
+		{
+			if (actions[i].keys == Keys.Enter)
+			{
+				actions.Insert(i + 1, new MacrosExecutor.Action('\r'));
+			}
+			else if (actions[i].keys == Keys.Back)
+			{
+				actions.Insert(i + 1, new MacrosExecutor.Action('\b'));
+			}
+		}
+		return actions;
 	}
 }

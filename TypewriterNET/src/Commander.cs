@@ -109,7 +109,7 @@ public class Commander
 				if (MulticaretTextBox.initMacrosExecutor != null)
 				{
 					StringBuilder errors = new StringBuilder();
-					List<MacrosExecutor.Action> actions = data.GetActions(errors);
+					List<MacrosExecutor.Action> actions = CommandData.WithWorkaround(data.GetActions(errors));
 					if (errors.Length == 0)
 					{
 						MulticaretTextBox.initMacrosExecutor.Execute(actions);
