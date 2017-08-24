@@ -1758,21 +1758,33 @@ namespace MulticaretEditor
 			return true;
 		}
 
+		private bool actionProcessed = false;
+		
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			if (Focused)
+			{
+				actionProcessed = false;
+				ProcessKeyUniversal('\0', e.KeyData);
+			}
+		}
+		
 		protected override bool ProcessMnemonic(char charCode)
 		{
 			if (!Focused)
 				return false;
 
 			char altChar;
-			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
+			if (!actionProcessed &&
+				(Control.ModifierKeys & Keys.Alt) != 0 &&
+				keyMap.main.GetAltChar(charCode, out altChar))
 			{
 				ProcessKeyUniversal(altChar, Keys.None);
 				return true;
 			}
 			return false;
 		}
-
-		private bool actionProcessed = false;
 
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
@@ -1782,55 +1794,42 @@ namespace MulticaretEditor
 				ProcessKeyUniversal(e.KeyChar, Keys.None);
 			}
 		}
-		
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-			if (Focused)
-			{
-				ProcessKeyUniversal('\0', e.KeyData);
-			}
-		}
 
 		private void ProcessKeyUniversal(char code, Keys keys)
 		{
+			if (actionProcessed)
+			{
+				return;
+			}
 			if (code != '\0')
 			{
-				if (!actionProcessed)
-				{
-					if (macrosExecutor.current != null)
-						macrosExecutor.current.Add(new MacrosExecutor.Action(code));
-					ExecuteKeyPress(code);
-				}
-				actionProcessed = false;
-				if (AfterKeyPress != null)
-					AfterKeyPress();
+				if (macrosExecutor.current != null)
+					macrosExecutor.current.Add(new MacrosExecutor.Action(code));
+				ExecuteKeyPress(code);
 			}
 			else
 			{
 				if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, keys))
 					macrosExecutor.current.Add(new MacrosExecutor.Action(keys));
 				ExecuteKeyDown(keys);
-				if (AfterKeyPress != null)
-					AfterKeyPress();
 			}
+			if (AfterKeyPress != null)
+				AfterKeyPress();
 		}
 		
 		public void ProcessMacrosAction(MacrosExecutor.Action action)
 		{
+			if (action.mode != null)
+			{
+				Keys oldKeys = modePressedKeys;
+				modePressedKeys = action.keys;
+				keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
+				modePressedKeys = oldKeys;
+				return;
+			}
 			if (action.keys != Keys.None)
 			{
-				if (action.mode != null)
-				{
-					Keys oldKeys = modePressedKeys;
-					modePressedKeys = action.keys;
-					keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
-					modePressedKeys = oldKeys;
-				}
-				else
-				{
-					ExecuteKeyDown(action.keys);
-				}
+				ExecuteKeyDown(action.keys);
 			}
 			else
 			{
