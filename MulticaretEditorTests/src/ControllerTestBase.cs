@@ -20,6 +20,7 @@ namespace UnitTests
 			lines = new LineArray(blockSize);
 			lines.tabSize = 4;
 			controller = new Controller(lines);
+			controller.macrosExecutor = new MacrosExecutor(null);
 		}
 		
 		protected string GetLineText(int index)
