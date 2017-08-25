@@ -72,6 +72,8 @@ public class RenameDialog : ADialog
 	{
 		textBox.Focus();
 		
+		bool isViMode = MulticaretTextBox.initMacrosExecutor != null &&
+			MulticaretTextBox.initMacrosExecutor.viMode != ViMode.Insert;
 		textBox.Text = text;
 		textBox.Controller.ClearMinorSelections();
 		for (int i = 0; i < textBox.Controller.Lines.LinesCount; i++)
@@ -97,7 +99,10 @@ public class RenameDialog : ADialog
 					}
 				}
 			}
-			textBox.Controller.PutCursor(new Place(right, i), true);
+			if (!isViMode)
+			{
+				textBox.Controller.PutCursor(new Place(right, i), true);
+			}
 		}
 		textBox.Invalidate();
 		Nest.size = tabBar.Height + textBox.CharHeight * (
