@@ -17,6 +17,7 @@ public class RenameDialog : ADialog
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
 	private string text;
+	private bool startViMode;
 
 	public RenameDialog(Getter<string, bool> doInput, string name, string text, List<bool> isDirectory)
 	{
@@ -72,7 +73,7 @@ public class RenameDialog : ADialog
 	{
 		textBox.Focus();
 		
-		bool isViMode = MulticaretTextBox.initMacrosExecutor != null &&
+		startViMode = MulticaretTextBox.initMacrosExecutor != null &&
 			MulticaretTextBox.initMacrosExecutor.viMode != ViMode.Insert;
 		textBox.Text = text;
 		textBox.Controller.ClearMinorSelections();
@@ -99,7 +100,7 @@ public class RenameDialog : ADialog
 					}
 				}
 			}
-			if (!isViMode)
+			if (!startViMode)
 			{
 				textBox.Controller.PutCursor(new Place(right, i), true);
 			}
@@ -149,12 +150,20 @@ public class RenameDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 		return true;
 	}
 
 	private bool DoComplete(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		return doInput(textBox.Text);
 	}
 }
