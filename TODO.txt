@@ -20,5 +20,4 @@
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - check Enter and Backspace in commands
-- break sequnece by Ctrl+]
 - line mode ^ and $

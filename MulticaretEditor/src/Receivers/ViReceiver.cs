@@ -104,6 +104,12 @@ namespace MulticaretEditor
 			if (((keysData & Keys.Control) == Keys.Control) &&
 				((keysData & Keys.OemOpenBrackets) == Keys.OemOpenBrackets))
 			{
+				if (!parser.IsIdle)
+				{
+					scrollToCursor = false;
+					parser.Reset();
+					return true;
+				}
 				if (controller.ClearMinorSelections())
 				{
 					scrollToCursor = true;
