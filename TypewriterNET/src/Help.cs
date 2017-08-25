@@ -169,6 +169,8 @@ public static class Help
 			table.Add(" \"a - \"z").Add("Innder registers").NewRow();
 			table.Add(" \"A - \"Z").Add("The same registers with accumulation").NewRow();
 			table.Add(" \"/").Add("Find register").NewRow();
+			table.Add(" \":").Add("Last command (readonly)").NewRow();
+			table.Add(" \"%").Add("File path (readonly)").NewRow();
 			table.AddLine();
 			table.Add(" Bookmarks").NewRow();
 			table.AddLine();

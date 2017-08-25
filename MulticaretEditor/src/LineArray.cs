@@ -33,6 +33,7 @@ namespace MulticaretEditor
 		public bool spacesInsteadTabs = false;
 		public string lineBreak = "\r\n";
 		public bool autoindent = false;
+		public string viFullPath;
 		
 		public TabSettings TabSettings { get { return new TabSettings(spacesInsteadTabs, tabSize); } }
 

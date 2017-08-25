@@ -12,7 +12,7 @@ public class Buffer
 	{
 		this.settingsMode = settingsMode;
 		controller = new Controller(new LineArray());
-		controller.viFullPath = fullPath;
+		controller.Lines.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
 		controller.Lines.hook2 = !string.IsNullOrEmpty(fullPath) ? new PositionHook(controller) : null;
@@ -44,7 +44,7 @@ public class Buffer
 
 	public void SetFile(string fullPath, string name)
 	{
-		controller.viFullPath = fullPath;
+		controller.Lines.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
 		if (controller.Lines.hook2 == null)

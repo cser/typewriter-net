@@ -35,7 +35,6 @@ namespace MulticaretEditor
 		
 		public static string viLastCommand = "";
 		public static string viLastInsertText = "";
-		public static string viFileName = "";
 		public static bool fakeLayout = false;
 		public static bool fakeEnLayout = true;
 		
@@ -52,7 +51,6 @@ namespace MulticaretEditor
 			registers = new string[RegistersCount];
 			viLastCommand = "";
 			viLastInsertText = "";
-			viFileName = "";
 			fakeLayout = false;
 			fakeEnLayout = true;
 		}
@@ -157,7 +155,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public static string GetFromRegister(char c)
+		public static string GetFromRegister(LineArray lines, char c)
 		{
 			string result = null;
 			if (c == '*' || c == '-')
@@ -190,7 +188,7 @@ namespace MulticaretEditor
 			}
 			else if (c == '%')
 			{
-				result = viFileName;
+				result = lines.viFullPath;
 			}
 			return result ?? "";
 		}

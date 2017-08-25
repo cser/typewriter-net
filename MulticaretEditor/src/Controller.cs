@@ -1923,7 +1923,7 @@ namespace MulticaretEditor
 				SavePositions();
 				ViMoveRightFromCursor();
 			}
-			string text = ClipboardExecutor.GetFromRegister(register);
+			string text = ClipboardExecutor.GetFromRegister(lines, register);
 			if (text == null || text == "")
 			{
 				processor.EndBatch();
@@ -2197,13 +2197,11 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public string viFullPath;
-		
 		public void ViAddHistoryPosition(bool forced)
 		{
-			if (macrosExecutor != null && !string.IsNullOrEmpty(viFullPath))
+			if (macrosExecutor != null && !string.IsNullOrEmpty(lines.viFullPath))
 			{
-				macrosExecutor.ViSetCurrentFile(viFullPath);
+				macrosExecutor.ViSetCurrentFile(lines.viFullPath);
 				if (forced)
 				{
 					macrosExecutor.ViPositionAdd(LastSelection.caret);

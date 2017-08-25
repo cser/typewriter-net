@@ -587,7 +587,7 @@ namespace MulticaretEditor
 						{
 							if (controller.macrosExecutor != null)
 							{
-								controller.macrosExecutor.SetBookmark(parser.moveChar.c, controller.viFullPath, controller.LastSelection.caret);
+								controller.macrosExecutor.SetBookmark(parser.moveChar.c, controller.Lines.viFullPath, controller.LastSelection.caret);
 							}
 							return;
 						}

@@ -18,7 +18,7 @@ namespace MulticaretEditor
 		override public bool Init()
 		{
 			lines.JoinSelections();
-			string text = ClipboardExecutor.GetFromRegister(register);
+			string text = ClipboardExecutor.GetFromRegister(lines, register);
 			if (string.IsNullOrEmpty(text))
 				return false;
 			
