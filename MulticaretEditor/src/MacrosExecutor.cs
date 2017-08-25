@@ -289,6 +289,8 @@ namespace MulticaretEditor
 			return text;
 		}
 		
+		public ViCommandParser.LastCommand lastCommand;
+		
 		public readonly List<PositionFile> bookmarkFiles = new List<PositionFile>(8);
 		public readonly List<List<PositionChar>> bookmarks = new List<List<PositionChar>>();
 		

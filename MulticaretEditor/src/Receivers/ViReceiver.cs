@@ -24,9 +24,12 @@ namespace MulticaretEditor
 		{
 			ViReceiverData startData = this.startData;
 			this.startData = null;
-			if (context.lastCommand != null && startData != null)
+			if (controller.macrosExecutor != null)
 			{
-				context.lastCommand.startData = startData;
+				if (controller.macrosExecutor.lastCommand != null && startData != null)
+				{
+					controller.macrosExecutor.lastCommand.startData = startData;
+				}
 			}
 			ProcessOnStart(startData, offsetOnStart);
 		}
@@ -423,10 +426,11 @@ namespace MulticaretEditor
 						}
 						break;
 					case '.':
-						if (context.lastCommand != null)
+						if (controller.macrosExecutor != null && controller.macrosExecutor.lastCommand != null)
 						{	
-							ViCommandParser.LastCommand lastCommand = context.lastCommand;
-							context.lastCommand = null;
+							ViCommandParser.LastCommand lastCommand = null;
+							lastCommand = controller.macrosExecutor.lastCommand;
+							controller.macrosExecutor.lastCommand = null;
 							try
 							{
 								controller.processor.BeginBatch();
@@ -600,7 +604,10 @@ namespace MulticaretEditor
 			}
 			if (command != null || forceLastCommand)
 			{
-				context.lastCommand = parser.GetLastCommand();
+				if (controller.macrosExecutor != null)
+				{
+					controller.macrosExecutor.lastCommand = parser.GetLastCommand();
+				}
 				if (controller.isReadonly)
 				{
 					viShortcut = parser.GetFictiveShortcut();

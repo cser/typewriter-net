@@ -5,13 +5,13 @@
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
 - indent } after new line if cursor before
+- fix autoindent after empty line
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
 - fix unfocus on reloading undo
 - fix special registers
 - fix . with indentation
 - fix line appending at last 
-- save . betwean files
 - methods list
 - recover selection by gv after refocus
 - dG, cG, yG works with lines

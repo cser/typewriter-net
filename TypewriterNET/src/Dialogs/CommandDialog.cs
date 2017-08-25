@@ -170,6 +170,7 @@ public class CommandDialog : ADialog
 
 	private bool DoRunCommand(Controller controller)
 	{
+		ClipboardExecutor.viLastCommand = textBox.Text;
 		Commander commander = MainForm.commander;
 		commander.Execute(textBox.Text, false, false, GetAltCommandText, new OnceCallback(DispatchNeedClose));
 		return true;
