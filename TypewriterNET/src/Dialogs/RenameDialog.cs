@@ -60,6 +60,10 @@ public class RenameDialog : ADialog
 
 	private void OnCloseClick()
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 	}
 

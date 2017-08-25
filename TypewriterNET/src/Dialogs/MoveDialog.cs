@@ -30,6 +30,7 @@ public class MoveDialog : ADialog
 	private Data data;
 	private string text;
 	private Getter<string, bool> onInput;
+	private bool startViMode;
 
 	public MoveDialog(Data data, Getter<string, bool> onInput, string name, string text)
 	{
@@ -80,6 +81,10 @@ public class MoveDialog : ADialog
 
 	private void OnCloseClick()
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 	}
 
@@ -93,6 +98,9 @@ public class MoveDialog : ADialog
 	override public void Focus()
 	{
 		textBox.Focus();
+		
+		startViMode = MulticaretTextBox.initMacrosExecutor != null &&
+			MulticaretTextBox.initMacrosExecutor.viMode != ViMode.Insert;
 		Frame lastFrame = Nest.MainForm.LastFrame;
 		Controller lastController = lastFrame != null ? lastFrame.Controller : null;
 		if (lastController != null)
@@ -148,6 +156,10 @@ public class MoveDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 		return true;
 	}
@@ -158,7 +170,13 @@ public class MoveDialog : ADialog
 		if (data.history != null)
 			data.history.Add(text);
 		if (onInput(textBox.Controller.Lines.GetText()))
+		{
+			if (startViMode)
+			{
+				textBox.SetViMode(true);
+			}
 			DispatchNeedClose();
+		}
 		return true;
 	}
 
