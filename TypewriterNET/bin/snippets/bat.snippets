@@ -1,0 +1,25 @@
+extensions: *.bat;*.cmd
+
+snippet eo echo off
+	@echo off${0}
+
+snippet cd set current directory to file location
+	rem set current directory to file location
+	rem it make possible to run script from any location
+	%~d0
+	cd "%~dp0"${0}
+
+snippet for iterate files
+	for %%${1:f} in (${2:*.txt}) do (
+		${3:echo %%~n$1}${0}
+	)
+
+snippet if
+	if ${1} (
+		${0}
+	)
+
+snippet else
+	else (
+		${0}
+	)
