@@ -193,7 +193,7 @@ namespace UnitTests
 		
 		protected void AssertViClipboard(string text)
 		{
-			Assert.AreEqual(text, ClipboardExecutor.GetFromRegister('\0'));
+			Assert.AreEqual(text, ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 	}
 }

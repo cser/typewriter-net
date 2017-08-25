@@ -149,10 +149,6 @@ namespace MulticaretEditor
 			{
 				registers[c - 'A'] += text;
 			}
-			else if (c == '/')
-			{
-				registers[26] = text;
-			}
 		}
 		
 		public static string GetFromRegister(LineArray lines, char c)
@@ -226,6 +222,7 @@ namespace MulticaretEditor
 					case '}':
 					case '+':
 					case '-':
+					case '*':
 						builder.Append('\\');
 						builder.Append(c);
 						break;
