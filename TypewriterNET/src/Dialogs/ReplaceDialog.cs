@@ -287,6 +287,7 @@ public class ReplaceDialog : ADialog
 			settings.ApplySimpleParameters(replaceTextBox, null);
 			settings.ApplyToLabel(textLabel);
 			settings.ApplyToLabel(replaceTextLabel);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{

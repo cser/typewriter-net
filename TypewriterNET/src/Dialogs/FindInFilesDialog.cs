@@ -198,6 +198,8 @@ public class FindInFilesDialog : ADialog
 		{
 			settings.ApplySimpleParameters(textBox, null);
 			settings.ApplySimpleParameters(filterTextBox, null, false);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
+			filterTextBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{

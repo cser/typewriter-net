@@ -1,3 +1,4 @@
+- Fix word move at line end
 - Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing
@@ -15,7 +16,6 @@
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
 - Put cursor to start after copy
-- fix dialogs normal mode layout keys
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - check Enter and Backspace in commands

@@ -215,6 +215,7 @@ public class IncrementalSearchBase : ADialog
 		{
 			settings.ApplySimpleParameters(variantsTextBox, null);
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 			SetTextBoxParameters();
 		}
 		else if (phase == UpdatePhase.Parsed)

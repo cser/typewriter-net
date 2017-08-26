@@ -149,6 +149,7 @@ public class ViFindDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
