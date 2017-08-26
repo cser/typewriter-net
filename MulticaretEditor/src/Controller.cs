@@ -600,7 +600,16 @@ namespace MulticaretEditor
 					int firstTrimmedLength = line.GetLastLeftSpace(place.iChar);
 					if (firstTrimmedLength > 0 && line.chars[firstTrimmedLength - 1].c == '{')
 					{
-						text = (lines.spacesInsteadTabs ? new string(' ', lines.tabSize) : "\t") + text;
+						text = lines.TabSettings.Tab + text;
+					}
+					else if (line.charsCount > firstTrimmedLength && line.chars[firstTrimmedLength].c == '}')
+					{
+						int iChar;
+						int spacesSize = line.GetFirstSpaceSize(out iChar);
+						if (spacesSize > 0 && spacesSize % lines.tabSize == 0)
+						{
+							text = lines.TabSettings.ShiftedSpacesOfSize(spacesSize, -1);
+						}
 					}
 				}
 				texts[i] = lines.lineBreak + text;

@@ -1,3 +1,5 @@
+using System;
+
 namespace MulticaretEditor
 {
 	public struct TabSettings
@@ -21,6 +23,12 @@ namespace MulticaretEditor
 				}
 				return "\t";
 			}
+		}
+		
+		public string ShiftedSpacesOfSize(int spacesSize, int shift)
+		{
+			int count = Math.Max(0, spacesSize / size + shift);
+			return useSpaces ? new string(' ', size * count) : new string('\t', count);
 		}
 		
 		private static string[] _tabs = new string[]
