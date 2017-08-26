@@ -334,5 +334,19 @@ namespace UnitTests
 			controller.processor.Undo();
 			AssertText("line0() {\nline2}ABCDE");
 		}
+		
+		[Test]
+		public void InsertLineBreak_AfterColon()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText("\tline0()\n\tline1:ABCDE\n\tline2");
+			controller.PutCursor(new Place(7, 1), false);
+			controller.InsertLineBreak();
+			AssertText("\tline0()\n\tline1:\n\t\tABCDE\n\tline2").AssertSelection().Both(1, 2);
+			controller.processor.Undo();
+			AssertText("\tline0()\n\tline1:ABCDE\n\tline2");
+		}
 	}
 }

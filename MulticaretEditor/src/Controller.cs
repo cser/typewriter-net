@@ -598,7 +598,8 @@ namespace MulticaretEditor
 				if (lines.autoindent)
 				{
 					int firstTrimmedLength = line.GetLastLeftSpace(place.iChar);
-					if (firstTrimmedLength > 0 && line.chars[firstTrimmedLength - 1].c == '{')
+					if (firstTrimmedLength > 0 &&
+						(line.chars[firstTrimmedLength - 1].c == '{' || line.chars[firstTrimmedLength - 1].c == ':'))
 					{
 						text = lines.TabSettings.Tab + text;
 					}
