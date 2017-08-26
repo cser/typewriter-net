@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -34,9 +35,9 @@ namespace MulticaretEditor
 		private static string[] registers = new string[RegistersCount];
 		
 		public static string viLastCommand = "";
-		public static string viLastInsertText = "";
 		public static bool fakeLayout = false;
 		public static bool fakeEnLayout = true;
+		public static List<char> viLastInputChars;
 		
 		private static CharsRegularExpressions.Regex _viRegex;
 		public static CharsRegularExpressions.Regex ViRegex { get { return _viRegex; } }
@@ -50,7 +51,7 @@ namespace MulticaretEditor
 			fakeText = "";
 			registers = new string[RegistersCount];
 			viLastCommand = "";
-			viLastInsertText = "";
+			viLastInputChars = null;
 			fakeLayout = false;
 			fakeEnLayout = true;
 		}
@@ -180,7 +181,10 @@ namespace MulticaretEditor
 			}
 			else if (c == '.')
 			{
-				result = viLastInsertText;
+				if (viLastInputChars != null)
+				{
+					result = new string(viLastInputChars.ToArray());
+				}
 			}
 			else if (c == '%')
 			{

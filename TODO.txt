@@ -9,7 +9,6 @@
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
 - fix unfocus on reloading undo
-- fix special registers
 - fix . with indentation
 - fix line appending at last 
 - methods list

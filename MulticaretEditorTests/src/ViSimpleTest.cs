@@ -1462,5 +1462,15 @@ namespace UnitTests
 			Put(1, 0).Press("~").AssertText("abcdef").AssertSelection().Both(2, 0);
 			Put(1, 0).Press("2~").AssertText("aBCdef").AssertSelection().Both(3, 0);
 		}
+		
+		[Test]
+		public void LastInput()
+		{
+			lines.SetText("abcdef");
+			Put(2, 0).Press("iABC").AssertText("abABCcdef");
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(lines, '.'));
+			Press(Keys.OemOpenBrackets | Keys.Control);
+			Assert.AreEqual("ABC", ClipboardExecutor.GetFromRegister(lines, '.'));
+		}
 	}
 }

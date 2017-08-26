@@ -84,8 +84,16 @@ namespace UnitTests
 		public void LastSearch()
 		{
 			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(null, '/'));
+			ClipboardExecutor.PutToSearch(new Pattern("pattern", false, false));
+			Assert.AreEqual("pattern", ClipboardExecutor.GetFromRegister(null, '/'));
+		}
+		
+		[Test]
+		public void LastSearch_Readonly()
+		{
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(null, '/'));
 			ClipboardExecutor.PutToRegister('/', "ABC");
-			Assert.AreEqual("ABC", ClipboardExecutor.GetFromRegister(null, '/'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(null, '/'));
 		}
 		
 		[Test]
@@ -98,11 +106,9 @@ namespace UnitTests
 			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(lines, '%'));
 			
 			ClipboardExecutor.viLastCommand = "command";
-			ClipboardExecutor.viLastInsertText = "last insert text";
 			lines.viFullPath = "file name";
 			
 			Assert.AreEqual("command", ClipboardExecutor.GetFromRegister(lines, ':'));
-			Assert.AreEqual("last insert text", ClipboardExecutor.GetFromRegister(lines, '.'));
 			Assert.AreEqual("file name", ClipboardExecutor.GetFromRegister(lines, '%'));
 			
 			ClipboardExecutor.PutToRegister(':', "A");
@@ -110,7 +116,7 @@ namespace UnitTests
 			ClipboardExecutor.PutToRegister('%', "C");
 			
 			Assert.AreEqual("command", ClipboardExecutor.GetFromRegister(lines, ':'));
-			Assert.AreEqual("last insert text", ClipboardExecutor.GetFromRegister(lines, '.'));
+			Assert.AreEqual("", ClipboardExecutor.GetFromRegister(lines, '.'));
 			Assert.AreEqual("file name", ClipboardExecutor.GetFromRegister(lines, '%'));
 		}
 		

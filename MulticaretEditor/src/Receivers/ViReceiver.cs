@@ -24,24 +24,19 @@ namespace MulticaretEditor
 		{
 			ViReceiverData startData = this.startData;
 			this.startData = null;
-			if (controller.macrosExecutor != null)
+			if (controller.macrosExecutor != null &&
+				controller.macrosExecutor.lastCommand != null &&
+				startData != null)
 			{
-				if (controller.macrosExecutor.lastCommand != null && startData != null)
-				{
-					controller.macrosExecutor.lastCommand.startData = startData;
-				}
+				controller.macrosExecutor.lastCommand.startData = startData;
 			}
-			ProcessOnStart(startData, offsetOnStart);
-		}
-		
-		private void ProcessOnStart(ViReceiverData startData, bool offsetOnStart)
-		{
 			foreach (Selection selection in controller.Selections)
 			{
 				selection.SetEmpty();
 			}
 			if (startData != null)
 			{
+				ClipboardExecutor.viLastInputChars = startData.inputChars;
 				int count = startData.count + (startData.forcedInput ? 1 : 0);
 				if (startData.action == 'o' || startData.action == 'O')
 				{

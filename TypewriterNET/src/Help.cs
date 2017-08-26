@@ -164,12 +164,14 @@ public static class Help
 			table.AddLine();
 			table.Add(" Regisers").NewRow();
 			table.AddLine();
-			table.Add(" \"<register><y|yy|p|P|<action>>").Add("Common form,\n  if register empty - uses default").NewRow();
+			table.Add(" \"<register><y|yy|p|P|<action>>").Add("Common form,\n  uses `\"0` if `\"<register>` unspecified").NewRow();
+			table.Add(" \"0").Add("Default, don't need to be specified").NewRow();
 			table.Add(" \"*, \"-").Add("System clipboard").NewRow();
 			table.Add(" \"a - \"z").Add("Innder registers").NewRow();
 			table.Add(" \"A - \"Z").Add("The same registers with accumulation").NewRow();
 			table.Add(" \"/").Add("Find register (readonly)").NewRow();
 			table.Add(" \":").Add("Last command (readonly)").NewRow();
+			table.Add(" \".").Add("Last input text (readonly)").NewRow();
 			table.Add(" \"%").Add("File path (readonly)").NewRow();
 			table.AddLine();
 			table.Add(" Bookmarks").NewRow();
