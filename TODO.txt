@@ -14,5 +14,5 @@
 - dG, cG, yG works with lines
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
-- check Enter and Backspace in commands
 - line mode ^ and $
+- fix {} object with nested with repetition
