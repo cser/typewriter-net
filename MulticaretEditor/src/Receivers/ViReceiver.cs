@@ -37,12 +37,14 @@ namespace MulticaretEditor
 			if (startData != null)
 			{
 				ClipboardExecutor.viLastInputChars = startData.inputChars;
-				int count = startData.count + (startData.forcedInput ? 1 : 0);
 				if (startData.action == 'o' || startData.action == 'O')
 				{
-					for (int i = 1; i < count; i++)
+					for (int i = startData.forcedInput ? 0 : 1; i < startData.count; i++)
 					{
-						controller.InsertLineBreak();
+						if (i > 0)
+						{
+							controller.InsertLineBreak();
+						}
 						foreach (char c in startData.inputChars)
 						{
 							ProcessInputChar(c);
@@ -51,7 +53,7 @@ namespace MulticaretEditor
 				}
 				else
 				{
-					for (int i = 1; i < count; i++)
+					for (int i = startData.forcedInput ? 0 : 1; i < startData.count; i++)
 					{
 						foreach (char c in startData.inputChars)
 						{

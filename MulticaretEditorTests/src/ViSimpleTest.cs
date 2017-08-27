@@ -1506,5 +1506,15 @@ namespace UnitTests
 			Assert.AreEqual("  line1\nline2\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
 			AssertSelection().Both(3, 1).NoNext();
 		}
+		
+		[Test]
+		public void DotLineInsertion()
+		{
+			lines.SetText("line0\n  line1\nline2\nline3");
+			Put(3, 1).Press("oABC").Press(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("line0\n  line1\n  ABC\nline2\nline3");
+			Put(1, 3).Press(".");
+			AssertText("line0\n  line1\n  ABC\nline2\nABC\nline3");
+		}
 	}
 }
