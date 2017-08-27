@@ -344,7 +344,7 @@ namespace UnitTests
 			lines.SetText("\tline0()\n\tline1:ABCDE\n\tline2");
 			controller.PutCursor(new Place(7, 1), false);
 			controller.InsertLineBreak();
-			AssertText("\tline0()\n\tline1:\n\t\tABCDE\n\tline2").AssertSelection().Both(1, 2);
+			AssertText("\tline0()\n\tline1:\n\t\tABCDE\n\tline2").AssertSelection().Both(2, 2);
 			controller.processor.Undo();
 			AssertText("\tline0()\n\tline1:ABCDE\n\tline2");
 		}

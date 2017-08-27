@@ -1472,5 +1472,20 @@ namespace UnitTests
 			Press(Keys.OemOpenBrackets | Keys.Control);
 			Assert.AreEqual("ABC", ClipboardExecutor.GetFromRegister(lines, '.'));
 		}
+		
+		[Test]
+		public void PasteLineAtTheEnd()
+		{
+			lines.SetText("line0\nline1\nline2");
+			Put(2, 1).Press("yyjp").AssertText("line0\nline1\nline2\nline1").AssertSelection().Both(0, 3);
+		}
+		
+		[Test]
+		public void PasteLineAtTheEnd2()
+		{
+			lines.lineBreak = "\r\n";
+			lines.SetText("line0\r\nline1\r\nline2");
+			Put(2, 1).Press("yyjp").AssertText("line0\r\nline1\r\nline2\r\nline1");
+		}
 	}
 }

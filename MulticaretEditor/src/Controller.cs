@@ -1948,18 +1948,57 @@ namespace MulticaretEditor
 					builder.Append(text);
 				}
 				text = builder.ToString();
-				foreach (Selection selection in selections)
+				int lastLineIndex = -1;
+				if (direction == Direction.Right)
 				{
-					Place caret = lines.PlaceOf(selection.caret);
-					caret.iChar = direction == Direction.Right ? lines[caret.iLine].charsCount : 0;
-					selection.caret = lines.IndexOf(caret);
-					selection.SetEmpty();
+					string[] texts = new string[selections.Count];
+					for (int i = 0; i < selections.Count; ++i)
+					{
+						Selection selection = selections[i];
+						Place caret = lines.PlaceOf(selection.caret);
+						string textI = text;
+						if (caret.iLine >= lines.LinesCount - 1)
+						{
+							lastLineIndex = i;
+							if (textI.EndsWith("\r\n"))
+							{
+								textI = textI.Substring(0, textI.Length - 2);
+							}
+							else if (textI.EndsWith("\n") || textI.EndsWith("\r"))
+							{
+								textI = textI.Substring(0, textI.Length - 1);
+							}
+							textI = lines.lineBreak + textI;
+						}
+						texts[i] = textI;
+						caret.iChar = lines[caret.iLine].charsCount;
+						selection.caret = lines.IndexOf(caret);
+						selection.SetEmpty();
+					}
+					processor.Execute(new InsertTextCommand(null, texts, false));
 				}
-				processor.Execute(new InsertTextCommand(text, null, false));
+				else
+				{
+					foreach (Selection selection in selections)
+					{
+						Place caret = lines.PlaceOf(selection.caret);
+						caret.iChar = 0;
+						selection.caret = lines.IndexOf(caret);
+						selection.SetEmpty();
+					}
+					processor.Execute(new InsertTextCommand(text, null, false));
+				}
 				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
 				{
 					Selection selection = lines.selections[i];
 					Place caret = lines.PlaceOf(selection.caret);
+					if (lastLineIndex == i)
+					{
+						if (caret.iLine + 1 < lines.LinesCount)
+						{
+							++caret.iLine;
+						}
+					}
 					caret.iChar = lines[caret.iLine].GetFirstSpaces();
 					selection.caret = lines.IndexOf(caret);
 					selection.SetEmpty();

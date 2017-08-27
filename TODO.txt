@@ -10,8 +10,6 @@
 - objects: brackets for line mode
 - fix unfocus on reloading undo
 - fix . with indentation
-- fix line appending at last 
-- methods list
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
 - Put cursor to start after copy
