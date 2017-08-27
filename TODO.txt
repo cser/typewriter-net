@@ -2,6 +2,7 @@
 - Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing
+- FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
 - fix autoindent after empty line
@@ -14,4 +15,3 @@
 - snippets: fix autocomplete
 - line mode ^ and $
 - fix {} object with nested with repetition
-- fix undo o batching
