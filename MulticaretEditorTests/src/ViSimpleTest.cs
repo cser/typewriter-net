@@ -1516,5 +1516,26 @@ namespace UnitTests
 			Put(1, 3).Press(".");
 			AssertText("line0\n  line1\n  ABC\nline2\nABC\nline3");
 		}
+		
+		[Test]
+		public void DotIndent()
+		{
+			lines.SetText("line0\nline1\nline2\nline3");
+			Put(3, 1).Press(">>.");
+			AssertText("line0\n\t\tline1\nline2\nline3");
+			Put(3, 1).Press("<<.");
+			AssertText("line0\nline1\nline2\nline3");
+		}
+		
+		[Test]
+		public void DotIndent_VISUAL()
+		{
+			lines.SetText("line0\nline1\nline2\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			Press(">.");
+			AssertText("line0\n\t\tline1\n\t\tline2\nline3");
+			Put(3, 1).Press("<.");
+			AssertText("line0\nline1\nline2\nline3");
+		}
 	}
 }

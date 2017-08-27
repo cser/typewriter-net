@@ -420,12 +420,14 @@ namespace MulticaretEditor
 						if (parser.move.IsChar('>'))
 						{
 							controller.ViShift(1, count, false);
+							forceLastCommand = true;
 						}
 						break;
 					case '<':
 						if (parser.move.IsChar('<'))
 						{
 							controller.ViShift(1, count, true);
+							forceLastCommand = true;
 						}
 						break;
 					case '.':
