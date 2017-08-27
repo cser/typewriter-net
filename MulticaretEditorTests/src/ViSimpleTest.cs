@@ -1528,14 +1528,50 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void DotIndent_VISUAL()
+		public void DotIndentRight_VISUAL()
 		{
 			lines.SetText("line0\nline1\nline2\nline3");
 			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
 			Press(">.");
 			AssertText("line0\n\t\tline1\n\t\tline2\nline3");
-			Put(3, 1).Press("<.");
+		}
+		
+		[Test]
+		public void DotIndentLeft_VISUAL()
+		{
+			lines.SetText("line0\n\t\tline1\n\t\tline2\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			Press("<.");
 			AssertText("line0\nline1\nline2\nline3");
+		}
+		
+		[Test]
+		public void IndentRightPosition_VISUAL()
+		{
+			lines.SetText("line0\nline1\nline2\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			Press(">");
+			AssertText("line0\n\tline1\n\tline2\nline3").AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void IndentLeftPosition_VISUAL()
+		{
+			lines.SetText("line0\n\tline1\n\tline2\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			Press("<");
+			AssertText("line0\nline1\nline2\nline3").AssertSelection().Both(0, 1);
+		}
+		
+		[Test]
+		public void DotRemoving_VISUAL()
+		{
+			lines.SetText("line0\nabcd\nefghij\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			Press("x");
+			AssertText("line0\nabchij\nline3").AssertSelection().Both(3, 1);
+			Press(".");
+			AssertText("line0\nabce3").AssertSelection().Both(3, 1);
 		}
 	}
 }

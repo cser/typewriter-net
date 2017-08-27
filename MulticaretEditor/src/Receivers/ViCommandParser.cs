@@ -33,6 +33,9 @@ namespace MulticaretEditor
 			public ViChar action;
 			public char register;
 			public string shortcut;
+			public bool lineMode;
+			public int deltaX = -1;
+			public int deltaY = -1;
 			
 			public ViReceiverData startData;
 		}

@@ -97,6 +97,12 @@ namespace MulticaretEditor
 				scrollToCursor = false;
 				return;
 			}
+			ProcessParserCommand(out viShortcut, out scrollToCursor);
+		}
+		
+		private void ProcessParserCommand(out string viShortcut, out bool scrollToCursor)
+		{
+			viShortcut = null;
 			scrollToCursor = true;
 			ViMoves.IMove move = null;
 			int count = parser.FictiveCount;
@@ -202,7 +208,10 @@ namespace MulticaretEditor
 					break;
 			}
 			ViCommands.ICommand command = null;
+			int deltaX = -1;
+			int deltaY = -1;
 			bool needViMode = false;
+			bool forceLastCommand = false;
 			if (move != null)
 			{
 				for (int i = 0; i < count; i++)
@@ -212,6 +221,18 @@ namespace MulticaretEditor
 			}
 			else
 			{
+				if (lines.LastSelection.Count > 0)
+				{
+					Place anchorPlace = lines.PlaceOf(lines.LastSelection.anchor);
+					Place caretPlace = lines.PlaceOf(lines.LastSelection.caret);
+					deltaX = caretPlace.iChar - anchorPlace.iChar;
+					deltaY = caretPlace.iLine - anchorPlace.iLine;
+				}
+				else
+				{
+					deltaX = 0;
+					deltaY = 0;
+				}
 				switch (parser.action.Index)
 				{
 					case 'u':
@@ -259,6 +280,7 @@ namespace MulticaretEditor
 							controller.ViCut(parser.register, true);
 						}
 						SetViMode();
+						forceLastCommand = true;
 						break;
 					case 'c':
 						if (_lineMode)
@@ -284,10 +306,7 @@ namespace MulticaretEditor
 							controller.ViStoreSelections();
 							controller.ViCopy(parser.register);
 						}
-						foreach (Selection selection in controller.Selections)
-						{
-							selection.caret = selection.anchor;
-						}
+						controller.ViCollapseSelections();
 						SetViMode();
 						break;
 					case 'Y':
@@ -309,11 +328,17 @@ namespace MulticaretEditor
 						break;
 					case '>':
 						controller.ViShift(count, 1, false);
+						controller.ViCollapseSelections();
+						controller.ViMoveHome(false, true);
 						SetViMode();
+						forceLastCommand = true;
 						break;
 					case '<':
 						controller.ViShift(count, 1, true);
+						controller.ViCollapseSelections();
+						controller.ViMoveHome(false, true);
 						SetViMode();
+						forceLastCommand = true;
 						break;
 					case 'r' + ViChar.ControlIndex:
 						ProcessRedo(count);
@@ -440,6 +465,16 @@ namespace MulticaretEditor
 					SetViMode();
 				}
 			}
+			if (command != null || forceLastCommand)
+			{
+				if (controller.macrosExecutor != null)
+				{
+					controller.macrosExecutor.lastCommand = parser.GetLastCommand();
+					controller.macrosExecutor.lastCommand.deltaX = deltaX;
+					controller.macrosExecutor.lastCommand.deltaY = deltaY;
+					controller.macrosExecutor.lastCommand.lineMode = _lineMode;
+				}
+			}
 		}
 		
 		private void SetViMode()
@@ -475,6 +510,30 @@ namespace MulticaretEditor
 				controller.processor.Redo();
 			}
 			controller.ViFixPositions(true);
+		}
+		
+		public void ProcessLastCommand(ViCommandParser.LastCommand lastCommand)
+		{
+			if (lastCommand.deltaX != 0)
+			{
+				ViMoves.IMove move = new ViMoves.MoveStep(lastCommand.deltaX > 0 ? Direction.Right : Direction.Left);
+				for (int i = 0; i < lastCommand.deltaX; ++i)
+				{
+					move.Move(controller, true, MoveMode.Copy);
+				}
+			}
+			if (lastCommand.deltaY != 0)
+			{
+				ViMoves.IMove move = new ViMoves.MoveStep(lastCommand.deltaY > 0 ? Direction.Down : Direction.Up);
+				for (int i = 0; i < lastCommand.deltaY; ++i)
+				{
+					move.Move(controller, true, MoveMode.Copy);
+				}
+			}
+			parser.SetLastCommand(lastCommand);
+			string tempShortcut;
+			bool tempScrollToCursor;
+			ProcessParserCommand(out tempShortcut, out tempScrollToCursor);
 		}
 	}
 }

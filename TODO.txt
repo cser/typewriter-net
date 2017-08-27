@@ -9,7 +9,6 @@
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
 - fix unfocus on reloading undo
-- fix . with indentation
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
 - snippets: more accurate exit from snippet

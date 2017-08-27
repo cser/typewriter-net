@@ -439,20 +439,30 @@ namespace MulticaretEditor
 							try
 							{
 								controller.processor.BeginBatch();
-								for (int i = 0; i < count; i++)
+								if (lastCommand.deltaX != -1 || lastCommand.deltaY != -1)
 								{
-									parser.SetLastCommand(lastCommand);
-									string tempShortcut;
-									bool tempScrollToCursor;
-									ProcessParserCommand(out tempShortcut, out tempScrollToCursor);
-									if (tempScrollToCursor)
+									ViReceiverVisual receiver = new ViReceiverVisual(lastCommand.lineMode);
+									context.SetState(receiver);
+									receiver.ProcessLastCommand(lastCommand);
+									scrollToCursor = true;
+								}
+								else
+								{
+									for (int i = 0; i < count; i++)
 									{
-										scrollToCursor = true;
-									}
-									if (lastCommand.startData != null)
-									{
-										lastCommand.startData.forcedInput = true;
-										context.SetState(new ViReceiver(lastCommand.startData, true));
+										parser.SetLastCommand(lastCommand);
+										string tempShortcut;
+										bool tempScrollToCursor;
+										ProcessParserCommand(out tempShortcut, out tempScrollToCursor);
+										if (tempScrollToCursor)
+										{
+											scrollToCursor = true;
+										}
+										if (lastCommand.startData != null)
+										{
+											lastCommand.startData.forcedInput = true;
+											context.SetState(new ViReceiver(lastCommand.startData, true));
+										}
 									}
 								}
 							}
