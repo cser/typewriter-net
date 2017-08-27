@@ -5,7 +5,6 @@
 - FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
-- fix autoindent after empty line
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
 - fix unfocus on reloading undo
