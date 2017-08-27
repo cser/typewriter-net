@@ -12,7 +12,6 @@
 - fix . with indentation
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
-- Put cursor to start after copy
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - check Enter and Backspace in commands

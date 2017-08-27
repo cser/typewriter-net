@@ -284,6 +284,10 @@ namespace MulticaretEditor
 							controller.ViStoreSelections();
 							controller.ViCopy(parser.register);
 						}
+						foreach (Selection selection in controller.Selections)
+						{
+							selection.caret = selection.anchor;
+						}
 						SetViMode();
 						break;
 					case 'Y':

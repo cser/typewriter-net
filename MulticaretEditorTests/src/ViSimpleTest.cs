@@ -1487,5 +1487,24 @@ namespace UnitTests
 			lines.SetText("line0\r\nline1\r\nline2");
 			Put(2, 1).Press("yyjp").AssertText("line0\r\nline1\r\nline2\r\nline1");
 		}
+		
+		[Test]
+		public void PutCursorAtStartAfterCopy()
+		{
+			lines.SetText("Abcd efgh ijk");
+			Put(5, 0).Press("vllll").AssertSelection().Anchor(5, 0).Caret(9, 0).NoNext();
+			Press("y");
+			Assert.AreEqual("efgh", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			AssertSelection().Both(5, 0).NoNext();
+		}
+		
+		[Test]
+		public void PutCursorAtStartAfterCopy_LINES()
+		{
+			lines.SetText("line0\n  line1\nline2\nline3");
+			Put(3, 1).Press("Vjy");
+			Assert.AreEqual("  line1\nline2\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			AssertSelection().Both(3, 1).NoNext();
+		}
 	}
 }
