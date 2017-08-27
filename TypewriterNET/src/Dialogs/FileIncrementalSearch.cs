@@ -14,9 +14,11 @@ using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {
-	public FileIncrementalSearch(TempSettings tempSettings)
+	public FileIncrementalSearch(FindInFilesDialog.Data data, FindParams findParams, TempSettings tempSettings)
 		: base(tempSettings, "File search", "Incremental file search")
 	{
+		this.data = data;
+		this.findParams = findParams;
 	}
 	
 	override protected string GetSubname()
@@ -26,11 +28,35 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	
 	private const string Dots = "...";
 
+	private FindInFilesDialog.Data data;
+	private FindParams findParams;
+	private MulticaretTextBox filterTextBox;
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
 
 	private Thread thread;
 	
+	protected override void DoInnerCreate(KeyMap textKeyMap)
+	{
+		textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+			new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
+		textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+			new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
+		filterTextBox = new MulticaretTextBox(true);
+		filterTextBox.FontFamily = FontFamily.GenericMonospace;
+		filterTextBox.FontSize = 10.25f;
+		filterTextBox.ShowLineNumbers = false;
+		filterTextBox.HighlightCurrentLine = false;
+		filterTextBox.KeyMap.AddAfter(KeyMap);
+		filterTextBox.KeyMap.AddAfter(textKeyMap, 1);
+		filterTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
+		filterTextBox.FocusedChange += OnTextBoxFocusedChange;
+		filterTextBox.Visible = false;
+		filterTextBox.Text = data.currentFilter.value;
+		filterTextBox.TextChange += OnFilterTextChange;
+		Controls.Add(filterTextBox);
+	}
+
 	override protected bool Prebuild()
 	{
 		string directory = MainForm.Settings.findInFilesDir.Value;
@@ -128,5 +154,108 @@ public class FileIncrementalSearch : IncrementalSearchBase
 			}
 			DispatchNeedClose();
 		}
+	}
+	
+	private void OnFilterTextChange()
+	{
+		UpdateFilterText();
+	}
+	
+	private void UpdateFilterText()
+	{
+		data.currentFilter.value = filterTextBox.Text;
+		string filterText = GetFilterText();
+		tabBar.Text = Name + " - " + (string.IsNullOrEmpty(filterTextBox.Text) ? filterText : "[" + filterText + "]");
+	}
+	
+	private bool DoSwitchToInputField(Controller controller)
+	{
+		filterTextBox.Visible = false;
+		textBox.Focus();
+		return true;
+	}
+	
+	private string GetFilterText()
+	{
+		return !string.IsNullOrEmpty(filterTextBox.Text) ? filterTextBox.Text : MainForm.Settings.findInFilesFilter.Value;
+	}
+	
+	private void OnTextBoxFocusedChange()
+	{
+		if (Destroyed)
+			return;
+		tabBar.Selected = textBox.Focused || filterTextBox.Focused;
+		if (textBox.Focused)
+		{
+			filterTextBox.Visible = false;
+			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+		}
+		else if (filterTextBox.Focused)
+		{
+			Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
+		}
+		UpdateFindParams();
+	}
+	
+	private void UpdateFindParams()
+	{
+		tabBar.Text2 = (string.IsNullOrEmpty(filterTextBox.Text) ? " filter  " : "[filter] ") +
+			(findParams != null ? findParams.GetIndicationText() : "");
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		filterTextBox.SetViMode(true);
+		filterTextBox.Controller.ViFixPositions(false);
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
+		return true;
+	}
+	
+	private bool DoFilterNextPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(false);
+	}
+	
+	private bool GetFilterHistoryPattern(bool isPrev)
+	{
+		string text = filterTextBox.Text;
+		string newText = data.filterHistory.GetOrEmpty(text, isPrev);
+		if (newText != text)
+		{
+			filterTextBox.Text = newText;
+			filterTextBox.Controller.ClearMinorSelections();
+			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
+			UpdateFilterText();
+		}
+		return true;
+	}
+	
+	private bool DoFilterPrevPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(true);
+	}
+	
+	private bool DoFindText(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		if (data.filterHistory != null && !string.IsNullOrEmpty(filterTextBox.Text))
+			data.filterHistory.Add(filterTextBox.Text);
+		return true;
+	}
+	
+	private bool DoCancel(Controller controller)
+	{
+		DispatchNeedClose();
+		return true;
+	}
+	
+	private bool DoSwitchToTempFilter(Controller controller)
+	{
+		filterTextBox.Visible = true;
+		filterTextBox.Focus();
+		return true;
 	}
 }

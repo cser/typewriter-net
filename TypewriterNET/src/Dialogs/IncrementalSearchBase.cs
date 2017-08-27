@@ -15,9 +15,9 @@ using MulticaretEditor;
 public class IncrementalSearchBase : ADialog
 {
 	private SwitchList<string> list;
-	private TabBar<string> tabBar;
+	protected TabBar<string> tabBar;
 	private MulticaretTextBox variantsTextBox;
-	private MulticaretTextBox textBox;
+	protected MulticaretTextBox textBox;
 
 	protected readonly TempSettings tempSettings;
 	private string name;
@@ -78,7 +78,7 @@ public class IncrementalSearchBase : ADialog
 			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-
+		
 		variantsTextBox = new MulticaretTextBox();
 		variantsTextBox.KeyMap.AddAfter(KeyMap);
 		variantsTextBox.KeyMap.AddAfter(variantsKeyMap, 1);
@@ -97,7 +97,8 @@ public class IncrementalSearchBase : ADialog
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.TextChange += OnTextBoxTextChange;
 		Controls.Add(textBox);
-
+		
+		DoInnerCreate(textKeyMap);
 		SetTextBoxParameters();
 
 		tabBar.RightHint = tempSettings.FindParams != null ?
@@ -114,6 +115,10 @@ public class IncrementalSearchBase : ADialog
 		}
 		UpdateVariantsText();
 		UpdateFindParams();
+	}
+	
+	protected virtual void DoInnerCreate(KeyMap textKeyMap)
+	{
 	}
 
 	private void OnCloseClick()
