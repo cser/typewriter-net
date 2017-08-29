@@ -197,8 +197,8 @@ public class FindInFilesDialog : ADialog
 		if (phase == UpdatePhase.Raw) 
 		{
 			settings.ApplySimpleParameters(textBox, null);
-			settings.ApplySimpleParameters(filterTextBox, null, false);
 			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
+			settings.ApplySimpleParameters(filterTextBox, null, false);
 			filterTextBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)

@@ -14,14 +14,14 @@ using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {
-	public FileIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "File search", "Incremental file search")
+	public FileIncrementalSearch(TempSettings tempSettings, FindInFilesDialog.Data data)
+		: base(tempSettings, "File search", "Incremental file search", data)
 	{
 	}
 	
 	override protected string GetSubname()
 	{
-		return Directory.GetCurrentDirectory() + "\\" + MainForm.Settings.findInFilesFilter.Value;
+		return Directory.GetCurrentDirectory() + "\\" + GetFilterDesc();
 	}
 	
 	private const string Dots = "...";

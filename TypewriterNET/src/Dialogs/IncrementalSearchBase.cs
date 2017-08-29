@@ -18,16 +18,19 @@ public class IncrementalSearchBase : ADialog
 	private TabBar<string> tabBar;
 	private MulticaretTextBox variantsTextBox;
 	private MulticaretTextBox textBox;
+	private MulticaretTextBox filterTextBox;
 
 	protected readonly TempSettings tempSettings;
 	private string name;
 	private string submenu;
+	private readonly FindInFilesDialog.Data findInFilesData;
 
-	public IncrementalSearchBase(TempSettings tempSettings, string name, string submenu)
+	public IncrementalSearchBase(TempSettings tempSettings, string name, string submenu, FindInFilesDialog.Data findInFilesData)
 	{
 		this.tempSettings = tempSettings;
 		this.name = name;
 		this.submenu = submenu;
+		this.findInFilesData = findInFilesData;
 	}
 
 	override protected void DoCreate()
@@ -55,6 +58,11 @@ public class IncrementalSearchBase : ADialog
 			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, actionDown));
 			textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
+			if (findInFilesData != null)
+			{
+				textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+					new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
+			}
 		}
 		{
 			beforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null,
@@ -78,7 +86,7 @@ public class IncrementalSearchBase : ADialog
 			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-
+		
 		variantsTextBox = new MulticaretTextBox();
 		variantsTextBox.KeyMap.AddAfter(KeyMap);
 		variantsTextBox.KeyMap.AddAfter(variantsKeyMap, 1);
@@ -103,6 +111,36 @@ public class IncrementalSearchBase : ADialog
 		tabBar.RightHint = tempSettings.FindParams != null ?
 			tempSettings.FindParams.GetIgnoreCaseIndicationHint() : "";
 		tabBar.MouseDown += OnTabBarMouseDown;
+		
+		if (findInFilesData != null)
+		{
+			KeyMap filterKeyMap = new KeyMap();
+			filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
+				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
+			if (findInFilesData.filterHistory != null)
+			{
+				KeyAction prevAction = new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false);
+				KeyAction nextAction = new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false);
+				filterKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+				filterKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+				filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+				filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
+			}
+			filterTextBox = new MulticaretTextBox(true);
+			filterTextBox.FontFamily = FontFamily.GenericMonospace;
+			filterTextBox.FontSize = 10.25f;
+			filterTextBox.ShowLineNumbers = false;
+			filterTextBox.HighlightCurrentLine = false;
+			filterTextBox.KeyMap.AddAfter(KeyMap);
+			filterTextBox.KeyMap.AddAfter(filterKeyMap, 1);
+			filterTextBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
+			filterTextBox.FocusedChange += OnTextBoxFocusedChange;
+			filterTextBox.Visible = false;
+			filterTextBox.Text = findInFilesData.currentFilter.value;
+			filterTextBox.TextChange += OnFilterTextChange;
+			tabBar.Controls.Add(filterTextBox);
+		}
+		
 		InitResizing(tabBar, null);
 		Height = MinSize.Height;
 
@@ -152,9 +190,26 @@ public class IncrementalSearchBase : ADialog
 	{
 		if (Destroyed)
 			return;
-		tabBar.Selected = textBox.Focused;
-		if (textBox.Focused)
-			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+		if (findInFilesData != null)
+		{
+			tabBar.Selected = textBox.Focused || filterTextBox.Focused;
+			if (textBox.Focused)
+			{
+				filterTextBox.Visible = false;
+				Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+			}
+			else if (filterTextBox.Focused)
+			{
+				Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
+			}
+			UpdateFindParams();
+		}
+		else
+		{
+			tabBar.Selected = textBox.Focused;
+			if (textBox.Focused)
+				Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+		}
 	}
 
 	private void OnTextBoxTextChange()
@@ -207,6 +262,12 @@ public class IncrementalSearchBase : ADialog
 		variantsTextBox.Controller.NeedScrollToCaret();
 		textBox.Location = new Point(0, Height - variantsTextBox.CharHeight);
 		textBox.Size = new Size(width, variantsTextBox.CharHeight + 1);
+		if (findInFilesData != null)
+		{
+			int size = 20;
+			filterTextBox.Location = new Point(Width - 7 * filterTextBox.CharWidth - size * filterTextBox.CharWidth, 2);
+			filterTextBox.Size = new Size(size * filterTextBox.CharWidth, filterTextBox.CharHeight + 1);
+		}
 	}
 
 	override protected void DoUpdateSettings(Settings settings, UpdatePhase phase)
@@ -217,6 +278,11 @@ public class IncrementalSearchBase : ADialog
 			settings.ApplySimpleParameters(textBox, null);
 			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 			SetTextBoxParameters();
+			if (findInFilesData != null)
+			{
+				settings.ApplySimpleParameters(filterTextBox, null, false);
+				filterTextBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
+			}
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -224,6 +290,11 @@ public class IncrementalSearchBase : ADialog
 			variantsTextBox.Scheme = settings.ParsedScheme;
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
+			if (findInFilesData != null)
+			{
+				filterTextBox.Scheme = settings.ParsedScheme;
+				UpdateFilterText();
+			}
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{
@@ -235,7 +306,12 @@ public class IncrementalSearchBase : ADialog
 
 	private void UpdateFindParams()
 	{
-		tabBar.Text2 = tempSettings.FindParams != null ? tempSettings.FindParams.GetIgnoreCaseIndicationText() : "";
+		string text = tempSettings.FindParams != null ? tempSettings.FindParams.GetIgnoreCaseIndicationText() : "";
+		if (findInFilesData != null)
+		{
+			text = (string.IsNullOrEmpty(filterTextBox.Text) ? " filter  " : "[filter] ") + text;
+		}
+		tabBar.Text2 = text;
 	}
 
 	private void SetTextBoxParameters()
@@ -391,6 +467,65 @@ public class IncrementalSearchBase : ADialog
 	{
 		textBox.SetViMode(true);
 		textBox.Controller.ViFixPositions(false);
+		return true;
+	}
+	
+	private bool DoSwitchToTempFilter(Controller controller)
+	{
+		filterTextBox.Visible = true;
+		filterTextBox.Focus();
+		return true;
+	}
+	
+	private bool DoFilterPrevPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(true);
+	}
+	
+	private bool DoFilterNextPattern(Controller controller)
+	{
+		return GetFilterHistoryPattern(false);
+	}
+	
+	private bool GetFilterHistoryPattern(bool isPrev)
+	{
+		string text = filterTextBox.Text;
+		string newText = findInFilesData.filterHistory.GetOrEmpty(text, isPrev);
+		if (newText != text)
+		{
+			filterTextBox.Text = newText;
+			filterTextBox.Controller.ClearMinorSelections();
+			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
+			UpdateFilterText();
+		}
+		return true;
+	}
+	
+	private void OnFilterTextChange()
+	{
+		UpdateFilterText();
+	}
+	
+	private void UpdateFilterText()
+	{
+		findInFilesData.currentFilter.value = filterTextBox.Text;
+	}
+	
+	protected string GetFilterText()
+	{
+		return !string.IsNullOrEmpty(filterTextBox.Text) ? filterTextBox.Text : MainForm.Settings.findInFilesFilter.Value;
+	}
+	
+	protected string GetFilterDesc()
+	{
+		string filterText = GetFilterText();
+		return string.IsNullOrEmpty(filterTextBox.Text) ? filterText : "[" + filterText + "]";
+	}
+	
+	private bool DoSwitchToInputField(Controller controller)
+	{
+		filterTextBox.Visible = false;
+		textBox.Focus();
 		return true;
 	}
 }

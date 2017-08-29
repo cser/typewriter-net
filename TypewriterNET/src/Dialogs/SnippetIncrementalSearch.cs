@@ -8,7 +8,7 @@ using MulticaretEditor;
 public class SnippetIncrementalSearch : IncrementalSearchBase
 {
 	public SnippetIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Snippet selection", "Snippet selection")
+		: base(tempSettings, "Snippet selection", "Snippet selection", null)
 	{
 	}
 	

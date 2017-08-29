@@ -7,7 +7,7 @@ using MulticaretEditor;
 public class SchemeIncrementalSearch : IncrementalSearchBase
 {
 	public SchemeIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Preview color scheme", "Preview color scheme")
+		: base(tempSettings, "Preview color scheme", "Preview color scheme", null)
 	{
 	}
 

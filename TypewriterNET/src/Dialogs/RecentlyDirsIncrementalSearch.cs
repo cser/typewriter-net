@@ -15,7 +15,7 @@ using MulticaretEditor;
 public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 {
 	public RecentlyDirsIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Recently search", "Incremental recently search")
+		: base(tempSettings, "Recently search", "Incremental recently search", null)
 	{
 	}
 	

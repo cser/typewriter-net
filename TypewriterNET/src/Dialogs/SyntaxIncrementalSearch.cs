@@ -7,7 +7,7 @@ using MulticaretEditor;
 public class SyntaxIncrementalSearch : IncrementalSearchBase
 {
 	public SyntaxIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Syntax selection", "Syntax selection")
+		: base(tempSettings, "Syntax selection", "Syntax selection", null)
 	{
 	}
 

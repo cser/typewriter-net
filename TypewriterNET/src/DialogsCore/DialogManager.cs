@@ -381,7 +381,7 @@ public class DialogManager
 	private bool DoFileIncrementalSearch(Controller controller)
 	{
 		if (fileIncrementalSearch.SwitchOpen())
-			fileIncrementalSearch.Open(new FileIncrementalSearch(tempSettings), false);
+			fileIncrementalSearch.Open(new FileIncrementalSearch(tempSettings, findInFilesData), false);
 		return true;
 	}
 	

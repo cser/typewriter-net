@@ -11,7 +11,8 @@ public class EncodingIncrementalSearch : IncrementalSearchBase
 	public EncodingIncrementalSearch(TempSettings tempSettings, bool isSave) : base(
 		tempSettings,
 		isSave ? "Save encoding" : "Reload with encoding",
-		isSave ? "Save encoding" : "Reload with encoding"
+		isSave ? "Save encoding" : "Reload with encoding",
+		null
 	)
 	{
 		this.isSave = isSave;
