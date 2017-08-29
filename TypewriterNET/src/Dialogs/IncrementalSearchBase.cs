@@ -116,8 +116,11 @@ public class IncrementalSearchBase : ADialog
 		if (findInFilesData != null)
 		{
 			KeyMap filterKeyMap = new KeyMap();
-			filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
-				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
+			{
+				KeyAction action = new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false);
+				filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null, action));
+				filterKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
+			}
 			filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 			if (findInFilesData.filterHistory != null)
@@ -219,6 +222,14 @@ public class IncrementalSearchBase : ADialog
 				Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
 			}
 			UpdateFindParams();
+			if (filterTextBox.Focused)
+			{
+				int position = filterTextBox.Text.Length;
+				filterTextBox.Controller.ClearMinorSelections();
+				filterTextBox.Controller.LastSelection.anchor = position;
+				filterTextBox.Controller.LastSelection.caret = position;
+				filterTextBox.Controller.NeedScrollToCaret();
+			}
 		}
 		else
 		{

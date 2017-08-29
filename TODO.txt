@@ -2,7 +2,6 @@
 - Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing
-- FileSearch: update new version in background
 - FileTree: close by file selection shortcut
 - ShellCommandResults: close by file selection shortcut
 - fix {} highlighting if { inside string

@@ -185,6 +185,14 @@ public class FindInFilesDialog : ADialog
 			Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
 		}
 		UpdateFindParams();
+		if (filterTextBox.Focused)
+		{
+			int position = filterTextBox.Text.Length;
+			filterTextBox.Controller.ClearMinorSelections();
+			filterTextBox.Controller.LastSelection.anchor = position;
+			filterTextBox.Controller.LastSelection.caret = position;
+			filterTextBox.Controller.NeedScrollToCaret();
+		}
 	}
 	
 	private void OnFiltersTextBoxFocusedChange()
