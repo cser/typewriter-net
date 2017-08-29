@@ -24,6 +24,7 @@ public class IncrementalSearchBase : ADialog
 	private string name;
 	private string submenu;
 	private readonly FindInFilesDialog.Data findInFilesData;
+	private string lastFilter;
 
 	public IncrementalSearchBase(TempSettings tempSettings, string name, string submenu, FindInFilesDialog.Data findInFilesData)
 	{
@@ -117,6 +118,8 @@ public class IncrementalSearchBase : ADialog
 			KeyMap filterKeyMap = new KeyMap();
 			filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
+			filterKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 			if (findInFilesData.filterHistory != null)
 			{
 				KeyAction prevAction = new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false);
@@ -145,6 +148,10 @@ public class IncrementalSearchBase : ADialog
 		Height = MinSize.Height;
 
 		Name = GetSubname();
+		if (findInFilesData != null)
+		{
+			lastFilter = GetFilterText();
+		}
 		if (!Prebuild())
 		{
 			preventOpen = true;
@@ -197,6 +204,15 @@ public class IncrementalSearchBase : ADialog
 			{
 				filterTextBox.Visible = false;
 				Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+				string filter = GetFilterText();
+				if (lastFilter != filter)
+				{
+					lastFilter = filter;
+					Name = GetSubname();
+					Prebuild();
+					UpdateVariantsText();
+					UpdateFindParams();
+				}
 			}
 			else if (filterTextBox.Focused)
 			{
@@ -467,6 +483,11 @@ public class IncrementalSearchBase : ADialog
 	{
 		textBox.SetViMode(true);
 		textBox.Controller.ViFixPositions(false);
+		if (findInFilesData != null)
+		{
+			filterTextBox.SetViMode(true);
+			filterTextBox.Controller.ViFixPositions(false);
+		}
 		return true;
 	}
 	

@@ -40,7 +40,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		}
 		FileSystemScanner scanner = new FileSystemScanner(
 			directory,
-			MainForm.Settings.findInFilesFilter.Value,
+			GetFilterText(),
 			MainForm.Settings.findInFilesIgnoreDir.Value);
 		thread = new Thread(new ThreadStart(scanner.Scan));
 		thread.Start();
