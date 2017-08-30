@@ -440,7 +440,6 @@ namespace UnitTests
 			Press("x").AssertText("Du x\nDu hast mich").AssertSelection().Both(4, 0);
 		}
 		
-		[Ignore]
 		[Test]
 		public void w_DocumentEnd()
 		{
@@ -1641,7 +1640,7 @@ namespace UnitTests
 		public void w_AtEnd_VISUAL()
 		{
 			lines.SetText("Abcd efg\nhij");
-			Put(5, 0).Press("vw").AssertSelection().Anchor(5, 0).Caret(8, 0);
+			Put(5, 0).Press("vw").AssertSelection().Anchor(5, 0).Caret(0, 1);
 		}
 	}
 }
