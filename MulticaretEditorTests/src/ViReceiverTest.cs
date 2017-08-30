@@ -404,7 +404,6 @@ namespace UnitTests
 			AssertSelection().Both(4, 2).NoNext();
 		}
 		
-		[Ignore("TODO")]
 		[Test]
 		public void StateEnter_O_Autoindent_Undo()
 		{
@@ -422,7 +421,34 @@ namespace UnitTests
 			AssertSelection().Both(4, 2).NoNext();
 			
 			controller.processor.Undo();
-			AssertText("\tline0{\n\t\tline1\n\t\t\n\t}\nline3");
+			AssertText("\tline0{\n\t\tline1\n\t}\nline3");
+		}
+		
+		[Test]
+		public void StateEnter_o_Autoindent_Undo()
+		{
+			SetViMode(true);
+			lines.autoindent = true;
+			lines.lineBreak = "\n";
+			lines.SetText("\tline0{\n\t\tline1\n\t}\nline3");
+			controller.PutCursor(new Place(1, 0), false);
+			AssertSelection().Both(1, 0).NoNext();
+			
+			DoKeyPress('o').AssertSelection("#1").Both(2, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection("#11").Both(5, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("\tline0{\n\t\tABC\n\t\tline1\n\t}\nline3");
+			AssertSelection("#12").Both(4, 1).NoNext();
+			
+			controller.PutCursor(new Place(1, 0), false);
+			DoKeyPress('o').AssertSelection("#2").Both(2, 1).NoNext();
+			DoKeyPress('A').DoKeyPress('B').DoKeyPress('C').AssertSelection("#21").Both(5, 1).NoNext();
+			DoKeyDown(Keys.Control | Keys.OemOpenBrackets);
+			AssertText("\tline0{\n\t\tABC\n\t\tABC\n\t\tline1\n\t}\nline3");
+			AssertSelection("#22").Both(4, 1).NoNext();
+			
+			controller.processor.Undo();
+			AssertText("\tline0{\n\t\tABC\n\t\tline1\n\t}\nline3");
 			
 			controller.processor.Undo();
 			AssertText("\tline0{\n\t\tline1\n\t}\nline3");

@@ -521,6 +521,7 @@ namespace MulticaretEditor
 					case 'O':
 						if (!controller.isReadonly)
 						{
+							controller.processor.BeginBatch();
 							controller.ViMoveHome(false, true);
 							controller.InsertLineBreak();
 							controller.ViLogicMoveUp(false);
@@ -528,6 +529,7 @@ namespace MulticaretEditor
 							{
 								controller.ViAutoindentByBottom();
 							}
+							controller.processor.EndBatch();
 							context.SetState(new InputReceiver(new ViReceiverData('O', count), false));
 						}
 						forceLastCommand = true;
