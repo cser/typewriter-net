@@ -48,15 +48,15 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void Vi_w(bool change)
+		public void Vi_w(bool change, bool allowNewLine)
 		{
 			if (GetCharType(_iterator.RightChar) == CharType.Identifier)
 			{
 				while (GetCharType(_iterator.RightChar) == CharType.Identifier &&
 					_iterator.MoveRightWithRN());
-				if (!change && IsSpaceOrNewLine(_iterator.RightChar))
+				if (!change && IsSpaceOrNewLine(_iterator.RightChar, allowNewLine))
 				{
-					while (IsSpaceOrNewLine(_iterator.RightChar) &&
+					while (IsSpaceOrNewLine(_iterator.RightChar, allowNewLine) &&
 						_iterator.MoveRightWithRN());
 				}
 			}
@@ -64,15 +64,15 @@ namespace MulticaretEditor
 			{
 				while (GetCharType(_iterator.RightChar) == CharType.Punctuation &&
 					_iterator.MoveRightWithRN());
-				if (!change && IsSpaceOrNewLine(_iterator.RightChar))
+				if (!change && IsSpaceOrNewLine(_iterator.RightChar, allowNewLine))
 				{
-					while (IsSpaceOrNewLine(_iterator.RightChar) &&
+					while (IsSpaceOrNewLine(_iterator.RightChar, allowNewLine) &&
 						_iterator.MoveRightWithRN());
 				}
 			}
-			else if (IsSpaceOrNewLine(_iterator.RightChar))
+			else if (IsSpaceOrNewLine(_iterator.RightChar, allowNewLine))
 			{
-				while (IsSpaceOrNewLine(_iterator.RightChar) &&
+				while (IsSpaceOrNewLine(_iterator.RightChar, allowNewLine) &&
 					_iterator.MoveRightWithRN());
 			}
 		}
@@ -535,6 +535,21 @@ namespace MulticaretEditor
 		        case '\t':
 		        case '\r':
 		        case '\n':
+		        	return true;
+		        default:
+		        	return false;
+		    }
+        }
+        
+        public static bool IsSpaceOrNewLine(char c, bool allowNewLine)
+        {
+	        switch (c)
+	        {
+		        case '\n':
+		        case '\r':
+			        return allowNewLine;
+		        case ' ':
+		        case '\t':
 		        	return true;
 		        default:
 		        	return false;

@@ -1573,5 +1573,68 @@ namespace UnitTests
 			Press(".");
 			AssertText("line0\nabce3").AssertSelection().Both(3, 1);
 		}
+		
+		[Test]
+		public void w_ToEnd()
+		{
+			lines.SetText("Abcd\nEfgh ijkl");
+			Put(7, 1).Press("w").AssertSelection().Both(8, 1);
+		}
+		
+		[Test]
+		public void w_ToEnd2()
+		{
+			lines.SetText("Abcd\nEfgh ijkl ");
+			Put(7, 1).Press("w").AssertSelection().Both(9, 1);
+		}
+		
+		[Test]
+		public void w_ToEnd3()
+		{
+			lines.SetText("Abcd\nEfgh ijkl a");
+			Put(7, 1).Press("w").AssertSelection().Both(10, 1);
+		}
+		
+		[Test]
+		public void w_ToEnd_VISUAL()
+		{
+			lines.SetText("Abcd\nEfgh ijkl");
+			Put(7, 1).Press("vw").AssertSelection().Anchor(7, 1).Caret(9, 1);
+		}
+		
+		[Test]
+		public void dw_ToEnd()
+		{
+			lines.SetText("Abcd\nEfgh ijkl");
+			Put(7, 1).Press("dw").AssertText("Abcd\nEfgh ij").AssertSelection().Both(6, 1);
+		}
+		
+		[Test]
+		public void cw_ToEnd()
+		{
+			lines.SetText("Abcd\nEfgh ijkl");
+			Put(7, 1).Press("cw").AssertText("Abcd\nEfgh ij").AssertSelection().Both(7, 1);
+		}
+		
+		[Test]
+		public void dw_AtEnd()
+		{
+			lines.SetText("Abcd efg\nhij");
+			Put(5, 0).Press("dw").AssertText("Abcd \nhij").AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void dw_AtEnd2()
+		{
+			lines.SetText("Abcd efg\n\rhij");
+			Put(5, 0).Press("dw").AssertText("Abcd \n\rhij").AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void dw_AtEnd3()
+		{
+			lines.SetText("Abcd efg\rhij");
+			Put(5, 0).Press("dw").AssertText("Abcd \rhij").AssertSelection().Both(4, 0);
+		}
 	}
 }

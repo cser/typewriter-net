@@ -1,4 +1,3 @@
-- Fix word move at line end
 - Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing

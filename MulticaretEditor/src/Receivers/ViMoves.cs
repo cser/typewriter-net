@@ -81,9 +81,17 @@ namespace MulticaretEditor
 				{
 					case Direction.Left:
 						controller.ViMove_b(shift, mode == MoveMode.Change);
+						if (mode != MoveMode.Change)
+						{
+							controller.ViFixPositions(true);
+						}
 						break;
 					case Direction.Right:
-						controller.ViMove_w(shift, mode == MoveMode.Change);
+						controller.ViMove_w(shift, mode == MoveMode.Change, mode == MoveMode.Move);
+						if (mode != MoveMode.Change)
+						{
+							controller.ViFixPositions(true);
+						}
 						break;
 				}
 			}
@@ -162,7 +170,7 @@ namespace MulticaretEditor
 			{
 				if (mode == MoveMode.Change)
 				{
-					controller.ViMove_w(shift, true);
+					controller.ViMove_w(shift, true, true);
 				}
 				else
 				{

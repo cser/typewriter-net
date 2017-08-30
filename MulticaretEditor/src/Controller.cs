@@ -1416,12 +1416,12 @@ namespace MulticaretEditor
 			JoinSelections();
 		}
 		
-		public void ViMove_w(bool shift, bool change)
+		public void ViMove_w(bool shift, bool change, bool allowNewLine)
 		{
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
-				moves.Vi_w(change);
+				moves.Vi_w(change, allowNewLine);
 				moves.Apply(selection, shift);
 			}
 		}
@@ -1496,7 +1496,7 @@ namespace MulticaretEditor
 				moves.Vi_WordStart();
 				selection.caret = moves.Position;
 				selection.SetEmpty();
-				moves.Vi_w(inside);
+				moves.Vi_w(inside, true);
 				moves.Apply(selection, true);
 			}
 		}
