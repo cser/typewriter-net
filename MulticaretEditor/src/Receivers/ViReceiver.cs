@@ -62,6 +62,7 @@ namespace MulticaretEditor
 					}
 				}
 			}
+			controller.processor.ResetCommandsBatching();
 			if (offsetOnStart)
 			{
 				for (int i = 0; i < lines.selections.Count; i++)

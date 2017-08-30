@@ -1,11 +1,10 @@
-- Fix position by mouse on half-tab
 - bookmarks: fix change with '
 - TabList: more power removing
 - FileTree: close by file selection shortcut
-- ShellCommandResults: close by file selection shortcut
+- FindInFiles: prev/next entry
+- ShellCommandResults: prev/next quickfix
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
-- fix unfocus on reloading undo
 - recover selection by gv after refocus
 - dG, cG, yG works with lines
 - snippets: more accurate exit from snippet

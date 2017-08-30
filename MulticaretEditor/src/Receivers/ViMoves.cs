@@ -262,8 +262,24 @@ namespace MulticaretEditor
 							controller.ViMoveTo(position, shift);
 							break;
 						case '\'':
-							controller.ViMoveTo(position, shift);
-							controller.ViMoveHome(shift, true);
+							if (mode == MoveMode.Delete)
+							{
+								controller.ClearMinorSelections();
+								Place start = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+								start.iChar = 0;
+								Place end = controller.Lines.PlaceOf(position);
+								{
+									Line line = controller.Lines[end.iLine];
+									end.iChar = line.charsCount;
+								}
+								controller.LastSelection.anchor = controller.Lines.IndexOf(start);
+								controller.LastSelection.caret = controller.Lines.IndexOf(end);
+							}
+							else
+							{
+								controller.ViMoveTo(position, shift);
+								controller.ViMoveHome(shift, true);
+							}
 							break;
 					}
 				}
