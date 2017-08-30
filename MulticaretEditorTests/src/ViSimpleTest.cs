@@ -1636,5 +1636,12 @@ namespace UnitTests
 			lines.SetText("Abcd efg\rhij");
 			Put(5, 0).Press("dw").AssertText("Abcd \rhij").AssertSelection().Both(4, 0);
 		}
+		
+		[Test]
+		public void w_AtEnd_VISUAL()
+		{
+			lines.SetText("Abcd efg\nhij");
+			Put(5, 0).Press("vw").AssertSelection().Anchor(5, 0).Caret(8, 0);
+		}
 	}
 }
