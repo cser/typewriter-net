@@ -185,6 +185,7 @@ namespace MulticaretEditor
 			bool needHistoryMove = true;
 			int count = parser.FictiveCount;
 			bool needInput = false;
+			bool lineModeCopy = false;
 			switch (parser.move.Index)
 			{
 				case 'f' + ViChar.ControlIndex:
@@ -255,6 +256,7 @@ namespace MulticaretEditor
 						viShortcut = "" + parser.move.c + parser.moveChar.c;
 						return;
 					}
+					lineModeCopy = parser.move.c == '\'';
 					move = new ViMoves.JumpBookmark(parser.move.c, parser.moveChar.c);
 					break;
 				case '0':
@@ -322,7 +324,19 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
 						break;
 					case 'y':
-						ProcessCopy(move, parser.register, count);
+						if (lineModeCopy)
+						{
+							for (int i = 0; i < count; i++)
+							{
+								move.Move(controller, true, MoveMode.Copy);
+							}
+							controller.ViCopyLine(parser.register, count);
+							controller.ViCollapseSelections();
+						}
+						else
+						{
+							ProcessCopy(move, parser.register, count);
+						}
 						break;
 					default:
 						for (int i = 0; i < count; i++)

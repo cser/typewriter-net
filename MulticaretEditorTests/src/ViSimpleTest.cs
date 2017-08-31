@@ -1451,6 +1451,24 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void InsideFileBookmarks_CopyToLine()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(7, 3).Press("ma");
+			Put(2, 1).Press("y'a").AssertSelection().Both(2, 1);
+			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_CopyToLine_Last()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(1, 4).Press("ma");
+			Put(2, 1).Press("y'a").AssertSelection().Both(2, 1);
+			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\neeee\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
 		public void UpperLower_VISUAL()
 		{
 			lines.SetText("Abcdefghij");
@@ -1648,6 +1666,14 @@ namespace UnitTests
 		{
 			lines.SetText("Abcd efg\nhij");
 			Put(5, 0).Press("vw").AssertSelection().Anchor(5, 0).Caret(0, 1);
+		}
+		
+		[Test]
+		public void yl_AtEnd()
+		{
+			lines.SetText("Abcd");
+			Put(3, 0).Press("yl").AssertSelection().Both(3, 0);
+			Assert.AreEqual("d", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 	}
 }
