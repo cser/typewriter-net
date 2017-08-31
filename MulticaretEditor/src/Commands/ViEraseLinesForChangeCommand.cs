@@ -56,6 +56,18 @@ namespace MulticaretEditor
 			eraseCommand.selections = selections;
 			if (eraseCommand.Init())
 			{
+				string[] indents = new string[selections.Count];
+				for (int i = 0; i < selections.Count; i++)
+				{
+					Selection selection = selections[i];
+					Place place = lines.PlaceOf(Math.Min(selection.anchor, selection.caret));
+					Line line = lines[place.iLine];
+					string text;
+					int count;
+					line.GetFirstIntegerTabs(out text, out count);
+					indents[i] = text ?? "";
+				}
+				
 				eraseCommand.Redo();
 				for (int i = 0; i < selections.Count; i++)
 				{
@@ -67,28 +79,6 @@ namespace MulticaretEditor
 				}
 				this.eraseCommand = eraseCommand;
 				
-				string[] indents = new string[selections.Count];
-				for (int i = 0; i < selections.Count; i++)
-				{
-					indents[i] = "";
-					Selection selection = selections[i];
-					Place place = lines.PlaceOf(selection.caret);
-					if (place.iLine > 0)
-					{
-						Line prevLine = lines[place.iLine - 1];
-						string text;
-						int count;
-						prevLine.GetFirstIntegerTabs(out text, out count);
-						if (count > 0)
-						{
-							indents[i] = text;
-						}
-						if (lines.autoindent && prevLine.GetLastNotSpace() == '{')
-						{
-							indents[i] += lines.TabSettings.Tab;
-						}
-					}
-				}
 				InsertTextCommand indentCommand = new InsertTextCommand(null, indents, true);
 				indentCommand.lines = lines;
 				indentCommand.selections = selections;
@@ -98,7 +88,6 @@ namespace MulticaretEditor
 					this.indentCommand = indentCommand;
 				}
 			}
-			//controller.ViMoveHome(false, true);
 		}
 		
 		override public void Undo()

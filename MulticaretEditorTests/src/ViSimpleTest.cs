@@ -1711,7 +1711,7 @@ namespace UnitTests
 			lines.SetText("Oooo\n\taaaa\n\t\tccc\ndddddddd");
 			Put(2, 1).Press("Vjc");
 			AssertText("Oooo\n\t\ndddddddd");
-			AssertViClipboard("\taaaa\n\tccc\n");
+			AssertViClipboard("\taaaa\n\t\tccc\n");
 			AssertSelection().Both(1, 1).NoNext();
 		}
 	}
