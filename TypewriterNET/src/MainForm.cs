@@ -907,7 +907,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+			new KeyAction("Prefere&nces\\Edit current color scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open AppData subfolder", DoOpenAppDataFolder, null, false)));
