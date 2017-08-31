@@ -287,7 +287,7 @@ namespace MulticaretEditor
 						{
 							controller.ViStoreSelections();
 							controller.ViCopyLine('0', 1);
-							controller.ViDeleteLine('0', 1);
+							controller.ViDeleteLineForChange('0', 1);
 						}
 						else
 						{

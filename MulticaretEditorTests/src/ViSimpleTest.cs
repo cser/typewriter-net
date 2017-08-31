@@ -1468,6 +1468,15 @@ namespace UnitTests
 			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\neeee\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 		
+		[Ignore]
+		[Test]
+		public void InsideFileBookmarks_ChangeToLine()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(7, 3).Press("ma");
+			Put(2, 1).Press("c'a").AssertText("Oooo\n\neeee").AssertSelection().Both(0, 1);
+		}
+		
 		[Test]
 		public void UpperLower_VISUAL()
 		{
@@ -1674,6 +1683,36 @@ namespace UnitTests
 			lines.SetText("Abcd");
 			Put(3, 0).Press("yl").AssertSelection().Both(3, 0);
 			Assert.AreEqual("d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void c_LINES()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(2, 1).Press("Vc");
+			AssertText("Oooo\n\n\tccc\ndddddddd");
+			AssertViClipboard("aaaa\n");
+			AssertSelection().Both(0, 1).NoNext();
+		}
+		
+		[Test]
+		public void c2_LINES()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
+			Put(2, 1).Press("Vjc");
+			AssertText("Oooo\n\ndddddddd");
+			AssertViClipboard("aaaa\n\tccc\n");
+			AssertSelection().Both(0, 1).NoNext();
+		}
+		
+		[Test]
+		public void c_Indentation_LINES()
+		{
+			lines.SetText("Oooo\n\taaaa\n\t\tccc\ndddddddd");
+			Put(2, 1).Press("Vjc");
+			AssertText("Oooo\n\t\ndddddddd");
+			AssertViClipboard("\taaaa\n\tccc\n");
+			AssertSelection().Both(1, 1).NoNext();
 		}
 	}
 }
