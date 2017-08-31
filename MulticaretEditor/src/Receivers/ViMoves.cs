@@ -242,6 +242,24 @@ namespace MulticaretEditor
 				return charToJump >= 'A' && charToJump <= 'Z';
 			}
 			
+			public static int GetLocalPosition(Controller controller, char charToJump)
+			{
+				if (charToJump >= 'A' && charToJump <= 'Z')
+				{
+					string path;
+					int position;
+					controller.macrosExecutor.GetBookmark(charToJump, out path, out position);
+					if (controller.Lines.viFullPath != null &&
+						controller.Lines.viFullPath == path &&
+						position != -1)
+					{
+						return position;
+					}
+					return -1;
+				}
+				return controller.GetBookmark(charToJump);
+			}
+			
 			private char type;
 			private char charToJump;
 			
@@ -253,7 +271,7 @@ namespace MulticaretEditor
 			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				int position = controller.GetBookmark(charToJump);
+				int position = GetLocalPosition(controller, charToJump);
 				if (position != -1)
 				{
 					switch (type)

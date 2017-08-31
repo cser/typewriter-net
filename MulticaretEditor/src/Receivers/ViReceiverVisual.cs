@@ -158,7 +158,7 @@ namespace MulticaretEditor
 					break;
 				case '`':
 				case '\'':
-					if (ViMoves.JumpBookmark.IsFileBased(parser.moveChar.c))
+					if (ViMoves.JumpBookmark.GetLocalPosition(controller, parser.moveChar.c) == -1)
 					{
 						viShortcut = "" + parser.move.c + parser.moveChar.c;
 						return;
