@@ -1104,7 +1104,7 @@ public class FileTree
 			{
 				return DoOnEnterNoSwitch(controller);
 			}
-			if (shortcut == "dd")
+			if (shortcut == "dd" || shortcut == "v_d" || shortcut == "v_x")
 			{
 				return DoRemoveItem(controller);
 			}

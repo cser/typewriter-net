@@ -271,16 +271,23 @@ namespace MulticaretEditor
 						break;
 					case 'd':
 					case 'x':
-						if (_lineMode)
+						if (controller.isReadonly)
 						{
-							controller.ViDeleteLine(parser.register, 1);
+							viShortcut = "v_" + parser.GetFictiveShortcut();
 						}
 						else
 						{
-							controller.ViCut(parser.register, true);
+							if (_lineMode)
+							{
+								controller.ViDeleteLine(parser.register, 1);
+							}
+							else
+							{
+								controller.ViCut(parser.register, true);
+							}
+							SetViMode();
+							forceLastCommand = true;
 						}
-						SetViMode();
-						forceLastCommand = true;
 						break;
 					case 'c':
 						if (_lineMode)

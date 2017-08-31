@@ -48,20 +48,47 @@ public class TabList : Buffer
 			KeyAction action = new KeyAction("&View\\Tab list\\Select tab", DoOpenTab, null, false);
 			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
+		{
+			KeyAction action = new KeyAction("&View\\Tab list\\Remove tab", DoRemoveTab, null, false);
+			additionKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
+		}
 	}
 	
 	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
-		if (shortcut == "dd")
+		if (shortcut == "dd" || shortcut == "v_d" || shortcut == "v_x")
 		{
-			Selection selection = Controller.LastSelection;
-			int index = Controller.Lines.PlaceOf(selection.caret).iLine;
-			if (index >= 0 && index < buffers.Count)
+			return ProcessRemove(controller);
+		}
+		return false;
+	}
+	
+	private bool DoRemoveTab(Controller controller)
+	{
+		return ProcessRemove(controller);
+	}
+	
+	private bool ProcessRemove(Controller controller)
+	{
+		List<int> indices = GetSelectionIndices(controller);
+		List<Buffer> buffers = new List<Buffer>();
+		foreach (int index in indices)
+		{
+			if (index >= 0 && index < this.buffers.Count)
 			{
-				mainForm.CloseIfExists(buffers[index]);
-				Rebuild();
-				return true;
+				buffers.Add(this.buffers[index]);
 			}
+		}
+		bool changed = false;
+		foreach (Buffer buffer in buffers)
+		{
+			mainForm.CloseIfExists(buffer);
+			changed = true;
+		}
+		if (changed)
+		{
+			Rebuild();
+			return true;
 		}
 		return false;
 	}
@@ -152,5 +179,29 @@ public class TabList : Buffer
 		{
 			Frame.RemoveBuffer(this);
 		}
+	}
+	
+	private List<int> GetSelectionIndices(Controller controller)
+	{
+		Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
+		foreach (Selection selection in controller.Selections)
+		{
+			Place place0 = controller.Lines.PlaceOf(selection.anchor);
+			Place place1 = controller.Lines.PlaceOf(selection.caret);
+			int i0 = Math.Min(place0.iLine, place1.iLine);
+			int i1 = Math.Max(place0.iLine, place1.iLine);
+			Console.WriteLine("[" + i0 + ", " + i1 + "]");
+			for (int i = i0; i <= i1; i++)
+			{
+				indexHash[i] = true;
+			}
+		}
+		List<int> indices = new List<int>();
+		foreach (KeyValuePair<int, bool> pair in indexHash)
+		{
+			indices.Add(pair.Key);
+		}
+		indices.Sort();
+		return indices;
 	}
 }
