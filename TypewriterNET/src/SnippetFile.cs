@@ -22,7 +22,7 @@ public class SnippetFile
 			{
 				continue;
 			}
-			if (line.StartsWith("snippet "))
+			if (line.StartsWith("snippet ") || line.StartsWith("snippet\t"))
 			{
 				if (lastKey != null)
 				{
@@ -33,7 +33,16 @@ public class SnippetFile
 				}
 				string key = line.Substring("snippet ".Length).Trim();
 				string desc = "";
-				int descIndex = key.IndexOf(' ');
+				int descIndex = -1;
+				for (int i = 0; i < key.Length; ++i)
+				{
+					char c = key[i];
+					if (c == ' ' || c == '\t')
+					{
+						descIndex = i;
+						break;
+					}
+				}
 				if (descIndex != -1)
 				{
 					desc = key.Substring(descIndex + 1);
