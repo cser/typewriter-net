@@ -1468,7 +1468,6 @@ namespace UnitTests
 			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\neeee\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 		
-		[Ignore]
 		[Test]
 		public void InsideFileBookmarks_ChangeToLine()
 		{
@@ -1713,6 +1712,19 @@ namespace UnitTests
 			AssertText("Oooo\n\t\ndddddddd");
 			AssertViClipboard("\taaaa\n\t\tccc\n");
 			AssertSelection().Both(1, 1).NoNext();
+		}
+		
+		[Test]
+		public void c_Indentation_LINES_Undo()
+		{
+			lines.SetText("Oooo\n\taaaa\n\t\tccc\ndddddddd");
+			Put(2, 1).Press("Vjc");
+			AssertText("Oooo\n\t\ndddddddd");
+			AssertViClipboard("\taaaa\n\t\tccc\n");
+			AssertSelection().Both(1, 1).NoNext();
+			
+			Press(Keys.Control | Keys.OemOpenBrackets).Press("u");
+			AssertText("Oooo\n\taaaa\n\t\tccc\ndddddddd");
 		}
 	}
 }

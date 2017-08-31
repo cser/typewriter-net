@@ -1,4 +1,3 @@
-- bookmarks: fix change with '
 - TabList: more power removing
 - FileTree: close by file selection shortcut
 - FindInFiles: prev/next entry
