@@ -259,6 +259,7 @@
 			<item> CopyFiles </item>
 			<item> CRCCheck </item>
 			<item> CreateDirectory </item>
+			<item> CreateShortCut </item>
 			<item> CreateFont </item>
 			<item> CreateShortcut </item>
 			<item> SetDatablockOptimize </item>
@@ -456,14 +457,23 @@
 				<keyword attribute="Keyword" context="#stay" String="keywords"/>
 				<keyword attribute="BaseFunc" context="#stay" String="basefunc"/>
 				<HlCChar attribute="Char" context="#stay"/>
-				<DetectChar attribute="Comment" context="Comment" char=";"/>
+				<AnyChar attribute="Comment" context="Comment" String=";#"/>
 				<DetectChar attribute="String" context="String" char="&quot;"/>
-				<AnyChar attribute="Symbol" context="#stay" String="!%&amp;()+,-&lt;=&gt;?[]^{|}~"/>
+				<AnyChar attribute="Symbol" context="#stay" String="!%&amp;()+,-&lt;=&gt;?[]^|~"/>
+				<Detect2Chars attribute="Symbol" context="#stay" char="$" char1="{"/>
+				<DetectChar attribute="Symbol" context="#stay" char="}"/>
+				<Int attribute="Decimal" context="#stay"/>
+				<RegExpr attribute="Macro" context="#stay" String="\$[\w\d_]+"/>
 			</context>
 			<context attribute="Comment" lineEndContext="#pop" name="Comment">
 				<RegExpr attribute="Alert" context="#stay" String="(FIXME|TODO)"/>
 			</context>
 			<context attribute="String" lineEndContext="#pop" name="String">
+				<LineContinue attribute="String" context="#pop"/>
+				<Detect2Chars attribute="String" context="#stay" char="\" char1="&quot;"/>
+				<StringDetect attribute="String Char" context="#stay" String="$\&quot;"/>
+				<RegExpr attribute="String Char" context="#stay" String="\$\{[\w\d_]+\}"/>
+				<RegExpr attribute="String Char" context="#stay" String="\$[\w_][\w\d_]+"/>
 				<DetectChar attribute="String" context="#pop" char="&quot;"/>
 			</context>
 		</contexts>
@@ -474,6 +484,7 @@
 			<itemData name="Keyword" defStyleNum="dsKeyword"/>
 			<itemData name="Comment" defStyleNum="dsComment"/>
 			<itemData name="String" defStyleNum="dsString"/>
+			<itemData name="String Char" defStyleNum="dsChar"/>
 			<itemData name="Decimal" defStyleNum="dsDecVal"/>
 			<itemData name="Number" defStyleNum="dsBaseN"/>
 			<itemData name="Symbol" defStyleNum="dsOperator"/>
