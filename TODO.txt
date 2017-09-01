@@ -10,4 +10,3 @@
 - line mode ^ and $
 - fix {} object with nested with repetition
 - fix fail on gv
-- fix ~ with multiple cursors

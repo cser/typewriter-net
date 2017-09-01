@@ -2262,6 +2262,31 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViChangeCase()
+		{
+			JoinSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0; i < selections.Count; ++i)
+			{
+				Selection selection = selections[i];
+				char[] chars = lines.GetText(selection.Left, selection.Count).ToCharArray();
+				for (int j = 0; j < chars.Length; ++j)
+				{
+					char c = chars[j];
+					if (char.IsUpper(c))
+					{
+						chars[j] = char.ToLower(c);
+					}
+					else if (char.IsLower(c))
+					{
+						chars[j] = char.ToUpper(c);
+					}
+				}
+				texts[i] = new string(chars);
+			}
+			processor.Execute(new InsertTextCommand(null, texts, true));
+		}
+		
 		public readonly List<char> bookmarkNames = new List<char>(4);
 		public readonly List<int> bookmarks = new List<int>(4);
 		

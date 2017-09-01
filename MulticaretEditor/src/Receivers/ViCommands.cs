@@ -78,20 +78,7 @@ namespace MulticaretEditor
 				{
 					move.Move(controller, true, MoveMode.Move);
 				}
-				char[] chars = controller.GetSelectedText().ToCharArray();
-				for (int i = 0; i < chars.Length; ++i)
-				{
-					char c = chars[i];
-					if (char.IsUpper(c))
-					{
-						chars[i] = char.ToLower(c);
-					}
-					else if (char.IsLower(c))
-					{
-						chars[i] = char.ToUpper(c);
-					}
-				}
-				controller.InsertText(new string(chars));
+				controller.ViChangeCase();
 			}
 		}
 		

@@ -60,7 +60,13 @@ namespace UnitTests
 		private ViSimpleTest Put(int iChar, int iLine)
 		{
 			controller.PutCursor(new Place(iChar, iLine), false);
-			AssertSelection().Both(iChar, iLine);
+			AssertSelection("Put").Both(iChar, iLine);
+			return this;
+		}
+		
+		private ViSimpleTest PutNew(int iChar, int iLine)
+		{
+			controller.PutNewCursor(new Place(iChar, iLine));
 			return this;
 		}
 		
@@ -1725,6 +1731,17 @@ namespace UnitTests
 			
 			Press(Keys.Control | Keys.OemOpenBrackets).Press("u");
 			AssertText("Oooo\n\taaaa\n\t\tccc\ndddddddd");
+		}
+		
+		[Test]
+		public void UpperLower_Multicaret()
+		{
+			lines.SetText("Oooo\naaaa\nccc\ndddddddd");
+			Put(2, 1).PutNew(2, 2).Press("~");
+			AssertText("Oooo\naaAa\nccC\ndddddddd").AssertSelection("#1").Both(3, 1).Next().Both(3, 2).NoNext();
+			Press(Keys.Control | Keys.OemOpenBrackets);
+			Put(2, 1).PutNew(2, 2).Press("~");
+			AssertText("Oooo\naaaa\nccc\ndddddddd").AssertSelection("#2").Both(3, 1).Next().Both(3, 2).NoNext();
 		}
 	}
 }
