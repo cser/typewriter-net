@@ -9,3 +9,4 @@
 - snippets: fix autocomplete
 - line mode ^ and $
 - fix {} object with nested with repetition
+- fix fail on gv
