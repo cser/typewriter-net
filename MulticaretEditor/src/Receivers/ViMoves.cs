@@ -283,9 +283,26 @@ namespace MulticaretEditor
 							if (mode == MoveMode.Delete)
 							{
 								controller.ClearMinorSelections();
-								Place start = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+								int position0;
+								int position1;
+								if (position >= controller.LastSelection.Left && position <= controller.LastSelection.Right)
+								{
+									position0 = controller.LastSelection.Left;
+									position1 = controller.LastSelection.Right;
+								}
+								else if (position < controller.LastSelection.Right)
+								{
+									position0 = position;
+									position1 = controller.LastSelection.Right;
+								}
+								else
+								{
+									position0 = controller.LastSelection.Left;
+									position1 = position;
+								}
+								Place start = controller.Lines.PlaceOf(position0);
 								start.iChar = 0;
-								Place end = controller.Lines.PlaceOf(position);
+								Place end = controller.Lines.PlaceOf(position1);
 								{
 									Line line = controller.Lines[end.iLine];
 									end.iChar = line.charsCount;

@@ -1462,6 +1462,14 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void InsideFileBookmarks_JumpToLine_Delete3()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(3, 1).Press("ma");
+			Put(2, 3).Press("d'a").AssertText("Oooo\neeee").AssertSelection().Both(0, 1);
+		}
+		
+		[Test]
 		public void InsideFileBookmarks_CopyToLine()
 		{
 			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
