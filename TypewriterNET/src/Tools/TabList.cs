@@ -48,9 +48,10 @@ public class TabList : Buffer
 			KeyAction action = new KeyAction("&View\\Tab list\\Select tab", DoOpenTab, null, false);
 			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
+		additionBeforeKeyMap = new KeyMap();
 		{
 			KeyAction action = new KeyAction("&View\\Tab list\\Remove tab", DoRemoveTab, null, false);
-			additionKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Delete, null, action));
 		}
 	}
 	
