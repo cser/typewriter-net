@@ -228,19 +228,24 @@ namespace UnitTests
 				"Du hast\n" +
 				"   Du hast mich\n" +
 				"aaaaaaa");
-			Put(3, 0).Press("cGx").AssertText(
-				"Du x").AssertSelection().Both(4, 0);
+			Put(3, 1).Press("cGx").AssertText(
+				"Du hast\nx").AssertSelection().Both(1, 1);
 		}
 		
 		[Test]
 		public void dG()
 		{
-			lines.SetText(
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"aaaaaaa");
-			Put(3, 0).Press("dG").AssertText(
-				"Du ").AssertSelection().Both(2, 0);
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(3, 0).Press("dG").AssertText("").AssertSelection().Both(0, 0);
+			Press("u").AssertText("Du hast\n   Du hast mich\naaaaaaa");
+		}
+		
+		[Test]
+		public void dG2()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(3, 1).Press("dG").AssertText("Du hast").AssertSelection().Both(0, 0);
+			Press("u").AssertText("Du hast\n   Du hast mich\naaaaaaa");
 		}
 		
 		[Test]
@@ -251,7 +256,7 @@ namespace UnitTests
 				"   Du hast mich\n" +
 				"aaaaaaa");
 			Put(3, 0).Press("yG");
-			Assert.AreEqual("hast\n   Du hast mich\naaaaaaa", ClipboardExecutor.GetFromRegister(lines, '0'));
+			Assert.AreEqual("Du hast\n   Du hast mich\naaaaaaa\n", ClipboardExecutor.GetFromRegister(lines, '0'));
 		}
 		
 		[Test]

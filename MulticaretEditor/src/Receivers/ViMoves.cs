@@ -363,7 +363,26 @@ namespace MulticaretEditor
 		{
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				controller.ViDocumentEnd(shift, mode);
+				if (mode == MoveMode.Delete)
+				{
+					controller.ClearMinorSelections();
+					Place start = controller.Lines.PlaceOf(controller.LastSelection.anchor);
+					if (start.iLine > 0)
+					{
+						--start.iLine;
+						start.iChar = controller.Lines[start.iLine].NormalCount;
+					}
+					else
+					{
+						start.iChar = 0;
+					}
+					controller.LastSelection.anchor = controller.Lines.IndexOf(start);
+					controller.LastSelection.caret = controller.Lines.charsCount;
+				}
+				else
+				{
+					controller.ViDocumentEnd(shift, mode);
+				}
 			}
 		}
 		

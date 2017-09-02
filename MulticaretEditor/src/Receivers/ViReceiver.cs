@@ -273,6 +273,7 @@ namespace MulticaretEditor
 					if (parser.rawCount == -1)
 					{
 						move = new ViMoves.DocumentEnd();
+						lineMode = true;
 					}
 					else
 					{
