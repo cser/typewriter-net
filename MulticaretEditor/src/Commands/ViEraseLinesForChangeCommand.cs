@@ -29,29 +29,20 @@ namespace MulticaretEditor
 		override public void Redo()
 		{
 			lines.ResizeSelections(ranges.Count);
-			bool[] isLast = new bool[selections.Count];
+			string[] lineBreaks = new string[selections.Count];
 			for (int i = ranges.Count; i-- > 0;)
 			{
 				SimpleRange range = ranges[i];
 				Line endLine = lines[range.index + range.count - 1];
 				Selection selection = selections[i];
-				if (range.index > 0 && range.index + range.count == lines.LinesCount)
-				{
-					isLast[i] = true;
-					Line startLine = lines[range.index - 1];
-					selection.anchor = lines.IndexOf(new Place(startLine.NormalCount, range.index - 1));
-					selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
-				}
-				else
-				{
-					selection.anchor = lines.IndexOf(new Place(0, range.index));
-					selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
-				}
+				lineBreaks[i] = range.index + range.count == lines.LinesCount ? "" : lines.lineBreak;
+				selection.anchor = lines.IndexOf(new Place(0, range.index));
+				selection.caret = lines.IndexOf(new Place(endLine.charsCount, range.index + range.count - 1));
 			}
 			
 			this.eraseCommand = null;
 			this.indentCommand = null;
-			InsertTextCommand eraseCommand = new InsertTextCommand(lines.lineBreak, null, true);
+			InsertTextCommand eraseCommand = new InsertTextCommand(null, lineBreaks, true);
 			eraseCommand.lines = lines;
 			eraseCommand.selections = selections;
 			if (eraseCommand.Init())
@@ -72,10 +63,7 @@ namespace MulticaretEditor
 				for (int i = 0; i < selections.Count; i++)
 				{
 					Selection selection = selections[i];
-					if (!isLast[i])
-					{
-						selection.anchor = selection.caret = selection.caret - lines.lineBreak.Length;
-					}
+					selection.anchor = selection.caret = selection.caret - lineBreaks[i].Length;
 				}
 				this.eraseCommand = eraseCommand;
 				

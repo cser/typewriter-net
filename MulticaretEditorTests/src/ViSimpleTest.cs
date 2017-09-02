@@ -146,11 +146,7 @@ namespace UnitTests
 		[Test]
 		public void S6_0()
 		{
-			lines.SetText(
-			//	 012345678901234
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"   a");
+			lines.SetText("Du hast\n   Du hast mich\n   a");
 			
 			Put(4, 0).Press("0").AssertSelection().Both(0, 0).NoNext();
 			Put(4, 1).Press("0").AssertSelection().Both(0, 1).NoNext();
@@ -168,13 +164,7 @@ namespace UnitTests
 		[Test]
 		public void S6_OnlySpacesNuance()
 		{
-			lines.SetText(
-			//	 012345678901234
-				"Du hast\n" +
-				"   \n" +
-				"\n" +
-				"a");
-			
+			lines.SetText("Du hast\n   \n\na");
 			Put(1, 1).Press("^").AssertSelection().Both(2, 1).NoNext();
 			Put(0, 2).Press("^").AssertSelection().Both(0, 2).NoNext();
 		}
@@ -182,12 +172,7 @@ namespace UnitTests
 		[Test]
 		public void S4()
 		{
-			lines.SetText(
-			//	 012345678901234
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"   a");
-			
+			lines.SetText("Du hast\n   Du hast mich\n   a");
 			Put(4, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
 			Put(0, 0).Press("$").AssertSelection().Both(6, 0).NoNext();
 			Put(1, 1).Press("$").AssertSelection().Both(14, 1).NoNext();
@@ -197,12 +182,7 @@ namespace UnitTests
 		[Test]
 		public void S4_Repeat()
 		{
-			lines.SetText(
-			//	 012345678901234
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"   a");
-			
+			lines.SetText("Du hast\n   Du hast mich\n   a");
 			Put(4, 0).Press("2").Press("$").AssertSelection().Both(14, 1).NoNext();
 			Put(4, 0).Press("3").Press("$").AssertSelection().Both(3, 2).NoNext();
 			Put(4, 0).Press("4").Press("$").AssertSelection().Both(3, 2).NoNext();
@@ -211,11 +191,7 @@ namespace UnitTests
 		[Test]
 		public void gg_G()
 		{
-			lines.SetText(
-			//	 012345678901234
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"aaaaaaa");
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
 			Put(4, 1).Press("g").Press("g").AssertSelection().Both(0, 0).NoNext();
 			Put(4, 1).Press("G").AssertSelection().Both(0, 2).NoNext();
 			Put(4, 2).Press("G").AssertSelection().Both(0, 2).NoNext();
@@ -224,12 +200,26 @@ namespace UnitTests
 		[Test]
 		public void cG()
 		{
-			lines.SetText(
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"aaaaaaa");
-			Put(3, 1).Press("cGx").AssertText(
-				"Du hast\nx").AssertSelection().Both(1, 1);
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(3, 1).Press("cGx").AssertText("Du hast\nx").AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void cG2()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(3, 1).Press("dG").AssertText("Du hast").AssertSelection().Both(0, 0);
+			Press("u").AssertText("Du hast\n   Du hast mich\naaaaaaa");
+		}
+		
+		[Test]
+		public void dG2()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(0, 0).Press("cG").AssertText("").AssertSelection().Both(0, 0);
+			Assert.AreEqual("Du hast\n   Du hast mich\naaaaaaa\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+			Press(Keys.Control | Keys.OemOpenBrackets);
+			Press("u").AssertText("Du hast\n   Du hast mich\naaaaaaa");
 		}
 		
 		[Test]
@@ -241,29 +231,42 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void dG2()
+		public void dG3()
 		{
 			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
-			Put(3, 1).Press("dG").AssertText("Du hast").AssertSelection().Both(0, 0);
+			Put(0, 0).Press("dG").AssertText("").AssertSelection().Both(0, 0);
+			Assert.AreEqual("Du hast\n   Du hast mich\naaaaaaa\n", ClipboardExecutor.GetFromRegister(lines, '0'));
 			Press("u").AssertText("Du hast\n   Du hast mich\naaaaaaa");
 		}
 		
 		[Test]
 		public void yG()
 		{
-			lines.SetText(
-				"Du hast\n" +
-				"   Du hast mich\n" +
-				"aaaaaaa");
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
 			Put(3, 0).Press("yG");
 			Assert.AreEqual("Du hast\n   Du hast mich\naaaaaaa\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void yG_VISUAL()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(3, 0).Press("vGy");
+			Assert.AreEqual("hast\n   Du hast mich\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void yG2_VISUAL()
+		{
+			lines.SetText("Du hast\nDu hast mich\n  aaaaaaa");
+			Put(3, 0).Press("vGy");
+			Assert.AreEqual("hast\nDu hast mich\n  ", ClipboardExecutor.GetFromRegister(lines, '0'));
 		}
 		
 		[Test]
 		public void hjkl()
 		{
 			lines.SetText(
-			//	 012345678901234
 				"Du hast\n" +
 				"   Du hast mich\n" +
 				"aaaaaaa");
@@ -1467,6 +1470,24 @@ namespace UnitTests
 			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
 			Put(3, 1).Press("ma");
 			Put(2, 3).Press("d'a").AssertText("Oooo\neeee").AssertSelection().Both(0, 1);
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToLine_Clipboard()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(7, 3).Press("ma");
+			Put(2, 1).Press("d'a").AssertText("Oooo\neeee").AssertSelection().Both(0, 1);
+			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void InsideFileBookmarks_JumpToLine_Clipboard2()
+		{
+			lines.SetText("Oooo\naaaa\n\tccc\n    dddddddd\neeee");
+			Put(2, 4).Press("ma");
+			Put(2, 1).Press("d'a").AssertText("Oooo").AssertSelection().Both(0, 0);
+			Assert.AreEqual("aaaa\n\tccc\n    dddddddd\neeee\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 		
 		[Test]

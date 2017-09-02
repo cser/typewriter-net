@@ -318,7 +318,18 @@ namespace MulticaretEditor
 				switch (parser.action.Index)
 				{
 					case 'd':
-						command = new ViCommands.Delete(move, count, false, parser.register);
+						if (lineMode)
+						{
+							for (int i = 0; i < count; i++)
+							{
+								move.Move(controller, true, MoveMode.Delete);
+							}
+							controller.ViDeleteLine(parser.register, 1);
+						}
+						else
+						{
+							command = new ViCommands.Delete(move, count, false, parser.register);
+						}
 						break;
 					case 'c':
 						if (lineMode)

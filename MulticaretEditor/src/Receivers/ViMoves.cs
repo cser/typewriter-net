@@ -300,15 +300,8 @@ namespace MulticaretEditor
 									position0 = controller.LastSelection.Left;
 									position1 = position;
 								}
-								Place start = controller.Lines.PlaceOf(position0);
-								start.iChar = 0;
-								Place end = controller.Lines.PlaceOf(position1);
-								{
-									Line line = controller.Lines[end.iLine];
-									end.iChar = line.charsCount;
-								}
-								controller.LastSelection.anchor = controller.Lines.IndexOf(start);
-								controller.LastSelection.caret = controller.Lines.IndexOf(end);
+								controller.LastSelection.anchor = position0;
+								controller.LastSelection.caret = position1;
 							}
 							else
 							{
@@ -380,26 +373,10 @@ namespace MulticaretEditor
 		{
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				if (mode == MoveMode.Delete)
-				{
-					controller.ClearMinorSelections();
-					Place start = controller.Lines.PlaceOf(controller.LastSelection.anchor);
-					if (start.iLine > 0)
-					{
-						--start.iLine;
-						start.iChar = controller.Lines[start.iLine].NormalCount;
-					}
-					else
-					{
-						start.iChar = 0;
-					}
-					controller.LastSelection.anchor = controller.Lines.IndexOf(start);
-					controller.LastSelection.caret = controller.Lines.charsCount;
-				}
-				else
-				{
-					controller.ViDocumentEnd(shift, mode);
-				}
+				controller.ClearMinorSelections();
+				controller.LastSelection.anchor = controller.LastSelection.Left;
+				controller.LastSelection.caret = controller.Lines.charsCount;
+				controller.ViMoveHome(shift, true);
 			}
 		}
 		
