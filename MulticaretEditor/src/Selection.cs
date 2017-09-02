@@ -52,5 +52,25 @@ namespace MulticaretEditor
 		{
 			return "(anchor:" + anchor + ", caret:" + caret + ")";
 		}
+		
+		public void FixByCharsLength(int charsCount)
+		{
+			if (anchor < 0)
+			{
+				anchor = 0;
+			}
+			else if (anchor > charsCount)
+			{
+				anchor = charsCount;
+			}
+			if (caret < 0)
+			{
+				caret = 0;
+			}
+			else if (caret > charsCount)
+			{
+				caret = charsCount;
+			}
+		}
 	}
 }

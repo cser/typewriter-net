@@ -1743,5 +1743,13 @@ namespace UnitTests
 			Put(2, 1).PutNew(2, 2).Press("~");
 			AssertText("Oooo\naaaa\nccc\ndddddddd").AssertSelection("#2").Both(3, 1).Next().Both(3, 2).NoNext();
 		}
+		
+		[Test]
+		public void gv_DontFail()
+		{
+			lines.SetText("Abcdefg");
+			Put(2, 0).Press("v5lyD").AssertText("Ab");
+			Press("gv").AssertSelection("#1").Both(2, 0);
+		}
 	}
 }

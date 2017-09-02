@@ -2225,11 +2225,15 @@ namespace MulticaretEditor
 			{
 				selections.Add(new Selection());
 			}
-			if (selections.Count > mementos.Length)
+			if (mementos.Length > 0 && selections.Count > mementos.Length)
+			{
 				selections.RemoveRange(mementos.Length, selections.Count - mementos.Length);
+			}
 			for (int i = 0; i < mementos.Length; i++)
 			{
-				selections[mementos[i].index].Memento = mementos[i];
+				Selection selection = selections[mementos[i].index];
+				selection.Memento = mementos[i];
+				selection.FixByCharsLength(lines.charsCount);
 			}
 		}
 		
