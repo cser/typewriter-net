@@ -309,6 +309,31 @@ namespace MulticaretEditor
 		
 		public bool Vi_BracketStart(char bra, char ket, int count)
 		{
+			int position = _iterator.Position;
+			bool failByQuotes;
+			bool result = BracketStart(bra, ket, count, out failByQuotes);
+			if (failByQuotes)
+			{
+				_iterator = _lines.GetCharIterator(position);
+				while (_iterator.MoveLeft())
+				{
+					char c = _iterator.RightChar;
+					if ((c == '"' || c == '\'') && _iterator.LeftChar != '\'')
+					{
+						if (_iterator.MoveLeft())
+						{
+							result = BracketStart(bra, ket, count, out failByQuotes);
+						}
+						break;
+					}
+				}
+			}
+			return result;
+		}
+		
+		private bool BracketStart(char bra, char ket, int count, out bool failByQuotes)
+		{
+			failByQuotes = false;
 			int depth = count - 1;
 			if (_iterator.RightChar == ket)
 			{
@@ -316,6 +341,36 @@ namespace MulticaretEditor
 			}
 			while (true)
 			{
+				for (int i = 0; i < 2; ++i)
+				{
+					char quotes = i == 0 ? '"' : '\'';
+					while (_iterator.RightChar == quotes && _iterator.LeftChar != '\\')
+					{
+						while (true)
+						{
+							if (!_iterator.MoveLeft())
+							{
+								failByQuotes = true;
+								return false;
+							}
+							char rightC = _iterator.RightChar;
+							if (rightC == quotes && _iterator.LeftChar != '\\')
+							{
+								if (!_iterator.MoveLeft())
+								{
+									failByQuotes = true;
+									return false;
+								}
+								break;
+							}
+							if (rightC == '\r' || rightC == '\n')
+							{
+								failByQuotes = true;
+								return false;
+							}
+						}
+					}
+				}
 				char c = _iterator.RightChar;
 				if (c == ket)
 				{
@@ -342,6 +397,33 @@ namespace MulticaretEditor
 			int depth = 0;
 			while (true)
 			{
+				for (int i = 0; i < 2; ++i)
+				{
+					char quotes = i == 0 ? '"' : '\'';
+					while (_iterator.RightChar == quotes && _iterator.LeftChar != '\\')
+					{
+						while (true)
+						{
+							if (!_iterator.MoveRight())
+							{
+								return false;
+							}
+							char rightC = _iterator.RightChar;
+							if (rightC == quotes && _iterator.LeftChar != '\\')
+							{
+								if (!_iterator.MoveRight())
+								{
+									return false;
+								}
+								break;
+							}
+							if (rightC == '\r' || rightC == '\n')
+							{
+								return false;
+							}
+						}
+					}
+				}
 				char c = _iterator.RightChar;
 				if (c == bra)
 				{

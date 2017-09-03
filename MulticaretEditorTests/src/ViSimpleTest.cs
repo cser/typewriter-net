@@ -1882,5 +1882,45 @@ namespace UnitTests
 			Put(6, 0).Press("3ya{");
 			Assert.AreEqual("{b{c{d}}}", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
+		
+		[Test]
+		public void BracketsInsideString()
+		{
+			lines.SetText("a{b{\"c{\"d}e}");
+			Put(8, 0).Press("yi{");
+			Assert.AreEqual("\"c{\"d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			
+			lines.SetText("a{b{'c{'d}e}");
+			Put(8, 0).Press("yi{");
+			Assert.AreEqual("'c{'d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void BracketsInsideString_Escape()
+		{
+			lines.SetText("a{b{\"c\\\"{\"d}e}");
+			Put(10, 0).Press("yi{");
+			Assert.AreEqual("\"c\\\"{\"d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			
+			lines.SetText(@"a{b{'c{\''d}e}");
+			Put(10, 0).Press("yi{");
+			Assert.AreEqual(@"'c{\''d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void BracketsInsideString_EscapeComplex()
+		{
+			lines.SetText("a{b{@\"c{\"\"\"d}e}");
+			Put(10, 0).Press("yi{");
+			Assert.AreEqual("@\"c{\"\"\"d", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void BracketsInsideString_EscapeComplex2()
+		{
+			lines.SetText("\"a{b{@\\\"c{\\\"\\\"\\\"d}e}\"}");
+			Put(6, 0).Press("yi{");
+			Assert.AreEqual("@\\\"c{\\\"\\\"\\\"d}e", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
 	}
 }
