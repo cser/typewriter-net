@@ -7,5 +7,4 @@
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - line mode ^ and $
-- fix {} object with nested with repetition
 - fix gv offsets

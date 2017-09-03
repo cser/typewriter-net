@@ -1868,5 +1868,19 @@ namespace UnitTests
 			Put(3, 1).Press("vi{y");
 			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
+		
+		[Test]
+		public void NestedBrackets()
+		{
+			lines.SetText("a{b{c{d}}}");
+			Put(6, 0).Press("2yi{");
+			Assert.AreEqual("c{d}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			Put(6, 0).Press("2ya{");
+			Assert.AreEqual("{c{d}}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			Put(6, 0).Press("3yi{");
+			Assert.AreEqual("b{c{d}}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+			Put(6, 0).Press("3ya{");
+			Assert.AreEqual("{b{c{d}}}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
 	}
 }
