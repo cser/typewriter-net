@@ -260,7 +260,8 @@ namespace MulticaretEditor
 		
 		public class JumpBookmark : IMove
 		{
-			public bool IsDCLines { get { return false; } }
+			private bool isDCLines;
+			public bool IsDCLines { get { return isDCLines; } }
 			
 			public static bool IsFileBased(char charToJump)
 			{
@@ -305,6 +306,7 @@ namespace MulticaretEditor
 							controller.ViMoveTo(position, shift);
 							break;
 						case '\'':
+							isDCLines = true;
 							if (mode == MoveMode.Delete)
 							{
 								controller.ClearMinorSelections();
@@ -396,7 +398,7 @@ namespace MulticaretEditor
 		
 		public class DocumentStart : IMove
 		{
-			public bool IsDCLines { get { return false; } }
+			public bool IsDCLines { get { return true; } }
 			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
@@ -408,7 +410,7 @@ namespace MulticaretEditor
 		
 		public class DocumentEnd : IMove
 		{
-			public bool IsDCLines { get { return false; } }
+			public bool IsDCLines { get { return true; } }
 			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{

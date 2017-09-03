@@ -185,7 +185,6 @@ namespace MulticaretEditor
 			bool needHistoryMove = true;
 			int count = parser.FictiveCount;
 			bool needInput = false;
-			bool lineMode = false;
 			switch (parser.move.Index)
 			{
 				case 'f' + ViChar.ControlIndex:
@@ -256,7 +255,6 @@ namespace MulticaretEditor
 						viShortcut = "" + parser.move.c + parser.moveChar.c;
 						return;
 					}
-					lineMode = parser.move.c == '\'';
 					move = new ViMoves.JumpBookmark(parser.move.c, parser.moveChar.c);
 					break;
 				case '0':
@@ -273,7 +271,6 @@ namespace MulticaretEditor
 					if (parser.rawCount == -1)
 					{
 						move = new ViMoves.DocumentEnd();
-						lineMode = true;
 					}
 					else
 					{
@@ -285,7 +282,6 @@ namespace MulticaretEditor
 					if (parser.moveChar.IsChar('g'))
 					{
 						move = new ViMoves.DocumentStart();
-						lineMode = true;
 					}
 					else if (parser.moveChar.IsChar('v'))
 					{
@@ -319,32 +315,10 @@ namespace MulticaretEditor
 				switch (parser.action.Index)
 				{
 					case 'd':
-						if (lineMode)
-						{
-							for (int i = 0; i < count; i++)
-							{
-								move.Move(controller, true, MoveMode.Delete);
-							}
-							controller.ViDeleteLine(parser.register, 1);
-						}
-						else
-						{
-							command = new ViCommands.Delete(move, count, false, parser.register);
-						}
+						command = new ViCommands.Delete(move, count, false, parser.register);
 						break;
 					case 'c':
-						if (lineMode)
-						{
-							for (int i = 0; i < count; i++)
-							{
-								move.Move(controller, true, MoveMode.Copy);
-							}
-							controller.ViDeleteLineForChange(parser.register, 1);
-						}
-						else
-						{
-							command = new ViCommands.Delete(move, count, true, parser.register);
-						}
+						command = new ViCommands.Delete(move, count, true, parser.register);
 						context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
 						break;
 					case 'y':
@@ -352,7 +326,7 @@ namespace MulticaretEditor
 						{
 							move.Move(controller, true, MoveMode.Copy);
 						}
-						if (lineMode || move.IsDCLines)
+						if (move.IsDCLines)
 						{
 							controller.ViCopyLine(parser.register, count);
 						}
