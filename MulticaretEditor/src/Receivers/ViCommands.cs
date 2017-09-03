@@ -57,7 +57,21 @@ namespace MulticaretEditor
 				{
 					move.Move(controller, true, change ? MoveMode.Change : MoveMode.Delete);
 				}
-				controller.ViCut(register, !change);
+				if (move.IsDCLines)
+				{
+					if (change)
+					{
+						controller.ViDeleteLineForChange(register, 1);
+					}
+					else
+					{
+						controller.ViDeleteLine(register, 1);
+					}
+				}
+				else
+				{
+					controller.ViCut(register, !change);
+				}
 			}
 		}
 		

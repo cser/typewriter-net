@@ -1519,6 +1519,49 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public bool ViTryConvertToLines(char bra, char ket, bool inside)
+		{
+			if (!inside)
+			{
+				return false;
+			}
+			bool isLine = true;
+			foreach (Selection selection in lines.selections)
+			{
+				Place place0 = lines.PlaceOf(selection.anchor);
+				Place place1 = lines.PlaceOf(selection.caret);
+				if (place0.iLine < place1.iLine)
+				{
+					Line line0 = lines[place0.iLine];
+					if (place0.iChar == line0.NormalCount)
+					{
+						selection.anchor += line0.charsCount - line0.NormalCount;
+					}
+					else
+					{
+						isLine = false;
+					}
+					Line line1 = lines[place1.iLine];
+					if (line1.IsCharsEmpty(0, place1.iChar))
+					{
+						--place1.iLine;
+						line1 = lines[place1.iLine];
+						place1.iChar = line1.NormalCount;
+						selection.caret = lines.IndexOf(place1);
+					}
+					else
+					{
+						isLine = false;
+					}
+				}
+				else
+				{
+					isLine = false;
+				}
+			}
+			return isLine;
+		}
+		
 		public void ViMoveInQuotes(bool shift, bool inside, char quote)
 		{
 			foreach (Selection selection in lines.selections)

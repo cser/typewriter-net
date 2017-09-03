@@ -348,19 +348,19 @@ namespace MulticaretEditor
 						context.SetState(new InputReceiver(new ViReceiverData('c', 1), false));
 						break;
 					case 'y':
-						if (lineMode)
+						for (int i = 0; i < count; i++)
 						{
-							for (int i = 0; i < count; i++)
-							{
-								move.Move(controller, true, MoveMode.Copy);
-							}
+							move.Move(controller, true, MoveMode.Copy);
+						}
+						if (lineMode || move.IsDCLines)
+						{
 							controller.ViCopyLine(parser.register, count);
-							controller.ViCollapseSelections();
 						}
 						else
 						{
-							ProcessCopy(move, parser.register, count);
+							controller.ViCopy(parser.register);
 						}
+						controller.ViCollapseSelections();
 						break;
 					default:
 						for (int i = 0; i < count; i++)
@@ -698,16 +698,6 @@ namespace MulticaretEditor
 			}
 			controller.ViCollapseSelections();
 			controller.ViFixPositions(true);
-		}
-		
-		private void ProcessCopy(ViMoves.IMove move, char register, int count)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				move.Move(controller, true, MoveMode.Copy);
-			}
-			controller.ViCopy(register);
-			controller.ViCollapseSelections();
 		}
 	}
 }

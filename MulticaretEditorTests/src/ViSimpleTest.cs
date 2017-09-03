@@ -1835,5 +1835,38 @@ namespace UnitTests
 			Put(2, 0).Press("v5lyD").AssertText("Ab");
 			Press("gv").AssertSelection("#1").Both(2, 0);
 		}
+		
+		[Test]
+		public void d_Brackets()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("di{").AssertText("\taaa{\n\t}\n\tddd");
+			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void c_Brackets()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("ci{x").AssertText("\taaa{\n\t\tx\n\t}\n\tddd");
+			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void y_Brackets()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("yi{");
+			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Ignore]
+		[Test]
+		public void y_Brackets_VISUAL()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("vi{y");
+			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
 	}
 }

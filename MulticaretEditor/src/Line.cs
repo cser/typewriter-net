@@ -639,5 +639,20 @@ namespace MulticaretEditor
 			}
 			return '\0';
 		}
+		
+		public bool IsCharsEmpty(int index, int count)
+		{
+			bool isEmpty = true;
+			for (int i = 0; i < count; ++i)
+			{
+				char c = chars[index + i].c;
+				if (c != ' ' && c != '\t')
+				{
+					isEmpty = false;
+					break;
+				}
+			}
+			return isEmpty;
+		}
 	}
 }

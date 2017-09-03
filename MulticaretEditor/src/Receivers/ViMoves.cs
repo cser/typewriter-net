@@ -9,11 +9,14 @@ namespace MulticaretEditor
 	{
 		public interface IMove
 		{
+			bool IsDCLines { get; }
 			void Move(Controller controller, bool shift, MoveMode mode);
 		}
 		
 		public class MoveStep : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private Direction direction;
 			
 			public MoveStep(Direction direction)
@@ -43,6 +46,8 @@ namespace MulticaretEditor
 		
 		public class SublineMoveStep : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private Direction direction;
 			
 			public SublineMoveStep(Direction direction)
@@ -68,6 +73,8 @@ namespace MulticaretEditor
 		
 		public class MoveWord : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private Direction direction;
 			
 			public MoveWord(Direction direction)
@@ -99,6 +106,8 @@ namespace MulticaretEditor
 		
 		public class BigMoveWord : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private Direction direction;
 			
 			public BigMoveWord(Direction direction)
@@ -122,6 +131,9 @@ namespace MulticaretEditor
 		
 		public class MoveObject : IMove
 		{
+			private bool isLines;
+			public bool IsDCLines { get { return isLines; } }
+			
 			private char o;
 			private bool inside;
 			private int count;
@@ -143,14 +155,17 @@ namespace MulticaretEditor
 					case '{':
 					case '}':
 						controller.ViMoveInBrackets(shift, inside, '{', '}', count);
+						isLines |= controller.ViTryConvertToLines('{', '}', inside);
 						break;
 					case '(':
 					case ')':
 						controller.ViMoveInBrackets(shift, inside, '(', ')', count);
+						isLines |= controller.ViTryConvertToLines('(', ')', inside);
 						break;
 					case '[':
 					case ']':
 						controller.ViMoveInBrackets(shift, inside, '[', ']', count);
+						isLines |= controller.ViTryConvertToLines('[', ']', inside);
 						break;
 					case '<':
 					case '>':
@@ -166,6 +181,8 @@ namespace MulticaretEditor
 		
 		public class MoveWordE : IMove
 		{	
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				if (mode == MoveMode.Change)
@@ -181,6 +198,8 @@ namespace MulticaretEditor
 		
 		public class BigMoveWordE : IMove
 		{	
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				if (mode == MoveMode.Change)
@@ -196,6 +215,8 @@ namespace MulticaretEditor
 		
 		public class FindPairBracket : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViPairBracket(shift);
@@ -204,6 +225,8 @@ namespace MulticaretEditor
 		
 		public class Find : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private char type;
 			private char charToFind;
 			private int count;
@@ -237,6 +260,8 @@ namespace MulticaretEditor
 		
 		public class JumpBookmark : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public static bool IsFileBased(char charToJump)
 			{
 				return charToJump >= 'A' && charToJump <= 'Z';
@@ -316,6 +341,8 @@ namespace MulticaretEditor
 		
 		public class FindForwardPattern : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViFindForward(ClipboardExecutor.ViRegex);
@@ -324,6 +351,8 @@ namespace MulticaretEditor
 		
 		public class FindBackwardPattern : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
@@ -332,6 +361,8 @@ namespace MulticaretEditor
 		
 		public class Home : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private bool indented;
 			
 			public Home(bool indented)
@@ -348,6 +379,8 @@ namespace MulticaretEditor
 		
 		public class End : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private int count;
 			
 			public End(int count)
@@ -363,6 +396,8 @@ namespace MulticaretEditor
 		
 		public class DocumentStart : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ClearMinorSelections();
@@ -373,6 +408,8 @@ namespace MulticaretEditor
 		
 		public class DocumentEnd : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ClearMinorSelections();
@@ -383,6 +420,8 @@ namespace MulticaretEditor
 		
 		public class GoToLine : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private int count;
 			
 			public GoToLine(int count)
@@ -398,6 +437,8 @@ namespace MulticaretEditor
 		
 		public class PageUpDown : IMove
 		{
+			public bool IsDCLines { get { return false; } }
+			
 			private bool isUp;
 			
 			public PageUpDown(bool isUp)
