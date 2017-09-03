@@ -9,4 +9,3 @@
 - line mode ^ and $
 - fix {} object with nested with repetition
 - fix gv offsets
-- Rename identificator dialog vi mode

@@ -44,6 +44,7 @@ public class ViFindDialog : ADialog
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 		}
+		frameKeyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
 			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 		

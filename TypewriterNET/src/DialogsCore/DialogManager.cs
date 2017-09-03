@@ -219,7 +219,7 @@ public class DialogManager
 	{
 		if (find.SwitchOpen())
 			find.Open(new FindDialog(findData, tempSettings.FindParams, DoFindText,
-				DoSelectAllFound, DoSelectNextFound, DoUnselectPrevText, "Find"), true);
+				DoSelectAllFound, DoSelectNextFound, DoUnselectPrevText, "Find", false), true);
 		return true;
 	}
 
@@ -337,7 +337,8 @@ public class DialogManager
 				goToLineData, null, DoGoToLine, null, null, null,
 				"Go to line" +
 				(place != null ?
-					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : "")
+					" (current line: " + (place.Value.iLine + 1) + ", char: " + (place.Value.iChar + 1) + ")" : ""),
+				true
 			), true);
 		}
 		return true;
@@ -500,7 +501,7 @@ public class DialogManager
 		if (input.SwitchOpen())
 		{
 			inputData.oldText = text;
-			input.Open(new FindDialog(inputData, null, doInput, null, null, null, title), true);
+			input.Open(new FindDialog(inputData, null, doInput, null, null, null, title, true), true);
 		}
 		return true;
 	}

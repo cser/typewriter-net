@@ -23,14 +23,15 @@ public class FindDialog : ADialog
 		}
 	}
 
-	private Data data;
-	private FindParams findParams;
-	private Getter<string, bool> doFind;
-	private Getter<string, bool> doSelectAllFound;
-	private Getter<string, bool> doSelectNextFound;
-	private Getter<bool> doUnselectPrevText;
+	private readonly Data data;
+	private readonly FindParams findParams;
+	private readonly Getter<string, bool> doFind;
+	private readonly Getter<string, bool> doSelectAllFound;
+	private readonly Getter<string, bool> doSelectNextFound;
+	private readonly Getter<bool> doUnselectPrevText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
+	private readonly bool allowNormalMode;
 
 	public FindDialog(
 		Data data,
@@ -39,7 +40,8 @@ public class FindDialog : ADialog
 		Getter<string, bool> doSelectAllFound,
 		Getter<string, bool> doSelectNextFound,
 		Getter<bool> doUnselectPrevText,
-		string name)
+		string name,
+		bool allowNormalMode)
 	{
 		this.data = data;
 		this.findParams = findParams;
@@ -47,6 +49,7 @@ public class FindDialog : ADialog
 		this.doSelectAllFound = doSelectAllFound;
 		this.doSelectNextFound = doSelectNextFound;
 		this.doUnselectPrevText = doUnselectPrevText;
+		this.allowNormalMode = allowNormalMode;
 		Name = name;
 	}
 
@@ -66,6 +69,11 @@ public class FindDialog : ADialog
 			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
 		}
 		frameKeyMap.Add(Keys.None, null, new KeyAction("F&ind\\-", null, null, false));
+		if (allowNormalMode)
+		{
+			frameKeyMap.Add(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false));
+		}
 
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		if (doSelectAllFound != null)
@@ -239,6 +247,13 @@ public class FindDialog : ADialog
 	private bool DoUnselectPrevText(Controller controller)
 	{
 		doUnselectPrevText();
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
 		return true;
 	}
 }
