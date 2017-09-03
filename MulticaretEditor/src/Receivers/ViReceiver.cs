@@ -285,8 +285,9 @@ namespace MulticaretEditor
 					if (parser.moveChar.IsChar('g'))
 					{
 						move = new ViMoves.DocumentStart();
+						lineMode = true;
 					}
-					if (parser.moveChar.IsChar('v'))
+					else if (parser.moveChar.IsChar('v'))
 					{
 						controller.ViRecoverSelections();
 						if (!controller.AllSelectionsEmpty)

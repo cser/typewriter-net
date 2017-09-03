@@ -198,6 +198,47 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void dgg()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(4, 1).Press("dgg").AssertText("aaaaaaa").AssertSelection().Both(0, 0).NoNext();
+			Assert.AreEqual("Du hast\n   Du hast mich\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void cgg()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(4, 1).Press("cggx").AssertText("x\naaaaaaa").AssertSelection().Both(1, 0).NoNext();
+			Assert.AreEqual("Du hast\n   Du hast mich\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void cgg2()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(4, 2).Press("cggx").AssertText("x").AssertSelection().Both(1, 0).NoNext();
+			Assert.AreEqual("Du hast\n   Du hast mich\naaaaaaa\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void ygg()
+		{
+			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
+			Put(4, 1).Press("ygg").AssertSelection().Both(4, 1).NoNext();
+			Assert.AreEqual("Du hast\n   Du hast mich\n", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void gg_VISUAL()
+		{
+			lines.SetText("  Du hast\nDu hast mich\naaaaaaa");
+			Put(4, 1).Press("vgg").AssertSelection().Anchor(4, 1).Caret(2, 0).NoNext();
+			Press("y");
+			Assert.AreEqual("Du hast\nDu h", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
 		public void cG()
 		{
 			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
@@ -205,7 +246,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void cG2()
+		public void dG2()
 		{
 			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
 			Put(3, 1).Press("dG").AssertText("Du hast").AssertSelection().Both(0, 0);
@@ -213,7 +254,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void dG2()
+		public void cG2()
 		{
 			lines.SetText("Du hast\n   Du hast mich\naaaaaaa");
 			Put(0, 0).Press("cG").AssertText("").AssertSelection().Both(0, 0);
@@ -261,6 +302,15 @@ namespace UnitTests
 			lines.SetText("Du hast\nDu hast mich\n  aaaaaaa");
 			Put(3, 0).Press("vGy");
 			Assert.AreEqual("hast\nDu hast mich\n  ", ClipboardExecutor.GetFromRegister(lines, '0'));
+		}
+		
+		[Test]
+		public void G_VISUAL()
+		{
+			lines.SetText("Du hast\nDu hast mich\n  aaaaaaa");
+			Put(3, 1).Press("vG").AssertSelection().Anchor(3, 1).Caret(2, 2);
+			Press(Keys.Control | Keys.OemOpenBrackets);
+			Put(3, 1).Press("vkG").AssertSelection().Anchor(3, 1).Caret(2, 2);
 		}
 		
 		[Test]

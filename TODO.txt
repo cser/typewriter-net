@@ -4,7 +4,6 @@
 - fix {} highlighting if { inside string
 - objects: brackets for line mode
 - recover selection by gv after refocus
-- dgg, cgg, ygg works with lines
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - line mode ^ and $

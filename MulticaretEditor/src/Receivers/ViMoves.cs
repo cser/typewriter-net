@@ -365,7 +365,9 @@ namespace MulticaretEditor
 		{
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				controller.DocumentStart(shift);
+				controller.ClearMinorSelections();
+				controller.LastSelection.caret = 0;
+				controller.ViMoveHome(shift, true);
 			}
 		}
 		
@@ -374,7 +376,6 @@ namespace MulticaretEditor
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
 				controller.ClearMinorSelections();
-				controller.LastSelection.anchor = controller.LastSelection.Left;
 				controller.LastSelection.caret = controller.Lines.charsCount;
 				controller.ViMoveHome(shift, true);
 			}
