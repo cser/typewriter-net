@@ -344,7 +344,7 @@ namespace MulticaretEditor
 				for (int i = 0; i < 2; ++i)
 				{
 					char quotes = i == 0 ? '"' : '\'';
-					while (_iterator.RightChar == quotes && _iterator.LeftChar != '\\')
+					while (_iterator.RightChar == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
 					{
 						while (true)
 						{
@@ -354,7 +354,7 @@ namespace MulticaretEditor
 								return false;
 							}
 							char rightC = _iterator.RightChar;
-							if (rightC == quotes && _iterator.LeftChar != '\\')
+							if (rightC == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
 							{
 								if (!_iterator.MoveLeft())
 								{
@@ -400,7 +400,7 @@ namespace MulticaretEditor
 				for (int i = 0; i < 2; ++i)
 				{
 					char quotes = i == 0 ? '"' : '\'';
-					while (_iterator.RightChar == quotes && _iterator.LeftChar != '\\')
+					while (_iterator.RightChar == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
 					{
 						while (true)
 						{
@@ -409,7 +409,7 @@ namespace MulticaretEditor
 								return false;
 							}
 							char rightC = _iterator.RightChar;
-							if (rightC == quotes && _iterator.LeftChar != '\\')
+							if (rightC == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
 							{
 								if (!_iterator.MoveRight())
 								{

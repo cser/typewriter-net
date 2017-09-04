@@ -75,6 +75,25 @@ namespace MulticaretEditor
 				return leftChar.Value;
 			}
 		}
+		
+		public int GetLeftCharsCount(char c)
+		{
+			int count = 0;
+			if (position > 0)
+			{
+				LineBlock block = blocks[blockI];
+				Line line = block.array[blockILine];
+				for (int iChar = this.iChar; iChar-- > 0;)
+				{
+					if (line.chars[iChar].c != c)
+					{
+						break;
+					}
+					++count;
+				}
+			}
+			return count;
+		}
 
 		private int position;
 		public int Position { get { return position; } }

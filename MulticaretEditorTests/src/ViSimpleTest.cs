@@ -1954,5 +1954,13 @@ namespace UnitTests
 			Put(6, 0).Press("yi{");
 			Assert.AreEqual("@\\\"c{\\\"\\\"\\\"d}e", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
+		
+		[Test]
+		public void BracketsInsideString_EscapeComplex3()
+		{
+			lines.SetText(@"a{b'dir_name\\'}f");
+			Put(2, 0).Press("yi{");
+			Assert.AreEqual(@"b'dir_name\\'", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
 	}
 }

@@ -170,6 +170,7 @@ namespace MulticaretEditor
 					case '<':
 					case '>':
 						controller.ViMoveInBrackets(shift, inside, '<', '>', count);
+						isLines |= controller.ViTryConvertToLines('<', '>', inside);
 						break;
 					case '"':
 					case '\'':
