@@ -115,7 +115,10 @@ namespace MulticaretEditor
 				if (controller != value)
 				{
 					if (controller != null)
+					{
+						controller.ViStoreSelections();
 						controller.macrosExecutor = null;
+					}
 					controller = value;
 					if (controller != null)
 					{
