@@ -627,6 +627,8 @@ public class Commander
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
+		commands.Add(new Command("ctags-rebuild", "", "reload solution", DoCtagsRebuild));
+		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
 		commands.Add(new Command("q", "", "Close window", DoExit));
@@ -1164,7 +1166,7 @@ public class Commander
 			return;
 		}
 		
-		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading...");
+		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading…");
 		if (mainForm.LastFrame != null)
 			mainForm.LastFrame.Focus();
 		Thread thread = new Thread(new ThreadStart(OmnisharpReloadSolution));
@@ -1198,7 +1200,7 @@ public class Commander
 		}
 		mainForm.Invoke(new Setter(delegate
 		{
-			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading...");
+			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading…");
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}));
@@ -1271,5 +1273,45 @@ public class Commander
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}
+	}
+	
+	private void DoCtagsRebuild(string text)
+	{
+		mainForm.Dialogs.ShowInfo("Ctags", "Rebuilding…");
+		if (mainForm.LastFrame != null)
+			mainForm.LastFrame.Focus();
+		Thread thread = new Thread(new ThreadStart(delegate { CtagsRebuild(text); }));
+		thread.Start();
+	}
+	
+	private void CtagsRebuild(string parameters)
+	{
+		bool omnisharpConsole = false;
+		Process p = new Process();
+		p.StartInfo.RedirectStandardOutput = true;
+		p.StartInfo.RedirectStandardError = true;
+		p.StartInfo.UseShellExecute = omnisharpConsole;
+		p.StartInfo.CreateNoWindow = !omnisharpConsole;
+		p.StartInfo.FileName = Path.Combine(AppPath.StartupDir, "ctags/ctags.exe");
+		p.StartInfo.Arguments = !string.IsNullOrEmpty(parameters) ? parameters : "-R *";
+		p.Start();
+		string error = p.StandardError.ReadToEnd();
+		p.WaitForExit();
+		if (!string.IsNullOrEmpty(error))
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("OmniSharp", error);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		mainForm.Invoke(new Setter(delegate
+		{
+			mainForm.Dialogs.HideInfo("Ctags", "Rebuilding…");
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}));
 	}
 }
