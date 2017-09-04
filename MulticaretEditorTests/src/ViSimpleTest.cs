@@ -1837,7 +1837,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void d_Brackets()
+		public void di_Brackets()
 		{
 			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
 			Put(3, 1).Press("di{").AssertText("\taaa{\n\t}\n\tddd");
@@ -1845,7 +1845,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void c_Brackets()
+		public void ci_Brackets()
 		{
 			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
 			Put(3, 1).Press("ci{x").AssertText("\taaa{\n\t\tx\n\t}\n\tddd");
@@ -1853,11 +1853,43 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void y_Brackets()
+		public void yi_Brackets()
 		{
 			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
 			Put(3, 1).Press("yi{");
 			Assert.AreEqual("\t\tbbb\n\t\tccc\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void da_Brackets()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("da{").AssertText("\taaa\n\tddd");
+			Assert.AreEqual("{\n\t\tbbb\n\t\tccc\n\t}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void da_Brackets2()
+		{
+			lines.SetText("\taaa\n\t{\n\t\tbbb\n\t\tccc\n\t}f\n\tddd");
+			Put(3, 2).Press("da{").AssertText("\taaa\n\tf\n\tddd");
+			Assert.AreEqual("{\n\t\tbbb\n\t\tccc\n\t}", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void da_Brackets3()
+		{
+			lines.SetText("\taaa\n\t{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 2).Press("da{").AssertText("\taaa\n\tddd");
+			Assert.AreEqual("\t{\n\t\tbbb\n\t\tccc\n\t}\n", ClipboardExecutor.GetFromRegister(lines, '\0'));
+		}
+		
+		[Test]
+		public void ca_Brackets()
+		{
+			lines.SetText("\taaa{\n\t\tbbb\n\t\tccc\n\t}\n\tddd");
+			Put(3, 1).Press("ca{x").AssertText("\taaax\n\tddd");
+			Assert.AreEqual("{\n\t\tbbb\n\t\tccc\n\t}", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
 		
 		[Ignore]

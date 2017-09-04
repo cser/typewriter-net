@@ -1,5 +1,3 @@
-- fix {} highlighting if { inside string
-- objects: brackets for line mode
 - recover selection by gv after refocus
 
 - FindInFiles: prev/next entry

@@ -1521,42 +1521,67 @@ namespace MulticaretEditor
 		
 		public bool ViTryConvertToLines(char bra, char ket, bool inside)
 		{
-			if (!inside)
-			{
-				return false;
-			}
 			bool isLine = true;
-			foreach (Selection selection in lines.selections)
+			if (inside)
 			{
-				Place place0 = lines.PlaceOf(selection.anchor);
-				Place place1 = lines.PlaceOf(selection.caret);
-				if (place0.iLine < place1.iLine)
+				foreach (Selection selection in lines.selections)
 				{
-					Line line0 = lines[place0.iLine];
-					if (place0.iChar == line0.NormalCount)
+					Place place0 = lines.PlaceOf(selection.anchor);
+					Place place1 = lines.PlaceOf(selection.caret);
+					if (place0.iLine < place1.iLine)
 					{
-						selection.anchor += line0.charsCount - line0.NormalCount;
-					}
-					else
-					{
-						isLine = false;
-					}
-					Line line1 = lines[place1.iLine];
-					if (line1.IsCharsEmpty(0, place1.iChar))
-					{
-						--place1.iLine;
-						line1 = lines[place1.iLine];
-						place1.iChar = line1.NormalCount;
-						selection.caret = lines.IndexOf(place1);
+						Line line0 = lines[place0.iLine];
+						if (place0.iChar == line0.NormalCount)
+						{
+							selection.anchor += line0.charsCount - line0.NormalCount;
+						}
+						else
+						{
+							isLine = false;
+						}
+						Line line1 = lines[place1.iLine];
+						if (line1.IsCharsEmpty(0, place1.iChar))
+						{
+							--place1.iLine;
+							line1 = lines[place1.iLine];
+							place1.iChar = line1.NormalCount;
+							selection.caret = lines.IndexOf(place1);
+						}
+						else
+						{
+							isLine = false;
+						}
 					}
 					else
 					{
 						isLine = false;
 					}
 				}
-				else
+			}
+			else
+			{
+				foreach (Selection selection in lines.selections)
 				{
-					isLine = false;
+					Place place0 = lines.PlaceOf(selection.anchor);
+					Place place1 = lines.PlaceOf(selection.caret);
+					if (place0.iLine < place1.iLine)
+					{
+						Line line0 = lines[place0.iLine];
+						if (!line0.IsCharsEmpty(0, place0.iChar))
+						{
+							isLine = false;
+						}
+						Line line1 = lines[place1.iLine];
+						int delta = line1.NormalCount - place1.iChar;
+						if (delta < 0 || !line1.IsCharsEmpty(place1.iChar, delta))
+						{
+							isLine = false;
+						}
+					}
+					else
+					{
+						isLine = false;
+					}
 				}
 			}
 			return isLine;
