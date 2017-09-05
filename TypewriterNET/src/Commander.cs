@@ -627,8 +627,8 @@ public class Commander
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
-		commands.Add(new Command("ctags-rebuild", "", "reload solution", DoCtagsRebuild));
-		commands.Add(new Command("ctags-goToDefinition", "", "reload solution", DoCtagsGoToDefinition));
+		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
+		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
 		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
@@ -1287,22 +1287,50 @@ public class Commander
 	
 	private void CtagsRebuild(string parameters)
 	{
-		bool omnisharpConsole = false;
 		Process p = new Process();
-		p.StartInfo.RedirectStandardOutput = true;
+		p.StartInfo.UseShellExecute = false;
+		p.StartInfo.CreateNoWindow = true;
 		p.StartInfo.RedirectStandardError = true;
-		p.StartInfo.UseShellExecute = omnisharpConsole;
-		p.StartInfo.CreateNoWindow = !omnisharpConsole;
+		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.FileName = Path.Combine(AppPath.StartupDir, "ctags/ctags.exe");
 		p.StartInfo.Arguments = !string.IsNullOrEmpty(parameters) ? parameters : "-R *";
-		p.Start();
-		string error = p.StandardError.ReadToEnd();
-		p.WaitForExit();
-		if (!string.IsNullOrEmpty(error))
+		string output = null;
+		string error = null;
+		try
+		{
+			p.Start();
+			output = p.StandardOutput.ReadToEnd();
+			error = p.StandardError.ReadToEnd();
+			p.WaitForExit();
+		}
+		catch (Exception e)
 		{
 			mainForm.Invoke(new Setter(delegate
 			{
-				mainForm.Dialogs.ShowInfo("OmniSharp", error);
+				mainForm.Dialogs.ShowInfo("Ctags", e.Message);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		if (!string.IsNullOrEmpty(output) || !string.IsNullOrEmpty(error))
+		{
+			string text = "";
+			if (!string.IsNullOrEmpty(output))
+			{
+				text += output.Trim();
+			}
+			if (!string.IsNullOrEmpty(error))
+			{
+				if (text != "")
+				{
+					text += "\n";
+				}
+				text += error.Trim();
+			}
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("Ctags", text);
 				if (mainForm.LastFrame != null)
 					mainForm.LastFrame.Focus();
 			}));

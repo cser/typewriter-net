@@ -5,6 +5,7 @@
 - FileTree: close by file selection shortcut
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
+- snippets: visual
 - line mode ^ and $
 - fix gv offsets
 

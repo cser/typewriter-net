@@ -54,7 +54,7 @@
 	<item name="ctrl]Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
-	<item name="f9Command" value="ctags-rebuild"/>
+	<item name="f9Command" value="ctags"/>
 	<item name="f12Command" value="ctags-goToDefinition"/>
 	<item name="ctrl]Command" value="ctags-goToDefinition"/>
 	<item name="hideMenu" value="false"/>
