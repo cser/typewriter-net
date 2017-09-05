@@ -25,6 +25,8 @@ public class Ctags
 	private readonly MainForm mainForm;
 	private bool needReload = true;
 	private string[] lines;
+	private List<Node> goToNodes;
+	private Node lastGoToNode;
 	
 	public Ctags(MainForm mainForm)
 	{
@@ -96,5 +98,78 @@ public class Ctags
 			}
 		}
 		return nodes;
+	}
+	
+	public void SetGoToTags(List<Node> nodes)
+	{
+		goToNodes = nodes;
+	}
+	
+	public void GoToTag(Node node)
+	{
+		lastGoToNode = node;
+		Buffer buffer = mainForm.LoadFile(node.path);
+		if (buffer != null)
+		{
+			LineIterator iterator = buffer.Controller.Lines.GetLineRange(0, buffer.Controller.Lines.LinesCount);
+			while (iterator.MoveNext())
+			{
+				string text = iterator.current.Text;
+				if (text.StartsWith(node.address) &&
+					(node.address.Length == text.Length ||
+					node.address.Length == text.Length - 2 && text.EndsWith("\r\n") ||
+					node.address.Length == text.Length - 1 && (text.EndsWith("\r") || text.EndsWith("\n"))))
+				{
+					buffer.Controller.PutCursor(new Place(0, iterator.Index), false);
+					buffer.Controller.ViMoveHome(false, true);
+					if (buffer.FullPath != null)
+					{
+						buffer.Controller.ViAddHistoryPosition(true);
+					}
+					buffer.Controller.NeedScrollToCaret();
+					break;
+				}
+			}
+		}
+	}
+	
+	public void GoToNextTag()
+	{
+		if (goToNodes == null || goToNodes.Count == 0)
+		{
+			return;
+		}
+		if (lastGoToNode == null)
+		{
+			GoToTag(goToNodes[0]);
+			return;
+		}
+		int index = goToNodes.IndexOf(lastGoToNode);
+		++index;
+		if (index >= goToNodes.Count)
+		{
+			return;
+		}
+		GoToTag(goToNodes[index]);
+	}
+	
+	public void GoToPrevTag()
+	{
+		if (goToNodes == null || goToNodes.Count == 0)
+		{
+			return;
+		}
+		if (lastGoToNode == null)
+		{
+			GoToTag(goToNodes[0]);
+			return;
+		}
+		int index = goToNodes.IndexOf(lastGoToNode);
+		--index;
+		if (index < 0)
+		{
+			return;
+		}
+		GoToTag(goToNodes[index]);
 	}
 }

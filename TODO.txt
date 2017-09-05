@@ -10,12 +10,9 @@
 - fix gv offsets
 
 Jumping to tags
-	:tag ClassName - jump to a certain Class or Method, supports tab completion
-	:tn	Move to next definition (:tnext)
-	:tp	Move to previous definition (:tprevious)
+	:tag ClassName - completion
 	:ts	List all definitions (:tselect)
 
-	^]	Jump to definition
 	^t	Jump back from definition
 	^W }	Preview definition
 	g]	See all definitions

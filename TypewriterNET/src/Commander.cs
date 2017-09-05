@@ -629,6 +629,9 @@ public class Commander
 		
 		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
 		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
+		commands.Add(new Command("tag", "name", "jump to tag definition", DoCtagsGoToDefinitionByName));
+		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
+		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
@@ -1358,6 +1361,27 @@ public class Commander
 		{
 			return;
 		}
+		GoToDefinition(lastBuffer, word);
+	}
+	
+	private void DoCtagsGoToDefinitionByName(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			return;
+		}
+		string word = text.Trim();
+		if (string.IsNullOrEmpty(word))
+		{
+			mainForm.Dialogs.ShowInfo("Ctags", "No tag parameter");
+			return;
+		}
+		GoToDefinition(lastBuffer, word);
+	}
+	
+	private void GoToDefinition(Buffer lastBuffer, string word)
+	{
 		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
 		string currentDir = Directory.GetCurrentDirectory();
 		Ctags.Node target = nodes.Count > 0 ? nodes[0] : null;
@@ -1371,34 +1395,24 @@ public class Commander
 		}
 		if (target != null)
 		{
-			GoToTag(target);
+			nodes.Remove(target);
+			nodes.Insert(0, target);
+			mainForm.Ctags.SetGoToTags(nodes);
+			mainForm.Ctags.GoToTag(target);
+		}
+		else
+		{
+			mainForm.Ctags.SetGoToTags(null);
 		}
 	}
 	
-	private void GoToTag(Ctags.Node node)
+	private void DoCtagsGoToNext(string text)
 	{
-		Buffer buffer = mainForm.LoadFile(node.path);
-		if (buffer != null)
-		{
-			LineIterator iterator = buffer.Controller.Lines.GetLineRange(0, buffer.Controller.Lines.LinesCount);
-			while (iterator.MoveNext())
-			{
-				string text = iterator.current.Text;
-				if (text.StartsWith(node.address) &&
-					(node.address.Length == text.Length ||
-					node.address.Length == text.Length - 2 && text.EndsWith("\r\n") ||
-					node.address.Length == text.Length - 1 && (text.EndsWith("\r") || text.EndsWith("\n"))))
-				{
-					buffer.Controller.PutCursor(new Place(0, iterator.Index), false);
-					buffer.Controller.ViMoveHome(false, true);
-					if (buffer.FullPath != null)
-					{
-						buffer.Controller.ViAddHistoryPosition(true);
-					}
-					buffer.Controller.NeedScrollToCaret();
-					break;
-				}
-			}
-		}
+		mainForm.Ctags.GoToNextTag();
+	}
+	
+	private void DoCtagsGoToPrev(string text)
+	{
+		mainForm.Ctags.GoToPrevTag();
 	}
 }
