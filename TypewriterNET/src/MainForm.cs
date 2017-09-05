@@ -748,6 +748,7 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 		sharpManager.UpdateSettings(settings);
+		ctags.NeedReload();
 		if (fileTree != null)
 		    fileTree.ReloadIfNeedForSettings();
 		if (settings.hideMenu.Value)

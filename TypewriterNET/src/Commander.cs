@@ -1395,6 +1395,7 @@ public class Commander
 					{
 						buffer.Controller.ViAddHistoryPosition(true);
 					}
+					buffer.Controller.NeedScrollToCaret();
 					break;
 				}
 			}

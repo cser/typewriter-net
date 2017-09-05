@@ -45,6 +45,7 @@ Section "install"
 	File "bin\MulticaretEditor.dll"
 	File "bin\*.xml"
 	File "TypewriterNET.ico"
+	File /r "bin\ctags"
 	File /r "bin\schemes"
 	File /r "bin\syntax"
 	File /r "bin\templates"
@@ -97,6 +98,7 @@ Section "uninstall"
 	Delete $INSTDIR\TypewriterNET.exe
 	Delete $INSTDIR\MulticaretEditor.dll
 	Delete $INSTDIR\*.xml
+	RMDir /r /rebootok $INSTDIR\ctags
 	RMDir /r /rebootok $INSTDIR\schemes
 	RMDir /r /rebootok $INSTDIR\syntax
 	RMDir /r /rebootok $INSTDIR\templates
