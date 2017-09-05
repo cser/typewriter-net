@@ -10,7 +10,6 @@
 - fix gv offsets
 
 Jumping to tags
-	:tag ClassName - completion
 	:ts	List all definitions (:tselect)
 
 	^t	Jump back from definition

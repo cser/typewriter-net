@@ -100,6 +100,28 @@ public class Ctags
 		return nodes;
 	}
 	
+	public List<string> GetTags()
+	{
+		List<string> tags = new List<string>();
+		ReloadIfNeed();
+		string prevTag = null;
+		for (int i = 0; i < lines.Length; ++i)
+		{
+			string line = lines[i];
+			int index = line.IndexOf('\t');
+			if (index > 0)
+			{
+				string tag = line.Substring(0, index);
+				if (prevTag != tag)
+				{
+					tags.Add(prevTag);
+					prevTag = tag;
+				}
+			}
+		}
+		return tags;
+	}
+	
 	public void SetGoToTags(List<Node> nodes)
 	{
 		goToNodes = nodes;

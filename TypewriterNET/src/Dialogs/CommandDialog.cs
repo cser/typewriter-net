@@ -239,6 +239,11 @@ public class CommandDialog : ADialog
 						AutocompleteProperty(word);
 						return true;
 					}
+					if (command == "tag")
+					{
+						AutocompleteTag(word);
+						return true;
+					}
 					if (MainForm.Settings != null)
 					{
 						Properties.Property property = MainForm.Settings[command];
@@ -391,6 +396,23 @@ public class CommandDialog : ADialog
 		variant.CompletionText = property.name;
 		variant.DisplayText = property.name + " <new value>";
 		return variant;
+	}
+	
+	private void AutocompleteTag(string text)
+	{
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
+		List<Variant> variants = new List<Variant>();
+		if (MainForm.Settings != null)
+		{
+			foreach (string tag in MainForm.Ctags.GetTags())
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = tag;
+				variant.DisplayText = tag;
+				variants.Add(variant);
+			}
+			autocomplete.Show(variants, text);
+		}
 	}
 	
 	private string GetFile()
