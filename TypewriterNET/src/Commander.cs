@@ -628,6 +628,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
 		commands.Add(new Command("ctags-rebuild", "", "reload solution", DoCtagsRebuild));
+		commands.Add(new Command("ctags-goToDefinition", "", "reload solution", DoCtagsGoToDefinition));
 		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
@@ -1310,8 +1311,65 @@ public class Commander
 		mainForm.Invoke(new Setter(delegate
 		{
 			mainForm.Dialogs.HideInfo("Ctags", "Rebuilding…");
+			mainForm.Ctags.NeedReload();
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}));
+	}
+	
+	private void DoCtagsGoToDefinition(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			return;
+		}
+		string word = lastBuffer.Controller.GetWord(
+			lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret));
+		if (string.IsNullOrEmpty(word))
+		{
+			return;
+		}
+		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+		string currentDir = Directory.GetCurrentDirectory();
+		Ctags.Node target = nodes.Count > 0 ? nodes[0] : null;
+		foreach (Ctags.Node node in nodes)
+		{
+			if (Path.Combine(currentDir, node.path).ToLowerInvariant() == lastBuffer.FullPath.ToLowerInvariant())
+			{
+				target = node;
+				break;
+			}
+		}
+		if (target != null)
+		{
+			GoToTag(target);
+		}
+	}
+	
+	private void GoToTag(Ctags.Node node)
+	{
+		Buffer buffer = mainForm.LoadFile(node.path);
+		if (buffer != null)
+		{
+			LineIterator iterator = buffer.Controller.Lines.GetLineRange(0, buffer.Controller.Lines.LinesCount);
+			while (iterator.MoveNext())
+			{
+				string text = iterator.current.Text;
+				if (text.StartsWith(node.address) &&
+					(node.address.Length == text.Length ||
+					node.address.Length == text.Length - 2 && text.EndsWith("\r\n") ||
+					node.address.Length == text.Length - 1 && (text.EndsWith("\r") || text.EndsWith("\n"))))
+				{
+					buffer.Controller.PutCursor(new Place(0, iterator.Index), false);
+					buffer.Controller.ViMoveHome(false, true);
+					if (buffer.FullPath != null)
+					{
+						buffer.Controller.ViAddHistoryPosition(true);
+					}
+					break;
+				}
+			}
+		}
 	}
 }

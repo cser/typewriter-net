@@ -327,6 +327,7 @@ public class MainForm : Form
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log, this);
 
 		sharpManager = new SharpManager(this);
+		ctags = new Ctags(this);
 		syntaxFilesScanner.Rescan();
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
@@ -717,6 +718,9 @@ public class MainForm : Form
 	
 	private SharpManager sharpManager;
 	public SharpManager SharpManager { get { return sharpManager; } }
+	
+	private Ctags ctags;
+	public Ctags Ctags { get { return ctags; } }
 	
 	private bool allowApply = false;
 	
