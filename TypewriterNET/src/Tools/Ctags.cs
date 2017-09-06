@@ -149,6 +149,10 @@ public class Ctags
 						buffer.Controller.ViAddHistoryPosition(true);
 					}
 					buffer.Controller.NeedScrollToCaret();
+					if (buffer.Frame != null)
+					{
+						buffer.Frame.Focus();
+					}
 					break;
 				}
 			}

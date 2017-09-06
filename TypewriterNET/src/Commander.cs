@@ -632,6 +632,7 @@ public class Commander
 		commands.Add(new Command("tag", "name", "jump to tag definition", DoCtagsGoToDefinitionByName));
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
+		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
 		
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
@@ -1414,5 +1415,35 @@ public class Commander
 	private void DoCtagsGoToPrev(string text)
 	{
 		mainForm.Ctags.GoToPrevTag();
+	}
+	
+	private void DoCtagsShowAllDefinitions(string text)
+	{
+		string word;
+		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		{
+			word = text.Trim();
+		}
+		else
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo("Error", "No buffer to get word under cursor");
+				return;
+			}
+			Selection selection = lastBuffer.Controller.LastSelection;
+			Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+			word = lastBuffer.Controller.GetWord(place);
+		}
+		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+		if (nodes == null || nodes.Count == 0)
+		{
+			mainForm.Dialogs.ShowInfo("Ctags", "No tag definitions");
+			return;
+		}
+		string errors = new ShowDefinitions(mainForm).Execute(nodes, word);
+		if (errors != null)
+			mainForm.Dialogs.ShowInfo("Ctag definitions", errors);
 	}
 }

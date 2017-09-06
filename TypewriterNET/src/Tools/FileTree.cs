@@ -585,7 +585,7 @@ public class FileTree
 			count++;
 			if (count > 10)
 			{
-				builder.AppendLine("...");
+				builder.AppendLine("…");
 				break;
 			}
 			builder.AppendLine(nodeI.fullPath);

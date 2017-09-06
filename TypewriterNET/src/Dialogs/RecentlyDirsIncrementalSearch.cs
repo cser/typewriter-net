@@ -24,7 +24,7 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 		return Directory.GetCurrentDirectory();
 	}
 	
-	private const string Dots = "...";
+	private const string Dots = "…";
 
 	private List<string> filesList;
 	

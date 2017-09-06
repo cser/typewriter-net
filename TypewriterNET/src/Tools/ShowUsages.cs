@@ -52,6 +52,10 @@ public class ShowUsages
 		}
 		foreach (Usage usage in usages)
 		{
+			if (builder.Length > 0)
+			{
+				builder.Append(mainForm.Settings.lineBreak.Value);
+			}
 			string fileName = Path.GetFileName(usage.FileName);
 			ranges.Add(new StyleRange(builder.Length, maxLength, Ds.String.index));
 			builder.Append(fileName.PadRight(maxLength));
@@ -89,7 +93,6 @@ public class ShowUsages
 			}
 			positions.Add(new Position(usage.FileName, new Place(usage.Column - 1, usage.Line - 1), word.Length));
 			builder.Append(text);
-			builder.Append(mainForm.Settings.lineBreak.Value);
 		}
 
 		buffer = new Buffer(null, "Usages", SettingsMode.Normal);
