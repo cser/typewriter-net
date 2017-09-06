@@ -941,5 +941,14 @@ namespace UnitTests
 			Add(',').AddLast('f');
 			Assert.AreEqual("\\f", parser.shortcut);
 		}
+		
+		[Test]
+		public void SeeAllDefinitionsShrotcut()
+		{
+			Init(true);
+			
+			Add('g').AddLast(']');
+			Assert.AreEqual("g]", parser.shortcut);
+		}
 	}
 }

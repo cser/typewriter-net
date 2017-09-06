@@ -23,7 +23,7 @@ public static class Help
 		builder.AppendLine("\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
 		builder.AppendLine("\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
 		builder.AppendLine();
-		builder.AppendLine("To enter vi-mode press `Ctrl+]`");
+		builder.AppendLine("To enter vi-mode press `Ctrl+[`");
 		builder.AppendLine("See more info in vi-mode help - `Shift+F1` or `:vi-help` in vi-mode");
 		builder.AppendLine();
 		builder.AppendLine(commander.GetHelpText());
@@ -118,7 +118,7 @@ public static class Help
 			table.AddLine();
 			table.Add(" Commands").NewRow();
 			table.AddLine();
-			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog\n  Full command list can be found in\n  input mode help - `F1` or `:help`").NewRow();
+			table.Add(" :").Add("Open command dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+[` - close dialog\n  Full command list can be found in\n  input mode help - `F1` or `:help`").NewRow();
 			table.AddLine();
 			table.Add(" Moves").NewRow();
 			table.AddLine();
@@ -150,6 +150,7 @@ public static class Help
 			table.Add(" Ctrl+]").Add("OmniSharp navigate to").NewRow();
 			table.Add(" Ctrl+o").Add("Go to previous place").NewRow();
 			table.Add(" Ctrl+i").Add("Return back").NewRow();
+			table.Add(" g]").Add("OmniSharp navigate to").NewRow();
 			table.AddLine();
 			table.Add(" Actions").NewRow();
 			table.AddLine();

@@ -183,10 +183,26 @@ public class MainForm : Form
 		if (shortcut == "\\b")
 		{
 			ShowTabList();
+			return;
 		}
 		if (shortcut == "\\g")
 		{
 			DoShowTextNodes(controller);
+			return;
+		}
+		if (shortcut == "g]")
+		{
+			Selection selection = controller.LastSelection;
+			Place place = controller.Lines.PlaceOf(selection.anchor);
+			string word = controller.GetWord(place);
+			if (!string.IsNullOrEmpty(word))
+			{
+				List<Ctags.Node> nodes = ctags.GetNodes(word);
+				if (nodes != null && nodes.Count > 0)
+				{
+					new ShowDefinitions(this).Execute(nodes, word);
+				}
+			}
 			return;
 		}
 		if (shortcut == "C-o" || shortcut == "C-i")

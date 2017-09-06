@@ -10,8 +10,6 @@
 - fix gv offsets
 
 Jumping to tags
-	:ts	List all definitions (:tselect)
-
 	^t	Jump back from definition
 	^W }	Preview definition
-	g]	See all definitions
+	g]	open OmniSharp usages

@@ -291,6 +291,11 @@ namespace MulticaretEditor
 							context.SetState(new ViReceiverVisual(false));
 						}
 					}
+					else if (parser.moveChar.IsChar(']'))
+					{
+						viShortcut = "" + parser.move.c + parser.moveChar.c;
+						return;
+					}
 					count = 1;
 					break;
 				case 'i':
