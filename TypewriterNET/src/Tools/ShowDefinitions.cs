@@ -24,7 +24,6 @@ public class ShowDefinitions
 		StringBuilder builder = new StringBuilder();
 		List<StyleRange> ranges = new List<StyleRange>();
 		int maxLength = 0;
-		int maxPlaceLength = 0;
 		foreach (Ctags.Node usage in usages)
 		{
 			string fileName = Path.GetFileName(usage.path);

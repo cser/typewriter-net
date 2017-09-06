@@ -178,7 +178,7 @@ public static class Help
 			table.Add(" D").Add("Remove to line end").NewRow();
 			table.Add(" <<").Add("Indent left").NewRow();
 			table.Add(" >>").Add("Indent right").NewRow();
-			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+]` - close dialog").NewRow();
+			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+[` - close dialog").NewRow();
 			table.Add(" *").Add("Put word or selection into\n  find register and find next").NewRow();
 			table.Add(" n").Add("Find next").NewRow();
 			table.Add(" N").Add("Find previous").NewRow();

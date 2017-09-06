@@ -26,7 +26,9 @@ public class SnippetAtom
 	
 	public string GetCompletionText()
 	{
-		return key + " [" + fileName + "] " + desc;
+		string prefix = "action:";
+		return key + " [" + fileName + "] " +
+			(desc.StartsWith(prefix) ? desc.Substring(prefix.Length).Trim() : desc).Trim();
 	}
 	
 	public string GetIndentedText(string indent, TabSettings tabSettings)

@@ -520,7 +520,7 @@ public class Properties
 				builder.Append("e.g.: test|[C-:]!echo AAA[cr]\n");
 				builder.Append("[C-x] - Ctrl+X\n");
 				builder.Append("[C-X] - Ctrl+Shift+X\n");
-				builder.Append("[C-]] - Ctrl+]\n");
+				builder.Append("[C-[] - Ctrl+[\n");
 				foreach (KeyValuePair<string, MacrosExecutor.Action> pair in CommandData.GetSpecials())
 				{
 					builder.Append("[");
