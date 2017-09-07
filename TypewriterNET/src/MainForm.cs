@@ -808,6 +808,10 @@ public class MainForm : Form
 		snippetFilesScanner.SetIgnoreFiles(
 			settings.ignoreSnippets.Value,
 			settings.forcedSnippets.Value);
+		if ((int)(Math.Round(Opacity * 100) + .1) != settings.opacity.Value)
+		{
+			Opacity = settings.opacity.Value * .01;
+		}
 	}
 	
 	protected override void OnClientSizeChanged(EventArgs e)

@@ -103,6 +103,7 @@ public class Settings
 		"}\n\n" +
 		"Instead external script you\ncan use buildin parsers:\n" + GetBuildinParsers());
 	public readonly Properties.String snipsAuthor = new Properties.String("snipsAuthor", "No name", false, "replace `g:snips_author`");
+	public readonly Properties.Int opacity = new Properties.Int("opacity", 100).SetMinMax(1, 100);
 
 	private Setter onChange;
 
@@ -180,6 +181,7 @@ public class Settings
 		Add(command);
 		Add(getTextNodes);
 		Add(snipsAuthor);
+		Add(opacity);
 	}
 
 	public void DispatchChange()
