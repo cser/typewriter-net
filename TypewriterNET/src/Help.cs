@@ -16,15 +16,13 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("# Actions");
 		builder.AppendLine();
-		builder.AppendLine("All actions are represented in menu.");
-		builder.AppendLine("Menu subitems are depended on frame with cursor");
-		builder.AppendLine("[] in menu item denotes complex shortcut,");
-		builder.AppendLine("i.e. for [Ctrl+Tab]:");
-		builder.AppendLine("\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
-		builder.AppendLine("\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
-		builder.AppendLine();
-		builder.AppendLine("To enter vi-mode press `Ctrl+[`");
-		builder.AppendLine("See more info in vi-mode help - `Shift+F1` or `:vi-help` in vi-mode");
+		builder.AppendLine("- All actions are represented in menu.");
+		builder.AppendLine("- Menu subitems are depended on frame with cursor");
+		builder.AppendLine("- [] in menu item denotes complex shortcut, i.e. for [Ctrl+Tab]:");
+		builder.AppendLine("    Ctrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
+		builder.AppendLine("    Ctrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
+		AddViMode(builder, settings);
+		builder.AppendLine("- To leart more abot vi-mode use `Shift+F1` or :vh command");
 		builder.AppendLine();
 		builder.AppendLine(commander.GetHelpText());
 		builder.AppendLine(settings.GetHelpText());
@@ -81,9 +79,8 @@ public static class Help
 		AddHead(builder, "Vi-mode");
 		builder.AppendLine("# Common");
 		builder.AppendLine();
-		builder.AppendLine("- Vi mode can be enabled by `Ctrl+[`");
-		builder.AppendLine("- For default Normal mode use `" + settings.startWithViMode.name + "` config parameter");
-		builder.AppendLine("- Parameters `" + settings.viMapSource.name + "` and `" + settings.viMapResult.name + "`");
+		AddViMode(builder, settings);
+		builder.AppendLine("- Parameters \"" + settings.viMapSource.name + "\" and \"" + settings.viMapResult.name + "\"");
 		builder.AppendLine("  uses for mapping another keyboard layout to vi commands");
 		builder.AppendLine("  For expample see base config by `Shift+F12`");
 		builder.AppendLine("- There are no vi macroses implemented,");
@@ -147,10 +144,10 @@ public static class Help
 			table.Add(" G").Add("Move to document end").NewRow();
 			table.Add(" <number>G").Add("Move to line number").NewRow();
 			table.Add(" %").Add("Move to bracket under cursor pair").NewRow();
-			table.Add(" Ctrl+]").Add("OmniSharp navigate to").NewRow();
+			table.Add(" Ctrl+]").Add("run f12Command (navigate to)").NewRow();
 			table.Add(" Ctrl+o").Add("Go to previous place").NewRow();
 			table.Add(" Ctrl+i").Add("Return back").NewRow();
-			table.Add(" g]").Add("OmniSharp navigate to").NewRow();
+			table.Add(" g]").Add("run shiftF12Command (show usages)").NewRow();
 			table.AddLine();
 			table.Add(" Actions").NewRow();
 			table.AddLine();
@@ -258,13 +255,21 @@ public static class Help
 		return buffer;
 	}
 	
-	public static void AddHead(StringBuilder builder, string name)
+	private static void AddHead(StringBuilder builder, string name)
 	{
 		builder.AppendLine("[[ " + name + " ]]");
 		builder.AppendLine();
 		builder.AppendLine(Application.ProductName + ", build " + Application.ProductVersion + ", official site:");
 		builder.AppendLine("https://github.com/cser/typewriter-net");
 		builder.AppendLine();
+	}
+	
+	private static void AddViMode(StringBuilder builder, Settings settings)
+	{
+		builder.AppendLine("- To enter vi-mode press `Ctrl+[` or alternative:");
+		builder.AppendLine("    `Alt+[` (if \"" + settings.viAltOem.name + "\" is true in config)");
+		builder.AppendLine("    `Esc` (if \"" + settings.viEsc.name + "\" is true in config)");
+		builder.AppendLine("- For default Normal mode use \"" + settings.startWithViMode.name + "\" config parameter");
 	}
 	
 	public static string GetExeHelp()

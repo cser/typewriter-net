@@ -51,12 +51,11 @@
 	<item name="f11Command:*.cs" value="omnisharp-codecheck"/>
 	<item name="shiftF11Command:*.cs" value="omnisharp-syntaxerrors"/>
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
-	<item name="ctrl]Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
 	<item name="f9Command" value="ctags"/>
 	<item name="f12Command" value="ctags-goToDefinition"/>
-	<item name="ctrl]Command" value="ctags-goToDefinition"/>
+	<item name="shiftF12Command" value="ctags-showAllDefinitions"/>
 	<item name="hideMenu" value="false"/>
 	<item name="fullScreenOnMaximized" value="false"/>
 	<item name="startWithViMode" value="false"/>
@@ -64,4 +63,6 @@
 	<item name="forcedSnippets" value=""/>
 	<item name="getTextNodes:*.cs" value="buildin-cs:c#"/>
 	<item name="snipsAuthor" value="John Doe"/>
+	<item name="viAlt[" value="false"/>
+	<item name="viEsc" value="false"/>
 </config>

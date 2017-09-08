@@ -605,15 +605,20 @@ public class Commander
 
 		history = tempSettings.CommandHistory;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
-		commands.Add(new Command("vi-help", "", "Open/close tab with vi-help text", DoViHelp));
+		commands.Add(new Command("h", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("vh", "", "Open/close tab with vi-help text", DoViHelp));
 		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
+		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
+		commands.Add(new Command("q", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
+		commands.Add(new Command("e", "", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
-		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
+		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
+		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
@@ -629,16 +634,11 @@ public class Commander
 		
 		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
 		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
+		commands.Add(new Command("ctags-showAllDefinitions", "[name]", "show all tag definitions", DoShowAllTagDefinitions));
 		commands.Add(new Command("tag", "name", "jump to tag definition", DoCtagsGoToDefinitionByName));
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
-		
-		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
-		commands.Add(new Command("e", "", "Edit file (new file if no parameter)", DoEditFile));
-		commands.Add(new Command("q", "", "Close window", DoExit));
-		commands.Add(new Command("h", "", "Open/close tab with help text", DoHelp));
-		commands.Add(new Command("vh", "", "Open/close tab with vi-help text", DoViHelp));
 	}
 	
 	private void DoViSaveFile(string args)
@@ -1363,6 +1363,35 @@ public class Commander
 			return;
 		}
 		GoToDefinition(lastBuffer, word);
+	}
+	
+	private void DoShowAllTagDefinitions(string text)
+	{
+		string word;
+		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		{
+			word = text.Trim();
+		}
+		else
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo("Error", "No buffer to get word under cursor");
+				return;
+			}
+			Selection selection = lastBuffer.Controller.LastSelection;
+			Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+			word = lastBuffer.Controller.GetWord(place);
+		}
+		if (!string.IsNullOrEmpty(word))
+		{
+			List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+			if (nodes != null && nodes.Count > 0)
+			{
+				new ShowDefinitions(mainForm).Execute(nodes, word);
+			}
+		}
 	}
 	
 	private void DoCtagsGoToDefinitionByName(string text)

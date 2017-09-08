@@ -8,8 +8,3 @@
 - snippets: visual
 - line mode ^ and $
 - fix gv offsets
-
-Jumping to tags
-	^t	Jump back from definition
-	^W }	Preview definition
-	g]	open OmniSharp usages

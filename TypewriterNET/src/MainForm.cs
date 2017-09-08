@@ -192,17 +192,7 @@ public class MainForm : Form
 		}
 		if (shortcut == "g]")
 		{
-			Selection selection = controller.LastSelection;
-			Place place = controller.Lines.PlaceOf(selection.anchor);
-			string word = controller.GetWord(place);
-			if (!string.IsNullOrEmpty(word))
-			{
-				List<Ctags.Node> nodes = ctags.GetNodes(word);
-				if (nodes != null && nodes.Count > 0)
-				{
-					new ShowDefinitions(this).Execute(nodes, word);
-				}
-			}
+			ExecuteCommand(settings.shiftF12Command.Value);
 			return;
 		}
 		if (shortcut == "C-o" || shortcut == "C-i")
@@ -812,6 +802,8 @@ public class MainForm : Form
 		{
 			Opacity = settings.opacity.Value * .01;
 		}
+		MulticaretTextBox.initMacrosExecutor.viAltOem = settings.viAltOem.Value;
+		MulticaretTextBox.initMacrosExecutor.viEsc = settings.viEsc.Value;
 	}
 	
 	protected override void OnClientSizeChanged(EventArgs e)
@@ -1004,8 +996,8 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
 			.SetGetText(GetCtrlShiftSpaceCommandText)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemCloseBrackets, null,
-			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlCketCommand, null, false)
-			.SetGetText(GetCtrlCketCommandText)));
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			.SetGetText(GetF12CommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F1, null, new KeyAction("&?\\Vi mode help", DoViHelp, null, false)));
@@ -2446,16 +2438,6 @@ public class MainForm : Form
 	{
 		return GetCommandText(settings.shiftF12Command);
 	}
-	
-	private bool DoExecuteCtrlCketCommand(Controller controller)
-	{
-		return ExecuteCommand(settings.ctrlCketCommand.Value);
-	}
-	
-	private string GetCtrlCketCommandText()
-	{
-		return GetCommandText(settings.ctrlCketCommand);
-	}	
 	
 	private bool DoExecuteCtrlSpaceCommand(Controller controller)
 	{

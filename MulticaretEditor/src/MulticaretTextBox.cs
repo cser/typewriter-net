@@ -1800,6 +1800,12 @@ namespace MulticaretEditor
 
 		private void ProcessKeyUniversal(char code, Keys keys)
 		{
+			if (macrosExecutor != null && (
+				keys == (Keys.Alt | Keys.OemOpenBrackets) && macrosExecutor.viAltOem||
+				keys == Keys.Escape && macrosExecutor.viEsc))
+			{
+				keys = Keys.Control | Keys.OemOpenBrackets;
+			}
 			if (actionProcessed)
 			{
 				return;

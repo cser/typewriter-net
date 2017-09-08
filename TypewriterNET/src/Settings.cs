@@ -63,7 +63,6 @@ public class Settings
 	public readonly Properties.Command shiftF12Command = new Properties.Command("shiftF12Command");
 	public readonly Properties.Command ctrlSpaceCommand = new Properties.Command("ctrlSpaceCommand");
 	public readonly Properties.Command ctrlShiftSpaceCommand = new Properties.Command("ctrlShiftSpaceCommand");
-	public readonly Properties.Command ctrlCketCommand = new Properties.Command("ctrl]Command");
 	public readonly Properties.Command afterSaveCommand = new Properties.Command("afterSaveCommand");
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
@@ -74,6 +73,8 @@ public class Settings
 	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
 	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
 	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
+	public readonly Properties.Bool viEsc = new Properties.Bool("viEsc", false);
+	public readonly Properties.Bool viAltOem = new Properties.Bool("viAlt[", false);
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
@@ -160,7 +161,6 @@ public class Settings
 		Add(shiftF12Command);
 		Add(ctrlSpaceCommand);
 		Add(ctrlShiftSpaceCommand);
-		Add(ctrlCketCommand);
 		Add(afterSaveCommand);
 		Add(defaultEncoding);
 		Add(shellEncoding);
@@ -175,6 +175,8 @@ public class Settings
 		Add(fullScreenOnMaximized);
 		Add(viMapSource);
 		Add(viMapResult);
+		Add(viEsc);
+		Add(viAltOem);
 		Add(startWithViMode);
 		Add(ignoreSnippets);
 		Add(forcedSnippets);

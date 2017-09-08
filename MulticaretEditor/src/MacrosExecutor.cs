@@ -53,6 +53,8 @@ namespace MulticaretEditor
 		}
 		
 		public ViMode viMode;
+		public bool viAltOem;
+		public bool viEsc;
 
 		private readonly Getter<MulticaretTextBox> getTextBox;
 		
