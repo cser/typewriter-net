@@ -1,6 +1,5 @@
 - FindInFiles: prev/next entry
 - ShellCommandResults: prev/next quickfix
-- ctags support
 
 - FileTree: close by file selection shortcut
 - snippets: more accurate exit from snippet

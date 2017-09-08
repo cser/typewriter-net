@@ -56,6 +56,7 @@
 	<item name="f9Command" value="ctags"/>
 	<item name="f12Command" value="ctags-goToDefinition"/>
 	<item name="shiftF12Command" value="ctags-showAllDefinitions"/>
+	<item name="ctrlSpaceCommand" value="ctags-autocomplete"/>
 	<item name="hideMenu" value="false"/>
 	<item name="fullScreenOnMaximized" value="false"/>
 	<item name="startWithViMode" value="false"/>

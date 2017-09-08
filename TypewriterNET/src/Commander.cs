@@ -635,6 +635,7 @@ public class Commander
 		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
 		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
 		commands.Add(new Command("ctags-showAllDefinitions", "[name]", "show all tag definitions", DoShowAllTagDefinitions));
+		commands.Add(new Command("ctags-autocomplete", "", "autocomplete by ctags", DoCtagsAutocomplete));
 		commands.Add(new Command("tag", "name", "jump to tag definition", DoCtagsGoToDefinitionByName));
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
@@ -1474,5 +1475,31 @@ public class Commander
 		string errors = new ShowDefinitions(mainForm).Execute(nodes, word);
 		if (errors != null)
 			mainForm.Dialogs.ShowInfo("Ctag definitions", errors);
+	}
+	
+	private void DoCtagsAutocomplete(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for ctags autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		List<Variant> variants = new List<Variant>();
+		foreach (string tag in mainForm.Ctags.GetTags())
+		{
+			Variant variant = new Variant();
+			variant.CompletionText = tag;
+			variant.DisplayText = tag;
+			variants.Add(variant);
+		}
+		if (mainForm.LastFrame.AsFrame != null)
+			mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
 	}
 }
