@@ -65,7 +65,7 @@ public class InfoDialog : ADialog
 		}
 	}
 
-	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
+	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight + 1); } }
 
 	override public void Focus()
 	{

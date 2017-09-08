@@ -21,15 +21,20 @@ public class ShowDefinitions
 	public string Execute(List<Ctags.Node> usages, string word)
 	{
 		positions = usages;
+		Regex regex = new Regex("\\b" + word + "\\b");
 		StringBuilder builder = new StringBuilder();
 		List<StyleRange> ranges = new List<StyleRange>();
 		int maxLength = 0;
 		foreach (Ctags.Node usage in usages)
 		{
-			string fileName = Path.GetFileName(usage.path);
-			if (maxLength < fileName.Length)
+			int length = usage.path.Length;
+			if (usage.path.StartsWith("./"))
 			{
-				maxLength = fileName.Length;
+				length -= 2;
+			}
+			if (maxLength < length)
+			{
+				maxLength = length;
 			}
 		}
 		foreach (Ctags.Node usage in usages)
@@ -38,13 +43,21 @@ public class ShowDefinitions
 			{
 				builder.Append(mainForm.Settings.lineBreak.Value);
 			}
-			string fileName = Path.GetFileName(usage.path);
+			string fileName = usage.path;
+			if (fileName.StartsWith("./"))
+			{
+				fileName = fileName.Substring(2);
+			}
 			ranges.Add(new StyleRange(builder.Length, maxLength, Ds.String.index));
 			builder.Append(fileName.PadRight(maxLength));
 			ranges.Add(new StyleRange(builder.Length, 1, Ds.Operator.index));
 			builder.Append("|");
 			string address = usage.address != null ? usage.address.Trim() : "";
-			ranges.Add(new StyleRange(builder.Length, address.Length, Ds.Keyword.index));
+			Match match = regex.Match(address);
+			if (match.Success)
+			{
+				ranges.Add(new StyleRange(builder.Length + match.Index, match.Length, Ds.Keyword.index));
+			}
 			builder.Append(address);
 		}
 
