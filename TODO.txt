@@ -6,5 +6,6 @@
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
 - snippets: visual
+- snippets: select by regex
 - line mode ^ and $
 - fix gv offsets
