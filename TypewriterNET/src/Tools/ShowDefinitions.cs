@@ -44,7 +44,7 @@ public class ShowDefinitions
 				builder.Append(mainForm.Settings.lineBreak.Value);
 			}
 			string fileName = usage.path;
-			if (fileName.StartsWith("./"))
+			if (fileName.StartsWith("./") || fileName.StartsWith(".\\"))
 			{
 				fileName = fileName.Substring(2);
 			}

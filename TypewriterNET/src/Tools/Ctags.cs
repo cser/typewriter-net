@@ -109,7 +109,7 @@ public class Ctags
 		{
 			string line = lines[i];
 			int index = line.IndexOf('\t');
-			if (index > 0)
+			if (index > 0 && !line.StartsWith("!_TAG_"))
 			{
 				string tag = line.Substring(0, index);
 				if (prevTag != tag)
