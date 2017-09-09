@@ -15,6 +15,7 @@ public class Ctags
 	{
 		public string path;
 		public string address;
+		public int index;
 		
 		public override string ToString()
 		{
@@ -67,6 +68,7 @@ public class Ctags
 		{
 			return nodes;
 		}
+		Node prevNode = null;
 		for (int i = 0; i < lines.Length; ++i)
 		{
 			string line = lines[i];
@@ -94,7 +96,12 @@ public class Ctags
 					continue;
 				}
 				node.address = line.Substring(index1, index2 - index1);
+				if (prevNode != null && node.path == prevNode.path && node.address == prevNode.address)
+				{
+					node.index = prevNode.index + 1;
+				}
 				nodes.Add(node);
+				prevNode = node;
 			}
 		}
 		return nodes;
@@ -133,6 +140,7 @@ public class Ctags
 		Buffer buffer = mainForm.LoadFile(node.path);
 		if (buffer != null)
 		{
+			int index = node.index;
 			LineIterator iterator = buffer.Controller.Lines.GetLineRange(0, buffer.Controller.Lines.LinesCount);
 			while (iterator.MoveNext())
 			{
@@ -142,18 +150,22 @@ public class Ctags
 					node.address.Length == text.Length - 2 && text.EndsWith("\r\n") ||
 					node.address.Length == text.Length - 1 && (text.EndsWith("\r") || text.EndsWith("\n"))))
 				{
-					buffer.Controller.PutCursor(new Place(0, iterator.Index), false);
-					buffer.Controller.ViMoveHome(false, true);
-					if (buffer.FullPath != null)
+					if (index <= 0)
 					{
-						buffer.Controller.ViAddHistoryPosition(true);
+						buffer.Controller.PutCursor(new Place(0, iterator.Index), false);
+						buffer.Controller.ViMoveHome(false, true);
+						if (buffer.FullPath != null)
+						{
+							buffer.Controller.ViAddHistoryPosition(true);
+						}
+						buffer.Controller.NeedScrollToCaret();
+						if (buffer.Frame != null)
+						{
+							buffer.Frame.Focus();
+						}
+						break;
 					}
-					buffer.Controller.NeedScrollToCaret();
-					if (buffer.Frame != null)
-					{
-						buffer.Frame.Focus();
-					}
-					break;
+					--index;
 				}
 			}
 		}
