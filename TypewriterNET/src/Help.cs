@@ -144,10 +144,10 @@ public static class Help
 			table.Add(" G").Add("Move to document end").NewRow();
 			table.Add(" <number>G").Add("Move to line number").NewRow();
 			table.Add(" %").Add("Move to bracket under cursor pair").NewRow();
-			table.Add(" Ctrl+]").Add("run f12Command (navigate to)").NewRow();
+			table.Add(" Ctrl+]").Add("f12Command (navigate to)").NewRow();
 			table.Add(" Ctrl+o").Add("Go to previous place").NewRow();
 			table.Add(" Ctrl+i").Add("Return back").NewRow();
-			table.Add(" g]").Add("run shiftF12Command (show usages)").NewRow();
+			table.Add(" g]").Add("shiftF12Command (all usages/definitions)").NewRow();
 			table.AddLine();
 			table.Add(" Actions").NewRow();
 			table.AddLine();
