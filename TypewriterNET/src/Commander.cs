@@ -1390,6 +1390,7 @@ public class Commander
 			List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
 			if (nodes != null && nodes.Count > 0)
 			{
+				mainForm.Ctags.SetGoToTags(nodes);
 				new ShowDefinitions(mainForm).Execute(nodes, word);
 			}
 		}
@@ -1415,17 +1416,34 @@ public class Commander
 	{
 		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
 		string currentDir = Directory.GetCurrentDirectory();
-		Ctags.Node target = nodes.Count > 0 ? nodes[0] : null;
-		foreach (Ctags.Node node in nodes)
+		if (nodes.Count > 0)
 		{
-			if (Path.Combine(currentDir, node.path).ToLowerInvariant() == lastBuffer.FullPath.ToLowerInvariant())
+			int index = -1;
+			List<Ctags.Node> nearestNodes = new List<Ctags.Node>();
+			for (int i = 0; i < nodes.Count; ++i)
 			{
-				target = node;
-				break;
+				Ctags.Node node = nodes[i];
+				if (Path.Combine(currentDir, node.path).ToLowerInvariant() == lastBuffer.FullPath.ToLowerInvariant())
+				{
+					index = i;
+					int j = i;
+					while (true)
+					{
+						node = nodes[i];
+						nearestNodes.Add(node);
+						++j;
+						if (j >= nodes.Count ||
+							Path.Combine(currentDir, node.path).ToLowerInvariant() != lastBuffer.FullPath.ToLowerInvariant())
+						{
+							break;
+						}
+					}
+					break;
+				}
 			}
-		}
-		if (target != null)
-		{
+			nodes.RemoveRange(index, nearestNodes.Count);
+			nodes.InsertRange(0, nearestNodes);
+			Ctags.Node target = nodes[0];
 			nodes.Remove(target);
 			nodes.Insert(0, target);
 			mainForm.Ctags.SetGoToTags(nodes);
@@ -1472,9 +1490,12 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Ctags", "No tag definitions");
 			return;
 		}
+		mainForm.Ctags.SetGoToTags(nodes);
 		string errors = new ShowDefinitions(mainForm).Execute(nodes, word);
 		if (errors != null)
+		{
 			mainForm.Dialogs.ShowInfo("Ctag definitions", errors);
+		}
 	}
 	
 	private void DoCtagsAutocomplete(string text)

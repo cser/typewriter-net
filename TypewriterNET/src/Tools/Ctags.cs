@@ -132,6 +132,7 @@ public class Ctags
 	public void SetGoToTags(List<Node> nodes)
 	{
 		goToNodes = nodes;
+		lastGoToNode = nodes != null && nodes.Count > 0 ? nodes[0] : null;
 	}
 	
 	public void GoToTag(Node node)
