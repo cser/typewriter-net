@@ -53,7 +53,7 @@
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
-	<item name="f9Command" value="ctags -R *"/>
+	<item name="f9Command" value="ctags -R --languages=-C#"/>
 	<item name="f12Command" value="ctags-goToDefinition"/>
 	<item name="shiftF12Command" value="ctags-showAllDefinitions"/>
 	<item name="ctrlSpaceCommand" value="ctags-autocomplete"/>
