@@ -5,6 +5,9 @@ using MulticaretEditor;
 
 public static class Help
 {
+	public const string HomeUrl = "https://github.com/cser/typewriter-net";
+	public const string LastStableUrl  = "https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts";
+	
 	public static Buffer NewHelpBuffer(Settings settings, Commander commander)
 	{
 		List<StyleRange> ranges = new List<StyleRange>();
@@ -260,7 +263,9 @@ public static class Help
 		builder.AppendLine("[[ " + name + " ]]");
 		builder.AppendLine();
 		builder.AppendLine(Application.ProductName + ", build " + Application.ProductVersion + ", official site:");
-		builder.AppendLine("https://github.com/cser/typewriter-net");
+		builder.AppendLine(HomeUrl);
+		builder.AppendLine("Last stable build page:");
+		builder.AppendLine(LastStableUrl);
 		builder.AppendLine();
 	}
 	

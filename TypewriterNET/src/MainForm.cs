@@ -1001,6 +1001,9 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F1, null, new KeyAction("&?\\Vi mode help", DoViHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Home…", DoOpenHomeUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Last stable build page…", DoOpenLastStableBuildUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Ctags help…", DoOpenCtagsHelp, null, false)));
 	}
 	
 	private bool DoPasteInOutput(Controller controller)
@@ -1973,6 +1976,32 @@ public class MainForm : Form
 	{
 		ProcessViHelp();
 		return true;
+	}
+	
+	private bool DoOpenHomeUrl(Controller controller)
+	{
+		OpenDocument(Help.HomeUrl);
+		return true;
+	}
+	
+	private bool DoOpenLastStableBuildUrl(Controller controller)
+	{
+		OpenDocument(Help.LastStableUrl);
+		return true;
+	}
+	
+	private bool DoOpenCtagsHelp(Controller controller)
+	{
+		OpenDocument(Path.Combine(AppPath.StartupDir, "ctags/ctags.html"));
+		return true;
+	}
+	
+	private void OpenDocument(string text)
+	{
+		Process p = new Process();
+		p.StartInfo.UseShellExecute = true;
+		p.StartInfo.FileName = text;
+		p.Start();
 	}
 
 	private Buffer _helpBuffer;
