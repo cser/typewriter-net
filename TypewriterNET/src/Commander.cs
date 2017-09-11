@@ -1441,8 +1441,11 @@ public class Commander
 					break;
 				}
 			}
-			nodes.RemoveRange(index, nearestNodes.Count);
-			nodes.InsertRange(0, nearestNodes);
+			if (index != -1)
+			{
+				nodes.RemoveRange(index, nearestNodes.Count);
+				nodes.InsertRange(0, nearestNodes);
+			}
 			Ctags.Node target = nodes[0];
 			nodes.Remove(target);
 			nodes.Insert(0, target);
