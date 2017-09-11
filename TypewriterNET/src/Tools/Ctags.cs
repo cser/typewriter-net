@@ -28,6 +28,8 @@ public class Ctags
 	private string[] lines;
 	private List<Node> goToNodes;
 	private Node lastGoToNode;
+	private int lastOmniSharpUsage;
+	private List<ShowUsages.Position> lastOmniSharpUsages;
 	
 	public Ctags(MainForm mainForm)
 	{
@@ -132,7 +134,17 @@ public class Ctags
 	public void SetGoToTags(List<Node> nodes)
 	{
 		goToNodes = nodes;
-		lastGoToNode = nodes != null && nodes.Count > 0 ? nodes[0] : null;
+		lastGoToNode = null;
+		lastOmniSharpUsages = null;
+		lastOmniSharpUsage = -1;
+	}
+	
+	public void SetOmniSharpUsings(List<ShowUsages.Position> positions)
+	{
+		lastOmniSharpUsages = positions;
+		lastOmniSharpUsage = -1;
+		goToNodes = null;
+		lastGoToNode = null;
 	}
 	
 	public void GoToTag(Node node)
@@ -172,28 +184,44 @@ public class Ctags
 		}
 	}
 	
+	public void GoToTag(int index)
+	{
+		lastOmniSharpUsage = index;
+		if (lastOmniSharpUsage >= 0 && lastOmniSharpUsage < lastOmniSharpUsages.Count)
+		{
+			ShowUsages.Position position = lastOmniSharpUsages[lastOmniSharpUsage];
+			mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
+		}
+	}
+	
 	public void GoToNextTag()
 	{
-		if (goToNodes == null || goToNodes.Count == 0)
-		{
-			return;
-		}
-		if (lastGoToNode == null)
-		{
-			GoToTag(goToNodes[0]);
-			return;
-		}
-		int index = goToNodes.IndexOf(lastGoToNode);
-		++index;
-		if (index >= goToNodes.Count)
-		{
-			return;
-		}
-		GoToTag(goToNodes[index]);
+		SwitchTag(1);
 	}
 	
 	public void GoToPrevTag()
 	{
+		SwitchTag(-1);
+	}
+	
+	private void SwitchTag(int delta)
+	{
+		if (lastOmniSharpUsages != null)
+		{
+			lastOmniSharpUsage += delta;
+			if (lastOmniSharpUsage < 0)
+			{
+				lastOmniSharpUsage = 0;
+				return;
+			}
+			if (lastOmniSharpUsage >= lastOmniSharpUsages.Count)
+			{
+				lastOmniSharpUsage = lastOmniSharpUsages.Count - 1;
+				return;
+			}
+			GoToTag(lastOmniSharpUsage);
+			return;
+		}
 		if (goToNodes == null || goToNodes.Count == 0)
 		{
 			return;
@@ -204,8 +232,8 @@ public class Ctags
 			return;
 		}
 		int index = goToNodes.IndexOf(lastGoToNode);
-		--index;
-		if (index < 0)
+		index += delta;
+		if (index < 0 || index >= goToNodes.Count)
 		{
 			return;
 		}

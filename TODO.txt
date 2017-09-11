@@ -1,5 +1,4 @@
 - FindInFiles: prev/next entry
-- Show usages: prev/next entry
 - ShellCommandResults: prev/next quickfix
 - Fix shift left/right cursor offsets
 

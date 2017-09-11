@@ -106,6 +106,7 @@ public class ShowUsages
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
+		mainForm.Ctags.SetOmniSharpUsings(positions);
 		mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 		return null;
 	}
@@ -115,8 +116,8 @@ public class ShowUsages
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		if (place.iLine >= 0 && place.iLine < positions.Count)
 		{
-			Position position = positions[place.iLine];
-			mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
+			mainForm.Ctags.SetOmniSharpUsings(positions);
+			mainForm.Ctags.GoToTag(place.iLine);
 			return true;
 		}
 		return false;
