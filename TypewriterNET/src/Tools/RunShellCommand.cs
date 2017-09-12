@@ -43,13 +43,15 @@ public class RunShellCommand
 	}
 
 	private Buffer buffer;
-	private Dictionary<int, List<Position>> positions;
+	private List<Position> positions;
+	private Dictionary<int, List<Position>> positionsOf;
 
 	public void Execute(
 		string commandText, bool showCommandInOutput, IRList<RegexData> regexList,
 		bool stayTop, bool silentIfNoOutput, string parameters)
 	{
-		positions = new Dictionary<int, List<Position>>();
+		positions = new List<Position>();
+		positionsOf = new Dictionary<int, List<Position>>();
 
 		Encoding encoding = GetEncoding(mainForm, parameters);
 		Process p = new Process();
@@ -74,7 +76,8 @@ public class RunShellCommand
 	
 	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, bool silentIfNoOutput, string parameters)
 	{
-		positions = new Dictionary<int, List<Position>>();
+		positionsOf = new Dictionary<int, List<Position>>();
+		positions = new List<Position>();
 		ShowInOutput(null, null, text, regexList, stayTop, silentIfNoOutput, parameters);
 	}
 	
@@ -187,13 +190,15 @@ public class RunShellCommand
 						}
 						Place place = buffer.Controller.Lines.PlaceOf(match.Index);
 						List<Position> list;
-						positions.TryGetValue(place.iLine, out list);
+						positionsOf.TryGetValue(place.iLine, out list);
 						if (list == null)
 						{
 							list = new List<Position>();
-							positions[place.iLine] = list;
+							positionsOf[place.iLine] = list;
 						}
-						list.Add(new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength));
+						Position position = new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength);
+						list.Add(position);
+						positions.Add(position);
 					}
 					else
 					{
@@ -232,6 +237,7 @@ public class RunShellCommand
 					parameters.Substring(index + 2);
 			}
 		}
+		mainForm.Ctags.SetGoToPositions(positions);
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		mainForm.CheckFilesChanges();
 	}
@@ -241,7 +247,7 @@ public class RunShellCommand
 		int caret = buffer.Controller.LastSelection.caret;
 		Place place = buffer.Controller.Lines.PlaceOf(caret);
 		List<Position> list;
-		if (positions.TryGetValue(place.iLine, out list))
+		if (positionsOf.TryGetValue(place.iLine, out list))
 		{
 			list.Sort(ComparePositions);
 			Position position = list[0];
@@ -255,22 +261,8 @@ public class RunShellCommand
 					break;
 				}
 			}
-			if (string.IsNullOrEmpty(position.fileName) || position.fileName.Trim() == "")
-			{
-				mainForm.NavigateTo(position.place, position.place);
-				return true;
-			}
-			string fullPath = null;
-			try
-			{
-				fullPath = Path.GetFullPath(position.fileName);
-			}
-			catch
-			{
-				mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + position.fileName);
-				return true;
-			}
-			mainForm.NavigateTo(fullPath, position.place, position.place);
+			mainForm.Ctags.SetGoToPositions(positions);
+			mainForm.Ctags.GoToTag(position);
 			return true;
 		}
 		return false;

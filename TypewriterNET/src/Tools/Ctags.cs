@@ -30,6 +30,8 @@ public class Ctags
 	private Node lastGoToNode;
 	private int lastOmniSharpUsage;
 	private List<Position> lastOmniSharpUsages;
+	private RunShellCommand.Position lastCommandPosition;
+	private List<RunShellCommand.Position> lastCommandPositions;
 	
 	public Ctags(MainForm mainForm)
 	{
@@ -137,14 +139,28 @@ public class Ctags
 		lastGoToNode = null;
 		lastOmniSharpUsages = null;
 		lastOmniSharpUsage = -1;
+		lastCommandPositions = null;
+		lastCommandPosition = null;
 	}
 	
 	public void SetGoToPositions(List<Position> positions)
 	{
-		lastOmniSharpUsages = positions;
-		lastOmniSharpUsage = -1;
 		goToNodes = null;
 		lastGoToNode = null;
+		lastOmniSharpUsages = positions;
+		lastOmniSharpUsage = -1;
+		lastCommandPositions = null;
+		lastCommandPosition = null;
+	}
+	
+	public void SetGoToPositions(List<RunShellCommand.Position> positions)
+	{
+		goToNodes = null;
+		lastGoToNode = null;
+		lastOmniSharpUsages = null;
+		lastOmniSharpUsage = -1;
+		lastCommandPositions = positions;
+		lastCommandPosition = null;
 	}
 	
 	public void GoToTag(Node node)
@@ -194,6 +210,27 @@ public class Ctags
 		}
 	}
 	
+	public void GoToTag(RunShellCommand.Position position)
+	{
+		lastCommandPosition = position;
+		if (string.IsNullOrEmpty(position.fileName) || position.fileName.Trim() == "")
+		{
+			mainForm.NavigateTo(position.place, position.place);
+			return;
+		}
+		string fullPath = null;
+		try
+		{
+			fullPath = Path.GetFullPath(position.fileName);
+		}
+		catch
+		{
+			mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + position.fileName);
+			return;
+		}
+		mainForm.NavigateTo(fullPath, position.place, position.place);
+	}
+	
 	public void GoToNextTag()
 	{
 		SwitchTag(1);
@@ -222,21 +259,45 @@ public class Ctags
 			GoToTag(lastOmniSharpUsage);
 			return;
 		}
-		if (goToNodes == null || goToNodes.Count == 0)
+		if (lastCommandPositions != null)
 		{
+			if (lastCommandPositions.Count == 0)
+			{
+				return;
+			}
+			if (lastCommandPosition == null)
+			{
+				GoToTag(lastCommandPositions[0]);
+				return;
+			}
+			int index = lastCommandPositions.IndexOf(lastCommandPosition);
+			index += delta;
+			if (index < 0 || index >= lastCommandPositions.Count)
+			{
+				return;
+			}
+			GoToTag(lastCommandPositions[index]);
 			return;
 		}
-		if (lastGoToNode == null)
+		if (goToNodes != null)
 		{
-			GoToTag(goToNodes[0]);
+			if (goToNodes.Count == 0)
+			{
+				return;
+			}
+			if (lastGoToNode == null)
+			{
+				GoToTag(goToNodes[0]);
+				return;
+			}
+			int index = goToNodes.IndexOf(lastGoToNode);
+			index += delta;
+			if (index < 0 || index >= goToNodes.Count)
+			{
+				return;
+			}
+			GoToTag(goToNodes[index]);
 			return;
 		}
-		int index = goToNodes.IndexOf(lastGoToNode);
-		index += delta;
-		if (index < 0 || index >= goToNodes.Count)
-		{
-			return;
-		}
-		GoToTag(goToNodes[index]);
 	}
 }
