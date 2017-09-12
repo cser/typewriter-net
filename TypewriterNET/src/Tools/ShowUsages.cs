@@ -9,20 +9,6 @@ using MulticaretEditor;
 
 public class ShowUsages
 {
-	public struct Position
-	{
-		public readonly string fullPath;
-		public readonly Place place;
-		public readonly int length;
-
-		public Position(string fullPath, Place place, int length)
-		{
-			this.fullPath = fullPath;
-			this.place = place;
-			this.length = length;
-		}
-	}
-
 	private MainForm mainForm;
 	private List<Position> positions;
 	private Buffer buffer;
@@ -106,7 +92,7 @@ public class ShowUsages
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
-		mainForm.Ctags.SetOmniSharpUsings(positions);
+		mainForm.Ctags.SetGoToPositions(positions);
 		mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 		return null;
 	}
@@ -116,7 +102,7 @@ public class ShowUsages
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
 		if (place.iLine >= 0 && place.iLine < positions.Count)
 		{
-			mainForm.Ctags.SetOmniSharpUsings(positions);
+			mainForm.Ctags.SetGoToPositions(positions);
 			mainForm.Ctags.GoToTag(place.iLine);
 			return true;
 		}

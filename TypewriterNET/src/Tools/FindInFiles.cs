@@ -9,20 +9,6 @@ using MulticaretEditor;
 
 public class FindInFiles
 {
-	public struct Position
-	{
-		public readonly string fileName;
-		public readonly Place place;
-		public readonly int length;
-
-		public Position(string fileName, Place place, int length)
-		{
-			this.fileName = fileName;
-			this.place = place;
-			this.length = length;
-		}
-	}
-
 	public struct IndexAndLength
 	{
 		public int index;
@@ -339,6 +325,7 @@ public class FindInFiles
 	
 	private void CloseAlert()
 	{
+		mainForm.Ctags.SetGoToPositions(positions);
 		alert.forcedClosing = true;
 		alert.Close();
 	}
@@ -348,8 +335,8 @@ public class FindInFiles
 		if (positions.Count == 0)
 			return true;
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
-		Position position = positions[place.iLine];
-		mainForm.NavigateTo(Path.GetFullPath(position.fileName), position.place, position.length);
+		mainForm.Ctags.SetGoToPositions(positions);
+		mainForm.Ctags.GoToTag(place.iLine);
 		return true;
 	}
 }

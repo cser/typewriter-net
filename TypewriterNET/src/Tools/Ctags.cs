@@ -29,7 +29,7 @@ public class Ctags
 	private List<Node> goToNodes;
 	private Node lastGoToNode;
 	private int lastOmniSharpUsage;
-	private List<ShowUsages.Position> lastOmniSharpUsages;
+	private List<Position> lastOmniSharpUsages;
 	
 	public Ctags(MainForm mainForm)
 	{
@@ -139,7 +139,7 @@ public class Ctags
 		lastOmniSharpUsage = -1;
 	}
 	
-	public void SetOmniSharpUsings(List<ShowUsages.Position> positions)
+	public void SetGoToPositions(List<Position> positions)
 	{
 		lastOmniSharpUsages = positions;
 		lastOmniSharpUsage = -1;
@@ -189,7 +189,7 @@ public class Ctags
 		lastOmniSharpUsage = index;
 		if (lastOmniSharpUsage >= 0 && lastOmniSharpUsage < lastOmniSharpUsages.Count)
 		{
-			ShowUsages.Position position = lastOmniSharpUsages[lastOmniSharpUsage];
+			Position position = lastOmniSharpUsages[lastOmniSharpUsage];
 			mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
 		}
 	}
