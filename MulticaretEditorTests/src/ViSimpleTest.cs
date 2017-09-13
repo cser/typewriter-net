@@ -1382,6 +1382,18 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Shift_Selection()
+		{
+			lines.SetText("Oooo\n{\naaaa\n\tccc\n}\ndddddddd");
+			Put(0, 1).Press("vjjll").AssertSelection().Anchor(0, 1).Caret(2, 3).NoNext();
+			Press(">");
+			AssertText("Oooo\n\t{\n\taaaa\n\t\tccc\n}\ndddddddd");
+			AssertSelection().Both(1, 1).NoNext();
+			Press("u");
+			AssertText("Oooo\n{\naaaa\n\tccc\n}\ndddddddd");
+		}
+		
+		[Test]
 		public void C()
 		{
 			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");

@@ -1,4 +1,3 @@
-- Fix prev/next errors
 - Fix shift left/right cursor offsets
 
 - FileTree: close by file selection shortcut
