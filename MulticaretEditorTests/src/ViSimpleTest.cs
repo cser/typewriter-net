@@ -1394,6 +1394,18 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Shift_Selection_Bug()
+		{
+			lines.SetText("\tab\n\tc\n\td");
+			Put(1, 1).Press("vj").AssertSelection().Anchor(1, 1).Caret(1, 2).NoNext();
+			Press("<");
+			AssertText("\tab\nc\nd");
+			AssertSelection().Both(0, 1).NoNext();
+			Press("u");
+			AssertText("\tab\n\tc\n\td");
+		}
+		
+		[Test]
 		public void C()
 		{
 			lines.SetText("Oooo\naaaa\n\tccc\ndddddddd");
