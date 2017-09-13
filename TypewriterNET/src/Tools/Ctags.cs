@@ -272,9 +272,13 @@ public class Ctags
 			}
 			int index = lastCommandPositions.IndexOf(lastCommandPosition);
 			index += delta;
-			if (index < 0 || index >= lastCommandPositions.Count)
+			if (index < 0)
 			{
-				return;
+				index = 0;
+			}
+			else if (index >= lastCommandPositions.Count)
+			{
+				index = lastCommandPositions.Count - 1;
 			}
 			GoToTag(lastCommandPositions[index]);
 			return;
@@ -292,9 +296,13 @@ public class Ctags
 			}
 			int index = goToNodes.IndexOf(lastGoToNode);
 			index += delta;
-			if (index < 0 || index >= goToNodes.Count)
+			if (index < 0)
 			{
-				return;
+				index = 0;
+			}
+			else if (index >= goToNodes.Count)
+			{
+				index = goToNodes.Count - 1;
 			}
 			GoToTag(goToNodes[index]);
 			return;
