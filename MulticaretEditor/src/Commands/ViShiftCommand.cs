@@ -52,37 +52,30 @@ namespace MulticaretEditor
 
 			int k = 0;
 			int iPart = 0;
-			int start = 0;
 			int offset = 0;
 			for (int i = 0; i < ranges.Count; i++)
 			{
 				SimpleRange range = ranges[i];
 				LineIterator iterator = lines.GetLineRange(range.index, range.count);
 
-				start = range.index;
+				int lineStart = lines.IndexOf(new Place(0, range.index));
 				while (iterator.MoveNext())
 				{
 					Line line = iterator.current;
 					int oldCount = line.charsCount;
 					string deletedI;
+					List<char> chars = new List<char>();
 					int tabsCount;
 					line.GetFirstIntegerTabs(out deletedI, out tabsCount);
-					List<char> chars = new List<char>();
 					if (isLeft)
 					{
 						if (lines.spacesInsteadTabs)
 						{
-							for (int j = 0; j < (tabsCount - 1) * lines.tabSize; j++)
-							{
-								chars.Add(' ');
-							}
+							AddChars(chars, ' ', (tabsCount - 1) * lines.tabSize);
 						}
 						else
 						{
-							for (int j = 0; j < tabsCount - 1; j++)
-							{
-								chars.Add('\t');
-							}
+							AddChars(chars, '\t', tabsCount - 1);
 						}
 						if (tabsCount == 0)
 						{
@@ -98,17 +91,11 @@ namespace MulticaretEditor
 					{
 						if (lines.spacesInsteadTabs)
 						{
-							for (int j = 0; j < (tabsCount + 1) * lines.tabSize; j++)
-							{
-								chars.Add(' ');
-							}
+							AddChars(chars, ' ', (tabsCount + 1) * lines.tabSize);
 						}
 						else
 						{
-							for (int j = 0; j < tabsCount + 1; j++)
-							{
-								chars.Add('\t');
-							}
+							AddChars(chars, '\t', tabsCount + 1);
 						}
 					}
 					line.Chars_RemoveRange(0, deletedI.Length);
@@ -121,11 +108,11 @@ namespace MulticaretEditor
 						SelectionPart part = parts[iPart];
 						Selection selection = selections[part.index];
 						int selectionValue = part.isCaret ? selection.caret : selection.anchor;
-						if (delta < 0 && selectionValue - start >= 0 && selectionValue - start < -delta)
+						if (delta < 0 && selectionValue - lineStart >= 0 && selectionValue - lineStart < -delta)
 						{
-							selectionValue = start;
+							selectionValue = lineStart;
 						}
-						else if (selectionValue >= start)
+						else if (selectionValue >= lineStart)
 						{
 							break;
 						}
@@ -140,7 +127,7 @@ namespace MulticaretEditor
 						iPart++;
 					}
 					offset += delta;
-					start += oldCount;
+					lineStart += oldCount;
 				}
 			}
 			while (iPart < parts.Length)
@@ -156,6 +143,14 @@ namespace MulticaretEditor
 				}
 			}
 			lines.ResetTextCache();
+		}
+		
+		private static void AddChars(List<char> chars, char c, int count)
+		{
+			for (int i = count; i-- > 0;)
+			{
+				chars.Add(c);
+			}
 		}
 
 		override public void Undo()

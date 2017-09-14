@@ -1,5 +1,4 @@
-- Fix shift left/right cursor offsets
-
+- Store selection in line mode
 - FileTree: close by file selection shortcut
 - snippets: more accurate exit from snippet
 - snippets: fix autocomplete
