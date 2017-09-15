@@ -1397,8 +1397,18 @@ public class MainForm : Form
 			SaveFile(buffer);
 		}
 	}
-
+	
+	public void SaveFileOnAdd(Buffer buffer)
+	{
+		SaveFile(buffer, true);
+	}
+	
 	public void SaveFile(Buffer buffer)
+	{
+		SaveFile(buffer, false);
+	}
+
+	private void SaveFile(Buffer buffer, bool saveOnAdd)
 	{
 		string text = buffer.Controller.Lines.GetText();
 		try
@@ -1413,6 +1423,7 @@ public class MainForm : Form
 			MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
+		FileInfo oldFileInfo = buffer.fileInfo;
 		buffer.Controller.processor.MarkAsSaved();
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
@@ -1445,10 +1456,37 @@ public class MainForm : Form
 				snippetFilesScanner.Reset();
 			}
 		}
-		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
-		if (info != null && !string.IsNullOrEmpty(info.command))
+		if (!saveOnAdd)
 		{
-			commander.Execute(info.command, true, false, null, new OnceCallback());
+			Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
+			if (info != null && !string.IsNullOrEmpty(info.command))
+			{
+				commander.Execute(info.command, true, false, null, new OnceCallback());
+			}
+			if (FileTreeOpenedAtLeft && buffer.fileInfo != null)
+			{
+				bool locationChanged = false;
+				if (!locationChanged)
+				{
+					locationChanged = oldFileInfo == null;
+				}
+				if (!locationChanged)
+				{
+					string path0 = oldFileInfo != null ? oldFileInfo.FullName : null;
+					string path1 = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					locationChanged = (path0 ?? "").ToLowerInvariant() != (path1 ?? "").ToLowerInvariant();
+				}
+				if (locationChanged)
+				{
+					string path0 = oldFileInfo != null ? oldFileInfo.FullName : null;
+					string path1 = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					if (path0 != null && fileTree.IsFolderOpen(Path.GetDirectoryName(path0)) ||
+						path1 != null && fileTree.IsFolderOpen(Path.GetDirectoryName(path1)))
+					{
+						fileTree.Reload();
+					}
+				}
+			}
 		}
 	}
 	
@@ -1573,9 +1611,22 @@ public class MainForm : Form
 	    }
 	}
 	
+	private bool FileTreeOpenedAtLeft
+	{
+		get
+		{
+			return leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer;
+		}
+	}
+	
+	public bool FileTreeOpened
+	{
+		get { return fileTree.Buffer.Frame != null; }
+	}
+	
 	public void FileTreeReload()
 	{
-	    if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+	    if (FileTreeOpenedAtLeft)
 		{
 			fileTree.Reload();
 		}
@@ -1583,7 +1634,7 @@ public class MainForm : Form
 
 	private bool DoOpenCloseFileTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+		if (FileTreeOpenedAtLeft)
 		{
 			leftNest.AFrame.Destroy();
 		}
@@ -1600,7 +1651,7 @@ public class MainForm : Form
 
 	private bool DoFindFileInTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer && leftNest.AFrame.Focused)
+		if (FileTreeOpenedAtLeft && leftNest.AFrame.Focused)
 		{
 			leftNest.AFrame.Destroy();
 			return true;
@@ -1619,11 +1670,6 @@ public class MainForm : Form
 			dialogs.ShowInfo("Error", "Can't find path (may be file isn't saved):\n" + buffer.FullPath);
 		}
 		return true;
-	}
-
-	public bool FileTreeOpened
-	{
-		get { return fileTree.Buffer.Frame != null; }
 	}
 
 	public FileTree FileTree { get { return fileTree; } }

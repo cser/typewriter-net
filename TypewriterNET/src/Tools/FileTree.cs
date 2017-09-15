@@ -612,17 +612,31 @@ public class FileTree
 		{
 			foreach (Node nodeI in filesAndDirs)
 			{
+				bool isFileDeleted = false;
 				try
 				{
 					if (nodeI.type == NodeType.Directory)
+					{
 						Directory.Delete(nodeI.fullPath, true);
+					}
 					else if (nodeI.type == NodeType.File)
+					{
 						File.Delete(nodeI.fullPath);
+						isFileDeleted = true;
+					}
 				}
 				catch (Exception e)
 				{
 					mainForm.Log.WriteError("Remove error", e.Message);
 					mainForm.Log.Open();
+				}
+				if (isFileDeleted)
+				{
+					Buffer buffer = mainForm.GetBuffer(nodeI.fullPath);
+					if (buffer != null)
+					{
+						buffer.fileInfo = null;
+					}
 				}
 			}
 			Reload();
@@ -686,7 +700,7 @@ public class FileTree
 		{
 			Buffer buffer = mainForm.ForcedLoadFile(fullPath);
 			buffer.needSaveAs = false;
-			mainForm.SaveFile(buffer);
+			mainForm.SaveFileOnAdd(buffer);
 		}
 		Reload();
 		this.buffer.Controller.ClearMinorSelections();
@@ -1123,6 +1137,46 @@ public class FileTree
 			if (shortcut == "dd" || shortcut == "v_d" || shortcut == "v_x")
 			{
 				return DoRemoveItem(controller);
+			}
+		}
+		return false;
+	}
+	
+	public bool IsFolderOpen(string dir)
+	{
+		if (string.IsNullOrEmpty(dir))
+		{
+			return false;
+		}
+		if (!dir.EndsWith("\\"))
+		{
+			dir += "\\";
+		}
+		return FindTo(node, dir.ToLowerInvariant());
+	}
+	
+	private bool FindTo(Node node, string fullPath)
+	{
+		if (!fullPath.StartsWith(node.fullPath.ToLowerInvariant()))
+		{
+			return false;
+		}
+		{
+			string nodeFullPath = !node.fullPath.EndsWith("\\") ? node.fullPath + "\\" : node.fullPath;
+			if (nodeFullPath.ToLowerInvariant() == fullPath)
+			{
+				return node.type == NodeType.Directory && node.expanded;
+			}
+		}
+		if (node.expanded)
+		{
+			foreach (Node nodeI in node.childs)
+			{
+				string nodeFullPath = !nodeI.fullPath.EndsWith("\\") ? nodeI.fullPath + "\\" : nodeI.fullPath;
+				if (fullPath.StartsWith(nodeFullPath.ToLowerInvariant()))
+				{
+					return FindTo(nodeI, fullPath);
+				}
 			}
 		}
 		return false;

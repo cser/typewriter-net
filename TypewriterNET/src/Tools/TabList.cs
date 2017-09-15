@@ -201,7 +201,6 @@ public class TabList : Buffer
 			Place place1 = controller.Lines.PlaceOf(selection.caret);
 			int i0 = Math.Min(place0.iLine, place1.iLine);
 			int i1 = Math.Max(place0.iLine, place1.iLine);
-			Console.WriteLine("[" + i0 + ", " + i1 + "]");
 			for (int i = i0; i <= i1; i++)
 			{
 				indexHash[i] = true;
