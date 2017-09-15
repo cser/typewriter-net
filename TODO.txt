@@ -1,5 +1,3 @@
-- show error if can't find current file in FileTree
-
 - Store selection in line mode
 - FileTree: close by file selection shortcut
 - snippets: more accurate exit from snippet

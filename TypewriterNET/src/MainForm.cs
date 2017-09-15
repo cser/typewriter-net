@@ -1610,8 +1610,14 @@ public class MainForm : Form
 		if (buffer == null || buffer.FullPath == null)
 			return false;
 		OpenFileTree();
-		fileTree.Find(buffer.FullPath);
-		leftNest.Frame.Focus();
+		if (fileTree.Find(buffer.FullPath))
+		{
+			leftNest.Frame.Focus();
+		}
+		else
+		{
+			dialogs.ShowInfo("Error", "Can't find path (may be file isn't saved):\n" + buffer.FullPath);
+		}
 		return true;
 	}
 

@@ -276,7 +276,7 @@ public class FileTree
 		}
 	}
 
-	public void Find(string fullPath)
+	public bool Find(string fullPath)
 	{
 		fullPath = fullPath.ToLowerInvariant();
 		if (!fullPath.StartsWith(currentDirectory.ToLowerInvariant()))
@@ -286,6 +286,21 @@ public class FileTree
 		}
 		ExpandTo(node, fullPath);
 		Rebuild();
+		if (TrySelectPath(fullPath))
+		{
+			return true;
+		}
+		Reload();
+		ExpandTo(node, fullPath);
+		if (TrySelectPath(fullPath))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private bool TrySelectPath(string fullPath)
+	{
 		for (int i = 0, count = nodes.Count; i < count; i++)
 		{
 			Node nodeI = nodes[i];
@@ -295,9 +310,10 @@ public class FileTree
 				Place place = new Place(0, i);
 				buffer.Controller.LastSelection.anchor = buffer.Controller.LastSelection.caret = buffer.Controller.Lines.IndexOf(place);
 				buffer.Controller.NeedScrollToCaret();
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private void ExpandTo(Node node, string fullPath)
