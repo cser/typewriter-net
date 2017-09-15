@@ -1,3 +1,6 @@
+- fix cursor position at current file on TabList open
+- fix fx for russian
+
 - Store selection in line mode
 - FileTree: close by file selection shortcut
 - snippets: more accurate exit from snippet
