@@ -1,5 +1,4 @@
 - show error if can't find current file in FileTree
-- fix fx for russian
 
 - Store selection in line mode
 - FileTree: close by file selection shortcut

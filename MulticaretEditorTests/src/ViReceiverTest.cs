@@ -453,5 +453,22 @@ namespace UnitTests
 			controller.processor.Undo();
 			AssertText("\tline0{\n\t\tline1\n\t}\nline3");
 		}
+		
+		[Test]
+		public void fx_Ru()
+		{
+			SetViMode(true);
+			receiver.viMap = GetRuMap();
+			
+			lines.autoindent = true;
+			lines.lineBreak = "\n";
+			lines.SetText("xxxzя");
+			
+			controller.PutCursor(new Place(1, 0), false);
+			DoKeyPress('f').DoKeyPress('z').AssertSelection("#1").Both(3, 0).NoNext();
+			
+			controller.PutCursor(new Place(1, 0), false);
+			DoKeyPress('а').DoKeyPress('я').AssertSelection("#2").Both(4, 0).NoNext();
+		}
 	}
 }

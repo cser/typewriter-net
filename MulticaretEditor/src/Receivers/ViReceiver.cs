@@ -245,7 +245,7 @@ namespace MulticaretEditor
 				case 'F':
 				case 't':
 				case 'T':
-					move = new ViMoves.Find(parser.move.c, parser.moveChar.c, count);
+					move = new ViMoves.Find(parser.move.c, parser.moveChar.origin, count);
 					count = 1;
 					break;
 				case '`':
