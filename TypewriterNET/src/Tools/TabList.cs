@@ -25,6 +25,7 @@ public class TabList : Buffer
 		public int line = -1;
 	}
 
+	private bool first = true;
 	private readonly Buffer buffer;
 	private readonly MainForm mainForm;
 	private Dictionary<int, bool> expanded;
@@ -97,6 +98,15 @@ public class TabList : Buffer
 	private void OnBufferSelected(Buffer buffer)
 	{
 		Rebuild();
+		if (first)
+		{
+			first = false;
+			int index = buffers.IndexOf(this.buffer);
+			if (index >= 0 && index < Controller.Lines.LinesCount)
+			{
+				Controller.PutCursor(new Place(0, index), false);
+			}
+		}
 	}
 	
 	private List<Buffer> buffers = new List<Buffer>();
