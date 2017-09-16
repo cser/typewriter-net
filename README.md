@@ -60,8 +60,10 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 Installation without building
 -----------------------------
 
-Just get <code>typewriter-net-installer-XX.exe</code> at the root of the repository and run it<br/>
+Download <code>typewriter-net-installer-XX.exe</code> at the root of the repository and run it<br/>
 Requires **NET Framework 2.0**
+
+Or you can get [latest stable installer](https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts)
 
 Building
 --------
