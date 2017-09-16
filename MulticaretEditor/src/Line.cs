@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -540,6 +539,35 @@ namespace MulticaretEditor
 			return result;
 		}
 		
+		public int IndexOfChar(char c, int index)
+		{
+			int count = charsCount;
+			for (int i = index; i < count; i++)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+		
+		public int LeftIndexOfChar(char c, int index)
+		{
+			if (index >= charsCount)
+			{
+				index = charsCount - 1;
+			}
+			for (int i = index; i >= 0; i--)
+			{
+				if (chars[i].c == c)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
 		public string GetLineBreakFirstSpaces(int iChar)
 		{
 			int count = charsCount;
@@ -610,6 +638,21 @@ namespace MulticaretEditor
 				--count;
 			}
 			return '\0';
+		}
+		
+		public bool IsCharsEmpty(int index, int count)
+		{
+			bool isEmpty = true;
+			for (int i = 0; i < count; ++i)
+			{
+				char c = chars[index + i].c;
+				if (c != ' ' && c != '\t')
+				{
+					isEmpty = false;
+					break;
+				}
+			}
+			return isEmpty;
 		}
 	}
 }

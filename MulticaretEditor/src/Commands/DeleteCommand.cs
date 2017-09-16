@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class DeleteCommand : Command
 	{
@@ -80,6 +80,7 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

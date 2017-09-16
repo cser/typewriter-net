@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class RenameDialog : ADialog
@@ -19,6 +17,7 @@ public class RenameDialog : ADialog
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
 	private string text;
+	private bool startViMode;
 
 	public RenameDialog(Getter<string, bool> doInput, string name, string text, List<bool> isDirectory)
 	{
@@ -61,6 +60,10 @@ public class RenameDialog : ADialog
 
 	private void OnCloseClick()
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 	}
 
@@ -74,6 +77,8 @@ public class RenameDialog : ADialog
 	{
 		textBox.Focus();
 		
+		startViMode = MulticaretTextBox.initMacrosExecutor != null &&
+			MulticaretTextBox.initMacrosExecutor.viMode != ViMode.Insert;
 		textBox.Text = text;
 		textBox.Controller.ClearMinorSelections();
 		for (int i = 0; i < textBox.Controller.Lines.LinesCount; i++)
@@ -87,7 +92,7 @@ public class RenameDialog : ADialog
 			{
 				textBox.Controller.PutNewCursor(new Place(0, i));
 			}
-			int right = line.charsCount - line.GetRN().Length;
+			int right = line.NormalCount;
 			if (isDirectory != null && i < isDirectory.Count && !isDirectory[i])
 			{
 				for (int j = right; j-- > 1;)
@@ -99,7 +104,10 @@ public class RenameDialog : ADialog
 					}
 				}
 			}
-			textBox.Controller.PutCursor(new Place(right, i), true);
+			if (!startViMode)
+			{
+				textBox.Controller.PutCursor(new Place(right, i), true);
+			}
 		}
 		textBox.Invalidate();
 		Nest.size = tabBar.Height + textBox.CharHeight * (
@@ -136,6 +144,7 @@ public class RenameDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -146,12 +155,20 @@ public class RenameDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 		return true;
 	}
 
 	private bool DoComplete(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		return doInput(textBox.Text);
 	}
 }

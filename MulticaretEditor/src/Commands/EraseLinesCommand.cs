@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class EraseLinesCommand : Command
 	{
-		public EraseLinesCommand() : base(CommandType.EraseLines)
+		private readonly List<SimpleRange> ranges;
+		
+		public EraseLinesCommand(List<SimpleRange> ranges) : base(CommandType.EraseLines)
 		{
+			this.ranges = ranges;
 		}
 		
-		private List<string> deleted;
 		private SelectionMemento[] mementos;
 		private EraseSelectionCommand eraseCommand;
 		
@@ -21,15 +23,12 @@ namespace MulticaretEditor.Commands
 			{
 				return false;
 			}
-			deleted = new List<string>();
 			mementos = GetSelectionMementos();
 			return true;
 		}
 		
 		override public void Redo()
 		{
-			lines.JoinSelections();
-			List<SimpleRange> ranges = GetLineRangesByCarets(this.mementos);
 			lines.ResizeSelections(ranges.Count);
 			for (int i = ranges.Count; i-- > 0;)
 			{

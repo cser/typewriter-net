@@ -23,6 +23,7 @@ public class TempSettings
 	private RecentlyStorage recentlyDirs = new RecentlyStorage();
 	
 	public int helpPosition;
+	public int viHelpPosition;
 	
 	public List<string> GetRecentlyFiles()
 	{
@@ -62,6 +63,7 @@ public class TempSettings
 		storage.Unserialize(state["storage"]);
 		recently.Unserialize(state["recently"]);
 		recentlyDirs.Unserialize(state["recentlyDirs"]);
+		DecodeGlobalBookmarks(state["bm"]);
 		if (settings.rememberOpenedFiles.Value)
 		{
 			{
@@ -109,6 +111,7 @@ public class TempSettings
 				mainForm.MainNest.Frame.Focus();
 		}
 		helpPosition = state["helpPosition"].Int;
+		viHelpPosition = state["viHelpPosition"].Int;
 		scheme = state["scheme"].String;
 		if (string.IsNullOrEmpty(scheme))
 			scheme = "npp";
@@ -139,6 +142,10 @@ public class TempSettings
 			value.With("syntax", SValue.NewString(buffer.customSyntax.ToString()));
 		else
 			value.With("syntax", SValue.None);
+		if (buffer.Controller.bookmarks.Count > 0)
+		{
+			value.With("bm", SValue.NewBytes(EncodeBookmarks(buffer.Controller)));
+		}
 	}
 
 	public void ResetQualitiesEncoding(Buffer buffer)
@@ -175,6 +182,11 @@ public class TempSettings
             buffer.settedEncodingPair = EncodingPair.ParseEncoding(rawEncoding, out error);
         }
         buffer.customSyntax = value["syntax"].String;
+        byte[] bookmarks = value["bm"].Bytes;
+        if (bookmarks != null)
+        {
+	        DecodeBookmarks(buffer.Controller, bookmarks);
+	    }
     }
     
     public EncodingPair GetEncoding(string fullPath, EncodingPair defaultPair)
@@ -236,6 +248,7 @@ public class TempSettings
 		state["storage"] = storage.Serialize();
 		state["recently"] = recently.Serialize();
 		state["recentlyDirs"] = recentlyDirs.Serialize();
+		state["bm"] = EncodeGlobalBookmakrs();
 		ValuesSerialize(state);
 		state["commandHistory"] = commandHistory.Serialize();
 		state["findHistory"] = findHistory.Serialize();
@@ -252,6 +265,7 @@ public class TempSettings
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		state["helpPosition"] = SValue.NewInt(helpPosition);
+		state["viHelpPosition"] = SValue.NewInt(viHelpPosition);
 		state["scheme"] = SValue.NewString(scheme);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
@@ -353,5 +367,76 @@ public class TempSettings
 	{
 		get { return scheme; }
 		set { scheme = value; }
+	}
+	
+	private byte[] EncodeBookmarks(Controller controller)
+	{
+		int count = Math.Min(controller.bookmarks.Count, controller.bookmarkNames.Count);
+		byte[] bytes = new byte[count * 5];
+		for (int i = 0; i < count; ++i)
+		{
+			int position = controller.bookmarks[i];
+			char c = controller.bookmarkNames[i];
+			bytes[i * 5] = (byte)(position & 0xff);
+			bytes[i * 5 + 1] = (byte)((position >> 8) & 0xff);
+			bytes[i * 5 + 2] = (byte)((position >> 16) & 0xff);
+			bytes[i * 5 + 3] = (byte)((position >> 24) & 0xff);
+			bytes[i * 5 + 4] = (byte)c;
+		}
+		return bytes;
+	}
+	
+	private void DecodeBookmarks(Controller controller, byte[] bytes)
+	{
+		controller.bookmarks.Clear();
+		controller.bookmarkNames.Clear();
+		int count = bytes.Length / 5;
+		for (int i = 0; i < count; ++i)
+		{
+			int position = bytes[i * 5] |
+				(bytes[i * 5 + 1] << 8) |
+				(bytes[i * 5 + 2] << 16) |
+				(bytes[i * 5 + 3] << 24);
+			controller.bookmarks.Add(position);
+			controller.bookmarkNames.Add((char)bytes[i * 5 + 4]);
+		}
+	}
+	
+	private void DecodeGlobalBookmarks(SValue data)
+	{
+		if (MulticaretTextBox.initMacrosExecutor != null)
+		{
+			IRList<SValue> list = data.List;
+			if (list != null)
+			{
+				int count = ('Z' - 'A' + 1) * 2;
+				for (int i = 0; i + 1 < list.Count && i < count; i += 2)
+				{
+					string path = list[i].String;
+					int position = list[i + 1].Int;
+					if (!string.IsNullOrEmpty(path))
+					{
+						MulticaretTextBox.initMacrosExecutor.SetBookmark((char)(i / 2 + 'A'), path, position);
+					}
+				}
+			}
+		}
+	}
+	
+	private SValue EncodeGlobalBookmakrs()
+	{
+		SValue data = SValue.NewList();
+		if (MulticaretTextBox.initMacrosExecutor != null)
+		{
+			for (char c = 'A'; c <= 'Z'; ++c)
+			{
+				string path;
+				int position;
+				MulticaretTextBox.initMacrosExecutor.GetBookmark(c, out path, out position);
+				data.Add(SValue.NewString(path));
+				data.Add(SValue.NewInt(position));
+			}
+		}
+		return data;
 	}
 }

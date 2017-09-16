@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Diagnostics;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 
 public class SchemeManager
 {	

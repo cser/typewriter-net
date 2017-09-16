@@ -6,7 +6,6 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
-using MulticaretEditor.Highlighting;
 
 public class ConfigParser
 {

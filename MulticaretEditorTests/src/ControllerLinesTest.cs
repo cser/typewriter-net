@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using MulticaretEditor;
-using MulticaretEditor.Commands;
 
 namespace UnitTests
 {
@@ -14,14 +13,14 @@ namespace UnitTests
 			Init();
 			lines.lineBreak = "\n";
 			lines.SetText("abcd\n  EFGHI\r\n1234");
-			ClipboardExecuter.PutToClipboard("-");
+			ClipboardExecutor.PutToClipboard("-");
 			
 			controller.PutCursor(new Place(1, 0), false);
 			controller.PutNewCursor(new Place(3, 0));
 			controller.PutNewCursor(new Place(2, 1));
 			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
 			controller.Copy();
-			Assert.AreEqual("abcd\n  EFGHI\r\n", ClipboardExecuter.GetFromClipboard());
+			Assert.AreEqual("abcd\n  EFGHI\r\n", ClipboardExecutor.GetFromClipboard());
 			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
 		}
 		
@@ -31,12 +30,12 @@ namespace UnitTests
 			Init();
 			lines.lineBreak = "\r";
 			lines.SetText("abcd\n  EFGHI\r\n1234");
-			ClipboardExecuter.PutToClipboard("-");
+			ClipboardExecutor.PutToClipboard("-");
 			
 			controller.PutCursor(new Place(1, 2), false);
 			AssertSelection().Both(1, 2).NoNext();
 			controller.Copy();
-			Assert.AreEqual("1234\r", ClipboardExecuter.GetFromClipboard());
+			Assert.AreEqual("1234\r", ClipboardExecutor.GetFromClipboard());
 			AssertSelection().Both(1, 2).NoNext();
 		}
 		
@@ -48,12 +47,12 @@ namespace UnitTests
 			lines.wordWrap = true;
 			lines.wwValidator.Validate(10);
 			Assert.AreEqual(5, lines.wwSizeY);
-			ClipboardExecuter.PutToClipboard("-");
+			ClipboardExecutor.PutToClipboard("-");
 			
 			controller.PutCursor(new Place(4, 1), false);
 			AssertSelection().Both(4, 1).NoNext();
 			controller.Copy();
-			Assert.AreEqual("  word1 word2 word3\r\n", ClipboardExecuter.GetFromClipboard());
+			Assert.AreEqual("  word1 word2 word3\r\n", ClipboardExecutor.GetFromClipboard());
 			AssertSelection().Both(4, 1).NoNext();
 		}
 		
@@ -63,22 +62,22 @@ namespace UnitTests
 			Init();
 			lines.lineBreak = "\n";
 			lines.SetText("abcd\n  EFGHI\r\n1234");
-			ClipboardExecuter.PutToClipboard("-");
+			ClipboardExecutor.PutToClipboard("-");
 			
 			controller.PutCursor(new Place(1, 0), false);
 			controller.PutNewCursor(new Place(3, 0));
 			controller.PutNewCursor(new Place(2, 1));
 			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
 			controller.Cut();
-			Assert.AreEqual("abcd\n  EFGHI\r\n", ClipboardExecuter.GetFromClipboard());
+			Assert.AreEqual("abcd\n  EFGHI\r\n", ClipboardExecutor.GetFromClipboard());
 			AssertText("1234");
 			AssertSelection().Both(0, 0).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("abcd\n  EFGHI\r\n1234");
 			AssertSelection().Both(1, 0).Next().Both(3, 0).Next().Both(2, 1).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			AssertText("1234");
 			AssertSelection().Both(0, 0).NoNext();
 		}
@@ -93,43 +92,20 @@ namespace UnitTests
 			AssertSelection().Both(1, 2).NoNext();
 			
 			controller.Cut();
-			Assert.AreEqual("1234\r", ClipboardExecuter.GetFromClipboard());
+			Assert.AreEqual("1234\r", ClipboardExecutor.GetFromClipboard());
 			AssertText("abcd\n  ABCDEF\r\n");
 			AssertSelection().Both(0, 2).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText("abcd\n  ABCDEF\r\n1234");
 			AssertSelection().Both(1, 2).NoNext();
 		}
 		
-		public class TestCommand : Command
-		{
-			public TestCommand() : base(new CommandType(false))
-			{
-			}
-			
-			public System.Collections.Generic.List<SimpleRange> TestGet()
-			{
-				return GetLineRangesByCarets(GetSelectionMementos());
-			}
-			
-			public override void Redo()
-			{
-			}
-			
-			public override void Undo()
-			{
-			}
-		}
-		
 		private void AssertCommandRanges(string expected)
 		{
-			TestCommand command = new TestCommand();
-			command.lines = lines;
-			command.selections = lines.selections;
 			CollectionAssert.AreEqual(
 				expected,
-				ListUtil.ToString(command.TestGet(), StringOfSimpleRange));
+				ListUtil.ToString(controller.GetLineRangesByLefts(), StringOfSimpleRange));
 		}
 		
 		private static string StringOfSimpleRange(SimpleRange range)

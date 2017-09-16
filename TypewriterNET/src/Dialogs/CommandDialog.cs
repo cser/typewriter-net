@@ -9,8 +9,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 using System.Text.RegularExpressions;
 
@@ -21,7 +19,7 @@ public class CommandDialog : ADialog
 		public string oldText = "";
 	}
 
-	private TabBar<string> tabBar;
+	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 	private Data data;
 	private string text;
@@ -35,43 +33,75 @@ public class CommandDialog : ADialog
 
 	override protected void DoCreate()
 	{
-		tabBar = new TabBar<string>(null, TabBar<string>.DefaultStringOf);
-		tabBar.CloseClick += OnCloseClick;
-		tabBar.Text = Name;
-		Controls.Add(tabBar);
-
+		SwitchList<NamedAction> list = new SwitchList<NamedAction>();
+		
 		KeyMap frameKeyMap = new KeyMap();
 		frameKeyMap.AddItem(new KeyItem(Keys.Escape, null,
 			new KeyAction("&View\\Cancel command", DoCancel, null, false)));
 		frameKeyMap.AddItem(new KeyItem(Keys.Enter, null,
 			new KeyAction("&View\\Run command", DoRunCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-			new KeyAction("&View\\Previous command", DoPrevCommand, null, false)));
-		frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-			new KeyAction("&View\\Next command", DoNextCommand, null, false)));
+		{
+			KeyAction prevAction = new KeyAction("&View\\Previous command", DoPrevCommand, null, false);
+			KeyAction nextAction = new KeyAction("&View\\Next command", DoNextCommand, null, false);
+			frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
+		}
 		{
 		    KeyAction action = new KeyAction("&View\\Autocomplete", DoAutocomplete, null, false);
             frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
             frameKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
-
-		textBox = new MulticaretTextBox();
+		frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
+		
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
+		textBox.TextChange += OnTextChange;
 		Controls.Add(textBox);
-
+		
+		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
+		tabBar.Text = Name;
+		tabBar.ButtonMode = true;
+		tabBar.TabClick += OnTabClick;
+		tabBar.CloseClick += OnCloseClick;
 		tabBar.MouseDown += OnTabBarMouseDown;
+		Controls.Add(tabBar);
+
 		InitResizing(tabBar, null);
 		Height = MinSize.Height;
+	}
+	
+	private void OnTextChange()
+	{
+		int size = textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1) + tabBar.Height;
+		if (size > Nest.size)
+		{
+			Nest.size = size + 1;
+			textBox.Controller.NeedScrollToCaret();
+			SetNeedResize();
+		}
 	}
 
 	override public bool Focused { get { return textBox.Focused; } }
 
+	private void OnTabClick(NamedAction action)
+	{
+		action.Execute(textBox.Controller);
+	}
+	
 	private void OnCloseClick()
 	{
 		DispatchNeedClose();
+	}
+
+	private void OnTabBarMouseDown(object sender, EventArgs e)
+	{
+		textBox.Focus();
 	}
 
 	override protected void DoDestroy()
@@ -80,7 +110,7 @@ public class CommandDialog : ADialog
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
-
+	
 	override public void Focus()
 	{
 		textBox.Focus();
@@ -101,16 +131,10 @@ public class CommandDialog : ADialog
 		}
 	}
 
-	private void OnTabBarMouseDown(object sender, EventArgs e)
-	{
-		textBox.Focus();
-	}
-
 	private void OnTextBoxFocusedChange()
 	{
 		if (Destroyed)
 			return;
-		tabBar.Selected = textBox.Focused;
 		if (textBox.Focused)
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
 	}
@@ -129,6 +153,7 @@ public class CommandDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -145,10 +170,15 @@ public class CommandDialog : ADialog
 
 	private bool DoRunCommand(Controller controller)
 	{
+		ClipboardExecutor.viLastCommand = textBox.Text;
 		Commander commander = MainForm.commander;
-		DispatchNeedClose();
-		commander.Execute(textBox.Text, false, false);
+		commander.Execute(textBox.Text, false, false, GetAltCommandText, new OnceCallback(DispatchNeedClose));
 		return true;
+	}
+	
+	private string GetAltCommandText(string text)
+	{
+		return !ClipboardExecutor.IsEnLayout() ? textBox.GetMapped(text) : text;
 	}
 
 	private bool DoPrevCommand(Controller controller)
@@ -170,9 +200,8 @@ public class CommandDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoAutocomplete(Controller controller)
@@ -183,7 +212,7 @@ public class CommandDialog : ADialog
 		{
 			text = text.Substring(0, place.iChar);
 		}
-		if (!text.StartsWith("!"))
+		if (!text.StartsWith("!") && !text.StartsWith("<") && !text.StartsWith(">"))
 		{
 			if (text.IndexOf(' ') == -1 && text.IndexOf('\t') == -1)
 			{
@@ -210,6 +239,11 @@ public class CommandDialog : ADialog
 						AutocompleteProperty(word);
 						return true;
 					}
+					if (command == "tag")
+					{
+						AutocompleteTag(word);
+						return true;
+					}
 					if (MainForm.Settings != null)
 					{
 						Properties.Property property = MainForm.Settings[command];
@@ -218,7 +252,7 @@ public class CommandDialog : ADialog
 							List<Variant> variants = property.GetAutocompleteVariants();
 							if (variants != null)
 							{
-								AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+								AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 								autocomplete.Show(variants, word);
 								return true;
 							}
@@ -229,7 +263,9 @@ public class CommandDialog : ADialog
 		}
 		else
 		{
-			if ((text.StartsWith("!{") || text.StartsWith("!^{")) && !text.Contains("}"))
+			if ((text.StartsWith("!{") || text.StartsWith("!^{") ||
+				text.StartsWith("<{") || text.StartsWith(">{") || text.StartsWith("<>{")) &&
+				!text.Contains("}"))
 			{
 				int prefixIndex;
 				prefixIndex = text.LastIndexOf("s:");
@@ -245,7 +281,7 @@ public class CommandDialog : ADialog
 					}
 					if (variants.Count > 0)
 					{
-						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
 						return true;
 					}
@@ -257,7 +293,7 @@ public class CommandDialog : ADialog
 					List<Variant> variants = property.GetAutocompleteVariants();
 					if (variants != null)
 					{
-						AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+						AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 						autocomplete.Show(variants, text.Substring(prefixIndex + 2));
 						return true;
 					}
@@ -273,6 +309,10 @@ public class CommandDialog : ADialog
 		else if (text.StartsWith("!^"))
 			text = text.Substring(2);
 		else if (text.StartsWith("!"))
+			text = text.Substring(1);
+		else if (text.StartsWith("<>"))
+			text = text.Substring(2);
+		else if (text.StartsWith("<") || text.StartsWith(">"))
 			text = text.Substring(1);
 		int quotesCount = 0;
 		int quotesIndex = 0;
@@ -309,7 +349,7 @@ public class CommandDialog : ADialog
 	
 	private void AutocompleteCommand(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		foreach (Commander.Command command in MainForm.commander.Commands)
 		{
@@ -320,6 +360,14 @@ public class CommandDialog : ADialog
 		}
 		if (MainForm.Settings != null)
 		{
+			foreach (CommandData data in MainForm.Settings.command.Value)
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = data.name;
+				variant.DisplayText = data.name + " - " +
+					(data.sequence.Length < 50 ? data.sequence : data.sequence.Substring(0, 50) + "…");
+				variants.Add(variant);
+			}
 			foreach (Properties.Property property in MainForm.Settings.GetProperties())
 			{
 				variants.Add(GetPropertyVariant(property));
@@ -330,7 +378,7 @@ public class CommandDialog : ADialog
 	
 	private void AutocompleteProperty(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (MainForm.Settings != null)
 		{
@@ -348,6 +396,23 @@ public class CommandDialog : ADialog
 		variant.CompletionText = property.name;
 		variant.DisplayText = property.name + " <new value>";
 		return variant;
+	}
+	
+	private void AutocompleteTag(string text)
+	{
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
+		List<Variant> variants = new List<Variant>();
+		if (MainForm.Settings != null)
+		{
+			foreach (string tag in MainForm.Ctags.GetTags())
+			{
+				Variant variant = new Variant();
+				variant.CompletionText = tag;
+				variant.DisplayText = tag;
+				variants.Add(variant);
+			}
+			autocomplete.Show(variants, text);
+		}
 	}
 	
 	private string GetFile()
@@ -407,7 +472,7 @@ public class CommandDialog : ADialog
 		}
 		if ((files == null || files.Length == 0) && (dirs == null || dirs.Length == 0))
 			return;
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (dirs != null)
 		{
@@ -432,5 +497,12 @@ public class CommandDialog : ADialog
 			}
 		}
 		autocomplete.Show(variants, name);
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
+		return true;
 	}
 }

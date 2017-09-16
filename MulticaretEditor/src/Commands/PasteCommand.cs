@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class PasteCommand : Command
 	{
-		public PasteCommand() : base(CommandType.Paste)
+		private readonly char register;
+		
+		public PasteCommand(char register) : base(CommandType.Paste)
 		{
+			this.register = register;
 		}
 		
 		private string[] pasted;
@@ -15,7 +18,7 @@ namespace MulticaretEditor.Commands
 		override public bool Init()
 		{
 			lines.JoinSelections();
-			string text = ClipboardExecuter.GetFromClipboard();
+			string text = ClipboardExecutor.GetFromRegister(lines, register);
 			if (string.IsNullOrEmpty(text))
 				return false;
 			
@@ -91,6 +94,7 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

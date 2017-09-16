@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -29,8 +27,9 @@ namespace MulticaretEditor
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private readonly StringOfDelegate<T> stringOf;
 		private readonly StringOfDelegate<T> hintOf;
-		private readonly Point[] tempPoints;
-		private readonly Point[] tempPoints2;
+		private readonly Point[] tempPoints3;
+		private readonly Point[] tempPoints5;
+		private readonly Point[] tempPoints4;
 
 		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf, StringOfDelegate<T> hintOf)
 		{
@@ -43,8 +42,9 @@ namespace MulticaretEditor
 			this.hintOf = hintOf;
 			TabStop = false;
 
-			tempPoints = new Point[3];
-			tempPoints2 = new Point[5];
+			tempPoints3 = new Point[3];
+			tempPoints5 = new Point[5];
+			tempPoints4 = new Point[4];
 			SetFont(FontFamily.GenericMonospace, 10.25f);
 
 			arrowTimer = new Timer();
@@ -214,6 +214,10 @@ namespace MulticaretEditor
 			}
 		}
 		
+		protected override void OnPaintBackground(PaintEventArgs pevent)
+		{
+		}
+		
 		protected override void OnResize(EventArgs e)
 		{
 			needScrollToSelected = true;
@@ -253,10 +257,8 @@ namespace MulticaretEditor
 					rects.Add(rect);
 				}
 			}
-			string text2;
-			if (list != null && list.Selected != null && text2Of != null)
-				text2 = text2Of(list.Selected);
-			else
+			string text2 = list != null && list.Selected != null && text2Of != null ?
+				text2Of(list.Selected) :
 				text2 = this.text2;
 			rightIndent = charHeight * 5 / 4 + (text2 != null ? text2.Length * charWidth : 0);
 			if (x > width - leftIndent - rightIndent)
@@ -290,6 +292,7 @@ namespace MulticaretEditor
 			if (list != null)
 			{
 				int offsetX = GetOffsetX(offsetIndex);
+				int selectedIndex = list.IndexOf(list.Selected);
 				bool prevSelected = false;
 				for (int i = Math.Max(0, offsetIndex - 1); i < list.Count; i++)
 				{
@@ -303,8 +306,11 @@ namespace MulticaretEditor
 
 					if (isCurrent)
 					{
-						g.FillRectangle(scheme.tabsSelectedBg.brush,
-							rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 1);
+						tempPoints4[0] = new Point(rect.X + 1, rect.Y + 1);
+						tempPoints4[1] = new Point(rect.X + rect.Width - rect.Height / 2, rect.Y + 1);
+						tempPoints4[2] = new Point(rect.X + rect.Width + rect.Height / 2, rect.Y + rect.Height);
+						tempPoints4[3] = new Point(rect.X + 1, rect.Y + rect.Height);
+						g.FillPolygon(scheme.tabsSelectedBg.brush, tempPoints4);
 						selectedX0 = rect.X;
 						selectedX1 = rect.X + rect.Width;
 					}
@@ -315,10 +321,18 @@ namespace MulticaretEditor
 							g.FillRectangle(scheme.buttonBgBrush,
 								rect.X + 1, rect.Y + 2, rect.Width - 2, rect.Height - 4);
 						}
-						else
+						else if (i < selectedIndex)
 						{
 							g.FillRectangle(scheme.tabsUnselectedBg.brush,
-								rect.X, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+								rect.X + 1, rect.Y + 1, rect.Width - 1, rect.Height - 2);
+						}
+						else
+						{
+							tempPoints4[0] = new Point(rect.X - rect.Height / 2 + 1, rect.Y + 1);
+							tempPoints4[1] = new Point(rect.X + rect.Width - rect.Height / 2, rect.Y + 1);
+							tempPoints4[2] = new Point(rect.X + rect.Width + rect.Height / 2 - 1, rect.Y + rect.Height - 1);
+							tempPoints4[3] = new Point(rect.X + rect.Height / 2, rect.Y + rect.Height - 1);
+							g.FillPolygon(scheme.tabsUnselectedBg.brush, tempPoints4);
 						}
 					}
 					Brush currentFg = isCurrent ? scheme.tabsSelectedFg.brush : scheme.tabsUnselectedFg.brush;
@@ -341,12 +355,12 @@ namespace MulticaretEditor
 
 			int fictiveIndent = rightIndent - charHeight / 4;
 			{
-				tempPoints2[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
-				tempPoints2[1] = new Point(width - fictiveIndent, 0);
-				tempPoints2[2] = new Point(width, 0);
-				tempPoints2[3] = new Point(width, charHeight);
-				tempPoints2[4] = new Point(width - fictiveIndent + (charHeight % 2), charHeight);
-				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, tempPoints2);
+				tempPoints5[0] = new Point(width - fictiveIndent - charHeight / 2, charHeight / 2);
+				tempPoints5[1] = new Point(width - fictiveIndent, 0);
+				tempPoints5[2] = new Point(width, 0);
+				tempPoints5[3] = new Point(width, charHeight);
+				tempPoints5[4] = new Point(width - fictiveIndent + (charHeight % 2), charHeight);
+				g.FillPolygon(_selected ? scheme.tabsInfoBg.brush : scheme.tabsBg.brush, tempPoints5);
 				Pen pen = _selected ? scheme.tabsBg.pen : scheme.tabsInfoBg.pen;
 				g.DrawLine(pen,
 					new Point(width - fictiveIndent, 0),
@@ -356,46 +370,20 @@ namespace MulticaretEditor
 					new Point(width - fictiveIndent + (charHeight % 2), charHeight));
 			}
 			
-			Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
-			Pen infoPen = _selected ? scheme.tabsInfoFg.pen : scheme.tabsFg.pen;
-
 			int closeWidth = charHeight * 12 / 10;
 			closeRect = new Rectangle(width - closeWidth, 0, closeWidth, charHeight);
-			{
-				int tx = closeRect.X + closeRect.Width / 2 + 1;
-				int ty = charHeight / 2;
-				int td = 3;
-				g.DrawLine(infoPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
-				g.DrawLine(infoPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
-				g.DrawLine(infoPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
-				g.DrawLine(infoPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
-				g.DrawLine(infoPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
-				g.DrawLine(infoPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
-			}
-
+			DrawCross(g);
 			if (leftRect != null)
 			{
-				int tx = leftRect.Value.X + leftRect.Value.Width / 2;
-				int ty = charHeight / 2;
-				int td = charHeight / 6;
-				tempPoints[0] = new Point(tx - td, ty);
-				tempPoints[1] = new Point(tx + td, ty - td * 2);
-				tempPoints[2] = new Point(tx + td, ty + td * 2);
-				g.FillPolygon(infoBrush, tempPoints);
+				DrawArrow(g, true);
 			}
 			if (rightRect != null)
 			{
-				int tx = rightRect.Value.X + rightRect.Value.Width / 2;
-				int ty = charHeight / 2;
-				int td = charHeight / 6;
-				tempPoints[0] = new Point(tx + td, ty);
-				tempPoints[1] = new Point(tx - td, ty - td * 2);
-				tempPoints[2] = new Point(tx - td, ty + td * 2);
-				g.FillPolygon(infoBrush, tempPoints);
+				DrawArrow(g, false);
 			}
-
 			if (text2 != null)
 			{
+				Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
 				int left = width - text2.Length * charWidth - charHeight * 3 / 2;
 				for (int j = 0; j < text2.Length; j++)
 				{
@@ -490,15 +478,9 @@ namespace MulticaretEditor
 					}
 				}
 			}
-			if (leftRect != null && leftRect.Value.Contains(location))
-			{
-				return;
-			}
-			if (rightRect != null && rightRect.Value.Contains(location))
-			{
-				return;
-			}
-			if (closeRect != null && closeRect.Contains(location))
+			if (leftRect != null && leftRect.Value.Contains(location) ||
+				rightRect != null && rightRect.Value.Contains(location) ||
+				closeRect != null && closeRect.Contains(location))
 			{
 				return;
 			}
@@ -605,15 +587,9 @@ namespace MulticaretEditor
 				}
 				return null;
 			}
-			if (leftRect != null && leftRect.Value.Contains(location))
-			{
-				return null;
-			}
-			if (rightRect != null && rightRect.Value.Contains(location))
-			{
-				return null;
-			}
-			if (closeRect != null && closeRect.Contains(location))
+			if (leftRect != null && leftRect.Value.Contains(location) ||
+				rightRect != null && rightRect.Value.Contains(location) ||
+				closeRect != null && closeRect.Contains(location))
 			{
 				return null;
 			}
@@ -625,6 +601,42 @@ namespace MulticaretEditor
 		{
 			base.OnMouseLeave(e);
 			TryShowHint(null, 0);
+		}
+		
+		private void DrawCross(Graphics g)
+		{
+			int tx = closeRect.X + closeRect.Width / 2 + 1;
+			int ty = charHeight / 2;
+			int td = 3;
+			Pen infoPen = _selected ? scheme.tabsInfoFg.pen : scheme.tabsFg.pen;
+			g.DrawLine(infoPen, tx - td, ty - td, tx + td + 1, ty + td + 1);
+			g.DrawLine(infoPen, tx - td + 1, ty - td, tx + td + 1, ty + td);
+			g.DrawLine(infoPen, tx - td + 1, ty - td - 1, tx + td + 2, ty + td);
+			g.DrawLine(infoPen, tx + td + 1, ty - td - 1, tx - td, ty + td);
+			g.DrawLine(infoPen, tx + td + 1, ty - td, tx - td + 1, ty + td);
+			g.DrawLine(infoPen, tx + td + 2, ty - td, tx - td + 1, ty + td + 1);
+		}
+		
+		private void DrawArrow(Graphics g, bool isLeft)
+		{
+			Brush infoBrush = _selected ? scheme.tabsInfoFg.brush : scheme.tabsFg.brush;
+			Rectangle rect = isLeft ? leftRect.Value : rightRect.Value;
+			int tx = rect.X + rect.Width / 2;
+			int ty = charHeight / 2;
+			int td = charHeight / 6;
+			if (isLeft)
+			{
+				tempPoints3[0] = new Point(tx - td, ty);
+				tempPoints3[1] = new Point(tx + td, ty - td * 2);
+				tempPoints3[2] = new Point(tx + td, ty + td * 2);
+			}
+			else
+			{
+				tempPoints3[0] = new Point(tx + td, ty);
+				tempPoints3[1] = new Point(tx - td, ty - td * 2);
+				tempPoints3[2] = new Point(tx - td, ty + td * 2);
+			}
+			g.FillPolygon(infoBrush, tempPoints3);
 		}
 	}
 }

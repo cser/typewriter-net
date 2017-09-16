@@ -35,9 +35,42 @@ namespace MulticaretEditor
 			return anchor < caret ? position >= anchor && position <= caret : position >= caret && position <= anchor;
 		}
 		
+		public void SetEmptyIfNotShift(bool shift)
+		{
+			if (!shift)
+			{
+				anchor = caret;
+			}
+		}
+		
+		public void SetEmpty()
+		{
+			anchor = caret;
+		}
+		
 		override public string ToString()
 		{
 			return "(anchor:" + anchor + ", caret:" + caret + ")";
+		}
+		
+		public void FixByCharsLength(int charsCount)
+		{
+			if (anchor < 0)
+			{
+				anchor = 0;
+			}
+			else if (anchor > charsCount)
+			{
+				anchor = charsCount;
+			}
+			if (caret < 0)
+			{
+				caret = 0;
+			}
+			else if (caret > charsCount)
+			{
+				caret = charsCount;
+			}
 		}
 	}
 }

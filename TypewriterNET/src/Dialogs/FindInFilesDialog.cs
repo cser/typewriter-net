@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class FindInFilesDialog : ADialog
@@ -56,13 +54,17 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Switch to input field", DoSwitchToInputField, null, false)));
 			if (data.filterHistory != null)
 			{
-				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false)));
-				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false)));
+				KeyAction prevAction = new KeyAction("F&ind\\Previous filter", DoFilterPrevPattern, null, false);
+				KeyAction nextAction = new KeyAction("F&ind\\Next filter", DoFilterNextPattern, null, false);
+				frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("F&ind\\Vi normal mode", DoNormalMode, null, true)));
 			
-			filterTextBox = new MulticaretTextBox();
+			filterTextBox = new MulticaretTextBox(true);
 			filterTextBox.FontFamily = FontFamily.GenericMonospace;
 			filterTextBox.FontSize = 10.25f;
 			filterTextBox.ShowLineNumbers = false;
@@ -89,15 +91,19 @@ public class FindInFilesDialog : ADialog
 				new KeyAction("F&ind\\Find text", DoFindText, null, false)));
 			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 				new KeyAction("F&ind\\Temp filter", DoSwitchToTempFilter, null, false)));
+			frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false)));
 			if (data.history != null)
 			{
-				frameKeyMap.AddItem(new KeyItem(Keys.Up, null,
-					new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false)));
-				frameKeyMap.AddItem(new KeyItem(Keys.Down, null,
-					new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false)));
+				KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+				KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+				frameKeyMap.AddItem(new KeyItem(Keys.Up, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Down, null, nextAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, prevAction));
+				frameKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, nextAction));
 			}
 	
-			textBox = new MulticaretTextBox();
+			textBox = new MulticaretTextBox(true);
 			textBox.KeyMap.AddAfter(KeyMap);
 			textBox.KeyMap.AddAfter(frameKeyMap, 1);
 			textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -179,6 +185,14 @@ public class FindInFilesDialog : ADialog
 			Nest.MainForm.SetFocus(filterTextBox, filterTextBox.KeyMap, null);
 		}
 		UpdateFindParams();
+		if (filterTextBox.Focused)
+		{
+			int position = filterTextBox.Text.Length;
+			filterTextBox.Controller.ClearMinorSelections();
+			filterTextBox.Controller.LastSelection.anchor = position;
+			filterTextBox.Controller.LastSelection.caret = position;
+			filterTextBox.Controller.NeedScrollToCaret();
+		}
 	}
 	
 	private void OnFiltersTextBoxFocusedChange()
@@ -191,7 +205,9 @@ public class FindInFilesDialog : ADialog
 		if (phase == UpdatePhase.Raw) 
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 			settings.ApplySimpleParameters(filterTextBox, null, false);
+			filterTextBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -284,9 +300,8 @@ public class FindInFilesDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool GetFilterHistoryPattern(bool isPrev)
@@ -299,8 +314,16 @@ public class FindInFilesDialog : ADialog
 			filterTextBox.Controller.ClearMinorSelections();
 			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
 			UpdateFilterText();
-			return true;
 		}
-		return false;
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		filterTextBox.SetViMode(true);
+		filterTextBox.Controller.ViFixPositions(false);
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
+		return true;
 	}
 }

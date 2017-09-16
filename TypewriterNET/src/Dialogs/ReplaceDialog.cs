@@ -9,8 +9,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class ReplaceDialog : ADialog
@@ -68,8 +66,16 @@ public class ReplaceDialog : ADialog
 		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFind, null, false));
 		frameKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.H, null, new KeyAction("F&ind\\Replace", DoReplace, null, false));
 		frameKeyMap.AddInList(Keys.Control | Keys.Alt | Keys.Enter, null, new KeyAction("F&ind\\Replace all", DoReplaceAll, null, false));
-		frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-		frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+		{
+			KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+			KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+			frameKeyMap.Add(Keys.Up, null, prevAction);
+			frameKeyMap.Add(Keys.Down, null, nextAction);
+			frameKeyMap.Add(Keys.Control | Keys.P, null, prevAction);
+			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
+		}
+		frameKeyMap.Add(Keys.Control | Keys.F, null,
+			new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false));
 		
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
@@ -87,7 +93,7 @@ public class ReplaceDialog : ADialog
 		tabBar.CloseClick += OnCloseClick;
 		Controls.Add(tabBar);
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.ShowLineNumbers = false;
 		textBox.HighlightCurrentLine = false;
 		textBox.KeyMap.AddAfter(KeyMap);
@@ -97,7 +103,7 @@ public class ReplaceDialog : ADialog
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		Controls.Add(textBox);
 
-		replaceTextBox = new MulticaretTextBox();
+		replaceTextBox = new MulticaretTextBox(true);
 		replaceTextBox.ShowLineNumbers = false;
 		replaceTextBox.HighlightCurrentLine = false;
 		replaceTextBox.KeyMap.AddAfter(KeyMap);
@@ -247,9 +253,13 @@ public class ReplaceDialog : ADialog
 			return;
 		tabBar.Selected = textBox.Focused || replaceTextBox.Focused;
 		if (textBox.Focused)
+		{
 			Nest.MainForm.SetFocus(textBox, textBox.KeyMap, null);
+		}
 		if (replaceTextBox.Focused)
+		{
 			Nest.MainForm.SetFocus(replaceTextBox, textBox.KeyMap, null);
+		}
 	}
 
 	override public bool Focused { get { return textBox.Focused || replaceTextBox.Focused; } }
@@ -277,6 +287,7 @@ public class ReplaceDialog : ADialog
 			settings.ApplySimpleParameters(replaceTextBox, null);
 			settings.ApplyToLabel(textLabel);
 			settings.ApplyToLabel(replaceTextLabel);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
@@ -325,9 +336,8 @@ public class ReplaceDialog : ADialog
 			currentTextBox.Text = newText;
 			currentTextBox.Controller.ClearMinorSelections();
 			currentTextBox.Controller.LastSelection.anchor = currentTextBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoSelectAllFound(Controller controller)
@@ -356,6 +366,21 @@ public class ReplaceDialog : ADialog
 	private bool DoUnselectPrevText(Controller controller)
 	{
 		doUnselectPrevText();
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		if (textBox.Controller == controller)
+		{
+			textBox.SetViMode(true);
+			textBox.Controller.ViFixPositions(false);
+		}
+		else if (replaceTextBox.Controller == controller)
+		{
+			replaceTextBox.SetViMode(true);
+			replaceTextBox.Controller.ViFixPositions(false);
+		}
 		return true;
 	}
 }

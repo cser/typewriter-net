@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class ShiftCommand : Command
 	{
@@ -206,7 +206,7 @@ namespace MulticaretEditor.Commands
 					selections[part.index].anchor += offset;
 				}
 			}
-			lines.cachedText = null;
+			lines.ResetTextCache();
 		}
 
 		override public void Undo()
@@ -230,7 +230,8 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
-			lines.cachedText = null;
+			lines.ResetTextCache();
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

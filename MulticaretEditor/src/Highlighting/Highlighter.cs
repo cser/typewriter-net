@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class Highlighter
 	{
@@ -211,7 +211,7 @@ namespace MulticaretEditor.Highlighting
 				string regex = rawRule.String;
 				rule.regex = new Regex(
 					HighlighterUtil.FixRegexUnicodeChars(GetBool(rawRule.minimal) ? HighlighterUtil.LazyOfRegex(regex) : regex),
-					GetBool(rawRule.insensitive) ? RegexOptions.IgnoreCase : RegexOptions.None
+					(GetBool(rawRule.insensitive) ? RegexOptions.IgnoreCase : RegexOptions.None)
 				);
 				commonRule = rule;
 				regExprRules.Add(rule);

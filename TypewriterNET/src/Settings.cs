@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 
 public class Settings
 {
@@ -16,7 +15,7 @@ public class Settings
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.IntList tabSize = new Properties.IntList("tabSize", 4).SetMinMax(0, 128);
 	public readonly Properties.BoolList spacesInsteadTabs = new Properties.BoolList("spacesInsteadTabs", false);
-	public readonly Properties.Bool autoindent = new Properties.Bool("autoindent", false);
+	public readonly Properties.BoolList autoindent = new Properties.BoolList("autoindent", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
@@ -26,7 +25,7 @@ public class Settings
 	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false, "Output chars with right Alt");
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
 	public readonly Properties.Bool rememberOpenedFiles = new Properties.Bool("rememberOpenedFiles", false);
-	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 1000).SetMinMax(0, int.MaxValue);
+	public readonly Properties.Int maxFileQualitiesCount = new Properties.Int("maxFileQualitiesCount", 200).SetMinMax(0, int.MaxValue);//May be don't used
 	public readonly Properties.Bool alwaysOnTop = new Properties.Bool("alwaysOnTop", false);
 	public readonly Properties.Int connectionTimeout = new Properties.Int("connectionTimeout", 1000).SetMinMax(1, int.MaxValue);
 	public readonly Properties.RegexList shellRegexList = new Properties.RegexList("shellRegex");
@@ -68,9 +67,44 @@ public class Settings
 	public readonly Properties.PathProperty omnisharpSln = new Properties.PathProperty("omnisharpSln", "", "path to sln or src");
 	public readonly Properties.Int omnisharpPort = new Properties.Int("omnisharpPort", 2000);
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
-	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 10);
+	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 8);
 	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
+	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
+	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
+	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
+	public readonly Properties.Bool viEsc = new Properties.Bool("viEsc", false);
+	public readonly Properties.Bool viAltOem = new Properties.Bool("viAlt[", false);
+	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
+	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
+	public readonly Properties.CommandList command = new Properties.CommandList("command");
+	
+	private static string GetBuildinParsers()
+	{
+		StringBuilder builder = new StringBuilder();
+		foreach (TextNodeParser parser in TextNodesList.buildinParsers)
+		{
+			if (builder.Length > 0)
+			{
+				builder.Append("\n");
+			}
+			builder.Append("  ");
+			builder.Append(parser.name);
+		}
+		return builder.ToString();
+	}
+	
+	public readonly Properties.Command getTextNodes = new Properties.Command("getTextNodes").SetDesc(
+		"your_script[:<coloring_syntax>]\nPress `Ctrl+L` or `,g` in vi-mode\nScript must receive document text\nby stdin and put JSON to stdout:\n\n" +
+		"{\n" +
+		"  \"line\":Number,\n" + 
+		"  \"col\":Number,\n" + 
+		"  \"name\":String,\n" + 
+		"  \"childs\":[{\"line\":...}, {...]\n" + 
+		"}\n\n" +
+		"Instead external script you\ncan use buildin parsers:\n" + GetBuildinParsers());
+	public readonly Properties.String snipsAuthor = new Properties.String("snipsAuthor", "No name", false, "replace `g:snips_author`");
+	public readonly Properties.Int opacity = new Properties.Int("opacity", 100).SetMinMax(1, 100);
 
 	private Setter onChange;
 
@@ -139,6 +173,17 @@ public class Settings
 		Add(fileIncrementalSearchTimeout);
 		Add(hideMenu);
 		Add(fullScreenOnMaximized);
+		Add(viMapSource);
+		Add(viMapResult);
+		Add(viEsc);
+		Add(viAltOem);
+		Add(startWithViMode);
+		Add(ignoreSnippets);
+		Add(forcedSnippets);
+		Add(command);
+		Add(getTextNodes);
+		Add(snipsAuthor);
+		Add(opacity);
 	}
 
 	public void DispatchChange()
@@ -232,13 +277,14 @@ public class Settings
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
-		textBox.Autoindent = autoindent.Value;
+		textBox.Autoindent = autoindent.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		textBox.FontFamily = font.Value;
 		textBox.FontSize = fontSize.Value;
 		textBox.ScrollingIndent = scrollingIndent.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
+		textBox.SetViMap(viMapSource.Value, viMapResult.Value);
 		textBox.Map = settingsMode != SettingsMode.FileTree && miniMap.Value;
 		textBox.MapScale = miniMapScale.Value;
 		textBox.PrintMargin = settingsMode == SettingsMode.Normal && printMargin.Value;
@@ -261,7 +307,7 @@ public class Settings
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
-		textBox.Autoindent = autoindent.Value;
+		textBox.Autoindent = autoindent.GetValue(buffer);
 		textBox.LineBreak = lineBreak.Value;
 		if (changeFont)
 		{

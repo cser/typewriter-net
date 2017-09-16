@@ -2,19 +2,20 @@ using System;
 using System.IO;
 using System.Text;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 using KlerksSoft;
 
 public class Buffer
 {
 	public readonly SettingsMode settingsMode;
-
+	
 	public Buffer(string fullPath, string name, SettingsMode settingsMode)
 	{
 		this.settingsMode = settingsMode;
-		SetFile(fullPath, name);
 		controller = new Controller(new LineArray());
+		controller.Lines.viFullPath = fullPath;
+		this.fullPath = fullPath;
+		this.name = name;
+		controller.Lines.hook2 = !string.IsNullOrEmpty(fullPath) ? new PositionHook(controller) : null;
 	}
 	
 	public BufferList owner;
@@ -22,11 +23,11 @@ public class Buffer
 
 	public Frame Frame { get { return owner != null ? owner.frame : null; } }
 
-	private Controller controller;
+	private readonly Controller controller;
 	public Controller Controller { get { return controller; } }
 
-	public bool HasHistory { get { return controller.history.CanUndo || controller.history.CanRedo; } }
-	public bool Changed { get { return controller.history.Changed; } }
+	public bool HasHistory { get { return controller.processor.CanUndo || controller.processor.CanRedo; } }
+	public bool Changed { get { return controller.processor.Changed; } }
 	public bool IsEmpty { get { return controller.Lines.IsEmpty; } }
 
 	private string fullPath;
@@ -43,8 +44,17 @@ public class Buffer
 
 	public void SetFile(string fullPath, string name)
 	{
+		controller.Lines.viFullPath = fullPath;
 		this.fullPath = fullPath;
 		this.name = name;
+		if (controller.Lines.hook2 == null)
+		{
+			controller.Lines.hook2 = !string.IsNullOrEmpty(fullPath) ? new PositionHook(controller) : null;
+		}
+		else if (string.IsNullOrEmpty(fullPath))
+		{
+			controller.Lines.hook2 = null;
+		}
 	}
 
 	public bool needSaveAs;

@@ -75,6 +75,25 @@ namespace MulticaretEditor
 				return leftChar.Value;
 			}
 		}
+		
+		public int GetLeftCharsCount(char c)
+		{
+			int count = 0;
+			if (position > 0)
+			{
+				LineBlock block = blocks[blockI];
+				Line line = block.array[blockILine];
+				for (int iChar = this.iChar; iChar-- > 0;)
+				{
+					if (line.chars[iChar].c != c)
+					{
+						break;
+					}
+					++count;
+				}
+			}
+			return count;
+		}
 
 		private int position;
 		public int Position { get { return position; } }
@@ -129,10 +148,10 @@ namespace MulticaretEditor
 		public bool MoveRight()
 		{
 			bool result = position < charsCount;
-			rightChar = '\0';
 			if (result)
 			{
 				leftChar = rightChar;
+				rightChar = '\0';
 				LineBlock block = blocks[blockI];
 				Line line = block.array[blockILine];
 				if (iChar == line.charsCount - 1)
@@ -164,6 +183,10 @@ namespace MulticaretEditor
 					rightChar = line.chars[iChar].c;
 				}
 				position++;
+			}
+			else
+			{
+				rightChar = '\0';
 			}
 			return result;
 		}

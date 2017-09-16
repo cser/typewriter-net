@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class EraseSelectionCommand : Command
 	{
@@ -68,6 +68,7 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

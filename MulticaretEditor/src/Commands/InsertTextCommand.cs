@@ -1,6 +1,6 @@
 using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class InsertTextCommand : Command
 	{
@@ -91,6 +91,7 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 
 		private string GetText(int index)

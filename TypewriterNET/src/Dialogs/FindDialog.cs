@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class FindDialog : ADialog
@@ -25,15 +23,15 @@ public class FindDialog : ADialog
 		}
 	}
 
-	private Data data;
-	private FindParams findParams;
-	private Getter<string, bool> doFind;
-	private Getter<string, bool> doSelectAllFound;
-	private Getter<string, bool> doSelectNextFound;
-	private Getter<bool> doUnselectPrevText;
-	private Getter<string> getFilterText;
+	private readonly Data data;
+	private readonly FindParams findParams;
+	private readonly Getter<string, bool> doFind;
+	private readonly Getter<string, bool> doSelectAllFound;
+	private readonly Getter<string, bool> doSelectNextFound;
+	private readonly Getter<bool> doUnselectPrevText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
+	private readonly bool allowNormalMode;
 
 	public FindDialog(
 		Data data,
@@ -43,7 +41,7 @@ public class FindDialog : ADialog
 		Getter<string, bool> doSelectNextFound,
 		Getter<bool> doUnselectPrevText,
 		string name,
-		Getter<string> getFilterText)
+		bool allowNormalMode)
 	{
 		this.data = data;
 		this.findParams = findParams;
@@ -51,7 +49,7 @@ public class FindDialog : ADialog
 		this.doSelectAllFound = doSelectAllFound;
 		this.doSelectNextFound = doSelectNextFound;
 		this.doUnselectPrevText = doUnselectPrevText;
-		this.getFilterText = getFilterText;
+		this.allowNormalMode = allowNormalMode;
 		Name = name;
 	}
 
@@ -63,10 +61,19 @@ public class FindDialog : ADialog
 		frameKeyMap.AddInList(Keys.Enter, null, new KeyAction("F&ind\\Find next", DoFindNext, null, false));
 		if (data.history != null)
 		{
-			frameKeyMap.Add(Keys.Up, null, new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false));
-			frameKeyMap.Add(Keys.Down, null, new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false));
+			KeyAction prevAction = new KeyAction("F&ind\\Previous pattern", DoPrevPattern, null, false);
+			KeyAction nextAction = new KeyAction("F&ind\\Next pattern", DoNextPattern, null, false);
+			frameKeyMap.Add(Keys.Up, null, prevAction);
+			frameKeyMap.Add(Keys.Down, null, nextAction);
+			frameKeyMap.Add(Keys.Control | Keys.P, null, prevAction);
+			frameKeyMap.Add(Keys.Control | Keys.N, null, nextAction);
 		}
 		frameKeyMap.Add(Keys.None, null, new KeyAction("F&ind\\-", null, null, false));
+		if (allowNormalMode)
+		{
+			frameKeyMap.Add(Keys.Control | Keys.F, null,
+				new KeyAction("&View\\Vi normal mode", DoNormalMode, null, false));
+		}
 
 		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
 		if (doSelectAllFound != null)
@@ -79,7 +86,7 @@ public class FindDialog : ADialog
 				new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
 		}
 
-		textBox = new MulticaretTextBox();
+		textBox = new MulticaretTextBox(true);
 		textBox.KeyMap.AddBefore(beforeKeyMap.map);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap.map, 1);
@@ -88,6 +95,7 @@ public class FindDialog : ADialog
 		Controls.Add(textBox);
 
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
+		tabBar.Text = Name;
 		tabBar.ButtonMode = true;
 		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
@@ -167,12 +175,12 @@ public class FindDialog : ADialog
 		if (phase == UpdatePhase.Raw)
 		{
 			settings.ApplySimpleParameters(textBox, null);
+			textBox.SetViMap(settings.viMapSource.Value, settings.viMapResult.Value);
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
-			tabBar.Text = Name + (getFilterText != null ? " - " + getFilterText() : "");
 		}
 		else if (phase == UpdatePhase.FindParams)
 		{
@@ -213,9 +221,8 @@ public class FindDialog : ADialog
 			textBox.Text = newText;
 			textBox.Controller.ClearMinorSelections();
 			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private bool DoSelectAllFound(Controller controller)
@@ -240,6 +247,13 @@ public class FindDialog : ADialog
 	private bool DoUnselectPrevText(Controller controller)
 	{
 		doUnselectPrevText();
+		return true;
+	}
+	
+	private bool DoNormalMode(Controller controller)
+	{
+		textBox.SetViMode(true);
+		textBox.Controller.ViFixPositions(false);
 		return true;
 	}
 }

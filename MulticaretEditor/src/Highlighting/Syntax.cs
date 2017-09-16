@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public struct Syntax
 	{

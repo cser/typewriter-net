@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
 	<item name="spacesInsteadTabs:*.cs" value="false"/>
-	<item name="findInFilesFilter" value="*.cs;*.txt;*.md"/>
+	<item name="findInFilesFilter" value="*.cs;*.txt;*.md;*.xml;*.py"/>
 	<item name="findInFilesIgnoreDir" value=".git;.dllsforautocomplete"/>
+	<item name="findInFilesDir" value=""/>
 	<item name="f5Command" value="!c:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:tw"/>
 	<item name="f6Command" value="shortcut !C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /target:"/>
 	<item name="shiftF6Command" value="!^python run_tests.py"/>
 	<item name="f7Command" value="!!C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release /target:run-installer"/>
 	<item name="f8Command" value='!!"C:\Program Files\Git\bin\sh.exe" --login -i'/>
-	<item name="ctrlSpaceCommand" value='!!!!echo "%w%"'/>
-	<item name="omnisharpSln" value="." />
+	<item name="omnisharpSln" value="."/>
+	<item name="shellRegex" value="/Errors\: 0\, Failures: 0/"/>
 </config>

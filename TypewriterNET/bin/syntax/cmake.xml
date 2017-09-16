@@ -600,7 +600,7 @@
         <IncludeRules context="##Alerts" />
       </context>
       <context attribute="Strings" lineEndContext="#stay" name="String">
-        <RegExpr attribute="Strings" context="#pop" String="&quot;(?=[ );]|$)" />
+        <RegExpr attribute="Strings" context="#pop" String="&quot;(?=[ );\n\r])" />
         <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$n\\]" />
         <IncludeRules context="Detect Variables"/>
       </context>

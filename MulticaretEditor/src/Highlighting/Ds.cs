@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class Ds
 	{

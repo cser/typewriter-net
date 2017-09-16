@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Drawing;
 
-namespace MulticaretEditor.Highlighting
+namespace MulticaretEditor
 {
 	public class Scheme : Dictionary<Ds, TextStyle>
 	{
@@ -22,6 +22,7 @@ namespace MulticaretEditor.Highlighting
 		public Color lineNumberFgColor;
 		public Color selectionBrushColor;
 		public Color selectionPenColor;
+		public Color matchBrushColor;
 		public Color markPenColor;
 		public Color mainCaretColor;
 		public Color caretColor;
@@ -49,10 +50,14 @@ namespace MulticaretEditor.Highlighting
 		public Brush lineBgBrush;
 		public Brush selectionBrush;
 		public Pen selectionPen;
+		public Brush matchBrush;
 		public Pen markPen1;
 		public Pen markPen2;
 		public Pen mainCaretPen;
 		public Pen caretPen;
+		public Brush mainCaretBrush;
+		public Brush caretBrush;
+		public Brush mainCaretBrush2;
 		public Brush lineNumberBackground;
 		public Brush lineNumberForeground;
 		public Pen lineNumberFgPen;
@@ -154,6 +159,7 @@ namespace MulticaretEditor.Highlighting
 			SetColor(ref lineNumberFgColor, "lineNumberFg", colors);
 			SetColor(ref selectionBrushColor, "selectionBrush", colors);
 			SetColor(ref selectionPenColor, "selectionPen", colors);
+			SetColor(ref matchBrushColor, "matchBrush", colors);
 			SetColor(ref markPenColor, "markPen", colors);
 			SetColor(ref mainCaretColor, "mainCaret", colors);
 			SetColor(ref caretColor, "caret", colors);
@@ -209,6 +215,7 @@ namespace MulticaretEditor.Highlighting
 			selectionBrushColor = Color.FromArgb(220, 220, 255);
 			selectionPenColor = Color.FromArgb(150, 150, 200);
 			markPenColor = Color.FromArgb(150, 150, 200);
+			matchBrushColor = Color.FromArgb(0, 255, 0);
 			mainCaretColor = Color.Black;
 			caretColor = Color.Gray;
 			printMarginColor = Color.Gray;
@@ -248,10 +255,17 @@ namespace MulticaretEditor.Highlighting
 			lineNumberFgPen = new Pen(lineNumberFgColor);
 			selectionBrush = new SolidBrush(selectionBrushColor);
 			selectionPen = new Pen(selectionPenColor, 2);
+			{
+				Color color = matchBrushColor;
+				matchBrush = new SolidBrush(Color.FromArgb(80, color.R, color.G, color.B));
+			}
 			markPen1 = new Pen(markPenColor, 1);
 			markPen2 = new Pen(markPenColor, 2);
 			mainCaretPen = new Pen(mainCaretColor, mainCaretWidth);
 			caretPen = new Pen(caretColor, caretWidth);
+			mainCaretBrush = new SolidBrush(mainCaretColor);
+			caretBrush = new SolidBrush(Color.FromArgb(64, caretColor.R, caretColor.G, caretColor.B));
+			mainCaretBrush2 = new SolidBrush(Color.FromArgb(32, mainCaretColor.R, mainCaretColor.G, mainCaretColor.B));
 			printMarginPen = new Pen(printMarginColor);
 			
 			splitterBgBrush = new SolidBrush(splitterBgColor);

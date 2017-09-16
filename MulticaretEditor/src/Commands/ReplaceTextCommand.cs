@@ -1,6 +1,6 @@
 using System;
 
-namespace MulticaretEditor.Commands
+namespace MulticaretEditor
 {
 	public class ReplaceTextCommand : Command
 	{
@@ -63,6 +63,7 @@ namespace MulticaretEditor.Commands
 			}
 			deleted = null;
 			SetSelectionMementos(mementos);
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

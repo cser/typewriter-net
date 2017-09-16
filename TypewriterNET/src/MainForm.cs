@@ -13,8 +13,6 @@ using System.Resources;
 using System.Xml;
 using System.Net;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
-using MulticaretEditor.KeyMapping;
 
 public class MainForm : Form
 {
@@ -41,6 +39,9 @@ public class MainForm : Form
 	
 	private SyntaxFilesScanner syntaxFilesScanner;
 	public SyntaxFilesScanner SyntaxFilesScanner { get { return syntaxFilesScanner; } }
+	
+	private SnippetFilesScanner snippetFilesScanner;
+	public SnippetFilesScanner SnippetFilesScanner { get { return snippetFilesScanner; } }
 
 	public MainForm(string[] args)
 	{
@@ -168,12 +169,126 @@ public class MainForm : Form
 	private Log log;
 	public Log Log { get { return log; } }
 	
-	private Nest GetMainNest()
+	public Nest GetMainNest()
 	{
 		return lastFrame != null && lastFrame.Nest == mainNest2 ? mainNest2 : mainNest;
 	}
 
+	public void ProcessViShortcut(Controller controller, string shortcut)
+	{
+		if (string.IsNullOrEmpty(shortcut))
+		{
+			return;
+		}
+		if (shortcut == "\\b")
+		{
+			ShowTabList();
+			return;
+		}
+		if (shortcut == "\\g")
+		{
+			DoShowTextNodes(controller);
+			return;
+		}
+		if (shortcut == "g]")
+		{
+			ExecuteCommand(settings.shiftF12Command.Value);
+			return;
+		}
+		if (shortcut == "C-o" || shortcut == "C-i")
+		{
+			PositionNode prevNode = null;
+			PositionNode node = shortcut == "C-o" ?
+				MulticaretTextBox.initMacrosExecutor.ViPositionPrev() :
+				MulticaretTextBox.initMacrosExecutor.ViPositionNext();
+			if (node != null &&
+				(prevNode == null || prevNode.file == node.file && prevNode.position == node.position))
+			{
+				prevNode = node;
+				Buffer buffer = LoadFile(node.file.path);
+				if (buffer != null && buffer.FullPath == node.file.path)
+				{
+					int position = node.position;
+					if (position > buffer.Controller.Lines.charsCount)
+					{
+						position = buffer.Controller.Lines.charsCount;
+					}
+					Place place = buffer.Controller.Lines.PlaceOf(position);
+					buffer.Controller.PutCursor(place, false);
+				}
+			}
+			return;
+		}
+		if (shortcut == "\\n")
+		{
+			DoOpenCloseFileTree(controller);
+			return;
+		}
+		if (shortcut == "\\N")
+		{
+			DoFindFileInTree(controller);
+			return;
+		}
+		if (shortcut == "\\s")
+		{
+			DoSave(controller);
+			return;
+		}
+		if (shortcut == "\\r")
+		{
+			DoReload(controller);
+			return;
+		}
+		if (shortcut == "\\c")
+		{
+			DoOpenCloseShellResults(controller);
+			return;
+		}
+		if (shortcut == "\\f")
+		{
+			DoOpenCloseFindResults(controller);
+			return;
+		}
+		if (shortcut.Length == 2 && shortcut.StartsWith("`") || shortcut.StartsWith("\'"))
+		{
+			string path;
+			int position;
+			MulticaretTextBox.initMacrosExecutor.GetBookmark(shortcut[1], out path, out position);
+			if (path != null)
+			{
+				Buffer buffer = LoadFile(path);
+				if (buffer != null && buffer.FullPath == path)
+				{
+					if (shortcut.StartsWith("`"))
+					{
+						buffer.Controller.ViMoveTo(position, false);
+					}
+					else if (shortcut.StartsWith("\'"))
+					{
+						buffer.Controller.ViMoveTo(position, false);
+						buffer.Controller.ViMoveHome(false, true);
+					}
+				}
+			}
+			return;
+		}
+		if (dialogs != null && dialogs.DoOnViShortcut(controller, shortcut))
+		{
+			return;
+		}
+		if (tabList != null && tabList.DoOnViShortcut(controller, shortcut))
+		{
+			return;
+		}
+		if (fileTree != null && fileTree.DoOnViShortcut(controller, shortcut))
+		{
+			return;
+		}
+	}
+
 	private FileTree fileTree;
+	private TabList tabList;
+	private TextNodesList textNodesList;
 
 	private void OnLoad(object sender, EventArgs e)
 	{
@@ -212,9 +327,13 @@ public class MainForm : Form
 		syntaxFilesScanner = new SyntaxFilesScanner(new string[] {
 			Path.Combine(AppPath.AppDataDir, AppPath.Syntax),
 			Path.Combine(AppPath.StartupDir, AppPath.Syntax) });
+		snippetFilesScanner = new SnippetFilesScanner(new string[] {
+			Path.Combine(AppPath.AppDataDir, AppPath.Snippets),
+			Path.Combine(AppPath.StartupDir, AppPath.Snippets) });
 		highlightingSet = new ConcreteHighlighterSet(xmlLoader, log, this);
 
 		sharpManager = new SharpManager(this);
+		ctags = new Ctags(this);
 		syntaxFilesScanner.Rescan();
 		highlightingSet.UpdateParameters(syntaxFilesScanner);
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
@@ -231,6 +350,7 @@ public class MainForm : Form
 		fileDragger = new FileDragger(this);
 
 		tempSettings.Load(tempFilePostfix);
+		InitStartSettings();
 		allowApply = true;
 		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
@@ -256,7 +376,17 @@ public class MainForm : Form
 
 		Activated += OnActivated;
 
+		if (focusedTextBox != null && focusedTextBox.Controller != null)
+		{
+			focusedTextBox.Controller.ViAddHistoryPosition(false);
+		}
         InitMessageReceiving();
+	}
+	
+	private void InitStartSettings()
+	{
+		if (focusedTextBox != null)
+			focusedTextBox.SetViMode(settings.startWithViMode.Value);
 	}
 
     private void InitMessageReceiving()
@@ -272,18 +402,6 @@ public class MainForm : Form
         }
     }
 
-	public struct FileArg
-	{
-		public string file;
-		public string httpServer;
-
-		public FileArg(string file, string httpServer)
-		{
-			this.file = file;
-			this.httpServer = httpServer;
-		}
-	}
-	
 	private int openFileLine = 0;
 
 	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
@@ -305,7 +423,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-connect requires fileName and httpServer");
 					break;
 				}
 			}
@@ -324,7 +441,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-temp requires tempFilePostfix");
 					break;
 				}
 			}
@@ -338,7 +454,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-config requires configFilePostfix");
 					break;
 				}
 			}
@@ -355,7 +470,6 @@ public class MainForm : Form
 				}
 				else
 				{
-					Console.Error.WriteLine("-line requires number");
 					break;
 				}
 			}
@@ -363,7 +477,6 @@ public class MainForm : Form
 			{
 				if (i < args.Length)
                 {
-					Console.Error.WriteLine("Unexpected parameter: " + args[i]);
                     WriteHelp();
                 }
 				break;
@@ -371,19 +484,9 @@ public class MainForm : Form
 		}
 	}
 	
-	private string GetExeHelp()
-	{
-	    return "<fileName>\n" +
-            "-connect <fictiveFileName> <httpServer>\n" +
-            "-temp <tempFilePostfix> - use different temp settings\n" +
-            "-config <tempFilePostfix> - use different config\n" +
-            "-help\n" + 
-            "-line=<line>";
-	}
-
     private void WriteHelp()
     {
-        Console.Write("Options: " + GetExeHelp());
+        Console.Write("Options: " + Help.GetExeHelp());
     }
 
 	public bool SetCurrentDirectory(string path, out string error)
@@ -441,7 +544,7 @@ public class MainForm : Form
 			{
 				if (settings.checkContentBeforeReloading.Value && IsFileEqualToBuffer(buffer))
 				{
-					buffer.Controller.history.MarkAsSaved();
+					buffer.Controller.processor.MarkAsSaved();
 				}
 				else
 				{
@@ -457,7 +560,7 @@ public class MainForm : Form
 					else
 					{
 						buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
-						buffer.Controller.history.MarkAsFullyUnsaved();
+						buffer.Controller.processor.MarkAsFullyUnsaved();
 					}
 				}
 			}
@@ -602,6 +705,7 @@ public class MainForm : Form
 	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
 	{
 		focusedTextBox = textBox;
+		string currentFile = null;
 		menu.node = node;
 		if (frame != null)
 		{
@@ -609,6 +713,10 @@ public class MainForm : Form
 			if (frame.SelectedBuffer != null && (frame.SelectedBuffer.tags & BufferTag.File) != 0)
 			{
 				lastFileBuffer = frame.SelectedBuffer;
+				if (lastFileBuffer != null)
+				{
+					currentFile = lastFileBuffer.FullPath;
+				}
 			}
 		}
 		UpdateTitle();
@@ -616,6 +724,9 @@ public class MainForm : Form
 	
 	private SharpManager sharpManager;
 	public SharpManager SharpManager { get { return sharpManager; } }
+	
+	private Ctags ctags;
+	public Ctags Ctags { get { return ctags; } }
 	
 	private bool allowApply = false;
 	
@@ -643,6 +754,7 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		frames.UpdateSettings(settings, UpdatePhase.Parsed);
 		sharpManager.UpdateSettings(settings);
+		ctags.NeedReload();
 		if (fileTree != null)
 		    fileTree.ReloadIfNeedForSettings();
 		if (settings.hideMenu.Value)
@@ -683,6 +795,15 @@ public class MainForm : Form
 				FormBorderStyle = FormBorderStyle.Sizable;
 			}
 		}
+		snippetFilesScanner.SetIgnoreFiles(
+			settings.ignoreSnippets.Value,
+			settings.forcedSnippets.Value);
+		if ((int)(Math.Round(Opacity * 100) + .1) != settings.opacity.Value)
+		{
+			Opacity = settings.opacity.Value * .01;
+		}
+		MulticaretTextBox.initMacrosExecutor.viAltOem = settings.viAltOem.Value;
+		MulticaretTextBox.initMacrosExecutor.viEsc = settings.viEsc.Value;
 	}
 	
 	protected override void OnClientSizeChanged(EventArgs e)
@@ -733,6 +854,8 @@ public class MainForm : Form
 
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape, null, KeyAction.Nothing));
 		doNothingKeyMap.AddItem(new KeyItem(Keys.Escape | Keys.Shift, null, KeyAction.Nothing));
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, KeyAction.Nothing));
+		doNothingKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, KeyAction.Nothing));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, new KeyAction("&File\\New", DoNew, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.O, null, new KeyAction("&File\\Open", DoOpen, null, false)));
@@ -756,6 +879,9 @@ public class MainForm : Form
 			new KeyAction("F&ind\\Switch replace escape sequence", DoSwitchEscape, null, false)
 			.SetGetText(GetFindEscape)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("F&ind\\-", null, null, false)));
+		
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
+			new KeyAction("&Edit\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
 			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
@@ -766,8 +892,11 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
 			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, 
-			new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Escape, null,  action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
+		}
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.E, null,
 			new KeyAction("&View\\Change focus", DoChangeFocus, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Alt | Keys.Right, null,
@@ -781,6 +910,8 @@ public class MainForm : Form
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
 			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null,
+			new KeyAction("&View\\File tree\\Show text nodes", DoShowTextNodes, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
@@ -789,11 +920,11 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Open base config", DoOpenBaseConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
-			new KeyAction("Prefere&nces\\Reset config...", DoResetConfig, null, false)));
+			new KeyAction("Prefere&nces\\Reset config…", DoResetConfig, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Reset temp and close", DoResetTempAndClose, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.F3, null,
-			new KeyAction("Prefere&nces\\Edit current scheme", DoEditCurrentScheme, null, false)));
+			new KeyAction("Prefere&nces\\Edit current color scheme", DoEditCurrentScheme, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F3, null,
 			new KeyAction("Prefere&nces\\Open AppData subfolder", DoOpenAppDataFolder, null, false)));
@@ -810,8 +941,11 @@ public class MainForm : Form
 			new KeyAction("Prefere&nces\\Edit current syntax file", DoEditCurrentSyntaxFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null,
 			new KeyAction("Prefere&nces\\Edit current base syntax file", DoEditCurrentBaseSyntaxFile, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
-			new KeyAction("Prefere&nces\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\New snippet file", DoNewSnippet, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("Prefere&nces\\Edit snippet file…", DoEditSnippetFile, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("Prefere&nces\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.F5, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteF5Command, null, false)
@@ -861,14 +995,21 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Space, null,
 			new KeyAction("Prefere&nces\\Execute command", DoExecuteCtrlShiftSpaceCommand, null, false)
 			.SetGetText(GetCtrlShiftSpaceCommandText)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemCloseBrackets, null,
+			new KeyAction("Prefere&nces\\Execute command", DoExecuteF12Command, null, false)
+			.SetGetText(GetF12CommandText)));
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F1, null, new KeyAction("&?\\Vi mode help", DoViHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Home…", DoOpenHomeUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Last stable build page…", DoOpenLastStableBuildUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Ctags help…", DoOpenCtagsHelp, null, false)));
 	}
 	
 	private bool DoPasteInOutput(Controller controller)
 	{
 		new RunShellCommand(this).ShowInOutput(
-			ClipboardExecuter.GetFromClipboard(), settings.shellRegexList.Value, false, false, null);
+			ClipboardExecutor.GetFromClipboard(), settings.shellRegexList.Value, false, false, null);
 		return true;
 	}
 
@@ -926,6 +1067,51 @@ public class MainForm : Form
 		}
 		return mainNest.buffers.GetBuffer(fullPath, name) ?? mainNest2.buffers.GetBuffer(fullPath, name);
 	}
+	
+	public void SelectIfExists(Buffer buffer)
+	{
+		if (buffer == null)
+		{
+			return;
+		}
+		if (mainNest.Frame.ContainsBuffer(buffer))
+		{
+			mainNest.Frame.SelectedBuffer = buffer;
+			buffer.Controller.ViAddHistoryPosition(true);
+		}
+		if (mainNest2.Frame != null)
+		{
+			if (mainNest2.Frame.ContainsBuffer(buffer))
+			{
+				mainNest2.Frame.SelectedBuffer = buffer;
+				buffer.Controller.ViAddHistoryPosition(true);
+			}
+		}
+	}
+	
+	public void CloseIfExists(Buffer buffer)
+	{
+		if (buffer == null)
+		{
+			return;
+		}
+		if (mainNest.Frame != null)
+		{
+			if (mainNest.Frame.ContainsBuffer(buffer))
+			{
+				mainNest.Frame.RemoveBuffer(buffer);
+				frames.UpdateSettings(settings, UpdatePhase.CustomRemoveTab);
+			}
+		}
+		else if (mainNest2.Frame != null)
+		{
+			if (mainNest2.Frame.ContainsBuffer(buffer))
+			{
+				mainNest2.Frame.RemoveBuffer(buffer);
+				frames.UpdateSettings(settings, UpdatePhase.CustomRemoveTab);
+			}
+		}
+	}
 
 	public Buffer LoadFile(string file, string httpServer, Nest nest)
 	{
@@ -967,7 +1153,7 @@ public class MainForm : Form
 		RemoveEmptyIfNeed();
 		return buffer;
 	}
-
+	
 	public Buffer ForcedLoadFile(string file)
 	{
 		string fullPath = null;
@@ -1192,7 +1378,7 @@ public class MainForm : Form
 				Log.Open();
 				return;
 			}
-			buffer.Controller.history.MarkAsSaved();
+			buffer.Controller.processor.MarkAsSaved();
 			Log.WriteInfo("Responce", text);
 			return;
 		}
@@ -1211,8 +1397,18 @@ public class MainForm : Form
 			SaveFile(buffer);
 		}
 	}
-
+	
+	public void SaveFileOnAdd(Buffer buffer)
+	{
+		SaveFile(buffer, true);
+	}
+	
 	public void SaveFile(Buffer buffer)
+	{
+		SaveFile(buffer, false);
+	}
+
+	private void SaveFile(Buffer buffer, bool saveOnAdd)
 	{
 		string text = buffer.Controller.Lines.GetText();
 		try
@@ -1227,7 +1423,8 @@ public class MainForm : Form
 			MessageBox.Show(e.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			return;
 		}
-		buffer.Controller.history.MarkAsSaved();
+		FileInfo oldFileInfo = buffer.fileInfo;
+		buffer.Controller.processor.MarkAsSaved();
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
@@ -1250,10 +1447,44 @@ public class MainForm : Form
 		{
 			ReloadSyntaxes();
 		}
-		Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
-		if (info != null && !string.IsNullOrEmpty(info.command))
+		else if (Path.GetExtension(buffer.FullPath).ToLowerInvariant() == ".snippets")
 		{
-			commander.Execute(info.command, true, false);
+			string dir = Path.GetDirectoryName(buffer.FullPath).ToLowerInvariant();
+			if (dir == AppPath.SnippetsDir.appDataPath.ToLowerInvariant() ||
+				dir == AppPath.SnippetsDir.startupPath.ToLowerInvariant())
+			{
+				snippetFilesScanner.Reset();
+			}
+		}
+		if (!saveOnAdd)
+		{
+			Properties.CommandInfo info = GetCommandInfo(settings.afterSaveCommand.Value, buffer);
+			if (info != null && !string.IsNullOrEmpty(info.command))
+			{
+				commander.Execute(info.command, true, false, null, new OnceCallback());
+			}
+			if (FileTreeOpenedAtLeft && buffer.fileInfo != null)
+			{
+				bool locationChanged = false;
+				if (!locationChanged)
+				{
+					locationChanged = oldFileInfo == null;
+				}
+				if (!locationChanged)
+				{
+					string oldPath = oldFileInfo != null ? oldFileInfo.FullName : null;
+					string newPath = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					locationChanged = (oldPath ?? "").ToLowerInvariant() != (newPath ?? "").ToLowerInvariant();
+				}
+				if (locationChanged)
+				{
+					string newPath = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					if (newPath != null && fileTree.IsFolderOpen(Path.GetDirectoryName(newPath)))
+					{
+						fileTree.Reload();
+					}
+				}
+			}
 		}
 	}
 	
@@ -1378,9 +1609,22 @@ public class MainForm : Form
 	    }
 	}
 	
+	private bool FileTreeOpenedAtLeft
+	{
+		get
+		{
+			return leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer;
+		}
+	}
+	
+	public bool FileTreeOpened
+	{
+		get { return fileTree.Buffer.Frame != null; }
+	}
+	
 	public void FileTreeReload()
 	{
-	    if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+	    if (FileTreeOpenedAtLeft)
 		{
 			fileTree.Reload();
 		}
@@ -1388,7 +1632,7 @@ public class MainForm : Form
 
 	private bool DoOpenCloseFileTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer)
+		if (FileTreeOpenedAtLeft)
 		{
 			leftNest.AFrame.Destroy();
 		}
@@ -1405,7 +1649,7 @@ public class MainForm : Form
 
 	private bool DoFindFileInTree(Controller controller)
 	{
-		if (leftNest.AFrame != null && leftNest.buffers.list.Selected == fileTree.Buffer && leftNest.AFrame.Focused)
+		if (FileTreeOpenedAtLeft && leftNest.AFrame.Focused)
 		{
 			leftNest.AFrame.Destroy();
 			return true;
@@ -1415,14 +1659,15 @@ public class MainForm : Form
 		if (buffer == null || buffer.FullPath == null)
 			return false;
 		OpenFileTree();
-		fileTree.Find(buffer.FullPath);
-		leftNest.Frame.Focus();
+		if (fileTree.Find(buffer.FullPath))
+		{
+			leftNest.Frame.Focus();
+		}
+		else
+		{
+			dialogs.ShowInfo("Error", "Can't find path (may be file isn't saved):\n" + buffer.FullPath);
+		}
 		return true;
-	}
-
-	public bool FileTreeOpened
-	{
-		get { return fileTree.Buffer.Frame != null; }
 	}
 
 	public FileTree FileTree { get { return fileTree; } }
@@ -1459,6 +1704,71 @@ public class MainForm : Form
 			WindowState = FormWindowState.Normal;
 		}
 		return true;
+	}
+	
+	private bool DoShowTextNodes(Controller controller)
+	{
+		if (textNodesList != null && textNodesList.Controller == FocusedController)
+		{
+			textNodesList.Close();
+			textNodesList = null;
+			return true;
+		}
+		Frame frame = GetMainNest().Frame;
+		if (frame != null && settings != null)
+		{
+			Buffer buffer = frame.SelectedBuffer;
+			Properties.CommandInfo commandInfo = GetCommandInfo(settings.getTextNodes.Value, buffer);
+			if (commandInfo != null)
+			{
+				if (textNodesList != null)
+				{
+					textNodesList.CloseSilent();
+				}
+				textNodesList = new TextNodesList(buffer, this);
+				string error;
+				string shellError;
+				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error, out shellError);
+				if (error != null && dialogs != null)
+				{
+					dialogs.ShowInfo("Text nodes error", error);
+					return true;
+				}
+				if (shellError != null)
+				{
+					new RunShellCommand(this).ShowInOutput(
+						shellError, settings.shellRegexList.Value, false, false, null);
+					return true;
+				}
+				frame.AddBuffer(textNodesList);
+				frame.Focus();
+				frame.TextBox.MoveToCaret();
+			}
+		}
+		return true;
+	}
+	
+	private void ShowTabList()
+	{
+		if (tabList != null && tabList.Controller == FocusedController)
+		{
+			tabList.Close();
+			tabList = null;
+			return;
+		}
+		Frame frame = GetMainNest().Frame;
+		if (frame != null && settings != null)
+		{
+			Buffer buffer = frame.SelectedBuffer;
+			if (tabList != null)
+			{
+				tabList.CloseSilent();
+			}
+			tabList = new TabList(buffer, this);
+			frame.AddBuffer(tabList);
+			frame.Focus();
+			frame.TextBox.MoveToCaret();
+		}
 	}
 
 	private bool DoEditCreateCurrentConfig(Controller controller)
@@ -1619,6 +1929,26 @@ public class MainForm : Form
 		buffer.InitText(File.ReadAllText(templatePath));
 		return true;
 	}
+	
+	private bool DoNewSnippet(Controller controller)
+	{
+		CreateAppDataFolders();
+		string path = Path.Combine(AppPath.SnippetsDir.appDataPath, "Untitled.snippet");
+		OpenNewAsFile(path, "extensions:*.*\r\nsnippet key\r\n\ttext", true);
+		return true;
+	}
+	
+	public void OpenNewAsFile(string path, string text, bool unsaved)
+	{
+		Buffer buffer = NewFileBuffer();
+		buffer.SetFile(path, Path.GetFileName(path));
+		buffer.InitText(text);
+		if (unsaved)
+		{
+			buffer.Controller.processor.MarkAsFullyUnsaved();
+		}
+		GetMainNest().Frame.AddBuffer(buffer);
+	}
 
 	private bool DoEditCurrentSyntaxFile(Controller controller)
 	{
@@ -1666,8 +1996,14 @@ public class MainForm : Form
 			LoadFile(appDataPath);
 		}
 	}
+	
+	private bool DoEditSnippetFile(Controller controller)
+	{
+		dialogs.OpenSnippetsSearch();
+		return true;
+	}
 
-	private void CreateAppDataFolders()
+	public void CreateAppDataFolders()
 	{
 		CopyConfigIfNeed();
 		if (!Directory.Exists(AppPath.SyntaxDir.appDataPath))
@@ -1676,6 +2012,8 @@ public class MainForm : Form
 			File.Copy(AppPath.SyntaxDtd.startupPath, AppPath.SyntaxDtd.appDataPath);
 		if (!Directory.Exists(AppPath.SchemesDir.appDataPath))
 			Directory.CreateDirectory(AppPath.SchemesDir.appDataPath);
+		if (!Directory.Exists(AppPath.SnippetsDir.appDataPath))
+			Directory.CreateDirectory(AppPath.SnippetsDir.appDataPath);
 	}
 
 	private bool DoHelp(Controller controller)
@@ -1683,48 +2021,48 @@ public class MainForm : Form
 		ProcessHelp();
 		return true;
 	}
+	
+	private bool DoViHelp(Controller controller)
+	{
+		ProcessViHelp();
+		return true;
+	}
+	
+	private bool DoOpenHomeUrl(Controller controller)
+	{
+		OpenDocument(Help.HomeUrl);
+		return true;
+	}
+	
+	private bool DoOpenLastStableBuildUrl(Controller controller)
+	{
+		OpenDocument(Help.LastStableUrl);
+		return true;
+	}
+	
+	private bool DoOpenCtagsHelp(Controller controller)
+	{
+		OpenDocument(Path.Combine(AppPath.StartupDir, "ctags/ctags.html"));
+		return true;
+	}
+	
+	private void OpenDocument(string text)
+	{
+		Process p = new Process();
+		p.StartInfo.UseShellExecute = true;
+		p.StartInfo.FileName = text;
+		p.Start();
+	}
 
 	private Buffer _helpBuffer;
+	private Buffer _viHelpBuffer;
 
 	public void ProcessHelp()
 	{
 		if (_helpBuffer == null || _helpBuffer.Frame == null)
 		{
-			List<StyleRange> ranges = new List<StyleRange>();
-			StringBuilder builder = new StringBuilder();
-			builder.AppendLine("# About");
-			builder.AppendLine();
-			builder.AppendLine(Application.ProductName);
-			builder.AppendLine("Build " + Application.ProductVersion);
-			builder.AppendLine();
-			builder.AppendLine("# Command line options");
-			builder.AppendLine();
-			builder.AppendLine(GetExeHelp());
-			builder.AppendLine();
-			builder.AppendLine("# Actions");
-			builder.AppendLine();
-			builder.AppendLine("All actions are represented in menu.");
-			builder.AppendLine("Menu subitems are depended on frame with cursor");
-			builder.AppendLine("[] in menu item denotes complex shortcut,");
-			builder.AppendLine("i.e. for [Ctrl+Tab]:");
-			builder.AppendLine("\tCtrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
-			builder.AppendLine("\tCtrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
-			builder.AppendLine();
-			builder.AppendLine(commander.GetHelpText());
-			builder.AppendLine(settings.GetHelpText());
-			builder.AppendLine("# Syntax highlighting styles");
-			builder.AppendLine();
-			foreach (Ds ds in Ds.all)
-			{
-				ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
-				builder.AppendLine(ds.name);
-			}
-			_helpBuffer = new Buffer(null, "Help.twh", SettingsMode.Help);
-			_helpBuffer.tags = BufferTag.Other;
+			_helpBuffer = Help.NewHelpBuffer(settings, commander);
 			_helpBuffer.onRemove = OnHelpBufferRemove;
-			_helpBuffer.Controller.isReadonly = true;
-			_helpBuffer.Controller.InitText(builder.ToString());
-			_helpBuffer.Controller.Lines.ranges = ranges;
 			if (tempSettings.helpPosition < 0)
 				tempSettings.helpPosition = 0;
 			else if (tempSettings.helpPosition > _helpBuffer.Controller.Lines.charsCount)
@@ -1747,6 +2085,37 @@ public class MainForm : Form
 			tempSettings.helpPosition = buffer.Controller.LastSelection.caret;
 		}
 		_helpBuffer = null;
+		return true;
+	}
+	
+	public void ProcessViHelp()
+	{
+		if (_viHelpBuffer == null || _viHelpBuffer.Frame == null)
+		{
+			_viHelpBuffer = Help.NewViHelpBuffer(settings, commander);
+			_viHelpBuffer.onRemove = OnViHelpBufferRemove;
+			if (tempSettings.viHelpPosition < 0)
+				tempSettings.viHelpPosition = 0;
+			else if (tempSettings.viHelpPosition > _viHelpBuffer.Controller.Lines.charsCount)
+				tempSettings.viHelpPosition = _viHelpBuffer.Controller.Lines.charsCount;
+			ShowBuffer(GetMainNest(), _viHelpBuffer);
+			_viHelpBuffer.Controller.PutCursor(_viHelpBuffer.Controller.Lines.PlaceOf(tempSettings.viHelpPosition), false);
+			_viHelpBuffer.Controller.NeedScrollToCaret();
+		}
+		else
+		{
+			_viHelpBuffer.Frame.RemoveBuffer(_viHelpBuffer);
+			_viHelpBuffer = null;
+		}
+	}
+	
+	private bool OnViHelpBufferRemove(Buffer buffer)
+	{
+		if (buffer != null)
+		{
+			tempSettings.viHelpPosition = buffer.Controller.LastSelection.caret;
+		}
+		_viHelpBuffer = null;
 		return true;
 	}
 	
@@ -1957,6 +2326,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					buffer.Controller.ViAddHistoryPosition(true);
+				}
 			}
 		}
 	}
@@ -1978,6 +2351,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					buffer.Controller.ViAddHistoryPosition(true);
+				}
 			}
 		}
 	}
@@ -1993,6 +2370,10 @@ public class MainForm : Form
 			{
 				buffer.Frame.Focus();
 				buffer.Frame.TextBox.MoveToCaret();
+				if (buffer.FullPath != null)
+				{
+					buffer.Controller.ViAddHistoryPosition(true);
+				}
 			}
 		}
 	}
@@ -2198,7 +2579,7 @@ public class MainForm : Form
 		Properties.CommandInfo info = GetCommandInfo(infos, LastBuffer);
 		if (info != null)
 		{
-			commander.Execute(info.command, true, false);
+			commander.Execute(info.command, true, false, null, new OnceCallback());
 		}
 		return true;
 	}

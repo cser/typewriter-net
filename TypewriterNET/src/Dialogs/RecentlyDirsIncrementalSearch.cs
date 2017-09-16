@@ -10,14 +10,12 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 {
 	public RecentlyDirsIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Recently search", "Incremental recently search")
+		: base(tempSettings, "Recently search", "Incremental recently search", null)
 	{
 	}
 	
@@ -26,7 +24,7 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 		return Directory.GetCurrentDirectory();
 	}
 	
-	private const string Dots = "...";
+	private const string Dots = "…";
 
 	private List<string> filesList;
 	

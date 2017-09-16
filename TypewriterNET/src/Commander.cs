@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.Highlighting;
 using TinyJSON;
 
 public class Commander
@@ -56,15 +55,23 @@ public class Commander
 		return first;
 	}
 
-	public void Execute(string text, bool dontPutInHistory, bool showCommandInOutput)
+	public void Execute(
+		string text, bool dontPutInHistory, bool showCommandInOutput, Getter<string, string> getAltCommandText,
+		OnceCallback close)
 	{
 		if (string.IsNullOrEmpty(text))
+		{
+			close.Execute();
 			return;
+		}
 		bool needFileTreeReload = mainForm.FileTreeFocused;
 		string args;
 		string name = FirstWord(text, out args);
 		if (name == "")
+		{
+			close.Execute();
 			return;
+		}
 		if (!dontPutInHistory)
 			history.Add(text);
 		Command command = null;
@@ -76,12 +83,48 @@ public class Commander
 				break;
 			}
 		}
+		if (command == null && getAltCommandText != null)
+		{
+			name = getAltCommandText(name);
+			foreach (Command commandI in commands)
+			{
+				if (commandI.name == name)
+				{
+					command = commandI;
+					break;
+				}
+			}
+		}
 		if (command != null)
 		{
+			close.Execute();
 			command.execute(args);
+			return;
 		}
-		else if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
+		foreach (CommandData data in settings.command.Value)
 		{
+			if (data.name == name)
+			{
+				close.Execute();
+				if (MulticaretTextBox.initMacrosExecutor != null)
+				{
+					StringBuilder errors = new StringBuilder();
+					List<MacrosExecutor.Action> actions = CommandData.WithWorkaround(data.GetActions(errors));
+					if (errors.Length == 0)
+					{
+						MulticaretTextBox.initMacrosExecutor.Execute(actions);
+					}
+					else
+					{
+						mainForm.Dialogs.ShowInfo("Error sequence of \"" + data.name + "\"", errors.ToString());
+					}
+				}
+				return;
+			}
+		}
+		if (!string.IsNullOrEmpty(Properties.NameOfName(name)) && settings[Properties.NameOfName(name)] != null)
+		{
+			close.Execute();
 			if (args != "")
 			{
 				string errors = settings[Properties.NameOfName(name)].SetText(args, Properties.SubvalueOfName(name));
@@ -93,9 +136,11 @@ public class Commander
 			{
 				mainForm.Dialogs.ShowInfo("Value of \"" + Properties.NameOfName(name) + "\"", settings[name].Text);
 			}
+			return;
 		}
-		else if (name.StartsWith("!!!"))
+		if (name.StartsWith("!!!"))
 		{
+			close.Execute();
 			string commandText = text.Substring(3);
 			bool dontChangeFocus = false;
 			bool silentIfNoOutput = false;
@@ -149,9 +194,11 @@ public class Commander
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 			}
+			return;
 		}
-		else if (name.StartsWith("!!"))
+		if (name.StartsWith("!!"))
 		{
+			close.Execute();
 			string commandText = text.Substring(2);
 			if (ReplaceVars(ref commandText))
 			{
@@ -161,12 +208,13 @@ public class Commander
 				p.StartInfo.Arguments = "/C " + commandText;
 				p.Start();
 			}
+			return;
 		}
-		else if (name.StartsWith("!"))
+		if (name.StartsWith("!"))
 		{
+			close.Execute();
 			bool scrollUp = false;
 			bool silentIfNoOutput = false;
-			string parameters = null;
 			string commandText = text.Substring(1);
 			if (commandText.StartsWith("?^"))
 			{
@@ -187,15 +235,7 @@ public class Commander
 					silentIfNoOutput = true;
 				}
 			}
-			if (commandText.StartsWith("{"))
-			{
-				int index = commandText.IndexOf("}");
-				if (index != -1)
-				{
-					parameters = commandText.Substring(1, index - 1);
-					commandText = commandText.Substring(index + 1);
-				}
-			}
+			string parameters = RunShellCommand.CutParametersFromLeft(ref commandText);
 			commandText = commandText.Trim();
 			if (ReplaceVars(ref commandText))
 			{
@@ -203,11 +243,89 @@ public class Commander
 				if (needFileTreeReload)
 				    mainForm.FileTreeReload();
 		    }
+		    return;
 		}
-		else
+		if (name.StartsWith("<") || name.StartsWith(">"))
 		{
-			mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
+			string commandText = text;
+			bool writeStdOutput = commandText.StartsWith("<");
+			if (writeStdOutput)
+			{
+				commandText = commandText.Substring(1);
+			}
+			bool writeStdInput = commandText.StartsWith(">");
+			if (writeStdInput)
+			{
+				commandText = commandText.Substring(1);
+			}
+			string parameters = RunShellCommand.CutParametersFromLeft(ref commandText);
+			Encoding encoding = RunShellCommand.GetEncoding(mainForm, parameters);
+			if (ReplaceVars(ref commandText))
+			{
+				Buffer buffer = mainForm.LastBuffer;
+				Process p = new Process();
+				p.StartInfo.RedirectStandardOutput = true;
+				p.StartInfo.RedirectStandardError = true;
+				if (writeStdInput)
+				{
+					p.StartInfo.RedirectStandardInput = true;
+				}
+				p.StartInfo.StandardOutputEncoding = encoding;
+				p.StartInfo.StandardErrorEncoding = encoding;
+				p.StartInfo.UseShellExecute = false;
+				p.StartInfo.FileName = "cmd.exe";
+				p.StartInfo.Arguments = "/C " + commandText;
+				p.Start();
+				if (writeStdInput && buffer != null)
+				{
+					p.StandardInput.Write(buffer.Controller.GetSelectedText());
+					p.StandardInput.Close();
+				}
+				string output = p.StandardOutput.ReadToEnd();
+				string errors = p.StandardError.ReadToEnd();
+				p.WaitForExit();
+				if (!string.IsNullOrEmpty(errors))
+				{
+					mainForm.Dialogs.ShowInfo("Error", errors);
+				}
+				else
+				{
+					if (buffer != null)
+					{
+						if (output.EndsWith("\r\n"))
+						{
+							output = output.Substring(0, output.Length - 2);
+						}
+						else if (output.EndsWith("\n") || output.EndsWith("\r"))
+						{
+							output = output.Substring(0, output.Length - 1);
+						}
+						if (writeStdOutput)
+						{
+							buffer.Controller.processor.BeginBatch();
+							buffer.Controller.EraseSelection();
+							buffer.Controller.InsertText(output);
+							buffer.Controller.processor.EndBatch();
+						}
+						else
+						{
+							new RunShellCommand(mainForm).ShowInOutput(
+								output, settings.shellRegexList.Value, false, false, parameters);
+						}
+					}
+					else
+					{
+						mainForm.Dialogs.ShowInfo("Error", "No buffer for output");
+					}
+					if (needFileTreeReload)
+						mainForm.FileTreeReload();
+				}
+		    }
+			close.Execute();
+		    return;
 		}
+		close.Execute();
+		mainForm.Dialogs.ShowInfo("Error", "Unknown command/property \"" + name + "\"");
 	}
 	
 	private string GetFile()
@@ -224,68 +342,94 @@ public class Commander
 		}
 		return lastBuffer.FullPath;
 	}
-
-	private bool ReplaceVars(ref string commandText)
+	
+	private static string ReplaceVar(string text, string key, string value)
 	{
+		string changedKey;
+		changedKey = key + ":upper;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.ToUpperInvariant());
+		}
+		changedKey = key + ":lower;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.ToLowerInvariant());
+		}
+		changedKey = key + ":first_upper;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.Length > 0 ?
+				char.ToUpperInvariant(value[0]) + value.Substring(1) : "");
+		}
+		changedKey = key + ":first_lower;";
+		if (text.Contains(changedKey))
+		{
+			text = text.Replace(changedKey, value.Length > 0 ?
+				char.ToLowerInvariant(value[0]) + value.Substring(1) : "");
+		}
+		return text.Replace(key, value);
+	}
+	
+	public static bool ReplaceVars(MainForm mainForm, Getter<string> getFile, Settings settings,
+		ref string commandText, out string error)
+	{
+		error = null;
 		if (commandText.Contains(RunShellCommand.FileVar))
 		{
-			string file = GetFile();
+			string file = getFile();
 			if (file == null)
 			{
-			    mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.FileVar);
+			    error = "No opened file in current frame for replace " + RunShellCommand.FileVar;
 				return false;
 			}
-			commandText = commandText.Replace(RunShellCommand.FileVar, file);
+			commandText = ReplaceVar(commandText, RunShellCommand.FileVar, file);
 		}
 		if (commandText.Contains(RunShellCommand.AppDataDirVar))
 		{
-			commandText = commandText.Replace(RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+			commandText = ReplaceVar(commandText, RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
 		}
 		if (commandText.Contains(RunShellCommand.FileNameVar))
 		{
-			string file = GetFile();
+			string file = getFile();
 			if (file == null)
 			{
-			    mainForm.Dialogs.ShowInfo(
-			    	"Error", "No opened file in current frame for replace " + RunShellCommand.FileNameVar);
+			    error = "No opened file in current frame for replace " + RunShellCommand.FileNameVar;
 				return false;
 			}
-			commandText = commandText.Replace(RunShellCommand.FileNameVar, Path.GetFileNameWithoutExtension(file));
+			commandText = ReplaceVar(commandText, RunShellCommand.FileNameVar, Path.GetFileNameWithoutExtension(file));
 		}
 		if (commandText.Contains(RunShellCommand.FileVarSoftly))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No last selected buffer for " + RunShellCommand.FileVarSoftly);
+				error = "No last selected buffer for " + RunShellCommand.FileVarSoftly;
 				return false;
 			}
-			string file = GetFile();
-			commandText = commandText.Replace(RunShellCommand.FileVarSoftly, file ?? "");
+			string file = getFile();
+			commandText = ReplaceVar(commandText, RunShellCommand.FileVarSoftly, file ?? "");
 		}
 		if (commandText.Contains(RunShellCommand.FileDirVar))
 		{
-			string file = GetFile();
+			string file = getFile();
 			if (file == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No opened file in current frame for replace " + RunShellCommand.FileDirVar);
+				error = "No opened file in current frame for replace " + RunShellCommand.FileDirVar;
 				return false;
 			}
 			string dir = Path.GetDirectoryName(file);
-			commandText = commandText.Replace(RunShellCommand.FileDirVar, dir);
+			commandText = ReplaceVar(commandText, RunShellCommand.FileDirVar, dir);
 		}
 		if (commandText.Contains(RunShellCommand.LineVar))
 		{
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.LineVar);
+				error = "No last selected buffer for " + RunShellCommand.LineVar;
 				return false;
 			}
-			commandText = commandText.Replace(
+			commandText = ReplaceVar(commandText, 
 				RunShellCommand.LineVar,
 				(lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iLine + 1) + ""
 			);
@@ -295,10 +439,10 @@ public class Commander
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for " + RunShellCommand.CharVar);
+				error = "No last selected buffer for " + RunShellCommand.CharVar;
 				return false;
 			}
-			commandText = commandText.Replace(
+			commandText = ReplaceVar(commandText, 
 				RunShellCommand.CharVar,
 				lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret).iChar + ""
 			);
@@ -308,8 +452,7 @@ public class Commander
 			Buffer lastBuffer = mainForm.LastBuffer;
 			if (lastBuffer == null)
 			{
-				mainForm.Dialogs.ShowInfo(
-					"Error", "No buffer with selection for replace " + RunShellCommand.SelectedVar);
+				error = "No buffer with selection for replace " + RunShellCommand.SelectedVar;
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
@@ -338,7 +481,7 @@ public class Commander
 					builder.Append(lastBuffer.Controller.Lines.GetText(selection.Left, selection.Count));
 				}	
 			}
-			commandText = commandText.Replace(RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
+			commandText = ReplaceVar(commandText, RunShellCommand.SelectedVar, EscapeForCommandLine(builder.ToString()));
 		}
 		if (commandText.Contains(RunShellCommand.WordVar))
 		{
@@ -386,9 +529,20 @@ public class Commander
 					}
 				}
 			}
-			commandText = commandText.Replace(RunShellCommand.WordVar, EscapeForCommandLine(varValue));
+			commandText = ReplaceVar(commandText, RunShellCommand.WordVar, EscapeForCommandLine(varValue));
 		}
 		return true;
+	}
+
+	private bool ReplaceVars(ref string commandText)
+	{
+		string error;
+		bool result = ReplaceVars(mainForm, GetFile, settings, ref commandText, out error);
+		if (error != null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", error);
+		}
+		return result;
 	}
 
 	public string GetHelpText()
@@ -400,46 +554,37 @@ public class Commander
 		TextTable table = new TextTable().SetMaxColWidth(40);
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
-		table.Add("!command").Add("*").Add("Run shell command");
-		table.NewRow();
-		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
-		table.NewRow();
-		table.Add("!^command").Add("*").Add("Run shell command, stay output up");
-		table.NewRow();
-		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding");
-		table.NewRow();
+		table.Add("!command").Add("*").Add("Run shell command").NewRow();
+		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
+		table.Add("!^command").Add("*").Add("Run shell command, stay output up").NewRow();
+		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
 		table.Add("!?command").Add("*").Add("Run and show only non-empty output\n" + 
 			"  Usable for syntax checkers\n" +
 			"  For example, if you have jshint,\n" +
 			"  write line in config (open by F2):\n" +
 			"    <item name=\"afterSaveCommand:*.js\"\n" +
-			"          value=\"!?jshint %f%\"/>");
-		table.NewRow();
-		table.Add("!!command").Add("*").Add("Run without output capture");
-		table.NewRow();
-		table.Add("!!!command").Add("*").Add("Run with output to info panel");
-		table.NewRow();
-		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused");
-		table.NewRow();
-		table.Add("").Add("").Add("Variables: ");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file dir path");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileNameVar + " - current file name (no extension)");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file full path, and use empty if no saved file");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word");
-		table.NewRow();
-		table.Add("").Add("").Add("  " + RunShellCommand.AppDataDirVar + " - AppData subfolder");
+			"          value=\"!?jshint %f%\"/>").NewRow();
+		table.Add("<command").Add("*").Add("Shell command output into document").NewRow();
+		table.Add(">command").Add("*").Add("Selected text writes into command stdin,\n  output into console").NewRow();
+		table.Add("<>command").Add("*").Add("Selected text writes into command stdin,\n  output writes back into document").NewRow();
+		table.Add("!!command").Add("*").Add("Run without output capture").NewRow();
+		table.Add("!!!command").Add("*").Add("Run with output to info panel").NewRow();
+		table.Add("!!!!command").Add("*").Add("Run with output to info panel, unfocused").NewRow();
+		table.Add("").Add("").Add("Variables: ").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVar + " - current file path").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileVarSoftly + " - current file path (no errors)").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileNameVar + " - current file name (no extension)").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.FileDirVar + " - current file directory path").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.LineVar + " - current file line at cursor").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.CharVar + " - current file char at cursor").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.SelectedVar + " - current selected text or line").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.WordVar + " - current selected text or word").NewRow();
+		table.Add("").Add("").Add("  " + RunShellCommand.AppDataDirVar + " - AppData subfolder").NewRow();
+		table.Add("").Add("").Add("Suffixes (example: %n%:upper;): ").NewRow();
+		table.Add("").Add("").Add("  :upper;").NewRow();
+		table.Add("").Add("").Add("  :lower;").NewRow();
+		table.Add("").Add("").Add("  :first_upper;").NewRow();
+		table.Add("").Add("").Add("  :first_lower;");
 		foreach (Command command in commands)
 		{
 			table.NewRow();
@@ -460,14 +605,20 @@ public class Commander
 
 		history = tempSettings.CommandHistory;
 		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("h", "", "Open/close tab with help text", DoHelp));
+		commands.Add(new Command("vh", "", "Open/close tab with vi-help text", DoViHelp));
 		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
+		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
 		commands.Add(new Command("exit", "", "Close window", DoExit));
+		commands.Add(new Command("q", "", "Close window", DoExit));
 		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
 		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
+		commands.Add(new Command("e", "", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
-		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
+		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
 		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
+		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
@@ -480,11 +631,30 @@ public class Commander
 		commands.Add(new Command("omnisharp-reloadsolution", "", "reload solution", DoOmnisharpReloadSolution));
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
+		
+		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
+		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
+		commands.Add(new Command("ctags-showAllDefinitions", "[name]", "show all tag definitions", DoShowAllTagDefinitions));
+		commands.Add(new Command("ctags-autocomplete", "", "autocomplete by ctags", DoCtagsAutocomplete));
+		commands.Add(new Command("tag", "name", "jump to tag definition", DoCtagsGoToDefinitionByName));
+		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
+		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
+		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
+	}
+	
+	private void DoViSaveFile(string args)
+	{
+		mainForm.SaveFile(mainForm.LastBuffer);
 	}
 
 	private void DoHelp(string args)
 	{
 		mainForm.ProcessHelp();
+	}
+	
+	private void DoViHelp(string args)
+	{
+		mainForm.ProcessViHelp();
 	}
 
 	private void DoExit(string args)
@@ -1002,7 +1172,7 @@ public class Commander
 			return;
 		}
 		
-		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading...");
+		mainForm.Dialogs.ShowInfo("OmniSharp", "Solution reloading…");
 		if (mainForm.LastFrame != null)
 			mainForm.LastFrame.Focus();
 		Thread thread = new Thread(new ThreadStart(OmnisharpReloadSolution));
@@ -1036,7 +1206,7 @@ public class Commander
 		}
 		mainForm.Invoke(new Setter(delegate
 		{
-			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading...");
+			mainForm.Dialogs.HideInfo("OmniSharp", "Solution reloading…");
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}));
@@ -1101,7 +1271,7 @@ public class Commander
 		}
 		else if (output != null)
 		{
-			Execute("!" + output, true, true);
+			Execute("!" + output, true, true, null, new OnceCallback());
 		}
 		else
 		{
@@ -1109,5 +1279,251 @@ public class Commander
 			if (mainForm.LastFrame != null)
 				mainForm.LastFrame.Focus();
 		}
+	}
+	
+	private void DoCtagsRebuild(string text)
+	{
+		mainForm.Dialogs.ShowInfo("Ctags", "Rebuilding…");
+		if (mainForm.LastFrame != null)
+			mainForm.LastFrame.Focus();
+		Thread thread = new Thread(new ThreadStart(delegate { CtagsRebuild(text); }));
+		thread.Start();
+	}
+	
+	private void CtagsRebuild(string parameters)
+	{
+		Process p = new Process();
+		p.StartInfo.UseShellExecute = false;
+		p.StartInfo.CreateNoWindow = true;
+		p.StartInfo.RedirectStandardError = true;
+		p.StartInfo.RedirectStandardOutput = true;
+		p.StartInfo.FileName = Path.Combine(AppPath.StartupDir, "ctags/ctags.exe");
+		p.StartInfo.Arguments = !string.IsNullOrEmpty(parameters) ? parameters : "-R *";
+		string output = null;
+		string error = null;
+		try
+		{
+			p.Start();
+			output = p.StandardOutput.ReadToEnd();
+			error = p.StandardError.ReadToEnd();
+			p.WaitForExit();
+		}
+		catch (Exception e)
+		{
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("Ctags", e.Message);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		if (!string.IsNullOrEmpty(output) || !string.IsNullOrEmpty(error))
+		{
+			string text = "";
+			if (!string.IsNullOrEmpty(output))
+			{
+				text += output.Trim();
+			}
+			if (!string.IsNullOrEmpty(error))
+			{
+				if (text != "")
+				{
+					text += "\n";
+				}
+				text += error.Trim();
+			}
+			mainForm.Invoke(new Setter(delegate
+			{
+				mainForm.Dialogs.ShowInfo("Ctags", text);
+				if (mainForm.LastFrame != null)
+					mainForm.LastFrame.Focus();
+			}));
+			return;
+		}
+		mainForm.Invoke(new Setter(delegate
+		{
+			mainForm.Dialogs.HideInfo("Ctags", "Rebuilding…");
+			mainForm.Ctags.NeedReload();
+			if (mainForm.LastFrame != null)
+				mainForm.LastFrame.Focus();
+		}));
+	}
+	
+	private void DoCtagsGoToDefinition(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			return;
+		}
+		string word = lastBuffer.Controller.GetWord(
+			lastBuffer.Controller.Lines.PlaceOf(lastBuffer.Controller.LastSelection.caret));
+		if (string.IsNullOrEmpty(word))
+		{
+			return;
+		}
+		GoToDefinition(lastBuffer, word);
+	}
+	
+	private void DoShowAllTagDefinitions(string text)
+	{
+		string word;
+		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		{
+			word = text.Trim();
+		}
+		else
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo("Error", "No buffer to get word under cursor");
+				return;
+			}
+			Selection selection = lastBuffer.Controller.LastSelection;
+			Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+			word = lastBuffer.Controller.GetWord(place);
+		}
+		if (!string.IsNullOrEmpty(word))
+		{
+			List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+			if (nodes != null && nodes.Count > 0)
+			{
+				mainForm.Ctags.SetGoToTags(nodes);
+				new ShowDefinitions(mainForm).Execute(nodes, word);
+			}
+		}
+	}
+	
+	private void DoCtagsGoToDefinitionByName(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			return;
+		}
+		string word = text.Trim();
+		if (string.IsNullOrEmpty(word))
+		{
+			mainForm.Dialogs.ShowInfo("Ctags", "No tag parameter");
+			return;
+		}
+		GoToDefinition(lastBuffer, word);
+	}
+	
+	private void GoToDefinition(Buffer lastBuffer, string word)
+	{
+		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+		string currentDir = Directory.GetCurrentDirectory();
+		if (nodes.Count > 0)
+		{
+			int index = -1;
+			List<Ctags.Node> nearestNodes = new List<Ctags.Node>();
+			for (int i = 0; i < nodes.Count; ++i)
+			{
+				Ctags.Node node = nodes[i];
+				if (Path.Combine(currentDir, node.path).ToLowerInvariant() == lastBuffer.FullPath.ToLowerInvariant())
+				{
+					index = i;
+					int j = i;
+					while (true)
+					{
+						node = nodes[i];
+						nearestNodes.Add(node);
+						++j;
+						if (j >= nodes.Count ||
+							Path.Combine(currentDir, node.path).ToLowerInvariant() != lastBuffer.FullPath.ToLowerInvariant())
+						{
+							break;
+						}
+					}
+					break;
+				}
+			}
+			if (index != -1)
+			{
+				nodes.RemoveRange(index, nearestNodes.Count);
+				nodes.InsertRange(0, nearestNodes);
+			}
+			Ctags.Node target = nodes[0];
+			nodes.Remove(target);
+			nodes.Insert(0, target);
+			mainForm.Ctags.SetGoToTags(nodes);
+			mainForm.Ctags.GoToTag(target);
+		}
+		else
+		{
+			mainForm.Ctags.SetGoToTags(null);
+		}
+	}
+	
+	private void DoCtagsGoToNext(string text)
+	{
+		mainForm.Ctags.GoToNextTag();
+	}
+	
+	private void DoCtagsGoToPrev(string text)
+	{
+		mainForm.Ctags.GoToPrevTag();
+	}
+	
+	private void DoCtagsShowAllDefinitions(string text)
+	{
+		string word;
+		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		{
+			word = text.Trim();
+		}
+		else
+		{
+			Buffer lastBuffer = mainForm.LastBuffer;
+			if (lastBuffer == null)
+			{
+				mainForm.Dialogs.ShowInfo("Error", "No buffer to get word under cursor");
+				return;
+			}
+			Selection selection = lastBuffer.Controller.LastSelection;
+			Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+			word = lastBuffer.Controller.GetWord(place);
+		}
+		List<Ctags.Node> nodes = mainForm.Ctags.GetNodes(word);
+		if (nodes == null || nodes.Count == 0)
+		{
+			mainForm.Dialogs.ShowInfo("Ctags", "No tag definitions");
+			return;
+		}
+		mainForm.Ctags.SetGoToTags(nodes);
+		string errors = new ShowDefinitions(mainForm).Execute(nodes, word);
+		if (errors != null)
+		{
+			mainForm.Dialogs.ShowInfo("Ctag definitions", errors);
+		}
+	}
+	
+	private void DoCtagsAutocomplete(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for ctags autocomplete");
+			return;
+		}
+
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Place place = lastBuffer.Controller.Lines.PlaceOf(selection.anchor);
+		string editorText = lastBuffer.Controller.Lines.GetText();
+		string word = lastBuffer.Controller.GetLeftWord(place);
+		
+		List<Variant> variants = new List<Variant>();
+		foreach (string tag in mainForm.Ctags.GetTags())
+		{
+			Variant variant = new Variant();
+			variant.CompletionText = tag;
+			variant.DisplayText = tag;
+			variants.Add(variant);
+		}
+		if (mainForm.LastFrame.AsFrame != null)
+			mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
 	}
 }

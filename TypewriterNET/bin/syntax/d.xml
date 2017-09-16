@@ -733,7 +733,7 @@
         <!-- As above. -->
         <RegExpr attribute="DdocCode" context="#stay" String="[^-]-{3,}" />
         <RegExpr attribute="Comment" context="#pop" String="-{3,}($|\s)" />
-        <IncludeRules context="##D" />
+        <!--<IncludeRules context="##D" />-->
       </context>
       <context name="DdocNestedCode" attribute="DdocCode" lineEndContext="#stay">
         <DetectSpaces />
@@ -743,7 +743,7 @@
         <!-- As above. -->
         <RegExpr attribute="DdocCode" context="#stay" String="[^-]-{3,}" />
         <RegExpr attribute="Comment" context="#pop" String="-{3,}($|\s)" />
-        <IncludeRules context="##D" />
+        <!--<IncludeRules context="##D" />-->
       </context>
     </contexts>
     <itemDatas>

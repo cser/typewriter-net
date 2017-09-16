@@ -338,6 +338,11 @@ public class Properties
 		public string pattern;
 		public string command;
 		public FileNameFilter filter;
+		
+		public override string ToString()
+		{
+			return "(" + command + ":" + pattern + ")";
+		}
 	}
 	
 	public class Command : Property
@@ -385,11 +390,19 @@ public class Properties
 			this.value.Add(info);
 			return null;
 		}
+		
+		private string desc;
+		
+		public Command SetDesc(string desc)
+		{
+			this.desc = desc;
+			return this;
+		}
 
 		public override string Type { get { return "command"; } }		
 		public override string ShowedName { get { return name + "[:<filter>]"; } }
 		public override string TypeHelp { get { return "filter example: *.txt;*.md\ntab names allowed too: File tree"; } }
-		public override string PossibleValues { get { return "(several nodes allowed)"; } }
+		public override string PossibleValues { get { return desc ?? "(several nodes allowed)"; } }
 
 		public override void Reset()
 		{
@@ -429,6 +442,13 @@ public class Properties
 			RegexData data = RegexData.Parse(value, out errors);
 			if (!string.IsNullOrEmpty(errors))
 				return errors;
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				if (this.value[i].pattern == value)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
 			this.value.Add(data);
 			return null;
 		}
@@ -436,6 +456,101 @@ public class Properties
 		public override string Type { get { return "regex"; } }
 		
 		public override string PossibleValues { get { return "(several nodes allowed)"; } }
+
+		public override void Reset()
+		{
+			value.Clear();
+		}
+	}
+	
+	public class CommandList : Property
+	{
+		public CommandList(string name) : base(name)
+		{
+		}
+
+		private readonly RWList<CommandData> value = new RWList<CommandData>();
+		public IRList<CommandData> Value { get { return value; } }
+
+		public override string Text
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				bool first = true;
+				foreach (CommandData data in value)
+				{
+					if (!first)
+						builder.Append("\n");
+					first = false;
+					builder.Append(data.name);
+					builder.Append("|");
+					builder.Append(data.sequence);
+				}
+				return builder.ToString();
+			}
+		}
+
+		public override string SetText(string value, string subvalue)
+		{
+			string errors;
+			CommandData data = CommandData.Parse(value, out errors);
+			if (!string.IsNullOrEmpty(errors))
+				return errors;
+			for (int i = this.value.Count; i-- > 0;)
+			{
+				CommandData dataI = this.value[i];
+				if (dataI.name == data.name)
+				{
+					this.value.RemoveAt(i);
+				}
+			}
+			this.value.Add(data);
+			return null;
+		}
+		
+		public override string Type { get { return "command"; } }
+		
+		public override string PossibleValues
+		{
+			get
+			{
+				StringBuilder builder = new StringBuilder();
+				builder.Append("name|sequence, multinodes allowed\n");
+				builder.Append("e.g.: test|[C-:]!echo AAA[cr]\n");
+				builder.Append("[C-x] - Ctrl+X\n");
+				builder.Append("[C-X] - Ctrl+Shift+X\n");
+				builder.Append("[C-[] - Ctrl+[\n");
+				foreach (KeyValuePair<string, MacrosExecutor.Action> pair in CommandData.GetSpecials())
+				{
+					builder.Append("[");
+					builder.Append(pair.Key);
+					builder.Append("]");
+					string actionText = pair.Value.ToString();
+					if (actionText.Trim().Length != 0)
+					{
+						builder.Append(" - ");
+						builder.Append(actionText);
+					}
+					builder.Append("\n");
+				}
+				builder.Append("commands in config:");
+				if (value.Count > 0)
+				{
+					builder.Append("\n");
+					foreach (CommandData data in value)
+					{
+						builder.Append("  ");
+						builder.Append(data.name);
+					}
+				}
+				else
+				{
+					builder.Append(" missing");
+				}
+				return builder.ToString();
+			}
+		}
 
 		public override void Reset()
 		{

@@ -4,10 +4,10 @@ def makebold(fn):
     return wrapped
  
 def makeitalic(fn):
-	SIGNAL
-	SLOT
+    SIGNAL
+    SLOT
     def wrapped():
-    	x = __new__ Data()
+        x = __new__ Data()
         return "<i>" + fn() + "</i>"
     x = True
     y = 10

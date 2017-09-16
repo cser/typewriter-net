@@ -2,59 +2,56 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
-using MulticaretEditor.Commands;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
-	public class Controller
+	public class Controller : IViStoreSelector
 	{
 		private readonly LineArray lines;
 		private readonly List<Selection> selections;
-
-		public readonly History history;
 
 		public Controller(LineArray lines)
 		{
 			this.lines = lines;
 			this.selections = lines.selections;
-			history = new History();
-			ResetCommandsBatching();
+			lines.viStoreSelector = this;
+			processor = new CommandProcessor(this, lines, selections);
+			processor.ResetCommandsBatching();
 		}
 
+		public readonly CommandProcessor processor;
 		public bool isReadonly;
-		public bool needDispatchChange;
 		public MacrosExecutor macrosExecutor;
+		public Receiver receiver;
 
 		public LineArray Lines { get { return lines; } }
 
 		public void InitText(string text)
 		{
 			lines.SetText(text);
-			history.Reset();
-			history.MarkAsSaved();
+			processor.DoAfterInitText();
 		}
 		
 		private void DoAfterMove()
 		{
-			ResetCommandsBatching();
+			processor.ResetCommandsBatching();
 		}
 
 		public bool MoveRight(bool shift)
 		{
-			bool result = MoveRight(lines, shift);
+			bool result = PrivateMoveRight(lines, shift);
 			DoAfterMove();
 			return result;
 		}
 
 		public bool MoveLeft(bool shift)
 		{
-			bool result = MoveLeft(lines, shift);
+			bool result = PrivateMoveLeft(lines, shift);
 			DoAfterMove();
 			return result;
 		}
 
-		public static bool MoveRight(LineArray lines, bool shift)
+		private bool PrivateMoveRight(LineArray lines, bool shift)
 		{
 			bool result = false;
 			foreach (Selection selection in lines.selections)
@@ -91,7 +88,7 @@ namespace MulticaretEditor
 			return result;
 		}
 
-		public static bool MoveLeft(LineArray lines, bool shift)
+		private bool PrivateMoveLeft(LineArray lines, bool shift)
 		{
 			bool result = false;
 			foreach (Selection selection in lines.selections)
@@ -173,6 +170,29 @@ namespace MulticaretEditor
 						selection.anchor = selection.caret;
 						result = true;
 					}
+				}
+			}
+			DoAfterMove();
+			return result;
+		}
+		
+		public bool ViLogicMoveUp(bool shift)
+		{
+			bool result = false;
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine > 0)
+				{
+					Line line = lines[place.iLine - 1];
+					place = new Place(Math.Min(line.NormalCount, place.iChar), place.iLine - 1);
+					result = true;
+				}
+				selection.caret = lines.IndexOf(place);
+				if (!shift && selection.anchor != selection.caret)
+				{
+					selection.anchor = selection.caret;
+					result = true;
 				}
 			}
 			DoAfterMove();
@@ -268,8 +288,7 @@ namespace MulticaretEditor
 						{
 							Place newPlace = new Place(sublineStart - 1, place.iLine);
 							selection.caret = lines.IndexOf(newPlace);
-							if (!shift)
-								selection.anchor = selection.caret;
+							selection.SetEmptyIfNotShift(shift);
 							lines.SetPreferredPos(selection, newPlace);
 							DoAfterMove();
 							return;
@@ -282,8 +301,7 @@ namespace MulticaretEditor
 				Place caret = lines.PlaceOf(selection.caret);
 				caret.iChar = lines[caret.iLine].NormalCount;
 				selection.caret = lines.IndexOf(caret);
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
 			DoAfterMove();
@@ -306,8 +324,7 @@ namespace MulticaretEditor
 						{
 							Place newPlace = new Place(sublineStart, place.iLine);
 							selection.caret = lines.IndexOf(newPlace);
-							if (!shift)
-								selection.anchor = selection.caret;
+							selection.SetEmptyIfNotShift(shift);
 							lines.SetPreferredPos(selection, newPlace);
 							DoAfterMove();
 							return;
@@ -327,8 +344,7 @@ namespace MulticaretEditor
 				}
 				caret.iChar = caret.iChar > minIChar ? minIChar : 0;
 				selection.caret = lines.IndexOf(caret);
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 				lines.SetPreferredPos(selection, caret);
 			}
 			DoAfterMove();
@@ -339,8 +355,7 @@ namespace MulticaretEditor
 			foreach (Selection selection in selections)
 			{
 				selection.caret = 0;
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 			}
 			lines.JoinSelections();
 			lines.LastSelection.preferredPos = 0;
@@ -352,8 +367,7 @@ namespace MulticaretEditor
 			foreach (Selection selection in selections)
 			{
 				selection.caret = lines.charsCount;
-				if (!shift)
-					selection.anchor = selection.caret;
+				selection.SetEmptyIfNotShift(shift);
 			}
 			lines.JoinSelections();
 			Place place = lines.PlaceOf(lines.charsCount);
@@ -387,14 +401,6 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		public enum CharType
-		{
-			Identifier,
-			Space,
-			Punctuation,
-			Special
-		}
-
 		private static CharType GetCharType(char c)
         {
 			if (c == ' ' || c == '\t')
@@ -403,80 +409,41 @@ namespace MulticaretEditor
 				return CharType.Special;
 			return char.IsLetterOrDigit(c) || c == '_' ? CharType.Identifier : CharType.Punctuation;
         }
+        
+        public static bool IsSpaceOrNewLine(char c)
+        {
+			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+        }
 
 		public void MoveWordRight(bool shift)
 		{
-			MoveWordRight(lines, shift, shift);
+			PrivateMoveWordRight(shift, shift);
 			DoAfterMove();
 		}
 
 		public void MoveWordLeft(bool shift)
 		{
-			MoveWordLeft(lines, shift);
+			PrivateMoveWordLeft(shift);
 			DoAfterMove();
 		}
 
-		public static void MoveWordRight(LineArray lines, bool shift, bool shiftMove)
+		private void PrivateMoveWordRight(bool shift, bool shiftMove)
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				if (shiftMove)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Space)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				CharType type = GetCharType(iterator.RightChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
-				{
-					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.RightChar))
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-				if (!shiftMove)
-				{
-					while (GetCharType(iterator.RightChar) == CharType.Space)
-					{
-						if (!iterator.MoveRightWithRN())
-							break;
-					}
-				}
-
-				selection.caret = iterator.Position;
-				if (!shift)
-					selection.anchor = iterator.Position;
-				lines.SetPreferredPos(selection, iterator.Place);
+				Moves moves = new Moves(lines, selection.caret);
+				moves.NPP_WordRight(shiftMove);
+				moves.Apply(selection, shift);
 			}
 		}
 
-		public static void MoveWordLeft(LineArray lines, bool shift)
+		private void PrivateMoveWordLeft(bool shift)
 		{
 			foreach (Selection selection in lines.selections)
 			{
-				PlaceIterator iterator = lines.GetCharIterator(selection.caret);
-				while (GetCharType(iterator.LeftChar) == CharType.Space)
-				{
-					if (!iterator.MoveLeftWithRN())
-						break;
-				}
-				CharType type = GetCharType(iterator.LeftChar);
-				if (type == CharType.Identifier || type == CharType.Punctuation || type == CharType.Special)
-				{
-					for (CharType typeI = type; typeI == type; typeI = GetCharType(iterator.LeftChar))
-					{
-						if (!iterator.MoveLeftWithRN())
-							break;
-					}
-				}
-				selection.caret = iterator.Position;
-				if (!shift)
-					selection.anchor = iterator.Position;
-				lines.SetPreferredPos(selection, iterator.Place);
+				Moves moves = new Moves(lines, selection.caret);
+				moves.NPP_WordLeft();
+				moves.Apply(selection, shift);
 			}
 		}
 
@@ -596,105 +563,28 @@ namespace MulticaretEditor
 			DoAfterMove();
 		}
 
-		private CommandType lastCommandType;
-		private long lastTime;
-
-		private void ResetCommandsBatching()
-		{
-			lastCommandType = CommandType.None;
-			lastTime = 0;
-		}
-		
-		public long debugNowMilliseconds = -1;
-		
-		public long GetNowMilliseconds()
-		{
-			return debugNowMilliseconds != -1 ?
-				debugNowMilliseconds :
-				(long)(new TimeSpan(DateTime.UtcNow.Ticks).TotalMilliseconds);
-		}
-
-		private bool Execute(Command command)
-		{
-			if (isReadonly && command.type.changesText)
-				return false;
-			command.lines = lines;
-			command.selections = selections;
-			long time = GetNowMilliseconds();
-			if (command.type != lastCommandType)
-			{
-				if (history.LastCommand != null)
-					history.LastCommand.marked = true;
-				lastCommandType = command.type;
-				lastTime = time;
-			}
-			else if (time - lastTime > 1000)
-			{
-				if (history.LastCommand != null)
-					history.LastCommand.marked = true;
-				lastCommandType = command.type;
-				lastTime = time;
-			}
-			bool result = command.Init();
-			if (result)
-				history.ExecuteInited(command);
-			needDispatchChange = true;
-			return result;
-		}
-
-		public void Undo()
-		{
-			ResetCommandsBatching();
-			bool changed = false;
-			while (true)
-			{
-				if (history.Undo())
-					changed = true;
-				if (history.LastCommand == null || history.LastCommand.marked)
-					break;
-			}
-			if (changed)
-				needDispatchChange = true;
-		}
-
-		public void Redo()
-		{
-			ResetCommandsBatching();
-			while (true)
-			{
-				if (history.NextCommand == null)
-					break;
-				if (history.NextCommand.marked)
-				{
-					history.Redo();
-					break;
-				}
-				history.Redo();
-			}
-		}
-
 		public void Backspace()
 		{
-			Execute(new BackspaceCommand());
+			processor.Execute(new BackspaceCommand());
 		}
 
 		public void Delete()
 		{
-			Execute(new DeleteCommand());
+			processor.Execute(new DeleteCommand());
 		}
 
 		public void InsertText(string text)
 		{
 			if (lines.autoindent && text == "}")
 			{
-				Execute(new InsertIndentedCket());
+				processor.Execute(new InsertIndentedCketCommand());
 				return;
 			}
 			if (lines.spacesInsteadTabs && text == "\t")
 			{
 				text = new string(' ', lines.tabSize);
 			}
-			Execute(new InsertTextCommand(text, null, true));
+			processor.Execute(new InsertTextCommand(text, null, true));
 		}
 
 		public void InsertLineBreak()
@@ -710,30 +600,40 @@ namespace MulticaretEditor
 				if (lines.autoindent)
 				{
 					int firstTrimmedLength = line.GetLastLeftSpace(place.iChar);
-					if (firstTrimmedLength > 0 && line.chars[firstTrimmedLength - 1].c == '{')
+					if (firstTrimmedLength > 0 &&
+						(line.chars[firstTrimmedLength - 1].c == '{' || line.chars[firstTrimmedLength - 1].c == ':'))
 					{
-						text = (lines.spacesInsteadTabs ? new string(' ', lines.tabSize) : "\t") + text;
+						text = lines.TabSettings.Tab + text;
+					}
+					else if (line.charsCount > firstTrimmedLength && line.chars[firstTrimmedLength].c == '}')
+					{
+						int iChar;
+						int spacesSize = line.GetFirstSpaceSize(out iChar);
+						if (spacesSize > 0 && spacesSize % lines.tabSize == 0)
+						{
+							text = lines.TabSettings.ShiftedSpacesOfSize(spacesSize, -1);
+						}
 					}
 				}
 				texts[i] = lines.lineBreak + text;
 			}
-			Execute(new InsertTextCommand(null, texts, true));
+			processor.Execute(new InsertTextCommand(null, texts, true));
 		}
 		
 		public void ReplaceText(SimpleRange[] orderedRanges, string newText)
 		{
-			Execute(new ReplaceTextCommand(orderedRanges, newText));
+			processor.Execute(new ReplaceTextCommand(orderedRanges, newText));
 		}
 
 		public void Copy()
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				Execute(new CopyLinesCommand());
+				CopyLines('*', GetLineRangesByLefts());
 			}
 			else
 			{
-				Execute(new CopyCommand());
+				ViCopy('*');
 			}
 		}
 
@@ -741,59 +641,117 @@ namespace MulticaretEditor
 		{
 			if (lines.AllSelectionsEmpty)
 			{
-				Execute(new CopyLinesCommand());
-				Execute(new EraseLinesCommand());
+				List<SimpleRange> ranges = GetLineRangesByLefts();
+				CopyLines('*', ranges);
+				processor.Execute(new EraseLinesCommand(ranges));
 			}
 			else
 			{
-				Execute(new CopyCommand());
+				ViCopy('*');
 				EraseSelection();
 			}
+		}
+		
+		private void CopyLines(char register, List<SimpleRange> ranges)
+		{
+			lines.JoinSelections();
+			StringBuilder text = new StringBuilder();
+			foreach (SimpleRange range  in ranges)
+			{
+				if (range.count > 0)
+				{
+					LineIterator iterator = lines.GetLineRange(range.index, range.count);
+					while (iterator.MoveNext())
+					{
+						Line line = iterator.current;
+						int normalCount = line.NormalCount;
+						Char[] chars = line.chars;
+						for (int i = 0; i < normalCount; ++i)
+						{
+							text.Append(chars[i].c);
+						}
+						if (normalCount < line.charsCount)
+						{
+							text.Append(line.GetRN());
+						}
+						else
+						{
+							text.Append(lines.lineBreak);
+						}
+					}
+				}
+			}
+			ClipboardExecutor.PutToRegister(register, text.ToString());
 		}
 
 		public void EraseSelection()
 		{
-			Execute(new EraseSelectionCommand());
+			processor.Execute(new EraseSelectionCommand());
 		}
 
 		public void Paste()
 		{
-			Execute(new PasteCommand());
+			processor.Execute(new PasteCommand('*'));
 		}
 
 		public bool ShiftLeft()
 		{
-			return Execute(new ShiftCommand(true));
+			return processor.Execute(new ShiftCommand(true));
 		}
 
 		public bool ShiftRight()
 		{
-			return Execute(new ShiftCommand(false));
+			return processor.Execute(new ShiftCommand(false));
 		}
 
 		public bool RemoveWordLeft()
 		{
-			return Execute(new RemoveWordCommand(true));
+			if (!lines.AllSelectionsEmpty)
+			{
+				return false;
+			}
+			processor.BeginBatch();
+			processor.Execute(new SavePositions());
+			PrivateMoveWordLeft(true);
+			bool result = processor.Execute(new EraseSelectionCommand());
+			processor.EndBatch();
+			return result;
 		}
 
 		public bool RemoveWordRight()
 		{
-			return Execute(new RemoveWordCommand(false));
+			if (!lines.AllSelectionsEmpty)
+			{
+				return false;
+			}
+			processor.BeginBatch();
+			processor.Execute(new SavePositions());
+			PrivateMoveWordRight(true, false);
+			bool result = processor.Execute(new EraseSelectionCommand());
+			processor.EndBatch();
+			return result;
 		}
 
 		public bool MoveLineUp()
 		{
-			return Execute(new MoveLineCommand(true));
+			return processor.Execute(new MoveLineCommand(true));
 		}
 
 		public bool MoveLineDown()
 		{
-			return Execute(new MoveLineCommand(false));
+			return processor.Execute(new MoveLineCommand(false));
 		}
 		
 		public string GetWord(Place place)
 		{
 			int position;
+			int count;
+			GetWordSelection(place, out position, out count);
+			return lines.GetText(position, count);
+		}
+		
+		public string GetWord(Place place, out int position)
+		{
 			int count;
 			GetWordSelection(place, out position, out count);
 			return lines.GetText(position, count);
@@ -925,12 +883,14 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void UnselectPrevText()
+		public bool UnselectPrevText()
 		{
 			if (selections.Count > 1)
 			{
 				selections.RemoveAt(selections.Count - 2);
+				return true;
 			}
+			return false;
 		}
 		
 		public void SelectAllMatches()
@@ -987,7 +947,7 @@ namespace MulticaretEditor
 				texts[i] = upper ? text.ToUpperInvariant() : text.ToLowerInvariant();
 			}
 			if (needChange)
-				Execute(new InsertTextCommand(null, texts, false));
+				processor.Execute(new InsertTextCommand(null, texts, false));
 		}
 
 		public bool AllSelectionsEmpty { get { return lines.AllSelectionsEmpty; } }
@@ -1242,7 +1202,7 @@ namespace MulticaretEditor
 					return false;
 			}
 		}
-
+		
 		private int markedBracketCaret = -1;
 		private bool markedBracketEnabled = true;
 
@@ -1337,7 +1297,7 @@ namespace MulticaretEditor
 		
 		public bool FixLineBreaks()
 		{
-			return Execute(new FixLineBreaksCommand());
+			return processor.Execute(new FixLineBreaksCommand());
 		}
 		
 		private ControllerDialogsExtension dialogsExtension;
@@ -1352,6 +1312,1085 @@ namespace MulticaretEditor
 				}
 				return dialogsExtension;
 			}
+		}
+		
+		public void ViAutoindentByBottom()
+		{
+			processor.Execute(new InsertIndentedBeforeCommand());
+		}
+
+		public void ViResetCommandsBatching()
+		{
+			processor.ResetCommandsBatching();
+		}
+		
+		public void ViMoveToCharLeft(char charToFind, bool shift, int count, bool at)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				bool needAfterMove = at;
+				for (int i = 0; i < count; i++)
+				{
+					int iChar = line.LeftIndexOfChar(charToFind, place.iChar - 1);
+					if (iChar != -1)
+					{
+						place.iChar = iChar;
+						selection.caret = lines.IndexOf(place);
+						lines.SetPreferredPos(selection, place);
+						needAfterMove &= true;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (needAfterMove)
+				{
+					selection.caret++;
+					lines.SetPreferredPos(selection, place);
+				}
+				if (!shift)
+				{
+					selection.anchor = selection.caret;
+				}
+			}
+		}
+		
+		public void ViMoveToCharRight(char charToFind, bool shift, int count, bool at)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				bool needAfterMove = at;
+				for (int i = 0; i < count; i++)
+				{
+					int iChar = line.IndexOfChar(charToFind, place.iChar + 1);
+					if (iChar != -1)
+					{
+						if (shift)
+						{
+							iChar++;
+						}
+						place.iChar = iChar;
+						selection.caret = lines.IndexOf(place);
+						lines.SetPreferredPos(selection, place);
+						needAfterMove &= true;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (needAfterMove)
+				{
+					selection.caret--;
+					lines.SetPreferredPos(selection, place);
+				}
+				selection.SetEmptyIfNotShift(shift);
+			}
+		}
+		
+		public void ViMoveTo(int position, bool shift)
+		{
+			if (position < 0)
+			{
+				position = 0;
+			}
+			else if (position > lines.charsCount)
+			{
+				position = lines.charsCount;
+			}
+			ClearMinorSelections();
+			LastSelection.caret = position;
+			lines.SetPreferredPos(LastSelection, lines.PlaceOf(position));
+			LastSelection.SetEmptyIfNotShift(shift);
+		}
+		
+		public void ViCollapseSelections()
+		{
+			foreach (Selection selection in selections)
+			{
+				selection.caret = selection.anchor;
+			}
+			JoinSelections();
+		}
+		
+		public void ViMove_w(bool shift, bool change, bool allowNewLine)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_w(change, allowNewLine);
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViMove_b(bool shift, bool change)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_b();
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViMove_W(bool shift, bool change)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_W(change);
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViMove_B(bool shift, bool change)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_B();
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViMove_e(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_e(shift);
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViMove_E(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_E(shift);
+				moves.Apply(selection, shift);
+			}
+		}
+		
+		public void ViPairBracket(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				if (moves.Vi_PairBracket(shift))
+				{
+					moves.Apply(selection, shift);
+				}
+			}
+		}
+		
+		public void ViMoveInWord(bool shift, bool inside)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_WordStart();
+				selection.caret = moves.Position;
+				selection.SetEmpty();
+				moves.Vi_w(inside, true);
+				moves.Apply(selection, true);
+			}
+		}
+		
+		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket, int count)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				if (moves.Vi_BracketStart(bra, ket, count))
+				{
+					int position = moves.Position;
+					if (moves.Vi_BracketEnd(bra, ket))
+					{
+						selection.caret = position - (inside ? 0 : 1);
+						selection.SetEmpty();
+						moves.Apply(selection, true, (inside ? 0 : 1));
+					}
+				}
+			}
+		}
+		
+		public bool ViTryConvertToLines(char bra, char ket, bool inside)
+		{
+			bool isLine = true;
+			if (inside)
+			{
+				foreach (Selection selection in lines.selections)
+				{
+					Place place0 = lines.PlaceOf(selection.anchor);
+					Place place1 = lines.PlaceOf(selection.caret);
+					if (place0.iLine < place1.iLine)
+					{
+						Line line0 = lines[place0.iLine];
+						if (place0.iChar == line0.NormalCount)
+						{
+							selection.anchor += line0.charsCount - line0.NormalCount;
+						}
+						else
+						{
+							isLine = false;
+						}
+						Line line1 = lines[place1.iLine];
+						if (line1.IsCharsEmpty(0, place1.iChar))
+						{
+							--place1.iLine;
+							line1 = lines[place1.iLine];
+							place1.iChar = line1.NormalCount;
+							selection.caret = lines.IndexOf(place1);
+						}
+						else
+						{
+							isLine = false;
+						}
+					}
+					else
+					{
+						isLine = false;
+					}
+				}
+			}
+			else
+			{
+				foreach (Selection selection in lines.selections)
+				{
+					Place place0 = lines.PlaceOf(selection.anchor);
+					Place place1 = lines.PlaceOf(selection.caret);
+					if (place0.iLine < place1.iLine)
+					{
+						Line line0 = lines[place0.iLine];
+						if (!line0.IsCharsEmpty(0, place0.iChar))
+						{
+							isLine = false;
+						}
+						Line line1 = lines[place1.iLine];
+						int delta = line1.NormalCount - place1.iChar;
+						if (delta < 0 || !line1.IsCharsEmpty(place1.iChar, delta))
+						{
+							isLine = false;
+						}
+					}
+					else
+					{
+						isLine = false;
+					}
+				}
+			}
+			return isLine;
+		}
+		
+		public void ViMoveInQuotes(bool shift, bool inside, char quote)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				if (moves.Vi_QuotesStart(quote))
+				{
+					int position = moves.Position;
+					if (moves.Vi_QuotesEnd(quote))
+					{
+						selection.caret = position - (inside ? 0 : 1);
+						selection.SetEmpty();
+						moves.Apply(selection, true, (inside ? 0 : 1));
+					}
+				}
+			}
+		}
+		
+		public void ViMoveHome(bool shift, bool indented)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place caret = lines.PlaceOf(selection.caret);
+				Line line = lines[caret.iLine];
+				int minIChar = 0;
+				int charsCount = line.NormalCount;
+				if (indented)
+				{
+					while (minIChar < charsCount && char.IsWhiteSpace(line.chars[minIChar].c))
+					{
+						minIChar++;
+					}
+				}
+				caret.iChar = minIChar;
+				if (!shift && caret.iChar >= line.NormalCount)
+				{
+					caret.iChar = line.NormalCount - 1;
+				}
+				if (caret.iChar < 0)
+				{
+					caret.iChar = 0;
+				}
+				selection.caret = lines.IndexOf(caret);
+				selection.SetEmptyIfNotShift(shift);
+				lines.SetPreferredPos(selection, caret);
+			}
+		}
+		
+		public void ViMoveEnd(bool shift, int count)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place caret = lines.PlaceOf(selection.caret);
+				if (count > 1)
+				{
+					caret.iLine += count - 1;
+					if (caret.iLine >= lines.LinesCount)
+					{
+						caret.iLine = lines.LinesCount - 1;
+					}
+				}
+				caret.iChar = lines[caret.iLine].NormalCount;
+				selection.caret = lines.IndexOf(caret);
+				selection.SetEmptyIfNotShift(shift);
+			}
+			ViFixPositions(true);
+		}
+		
+		public void ViMoveLeft(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iChar > 0)
+				{
+					selection.caret--;
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(true);
+		}
+		
+		public void ViMoveRight(bool shift)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				if (place.iChar < line.NormalCount)
+				{
+					place.iChar++;
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(true);
+		}
+		
+		public void ViMoveUp(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine > 0)
+				{
+					place.iLine--;
+					place = ViGetPreferredPlace(selection, place);
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(false);
+		}
+		
+		public void ViMoveDown(bool shift)
+		{
+			foreach (Selection selection in selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (place.iLine < lines.LinesCount - 1)
+				{
+					place.iLine++;
+					place = ViGetPreferredPlace(selection, place);
+					selection.caret = lines.IndexOf(place);
+					selection.SetEmptyIfNotShift(shift);
+				}
+			}
+			ViFixPositions(false);
+		}
+		
+		public void ViFixPositions(bool setPreferredPos)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (selection.Empty)
+				{
+					Line line = lines[place.iLine];
+					int count = line.NormalCount;
+					if (count > 0 && place.iChar >= count)
+					{
+						place.iChar = count - 1;
+						selection.caret = lines.IndexOf(place);
+						selection.anchor = selection.caret;
+					}
+				}
+				if (setPreferredPos)
+				{
+					lines.SetPreferredPos(selection, place);
+				}
+			}
+		}
+		
+		public void ViNormal_FixCaret(bool setPreferredPos)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				int count = line.NormalCount;
+				if (count > 0 && place.iChar >= count)
+				{
+					place.iChar = count - 1;
+					selection.caret = lines.IndexOf(place);
+					if (setPreferredPos)
+					{
+						lines.SetPreferredPos(selection, place);
+					}
+				}
+			}
+		}
+		
+		public void ViSelectRight(int count)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				Line line = lines[place.iLine];
+				for (int i = 0; i < count; i++)
+				{
+					if (place.iChar < line.NormalCount)
+					{
+						place.iChar++;
+						selection.caret = lines.IndexOf(place);
+					}
+				}
+				lines.SetPreferredPos(selection, place);
+			}
+		}
+		
+		public void ViMoveRightFromCursor()
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Place place = lines.PlaceOf(selection.caret);
+				if (selection.Empty)
+				{
+					Line line = lines[place.iLine];
+					if (place.iChar < line.NormalCount)
+					{
+						place.iChar++;
+						selection.caret = lines.IndexOf(place);
+						selection.anchor = selection.caret;
+						lines.SetPreferredPos(selection, place);
+					}
+				}
+			}
+		}
+		
+		public void ViReplaceChar(char c, int count)
+		{
+			bool allEmpty = true;
+			foreach (Selection selection in selections)
+			{
+				if (selection.Empty)
+				{
+					Place place = lines.PlaceOf(selection.anchor);
+					Line line = lines[place.iLine];
+					if (place.iChar + count <= line.NormalCount)
+					{
+						selection.caret += count;
+					}
+				}
+				else
+				{
+					allEmpty = false;
+				}
+			}
+			lines.JoinSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				if (selection.Count == 1)
+				{
+					texts[i] = c + "";
+				}
+				else
+				{
+					string text = lines.GetText(selection.Left, selection.Count);
+					StringBuilder builder = new StringBuilder();
+					for (int j = 0; j < text.Length; j++)
+					{
+						if (text[j] == '\n' || text[j] == '\r')
+						{
+							builder.Append(text[j]);
+						}
+						else
+						{
+							builder.Append(c);
+						}
+					}
+					texts[i] = builder.ToString();
+				}
+			}
+			processor.Execute(new InsertTextCommand(null, texts, true));
+			if (selections.Count == texts.Length)
+			{
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					int textLength = texts[i].Length;
+					selection.caret -= allEmpty && textLength > 0 ? 1 : textLength;
+					selection.anchor = selection.caret;
+					Place place = lines.PlaceOf(selection.caret);
+					lines.SetPreferredPos(selection, place);
+				}
+			}
+		}
+		
+		public void ViCut(char register, bool fixPositions)
+		{
+			ViCopy(register);
+			EraseSelection();
+			if (fixPositions)
+			{
+				ViFixPositions(true);
+			}
+		}
+		
+		public void ViCopy(char register)
+		{
+			lines.JoinSelections();
+			if (lines.AllSelectionsEmpty)
+			{
+				return;
+			}
+			StringBuilder text = new StringBuilder();
+			SelectionMemento[] mementos = GetSelectionMementos();
+			bool first = true;
+			foreach (SelectionMemento memento  in mementos)
+			{
+				if (!first)
+					text.Append('\n');
+				first = false;
+				text.Append(lines.GetText(memento.Left, memento.Count));
+			}
+			ClipboardExecutor.PutToRegister(register, text.ToString());
+		}
+		
+		public string GetSelectedText()
+		{
+			lines.JoinSelections();
+			StringBuilder text = new StringBuilder();
+			SelectionMemento[] mementos = GetSelectionMementos();
+			bool first = true;
+			foreach (SelectionMemento memento  in mementos)
+			{
+				if (!first)
+					text.Append('\n');
+				first = false;
+				text.Append(lines.GetText(memento.Left, memento.Count));
+			}
+			return text.ToString();
+		}
+		
+		private SelectionMemento[] GetSelectionMementos()
+		{
+			SelectionMemento[] mementos = new SelectionMemento[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				mementos[i] = selections[i].Memento;
+				mementos[i].index = i;
+			}
+			Array.Sort(mementos, SelectionMemento.CompareSelections);
+			return mementos;
+		}
+		
+		public void ViCopyLine(char register, int count)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			CopyLines(register, ranges);
+		}
+		
+		public void ViShift(int indents, int count, bool isLeft)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			for (int i = 0; i < indents; ++i)
+			{
+				processor.Execute(new ViShiftCommand(ranges, isLeft));
+			}
+		}
+		
+		public void SavePositions()
+		{
+			processor.Execute(new SavePositions());
+		}
+		
+		public void ViJ()
+		{
+			ViCollapseSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+			{
+				Selection selection = lines.selections[i];
+				if (selection.Empty)
+				{
+					Place place = lines.PlaceOf(selection.anchor);
+					if (place.iLine < lines.LinesCount - 1)
+					{
+						Line line = lines[place.iLine];
+						place.iChar = line.NormalCount;
+						selection.anchor = lines.IndexOf(place);
+						++place.iLine;
+						if (place.iLine < lines.LinesCount)
+						{
+							Line nextLine = lines[place.iLine];
+							selection.caret = selection.anchor + line.GetRN().Length + nextLine.GetFirstSpaces();
+							texts[i] = " ";
+						}
+						else
+						{
+							texts[i] = "";
+						}
+					}
+					else
+					{
+						texts[i] = "";
+					}
+				}
+			}
+			processor.Execute(new InsertTextCommand(null, texts, true));
+			ViMoveLeft(false);
+		}
+		
+		public void ViPaste(char register, Direction direction, int count)
+		{
+			processor.BeginBatch();
+			if (direction == Direction.Right)
+			{
+				SavePositions();
+				ViMoveRightFromCursor();
+			}
+			string text = ClipboardExecutor.GetFromRegister(lines, register);
+			if (text == null || text == "")
+			{
+				processor.EndBatch();
+				return;
+			}
+			bool isLineInsert = text.EndsWith("\n") || text.EndsWith("\r");
+			if (isLineInsert)
+			{
+				StringBuilder builder = new StringBuilder();
+				for (int ii = 0; ii < count; ii++)
+				{
+					builder.Append(text);
+				}
+				text = builder.ToString();
+				int lastLineIndex = -1;
+				if (direction == Direction.Right)
+				{
+					string[] texts = new string[selections.Count];
+					for (int i = 0; i < selections.Count; ++i)
+					{
+						Selection selection = selections[i];
+						Place caret = lines.PlaceOf(selection.caret);
+						string textI = text;
+						if (caret.iLine >= lines.LinesCount - 1)
+						{
+							lastLineIndex = i;
+							if (textI.EndsWith("\r\n"))
+							{
+								textI = textI.Substring(0, textI.Length - 2);
+							}
+							else if (textI.EndsWith("\n") || textI.EndsWith("\r"))
+							{
+								textI = textI.Substring(0, textI.Length - 1);
+							}
+							textI = lines.lineBreak + textI;
+						}
+						texts[i] = textI;
+						caret.iChar = lines[caret.iLine].charsCount;
+						selection.caret = lines.IndexOf(caret);
+						selection.SetEmpty();
+					}
+					processor.Execute(new InsertTextCommand(null, texts, false));
+				}
+				else
+				{
+					foreach (Selection selection in selections)
+					{
+						Place caret = lines.PlaceOf(selection.caret);
+						caret.iChar = 0;
+						selection.caret = lines.IndexOf(caret);
+						selection.SetEmpty();
+					}
+					processor.Execute(new InsertTextCommand(text, null, false));
+				}
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					Place caret = lines.PlaceOf(selection.caret);
+					if (lastLineIndex == i)
+					{
+						if (caret.iLine + 1 < lines.LinesCount)
+						{
+							++caret.iLine;
+						}
+					}
+					caret.iChar = lines[caret.iLine].GetFirstSpaces();
+					selection.caret = lines.IndexOf(caret);
+					selection.SetEmpty();
+				}
+			}
+			else
+			{
+				LineSubdivider subdivider = new LineSubdivider(text);
+				for (int ii = 0; ii < count; ii++)
+				{
+					if (subdivider.GetLinesCount() != selections.Count)
+					{
+						processor.Execute(new InsertTextCommand(text, null, true));
+					}
+					else
+					{
+						string[] texts = subdivider.GetLines();
+						for (int i = 0; i < texts.Length; i++)
+						{
+							texts[i] = LineSubdivider.GetWithoutEndRN(texts[i]);
+						}
+						processor.Execute(new InsertTextCommand(null, texts, true));
+					}
+				}
+				for (int i = 0, selectionsCount = selections.Count; i < selectionsCount; i++)
+				{
+					Selection selection = lines.selections[i];
+					selection.caret--;
+					selection.SetEmpty();
+				}
+			}
+			SavePositions();
+			processor.EndBatch();
+		}
+		
+		public void ViGoToLine(int iLine, bool shift)
+		{
+			ClearMinorSelections();
+			Place place = new Place(0, CommonHelper.Clamp(iLine, 0, lines.LinesCount - 1));
+			Line line = lines[place.iLine];
+			place.iChar = line.GetFirstSpaces();
+			LastSelection.caret = lines.IndexOf(place);
+			LastSelection.SetEmptyIfNotShift(shift);
+		}
+		
+		private Place ViGetPreferredPlace(Selection selection, Place place)
+		{
+			Line line = lines[place.iLine];
+			return new Place(line.NormalIndexOfPos(selection.preferredPos), place.iLine);
+		}
+		
+		public void ViFindForward(CharsRegularExpressions.Regex regex)
+		{
+			if (regex == null)
+			{
+				return;
+			}
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			int start = selections[0].caret;
+			if (start < charsCount)
+			{
+				start++;
+			}
+			CharsRegularExpressions.Match match = regex.Match(chars, start, charsCount - start);
+			if (match == null || !match.IsMatched(0))
+			{
+				try
+				{
+					match = regex.Match(chars, 0, charsCount);
+				}
+				catch
+				{
+				}
+				if (match == null || !match.IsMatched(0))
+				{
+					return;
+				}
+			}
+			ClearMinorSelections();
+			selections[0].anchor = match.Index;
+			selections[0].caret = match.Index;
+			Place place = lines.PlaceOf(selections[0].caret);
+			lines.SetPreferredPos(selections[0], place);
+		}
+		
+		public void ViFindBackward(CharsRegularExpressions.Regex regex)
+		{
+			if (regex == null)
+			{
+				return;
+			}
+			char[] chars = lines.GetChars();
+			int charsCount = lines.charsCount;
+			int start = selections[0].caret;
+			CharsRegularExpressions.Match match = regex.Match(chars, 0, start);
+			if (match == null || !match.IsMatched(0))
+			{
+				try
+				{
+					match = regex.Match(chars, 0, charsCount);
+				}
+				catch
+				{
+				}
+				if (match == null || !match.IsMatched(0))
+				{
+					return;
+				}
+			}
+			ClearMinorSelections();
+			selections[0].anchor = match.Index;
+			selections[0].caret = match.Index;
+			Place place = lines.PlaceOf(selections[0].caret);
+			lines.SetPreferredPos(selections[0], place);
+		}
+		
+		public void ViDeleteLine(char register, int count)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			CopyLines(register, ranges);
+			processor.Execute(new ViEraseLinesCommand(this, ranges));
+		}
+		
+		public void ViDeleteLineForChange(char register, int count)
+		{
+			List<SimpleRange> ranges = ViGetLineRanges(count);
+			CopyLines(register, ranges);
+			processor.Execute(new ViEraseLinesForChangeCommand(this, ranges));
+		}
+		
+		public List<SimpleRange> GetLineRangesByLefts()
+		{
+			SimpleRange[] mementos = new SimpleRange[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				Selection selection = selections[i];
+				mementos[i] = new SimpleRange(selection.Left, selection.Count);
+			}
+			Array.Sort(mementos, SimpleRange.CompareLeftToRight);
+			
+			List<SimpleRange> ranges = new List<SimpleRange>();
+			int startLine = -1;
+			int endLine = -1;
+			foreach (SimpleRange memento in mementos)
+			{
+				Place place = lines.PlaceOf(memento.index);
+				if (startLine == -1)
+				{
+					startLine = place.iLine;
+					endLine = startLine;
+				}
+				else if (place.iLine == endLine + 1)
+				{
+					endLine = place.iLine;
+				}
+				else if (place.iLine > endLine + 1)
+				{
+					ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
+					startLine = place.iLine;
+					endLine = startLine;
+				}
+			}
+			if (startLine != -1)
+			{
+				ranges.Add(new SimpleRange(startLine, endLine - startLine + 1));
+			}
+			return ranges;
+		}
+		
+		public List<SimpleRange> ViGetLineRanges(int count)
+		{
+			if (count < 1)
+			{
+				count = 1;
+			}
+			SimpleRange[] mementos = new SimpleRange[selections.Count];
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				Selection selection = selections[i];
+				mementos[i] = new SimpleRange(selection.Left, selection.Count);
+			}
+			Array.Sort(mementos, SimpleRange.CompareLeftToRight);
+			
+			List<SimpleRange> ranges = new List<SimpleRange>();
+			SimpleRange lastRange = new SimpleRange(-1, -1);
+			int linesCount = lines.LinesCount;
+			foreach (SimpleRange memento in mementos)
+			{
+				Place start = lines.PlaceOf(memento.index);
+				Place end = memento.count == 0 ? start : lines.PlaceOf(memento.index + memento.count);
+				SimpleRange rangeI = new SimpleRange(start.iLine, end.iLine - start.iLine + count);
+				if (rangeI.index + rangeI.count > linesCount)
+				{
+					rangeI.count = linesCount - rangeI.index;
+				}
+				if (lastRange.index == -1)
+				{
+					lastRange = rangeI;
+				}
+				else
+				{
+					if (rangeI.index <= lastRange.index + lastRange.count)
+					{
+						lastRange.count = rangeI.index + rangeI.count - lastRange.index;
+					}
+					else
+					{
+						ranges.Add(lastRange);
+						lastRange = rangeI;
+					}
+				}
+			}
+			if (lastRange.index != -1)
+			{
+				ranges.Add(lastRange);
+			}
+			return ranges;
+		}
+		
+		private void SetSelectionMementos(SelectionMemento[] mementos)
+		{
+			for (int i = selections.Count; i < mementos.Length; i++)
+			{
+				selections.Add(new Selection());
+			}
+			if (mementos.Length > 0 && selections.Count > mementos.Length)
+			{
+				selections.RemoveRange(mementos.Length, selections.Count - mementos.Length);
+			}
+			for (int i = 0; i < mementos.Length; i++)
+			{
+				Selection selection = selections[mementos[i].index];
+				selection.Memento = mementos[i];
+				selection.FixByCharsLength(lines.charsCount);
+			}
+		}
+		
+		private SelectionMemento[] mementos;
+		
+		private bool mementosAsLines;
+		public bool ViSelectionsAsLines { get { return mementosAsLines; } }
+		
+		public void ViRecoverSelections()
+		{
+			if (mementos != null)
+			{
+				SetSelectionMementos(mementos);
+			}
+		}
+		
+		public void ViStoreSelections()
+		{
+			mementos = GetSelectionMementos();
+			mementosAsLines = receiver != null && receiver.ViMode == ViMode.LinesVisual;
+		}
+		
+		public void ViStoreMementos(SelectionMemento[] mementos)
+		{
+			this.mementos = mementos;
+			mementosAsLines = receiver != null && receiver.ViMode == ViMode.LinesVisual;
+		}
+		
+		public void ViAddHistoryPosition(bool forced)
+		{
+			if (macrosExecutor != null && !string.IsNullOrEmpty(lines.viFullPath))
+			{
+				macrosExecutor.ViSetCurrentFile(lines.viFullPath);
+				if (forced)
+				{
+					macrosExecutor.ViPositionAdd(LastSelection.caret);
+				}
+				else
+				{
+					macrosExecutor.ViPositionSet(LastSelection.caret);
+				}
+			}
+		}
+		
+		public void ViChangeCase()
+		{
+			JoinSelections();
+			string[] texts = new string[selections.Count];
+			for (int i = 0; i < selections.Count; ++i)
+			{
+				Selection selection = selections[i];
+				char[] chars = lines.GetText(selection.Left, selection.Count).ToCharArray();
+				for (int j = 0; j < chars.Length; ++j)
+				{
+					char c = chars[j];
+					if (char.IsUpper(c))
+					{
+						chars[j] = char.ToLower(c);
+					}
+					else if (char.IsLower(c))
+					{
+						chars[j] = char.ToUpper(c);
+					}
+				}
+				texts[i] = new string(chars);
+			}
+			processor.Execute(new InsertTextCommand(null, texts, true));
+		}
+		
+		public readonly List<char> bookmarkNames = new List<char>(4);
+		public readonly List<int> bookmarks = new List<int>(4);
+		
+		public void SetBookmark(char c, int position)
+		{
+			if (c >= 'a' && c <= 'z')
+			{
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					if (bookmarkNames[i] == c)
+					{
+						if (position != -1)
+						{
+							bookmarks[i] = position;
+							return;
+						}
+						bookmarkNames.RemoveAt(i);
+						bookmarks.RemoveAt(i);
+						return;
+					}
+				}
+				bookmarkNames.Add(c);
+				bookmarks.Add(position);
+			}
+		}
+		
+		public int GetBookmark(char c)
+		{
+			if (c >= 'a' && c <= 'z')
+			{
+				for (int i = bookmarks.Count; i-- > 0;)
+				{
+					if (bookmarkNames[i] == c)
+					{
+						return bookmarks[i];
+					}
+				}
+			}
+			return -1;
 		}
 	}
 }

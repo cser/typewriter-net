@@ -4,34 +4,53 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
 
 public class AutocompleteMode
 {
+	public enum Mode
+	{
+		Normal,
+		Raw
+	}
+	
 	private AutocompleteMenu dropDown;
 	private MulticaretTextBox textBox;
-	private bool rawView;
+	private Mode mode;
 	
 	private KeyMap keyMap;
 	
-	public AutocompleteMode(MulticaretTextBox textBox, bool rawView)
+	public Setter<Controller, Variant> onDone;
+	
+	public AutocompleteMode(MulticaretTextBox textBox, Mode mode)
 	{
 		this.textBox = textBox;
-		this.rawView = rawView;
+		this.mode = mode;
 		
 		keyMap = new KeyMap();
-		keyMap.AddItem(new KeyItem(Keys.Up, null, new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Up, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, action));
+		}
 		{
 			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
 			keyMap.AddItem(new KeyItem(Keys.Down, null, action));
-			if (rawView)
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, action));
+			if (mode == Mode.Raw)
+			{
 				keyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+			}
 		}
 		keyMap.AddItem(new KeyItem(Keys.PageUp, null, new KeyAction("&View\\Autocomplete\\MovePageUp", DoMovePageUp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.PageDown, null, new KeyAction("&View\\Autocomplete\\MovePageDown", DoMovePageDown, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null, new KeyAction("&View\\Autocomplete\\MoveToFirst", DoMoveToFirst, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null, new KeyAction("&View\\Autocomplete\\MoveToLast", DoMoveToLast, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Escape, null, new KeyAction("&View\\Autocomplete\\Close", DoClose, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\Close", DoClose, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+		}
 		keyMap.AddItem(new KeyItem(Keys.Enter, null, new KeyAction("&View\\Autocomplete\\Complete", DoComplete, null, false)));
 	}
 	
@@ -45,7 +64,7 @@ public class AutocompleteMode
 		}
 		
 		public MulticaretTextBox TextBox { get { return mode.textBox; } }
-		public bool RawView { get { return mode.rawView; } }
+		public Mode Mode { get { return mode.mode; } }
 		
 		public void CheckPosition()
 		{
@@ -55,13 +74,13 @@ public class AutocompleteMode
 				if (place.iLine != mode.startPlace.iLine && (Math.Abs(place.iLine - mode.startPlace.iLine) > 1 || place.iChar > 0) ||
 				    place.iChar < mode.startPlace.iChar)
 				{
-					mode.Close();
+					mode.Close(false);
 					return;
 				}
 				Point point = mode.textBox.ScreenCoordsOfPlace(mode.startPlace);
 				if (point.Y < -mode.textBox.CharHeight || point.Y > mode.textBox.Height)
 				{
-					mode.Close();
+					mode.Close(false);
 					return;
 				}
 				point.Y += mode.textBox.CharHeight;
@@ -167,7 +186,7 @@ public class AutocompleteMode
 	    return index0 - index1;
 	}
 	
-	public void Close()
+	public void Close(bool done)
 	{
 		if (!opened)
 			return;
@@ -177,6 +196,11 @@ public class AutocompleteMode
 		textBox.FocusedChange -= OnFocusedChange;
 		textBox.KeyMap.RemoveBefore(keyMap);
 		dropDown.Close();
+		if (done)
+		{
+			if (onDone != null)
+				onDone(textBox.Controller, selectedVariant);
+		}
 	}
 	
 	private bool DoMoveUp(Controller controller)
@@ -193,7 +217,7 @@ public class AutocompleteMode
 	{
 		if (dropDown == null || filteredVariants.Count == 0)
 		{
-			Close();
+			Close(false);
 			return false;
 		}
 		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
@@ -229,7 +253,7 @@ public class AutocompleteMode
 	{
 		if (dropDown == null || filteredVariants.Count == 0 || dropDown == null)
 		{
-			Close();
+			Close(false);
 			return false;
 		}
 		if (selectedVariant == null || !filteredVariants.Contains(selectedVariant))
@@ -251,7 +275,7 @@ public class AutocompleteMode
 	
 	private bool DoClose(Controller controller)
 	{
-		Close();
+		Close(false);
 		return true;
 	}
 	
@@ -263,7 +287,7 @@ public class AutocompleteMode
 			int count = caret - startCaret;
 			if (count < 0 || count > completionText.Length)
 			{
-				Close();
+				Close(false);
 				return false;
 			}
 			if (count > 0)
@@ -278,7 +302,7 @@ public class AutocompleteMode
 			            textBox.Controller.Backspace();
 			        }
 			        textBox.Controller.InsertText(completionText);
-			        Close();
+			        Close(true);
 			        return true;
 			    }
 			}
@@ -288,7 +312,7 @@ public class AutocompleteMode
 			}
 			textBox.Controller.InsertText(completionText.Substring(count));
 		}
-		Close();
+		Close(true);
 		return true;
 	}
 	
@@ -301,20 +325,20 @@ public class AutocompleteMode
 			caret = textBox.Controller.LastSelection.caret;
 			if (caret < startCaret)
 			{
-				Close();
+				Close(false);
 				return;
 			}
 			if (caret > startCaret)
 			{
 				string text = textBox.Controller.Lines.GetText(startCaret, caret - startCaret);
-				if (rawView)
+				if (mode == Mode.Raw)
 				{
 					for (int i = 0; i < text.Length; i++)
 					{
 						char c = text[i];
 						if (c != '_' && c != '-' && c != '.' && !char.IsLetterOrDigit(c))
 						{
-							Close();
+							Close(false);
 							return;
 						}
 					}
@@ -326,7 +350,7 @@ public class AutocompleteMode
 						char c = text[i];
 						if (c != '_' && !char.IsLetterOrDigit(c))
 						{
-							Close();
+							Close(false);
 							return;
 						}
 					}
@@ -340,7 +364,7 @@ public class AutocompleteMode
 	{
 		if (!dropDown.Focused && !textBox.Focused)
 		{
-			Close();
+			Close(false);
 		}
 	}
 }

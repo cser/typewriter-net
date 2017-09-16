@@ -32,6 +32,7 @@ namespace MulticaretEditor
 		public const byte TypeBool = 6;
 		public const byte TypeFloat = 7;
 		public const byte TypeLong = 8;
+		public const byte TypeBytes = 9;
 		
 		public static SValue None { get { return new SValue(TypeNone, null); } }
 		
@@ -80,6 +81,11 @@ namespace MulticaretEditor
 			return new SValue(TypeLong, value);
 		}
 		
+		public static SValue NewBytes(byte[] value)
+		{
+			return new SValue(TypeBytes, value);
+		}
+		
 		private readonly byte type;
 		private readonly object value;
 		
@@ -96,6 +102,7 @@ namespace MulticaretEditor
 		public bool IsNone { get { return type == TypeNone; } }
 		public bool IsFloat { get { return type == TypeFloat; } }
 		public bool IsLong { get { return type == TypeLong; } }
+		public bool IsBytes { get { return type == TypeBytes; } }
 
 		public bool IsList { get { return type == TypeList; } }
 		public bool IsHash { get { return type == TypeHash; } }
@@ -106,6 +113,7 @@ namespace MulticaretEditor
 		public bool Bool { get { return value is bool ? (bool)value : false; } }
 		public float Float { get { return value is float ? (float)value : 0f; } }
 		public long Long { get { return value is long ? (long)value : 0L; } }
+		public byte[] Bytes { get { return value is byte[] ? (byte[])value : null; } }
 		
 		public string GetString(string alt)
 		{
@@ -135,6 +143,11 @@ namespace MulticaretEditor
 		public long GetLong(long alt)
 		{
 			return type == TypeLong ? (long)value : alt;
+		}
+		
+		public byte[] GetBytes(byte[] alt)
+		{
+			return type == TypeBytes ? (byte[])value : alt;
 		}
 		
 		private static SList emptyList = new SList();
@@ -346,6 +359,9 @@ namespace MulticaretEditor
 					break;
 				case TypeLong:
 					text = ((long)value).ToString(CultureInfo.InvariantCulture) + "L";
+					break;
+				case TypeBytes:
+					text = "[bytes:" + (value != null ? "length=" + ((byte[])value).Length : "null") + "]";
 					break;
 			}
 			return text;
@@ -599,6 +615,18 @@ namespace MulticaretEditor
 				case TypeLong:
 					writer.Write((long)value.value);
 					break;
+				case TypeBytes:
+					byte[] bytes = (byte[])value.value;
+					if (bytes != null)
+					{
+						writer.Write(bytes.Length);
+						writer.Write(bytes);
+					}
+					else
+					{
+						writer.Write(-1);
+					}
+					break;
 			}
 		}
 		
@@ -628,6 +656,9 @@ namespace MulticaretEditor
 					return new SValue(type, reader.ReadSingle());
 				case TypeLong:
 					return new SValue(type, reader.ReadInt64());
+				case TypeBytes:
+					int length = reader.ReadInt32();
+					return new SValue(type, length != -1 ? reader.ReadBytes(length) : null);
 			}
 			return new SValue();
 		}

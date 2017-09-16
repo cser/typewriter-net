@@ -14,49 +14,51 @@ InstallDir "$PROGRAMFILES\${APPNAME}"
 # This will be in the installer/uninstaller's title bar
 Name "${APPNAME}"
 Icon "TypewriterNET.ico"
-outFile "typewriter-net-installer.exe"
+OutFile "typewriter-net-installer.exe"
  
 !include LogicLib.nsh
  
 # Just three pages - license agreement, install location, and installation
-page directory
+Page directory
 Page instfiles
  
 !macro VerifyUserIsAdmin
 UserInfo::GetAccountType
-pop $0
+Pop $0
 ${If} $0 != "admin" ;Require admin rights on NT4+
-        messageBox mb_iconstop "Administrator rights required!"
-        setErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
-        quit
+        MessageBox mb_iconstop "Administrator rights required!"
+        SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
+        Quit
 ${EndIf}
 !macroend
  
-function .onInit
-	setShellVarContext all
+Function .onInit
+	SetShellVarContext all
 	!insertmacro VerifyUserIsAdmin
-functionEnd
+FunctionEnd
  
-section "install"
-	# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
-	setOutPath $INSTDIR
+Section "install"
+	;# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
+	SetOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
-	file "bin\TypewriterNET.exe"
-	file "bin\MulticaretEditor.dll"
-	file "bin\*.xml"
-	file "TypewriterNET.ico"
-	file /r "bin\schemes"
-	file /r "bin\syntax"
-	file /r "bin\templates"
-	file /r "bin\omnisharp_server"
+	File "bin\TypewriterNET.exe"
+	File "bin\MulticaretEditor.dll"
+	File "bin\*.xml"
+	File "TypewriterNET.ico"
+	File /r "bin\ctags"
+	File /r "bin\schemes"
+	File /r "bin\syntax"
+	File /r "bin\templates"
+	File /r "bin\snippets"
+	File /r "bin\omnisharp_server"
  
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
-	writeUninstaller "$INSTDIR\uninstall.exe"
+	WriteUninstaller "$INSTDIR\uninstall.exe"
  
 	# Start Menu
-	createDirectory "$SMPROGRAMS\${APPNAME}"
-	createShortCut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\TypewriterNET.exe" "" ""
-	createShortCut "$SMPROGRAMS\${APPNAME}\uninstall.lnk" "$INSTDIR\uninstall.exe" "" ""
+	CreateDirectory "$SMPROGRAMS\${APPNAME}"
+	CreateShortCut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\TypewriterNET.exe" "" ""
+	CreateShortCut "$SMPROGRAMS\${APPNAME}\uninstall.lnk" "$INSTDIR\uninstall.exe" "" ""
  
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
@@ -70,43 +72,44 @@ section "install"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoRepair" 1
 	# Set the INSTALLSIZE constant (!defined at the top of this script) so Add/Remove Programs can accurately report the size
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
-sectionEnd
+SectionEnd
  
 # Uninstaller
  
-function un.onInit
+Function un.onInit
 	SetShellVarContext all
  
 	#Verify the uninstaller - last chance to back out
 	MessageBox MB_OKCANCEL "Permanantly remove ${APPNAME}?" IDOK next
 		Abort
-	next:
+	Next:
 	!insertmacro VerifyUserIsAdmin
-functionEnd
+FunctionEnd
  
-section "uninstall"
+Section "uninstall"
  
 	# Remove Start Menu launcher
-	delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
+	Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
 	# Try to remove the Start Menu folder - this will only happen if it is empty
-	rmDir "$SMPROGRAMS\${APPNAME}"
+	RMDir "$SMPROGRAMS\${APPNAME}"
  
 	# Remove files
-	delete $INSTDIR\TypewriterNET.ico
-	delete $INSTDIR\TypewriterNET.exe
-	delete $INSTDIR\MulticaretEditor.dll
-	delete $INSTDIR\*.xml
-	rmdir /r /rebootok $INSTDIR\schemes
-	rmdir /r /rebootok $INSTDIR\syntax
-	rmdir /r /rebootok $INSTDIR\templates
-	rmdir /r /rebootok $INSTDIR\omnisharp_server
+	Delete $INSTDIR\TypewriterNET.ico
+	Delete $INSTDIR\TypewriterNET.exe
+	Delete $INSTDIR\MulticaretEditor.dll
+	Delete $INSTDIR\*.xml
+	RMDir /r /rebootok $INSTDIR\ctags
+	RMDir /r /rebootok $INSTDIR\schemes
+	RMDir /r /rebootok $INSTDIR\syntax
+	RMDir /r /rebootok $INSTDIR\templates
+	RMDir /r /rebootok $INSTDIR\omnisharp_server
  
 	# Always delete uninstaller as the last action
-	delete $INSTDIR\uninstall.exe
+	Delete $INSTDIR\uninstall.exe
  
 	# Try to remove the install directory - this will only happen if it is empty
-	rmDir $INSTDIR
+	RMDir $INSTDIR
  
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
-sectionEnd
+SectionEnd

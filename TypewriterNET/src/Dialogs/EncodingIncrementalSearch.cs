@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class EncodingIncrementalSearch : IncrementalSearchBase
@@ -13,7 +11,8 @@ public class EncodingIncrementalSearch : IncrementalSearchBase
 	public EncodingIncrementalSearch(TempSettings tempSettings, bool isSave) : base(
 		tempSettings,
 		isSave ? "Save encoding" : "Reload with encoding",
-		isSave ? "Save encoding" : "Reload with encoding"
+		isSave ? "Save encoding" : "Reload with encoding",
+		null
 	)
 	{
 		this.isSave = isSave;

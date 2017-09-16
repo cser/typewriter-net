@@ -6,25 +6,9 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 public class ShowUsages
 {
-	public struct Position
-	{
-		public readonly string fullPath;
-		public readonly Place place;
-		public readonly int length;
-
-		public Position(string fullPath, Place place, int length)
-		{
-			this.fullPath = fullPath;
-			this.place = place;
-			this.length = length;
-		}
-	}
-
 	private MainForm mainForm;
 	private List<Position> positions;
 	private Buffer buffer;
@@ -54,6 +38,10 @@ public class ShowUsages
 		}
 		foreach (Usage usage in usages)
 		{
+			if (builder.Length > 0)
+			{
+				builder.Append(mainForm.Settings.lineBreak.Value);
+			}
 			string fileName = Path.GetFileName(usage.FileName);
 			ranges.Add(new StyleRange(builder.Length, maxLength, Ds.String.index));
 			builder.Append(fileName.PadRight(maxLength));
@@ -91,7 +79,6 @@ public class ShowUsages
 			}
 			positions.Add(new Position(usage.FileName, new Place(usage.Column - 1, usage.Line - 1), word.Length));
 			builder.Append(text);
-			builder.Append(mainForm.Settings.lineBreak.Value);
 		}
 
 		buffer = new Buffer(null, "Usages", SettingsMode.Normal);
@@ -105,6 +92,7 @@ public class ShowUsages
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
+		mainForm.Ctags.SetGoToPositions(positions);
 		mainForm.ShowConsoleBuffer(MainForm.FindResultsId, buffer);
 		return null;
 	}
@@ -112,8 +100,12 @@ public class ShowUsages
 	private bool ExecuteEnter(Controller controller)
 	{
 		Place place = controller.Lines.PlaceOf(controller.LastSelection.anchor);
-		Position position = positions[place.iLine];
-		mainForm.NavigateTo(position.fullPath, position.place, new Place(position.place.iChar + position.length, position.place.iLine));
-		return true;
+		if (place.iLine >= 0 && place.iLine < positions.Count)
+		{
+			mainForm.Ctags.SetGoToPositions(positions);
+			mainForm.Ctags.GoToTag(place.iLine);
+			return true;
+		}
+		return false;
 	}
 }

@@ -8,15 +8,12 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
 	public class MonospaceLabel : Control
 	{
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
-		private int lineInterval = 0;
 		private SolidBrush bgBrush;
 		private SolidBrush textBrush;
 
@@ -128,7 +125,7 @@ namespace MulticaretEditor
 			
 			SizeF size = GetCharSize(font, 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
-			charHeight = lineInterval + (int)Math.Round(size.Height * 1f) + 1;
+			charHeight = (int)Math.Round(size.Height * 1f) + 1;
 			
 			Invalidate();
 		}
@@ -184,7 +181,7 @@ namespace MulticaretEditor
 		private void DrawLineChars(Graphics g, Point position, List<char> line)
 		{
 			int count = line.Count;
-			float y = position.Y + lineInterval / 2;
+			float y = position.Y;
 			float x = position.X - charWidth / 3;
 			int pos = 0;
 			for (int i = 0; i < count; i++)

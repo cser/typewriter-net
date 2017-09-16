@@ -178,7 +178,7 @@ namespace UnitTests
 				"\tline3");
 			controller.PutCursor(new Place(2, 3), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"\tline0() {\n" +
 				"\t\tline1\n" +
@@ -209,7 +209,7 @@ namespace UnitTests
 				"\tline3");
 			controller.PutCursor(new Place(2, 2), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"\tline0()\n" +
 				"\t{\n" +
@@ -239,12 +239,114 @@ namespace UnitTests
 				"line3");
 			controller.PutCursor(new Place(1, 2), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			AssertText(
 				"line0()\n" +
 				"{\n" +
 				"\t\n" +
 				"line3");
+		}
+		
+		[Test]
+		public void InsertLineBreak_BeforeCket_Autoindent()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2}\n" +
+				"\tline3");
+			controller.PutCursor(new Place(7, 2), false);
+			AssertSelection().Both(7, 2).NoNext();
+			controller.InsertLineBreak();
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t}\n" +
+				"\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+			
+			controller.processor.Undo();
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2}\n" +
+				"\tline3");
+		}
+		
+		[Test]
+		public void InsertLineBreak_BeforeCket_Autoindent2()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2}ABCDE\n" +
+				"\tline3");
+			controller.PutCursor(new Place(7, 2), false);
+			AssertSelection().Both(7, 2).NoNext();
+			controller.InsertLineBreak();
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2\n" +
+				"\t}ABCDE\n" +
+				"\tline3");
+			controller.PutCursor(new Place(2, 3), false);
+			
+			controller.processor.Undo();
+			AssertText(
+				"\tline0() {\n" +
+				"\t\tline1\n" +
+				"\t\tline2}ABCDE\n" +
+				"\tline3");
+		}
+		
+		[Test]
+		public void InsertLineBreak_BeforeCket_Autoindent3()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText("line0() {\n\tline2}ABCDE");
+			controller.PutCursor(new Place(6, 2), false);
+			controller.InsertLineBreak();
+			AssertText("line0() {\n\tline2\n}ABCDE");
+			controller.processor.Undo();
+			AssertText("line0() {\n\tline2}ABCDE");
+		}
+		
+		[Test]
+		public void InsertLineBreak_BeforeCket_Autoindent4()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText("line0() {\nline2}ABCDE");
+			controller.PutCursor(new Place(5, 2), false);
+			controller.InsertLineBreak();
+			AssertText("line0() {\nline2\n}ABCDE");
+			controller.processor.Undo();
+			AssertText("line0() {\nline2}ABCDE");
+		}
+		
+		[Test]
+		public void InsertLineBreak_AfterColon()
+		{
+			Init();
+			lines.lineBreak = "\n";
+			lines.autoindent = true;
+			lines.SetText("\tline0()\n\tline1:ABCDE\n\tline2");
+			controller.PutCursor(new Place(7, 1), false);
+			controller.InsertLineBreak();
+			AssertText("\tline0()\n\tline1:\n\t\tABCDE\n\tline2").AssertSelection().Both(2, 2);
+			controller.processor.Undo();
+			AssertText("\tline0()\n\tline1:ABCDE\n\tline2");
 		}
 	}
 }

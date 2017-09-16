@@ -264,5 +264,46 @@ namespace UnitTests
 			Assert.True(iterator.MoveLeft(out c));
 			Assert.AreEqual('\n', c);
 		}
+		
+		private void AssertLeftRight(PlaceIterator iterator, char left, char right)
+		{
+			char iteratorLeft = iterator.LeftChar;
+			char iteratorRight = iterator.RightChar;
+			Assert.True(iteratorLeft == left && iteratorRight == right,
+				("expected: (" + left + ", " + right + "), was: (" +
+				iteratorLeft + ", " + iteratorRight + ")").Replace("\0", "\\0"));
+		}
+		
+		[Test]
+		public void LeftRightChar_Idle()
+		{
+			Init();
+			
+			lines.SetText("123456");
+			PlaceIterator iterator = lines.GetCharIterator(1);
+			AssertLeftRight(iterator, '1', '2');
+		}
+		
+		[Test]
+		public void LeftRightChar_AfterMoveRight()
+		{
+			Init();
+			
+			lines.SetText("123456");
+			PlaceIterator iterator = lines.GetCharIterator(1);
+			iterator.MoveRightWithRN();
+			AssertLeftRight(iterator, '2', '3');
+		}
+		
+		[Test]
+		public void LeftRightChar_AfterMoveLeft()
+		{
+			Init();
+			
+			lines.SetText("123456");
+			PlaceIterator iterator = lines.GetCharIterator(3);
+			iterator.MoveLeftWithRN();
+			AssertLeftRight(iterator, '2', '3');
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using MulticaretEditor;
 
@@ -26,11 +26,11 @@ namespace UnitTests
 			Assert.AreEqual("Dutext\nDtextu hastextt\nDu hast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(14, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			lines.SetText("Du\nDu hast\nDu hast mich");
 			AssertSelection().Both(2, 0).Next().Both(1, 1).Next().Both(6, 1).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("Dutext\nDtextu hastextt\nDu hast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(14, 1).NoNext();
 		}
@@ -55,19 +55,19 @@ namespace UnitTests
 			Assert.AreEqual("Dutext\nDtexthastextu hast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(12, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			// Du|\n
 			// Du |hast\n
 			// D|u hast mich
 			lines.SetText("Du\nDu hast\nDu hast mich");
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(6, 1).Caret(1, 2).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("Dutext\nDtexthastextu hast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(12, 1).NoNext();
 			
 			controller.ClearMinorSelections();
-			controller.Undo();
+			controller.processor.Undo();
 			lines.SetText("Du\nDu hast\nDu hast mich");
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(6, 1).Caret(1, 2).NoNext();
 		}
@@ -92,7 +92,7 @@ namespace UnitTests
 			Assert.AreEqual("Dutext\nDtexttextast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(9, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 		}
@@ -119,17 +119,17 @@ namespace UnitTests
 			
 			controller.PutCursor(new Pos(7, 2), false);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 			
 			controller.PutCursor(new Pos(7, 2), false);
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("Dutext\nDtexttextast mich", lines.GetText());
 			AssertSelection().Both(6, 0).Next().Both(5, 1).Next().Both(9, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 		}
@@ -152,7 +152,7 @@ namespace UnitTests
 			Assert.AreEqual("DuD has\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Both(3, 0).Next().Both(7, 0).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Both(1, 1).Next().Both(6, 1).NoNext();
 		}
@@ -168,7 +168,7 @@ namespace UnitTests
 			Assert.AreEqual("DuDu hast\r\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\r\nDu hast\r\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0);
 		}
@@ -193,12 +193,12 @@ namespace UnitTests
 			Assert.AreEqual("10", lines.GetText());
 			AssertSelection().Both(1, 0);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("1234567890", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Both(2, 0).Next()
 				.Both(8, 0).Next().Both(7, 0).Next().Both(6, 0).Next().Both(3, 0).Next().Both(4, 0).Next().Both(5, 0);
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("10", lines.GetText());
 			AssertSelection().Both(1, 0);
 		}
@@ -223,11 +223,11 @@ namespace UnitTests
 			Assert.AreEqual("Du\nDstch", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Both(1, 1).Next().Both(3, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Anchor(1, 1).Caret(5, 1).Next().Anchor(7, 1).Caret(10, 2).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("Du\nDstch", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Both(1, 1).Next().Both(3, 1).NoNext();
 		}
@@ -252,7 +252,7 @@ namespace UnitTests
 			Assert.AreEqual("Du\nDast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Both(1, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 		}
@@ -276,7 +276,7 @@ namespace UnitTests
 			Assert.AreEqual("D\nu hat\nDu hast mich", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Both(0, 1).Next().Both(4, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Both(1, 1).Next().Both(6, 1).NoNext();
 		}
@@ -292,7 +292,7 @@ namespace UnitTests
 			Assert.AreEqual("DuDu hast\r\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\r\nDu hast\r\nDu hast mich", lines.GetText());
 			AssertSelection().Both(0, 1);
 		}
@@ -317,12 +317,12 @@ namespace UnitTests
 			Assert.AreEqual("90", lines.GetText());
 			AssertSelection().Both(0, 0);
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("1234567890", lines.GetText());
 			AssertSelection().Both(1, 0).Next().Both(2, 0).Next()
 				.Both(8, 0).Next().Both(7, 0).Next().Both(6, 0).Next().Both(3, 0).Next().Both(4, 0).Next().Both(5, 0);
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("90", lines.GetText());
 			AssertSelection().Both(0, 0);
 		}
@@ -343,18 +343,18 @@ namespace UnitTests
 			controller.PutCursor(new Pos(3, 1), true);
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 			
-			ClipboardExecuter.PutToClipboard("a\ntext\nanother text");
+			ClipboardExecutor.PutToClipboard("a\ntext\nanother text");
 			controller.Paste();
 			// Dua|\n
 			// Dtext|another text|ast mich
 			Assert.AreEqual("Dua\nDtextanother textast mich", lines.GetText());
 			AssertSelection().Both(3, 0).Next().Both(5, 1).Next().Both(17, 1).NoNext();
 			
-			controller.Undo();
+			controller.processor.Undo();
 			Assert.AreEqual("Du\nDu hast\nDu hast mich", lines.GetText());
 			AssertSelection().Both(2, 0).Next().Anchor(1, 1).Caret(3, 1).Next().Anchor(4, 2).Caret(3, 1).NoNext();
 			
-			controller.Redo();
+			controller.processor.Redo();
 			Assert.AreEqual("Dua\nDtextanother textast mich", lines.GetText());
 			AssertSelection().Both(3, 0).Next().Both(5, 1).Next().Both(17, 1).NoNext();
 		}

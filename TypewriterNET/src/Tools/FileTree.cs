@@ -4,8 +4,6 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using System.Threading;
 
 public class FileTree
@@ -81,12 +79,14 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Set current directory", DoOnSetCurrentDirectory, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Enter, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Alt | Keys.Space, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.C, null, action));
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.None, Keys.Alt, action).SetDoubleClick(true));
 		}
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Close file tree", DoCloseBuffer, null, false);
 			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Escape, null, action));
+			buffer.additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.OemOpenBrackets, null, action));
 		}
 		buffer.additionBeforeKeyMap = new KeyMap();
 		{
@@ -276,7 +276,7 @@ public class FileTree
 		}
 	}
 
-	public void Find(string fullPath)
+	public bool Find(string fullPath)
 	{
 		fullPath = fullPath.ToLowerInvariant();
 		if (!fullPath.StartsWith(currentDirectory.ToLowerInvariant()))
@@ -286,6 +286,21 @@ public class FileTree
 		}
 		ExpandTo(node, fullPath);
 		Rebuild();
+		if (TrySelectPath(fullPath))
+		{
+			return true;
+		}
+		Reload();
+		ExpandTo(node, fullPath);
+		if (TrySelectPath(fullPath))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private bool TrySelectPath(string fullPath)
+	{
 		for (int i = 0, count = nodes.Count; i < count; i++)
 		{
 			Node nodeI = nodes[i];
@@ -295,9 +310,10 @@ public class FileTree
 				Place place = new Place(0, i);
 				buffer.Controller.LastSelection.anchor = buffer.Controller.LastSelection.caret = buffer.Controller.Lines.IndexOf(place);
 				buffer.Controller.NeedScrollToCaret();
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private void ExpandTo(Node node, string fullPath)
@@ -585,7 +601,7 @@ public class FileTree
 			count++;
 			if (count > 10)
 			{
-				builder.AppendLine("...");
+				builder.AppendLine("…");
 				break;
 			}
 			builder.AppendLine(nodeI.fullPath);
@@ -596,17 +612,31 @@ public class FileTree
 		{
 			foreach (Node nodeI in filesAndDirs)
 			{
+				bool isFileDeleted = false;
 				try
 				{
 					if (nodeI.type == NodeType.Directory)
+					{
 						Directory.Delete(nodeI.fullPath, true);
+					}
 					else if (nodeI.type == NodeType.File)
+					{
 						File.Delete(nodeI.fullPath);
+						isFileDeleted = true;
+					}
 				}
 				catch (Exception e)
 				{
 					mainForm.Log.WriteError("Remove error", e.Message);
 					mainForm.Log.Open();
+				}
+				if (isFileDeleted)
+				{
+					Buffer buffer = mainForm.GetBuffer(nodeI.fullPath);
+					if (buffer != null)
+					{
+						buffer.fileInfo = null;
+					}
 				}
 			}
 			Reload();
@@ -670,7 +700,7 @@ public class FileTree
 		{
 			Buffer buffer = mainForm.ForcedLoadFile(fullPath);
 			buffer.needSaveAs = false;
-			mainForm.SaveFile(buffer);
+			mainForm.SaveFileOnAdd(buffer);
 		}
 		Reload();
 		this.buffer.Controller.ClearMinorSelections();
@@ -893,6 +923,7 @@ public class FileTree
 		Buffer buffer = mainForm.GetBuffer(oldFile);
 		if (buffer != null)
 			buffer.SetFile(newFile, Path.GetFileName(newFile));
+		MulticaretTextBox.initMacrosExecutor.ViRenameFile(oldFile, newFile);
 	}
 	
 	private void DirectoryMove(string oldDir, string newDir)
@@ -1089,5 +1120,65 @@ public class FileTree
             }
         }
 		return null;
+	}
+	
+	public bool DoOnViShortcut(Controller controller, string shortcut)
+	{
+		if (buffer.Controller == controller)
+		{
+			if (shortcut == "o")
+			{
+				return DoOnEnter(controller);
+			}
+			if (shortcut == "O")
+			{
+				return DoOnEnterNoSwitch(controller);
+			}
+			if (shortcut == "dd" || shortcut == "v_d" || shortcut == "v_x")
+			{
+				return DoRemoveItem(controller);
+			}
+		}
+		return false;
+	}
+	
+	public bool IsFolderOpen(string dir)
+	{
+		if (string.IsNullOrEmpty(dir))
+		{
+			return false;
+		}
+		if (!dir.EndsWith("\\"))
+		{
+			dir += "\\";
+		}
+		return FindTo(node, dir.ToLowerInvariant());
+	}
+	
+	private bool FindTo(Node node, string fullPath)
+	{
+		if (!fullPath.StartsWith(node.fullPath.ToLowerInvariant()))
+		{
+			return false;
+		}
+		{
+			string nodeFullPath = !node.fullPath.EndsWith("\\") ? node.fullPath + "\\" : node.fullPath;
+			if (nodeFullPath.ToLowerInvariant() == fullPath)
+			{
+				return node.type == NodeType.Directory && node.expanded;
+			}
+		}
+		if (node.expanded)
+		{
+			foreach (Node nodeI in node.childs)
+			{
+				string nodeFullPath = !nodeI.fullPath.EndsWith("\\") ? nodeI.fullPath + "\\" : nodeI.fullPath;
+				if (fullPath.StartsWith(nodeFullPath.ToLowerInvariant()))
+				{
+					return FindTo(nodeI, fullPath);
+				}
+			}
+		}
+		return false;
 	}
 }

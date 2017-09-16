@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace MulticaretEditor.KeyMapping
+namespace MulticaretEditor
 {
 	public class KeyAction
 	{
@@ -235,8 +235,7 @@ namespace MulticaretEditor.KeyMapping
 		public static readonly KeyAction UnselectPrevText = Add("&Edit\\Selection\\Unselect prev text", DoUnselectPrevText, null, true);
 		private static bool DoUnselectPrevText(Controller controller)
 		{
-			controller.UnselectPrevText();
-			return true;
+			return controller.UnselectPrevText();
 		}
 		
 		public static readonly KeyAction SelectAllMatches = Add("&Edit\\Selection\\Select all matches", DoSelectAllMatches, null, true);
@@ -305,32 +304,32 @@ namespace MulticaretEditor.KeyMapping
 		public static readonly KeyAction Undo = Add("&Edit\\Undo", DoUndo, null, true);
 		private static bool DoUndo(Controller controller)
 		{
-			controller.Undo();
+			controller.processor.Undo();
 			return true;
 		}
 
 		public static readonly KeyAction Redo = Add("&Edit\\Redo", DoRedo, null, true);
 		private static bool DoRedo(Controller controller)
 		{
-			controller.Redo();
+			controller.processor.Redo();
 			return true;
 		}
 
 		public static readonly KeyAction SwitchBranch = Add("&Edit\\Switch redo branch", DoSwitchBranch, DoSwitchBranchCangeMode, true);
 		private static bool DoSwitchBranch(Controller controller)
 		{
-			controller.history.TagsDown();
+			controller.processor.TagsDown();
 			return true;
 		}
 		private static void DoSwitchBranchCangeMode(Controller controller, bool mode)
 		{
 			if (mode)
 			{
-				controller.history.TagsModeOn();
+				controller.processor.TagsModeOn();
 			}
 			else
 			{
-				controller.history.TagsModeOff();
+				controller.processor.TagsModeOff();
 			}
 		}
 

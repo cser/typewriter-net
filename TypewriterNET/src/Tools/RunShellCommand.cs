@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Diagnostics;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 
 public class RunShellCommand
 {
@@ -45,15 +43,17 @@ public class RunShellCommand
 	}
 
 	private Buffer buffer;
-	private Dictionary<int, List<Position>> positions;
+	private List<Position> positions;
+	private Dictionary<int, List<Position>> positionsOf;
 
 	public void Execute(
 		string commandText, bool showCommandInOutput, IRList<RegexData> regexList,
 		bool stayTop, bool silentIfNoOutput, string parameters)
 	{
-		positions = new Dictionary<int, List<Position>>();
+		positions = new List<Position>();
+		positionsOf = new Dictionary<int, List<Position>>();
 
-		Encoding encoding = GetEncoding(parameters);
+		Encoding encoding = GetEncoding(mainForm, parameters);
 		Process p = new Process();
 		p.StartInfo.RedirectStandardOutput = true;
 		p.StartInfo.RedirectStandardError = true;
@@ -76,11 +76,12 @@ public class RunShellCommand
 	
 	public void ShowInOutput(string text, IRList<RegexData> regexList, bool stayTop, bool silentIfNoOutput, string parameters)
 	{
-		positions = new Dictionary<int, List<Position>>();
+		positionsOf = new Dictionary<int, List<Position>>();
+		positions = new List<Position>();
 		ShowInOutput(null, null, text, regexList, stayTop, silentIfNoOutput, parameters);
 	}
 	
-	private Encoding GetEncoding(string parameters)
+	public static Encoding GetEncoding(MainForm mainForm, string parameters)
 	{
 		if (!string.IsNullOrEmpty(parameters))
 		{
@@ -106,6 +107,22 @@ public class RunShellCommand
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}
 	
+	public static string CutParametersFromLeft(ref string commandText)
+	{
+		commandText = commandText.Trim();
+		string parameters = "";
+		if (commandText.StartsWith("{"))
+		{
+			int index = commandText.IndexOf("}");
+			if (index != -1)
+			{
+				parameters = commandText.Substring(1, index - 1);
+				commandText = commandText.Substring(index + 1);
+			}
+		}
+		return parameters;
+	}
+	
 	private void ShowInOutput(
 		string output, string errors, string text, IRList<RegexData> regexList,
 		bool stayTop, bool silentIfNoOutput, string parameters)
@@ -127,7 +144,7 @@ public class RunShellCommand
 		buffer = new Buffer(null, "Shell command results", SettingsMode.Normal);
 		buffer.Controller.isReadonly = true;
 		buffer.Controller.InitText(text);
-		buffer.encodingPair = new EncodingPair(GetEncoding(parameters), false);
+		buffer.encodingPair = new EncodingPair(GetEncoding(mainForm, parameters), false);
 		if (regexList != null)
 		{
 			foreach (RegexData regexData in regexList)
@@ -173,13 +190,22 @@ public class RunShellCommand
 						}
 						Place place = buffer.Controller.Lines.PlaceOf(match.Index);
 						List<Position> list;
-						positions.TryGetValue(place.iLine, out list);
+						positionsOf.TryGetValue(place.iLine, out list);
 						if (list == null)
 						{
 							list = new List<Position>();
-							positions[place.iLine] = list;
+							positionsOf[place.iLine] = list;
 						}
-						list.Add(new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength));
+						Position position = new Position(path, new Place(iChar - 1, iLine - 1), shellStart, shellLength);
+						list.Add(position);
+						positions.Add(position);
+					}
+					else
+					{
+						string path = match.Groups[0].Value;
+						int shellStart = match.Groups[0].Index;
+						int shellLength = match.Groups[0].Length;
+						ranges.Add(new StyleRange(shellStart, shellLength, Ds.String2.index));
 					}
 				}
 			}
@@ -211,6 +237,7 @@ public class RunShellCommand
 					parameters.Substring(index + 2);
 			}
 		}
+		mainForm.Ctags.SetGoToPositions(positions);
 		mainForm.ShowConsoleBuffer(MainForm.ShellResultsId, buffer);
 		mainForm.CheckFilesChanges();
 	}
@@ -220,7 +247,7 @@ public class RunShellCommand
 		int caret = buffer.Controller.LastSelection.caret;
 		Place place = buffer.Controller.Lines.PlaceOf(caret);
 		List<Position> list;
-		if (positions.TryGetValue(place.iLine, out list))
+		if (positionsOf.TryGetValue(place.iLine, out list))
 		{
 			list.Sort(ComparePositions);
 			Position position = list[0];
@@ -234,22 +261,8 @@ public class RunShellCommand
 					break;
 				}
 			}
-			if (string.IsNullOrEmpty(position.fileName) || position.fileName.Trim() == "")
-			{
-				mainForm.NavigateTo(position.place, position.place);
-				return true;
-			}
-			string fullPath = null;
-			try
-			{
-				fullPath = Path.GetFullPath(position.fileName);
-			}
-			catch
-			{
-				mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + position.fileName);
-				return true;
-			}
-			mainForm.NavigateTo(fullPath, position.place, position.place);
+			mainForm.Ctags.SetGoToPositions(positions);
+			mainForm.Ctags.GoToTag(position);
 			return true;
 		}
 		return false;

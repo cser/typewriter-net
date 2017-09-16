@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class SyntaxIncrementalSearch : IncrementalSearchBase
 {
 	public SyntaxIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Syntax selection", "Syntax selection")
+		: base(tempSettings, "Syntax selection", "Syntax selection", null)
 	{
 	}
 

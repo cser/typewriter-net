@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace MulticaretEditor.KeyMapping
+namespace MulticaretEditor
 {
 	public class NamedAction
 	{

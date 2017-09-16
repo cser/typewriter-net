@@ -9,8 +9,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 using System.Text.RegularExpressions;
 
@@ -32,6 +30,7 @@ public class MoveDialog : ADialog
 	private Data data;
 	private string text;
 	private Getter<string, bool> onInput;
+	private bool startViMode;
 
 	public MoveDialog(Data data, Getter<string, bool> onInput, string name, string text)
 	{
@@ -82,6 +81,10 @@ public class MoveDialog : ADialog
 
 	private void OnCloseClick()
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 	}
 
@@ -95,6 +98,9 @@ public class MoveDialog : ADialog
 	override public void Focus()
 	{
 		textBox.Focus();
+		
+		startViMode = MulticaretTextBox.initMacrosExecutor != null &&
+			MulticaretTextBox.initMacrosExecutor.viMode != ViMode.Insert;
 		Frame lastFrame = Nest.MainForm.LastFrame;
 		Controller lastController = lastFrame != null ? lastFrame.Controller : null;
 		if (lastController != null)
@@ -150,6 +156,10 @@ public class MoveDialog : ADialog
 
 	private bool DoCancel(Controller controller)
 	{
+		if (startViMode)
+		{
+			textBox.SetViMode(true);
+		}
 		DispatchNeedClose();
 		return true;
 	}
@@ -160,7 +170,13 @@ public class MoveDialog : ADialog
 		if (data.history != null)
 			data.history.Add(text);
 		if (onInput(textBox.Controller.Lines.GetText()))
+		{
+			if (startViMode)
+			{
+				textBox.SetViMode(true);
+			}
 			DispatchNeedClose();
+		}
 		return true;
 	}
 
@@ -231,7 +247,7 @@ public class MoveDialog : ADialog
 	
 	private void AutocompleteProperty(string text)
 	{
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		if (MainForm.Settings != null)
 		{
@@ -274,7 +290,7 @@ public class MoveDialog : ADialog
 		}
 		if (dirs == null || dirs.Length == 0)
 			return;
-		AutocompleteMode autocomplete = new AutocompleteMode(textBox, true);
+		AutocompleteMode autocomplete = new AutocompleteMode(textBox, AutocompleteMode.Mode.Raw);
 		List<Variant> variants = new List<Variant>();
 		foreach (string file in dirs)
 		{

@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using CustomScrollBar;
 
 namespace MulticaretEditor
@@ -22,24 +20,33 @@ namespace MulticaretEditor
 		public event Setter TextChange;
 		public event Setter AfterClick;
 		public event Setter AfterKeyPress;
+		public event Setter<string> ViShortcut;
 
 		private LineArray lines;
 		private Controller controller;
+		private Receiver receiver;
 		private StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 		private StringFormat rightAlignFormat= new StringFormat(StringFormatFlags.DirectionRightToLeft);
-		private int lineInterval = 0;
 		private Timer cursorTimer;
 		private Timer keyTimer;
 		private Timer highlightingTimer;
 		private bool isCursorTick = true;
-		private KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly KeyMapNode keyMap = new KeyMapNode(new KeyMap().SetDefault(), 0);
+		private readonly Dictionary<char, char> viMap = new Dictionary<char, char>();
 		private TextStyle[] styles;
 		private readonly Brush bgBrush;
-		private MacrosExecutor macrosExecutor;
 		private readonly BorderHGeometry borderH = new BorderHGeometry();
-
-		public MulticaretTextBox()
+		private readonly MacrosExecutor macrosExecutor;
+		
+		public readonly bool alwaysInputMode;
+		
+		public MulticaretTextBox() : this(false)
 		{
+		}
+
+		public MulticaretTextBox(bool alwaysInputMode)
+		{
+			this.alwaysInputMode = alwaysInputMode;
 			macrosExecutor = initMacrosExecutor ?? new MacrosExecutor(GetSelf);
 
 			bgBrush = new SolidBrush(BackColor);
@@ -73,6 +80,17 @@ namespace MulticaretEditor
 			InitScrollBars();
 			Controller = new Controller(new LineArray());
 		}
+		
+		public string GetMapped(string text)
+		{
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < text.Length; i++)
+			{
+				char c;
+				builder.Append(viMap.TryGetValue(text[i], out c) ? c : text[i]);
+			}
+			return builder.ToString();
+		}
 
 		private MulticaretTextBox GetSelf()
 		{
@@ -97,11 +115,19 @@ namespace MulticaretEditor
 				if (controller != value)
 				{
 					if (controller != null)
+					{
+						controller.ViStoreSelections();
 						controller.macrosExecutor = null;
+						controller.receiver = null;
+					}
 					controller = value;
 					if (controller != null)
 					{
 						controller.macrosExecutor = macrosExecutor;
+						receiver = new Receiver(controller, macrosExecutor.viMode, alwaysInputMode);
+						receiver.viMap = viMap;
+						receiver.ViModeChanged += Receiver_ViModeChanged;
+						controller.receiver = receiver;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;
@@ -114,9 +140,29 @@ namespace MulticaretEditor
 					else
 					{
 						lines = null;
+						receiver = null;
 					}
 					Invalidate();
 				}
+			}
+		}
+		
+		public bool ViFind(Pattern pattern)
+		{
+			if (receiver != null && receiver.DoFind(pattern))
+			{
+				ScrollIfNeedToCaret();
+				Invalidate();
+				return true;
+			}
+			return false;
+		}
+		
+		private void Receiver_ViModeChanged()
+		{
+			if (!alwaysInputMode)
+			{
+				macrosExecutor.viMode = receiver != null ? receiver.ViMode : ViMode.Insert;
 			}
 		}
 
@@ -356,7 +402,7 @@ namespace MulticaretEditor
 
 			SizeF size = GetCharSize(fonts[0], 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
-			charHeight = lineInterval + (int)Math.Round(size.Height * 1f) + 1;
+			charHeight = (int)Math.Round(size.Height * 1f) + 1;
 
 			Invalidate();
 		}
@@ -450,6 +496,19 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public void SetViMap(string source, string result)
+		{
+			viMap.Clear();
+			if (source != null && result != null)
+			{
+				int count = Math.Min(source.Length, result.Length);
+				for (int i = 0; i < count; i++)
+				{
+					viMap[source[i]] = result[i];
+				}
+			}
+		}
 
 		private static SizeF GetCharSize(Font font, char c)
 		{
@@ -477,9 +536,22 @@ namespace MulticaretEditor
 			else
 				base.Invalidate();
 		}
+		
+		public void SetViMode(bool viMode)
+		{
+			if (receiver != null)
+			{
+				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
+			}
+		}
 
 		protected override void OnGotFocus(EventArgs e)
 		{
+			ViMode viMode = alwaysInputMode ? ViMode.Insert : macrosExecutor.viMode;
+			if (receiver.ViMode != viMode)
+			{
+				receiver.SetViMode(viMode);
+			}
 			UnblinkCursor();
 			base.OnGotFocus(e);
 			if (FocusedChange != null)
@@ -495,6 +567,8 @@ namespace MulticaretEditor
 
 		private PredictableList<LineNumberInfo> lineNumberInfos = new PredictableList<LineNumberInfo>();
 		private int mouseAreaRight;
+		private bool jumpMode;
+		private char[,] jumpMap;
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
@@ -514,6 +588,29 @@ namespace MulticaretEditor
 			int clientHeight = lines.scroller.textAreaHeight;
 			int valueX = lines.scroller.scrollX.value;
 			int valueY = lines.scroller.scrollY.value;
+			
+			jumpMode = receiver != null && receiver.Jump != null;
+			if (jumpMode)
+			{
+				if (jumpMap == null)
+				{
+					jumpMap = new char[clientWidth / charWidth, clientHeight / charHeight];
+				}
+				else
+				{
+					Array.Clear(jumpMap, 0, jumpMap.Length);
+				}
+				receiver.Jump.scrollX = valueX;
+				receiver.Jump.scrollY = valueY;
+				receiver.Jump.leftIndent = leftIndent;
+				receiver.Jump.charWidth = charWidth;
+				receiver.Jump.charHeight = charHeight;
+				receiver.Jump.map = jumpMap;
+			}
+			else
+			{
+				jumpMap = null;
+			}
 
 			Graphics g = e.Graphics;
 			g.SmoothingMode = SmoothingMode.None;
@@ -561,6 +658,11 @@ namespace MulticaretEditor
 
 			if (lines.scroller.scrollX.visible && lines.scroller.scrollY.visible)
 				g.FillRectangle(scheme.scrollBgBrush, ClientRectangle.Width - scrollBarBreadth, clientHeight, scrollBarBreadth, scrollBarBreadth);
+			
+			if (jumpMap != null)
+			{
+				receiver.Jump.DoPaint(g, font, stringFormat, scheme);
+			}
 
 			base.OnPaint(e);
 
@@ -568,9 +670,9 @@ namespace MulticaretEditor
             Console.WriteLine("OnPaint: " + sw.ElapsedMilliseconds + "ms");
 			#endif
 
-			if (controller != null && controller.needDispatchChange)
+			if (controller != null && controller.processor.needDispatchChange)
 			{
-				controller.needDispatchChange = false;
+				controller.processor.needDispatchChange = false;
 				if (TextChange != null)
 					TextChange();
 			}
@@ -677,11 +779,27 @@ namespace MulticaretEditor
 			int end = lines.IndexOf(new Place(lines[lineMax.iLine].charsCount, lineMax.iLine));
 			if (lines.wordWrap)
 			{
+				start += lines[lineMin.iLine].WWIndexOfPos(0, lineMin.iSubline);
+				int count = (clientWidth + charWidth) / charWidth * (clientHeight + charHeight) / charHeight;
+				if (count < 1)
+				{
+					count = 1;
+				}
+				lines.UpdateHighlight(start, count);
 				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				if (!symbolic)
+				{
+					DrawMatches_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
+				}
 			}
 			else
 			{
+				lines.UpdateHighlight(start, end - start);
 				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				if (!symbolic)
+				{
+					DrawMatches_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+				}
 			}
 			if (lines.markedBracket)
 			{
@@ -709,7 +827,7 @@ namespace MulticaretEditor
 							x = offsetX + line.PosOfIndex(place.iChar) * charWidth;
 							y = offsetY + place.iLine * charHeight;
 						}
-						y += charHeight + lineInterval / 2;
+						y += charHeight;
                         g.DrawRectangle(scheme.markPen2, x, y - charHeight, charWidth, charHeight);
 					}
 				}
@@ -752,13 +870,15 @@ namespace MulticaretEditor
 				}
 			}
 			{
+				bool viMode = receiver != null && receiver.ViMode != ViMode.Insert;
 				int selectionsCount = lines.selections.Count;
 				for (int i = selectionsCount; i-- > 0;)
 				{
 					Selection selection = lines.selections[i];
 					if (selection.Right < start || selection.Left > end)
 						continue;
-					Place caret = lines.PlaceOf(selection.caret);
+					int selectionCaret = selection.caret;
+					Place caret = lines.PlaceOf(selectionCaret);
 					Line line = lines[caret.iLine];
 					int x;
 					int y;
@@ -786,8 +906,61 @@ namespace MulticaretEditor
 						}
 					}
 
-					if (isCursorTick && Focused)
-						g.DrawLine(i == selectionsCount - 1 ? scheme.mainCaretPen : scheme.caretPen, x, y, x, y + charHeight);
+					if (Focused)
+					{
+						bool isMain = i == selectionsCount - 1;
+						if (receiver != null && receiver.ViMode == ViMode.Normal)
+						{
+							if (isMain)
+							{
+								if (isCursorTick)
+								{
+									if (receiver.IsIdle)
+									{
+										g.FillRectangle(scheme.mainCaretBrush, x, y, charWidth, charHeight);
+										if (caret.iChar < line.charsCount)
+										{
+											char c = line.chars[caret.iChar].c;
+											g.DrawString(c + "", font, scheme.bgBrush,
+												x - charWidth / 3, y, stringFormat);
+										}
+									}
+									else
+									{
+										g.FillRectangle(scheme.mainCaretBrush, x, y + charHeight / 2, charWidth, charHeight / 2);
+									}
+								}
+								else
+								{
+									if (receiver.IsIdle)
+									{
+										g.FillRectangle(scheme.mainCaretBrush2, x, y, charWidth, charHeight);
+									}
+									else
+									{
+										g.FillRectangle(scheme.mainCaretBrush2, x, y + charHeight / 2, charWidth, charHeight / 2);
+									}
+								}
+							}
+							else
+							{
+								g.FillRectangle(scheme.caretBrush, x, y, charWidth, charHeight);
+							}
+						}
+						else if (receiver != null && receiver.ViMode != ViMode.Insert)
+						{
+							if (isCursorTick)
+							{
+								g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
+									x, y + charHeight + 1, x + charWidth, y + charHeight + 1);
+							}
+						}
+						else if (isCursorTick)
+						{
+							g.DrawLine(isMain ? scheme.mainCaretPen : scheme.caretPen,
+								x, y, x, y + charHeight);
+						}
+					}
 				}
 			}
 		}
@@ -829,24 +1002,48 @@ namespace MulticaretEditor
 				Place caret = lines.PlaceOf(lines.LastSelection.caret);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + caret.iLine * charHeight, clientWidth, charHeight);
 			}
+			bool lineMode = receiver != null && receiver.ViMode == ViMode.LinesVisual;
 			foreach (Selection selection in lines.selections)
 			{
-				if (selection.Right < start || selection.Left > end || selection.Count == 0)
+				int selectionLeft = selection.Left;
+				int selectionRight = selection.Right;
+				if (selectionRight < start || selectionLeft > end)
 					continue;
+				if (!lineMode && selectionRight - selectionLeft == 0)
+					continue;
+				if (lineMode)
+				{
+					Place place;
+					place = lines.PlaceOf(selectionLeft);
+					place.iChar = 0;
+					selectionLeft = lines.IndexOf(place);
+					place = lines.PlaceOf(selectionRight);
+					++place.iLine;
+					if (place.iLine > lines.LinesCount)
+					{
+						selectionRight = lines.charsCount;
+					}
+					else
+					{
+						place.iChar = 0;
+						selectionRight = lines.IndexOf(place);
+					}
+				}
+				int selectionCount = selectionRight - selectionLeft;
 
 				selectionRects.Clear();
 
-				Place left = lines.PlaceOf(selection.Left);
+				Place left = lines.PlaceOf(selectionLeft);
 				Line leftLine = lines[left.iLine];
-				if (left.iChar + selection.Count <= leftLine.charsCount)
+				if (left.iChar + selectionCount <= leftLine.charsCount)
 				{
 					int pos0 = leftLine.PosOfIndex(left.iChar);
-					int pos1 = leftLine.PosOfIndex(left.iChar + selection.Count);
+					int pos1 = leftLine.PosOfIndex(left.iChar + selectionCount);
 					selectionRects.Add(new DrawingLine(pos0, left.iLine, pos1 - pos0));
 				}
 				else
 				{
-					Place right = lines.PlaceOf(selection.Right);
+					Place right = lines.PlaceOf(selectionRight);
 					if (left.iLine >= iLineMin)
 					{
 						int pos0 = leftLine.PosOfIndex(left.iChar);
@@ -890,20 +1087,44 @@ namespace MulticaretEditor
 				int wwILine = lines.wwValidator.GetWWILine(caret.iLine);
 				g.FillRectangle(scheme.lineBgBrush, leftIndent, offsetY + wwILine * charHeight, clientWidth, charHeight * (line.cutOffs.count + 1));
 			}
+			bool lineMode = receiver != null && receiver.ViMode == ViMode.LinesVisual;
 			foreach (Selection selection in lines.selections)
 			{
-				if (selection.Right < start || selection.Left > end || selection.Count == 0)
+				int selectionLeft = selection.Left;
+				int selectionRight = selection.Right;
+				if (selectionRight < start || selectionLeft > end)
 					continue;
+				if (!lineMode && selectionRight - selectionLeft == 0)
+					continue;
+				if (lineMode)
+				{
+					Place place;
+					place = lines.PlaceOf(selectionLeft);
+					place.iChar = 0;
+					selectionLeft = lines.IndexOf(place);
+					place = lines.PlaceOf(selectionRight);
+					++place.iLine;
+					if (place.iLine > lines.LinesCount)
+					{
+						selectionRight = lines.charsCount;
+					}
+					else
+					{
+						place.iChar = 0;
+						selectionRight = lines.IndexOf(place);
+					}
+				}
+				int selectionCount = selectionRight - selectionLeft;
 
 				selectionRects.Clear();
 
-				Place left = lines.PlaceOf(selection.Left);
+				Place left = lines.PlaceOf(selectionLeft);
 				Line leftLine = lines[left.iLine];
 				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
-				if (left.iChar + selection.Count <= leftLine.charsCount)
+				if (left.iChar + selectionCount <= leftLine.charsCount)
 				{
 					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
-					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selection.Count);
+					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + selectionCount);
 					if (pos0.iy == pos1.iy)
 					{
 						selectionRects.Add(new DrawingLine(pos0.ix, leftILine + pos0.iy, pos1.ix - pos0.ix));
@@ -934,7 +1155,7 @@ namespace MulticaretEditor
 							selectionRects.Add(new DrawingLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft));
 						}
 					}
-					Place right = lines.PlaceOf(selection.Right);
+					Place right = lines.PlaceOf(selectionRight);
 					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
 					if (right.iLine <= iLineMax.iLine)
 					{
@@ -985,7 +1206,7 @@ namespace MulticaretEditor
 				g.DrawRectangle(
 					selectionPen,
 					offsetX + rectangle.ix * charWidth,
-					offsetY + rectangle.iy * charHeight + lineInterval / 2,
+					offsetY + rectangle.iy * charHeight,
 					rectangle.sizeX * charWidth,
 					charHeight);
 			}
@@ -996,9 +1217,177 @@ namespace MulticaretEditor
 				g.FillRectangle(
 					selectionBrush,
 					offsetX + rectangle.ix * charWidth,
-					offsetY + rectangle.iy * charHeight + lineInterval / 2,
+					offsetY + rectangle.iy * charHeight,
 					rectangle.sizeX * charWidth,
 					charHeight);
+			}
+		}
+		
+		private MatchesRenderer matchesRenderer;
+		
+		private void DrawMatches_WordWrap(
+			int leftIndent,
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+		{
+			if (lines.matches.Count == 0)
+			{
+				return;
+			}
+			if (matchesRenderer == null)
+			{
+				matchesRenderer = new MatchesRenderer();
+			}
+			matchesRenderer.g = g;
+			matchesRenderer.brush = scheme.matchBrush;
+			matchesRenderer.offsetX = offsetX;
+			matchesRenderer.offsetY = offsetY;
+			matchesRenderer.charWidth = charWidth;
+			matchesRenderer.charHeight = charHeight;
+			foreach (SimpleRange range in lines.matches)
+			{
+				if (range.index + range.count < start || range.index > end || range.count == 0)
+				{
+					continue;
+				}
+				matchesRenderer.start = true;
+				Place left = lines.PlaceOf(range.index);
+				Line leftLine = lines[left.iLine];
+				int leftILine = lines.wwValidator.GetWWILine(left.iLine);
+				if (left.iChar + range.count <= leftLine.charsCount)
+				{
+					Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
+					Pos pos1 = leftLine.WWPosOfIndex(left.iChar + range.count);
+					if (pos0.iy == pos1.iy)
+					{
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, pos1.ix - pos0.ix);
+					}
+					else
+					{
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(pos0.iy) - pos0.ix);
+						int sublineLeft;
+						for (int iy = pos0.iy + 1; iy < pos1.iy; iy++)
+						{
+							sublineLeft = leftLine.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft);
+						}
+						sublineLeft = leftLine.GetSublineLeft(pos1.iy);
+						matchesRenderer.AddLine(sublineLeft, leftILine + pos1.iy, pos1.ix - sublineLeft);
+					}
+				}
+				else
+				{
+					if (left.iLine >= iLineMin.iLine)
+					{
+						int sublineLeft;
+						Pos pos0 = leftLine.WWPosOfIndex(left.iChar);
+						matchesRenderer.AddLine(pos0.ix, leftILine + pos0.iy, leftLine.GetSublineSize(0) - pos0.ix);
+						for (int iy = pos0.iy + 1; iy <= leftLine.cutOffs.count; iy++)
+						{
+							sublineLeft = leftLine.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, leftILine + iy, leftLine.GetSublineSize(iy) - sublineLeft);
+						}
+					}
+					Place right = lines.PlaceOf(range.index + range.count);
+					int i0 = left.iLine + 1;
+					int i1 = right.iLine;
+					if (i1 > i0)
+					{
+						if (i0 < iLineMin.iLine)
+							i0 = iLineMin.iLine;
+						if (i1 > iLineMax.iLine + 1)
+							i1 = iLineMax.iLine + 1;
+						int wwILine = lines.wwValidator.GetWWILine(i0);
+						for (int i = i0; i < i1; i++)
+						{
+							Line line = lines[i];
+							for (int iy = 0; iy <= line.cutOffs.count; iy++)
+							{
+								int sublineLeft = line.GetSublineLeft(iy);
+								matchesRenderer.AddLine(sublineLeft, wwILine + iy, line.GetSublineSize(iy) - sublineLeft);
+							}
+							wwILine += line.cutOffs.count + 1;
+						}
+					}
+					int rightILine = lines.wwValidator.GetWWILine(right.iLine);
+					if (right.iLine <= iLineMax.iLine)
+					{
+						int sublineLeft;
+						Line line = lines[right.iLine];
+						Pos pos1 = line.WWPosOfIndex(right.iChar);
+						for (int iy = 0; iy < pos1.iy; iy++)
+						{
+							sublineLeft = line.GetSublineLeft(iy);
+							matchesRenderer.AddLine(sublineLeft, rightILine + iy, line.GetSublineSize(iy) - sublineLeft);
+						}
+						sublineLeft = line.GetSublineLeft(pos1.iy);
+						matchesRenderer.AddLine(sublineLeft, rightILine + pos1.iy, pos1.ix - sublineLeft);
+					}
+				}
+			}
+		}
+		
+		private void DrawMatches_Fixed(
+			int leftIndent,
+			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY,
+			int clientWidth, int clientHeight)
+		{
+			if (lines.matches.Count == 0)
+			{
+				return;
+			}
+			if (matchesRenderer == null)
+			{
+				matchesRenderer = new MatchesRenderer();
+			}
+			matchesRenderer.g = g;
+			matchesRenderer.brush = scheme.matchBrush;
+			matchesRenderer.offsetX = offsetX;
+			matchesRenderer.offsetY = offsetY;
+			matchesRenderer.charWidth = charWidth;
+			matchesRenderer.charHeight = charHeight;
+			foreach (SimpleRange range in lines.matches)
+			{
+				if (range.index + range.count < start || range.index > end || range.count == 0)
+				{
+					continue;
+				}
+				matchesRenderer.start = true;
+				Place left = lines.PlaceOf(range.index);
+				Line leftLine = lines[left.iLine];
+				if (left.iChar + range.count <= leftLine.charsCount)
+				{
+					int pos0 = leftLine.PosOfIndex(left.iChar);
+					int pos1 = leftLine.PosOfIndex(left.iChar + range.count);
+					matchesRenderer.AddLine(pos0, left.iLine, pos1 - pos0);
+				}
+				else
+				{
+					Place right = lines.PlaceOf(range.index + range.count);
+					if (left.iLine >= iLineMin)
+					{
+						int pos0 = leftLine.PosOfIndex(left.iChar);
+						matchesRenderer.AddLine(pos0, left.iLine, leftLine.Size - pos0);
+					}
+					int i0 = left.iLine + 1;
+					int i1 = right.iLine;
+					if (i1 > i0)
+					{
+						if (i0 < iLineMin)
+							i0 = iLineMin;
+						if (i1 > iLineMax + 1)
+							i1 = iLineMax + 1;
+						for (int i = i0; i < i1; i++)
+						{
+							matchesRenderer.AddLine(0, i, lines[i].Size);
+						}
+					}
+					if (right.iLine <= iLineMax)
+					{
+						Line line = lines[right.iLine];
+						int pos1 = line.PosOfIndex(right.iChar);
+						matchesRenderer.AddLine(0, right.iLine, pos1);
+					}
+				}
 			}
 		}
 
@@ -1023,7 +1412,7 @@ namespace MulticaretEditor
 		{
 			int count = line.charsCount;
 			int tabSize = lines.tabSize;
-			float y = position.Y + lineInterval / 2;
+			float y = position.Y;
 			float x = position.X - charWidth / 3;
 
 			int[] indices = null;
@@ -1042,7 +1431,7 @@ namespace MulticaretEditor
 				if (markI != -1 && i == indices[markI])
 				{
 					int length = lines.markedWord.Length;
-					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
+					g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y - 1, length * charWidth + 1, charHeight + 1);
 					if (markI < indices.Length - 1)
 						markI++;
 				}
@@ -1085,6 +1474,10 @@ namespace MulticaretEditor
 						else
 						{
 							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							if (jumpMap != null)
+							{
+								receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
+							}
 						}
 					}
 				}
@@ -1113,7 +1506,7 @@ namespace MulticaretEditor
 			int iLine, int iiLine, int iiMin, int iiMax, bool symbolic)
 		{
 			int tabSize = lines.tabSize;
-			float y0 = position.Y + lineInterval / 2;
+			float y0 = position.Y;
 			float x = position.X - charWidth / 3;
 
 			int[] indices = null;
@@ -1157,13 +1550,13 @@ namespace MulticaretEditor
 						int length = lines.markedWord.Length;
 						if (i + length <= i1)
 						{
-							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y + lineInterval / 2 - 1, length * charWidth + 1, charHeight + 1);
+							g.DrawRectangle(scheme.markPen1, position.X + pos * charWidth - 1, y - 1, length * charWidth + 1, charHeight + 1);
 							if (markI < indices.Length - 1)
 								markI++;
 						}
 						else
 						{
-							int top = (int)(y + lineInterval / 2);
+							int top = (int)y;
 							borderH.Begin();
 							borderH.AddLine(
 								position.X + pos * charWidth,
@@ -1240,6 +1633,10 @@ namespace MulticaretEditor
 						else
 						{
 							g.DrawString(c.c.ToString(), fonts[style.fontStyle], style.brush, x + charWidth * pos, y, stringFormat);
+							if (jumpMap != null)
+							{
+								receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
+							}
 						}
 					}
 					if (c.c == '\t')
@@ -1366,16 +1763,29 @@ namespace MulticaretEditor
 			return true;
 		}
 
+		private bool actionProcessed = false;
+		
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+			if (Focused)
+			{
+				actionProcessed = false;
+				ProcessKeyUniversal('\0', e.KeyData);
+			}
+		}
+		
 		protected override bool ProcessMnemonic(char charCode)
 		{
 			if (!Focused)
 				return false;
 
 			char altChar;
-			if (!actionProcessed && (Control.ModifierKeys & Keys.Alt) != 0 && keyMap.main.GetAltChar(charCode, out altChar))
+			if (!actionProcessed &&
+				(Control.ModifierKeys & Keys.Alt) != 0 &&
+				keyMap.main.GetAltChar(charCode, out altChar))
 			{
-				controller.InsertText(altChar + "");
-				actionProcessed = false;
+				ProcessKeyUniversal(altChar, Keys.None);
 				return true;
 			}
 			return false;
@@ -1383,86 +1793,105 @@ namespace MulticaretEditor
 
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
-			char code = e.KeyChar;
-			if (Focused && !actionProcessed)
+			base.OnKeyPress(e);
+			if (Focused)
+			{
+				ProcessKeyUniversal(e.KeyChar, Keys.None);
+			}
+		}
+
+		private void ProcessKeyUniversal(char code, Keys keys)
+		{
+			if (macrosExecutor != null && (
+				keys == (Keys.Alt | Keys.OemOpenBrackets) && macrosExecutor.viAltOem||
+				keys == Keys.Escape && macrosExecutor.viEsc))
+			{
+				keys = Keys.Control | Keys.OemOpenBrackets;
+			}
+			if (actionProcessed)
+			{
+				return;
+			}
+			if (code != '\0')
 			{
 				if (macrosExecutor.current != null)
 					macrosExecutor.current.Add(new MacrosExecutor.Action(code));
 				ExecuteKeyPress(code);
 			}
-			actionProcessed = false;
-			base.OnKeyPress(e);
+			else
+			{
+				if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, keys))
+					macrosExecutor.current.Add(new MacrosExecutor.Action(keys));
+				ExecuteKeyDown(keys);
+			}
 			if (AfterKeyPress != null)
 				AfterKeyPress();
 		}
-
+		
 		public void ProcessMacrosAction(MacrosExecutor.Action action)
 		{
+			if (action.mode != null)
+			{
+				Keys oldKeys = modePressedKeys;
+				modePressedKeys = action.keys;
+				keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
+				modePressedKeys = oldKeys;
+				return;
+			}
 			if (action.keys != Keys.None)
 			{
-				if (action.mode != null)
-				{
-					Keys oldKeys = modePressedKeys;
-					modePressedKeys = action.keys;
-					keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
-					modePressedKeys = oldKeys;
-				}
-				else
-				{
-					ExecuteKeyDown(action.keys);
-				}
+				ExecuteKeyDown(action.keys);
 			}
 			else
 			{
 				ExecuteKeyPress(action.code);
 			}
 		}
-
+		
 		private void ExecuteKeyPress(char code)
 		{
-			switch (code)
+			bool scrollToCursor = true;
+			if (receiver != null)
 			{
-				case '\b':
-					if (lines.AllSelectionsEmpty)
-					{
-						controller.Backspace();
-					}
-					else
-					{
-						controller.EraseSelection();
-					}
-					break;
-				case '\r':
-					controller.InsertLineBreak();
-					break;
-				default:
-					controller.InsertText(code + "");
-					break;
+				string viShortcut;
+				receiver.DoKeyPress(code, out viShortcut, out scrollToCursor);
+				if (viShortcut != null)
+				{
+					if (ViShortcut != null)
+						ViShortcut(viShortcut);
+				}
 			}
 			if (highlighter != null && !highlighter.LastParsingChanged)
 				highlighter.Parse(lines, 100);
 			UnblinkCursor();
-			ScrollIfNeedToCaret();
-		}
-
-		private bool actionProcessed = false;
-
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-			if (!Focused)
-				return;
-			if (macrosExecutor.current != null && !keyMap.Enumerate<Keys>(IsMacrosKeys, e.KeyData))
-				macrosExecutor.current.Add(new MacrosExecutor.Action(e.KeyData));
-			ExecuteKeyDown(e.KeyData);
-			if (AfterKeyPress != null)
-				AfterKeyPress();
+			if (scrollToCursor)
+			{
+				ScrollIfNeedToCaret();
+			}
 		}
 
 		private void ExecuteKeyDown(Keys keyData)
 		{
-			actionProcessed = false;
-			keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			string viShortcut;
+			bool scrollToCursor;
+			if (receiver != null && receiver.DoKeyDown(keyData, out viShortcut, out scrollToCursor))
+			{
+				if (viShortcut != null)
+				{
+					if (ViShortcut != null)
+						ViShortcut(viShortcut);
+				}
+				UnblinkCursor();
+				if (scrollToCursor)
+				{
+					ScrollIfNeedToCaret();
+				}
+			}
+			else
+			{
+				actionProcessed = false;
+				keyMap.Enumerate<Keys>(ProcessKeyDown, keyData);
+			}
 		}
 
 		private bool IsMacrosKeys(KeyMap keyMap, Keys keyData)
@@ -1553,7 +1982,7 @@ namespace MulticaretEditor
 			if (mouseDownIndex == 1)
 			{
 				if (e.Button == MouseButtons.Left)
-				isMouseDown = true;
+					isMouseDown = true;
 				if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
 				{
 					if (Control.ModifierKeys == Keys.Control)
@@ -1563,8 +1992,9 @@ namespace MulticaretEditor
 					else
 					{
 						controller.ClearMinorSelections();
-						controller.PutCursor(GetMousePlace(e.Location), false);
+						Mouse_PutCursor(GetMousePlace(e.Location), false);
 					}
+					ResetViInput();
 					UnblinkCursor();
 				}
 			}
@@ -1573,11 +2003,21 @@ namespace MulticaretEditor
 				mouseDownIndex = 0;
 				actionProcessed = false;
 				if (!keyMap.Enumerate<bool>(ProcessDoubleClick, false))
-					controller.SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
+				{
+					Mouse_SelectWordAtPlace(GetMousePlace(e.Location), (Control.ModifierKeys & Keys.Control) != 0);
+				}
 				Invalidate();
 			}
 			if (AfterClick != null)
 				AfterClick();
+		}
+		
+		private void ResetViInput()
+		{
+			if (receiver != null)
+			{
+				receiver.ResetViInput();
+			}
 		}
 
 		protected override void OnMouseUp(MouseEventArgs e)
@@ -1601,7 +2041,7 @@ namespace MulticaretEditor
 			}
 			if (e.Button == MouseButtons.Left && mouseDownIndex == 1 && isMouseDown)
 			{
-				controller.PutCursor(GetMousePlace(e.Location), true);
+				Mouse_PutCursor(GetMousePlace(e.Location), true);
 				UnblinkCursor();
 				if (AfterClick != null)
 					AfterClick();
@@ -1622,11 +2062,11 @@ namespace MulticaretEditor
 			if (isMouseDown)
 			{
 				UpdateScrollOnPaint();
-				controller.PutCursor(GetMousePlace(e.Location), true);
+				Mouse_PutCursor(GetMousePlace(e.Location), true);
 			}
 			UnblinkCursor();
 		}
-
+		
 		private Pos GetMousePos(Point location)
 		{
 			return new Pos(
@@ -1772,6 +2212,60 @@ namespace MulticaretEditor
 			int valueY = vScrollBar.Value;
 			lines.scroller.UpdateScrollOnPaint(info, ref valueX, ref valueY);
 			return lines.wwSizeY;
+		}
+		
+		private void Mouse_PutCursor(Place place, bool moving)
+		{
+			if (receiver != null)
+			{
+				if (receiver.ViMode == ViMode.Normal)
+				{
+					if (moving)
+					{
+						controller.PutCursor(place, moving);
+						controller.ViNormal_FixCaret(true);
+					}
+					else
+					{
+						controller.PutCursor(place, moving);
+						controller.ViFixPositions(true);
+					}
+					if (!controller.AllSelectionsEmpty)
+					{
+						receiver.SetViMode(ViMode.Visual);
+					}
+					return;
+				}
+				if (receiver.ViMode == ViMode.Visual || receiver.ViMode == ViMode.LinesVisual)
+				{
+					if (controller.SelectionsCount == 1 && !moving)
+					{
+						receiver.SetViMode(ViMode.Normal);
+						controller.PutCursor(place, moving);
+						controller.ViFixPositions(true);
+						return;
+					}
+					controller.PutCursor(place, moving);
+					if (controller.AllSelectionsEmpty)
+					{
+						receiver.SetViMode(ViMode.Normal);
+						return;
+					}
+				}
+			}
+			controller.PutCursor(place, moving);
+		}
+		
+		private void Mouse_SelectWordAtPlace(Place place, bool newSelection)
+		{
+			controller.SelectWordAtPlace(place, newSelection);
+			if (receiver != null)
+			{
+				if (receiver.ViMode == ViMode.Normal && !controller.AllSelectionsEmpty)
+				{
+					receiver.SetViMode(ViMode.Visual);
+				}
+			}
 		}
 	}
 }

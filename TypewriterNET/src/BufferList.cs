@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class BufferList

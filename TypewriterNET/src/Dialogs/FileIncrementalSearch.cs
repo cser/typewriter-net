@@ -10,23 +10,21 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using Microsoft.Win32;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {
-	public FileIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "File search", "Incremental file search")
+	public FileIncrementalSearch(TempSettings tempSettings, FindInFilesDialog.Data data)
+		: base(tempSettings, "File search", "Incremental file search", data)
 	{
 	}
 	
 	override protected string GetSubname()
 	{
-		return Directory.GetCurrentDirectory() + "\\" + MainForm.Settings.findInFilesFilter.Value;
+		return Directory.GetCurrentDirectory() + "\\" + GetFilterDesc();
 	}
 	
-	private const string Dots = "...";
+	private const string Dots = "…";
 
 	private char directorySeparator;
 	private List<string> filesList = new List<string>();
@@ -42,7 +40,7 @@ public class FileIncrementalSearch : IncrementalSearchBase
 		}
 		FileSystemScanner scanner = new FileSystemScanner(
 			directory,
-			MainForm.Settings.findInFilesFilter.Value,
+			GetFilterText(),
 			MainForm.Settings.findInFilesIgnoreDir.Value);
 		thread = new Thread(new ThreadStart(scanner.Scan));
 		thread.Start();
@@ -123,7 +121,11 @@ public class FileIncrementalSearch : IncrementalSearchBase
 	{
 		if (!string.IsNullOrEmpty(lineText) && lineText != Dots)
 		{
-			MainForm.LoadFile(lineText);
+			Buffer buffer = MainForm.LoadFile(lineText);
+			if (buffer != null)
+			{
+				buffer.Controller.ViAddHistoryPosition(true);
+			}
 			DispatchNeedClose();
 		}
 	}

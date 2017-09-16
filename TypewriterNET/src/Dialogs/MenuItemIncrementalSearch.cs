@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Text;
-using MulticaretEditor.KeyMapping;
-using MulticaretEditor.Highlighting;
 using MulticaretEditor;
 
 public class MenuItemIncrementalSearch : IncrementalSearchBase
 {
 	public MenuItemIncrementalSearch(TempSettings tempSettings, MulticaretTextBox textBox)
-		: base(tempSettings, "Search in menu", "Menu item incremental search")
+		: base(tempSettings, "Search in menu", "Menu item incremental search", null)
 	{
 		this.textBox = textBox;
 	}

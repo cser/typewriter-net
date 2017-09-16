@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MulticaretEditor.Highlighting;
 
 namespace MulticaretEditor
 {
@@ -13,7 +12,7 @@ namespace MulticaretEditor
 		public LineArray(int blockSize) : base(blockSize)
 		{
 			SetText("");
-			selections = new RWList<Selection>();
+			selections = new List<Selection>();
 			selections.Add(new Selection());
 			wwValidator = new WordWrapValidator(this);
 			scroller = new Scroller(this);
@@ -34,6 +33,9 @@ namespace MulticaretEditor
 		public bool spacesInsteadTabs = false;
 		public string lineBreak = "\r\n";
 		public bool autoindent = false;
+		public string viFullPath;
+		
+		public TabSettings TabSettings { get { return new TabSettings(spacesInsteadTabs, tabSize); } }
 
 		private void ValidateSize()
 		{
@@ -107,10 +109,11 @@ namespace MulticaretEditor
 			AddValue(NewLine(text, lineStart, length - lineStart));
 			charsCount = length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+
 			//sw.Stop();
 			//Console.WriteLine(sw.ElapsedMilliseconds + " ms - " + text.Length + " chars");
+			ResetTextCache();
 		}
 		
 		public void ClearAllUnsafely()
@@ -139,7 +142,9 @@ namespace MulticaretEditor
 			}
 		}
 
-		public string cachedText;
+		private string cachedText;
+		private bool charsValid;
+		private CharsRegularExpressions.Regex highlightRegex;
 
 		public string GetText()
 		{
@@ -158,6 +163,116 @@ namespace MulticaretEditor
 			}
 			return cachedText;
 		}
+		
+		private CharBuffer _charBuffer;
+		
+		public char[] GetChars()
+		{
+			if (_charBuffer == null)
+			{
+				_charBuffer = new CharBuffer();
+			}
+			if (!charsValid)
+			{
+				charsValid = true;
+				_charBuffer.Resize(charsCount);
+				_charBuffer.Realocate();
+				int index = 0;
+				for (int i = 0; i < blocksCount; i++)
+				{
+					LineBlock block = blocks[i];
+					for (int j = 0; j < block.count; j++)
+					{
+						Line line = block.array[j];
+						Char[] chars = line.chars;
+						for (int k = 0, count = line.charsCount; k < count; k++)
+						{
+							_charBuffer.buffer[index++] = chars[k].c;
+						}
+					}
+				}
+			}
+			return _charBuffer.buffer;
+		}
+		
+		public void ResetTextCache()
+		{
+			cachedText = null;
+			charsValid = false;
+			frameValid = false;
+			highlightRegex = null;
+		}
+		
+		private bool frameValid;
+		private readonly CharBuffer _frameChars = new CharBuffer();
+		private int _frameCharsIndex;
+		private int _frameCharsCount;
+		
+		public void UpdateHighlight(int index, int count)
+		{
+			FixRange(ref index, ref count);
+			bool isOutFrame = index < _frameCharsIndex || index + count > _frameCharsIndex + _frameCharsCount;
+			if (highlightRegex != ClipboardExecutor.ViRegex || isOutFrame || !frameValid)
+			{
+				frameValid = true;
+				highlightRegex = ClipboardExecutor.ViRegex;
+				matches.Clear();
+				if (highlightRegex != null)
+				{
+					int frameCharsIndex = index - count / 2;
+					int frameCharsCount = count * 2;
+					FixRange(ref frameCharsIndex, ref frameCharsCount);
+					if (_frameCharsIndex != frameCharsIndex || _frameCharsCount != frameCharsCount)
+					{
+						_frameCharsIndex = frameCharsIndex;
+						_frameCharsCount = frameCharsCount;
+						_frameChars.Resize(_frameCharsCount);
+					}
+					if (_frameCharsCount > 0)
+					{
+						GetText(_frameCharsIndex, _frameCharsCount, _frameChars.buffer);
+					}
+					char[] chars = _frameChars.buffer;
+					int ii = 0;
+					while (ii < _frameCharsCount)
+					{
+						CharsRegularExpressions.Match match = null;
+						try
+						{
+							match = highlightRegex.Match(chars, ii, _frameCharsCount - ii);
+						}
+						catch
+						{
+						}
+						if (match == null || !match.IsMatched(0))
+						{
+							break;
+						}
+						SimpleRange range = new SimpleRange();
+						range.index = _frameCharsIndex + match.Index;
+						range.count = match.Length;
+						matches.Add(range);
+						ii = match.Index + (match.Length > 0 ? match.Length : 1);
+					}
+				}
+			}
+		}
+		
+		private void FixRange(ref int index, ref int count)
+		{
+			if (index + count > charsCount)
+			{
+				index = charsCount - count;
+			}
+			if (index < 0)
+			{
+				index = 0;
+				if (index + count > charsCount)
+				{
+					count = charsCount - index;
+				}
+			}
+		}
 
 		private Line NewLine(string text, int index, int count)
 		{
@@ -170,6 +285,9 @@ namespace MulticaretEditor
 			line.charsCount = count;
 			return line;
 		}
+		
+		public TextChangeHook hook;
+		public TextChangeHook hook2;
 
 		public void InsertText(int index, string text)
 		{
@@ -279,8 +397,12 @@ namespace MulticaretEditor
 			}
 			charsCount += text.Length;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
+			if (hook != null)
+				hook.InsertText(index, text);
+			if (hook2 != null)
+				hook2.InsertText(index, text);
 		}
 
 		public void RemoveText(int index, int count)
@@ -434,21 +556,34 @@ namespace MulticaretEditor
 			start.Chars_ReduceBuffer();
 			charsCount -= count;
 			size = null;
-			cachedText = null;
 			wwSizeX = 0;
+			ResetTextCache();
+			if (hook != null)
+				hook.RemoveText(index, count);
+			if (hook2 != null)
+				hook2.RemoveText(index, count);
 		}
 
 		public string GetText(int index, int count)
 		{
-			if (index < 0 || index + count > charsCount)
-				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
 			if (count == 0)
 				return "";
+			char[] chars = new char[count];
+			GetText(index, count, chars);
+			return new string(chars);
+		}
+		
+		private void GetText(int index, int count, char[] outChars)
+		{
+			if (index < 0 || index + count > charsCount)
+			{
+				throw new IndexOutOfRangeException("text index=" + index + ", count=" + count + " is out of [0, " + charsCount + "]");
+			}
 			int blockI;
 			int blockIChar;
 			Place place = PlaceOf(index, out blockI, out blockIChar);
 			LineBlock block = blocks[blockI];
-			StringBuilder builder = new StringBuilder(count);
+			int frameI = 0;
 			int i = place.iLine - block.offset;
 			int j = index - blockIChar;
 			for (int ii = 0; ii < i; ii++)
@@ -460,7 +595,7 @@ namespace MulticaretEditor
 			{
 				if (j < line.charsCount)
 				{
-					builder.Append(line.chars[j].c);
+					outChars[frameI++] = line.chars[j].c;
 				}
 				else
 				{
@@ -473,11 +608,10 @@ namespace MulticaretEditor
 					}
 					line = block.array[i];
 					j = 0;
-					builder.Append(line.chars[j].c);
+					outChars[frameI++] = line.chars[j].c;
 				}
 				j++;
 			}
-			return builder.ToString();
 		}
 
 		public int IndexOf(Place place)
@@ -697,6 +831,7 @@ namespace MulticaretEditor
 		}
 
 		public readonly List<Selection> selections;
+		public readonly List<SimpleRange> matches = new List<SimpleRange>();
 
 		private PredictableList<Selection> selectionsBuffer = new PredictableList<Selection>();
 		private SelectionComparer selectionComparer = new SelectionComparer();
@@ -930,6 +1065,7 @@ namespace MulticaretEditor
 		public bool markedBracket;
 		public Place markedBracket0;
 		public Place markedBracket1;
+		public IViStoreSelector viStoreSelector;
 
 		public List<StyleRange> ranges;
 		

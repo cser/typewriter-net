@@ -15,7 +15,6 @@
 	<item name="scrollingIndent" value="2"/>
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
-	<item name="maxFileQualitiesCount" value="200"/>
 	<item name="alwaysOnTop" value="false"/>
 	<item name="connectionTimeout" value="1000"/>
 	<item name="miniMap" value="false"/>
@@ -34,10 +33,14 @@
 	<item name="hideInFileTree" value="*.meta"/>
 	<item name="renamePostfixed" value=".meta"/>
 	<item name="checkContentBeforeReloading" value="true"/>
-	<item name="fileIncrementalSearchTimeout" value="10"/>
+	<item name="fileIncrementalSearchTimeout" value="8"/>
 	<item name="altCharsSource" value="1234567890-=\qwertyuiop[]asdl;'zcnm,/!$+QWERTYUIOPASDL:ZCN&lt;&quot;"/>
 	<item name="altCharsResult" value="¡²³¤€¼½¾‘’¥×¬äåé®þüúíóö«»áßðø¶´æ©ñµç¿¹£÷ÄÅÉ ÞÜÚÍÓÖÁ§ÐØ°Æ¢ÑÇ¨"/>
-	<item name="shellRegex" value="/^\s*(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
+	<item name="viMapSource"
+		value="фисвуапршолдьтщзйкыегмцчняФИСВУАПРШОЛДЬТЩЗЙФЫЕГМЦЧНЯ!э&quot;Э№;%:?*()бю.БЮ,хъХЪжЖЁ"/>
+	<item name="viMapResult"
+		value="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQASTUVWXYZ!'@&quot;#$%^&amp;*(),./&lt;&gt;?[]{};:~"/>
+	<item name="shellRegex" value="/^(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="shellRegex" value='/\(at\s(.*):(\d+)\)$/'/><!-- Unity3d -->
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
@@ -50,6 +53,17 @@
 	<item name="f12Command:*.cs" value="omnisharp-goToDefinition"/>
 	<item name="shiftF12Command:*.cs" value="omnisharp-findUsages"/>
 	<item name="afterSaveCommand:*.cs" value="omnisharp-updatebuffer"/>
+	<item name="f9Command" value="ctags -R --languages=-C#"/>
+	<item name="f12Command" value="ctags-goToDefinition"/>
+	<item name="shiftF12Command" value="ctags-showAllDefinitions"/>
+	<item name="ctrlSpaceCommand" value="ctags-autocomplete"/>
 	<item name="hideMenu" value="false"/>
 	<item name="fullScreenOnMaximized" value="false"/>
+	<item name="startWithViMode" value="false"/>
+	<item name="ignoreSnippets" value=""/>
+	<item name="forcedSnippets" value=""/>
+	<item name="getTextNodes:*.cs" value="buildin-cs:c#"/>
+	<item name="snipsAuthor" value="John Doe"/>
+	<item name="viAlt[" value="false"/>
+	<item name="viEsc" value="false"/>
 </config>

@@ -3,7 +3,6 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.IO;
 using MulticaretEditor;
-using MulticaretEditor.KeyMapping;
 
 public class MainFormMenu : MainMenu
 {

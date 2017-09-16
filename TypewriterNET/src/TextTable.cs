@@ -28,6 +28,14 @@ public class TextTable
 
 	public TextTable AddLine()
 	{
+		if (rows.Count > 0)
+		{
+			List<string> row = rows[rows.Count - 1];
+			if (row != null && row.Count == 0)
+			{
+				rows.RemoveAt(rows.Count - 1);
+			}
+		}
 		rows.Add(null);
 		rows.Add(new List<string>());
 		return this;
@@ -63,6 +71,14 @@ public class TextTable
 
 	override public string ToString()
 	{
+		if (rows.Count > 0)
+		{
+			List<string> row = rows[rows.Count - 1];
+			if (row != null && row.Count == 0)
+			{
+				rows.RemoveAt(rows.Count - 1);
+			}
+		}
 		int colsCount = 0;
 		int rowsCount = rows.Count;
 		for (int i = 0; i < rowsCount; i++)
