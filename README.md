@@ -13,16 +13,7 @@ Last stable installer for download:
 
 Features
 --------
-For more info see https://typewriternet.codeplex.com/
-
-Main features:
-- Multiple cursors/selections (next selection by Ctrl + D)
-- Switching of undo branches (storage undo history as tree)<br/>
-![preview_1](https://raw.githubusercontent.com/cser/typewriter-net/master/TypewriterNET/previews/undo_branches.gif "Undo branches")
-- Color highlighting at cursor<br/>
-![preview_1](https://raw.githubusercontent.com/cser/typewriter-net/master/TypewriterNET/previews/color_highlighting.gif "Color highlighting")
-- Macroses<br/>
-![preview_1](https://raw.githubusercontent.com/cser/typewriter-net/master/TypewriterNET/previews/macros_using.gif "Macros using")
+Described in [Wiki](https://github.com/cser/typewriter-net/wiki)
 
 Sources
 -------
