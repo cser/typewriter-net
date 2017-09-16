@@ -1,12 +1,20 @@
 extensions: *.cs
-snippet usu
+snippet usu unity using
 	using System.Collections.Generic;
 	using UnityEngine;
-snippet clu
+snippet clu class with unity using
 	using System.Collections.Generic;
 	using UnityEngine;
 	
 	public class ${1:%n%}
+	{
+		${0}
+	}
+snippet club class extends MonoBehaviour
+	using System.Collections.Generic;
+	using UnityEngine;
+	
+	public class ${1:%n%} : MonoBehaviour
 	{
 		${0}
 	}
