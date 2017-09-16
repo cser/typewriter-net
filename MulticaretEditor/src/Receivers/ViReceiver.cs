@@ -285,10 +285,11 @@ namespace MulticaretEditor
 					}
 					else if (parser.moveChar.IsChar('v'))
 					{
+						bool asLines = controller.ViSelectionsAsLines;
 						controller.ViRecoverSelections();
 						if (!controller.AllSelectionsEmpty)
 						{
-							context.SetState(new ViReceiverVisual(false));
+							context.SetState(new ViReceiverVisual(asLines));
 						}
 					}
 					else if (parser.moveChar.IsChar(']'))

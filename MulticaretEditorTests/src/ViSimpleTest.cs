@@ -77,6 +77,7 @@ namespace UnitTests
 			Init();
 			lines.lineBreak = "\n";
 			receiver = new Receiver(controller, ViMode.Insert, false);
+			controller.receiver = receiver;
 			SetViMode(true);
 		}
 		
@@ -1870,6 +1871,30 @@ namespace UnitTests
 			lines.SetText("Abcdefg");
 			Put(2, 0).Press("v5lyD").AssertText("Ab");
 			Press("gv").AssertSelection("#1").Both(2, 0);
+		}
+		
+		[Test]
+		public void gv_Visual()
+		{
+			lines.SetText("Abcd\nefg\nhijk\nlmnop");
+			Put(2, 1).Press("vjl").AssertSelection("#1").Anchor(2, 1).Caret(3, 2);
+			Assert.AreEqual(ViMode.Visual, receiver.ViMode);
+			Press("y").AssertSelection("#2").Both(2, 1);
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("gv").AssertSelection("#3").Anchor(2, 1).Caret(3, 2);
+			Assert.AreEqual(ViMode.Visual, receiver.ViMode);
+		}
+		
+		[Test]
+		public void gv_LinesVisual()
+		{
+			lines.SetText("Abcd\nefg\nhijk\nlmnop");
+			Put(2, 1).Press("Vjl").AssertSelection("#1").Anchor(2, 1).Caret(3, 2);
+			Assert.AreEqual(ViMode.LinesVisual, receiver.ViMode);
+			Press("y").AssertSelection("#2").Both(2, 1);
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("gv").AssertSelection("#3").Anchor(2, 1).Caret(3, 2);
+			Assert.AreEqual(ViMode.LinesVisual, receiver.ViMode);
 		}
 		
 		[Test]

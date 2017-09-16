@@ -118,6 +118,7 @@ namespace MulticaretEditor
 					{
 						controller.ViStoreSelections();
 						controller.macrosExecutor = null;
+						controller.receiver = null;
 					}
 					controller = value;
 					if (controller != null)
@@ -126,6 +127,7 @@ namespace MulticaretEditor
 						receiver = new Receiver(controller, macrosExecutor.viMode, alwaysInputMode);
 						receiver.viMap = viMap;
 						receiver.ViModeChanged += Receiver_ViModeChanged;
+						controller.receiver = receiver;
 						lines = controller.Lines;
 						lines.wordWrap = wordWrap;
 						lines.lineBreak = lineBreak;

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace MulticaretEditor
 {
-	public class Controller
+	public class Controller : IViStoreSelector
 	{
 		private readonly LineArray lines;
 		private readonly List<Selection> selections;
@@ -14,6 +14,7 @@ namespace MulticaretEditor
 		{
 			this.lines = lines;
 			this.selections = lines.selections;
+			lines.viStoreSelector = this;
 			processor = new CommandProcessor(this, lines, selections);
 			processor.ResetCommandsBatching();
 		}
@@ -21,6 +22,7 @@ namespace MulticaretEditor
 		public readonly CommandProcessor processor;
 		public bool isReadonly;
 		public MacrosExecutor macrosExecutor;
+		public Receiver receiver;
 
 		public LineArray Lines { get { return lines; } }
 
@@ -2284,17 +2286,29 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViStoreSelections()
-		{
-			lines.mementos = GetSelectionMementos();
-		}
+		private SelectionMemento[] mementos;
+		
+		private bool mementosAsLines;
+		public bool ViSelectionsAsLines { get { return mementosAsLines; } }
 		
 		public void ViRecoverSelections()
 		{
-			if (lines.mementos != null)
+			if (mementos != null)
 			{
-				SetSelectionMementos(lines.mementos);
+				SetSelectionMementos(mementos);
 			}
+		}
+		
+		public void ViStoreSelections()
+		{
+			mementos = GetSelectionMementos();
+			mementosAsLines = receiver != null && receiver.ViMode == ViMode.LinesVisual;
+		}
+		
+		public void ViStoreMementos(SelectionMemento[] mementos)
+		{
+			this.mementos = mementos;
+			mementosAsLines = receiver != null && receiver.ViMode == ViMode.LinesVisual;
 		}
 		
 		public void ViAddHistoryPosition(bool forced)

@@ -25,7 +25,7 @@ namespace MulticaretEditor
 		override public void Undo()
 		{
 			SetSelectionMementos(mementos);
-			lines.mementos = mementos;
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }

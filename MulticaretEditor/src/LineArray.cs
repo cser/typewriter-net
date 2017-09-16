@@ -1065,7 +1065,7 @@ namespace MulticaretEditor
 		public bool markedBracket;
 		public Place markedBracket0;
 		public Place markedBracket1;
-		public SelectionMemento[] mementos;
+		public IViStoreSelector viStoreSelector;
 
 		public List<StyleRange> ranges;
 		

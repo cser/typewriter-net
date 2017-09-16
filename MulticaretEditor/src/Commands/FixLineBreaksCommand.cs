@@ -104,7 +104,7 @@ namespace MulticaretEditor
 			}
 			SetSelectionMementos(mementos);
 			lines.ResetTextCache();
-			lines.mementos = mementos;
+			lines.viStoreSelector.ViStoreMementos(mementos);
 		}
 	}
 }
