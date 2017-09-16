@@ -458,6 +458,8 @@ namespace UnitTests
 		public void fx_Ru()
 		{
 			SetViMode(true);
+			ClipboardExecutor.fakeLayout = true;
+			ClipboardExecutor.fakeEnLayout = false;
 			receiver.viMap = GetRuMap();
 			
 			lines.autoindent = true;
