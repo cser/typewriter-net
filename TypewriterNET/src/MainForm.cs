@@ -1472,16 +1472,14 @@ public class MainForm : Form
 				}
 				if (!locationChanged)
 				{
-					string path0 = oldFileInfo != null ? oldFileInfo.FullName : null;
-					string path1 = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
-					locationChanged = (path0 ?? "").ToLowerInvariant() != (path1 ?? "").ToLowerInvariant();
+					string oldPath = oldFileInfo != null ? oldFileInfo.FullName : null;
+					string newPath = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					locationChanged = (oldPath ?? "").ToLowerInvariant() != (newPath ?? "").ToLowerInvariant();
 				}
 				if (locationChanged)
 				{
-					string path0 = oldFileInfo != null ? oldFileInfo.FullName : null;
-					string path1 = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
-					if (path0 != null && fileTree.IsFolderOpen(Path.GetDirectoryName(path0)) ||
-						path1 != null && fileTree.IsFolderOpen(Path.GetDirectoryName(path1)))
+					string newPath = buffer.fileInfo != null ? buffer.fileInfo.FullName : null;
+					if (newPath != null && fileTree.IsFolderOpen(Path.GetDirectoryName(newPath)))
 					{
 						fileTree.Reload();
 					}
