@@ -639,6 +639,9 @@ namespace UnitTests
 			AddLast('/');
 			Assert.AreEqual("/", parser.shortcut);
 			
+			AddLast('?');
+			Assert.AreEqual("?", parser.shortcut);
+			
 			AddLast(':');
 			Assert.AreEqual(":", parser.shortcut);
 		}
@@ -719,6 +722,15 @@ namespace UnitTests
 			Init(lineMode);
 			
 			AddLast('*').AssertParsed("1:action:*;move:\\0;moveChar:\\0");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void Sharp(bool lineMode)
+		{
+			Init(lineMode);
+			
+			AddLast('#').AssertParsed("1:action:#;move:\\0;moveChar:\\0");
 		}
 		
 		[TestCase(false)]

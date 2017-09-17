@@ -38,6 +38,7 @@ namespace MulticaretEditor
 		{
 			public SwitchInfo context;
 			public bool lookAhead;
+			public bool isLineContinue;
 			public int column;
 			public Rule[] childs;
 			
@@ -671,13 +672,17 @@ namespace MulticaretEditor
 		
 		public class LineContinue : Rule
 		{
+			public LineContinue() : base()
+			{
+				isLineContinue = true;
+			}
+			
 			override public bool Match(string text, int position, out int nextPosition)
 			{
 				int length = text.Length;
 				bool result = text[position] == '\\' &&
-					(position + 1 >= length ||
-					(position + 2 >= length && (text[position + 1] == '\n' || text[position + 1] == '\r')));
-				nextPosition = result ? position + length - position : position;
+					(position + 1 >= length || text[position + 1] == '\n' || text[position + 1] == '\r');
+				nextPosition = result ? length : position;
 				return result;
 			}
 		}

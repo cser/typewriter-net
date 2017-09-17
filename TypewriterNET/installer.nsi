@@ -13,13 +13,20 @@ Name "Typewriter.NET"
 OutFile "typewriter-net-installer.exe"
 ShowInstDetails "hide"
 ShowUninstDetails "hide"
-!define MUI_ICON "TypewriterNET.ico"
 InstallDir "$PROGRAMFILES\${APPNAME}"
 ; ----------------------------------------
 ; Modern UI Configuration
+!define MUI_ICON "TypewriterNET.ico"
 !define MUI_ABORTWARNING
+!define MUI_WELCOMEFINISHPAGE_BITMAP "nsis.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "nsis_uninstall.bmp"
+!define MUI_WELCOMEPAGE_TEXT "Setup will guide you through the installation of Typewriter.NET$\r$\n$\r$\n\
+It is expected that you close all Typewriter.NET instances before starting Setup.$\r$\n$\r$\n\
+Click Next to continue"
+!insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !define MUI_FINISHPAGE_RUN "$INSTDIR\TypewriterNET.exe"

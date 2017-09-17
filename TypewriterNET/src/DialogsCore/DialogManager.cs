@@ -540,19 +540,12 @@ public class DialogManager
 			snippetIncrementalSearch.Open(new SnippetIncrementalSearch(tempSettings), false);
 	}
 	
-	private bool ViDoFind(Controller controller)
-	{
-		if (viFind.SwitchOpen())
-			viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText), true);
-		return true;
-	}
-	
-	private bool ViDoFindText(string text, Pattern pattern)
+	private bool ViDoFindText(string text, Pattern pattern, bool isBackward)
 	{
 		viFind.Close(true);
 		if (mainForm.LastFrame != null)
 		{
-			mainForm.LastFrame.TextBox.ViFind(pattern);
+			mainForm.LastFrame.TextBox.ViFind(pattern, isBackward);
 			mainForm.LastFrame.TextBox.Controller.ViAddHistoryPosition(true);
 		}
 		return true;
@@ -560,9 +553,11 @@ public class DialogManager
 	
 	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
-		if (shortcut == "/")
+		if (shortcut == "/" || shortcut == "?")
 		{
-			return ViDoFind(controller);
+			if (viFind.SwitchOpen())
+				viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText, shortcut == "?"), true);
+			return true;
 		}
 		if (shortcut == ":")
 		{

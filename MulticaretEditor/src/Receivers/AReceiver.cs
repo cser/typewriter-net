@@ -63,7 +63,7 @@ namespace MulticaretEditor
 			return false;
 		}
 		
-		public virtual bool DoFind(Pattern pattern)
+		public virtual bool DoFind(Pattern pattern, bool isBackward)
 		{
 			return false;
 		}

@@ -632,7 +632,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
-		commands.Add(new Command("ctags", "[parameters]", "rebuild tags (default parameters -R *)", DoCtagsRebuild));
+		commands.Add(new Command("ctags", "[parameters]", "rebuild tags, default parameters -R *\n(See more in \"?\\Ctags help…\" menu item)", DoCtagsRebuild));
 		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
 		commands.Add(new Command("ctags-showAllDefinitions", "[name]", "show all tag definitions", DoShowAllTagDefinitions));
 		commands.Add(new Command("ctags-autocomplete", "", "autocomplete by ctags", DoCtagsAutocomplete));

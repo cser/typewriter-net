@@ -10,12 +10,11 @@
 			<IncludeRules context="Common"/>
 			<StringDetect attribute="Http" context="Http" String="http:"/>
 			<StringDetect attribute="Http" context="Http" String="https:"/>
-			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()_-+=\|/?" attribute="Operator"/>
 			<DetectChar attribute="String" context="String" char="&quot;"/>
 			<DetectChar attribute="String2" context="String2" char="`"/>
 			<Int attribute="Decimal" context="#stay"/>
 			<Detect2Chars attribute="Title" context="Meta 2" char="[" char1="["/>
-			<DetectChar attribute="Meta" context="Meta 1" char="["/>
+			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()[]{}_-+=\|/?" attribute="Operator"/>
 		</context>
 		<context attribute="Normal Text" lineEndContext="#pop" name="FirstColumn">
 			<Detect2Chars attribute="Operator" context="#pop" char=" " char1="|"/>
@@ -34,12 +33,6 @@
 			<DetectChar attribute="Operator" context="String01" char="&quot;"/>
 			<DetectChar attribute="Operator" context="String02" char="`"/>
 			<Int attribute="Decimal" context="#stay"/>
-		</context>
-		<context attribute="Meta" lineEndContext="#stay" name="Meta 1">
-			<DetectChar attribute="Meta" context="#pop" char="]"/>
-			<Int attribute="Operator" context="#stay"/>
-			<IncludeRules context="Common"/>
-			<IncludeRules context="CommonMeta"/>
 		</context>
 		<context attribute="Title" lineEndContext="#stay" name="Meta 2">
 			<Detect2Chars attribute="Title" context="#pop" char="]" char1="]"/>

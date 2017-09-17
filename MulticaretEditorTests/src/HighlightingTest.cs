@@ -830,6 +830,62 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void LineContinue2()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				<highlighting>
+					<contexts>
+						<context attribute='a0' lineEndContext='#stay' name='Normal'>
+							<DetectChar char='&quot;' context='String' attribute='a1'/> 
+						</context>
+						<context attribute='a1' lineEndContext='#pop' name='String'>
+							<LineContinue context='#stay'/>
+                            <DetectChar attribute='a1' context='#pop' char='&quot;'/>
+						</context>
+					</contexts>
+					<itemDatas>
+						<itemData name='a0' defStyleNum='dsNormal'/>
+						<itemData name='a1' defStyleNum='dsKeyword'/>
+					</itemDatas>
+				</highlighting>
+			</language>");
+			provider.SetText("ab a \"line0\\\nline1\" cdef");
+			highlighting.Parse(provider);
+			//                  ab a "line0\N
+			AssertHighlighting("0000011111111", provider[0]);
+			//                  line1" cdef
+			AssertHighlighting("11111100000", provider[1]);
+		}
+		
+		[Test]
+		public void LineContinue3()
+		{
+			Init(@"<language name='test' extensions='*.test'>
+				<highlighting>
+					<contexts>
+						<context attribute='a0' lineEndContext='#stay' name='Normal'>
+							<DetectChar char='&quot;' context='String' attribute='a1'/> 
+						</context>
+						<context attribute='a1' lineEndContext='#pop' name='String'>
+							<LineContinue context='#stay'/>
+                            <DetectChar attribute='a1' context='#pop' char='&quot;'/>
+						</context>
+					</contexts>
+					<itemDatas>
+						<itemData name='a0' defStyleNum='dsNormal'/>
+						<itemData name='a1' defStyleNum='dsKeyword'/>
+					</itemDatas>
+				</highlighting>
+			</language>");
+			provider.SetText("ab a \"line0\\\r\nline1\" cdef");
+			highlighting.Parse(provider);
+			//                  ab a "line0\N
+			AssertHighlighting("00000111111111", provider[0]);
+			//                  line1" cdef
+			AssertHighlighting("11111100000", provider[1]);
+		}
+		
+		[Test]
 		public void Fallthrough()
 		{
 			Init(@"<language name='test' extensions='*.test'> 

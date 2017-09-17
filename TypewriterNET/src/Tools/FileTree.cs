@@ -636,9 +636,11 @@ public class FileTree
 					if (buffer != null)
 					{
 						buffer.fileInfo = null;
+						buffer.unsaved = true;
 					}
 				}
 			}
+			mainForm.UpdateAfterFileRenamed();
 			Reload();
 		}
 		return true;

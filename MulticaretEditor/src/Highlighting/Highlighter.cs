@@ -465,10 +465,11 @@ namespace MulticaretEditor
 					Array.Clear(awakePositions, 0, awakePositions.Length);
 					int position = 0;
 					int count = line.charsCount;
+					Rules.Rule lastMatched = null;
 					while (position < count)
 					{
 						Rules.Context context = stack.count > 0 ? stack.Peek() : contexts[0];
-						bool ruleMatched = false;
+						lastMatched = null;
 						foreach (Rules.Rule rule in context.childs)
 						{
 							int nextPosition;
@@ -497,11 +498,11 @@ namespace MulticaretEditor
 									}
 								}
 								Switch(rule.context);
-								ruleMatched = true;
+								lastMatched = rule;
 								break;
 							}
 						}
-						if (!ruleMatched)
+						if (lastMatched == null)
 						{
 							if (context.fallthrough)
 							{
@@ -514,12 +515,15 @@ namespace MulticaretEditor
 							}
 						}
 					}
-					while (stack.count > 0)
+					if (lastMatched == null || !lastMatched.isLineContinue)
 					{
-						Rules.Context contextI = stack.Peek();
-						if (contextI.lineEndContext.next == null && contextI.lineEndContext.pops == 0)
-							break;
-						Switch(contextI.lineEndContext);
+						while (stack.count > 0)
+						{
+							Rules.Context contextI = stack.Peek();
+							if (contextI.lineEndContext.next == null && contextI.lineEndContext.pops == 0)
+								break;
+							Switch(contextI.lineEndContext);
+						}
 					}
 					if (AreEquals(stack, state))
 					{

@@ -36,12 +36,19 @@ namespace MulticaretEditor
 		
 		public override bool IsIdle { get { return false; } }
 		
-		public override bool DoFind(Pattern pattern)
+		public override bool DoFind(Pattern pattern, bool isBackward)
 		{
 			ClipboardExecutor.PutToSearch(pattern);
 			if (ClipboardExecutor.ViRegex != null)
 			{
-				controller.ViFindForward(ClipboardExecutor.ViRegex);
+				if (isBackward)
+				{
+					controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
+				}
+				else
+				{
+					controller.ViFindForward(ClipboardExecutor.ViRegex);
+				}
 			}
 			return true;
 		}

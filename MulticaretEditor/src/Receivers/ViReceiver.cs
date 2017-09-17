@@ -194,12 +194,29 @@ namespace MulticaretEditor
 					move = new ViMoves.PageUpDown(true);
 					break;
 				case 'h':
-					move = new ViMoves.MoveStep(Direction.Left);
-					needHistoryMove = count > 1;
+					if (controller.AllSelectionsEmpty || count > 1)
+					{
+						move = new ViMoves.MoveStep(Direction.Left);
+						needHistoryMove = count > 1;
+					}
+					else
+					{
+						controller.ViStoreSelections();
+						controller.MoveLeft(false);
+					}
 					break;
 				case 'l':
-					move = new ViMoves.MoveStep(Direction.Right);
-					needHistoryMove = count > 1;
+					if (controller.AllSelectionsEmpty || count > 1)
+					{
+						move = new ViMoves.MoveStep(Direction.Right);
+						needHistoryMove = count > 1;
+					}
+					else
+					{
+						controller.ViStoreSelections();
+						controller.MoveRight(false);
+						controller.ViFixPositions(false);
+					}
 					break;
 				case 'j':
 					if (parser.moveChar.c == 'g')
@@ -585,10 +602,11 @@ namespace MulticaretEditor
 						context.SetState(new ViReceiverVisual(true));
 						break;
 					case '*':
+					case '#':
 						string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
 						if (!string.IsNullOrEmpty(text))
 						{
-							DoFind(new Pattern("\\b" + text + "\\b", true, false));
+							DoFind(new Pattern("\\b" + text + "\\b", true, false), parser.action.c == '#');
 						}
 						break;
 					case '\b':
@@ -651,12 +669,19 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public override bool DoFind(Pattern pattern)
+		public override bool DoFind(Pattern pattern, bool isBackward)
 		{
 			ClipboardExecutor.PutToSearch(pattern);
 			if (ClipboardExecutor.ViRegex != null)
 			{
-				controller.ViFindForward(ClipboardExecutor.ViRegex);
+				if (isBackward)
+				{
+					controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
+				}
+				else
+				{
+					controller.ViFindForward(ClipboardExecutor.ViRegex);
+				}
 			}
 			return true;
 		}

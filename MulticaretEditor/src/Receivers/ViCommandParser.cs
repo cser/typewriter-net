@@ -159,6 +159,11 @@ namespace MulticaretEditor
 						shortcut = "/";
 						return ParseResult.Complete;
 					}
+					if (code.c == '?')
+					{
+						shortcut = "?";
+						return ParseResult.Complete;
+					}
 					if (code.c == ':')
 					{
 						shortcut = ":";
@@ -227,6 +232,7 @@ namespace MulticaretEditor
 							case 'v':
 							case 'V':
 							case '*':
+							case '#':
 								action = code;
 								return ParseResult.Complete;
 							case 'd':

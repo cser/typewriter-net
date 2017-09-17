@@ -29,6 +29,25 @@ public class Buffer
 	public bool HasHistory { get { return controller.processor.CanUndo || controller.processor.CanRedo; } }
 	public bool Changed { get { return controller.processor.Changed; } }
 	public bool IsEmpty { get { return controller.Lines.IsEmpty; } }
+	
+	public string ShowingName
+	{
+		get
+		{
+			string name = Name;
+			if (Changed)
+			{
+				name += "*";
+			}
+			else if (unsaved)
+			{
+				name += "\"";
+			}
+			return name;
+		}
+	}
+	
+	public bool unsaved;
 
 	private string fullPath;
 	public string FullPath { get { return fullPath; } }
@@ -41,6 +60,17 @@ public class Buffer
 	public EncodingPair encodingPair = new EncodingPair(Encoding.UTF8, false);
 	public bool showEncoding = true;
 	public string customSyntax;
+	
+	public void MarkAsSaved()
+	{
+		controller.processor.MarkAsSaved();
+		unsaved = false;
+	}
+	
+	public void MarkAsFullyUnsaved()
+	{
+		controller.processor.MarkAsFullyUnsaved();
+	}
 
 	public void SetFile(string fullPath, string name)
 	{
@@ -71,7 +101,7 @@ public class Buffer
 
 	public static string StringOf(Buffer buffer)
 	{
-		return buffer.Name + (buffer.Changed ? "*" : "");
+		return buffer.ShowingName;
 	}
 
 	public static string EncodeOf(Buffer buffer)

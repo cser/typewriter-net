@@ -469,7 +469,7 @@
 				<RegExpr attribute="Alert" context="#stay" String="(FIXME|TODO)"/>
 			</context>
 			<context attribute="String" lineEndContext="#pop" name="String">
-				<LineContinue attribute="String" context="#pop"/>
+				<LineContinue attribute="String" context="#stay"/>
 				<Detect2Chars attribute="String" context="#stay" char="\" char1="&quot;"/>
 				<StringDetect attribute="String Char" context="#stay" String="$\&quot;"/>
 				<RegExpr attribute="String Char" context="#stay" String="\$\{[\w\d_]+\}"/>

@@ -114,9 +114,9 @@ namespace MulticaretEditor
 			return state.DoKeyDown(keysData, out viShortcut, out scrollToCursor);
 		}
 		
-		public bool DoFind(Pattern pattern)
+		public bool DoFind(Pattern pattern, bool isBackward)
 		{
-			return state.DoFind(pattern);
+			return state.DoFind(pattern, isBackward);
 		}
 		
 		public void ResetViInput()

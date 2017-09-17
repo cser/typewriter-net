@@ -21,7 +21,7 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("- All actions are represented in menu.");
 		builder.AppendLine("- Menu subitems are depended on frame with cursor");
-		builder.AppendLine("- [] in menu item denotes complex shortcut, i.e. for [Ctrl+Tab]:");
+		builder.AppendLine("- [] in menu item denotes complex shortcut, i.e. for `Ctrl+Tab`:");
 		builder.AppendLine("    Ctrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
 		builder.AppendLine("    Ctrl↓, Tab↓↑, Tab↓↑, Ctrl↑ - switch back / forward between 3 tabs");
 		AddViMode(builder, settings);
@@ -67,6 +67,8 @@ public static class Help
 			ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
 			builder.AppendLine(ds.name);
 		}
+		builder.AppendLine();
+		builder.AppendLine("Learn more about syntax.xml files in \"?\\Kate syntax highlighting help…\" menu item");
 		Buffer buffer = new Buffer(null, "Help.twh", SettingsMode.Help);
 		buffer.tags = BufferTag.Other;
 		buffer.Controller.isReadonly = true;
@@ -92,14 +94,14 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("# Vi modes");
 		builder.AppendLine();
-		builder.AppendLine("- [Input](equals to default editor mode)");
-		builder.AppendLine("  Enter from [Normal]: `i`, `a`, `c`, `s`, `A`, `C`");
-		builder.AppendLine("- [Normal]");
-		builder.AppendLine("  Enter from [Input], [Visual], [LinesVisual]: `Ctrl+[`");
-		builder.AppendLine("- [Visual]");
-		builder.AppendLine("  Enter from [Normal], [LinesVisual]: `v`");
-		builder.AppendLine("- [LinesVisual]");
-		builder.AppendLine("  Enter from [Normal], [LinesVisual]: `V`");
+		builder.AppendLine("- Input (equals to default editor mode)");
+		builder.AppendLine("  Enter from Normal: `i`, `a`, `c`, `s`, `A`, `C`");
+		builder.AppendLine("- Normal");
+		builder.AppendLine("  Enter from Input, Visual, Lines visual: `Ctrl+[`");
+		builder.AppendLine("- Visual");
+		builder.AppendLine("  Enter from Normal, Lines visual: `v`");
+		builder.AppendLine("- Lines visual");
+		builder.AppendLine("  Enter from Normal, Lines visual: `V`");
 		builder.AppendLine();
 		builder.AppendLine("# Normal mode");
 		builder.AppendLine();
@@ -179,7 +181,9 @@ public static class Help
 			table.Add(" <<").Add("Indent left").NewRow();
 			table.Add(" >>").Add("Indent right").NewRow();
 			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+[` - close dialog").NewRow();
+			table.Add(" ?").Add("Open find backward dialog").NewRow();
 			table.Add(" *").Add("Put word or selection into\n  find register and find next").NewRow();
+			table.Add(" #").Add("Put word or selection into\n  find register and find prev").NewRow();
 			table.Add(" n").Add("Find next").NewRow();
 			table.Add(" N").Add("Find previous").NewRow();
 			table.Add(" <space><symbol><showed_symbols>").Add("Jump where you look:\n  <symbol> - symbol, what you look,\n  <showed_symbols> - symbols,  \nshowed after <symbol> entered").NewRow();

@@ -147,9 +147,9 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public bool ViFind(Pattern pattern)
+		public bool ViFind(Pattern pattern, bool isBackward)
 		{
-			if (receiver != null && receiver.DoFind(pattern))
+			if (receiver != null && receiver.DoFind(pattern, isBackward))
 			{
 				ScrollIfNeedToCaret();
 				Invalidate();

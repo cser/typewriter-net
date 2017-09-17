@@ -429,7 +429,7 @@ namespace MulticaretEditor
 						{
 							string text = controller.Lines.GetText(
 								controller.LastSelection.Left, controller.LastSelection.Count);
-							DoFind(new Pattern(text, false, false));
+							DoFind(new Pattern(text, false, false), false);
 							SetViMode();
 						}
 						else
@@ -437,7 +437,7 @@ namespace MulticaretEditor
 							string text = controller.GetWord(controller.Lines.PlaceOf(controller.LastSelection.caret));
 							if (!string.IsNullOrEmpty(text))
 							{
-								DoFind(new Pattern("\\b" + text + "\\b", true, false));
+								DoFind(new Pattern("\\b" + text + "\\b", true, false), false);
 							}
 							SetViMode();
 						}
@@ -500,12 +500,19 @@ namespace MulticaretEditor
 			context.SetState(new ViReceiver(null, false));
 		}
 		
-		public override bool DoFind(Pattern pattern)
+		public override bool DoFind(Pattern pattern, bool isBackward)
 		{
 			ClipboardExecutor.PutToSearch(pattern);
 			if (ClipboardExecutor.ViRegex != null)
 			{
-				controller.ViFindForward(ClipboardExecutor.ViRegex);
+				if (isBackward)
+				{
+					controller.ViFindBackward(ClipboardExecutor.ViBackwardRegex);
+				}
+				else
+				{
+					controller.ViFindForward(ClipboardExecutor.ViRegex);
+				}
 			}
 			return true;
 		}

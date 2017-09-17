@@ -1,15 +1,5 @@
-- highlighting: fix LineContinue attribute
-
-Matches a backslash (‘\’) at the end of a line.
-<LineContinue (common attributes) /> 
-This rule has no specific attributes.
-This rule is useful for switching context at end of line, if the last character is a backslash (‘\’). This is needed for example in C/C++ to continue macros or strings.
-
-Example from c.xml:
-<DetectChar attribute="String" context="String" char="&quot;"/>
-...
-<context attribute="String" lineEndContext="#pop" name="String">
-	<LineContinue attribute="String" context="#stay"/>
-	<HlCStringChar attribute="String Char" context="#stay"/>
-	<DetectChar attribute="String" context="#pop" char="&quot;"/>
-</context>
+- scroll by Ctrl+j/k with custom step
+- search ignore current setup
+- fix {} jumping with complex strings
+- fix errors on removing highlighting file
+- fix ,g with subclasses inheritance showing (need :)

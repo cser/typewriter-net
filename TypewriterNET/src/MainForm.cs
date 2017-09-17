@@ -544,7 +544,7 @@ public class MainForm : Form
 			{
 				if (settings.checkContentBeforeReloading.Value && IsFileEqualToBuffer(buffer))
 				{
-					buffer.Controller.processor.MarkAsSaved();
+					buffer.MarkAsSaved();
 				}
 				else
 				{
@@ -560,7 +560,7 @@ public class MainForm : Form
 					else
 					{
 						buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
-						buffer.Controller.processor.MarkAsFullyUnsaved();
+						buffer.MarkAsFullyUnsaved();
 					}
 				}
 			}
@@ -1004,6 +1004,7 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Home…", DoOpenHomeUrl, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Last stable build page…", DoOpenLastStableBuildUrl, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Ctags help…", DoOpenCtagsHelp, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Kate syntax highlighting help…", DoOpenSyntaxHelp, null, false)));
 	}
 	
 	private bool DoPasteInOutput(Controller controller)
@@ -1378,7 +1379,7 @@ public class MainForm : Form
 				Log.Open();
 				return;
 			}
-			buffer.Controller.processor.MarkAsSaved();
+			buffer.MarkAsSaved();
 			Log.WriteInfo("Responce", text);
 			return;
 		}
@@ -1424,7 +1425,7 @@ public class MainForm : Form
 			return;
 		}
 		FileInfo oldFileInfo = buffer.fileInfo;
-		buffer.Controller.processor.MarkAsSaved();
+		buffer.MarkAsSaved();
 		buffer.fileInfo = new FileInfo(buffer.FullPath);
 		buffer.lastWriteTimeUtc = buffer.fileInfo.LastWriteTimeUtc;
 		buffer.needSaveAs = false;
@@ -1784,7 +1785,11 @@ public class MainForm : Form
 				return false;
 			}
 			Buffer buffer = LoadFile(templatePath);
-			buffer.SetFile(path, Path.GetFileName(path));
+			if (buffer != null)
+			{
+				buffer.SetFile(path, Path.GetFileName(path));
+				buffer.unsaved = true;
+			}
 		}
 		else
 		{
@@ -1858,8 +1863,18 @@ public class MainForm : Form
 				if (File.Exists(path.startupPath))
 				{
 					if (!File.Exists(path.appDataPath))
-						File.Copy(path.startupPath, path.appDataPath);
-					LoadFile(path.appDataPath);
+					{
+						Buffer buffer = LoadFile(path.startupPath);
+						if (buffer != null)
+						{
+							buffer.SetFile(path.appDataPath, Path.GetFileName(path.appDataPath));
+							buffer.unsaved = true;
+						}
+					}
+					else
+					{
+						LoadFile(path.appDataPath);
+					}
 				}
 				else if (File.Exists(path.appDataPath))
 				{
@@ -1943,9 +1958,14 @@ public class MainForm : Form
 		Buffer buffer = NewFileBuffer();
 		buffer.SetFile(path, Path.GetFileName(path));
 		buffer.InitText(text);
+		buffer.unsaved = true;
 		if (unsaved)
 		{
-			buffer.Controller.processor.MarkAsFullyUnsaved();
+			buffer.MarkAsFullyUnsaved();
+		}
+		else
+		{
+			buffer.needSaveAs = false;
 		}
 		GetMainNest().Frame.AddBuffer(buffer);
 	}
@@ -1992,8 +2012,18 @@ public class MainForm : Form
 		else
 		{
 			if (!File.Exists(appDataPath))
-				File.Copy(startupPath, appDataPath);
-			LoadFile(appDataPath);
+			{
+				Buffer buffer = LoadFile(startupPath);
+				if (buffer != null)
+				{
+					buffer.SetFile(appDataPath, Path.GetFileName(appDataPath));
+					buffer.unsaved = true;
+				}
+			}
+			else
+			{
+				LoadFile(appDataPath);
+			}
 		}
 	}
 	
@@ -2043,6 +2073,12 @@ public class MainForm : Form
 	private bool DoOpenCtagsHelp(Controller controller)
 	{
 		OpenDocument(Path.Combine(AppPath.StartupDir, "ctags/ctags.html"));
+		return true;
+	}
+	
+	private bool DoOpenSyntaxHelp(Controller controller)
+	{
+		OpenDocument(Path.Combine(AppPath.StartupDir, "syntax/syntax.html"));
 		return true;
 	}
 	

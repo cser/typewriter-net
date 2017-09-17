@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Writing a Syntax Highlighting File | Kate | Get an Edge in Editing</title>
+<style type="text/css">
+	code {
+		background: #ececec;
+		display: inline-block;
+		white-space: normal;
+		font-size: larger;
+	}
+	body {
+		font-family: Helvetica, Verdana, Arial;
+	}
+</style>
+<body>
+<h1>Writing a Syntax Highlighting File</h1>
+<div>
+	<span><a href="https://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/" rel="bookmark"><time datetime="2005-03-24T16:46:11+00:00">March 24, 2005</time></a></span> <span class="byline"><span class="author vcard"><a class="url fn n" href="https://kate-editor.org/author/cullmann/" rel="author">Christoph Cullmann</a></span></span>			<span class="comments-link"><a href="https://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/#comments">3 Comments</a></span>
+</div>
+<p><strong>Note: <span style="color: #ff0000;"><a title="Writing a Kate Syntax Highlighting File" href="https://docs.kde.org/stable5/en/applications/katepart/highlight.html" target="_blank"><span style="color: #ff0000;">Please refer to the Kate Handbook for the most recent version of how to write syntax highlighting files</span></a></span></strong>.</p>
+<p><strong>Hint</strong>: If you want to write a syntax highlighting file, the&nbsp;<a title="Kate XML Completion Plugin" href="http://kate-editor.org/2013/10/26/kate-xml-completion-converting-dtd-to-metadtd/">XML Completion plugin</a>&nbsp;might be of great help.</p>
+<p>This section is an overview of the Highlight Definition XML format in KDE4. Based on a small example it will describe the main components and their meaning and usage. The next section will go into detail with the highlight detection rules.</p>
+<h2>Main sections of Kate Highlight Definition files</h2>
+<p>The formal definition, aka the DTD is stored in the file <code>language.dtd</code> which should be installed on your system in the folder <code>$KDEDIR/share/apps/katepart/syntax</code>. If <code>$KDEDIR</code> is unset look up the folder by using <code>kde4-config --prefix</code>.</p>
+<h3>An Example</h3>
+<p>A highlighting file contains a header that sets the XML version and the doctype:</p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; &lt;!DOCTYPE language SYSTEM "language.dtd"&gt; </code></pre>
+<p>The root of the definition file is the element <strong>language</strong>. Available attributes are:</p>
+<p>Required attributes:</p>
+<ul>
+<li><strong>name</strong> sets the name of the language. It appears in the menus and dialogs.</li>
+<li><strong>section</strong> specifies the category.</li>
+<li><strong>extensions</strong> defines file extensions, like “<em>.cpp;</em>.h”</li>
+</ul>
+<p>Optional attributes:</p>
+<ul>
+<li><strong>mimetype</strong> associates files Mime Type based.</li>
+<li><strong>version</strong> specifies the current version of the definition file.</li>
+<li><strong>kateversion</strong> specifies the latest supported version of Kate.</li>
+<li><strong>casesensitive</strong> defines, whether the keywords are case sensitive or not. NOTE: not implemented yet.</li>
+<li><strong>priority</strong> is necessary if another highlight definition file uses the same extensions. The higher priority will win.</li>
+<li><strong>author</strong> contains the name of the author and his email-address.</li>
+<li><strong>license</strong> contains the license, usually LGPL, Artistic, GPL and others. It’s important to specify a license, as the kate team needs some legal backing for the distribution of the files.</li>
+<li><strong>hidden</strong> defines, whether the name should appear in Kate’s menus.</li>
+</ul>
+<p>So the next line may look like this:</p>
+<pre><code>&lt;language name="C++" version="1.00" kateversion="2.4" section="Sources" extensions="*.cpp;*.h" &gt; </code></pre>
+<p>Next comes the <strong>highlighting</strong> element, which contains the optional element <strong>list</strong> and the required elements <strong>contexts</strong> and <strong>itemDatas</strong>.</p>
+<p><strong>list</strong> elements contain a list of keywords. In this case the keywords are <em>class</em> and <em>const</em>. You can add as many lists as you need. The <strong>contexts</strong> element contains all contexts. The first context is by default the start of the highlighting. There are two rules in the context <em>Normal Text</em>, which match the list of keywords with the name <em>somename</em> and a rule that detects a quote and switches the context to <em>string</em>. To learn more about rules read the next chapter.<br>
+The third part is the <strong>itemDatas</strong> element. It contains all color and font styles needed by the contexts and rules.<br>
+In this example, the <strong>itemData</strong> <em>Normal Text</em>, <em>String</em> and <em>Keyword</em> are used.</p>
+<pre><code> &lt;highlighting&gt; &lt;list name="somename"&gt; &lt;item&gt; class &lt;/item&gt; &lt;item&gt; const &lt;/item&gt; &lt;/list&gt; &lt;contexts&gt; &lt;context attribute="Normal Text" lineEndContext="#pop" name="Normal Text" &gt; &lt;keyword attribute="Keyword" context="#stay" String="somename" /&gt; &lt;DetectChar attribute="String" context="string" char="&amp;quot;" /&gt; &lt;/context&gt; &lt;context attribute="String" lineEndContext="#stay" name="string" &gt; &lt;DetectChar attribute="String" context="#pop" char="&amp;quot;" /&gt; &lt;/context&gt; &lt;/contexts&gt; &lt;itemDatas&gt; &lt;itemData name="Normal Text" defStyleNum="dsNormal" /&gt; &lt;itemData name="Keyword" defStyleNum="dsKeyword" /&gt; &lt;itemData name="String" defStyleNum="dsString" /&gt; &lt;/itemDatas&gt; &lt;/highlighting&gt; </code></pre>
+<p>The last part of a highlight definition is the optional <strong>general</strong> section. It may contain information about keywords, code folding, comments and indentation.</p>
+<p>The <strong>comment</strong> section defines with what string a single line comment is introduced. You also can define a multiline comments using <em>multiLine</em> with the additional attribute <em>end</em>. This is used if the user presses the corresponding shortcut for <em>comment/uncomment</em>.<br>
+The <strong>keywords</strong> section defines whether keyword lists are case sensitive or not. Other attributes will be explained later.</p>
+<pre><code> &lt;general&gt; &lt;comments&gt; &lt;comment name="singleLine" start="#"/&gt; &lt;/comments&gt; &lt;keywords casesensitive="1"/&gt; &lt;/general&gt; &lt;/language&gt; </code></pre>
+<h3>The Sections in Detail</h3>
+<p>This part will describe all available attributes for contexts,<br>
+itemDatas, keywords, comments, code folding and indentation.</p>
+<p>The element <strong>context</strong> belongs into the group <strong>contexts</strong>. A context itself defines context specific rules like what should happen if the highlight system reaches the end of a line. Available attributes are:</p>
+<ul>
+<li><strong>name</strong> the context name/identifier. Rules will use this name to specify the context to switch to if the rule matches.</li>
+<li><strong>attribute</strong> the default item data that is used if no rules match in the current context.</li>
+<li><strong>lineEndContext</strong> defines the context the highlight system switches to if it reaches the end of a line. This may either be a name of another context, <strong>#stay</strong> to not switch the context (i.e. do nothing) or <strong>#pop</strong> which will cause to leave this context. It is possible to use for example <strong>#pop#pop#pop</strong> to pop three times.</li>
+<li><strong>lineBeginContext</strong> defines the context if a begin of a line is encountered. Default: #stay.</li>
+<li><strong>fallthrough</strong> defines if the highlight system switches to the context specified in fallthroughContext if no rule matches. Default: <em>false</em>.</li>
+<li><strong>fallthroughContext</strong> specifies the next context if no rule matches.</li>
+<li><strong>dynamic</strong> if <em>true</em>, the context remembers strings/placeholders saved by dynamic rules. This is needed for <em>HERE</em> documents for example. Default: <em>false</em>.</li>
+</ul>
+<p>The element <strong>itemData</strong> is in the group <strong>itemDatas</strong>. It defines the font style and colors. So it is possible to define your own styles and colors, however we recommend to stick to the default styles if possible so that the user will always see the same colors used in different languages. Though, sometimes there is no other way and it is necessary to change color and font attributes. The attributes name and defStyleNum are required, the other optional. Available attributes are:</p>
+<ul>
+<li><strong>name</strong> sets the name of the itemData. Contexts and rules will use this name in their attribute.</li>
+<li><strong>attribute</strong> to reference an itemData.</li>
+<li><strong>defStyleNum</strong> defines which default style to use. Available default styles are explained in detail later.</li>
+<li><strong>color</strong> defines a color. Valid formats are ‘#rrggbb’ or ‘#rgb’.</li>
+<li><strong>selColor</strong> defines the selection color.</li>
+<li><strong>italic</strong> if <em>true</em>, the text will be <em>italic</em>.</li>
+<li><strong>bold</strong> if <em>true</em>, the text will be <strong>bold</strong>.</li>
+<li><strong>underline</strong> if <em>true</em>, the text will be <span style="text-decoration: underline;">underlined</span>.</li>
+<li><strong>strikeout</strong> if <em>true</em>, the text will be <span style="text-decoration: line-through;">stroked out</span>.</li>
+<li><strong>spellChecking</strong> if true, the text will be spell checked, otherwise it will be ignored during spell check.</li>
+</ul>
+<p>The element <strong>keywords</strong> in the group <strong>general</strong> defines keyword properties. Available attributes are:</p>
+<ul>
+<li><strong>casesensitive</strong> may be <em>true</em> or <em>false</em>. If <em>true</em>, all keywords are matched case sensitive. Default: <em>true</em>.</li>
+<li><strong>weakDeliminator</strong> is a list of characters that do <em>not</em> act as word delimiters. For example the dot (<strong>.</strong>) is a word delimiter. Assume a keyword in a <strong>list</strong> contains a dot, it will only match if you specify the dot as a weak delimiter.</li>
+<li><strong>additionalDeliminator</strong> defines additional delimiters.</li>
+<li><strong>wordWrapDeliminator</strong> defines characters after which a line wrap may occur. Default delimiters and word wrap delimiters are the characters <strong>.():!+,-&lt;=&gt;%&amp;<em>/;?[]^{|}~\</em>*, space (‘ ‘) </strong>and <strong>tabulator (\t)</strong>.</li>
+</ul>
+<p>The element <strong>comment</strong> in the group <strong>comments</strong> defines comment properties which are used<br>
+for <code>Tools &gt; Comment</code> and <code>Tools &gt; Uncomment</code>.<br>
+Available attributes are:</p>
+<ul>
+<li><strong>name</strong> is either <em>singleLine</em> or <em>multiLine</em>.</li>
+<li>If you choose <em>singleLine</em> the optinal attribute <strong>position</strong> is available. Default for this attribute is to insert the single line comment string in column 0. If you want it to appear after the whitespaces you have to set it to <em>afterwhitespace</em>, like: <code>position="afterwhitespace"</code>.</li>
+<li>If you choose <em>multiLine</em> the attributes <em>end</em> and <em>region</em> are required.</li>
+<li><strong>start</strong> defines the string used to start a comment. In C++ this is <code>/*</code>.</li>
+<li><strong>end</strong> defines the string used to close a comment. In C++ this is <code>*/</code>.</li>
+<li><strong>region</strong> should be the name of the the foldable multiline comment. Assume you have <em>beginRegion=”Comment”</em> … <em>endRegion=”Comment”</em> in your rules, you should use <em>region=”Comment”</em>. This way uncomment works even if you do not select all the text of the multiline comment. The cursor only must be in the multiline comment.</li>
+</ul>
+<p>The element <strong>folding</strong> in the group <strong>general</strong> defines code folding properties. Available attributes are:</p>
+<ul>
+<li><strong>indentationsensitive</strong> if <em>true</em>, the code folding markers will be added indentation based, like in the scripting language <a title="Python Project Page" href="http://www.python.org/" target="_blank">Python</a>. Usually you do not need to set it, as it defaults to <em>false</em>.</li>
+</ul>
+<p>The element <strong>indentation</strong> in the group <strong>general</strong> defines which indenter will be used, however we strongly recommend to omit this element, as the indenter usually will be set by either defining a <a title="Modes and Filetypes" href="http://kate-editor.org/2006/02/09/kate-modes-filetypes/" target="_self">File Type</a> or by adding a <a title="Kate Modelines" href="http://kate-editor.org/2006/02/09/kate-modelines/" target="_self">mode line</a> to the text file. If you specify an indenter though, you will force a specific indentation on the user, which he might not like at all.<br>
+Available attributes are:</p>
+<ul>
+<li><strong>mode</strong> is the name of the indenter. Available indenters right now are: <em>none</em>, <em>normal</em>, <em>cstyle</em>, <em>haskell</em>, <em>lilypond</em>, <em>lisp</em>, <em>python</em>, <em>ruby</em> and<em> xml</em>.</li>
+</ul>
+<h3>Available Default Styles</h3>
+<p>Default styles are predefined font and color styles. For convenience Kate provides several default styles, in detail:</p>
+<ul>
+<li><strong>dsNormal</strong>, used for normal text.</li>
+<li><strong>dsKeyword</strong>, used for keywords.</li>
+<li><strong>dsDataType</strong>, used for data types.</li>
+<li><strong>dsDecVal</strong>, used for decimal values.</li>
+<li><strong>dsBaseN</strong>, used for values with a base other than 10.</li>
+<li><strong>dsFloat</strong>, used for float values.</li>
+<li><strong>dsChar</strong>, used for a character.</li>
+<li><strong>dsString</strong>, used for strings.</li>
+<li><strong>dsComment</strong>, used for comments.</li>
+<li><strong>dsOthers</strong>, used for ‘other’ things.</li>
+<li><strong>dsAlert</strong>, used for warning messages.</li>
+<li><strong>dsFunction</strong>, used for function calls.</li>
+<li><strong>dsRegionMarker</strong>, used for region markers.</li>
+<li><strong>dsError</strong>, used for error highlighting and wrong syntax.</li>
+</ul>
+<h3>Highlight Detection Rules</h3>
+<p>This section describes the syntax detection rules.</p>
+<p>Each rule can match zero or more characters at the beginning of the string they are tested against. If the rule matches, the matching characters are assigned the style or <em>attribute</em> defined by the rule, and a rule may ask that the current context is switched.</p>
+<p>A rule looks like this:</p>
+<p>The <em>attribute</em> identifies the style to use for matched characters by name, and the <em>context</em> identifies the context to use from here.</p>
+<p>The <em>context</em> can be identified by:</p>
+<ul>
+<li>An <em>identifier</em>, which is the name/identifier of another context.</li>
+<li>An <em>order</em> telling the engine to stay in the current context (<strong>#stay</strong>), or to pop back to a previous context used in the string (<strong>#pop</strong>). To go back more steps, the #pop keyword can be repeated: <strong>#pop#pop#pop</strong></li>
+</ul>
+<p>Some rules can have <em>child rules</em> which are then evaluated only if the parent rule matched. The entire matched string will be given the attribute defined by the parent rule. A rule with child rules looks like this:</p>
+<pre><code>&lt;RuleName (attributes)&gt; &lt;ChildRuleName (attributes) /&gt; ... &lt;/RuleName&gt; </code></pre>
+<p>Rule specific attributes vary and are described in the following sections.</p>
+<h3>Common attributes</h3>
+<p>All rules have the following attributes in common and are available whenever a <strong>(common attributes)</strong> appears. All following attributes are optional.</p>
+<ul>
+<li><strong>attribute</strong> maps to a defined <em>itemData</em>. Default: the attribute from the <em>destination context</em></li>
+<li><strong>context</strong> specifies the context to which the highlighting system switches if the rule matches. Default: <em>#stay</em></li>
+<li><strong>beginRegion</strong> starts a code folding block. Default: unset.</li>
+<li><strong>endRegion</strong> closes a code folding block. Default: unset.</li>
+<li><strong>lookAhead</strong>, if <em>true</em>, the highlighting system will not process the matches length. Default: <em>false</em>.</li>
+<li><strong>firstNonSpace</strong>, if <em>true</em>, the rule only matches, if the string is the first non-whitespace in the line. Default: <em>false</em>.</li>
+<li><strong>column</strong> defines the column. The rule only matches, if the current column matches the given one. Default: unset.</li>
+</ul>
+<h3>Dynamic rules</h3>
+<p>Some rules allow the optional attribute <strong>dynamic</strong> of type boolean that defaults to <em>false</em>. If dynamic is <em>true</em>, a rule can use placeholders representing the text matched by a <em>regular expression</em> rule that switched to the current context in its <strong>string</strong> or <strong>char</strong> attributes. In a <strong>string</strong>, the placeholder <strong>%N</strong> (where N is a number) will be replaced with the corresponding capture <strong>N</strong> from the calling regular expression. In a <strong>char</strong> the placeholer must be a number <strong>N</strong> and it will be replaced with the first character of the corresponding capture <strong>N</strong> from the calling regular expression. Whenever a rule allows this attribute it will contain a <em>(dynamic)</em>.</p>
+<ul>
+<li><strong>dynamic</strong> may be either <em>true</em> or <em>false</em>. Default: <em>false</em>.</li>
+</ul>
+<h2>The Rules in Detail</h2>
+<h3>DetectChar</h3>
+<p>Detect a single specific character. Commonly used for example to find the ends of quoted strings.</p>
+<pre><code>&lt;DetectChar char="(character)" (common attributes) (dynamic) /&gt; </code></pre>
+<p>The <strong>char</strong> attribute defines the character to match.</p>
+<h3>Detect2Chars</h3>
+<p>Detect two specific characters in a defined order.</p>
+<pre><code>&lt;Detect2Chars char="(character)" char1="(character)" (common attributes) (dynamic) /&gt; </code></pre>
+<p>The <strong>char</strong> attribute defines the first character to match, <strong>char1</strong> the second.</p>
+<h3>AnyChar</h3>
+<p>Detect one character of a set of specified characters.</p>
+<pre><code>&lt;AnyChar String="(string)" (common attributes) /&gt; </code></pre>
+<p>The <strong>String</strong> attribute defines the set of characters.</p>
+<h3>StringDetect</h3>
+<p>Detect an exact string.</p>
+<pre><code>&lt;StringDetect String="(string)" [insensitive="true|false"] (common attributes) (dynamic) /&gt; </code></pre>
+<p>The <strong>String</strong> attribute defines the string to match. The <strong>insensitive</strong> attribute defaults to <em>false</em> and is passed to the string comparison function. If the value is <em>true</em> insensitive comparing is used.</p>
+<h3>WordDetect (KDE &gt;= 4.5, Kate &gt;= 3.5)</h3>
+<p>Detect an exact string but additionally require word boundaries like a dot (.) or a whitespace on the beginning and the end of the word. You can think of <em>\b\b</em> in terms of a regular expression.</p>
+<pre><code>&lt;WordDetect String="(string)" [insensitive="true|false"] (common attributes) (dynamic) /&gt; </code></pre>
+<p>The <strong>String</strong> attribute defines the string to match. The <strong>insensitive</strong> attribute defaults to <em>false</em> and is passed to the string comparison function. If the value is <em>true</em> insensitive comparing is used.</p>
+<h3>RegExpr</h3>
+<p>Matches against a regular expression.</p>
+<pre><code>&lt;RegExpr String="(string)" [insensitive="true|false"] [minimal="true|false"] (common attributes) (dynamic) /&gt; </code></pre>
+<ul>
+<li>The <strong>String</strong> attribute defines the regular expression.</li>
+<li><strong>insensitive</strong> defaults to <em>false</em> and is passed to the regular expression engine.</li>
+<li><strong>minimal</strong> defaults to <em>false</em> and is passed to the regular expression engine.</li>
+</ul>
+<p>Because the rules are always matched against the beginning of the current string, a regular expression starting with a caret (<strong>^</strong>) indicates that the rule should only be matched against the start of a line.</p>
+<h3>keyword</h3>
+<p>Detect a keyword from a specified list.</p>
+<pre><code>&lt;keyword String="(list name)" (common attributes) /&gt; </code></pre>
+<p>The <strong>String</strong> attribute identifies the keyword list by name. A list with that name must exist.</p>
+<h3>Int</h3>
+<p>Detect an integer number.</p>
+<pre><code>&lt;Int (common attributes) (dynamic) /&gt; </code></pre>
+<p>This rule has no specific attributes. Child rules are typically used to detect combinations of <strong>L</strong> and <strong>U</strong> after the number, indicating the integer type in program code. Actually all rules are allowed as child rules, though, the DTD only allowes the child rule <strong>StringDetect</strong>.<br>
+The following example matches integer numbers follows by the character ‘L’.</p>
+<pre><code>&lt;Int attribute="Decimal" context="#stay" &gt; &lt;StringDetect attribute="Decimal" context="#stay" String="L" insensitive="true"/&gt; &lt;/Int&gt; </code></pre>
+<h3>Float</h3>
+<p>Detect a floating point number.</p>
+<pre><code>&lt;Float (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes. <strong>AnyChar</strong> is allowed as a child rules and typically used to detect combinations, see rule <strong>Int</strong> for reference.</p>
+<h3>HlCOct</h3>
+<p>Detect an octal point number representation.</p>
+<pre><code>&lt;HlCOct (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.</p>
+<h3>HlCHex</h3>
+<p>Detect a hexadecimal number representation.</p>
+<pre><code>&lt;HlCHex (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.</p>
+<h3>HlCStringChar</h3>
+<p>Detect an escaped character.</p>
+<pre><code>&lt;HlCStringChar (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.</p>
+<p>It matches literal representations of characters commonly used in program code, for example <strong>\n</strong> (newline) or <strong>\t</strong> (tabulator).</p>
+<p>The following characters will match if they follow a backslash (<strong>\</strong>): <strong>abefnrtv”’?\</strong>. Additionally, escaped hexadecimal numbers like for example <strong>\xff</strong> and escaped octal numbers, for example <strong>\033</strong> will match.</p>
+<h3>HlCChar</h3>
+<p>Detect an C character.</p>
+<pre><code>&lt;HlCChar (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.</p>
+<p>It matches C characters enclosed in a tick (Example: ‘<strong>c</strong>’). So in the ticks may be a simple character or an escaped character. See HlCStringChar for matched escaped character sequences.</p>
+<h3>RangeDetect</h3>
+<p>Detect a string with defined start and end characters.</p>
+<pre><code>&lt;RangeDetect char="(character)" char1="(character)" (common attributes) /&gt; </code></pre>
+<p><strong>char</strong> defines the character starting the range, <strong>char1</strong> the character ending the range. Usefull to detect for example small quoted strings and the like, but note that since the highlighting engine works on one line at a time, this will not find strings spanning over a line break.</p>
+<h3>LineContinue</h3>
+<p>Matches a backslash (‘\’) at the end of a line.</p>
+<pre><code>&lt;LineContinue (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.<br>
+This rule is useful for switching context at end of line, if the last character is a backslash (‘<strong>\</strong>’). This is needed for example in C/C++ to continue macros or strings.</p>
+<h3>IncludeRules</h3>
+<p>Include rules from another context or language/file.</p>
+<pre><code>&lt;IncludeRules context="contextlink" [includeAttrib="true|false"] /&gt; </code></pre>
+<p>The <strong>context</strong> attribute defines which context to include.<br>
+If it a simple string it includes all defined rules into the current context, example:</p>
+<pre><code>&lt;IncludeRules context="anotherContext" /&gt; </code></pre>
+<p>If the string begins with <strong>##</strong> the highlight system will look for another language definition with the given name, example:</p>
+<pre><code>&lt;IncludeRules context="##C++" /&gt; </code></pre>
+<p>If <strong>includeAttrib</strong> attribute is <em>true</em>, change the destination attribute to the one of the source. This is required to make for example commenting work, if text matched by the included context is a different highlight than the host context.</p>
+<h3>DetectSpaces</h3>
+<p>Detect whitespaces.</p>
+<pre><code>&lt;DetectSpaces (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.<br>
+Use this rule if you know that there can several whitespaces ahead, for example in the beginning of indented lines. This rule will skip all whitespace at once, instead of testing multiple rules and skipping one at the time due to no match.</p>
+<h3>DetectIdentifier</h3>
+<p>Detect identifier strings (as a regular expression: [a-zA-Z<em>][a-zA-Z0-9</em>]*).</p>
+<pre><code>&lt;DetectIdentifier (common attributes) /&gt; </code></pre>
+<p>This rule has no specific attributes.<br>
+Use this rule to skip a string of word characters at once, rather than testing with multiple rules and skipping one at the time due to no match.</p>
+<h2>Tips &amp; Tricks</h2>
+<p>Once you have understood how the context switching works it will be easy to write highlight definitions. Though you should carefully check what rule you choose in what situation. Regular expressions are very mighty, but they are slow compared to the other rules. So you may consider the following tips.</p>
+<ul>
+<li>If you only match two characters use <strong>Detect2Chars</strong> instead of <strong>StringDetect</strong>. The same applies to <strong>DetectChar</strong>.</li>
+<li>Regular expressions are easy to use but often there is another much faster way to achieve the same result. Consider you only want to match the character <strong>#</strong>if it is the first character in the line. A regular expression based solution would look like this:
+<pre><code>&lt;RegExpr attribute="Macro" context="macro" String="^\s*#" /&gt; </code></pre>
+<p>You can achieve the same much faster in using:</p>
+<pre><code>&lt;DetectChar attribute="Macro" context="macro" char="#" firstNonSpace="true" /&gt; </code></pre>
+<p>If you want to match the regular expression ‘<strong>^#</strong>’ you can still use <strong>DetectChar</strong> with the attribute <strong>column=”0″</strong>. The attribute <strong>column</strong> counts character based, so a tabulator still is only one character.</p></li>
+<li>You can switch contexts without processing characters. Assume that you want to switch context when you meet the string <strong><em>/</em>*, but need to process that string in the next context. The below rule will match, and the lookAhead</strong>attribute will cause the highlighter to keep the matched string for the next context.
+<pre><code>&lt;Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true" /&gt; </code></pre>
+</li>
+<li>Use <strong>DetectSpaces</strong> if you know that many whitespaces occur.</li>
+<li>Use <strong>DetectIdentifier</strong> instead of the regular expression ‘<strong>[a-zA-Z_]\w</strong>*’.</li>
+<li>Use default styles whenever you can. This way the user will find a familiar environment.</li>
+<li>Look into other XML-files to see how other people implement tricky rules.</li>
+<li>You can validate every XML file by using the command <strong><code>xmllint --dtdvalid language.dtd mySyntax.xml</code></strong>.</li>
+<li>If you repeat complex regular expression very often you can use <em>ENTITIES</em>. Example:
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; &lt;!DOCTYPE language SYSTEM "language.dtd" [ &lt;!ENTITY myref "[A-Za-z_:][\w.:_-]*"&gt; ]&gt; </code></pre>
+<p>Now you can use <em>&amp;myref;</em> instead of the regular expression.</p></li>
+</ul>
+</body></html>

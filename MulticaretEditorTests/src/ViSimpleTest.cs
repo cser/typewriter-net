@@ -2023,5 +2023,59 @@ namespace UnitTests
 			Put(2, 0).Press("yi{");
 			Assert.AreEqual(@"b'dir_name\\'", ClipboardExecutor.GetFromRegister(lines, '\0'));
 		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveLeft()
+		{
+			lines.SetText(@"abcdefgh");
+			Put(2, 0).Put(5, 0, true).AssertSelection("#1").Anchor(2, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("h").AssertSelection("#2").Both(2, 0).NoNext();
+		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveLeft2()
+		{
+			lines.SetText(@"abcdefgh");
+			Put(2, 0).Put(5, 0, true).AssertSelection("#1").Anchor(2, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("2h").AssertSelection("#2").Both(3, 0).NoNext();
+		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveLeft3()
+		{
+			lines.SetText(@"abcde");
+			Put(0, 0).Put(5, 0, true).AssertSelection("#1").Anchor(0, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("h").AssertSelection("#2").Both(0, 0).NoNext();
+		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveRight()
+		{
+			lines.SetText(@"abcdefgh");
+			Put(2, 0).Put(5, 0, true).AssertSelection("#1").Anchor(2, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("l").AssertSelection("#2").Both(5, 0).NoNext();
+		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveRight2()
+		{
+			lines.SetText(@"abcdefgh");
+			Put(2, 0).Put(5, 0, true).AssertSelection("#1").Anchor(2, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("2l").AssertSelection("#2").Both(7, 0).NoNext();
+		}
+		
+		[Test]
+		public void ClearSelectionInNormalMode_MoveRight3()
+		{
+			lines.SetText(@"abcde");
+			Put(2, 0).Put(5, 0, true).AssertSelection("#1").Anchor(2, 0).Caret(5, 0).NoNext();
+			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
+			Press("l").AssertSelection("#2").Both(4, 0).NoNext();
+		}
 	}
 }

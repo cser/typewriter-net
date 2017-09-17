@@ -14,15 +14,18 @@ public class ViFindDialog : ADialog
 {
 	private FindDialog.Data data;
 	private FindParams findParams;
-	private Getter<string, Pattern, bool> doFind;
+	private Getter<string, Pattern, bool, bool> doFind;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
+	private readonly bool isBackward;
 
-	public ViFindDialog(FindDialog.Data data, FindParams findParams, Getter<string, Pattern, bool> doFind)
+	public ViFindDialog(
+		FindDialog.Data data, FindParams findParams, Getter<string, Pattern, bool, bool> doFind, bool isBackward)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
+		this.isBackward = isBackward;
 		Name = "Find";
 	}
 
@@ -59,7 +62,7 @@ public class ViFindDialog : ADialog
 		Controls.Add(textBox);
 		
 		tabBar = new TabBar<NamedAction>(list, TabBar<NamedAction>.DefaultStringOf, NamedAction.HintOf);
-		tabBar.Text = "/" + Name;
+		tabBar.Text = (isBackward ? "?" : "/") + Name;
 		tabBar.ButtonMode = true;
 		tabBar.RightHint = findParams != null ? findParams.GetIndicationHint() : null;
 		tabBar.TabClick += OnTabClick;
@@ -174,7 +177,7 @@ public class ViFindDialog : ADialog
 		string text = textBox.Text;
 		if (data.history != null)
 			data.history.Add(text);
-		return doFind(text, new Pattern(text, findParams.regex, findParams.ignoreCase));
+		return doFind(text, new Pattern(text, findParams.regex, findParams.ignoreCase), isBackward);
 	}
 	
 	private bool DoPrevPattern(Controller controller)
