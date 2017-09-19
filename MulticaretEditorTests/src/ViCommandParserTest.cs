@@ -644,6 +644,12 @@ namespace UnitTests
 			
 			AddLast(':');
 			Assert.AreEqual(":", parser.shortcut);
+			
+			AddControlLast('/');
+			Assert.AreEqual("C/", parser.shortcut);
+			
+			AddControlLast('?');
+			Assert.AreEqual("C?", parser.shortcut);
 		}
 		
 		[Test]

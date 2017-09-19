@@ -199,6 +199,8 @@ public struct CommandData
 			case 'Y': return Keys.Y | Keys.Shift;
 			case 'z': return Keys.Z;
 			case 'Z': return Keys.Z | Keys.Shift;
+			case '/': return Keys.OemQuestion;
+			case '?': return Keys.OemQuestion | Keys.Shift;
 			default:
 				return Keys.None;
 		}

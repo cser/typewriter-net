@@ -182,6 +182,8 @@ public static class Help
 			table.Add(" >>").Add("Indent right").NewRow();
 			table.Add(" /").Add("Open find dialog, inside:\n  `Ctrl+f` - normal mode inside dialog\n  `Ctrl+[` - close dialog").NewRow();
 			table.Add(" ?").Add("Open find backward dialog").NewRow();
+			table.Add(" Ctrl+/").Add("Open find dialog\n  with resetted options").NewRow();
+			table.Add(" Ctrl+?").Add("Open find backward dialog\n  with resetted options").NewRow();
 			table.Add(" *").Add("Put word or selection into\n  find register and find next").NewRow();
 			table.Add(" #").Add("Put word or selection into\n  find register and find prev").NewRow();
 			table.Add(" n").Add("Find next").NewRow();

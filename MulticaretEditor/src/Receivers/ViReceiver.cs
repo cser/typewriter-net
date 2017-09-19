@@ -154,6 +154,12 @@ namespace MulticaretEditor
 				case Keys.Control | Keys.I:
 					ProcessKey(new ViChar('i', true), out viShortcut, out scrollToCursor);
 					return true;
+				case Keys.Control | Keys.OemQuestion:
+					ProcessKey(new ViChar('/', true), out viShortcut, out scrollToCursor);
+					return true;
+				case Keys.Control | Keys.Shift | Keys.OemQuestion:
+					ProcessKey(new ViChar('?', true), out viShortcut, out scrollToCursor);
+					return true;
 				default:
 					scrollToCursor = false;
 					return false;

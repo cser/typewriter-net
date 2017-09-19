@@ -559,6 +559,12 @@ public class DialogManager
 				viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText, shortcut == "?"), true);
 			return true;
 		}
+		if (shortcut == "C/" || shortcut == "C?")
+		{
+			if (viFind.SwitchOpen())
+				viFind.Open(new ViFindDialog(findData, new FindParams(), ViDoFindText, shortcut == "C?"), true);
+			return true;
+		}
 		if (shortcut == ":")
 		{
 			return DoInputCommand(controller);

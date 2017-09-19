@@ -156,12 +156,12 @@ namespace MulticaretEditor
 					}
 					if (code.c == '/')
 					{
-						shortcut = "/";
+						shortcut = code.control ? "C/" : "/";
 						return ParseResult.Complete;
 					}
 					if (code.c == '?')
 					{
-						shortcut = "?";
+						shortcut = code.control ? "C?" : "?";
 						return ParseResult.Complete;
 					}
 					if (code.c == ':')

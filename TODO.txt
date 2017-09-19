@@ -1,5 +1,5 @@
+- fix [cr] duplication in find dialog
 - scroll by Ctrl+j/k with custom step
-- search ignore current setup
 - fix {} jumping with complex strings
 - fix errors on removing highlighting file
 - fix ,g with subclasses inheritance showing (need :)
