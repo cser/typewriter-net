@@ -492,7 +492,7 @@ snippet exc
 snippet index
 	public ${1:object} this[${2:int} index]
 	{
-		get { ${0} }
+		get { ${3} }
 		set { ${0} }
 	}
 # eventhandler
@@ -572,3 +572,7 @@ snippet new
 	new ${1:Regex#\s(\b[_\w][_\w\d]*(?:<[\w\,\s]+>|))\s+[\w\d_]+\s+\=\s+}(${0}
 snippet ne
 	string.IsNullOrEmpty(${0}
+snippet	{
+	{
+		${0}
+	}
