@@ -43,8 +43,16 @@ public class AutocompleteMode
 				keyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 			}
 		}
-		keyMap.AddItem(new KeyItem(Keys.PageUp, null, new KeyAction("&View\\Autocomplete\\MovePageUp", DoMovePageUp, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.PageDown, null, new KeyAction("&View\\Autocomplete\\MovePageDown", DoMovePageDown, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MovePageUp", DoMovePageUp, null, false);
+			keyMap.AddItem(new KeyItem(Keys.PageUp, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.B, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MovePageDown", DoMovePageDown, null, false);
+			keyMap.AddItem(new KeyItem(Keys.PageDown, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.F, null, action));
+		}
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Home, null, new KeyAction("&View\\Autocomplete\\MoveToFirst", DoMoveToFirst, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.End, null, new KeyAction("&View\\Autocomplete\\MoveToLast", DoMoveToLast, null, false)));
 		{

@@ -201,7 +201,10 @@ public class AutocompleteMenu : ToolStripDropDown
 	
 	protected override void OnPaint(PaintEventArgs e)
 	{
-		e.Graphics.FillRectangle(scheme.selectionBrush, e.ClipRectangle);
+		int width = Width;
+		int height = Height;
+		e.Graphics.FillRectangle(scheme.selectionBrush, new Rectangle(0, 0, width, height));
+		e.Graphics.FillRectangle(scheme.lineBgBrush, new Rectangle(1, 1, width - 2, height - 2));
 	}
 	
 	public class MenuControl : Control
