@@ -115,6 +115,10 @@ public class Ctags
 	{
 		List<string> tags = new List<string>();
 		ReloadIfNeed();
+		if (lines == null)
+		{
+			return tags;
+		}
 		string prevTag = null;
 		for (int i = 0; i < lines.Length; ++i)
 		{
