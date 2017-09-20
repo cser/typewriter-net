@@ -481,10 +481,10 @@ public class Frame : AFrame
 					controller.EraseSelection();
 					CommandData command = new CommandData("", atom.text.Trim());
 					StringBuilder errors = new StringBuilder();
-					List<MacrosExecutor.Action> actions = CommandData.WithWorkaround(command.GetActions(errors));
+					List<MacrosExecutor.Action> actions = command.GetActions(errors);
 					if (errors.Length == 0)
 					{
-						MulticaretTextBox.initMacrosExecutor.Execute(actions);
+						MulticaretTextBox.initMacrosExecutor.ExecuteSequence(actions);
 					}
 					else
 					{

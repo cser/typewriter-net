@@ -1848,6 +1848,42 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ProcessSequenceAction(MacrosExecutor.Action action)
+		{
+			if (action.mode != null)
+			{
+				Keys oldKeys = modePressedKeys;
+				modePressedKeys = action.keys;
+				keyMap.Enumerate<bool>(ProcessKeyTick, action.mode.Value);
+				modePressedKeys = oldKeys;
+				return;
+			}
+			if (action.keys == Keys.Enter || action.keys == Keys.Back)
+			{
+				actionProcessed = false;
+				ExecuteKeyDown(action.keys);
+				if (!actionProcessed)
+				{
+					if (action.keys == Keys.Enter)
+					{
+						ExecuteKeyPress('\r');
+					}
+					else if (action.keys == Keys.Back)
+					{
+						ExecuteKeyPress('\b');
+					}
+				}
+			}
+			else if (action.keys != Keys.None)
+			{
+				ExecuteKeyDown(action.keys);
+			}
+			else
+			{
+				ExecuteKeyPress(action.code);
+			}
+		}
+		
 		private void ExecuteKeyPress(char code)
 		{
 			bool scrollToCursor = true;

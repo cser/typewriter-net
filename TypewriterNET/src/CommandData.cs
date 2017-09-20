@@ -224,20 +224,4 @@ public struct CommandData
 		}
 		return new CommandData(name, sequence);
 	}
-	
-	public static List<MacrosExecutor.Action> WithWorkaround(List<MacrosExecutor.Action> actions)
-	{
-		for (int i = actions.Count; i-- > 0;)
-		{
-			if (actions[i].keys == Keys.Enter)
-			{
-				actions.Insert(i + 1, new MacrosExecutor.Action('\r'));
-			}
-			else if (actions[i].keys == Keys.Back)
-			{
-				actions.Insert(i + 1, new MacrosExecutor.Action('\b'));
-			}
-		}
-		return actions;
-	}
 }
