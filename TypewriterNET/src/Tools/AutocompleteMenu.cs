@@ -9,6 +9,7 @@ using CustomScrollBar;
 
 public class AutocompleteMenu : ToolStripDropDown
 {
+	private const int BorderWidth = 2;
 	private readonly AutocompleteMode.Handler handler;
 	private readonly StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 	private readonly Scheme scheme;
@@ -68,14 +69,14 @@ public class AutocompleteMenu : ToolStripDropDown
 		charWidth = (int)Math.Round(size.Width * 1f) - 1;
 		charHeight = (int)Math.Round(size.Height * 1f) + 1;
 		
-		maxLinesCount = Math.Max(10, Screen.PrimaryScreen.Bounds.Height / (2 * charHeight) - 2);
+		maxLinesCount = Math.Max(10, (Screen.PrimaryScreen.Bounds.Height - 40) / (2 * charHeight) - 1);
 		
 		AutoClose = false;
 		AutoSize = false;
 		DropShadowEnabled = false;
 		
 		Margin = Padding.Empty;
-		Padding = Padding.Empty;
+		Padding = new Padding(BorderWidth, BorderWidth, BorderWidth, BorderWidth);
 		
 		control = new MenuControl(this);
 		host = new ToolStripControlHost(control);
@@ -169,7 +170,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		bool scrollBarVisible = visibleLinesCount < this.variants.Count;
 		int width = maxLength * charWidth + (scrollBarVisible ? control.scrollBarWidth : 0);
 		int height = visibleLinesCount * charHeight;
-		Size = new Size(width, height);
+		Size = new Size(width + BorderWidth * 2, height + BorderWidth * 2);
 		host.Size = new Size(width, height);
 		Invalidate();
 		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
@@ -181,13 +182,13 @@ public class AutocompleteMenu : ToolStripDropDown
 	{
 		int height = visibleLinesCount * charHeight;
 		Left = screenPoint.X;
-		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y - 30)
+		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y - 40)
 		{
 			Top = screenPoint.Y;
 		}
 		else
 		{
-			Top = screenPoint.Y - height - charHeight;
+			Top = screenPoint.Y - height - charHeight - BorderWidth * 2;
 		}
 	}
 	
@@ -200,6 +201,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	
 	protected override void OnPaint(PaintEventArgs e)
 	{
+		e.Graphics.FillRectangle(scheme.selectionBrush, e.ClipRectangle);
 	}
 	
 	public class MenuControl : Control
