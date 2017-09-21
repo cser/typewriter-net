@@ -92,7 +92,7 @@ namespace TextNodesListTest
 				"'class Test' 1 ['class Nested' 3 ['+ void NestedMethod()' 5 []], '+ void Method()' 10 []]",
 				@"public class Test
 				{
-					public class Nested()
+					public class Nested
 					{
 						public void NestedMethod()
 						{
@@ -101,6 +101,82 @@ namespace TextNodesListTest
 					
 					public void Method()
 					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedClass_StaticPrivateParameters()
+		{
+			AssertParse(
+				"'class Test' 1 ['class Nested' 3 ['|- void NestedMethod(int index)' 5 []], '- void Method(Node a, out bool b)' 10 []]",
+				@"private class Test
+				{
+					protected class Nested
+					{
+						private static void NestedMethod(int index)
+						{
+						}
+					}
+					
+					protected void Method(Node a, out bool b)
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedClass_Fields()
+		{
+			AssertParse(
+				"'class Test' 1 ['class Nested' 3 [" +
+					"'+ bool Active' 6 [], " +
+					"'+ bool Inactive' 7 [], " +
+					"'+ int NestedMethod(int index)' 9 []" +
+				"], '+ int Field' 15 []]",
+				@"public class Test
+				{
+					public class Nested
+					{
+						public bool _active = false;
+						public bool Active { get { return _active; } }
+						public bool Inactive { get; private set; }
+						
+						public int NestedMethod(int index)
+						{
+							return 100;
+						}
+					}
+					
+					public int Field
+					{
+						get { return -1; }
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedClass_EgyptianBrackets()
+		{
+			AssertParse(
+				"'class Test' 1 ['class Nested' 2 [" +
+					"'+ bool Active' 4 [], " +
+					"'+ bool Inactive' 5 [], " +
+					"'+ int NestedMethod(int index)' 7 []" +
+				"], '+ int Field' 12 []]",
+				@"public class Test {
+					public class Nested {
+						public bool _active = false;
+						public bool Active { get { return _active; } }
+						public bool Inactive { get; private set; }
+						
+						public int NestedMethod(int index) {
+							return 100;
+						}
+					}
+					
+					public int Field {
+						get { return -1; }
 					}
 				}");
 		}
