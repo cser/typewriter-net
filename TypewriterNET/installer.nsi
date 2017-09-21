@@ -17,7 +17,6 @@ InstallDir "$PROGRAMFILES\${APPNAME}"
 ; ----------------------------------------
 ; Modern UI Configuration
 !define MUI_ICON "TypewriterNET.ico"
-!define MUI_ABORTWARNING
 !define MUI_WELCOMEFINISHPAGE_BITMAP "nsis.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "nsis_uninstall.bmp"
 !define MUI_WELCOMEPAGE_TEXT "Setup will guide you through the installation of Typewriter.NET$\r$\n$\r$\n\
