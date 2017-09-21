@@ -1,3 +1,5 @@
 - scroll by Ctrl+j/k with custom step
 - fix {} jumping with complex strings
 - fix ,g with subclasses inheritance showing (need :)
+- selection mast works with find
+- tag text object
