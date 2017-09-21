@@ -76,7 +76,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		DropShadowEnabled = false;
 		
 		Margin = Padding.Empty;
-		Padding = new Padding(BorderWidth, BorderWidth, BorderWidth, BorderWidth);
+		Padding = Padding.Empty;
 		
 		control = new MenuControl(this);
 		host = new ToolStripControlHost(control);
@@ -170,8 +170,9 @@ public class AutocompleteMenu : ToolStripDropDown
 		bool scrollBarVisible = visibleLinesCount < this.variants.Count;
 		int width = maxLength * charWidth + (scrollBarVisible ? control.scrollBarWidth : 0);
 		int height = visibleLinesCount * charHeight;
-		Size = new Size(width + BorderWidth * 2, height + BorderWidth * 2);
-		host.Size = new Size(width, height);
+		bool hasSize = width > 0 || height > 0;
+		Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
+		host.Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
 		Invalidate();
 		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
 		control.Invalidate();
@@ -201,10 +202,6 @@ public class AutocompleteMenu : ToolStripDropDown
 	
 	protected override void OnPaint(PaintEventArgs e)
 	{
-		int width = Width;
-		int height = Height;
-		e.Graphics.FillRectangle(scheme.selectionBrush, new Rectangle(0, 0, width, height));
-		e.Graphics.FillRectangle(scheme.lineBgBrush, new Rectangle(1, 1, width - 2, height - 2));
 	}
 	
 	public class MenuControl : Control
@@ -247,9 +244,10 @@ public class AutocompleteMenu : ToolStripDropDown
 		{
 			this.width = width;
 			this.height = height;
-			Size = new Size(width, height);
+			Size = new Size(width + BorderWidth * 2, height + BorderWidth * 2);
 			vScrollBar.Visible = scrollBarVisible;
-			vScrollBar.Left = width - scrollBarWidth;
+			vScrollBar.Top = BorderWidth;
+			vScrollBar.Left = width - scrollBarWidth + BorderWidth;
 			vScrollBar.Height = height;
 			vScrollBar.Maximum = menu.variants.Count;
 			vScrollBar.LargeChange = menu.visibleLinesCount;
@@ -337,7 +335,10 @@ public class AutocompleteMenu : ToolStripDropDown
 			
 			AutocompleteMode.Mode mode = menu.handler.Mode;
 			Graphics g = e.Graphics;
-			g.FillRectangle(menu.scheme.lineBgBrush, new Rectangle(0, 0, width, height));
+			g.FillRectangle(menu.scheme.selectionBrush,
+				new Rectangle(0, 0, width + BorderWidth * 2, height + BorderWidth * 2));
+			g.FillRectangle(menu.scheme.lineBgBrush,
+				new Rectangle(1, 1, width + BorderWidth * 2 - 2, height + BorderWidth * 2 - 2));
 			int offset = vScrollBar.Value;
 			for (int i = variants.Count; i-- > 0;)
 			{
@@ -347,7 +348,11 @@ public class AutocompleteMenu : ToolStripDropDown
 					{
 						g.FillRectangle(
 							menu.scheme.selectionBrush,
-							new Rectangle(0, (i - offset) * menu.charHeight, width, menu.charHeight));
+							new Rectangle(
+								BorderWidth,
+								(i - offset) * menu.charHeight + BorderWidth,
+								width,
+								menu.charHeight));
 					}
 					string text = variants[i].DisplayText;
 					string text0 = "";
@@ -400,8 +405,8 @@ public class AutocompleteMenu : ToolStripDropDown
 		private void DrawLineChars(Graphics g, Point position, TextStyle style, string text)
 		{
 			int count = text.Length;
-			float y = position.Y;
-			float x = position.X - menu.charWidth / 3;
+			float y = position.Y + BorderWidth;
+			float x = position.X - menu.charWidth / 3 + BorderWidth;
 			for (int i = 0; i < count; i++)
 			{
 				g.DrawString(
