@@ -3,7 +3,8 @@
 - fix ,g with subclasses inheritance showing (need :)
 - selection mast works with find
 - tag text object
-- copy to default register with named register- tag text object
+<<<<<<< 00eb5ad2620bb06ef78d90e3e217c5d6fb496a84
+- copy to default register with named register
+=======
 - W text object
-- empty register
-- js parser with (line, char)
+>>>>>>> update TODO
