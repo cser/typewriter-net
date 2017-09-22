@@ -24,7 +24,15 @@ namespace UnitTests
 		
 		private ParserIteratorTest MoveRight(bool moved)
 		{
-			Assert.AreEqual(moved, iterator.MoveRight(), "Move right from " + iterator.Position + "/" + iterator.Place);
+			Assert.AreEqual(!moved, iterator.IsEnd,
+				"IsEnd before move at " + iterator.Position + "/" + iterator.Place);
+			iterator.MoveRight();
+			return this;
+		}
+		
+		private ParserIteratorTest AssertEnd(bool isEnd)
+		{
+			Assert.AreEqual(isEnd, iterator.IsEnd, "IsEnd at " + iterator.Position + "/" + iterator.Place);
 			return this;
 		}
 		
@@ -54,7 +62,7 @@ namespace UnitTests
 		{
 			Init();
 			lines.SetText("");
-			NewIterator(0).AssertRight('\0').AssertPlace(0, 0).MoveRight(false).AssertRight('\0').AssertPlace(0, 0);
+			NewIterator(0).AssertRight('\0').AssertPlace(0, 0).MoveRight(false).AssertEnd(true);
 		}
 		
 		[Test]
@@ -126,6 +134,134 @@ namespace UnitTests
 				.AssertRight('w').AssertPlace(1, 10).MoveRight(true)
 				.AssertRight('z').AssertPlace(2, 10).MoveRight(true)
 				.AssertRight('\0').AssertPlace(3, 10).MoveRight(false).AssertPlace(3, 10);
+		}
+		
+		[Test]
+		public void IsRightOnLine()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "hijk\nl\nm\n" + "\nnop\rQR\n" + "uvw\nxwz");
+			
+			NewIterator(lines.IndexOf(new Place(3, 1)));
+			Assert.AreEqual(false, iterator.IsRightOnLine("a"));
+			Assert.AreEqual(true, iterator.IsRightOnLine("d"));
+			Assert.AreEqual(false, iterator.IsRightOnLine("x"));
+			
+			NewIterator(lines.IndexOf(new Place(1, 1)));
+			Assert.AreEqual(true, iterator.IsRightOnLine("bc"));
+			Assert.AreEqual(false, iterator.IsRightOnLine("by"));
+			
+			NewIterator(lines.IndexOf(new Place(1, 1)));
+			Assert.AreEqual(true, iterator.IsRightOnLine("bcd\n"));
+			Assert.AreEqual(false, iterator.IsRightOnLine("bcd\r"));
+			
+			NewIterator(lines.IndexOf(new Place(1, 7)));
+			Assert.AreEqual(true, iterator.IsRightOnLine("op"),
+				"at " + iterator.Place + ", right: '" + iterator.RightChar + "'");
+			Assert.AreEqual(false, iterator.IsRightOnLine("xp"));
+		}
+		
+		[Test]
+		public void IsRightOnLine_Empty()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "hijk\nl\nm\n" + "\nnop\rQR\n" + "uvw\nxwz");
+			NewIterator(lines.IndexOf(new Place(3, 1)));
+			Assert.AreEqual(true, iterator.IsRightOnLine(""));
+		}
+		
+		[Test]
+		public void IsRightWord()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "hijk\nitem1 item2 item3\nm");
+			
+			NewIterator(lines.IndexOf(new Place(6, 4)));
+			Assert.AreEqual(true, iterator.IsRightWord("item2"));
+			
+			NewIterator(lines.IndexOf(new Place(7, 4)));
+			Assert.AreEqual(false, iterator.IsRightWord("tem2"));
+			
+			NewIterator(lines.IndexOf(new Place(5, 4)));
+			Assert.AreEqual(false, iterator.IsRightWord(" item2"));
+			
+			NewIterator(lines.IndexOf(new Place(0, 4)));
+			Assert.AreEqual(true, iterator.IsRightWord("item1"));
+			Assert.AreEqual(false, iterator.IsRightWord("item"));
+			
+			NewIterator(lines.IndexOf(new Place(12, 4)));
+			Assert.AreEqual(true, iterator.IsRightWord("item3"));
+			Assert.AreEqual(false, iterator.IsRightWord("item"));
+		}
+		
+		[Test]
+		public void IsRightWord_Punctuation()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "item1;item2.item3\nm");
+			
+			NewIterator(lines.IndexOf(new Place(6, 3)));
+			Assert.AreEqual(true, iterator.IsRightWord("item2"));
+			Assert.AreEqual(false, iterator.IsRightWord("item"));
+			
+			NewIterator(lines.IndexOf(new Place(7, 3)));
+			Assert.AreEqual(false, iterator.IsRightWord("tem2"));
+			Assert.AreEqual(false, iterator.IsRightWord("item2"));
+			
+			NewIterator(lines.IndexOf(new Place(0, 3)));
+			Assert.AreEqual(true, iterator.IsRightWord("item1"));
+			
+			NewIterator(lines.IndexOf(new Place(1, 3)));
+			Assert.AreEqual(false, iterator.IsRightWord("tem1"));
+			
+			NewIterator(lines.IndexOf(new Place(12, 3)));
+			Assert.AreEqual(true, iterator.IsRightWord("item3"));
+			Assert.AreEqual(false, iterator.IsRightWord("item"));
+			
+			NewIterator(lines.IndexOf(new Place(11, 3)));
+			Assert.AreEqual(false, iterator.IsRightWord("item3"));
+			
+			NewIterator(lines.IndexOf(new Place(13, 3)));
+			Assert.AreEqual(false, iterator.IsRightWord("tem3"));
+		}
+		
+		[Test]
+		public void MoveRightOnLine()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "item1;item2.item3\nmnop");
+			NewIterator(lines.IndexOf(new Place(6, 3)));
+			AssertRight('i');
+			iterator.MoveRightOnLine(1);
+			AssertRight('t');
+			iterator.MoveRightOnLine(2);
+			AssertRight('m');
+			iterator.MoveRightOnLine(1);
+			AssertRight('2');
+			iterator.MoveRightOnLine(7);
+			AssertRight('\n');
+			iterator.MoveRightOnLine(1);
+			AssertRight('m');
+		}
+		
+		[Test]
+		public void MoveRightOnLine_Overflow()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "item1;item2.item3\nmnop");
+			NewIterator(lines.IndexOf(new Place(12, 3)));
+			AssertRight('i');
+			iterator.MoveRightOnLine(9);
+			
+			AssertRight('m');
+			iterator.MoveRightOnLine(1);
+			AssertRight('n');
+			iterator.MoveRightOnLine(1);
+			AssertRight('o');
+			iterator.MoveRightOnLine(3);
+			AssertRight('\0');
+			iterator.MoveRightOnLine(1);
+			AssertRight('\0');
 		}
 	}
 }

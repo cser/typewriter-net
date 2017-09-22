@@ -2,9 +2,10 @@ namespace MulticaretEditor
 {
 	public class ParserIterator
 	{
+		public readonly int charsCount;
+		
 		private readonly LineBlock[] blocks;
 		private readonly int blocksCount;
-		private readonly int charsCount;
 		private int blockI;
 		private int blockILine;
 		private int iChar;
@@ -36,13 +37,14 @@ namespace MulticaretEditor
 		public char RightChar { get { return rightChar; } }
 
 		public int Position { get { return position; } }
-
-		public bool MoveRight()
+		
+		public bool IsEnd { get { return position >= charsCount; } }
+		
+		public void MoveRight()
 		{
-			bool result = position < charsCount;
-			if (result)
+			rightChar = '\0';
+			if (position < charsCount)
 			{
-				rightChar = '\0';
 				LineBlock block = blocks[blockI];
 				Line line = block.array[blockILine];
 				if (iChar == line.charsCount - 1)
@@ -51,10 +53,9 @@ namespace MulticaretEditor
 					{
 						if (blockI >= blocksCount - 1)
 						{
-							rightChar = '\0';
 							iChar++;
 							position++;
-							return true;
+							return;
 						}
 						blockI++;
 						block = blocks[blockI];
@@ -75,11 +76,84 @@ namespace MulticaretEditor
 				}
 				position++;
 			}
+		}
+		
+		public void MoveRightOnLine(int count)
+		{
+			LineBlock block = blocks[blockI];
+			Line line = block.array[blockILine];
+			if (iChar + count >= line.charsCount)
+			{
+				int delta = line.charsCount - iChar - 1;
+				iChar += delta;
+				position += delta;
+				rightChar = line.chars[iChar].c;
+				MoveRight();
+			}
 			else
 			{
-				rightChar = '\0';
+				iChar += count;
+				position += count;
+				rightChar = line.chars[iChar].c;
 			}
-			return result;
+		}
+		
+		public bool IsRightOnLine(string text)
+		{
+			if (position <= charsCount)
+			{
+				LineBlock block = blocks[blockI];
+				Line line = block.array[blockILine];
+				for (int i = 0; i < text.Length; i++)
+				{
+					if (iChar + i >= line.charsCount)
+					{
+						return false;
+					}
+					if (text[i] != line.chars[iChar + i].c)
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		
+		public bool IsRightWord(string text)
+		{
+			if (position <= charsCount)
+			{
+				LineBlock block = blocks[blockI];
+				Line line = block.array[blockILine];
+				if (iChar != 0)
+				{
+					char c = line.chars[iChar - 1].c;
+					if (!char.IsWhiteSpace(c) && !char.IsPunctuation(c))
+					{
+						return false;
+					}
+				}
+				for (int i = 0; i < text.Length; i++)
+				{
+					if (iChar + i >= line.charsCount)
+					{
+						return false;
+					}
+					if (text[i] != line.chars[iChar + i].c)
+					{
+						return false;
+					}
+				}
+				if (iChar + text.Length < line.charsCount)
+				{
+					char c = line.chars[iChar + text.Length].c;
+					if (!char.IsWhiteSpace(c) && !char.IsPunctuation(c))
+					{
+						return false;
+					}
+				}
+			}
+			return true;
 		}
 	}
 }

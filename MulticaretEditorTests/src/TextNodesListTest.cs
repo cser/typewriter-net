@@ -10,6 +10,7 @@ namespace TextNodesListTest
 	[TestFixture]
 	public class TextNodesListTest
 	{
+		/*
 		[Test]
 		public void SimpleIntegration()
 		{
@@ -180,5 +181,6 @@ namespace TextNodesListTest
 					}
 				}");
 		}
+		*/
 	}
 }
