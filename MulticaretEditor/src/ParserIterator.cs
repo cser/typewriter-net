@@ -102,20 +102,17 @@ namespace MulticaretEditor
 		
 		public bool IsRightOnLine(string text)
 		{
-			if (position <= charsCount)
+			LineBlock block = blocks[blockI];
+			Line line = block.array[blockILine];
+			for (int i = 0; i < text.Length; i++)
 			{
-				LineBlock block = blocks[blockI];
-				Line line = block.array[blockILine];
-				for (int i = 0; i < text.Length; i++)
+				if (iChar + i >= line.charsCount)
 				{
-					if (iChar + i >= line.charsCount)
-					{
-						return false;
-					}
-					if (text[i] != line.chars[iChar + i].c)
-					{
-						return false;
-					}
+					return false;
+				}
+				if (text[i] != line.chars[iChar + i].c)
+				{
+					return false;
 				}
 			}
 			return true;

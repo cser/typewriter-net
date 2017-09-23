@@ -10,7 +10,7 @@ namespace TextNodesListTest
 	[TestFixture]
 	public class TextNodesListTest
 	{
-		/*[Test]
+		[Test]
 		public void SimpleIntegration()
 		{
 			Buffer buffer = new Buffer("Directory/Test.cs", "Test.cs", SettingsMode.Normal);
@@ -36,7 +36,7 @@ namespace TextNodesListTest
 				"\t+ void Method0() (3)\n" +
 				"\t+ void Method1() (7)",
 				list.Controller.Lines.GetText());
-		}*/
+		}
 		
 		private void AssertParse(string expected, string text)
 		{
@@ -68,7 +68,7 @@ namespace TextNodesListTest
 			return text;
 		}
 		
-		/*[Test]
+		[Test]
 		public void Simple()
 		{
 			AssertParse(
@@ -109,7 +109,7 @@ namespace TextNodesListTest
 		public void NestedClass_StaticPrivateParameters()
 		{
 			AssertParse(
-				"'class Test' 1 ['class Nested' 3 ['|- void NestedMethod(int index)' 5 []], '- void Method(Node a, out bool b)' 10 []]",
+				"'class Test' 1 ['class Nested' 3 ['|- void NestedMethod(int index)' 5 []], '# void Method(Node a, out bool b)' 10 []]",
 				@"private class Test
 				{
 					protected class Nested
@@ -179,7 +179,7 @@ namespace TextNodesListTest
 						get { return -1; }
 					}
 				}");
-		}*/
+		}
 		
 		[Test]
 		public void EmptyNestedClasses()
@@ -249,27 +249,56 @@ namespace TextNodesListTest
 				}");
 		}
 		
-		//[Test]
-		//public void IndexedProperty()
-		//{
-		//	AssertParse(
-		//		"'class Test' 1 ['+ string this[int index]' 3 [], '~ string[] this[int i, int j]' 11 []]",
-		//		@"public class Test
-		//		{
-		//			public string this[int index]
-		//			{
-		//				get { return property; }
-		//				set { ; }
-		//			}
-		//			
-		//			private int property;
-		//			
-		//			string[] this[int i, int j]
-		//			{
-		//				get { return null; }
-		//				set { ; }
-		//			}
-		//		}");
-		//}
+		[Test]
+		public void IndexedProperty()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ string this[int index]' 3 [], '~ string[] this[int i, int j]' 11 []]",
+				@"public class Test
+				{
+					public string this[int index]
+					{
+						get { return property; }
+						set { ; }
+					}
+					
+					private int property;
+					
+					string[] this[int i, int j]
+					{
+						get { return null; }
+						set { ; }
+					}
+				}");
+		}
+		
+		[Test]
+		public void Comment1()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 15 []]",
+				@"public class Test
+				{
+					int Method()
+					{
+					}
+					/*
+					void Method2()
+					{
+					}
+					*/
+					
+					private int property;
+					
+					//public string[] Property2 { get { return property; } }
+					public string[] Property { get { return property; } }
+				}");
+		}
 	}
+	/**
+	@TODO
+	where
+	extends
+	public Dictionary<int, string> property;
+	*/
 }

@@ -171,6 +171,18 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void IsRightOnLine_AtLast()
+		{
+			Init(3);
+			lines.SetText("1234\r\nabcd\nEFG\n" + "ABCDE");
+			NewIterator(lines.IndexOf(new Place(4, 3)));
+			Assert.AreEqual(true, iterator.IsRightOnLine("E"));
+			iterator.MoveRight();
+			Assert.AreEqual(true, iterator.IsRightOnLine(""));
+			Assert.AreEqual(false, iterator.IsRightOnLine("X"));
+		}
+		
+		[Test]
 		public void IsRightWord()
 		{
 			Init(3);

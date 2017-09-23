@@ -69,8 +69,13 @@ public class CSTextNodeParser : TextNodeParser
 		iterator.MoveRight();
 		iterator.MoveSpacesAndRN();
 		int position = -1;
-		while (!iterator.IsEnd && position == iterator.Position)
+		while (!iterator.IsEnd)
 		{
+			if (position == iterator.Position)
+			{
+				throw new System.Exception("NOT MOVED");// TODO remove
+				break;
+			}
 			position = iterator.Position;
 			char c = iterator.RightChar;
 			if (c == '}')
@@ -182,6 +187,22 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.MoveSpacesAndRN();
 				continue;
 			}
+			if (iterator.RightChar == '[')
+			{
+				Node node = (Node)(new Dictionary<string, Node>());
+				node["line"] = place.iLine + 1;
+				node["childs"] = new List<Node>();
+				builder.Length = 0;
+				ParseQuadParameters(iterator, builder);
+				string parameters = builder.ToString();
+				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+				nodes.Add(node);
+				MoveBrackets(iterator);
+				iterator.MoveSpacesAndRN();
+				continue;
+			}
+			iterator.MoveSpacesAndRN();
+			MoveComment(iterator);
 			while (!iterator.IsEnd)
 			{
 				if (iterator.RightChar == ';')
@@ -191,6 +212,8 @@ public class CSTextNodeParser : TextNodeParser
 				}
 				iterator.MoveRight();
 			}
+			iterator.MoveSpacesAndRN();
+			MoveComment(iterator);
 			iterator.MoveSpacesAndRN();
 		}
 	}
@@ -309,6 +332,67 @@ public class CSTextNodeParser : TextNodeParser
 				}
 				builder.Append(c);
 				iterator.MoveRight();
+			}
+		}
+	}
+	
+	private void ParseQuadParameters(ParserIterator iterator, StringBuilder builder)
+	{
+		if (iterator.RightChar == '[')
+		{
+			while (!iterator.IsEnd)
+			{
+				char c = iterator.RightChar;
+				if (c == ']')
+				{
+					builder.Append(']');
+					iterator.MoveRight();
+					break;
+				}
+				builder.Append(c);
+				iterator.MoveRight();
+			}
+		}
+	}
+	
+	private void MoveComment(ParserIterator iterator)
+	{
+		char c = iterator.RightChar;
+		if (c == '/')
+		{
+			if (iterator.IsRightOnLine("//"))
+			{
+				while (!iterator.IsEnd)
+				{
+					c = iterator.RightChar;
+					if (c == '\r')
+					{
+						iterator.MoveRight();
+						if (iterator.RightChar == '\n')
+						{
+							iterator.MoveRight();
+						}
+						break;
+					}
+					if (c == '\n')
+					{
+						iterator.MoveRight();
+						break;
+					}
+					iterator.MoveRight();
+				}
+			}
+			else if (iterator.IsRightOnLine("/*"))
+			{
+				while (!iterator.IsEnd)
+				{
+					if (iterator.IsRightWord("*/"))
+					{
+						iterator.MoveRightOnLine(2);
+						break;
+					}
+					iterator.MoveRight();
+				}
 			}
 		}
 	}
