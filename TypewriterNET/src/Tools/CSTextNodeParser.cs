@@ -10,245 +10,306 @@ public class CSTextNodeParser : TextNodeParser
 	{
 	}
 	
+	private StringBuilder builder = new StringBuilder();
+	
 	public override Node Parse(LineArray lines)
 	{
+		builder.Length = 0;
 		ParserIterator iterator = lines.GetParserIterator(0);
-		List<Node> stack = new List<Node>();
-		StringBuilder builder = new StringBuilder();
-		int NORMAL = 0;
-		int WAIT_OPEN = 1;
-		int WAIT_COMMENT_CLOSE = 2;
-		int WAIT_TEXT_CLOSE = 3;
-		int WAIT_CHAR_CLOSE = 4;
-		int state = NORMAL;
+		List<Node> nodes = new List<Node>();
 		Node root = (Node)(new Dictionary<string, Node>());
 		root["name"] = "FILE";
 		root["line"] = -1;
-		root["childs"] = new List<Node>();
-		stack.Add(root);
+		root["childs"] = nodes;
+		ParseRoot(iterator, nodes);
+		builder.Length = 0;
+		return nodes.Count == 1 ? nodes[0] : root;
+	}
+	
+	private void ParseRoot(ParserIterator iterator, List<Node> nodes)
+	{
 		while (!iterator.IsEnd)
 		{
 			char c = iterator.RightChar;
-			if (state == NORMAL)
+			if (iterator.IsRightWord("class"))
 			{
-				if (iterator.IsRightWord("class"))
+				nodes.Add(ParseClass(iterator));
+			}
+			if (iterator.IsRightWord("namespace"))
+			{
+				nodes.Add(ParseNamespace(iterator));
+			}
+			if (iterator.IsRightWord("struct"))
+			{
+				nodes.Add(ParseStruct(iterator));
+			}
+			if (iterator.IsRightWord("enum"))
+			{
+				nodes.Add(ParseEnum(iterator));
+			}
+			iterator.MoveRight();
+		}
+	}
+	
+	private void ParseContent(ParserIterator iterator, List<Node> nodes)
+	{
+		iterator.MoveSpacesAndRN();
+		while (!iterator.IsEnd)
+		{
+			char c = iterator.RightChar;
+			if (c == '{')
+			{
+				break;
+			}
+		}
+		if (iterator.RightChar != '{')
+		{
+			return;
+		}
+		iterator.MoveRight();
+		iterator.MoveSpacesAndRN();
+		int position = -1;
+		while (!iterator.IsEnd && position == iterator.Position)
+		{
+			position = iterator.Position;
+			char c = iterator.RightChar;
+			if (c == '}')
+			{
+				iterator.MoveRight();
+				return;
+			}
+			string modifiers = "";
+			while (true)
+			{
+				if (iterator.IsRightWord("private"))
 				{
-					iterator.MoveRightOnLine(5);
-					for (; char.IsWhiteSpace(iterator.RightChar) && !iterator.IsEnd; iterator.MoveRight())
-					{
-					}
-					if (iterator.IsEnd)
-					{
-						break;
-					}
-					builder.Length = 0;
-					while (!iterator.IsEnd)
-					{
-						c = iterator.RightChar;
-						if (char.IsLetterOrDigit(c) || c == '_')
-						{
-							builder.Append(iterator.RightChar);
-						}
-						else
-						{
-							break;
-						}
-						iterator.MoveRight();
-					}
-					string className = builder.ToString();
-					builder.Length = 0;
-					Node node = (Node)(new Dictionary<string, Node>());
-					node["name"] = "class " + className;
-					node["line"] = iterator.Place.iLine + 1;
-					node["childs"] = new List<Node>();
-					if (stack.Count > 0)
-					{
-						((List<Node>)stack[stack.Count - 1]["childs"]).Add(node);
-					}
-					stack.Add(node);
-					state = WAIT_OPEN;
+					iterator.MoveRightOnLine(7);
+					iterator.MoveSpacesAndRN();
+					modifiers += "-";
+					continue;
 				}
-				if (iterator.IsRightWord("namespace"))
-				{
-					iterator.MoveRightOnLine(9);
-					for (; char.IsWhiteSpace(iterator.RightChar) && !iterator.IsEnd; iterator.MoveRight())
-					{
-					}
-					if (iterator.IsEnd)
-					{
-						break;
-					}
-					builder.Length = 0;
-					while (!iterator.IsEnd)
-					{
-						c = iterator.RightChar;
-						if (char.IsLetterOrDigit(c) || c == '_')
-						{
-							builder.Append(iterator.RightChar);
-						}
-						else
-						{
-							break;
-						}
-						iterator.MoveRight();
-					}
-					string className = builder.ToString();
-					builder.Length = 0;
-					Node node = (Node)(new Dictionary<string, Node>());
-					node["name"] = "namespace " + className;
-					node["line"] = iterator.Place.iLine + 1;
-					node["childs"] = new List<Node>();
-					if (stack.Count > 0)
-					{
-						((List<Node>)stack[stack.Count - 1]["childs"]).Add(node);
-					}
-					stack.Add(node);
-					state = WAIT_OPEN;
-				}
-				if (iterator.IsRightWord("struct"))
+				if (iterator.IsRightWord("public"))
 				{
 					iterator.MoveRightOnLine(6);
-					for (; char.IsWhiteSpace(iterator.RightChar) && !iterator.IsEnd; iterator.MoveRight())
-					{
-					}
-					if (iterator.IsEnd)
-					{
-						break;
-					}
-					builder.Length = 0;
-					while (!iterator.IsEnd)
-					{
-						c = iterator.RightChar;
-						if (char.IsLetterOrDigit(c) || c == '_')
-						{
-							builder.Append(iterator.RightChar);
-						}
-						else
-						{
-							break;
-						}
-						iterator.MoveRight();
-					}
-					string className = builder.ToString();
-					builder.Length = 0;
-					Node node = (Node)(new Dictionary<string, Node>());
-					node["name"] = "struct " + className;
-					node["line"] = iterator.Place.iLine + 1;
-					node["childs"] = new List<Node>();
-					if (stack.Count > 0)
-					{
-						((List<Node>)stack[stack.Count - 1]["childs"]).Add(node);
-					}
-					stack.Add(node);
-					state = WAIT_OPEN;
+					iterator.MoveSpacesAndRN();
+					modifiers += "+";
+					continue;
 				}
-				else if (iterator.IsRightOnLine("//"))
+				if (iterator.IsRightWord("protected"))
 				{
-					iterator.MoveRightOnLine(2);
-					for (; !iterator.IsEnd; iterator.MoveRight())
-					{
-						c = iterator.RightChar;
-						if (c == '\r' || c == '\n')
-						{
-							break;
-						}
-					}
+					iterator.MoveRightOnLine(9);
+					iterator.MoveSpacesAndRN();
+					modifiers += "#";
+					continue;
 				}
-				else if (iterator.IsRightOnLine("/*"))
+				if (iterator.IsRightWord("internal"))
 				{
-					iterator.MoveRightOnLine(2);
-					state = WAIT_COMMENT_CLOSE;
+					iterator.MoveRightOnLine(8);
+					iterator.MoveSpacesAndRN();
+					modifiers += "~";
+					continue;
 				}
-				else if (c == '"')
+				if (iterator.IsRightWord("static"))
 				{
-					state = WAIT_TEXT_CLOSE;
+					iterator.MoveRightOnLine(6);
+					iterator.MoveSpacesAndRN();
+					modifiers = "|" + modifiers;
+					continue;
 				}
-				else if (c == '\'')
+				if (iterator.IsRightWord("virtual"))
 				{
-					state = WAIT_CHAR_CLOSE;
+					iterator.MoveRightOnLine(7);
+					iterator.MoveSpacesAndRN();
+					continue;
 				}
-				else if (c == '}')
+				if (iterator.IsRightWord("override"))
 				{
-					if (stack.Count > 0)
-					{
-						stack.RemoveAt(stack.Count - 1);
-					}
+					iterator.MoveRightOnLine(8);
+					iterator.MoveSpacesAndRN();
+					continue;
 				}
-				else if (c == '{')
-				{
-					Node node = (Node)(new Dictionary<string, Node>());
-					node["childs"] = new List<Node>();
-					node["name"] = "";
-					if (stack.Count > 0)
-					{
-						Node parent = stack[stack.Count - 1];
-						if (((string)parent["name"]).StartsWith("class ") ||
-							((string)parent["name"]).StartsWith("struct "))
-						{
-							string name = "AAAA";
-							name = name.Replace("private ", "- ");
-							name = name.Replace("protected ", "- ");
-							name = name.Replace("public ", "+ ");
-							name = name.Replace("internal ", "+ ");
-							name = name.Replace("override ", "");
-							name = name.Replace("virtual ", "");
-							name = name.Replace("sealed ", "");
-							name = name.Trim();
-							if (name.Contains("static "))
-							{
-								name = name.Replace("static ", "");
-								name = "|" + name;
-							}
-							node["name"] = name;
-							((List<Node>)parent["childs"]).Add(node);
-						}
-					}
-					stack.Add(node);
-				}
+				break;
 			}
-			else if (state == WAIT_OPEN)
+			if (iterator.IsRightWord("class"))
 			{
-				for (; !iterator.IsEnd; iterator.MoveRight())
-				{
-					if (iterator.RightChar == '{')
-					{
-						state = NORMAL;
-						break;
-					}
-				}
+				nodes.Add(ParseClass(iterator));
+				iterator.MoveSpacesAndRN();
+				continue;
 			}
-			else if (state == WAIT_COMMENT_CLOSE)
+			if (iterator.IsRightWord("struct"))
 			{
-				if (iterator.IsRightOnLine("*/"))
-				{
-					iterator.MoveRightOnLine(2);
-					state = NORMAL;
-				}
+				nodes.Add(ParseEnum(iterator));
+				iterator.MoveSpacesAndRN();
+				continue;
 			}
-			else if (state == WAIT_TEXT_CLOSE)
+			if (iterator.IsRightWord("enum"))
 			{
-				if (c == '\\')
+				nodes.Add(ParseEnum(iterator));
+				iterator.MoveSpacesAndRN();
+				continue;
+			}
+			builder.Length = 0;
+			ParseType(iterator, builder);
+			string type = builder.ToString();
+			iterator.MoveSpacesAndRN();
+			Place place = iterator.Place;
+			builder.Length = 0;
+			iterator.MoveIdent(builder);
+			string ident = builder.ToString();
+			iterator.MoveSpacesAndRN();
+			if (iterator.RightChar == '(')
+			{
+				Node node = (Node)(new Dictionary<string, Node>());
+				node["line"] = place.iLine + 1;
+				node["childs"] = new List<Node>();
+				builder.Length = 0;
+				ParseParameters(iterator, builder);
+				string parameters = builder.ToString();
+				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+				nodes.Add(node);
+				MoveBrackets(iterator);
+				iterator.MoveSpacesAndRN();
+				continue;
+			}
+			if (iterator.RightChar == '{')
+			{
+				Node node = (Node)(new Dictionary<string, Node>());
+				node["line"] = place.iLine + 1;
+				node["childs"] = new List<Node>();
+				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident;
+				nodes.Add(node);
+				MoveBrackets(iterator);
+				iterator.MoveSpacesAndRN();
+				continue;
+			}
+			while (!iterator.IsEnd)
+			{
+				if (iterator.RightChar == ';')
 				{
 					iterator.MoveRight();
+					break;
 				}
-				else if (c == '"')
-				{
-					state = NORMAL;
-				}
+				iterator.MoveRight();
 			}
-			else if (state == WAIT_CHAR_CLOSE)
+			iterator.MoveSpacesAndRN();
+		}
+	}
+	
+	private Node ParseClass(ParserIterator iterator)
+	{
+		iterator.MoveRightOnLine(5);
+		iterator.MoveSpacesAndRN();
+		builder.Length = 0;
+		iterator.MoveIdent(builder);
+		Node node = (Node)(new Dictionary<string, Node>());
+		node["name"] = "class " + builder.ToString();
+		node["line"] = iterator.Place.iLine + 1;
+		List<Node> nodes = new List<Node>();
+		node["childs"] = nodes;
+		ParseContent(iterator, nodes);
+		return node;
+	}
+	
+	private Node ParseNamespace(ParserIterator iterator)
+	{
+		iterator.MoveRightOnLine(9);
+		iterator.MoveSpacesAndRN();
+		builder.Length = 0;
+		iterator.MoveIdent(builder);
+		Node node = (Node)(new Dictionary<string, Node>());
+		node["name"] = "namespace " + builder.ToString();
+		node["line"] = iterator.Place.iLine + 1;
+		node["childs"] = new List<Node>();
+		MoveBrackets(iterator);
+		return node;
+	}
+	
+	private Node ParseStruct(ParserIterator iterator)
+	{
+		iterator.MoveRightOnLine(6);
+		iterator.MoveSpacesAndRN();
+		builder.Length = 0;
+		iterator.MoveIdent(builder);
+		Node node = (Node)(new Dictionary<string, Node>());
+		node["name"] = "struct " + builder.ToString();
+		node["line"] = iterator.Place.iLine + 1;
+		node["childs"] = new List<Node>();
+		MoveBrackets(iterator);
+		return node;
+	}
+	
+	private Node ParseEnum(ParserIterator iterator)
+	{
+		iterator.MoveRightOnLine(4);
+		iterator.MoveSpacesAndRN();
+		builder.Length = 0;
+		iterator.MoveIdent(builder);
+		Node node = (Node)(new Dictionary<string, Node>());
+		node["name"] = "enum " + builder.ToString();
+		node["line"] = iterator.Place.iLine + 1;
+		node["childs"] = new List<Node>();
+		MoveBrackets(iterator);
+		return node;
+	}
+	
+	private void MoveBrackets(ParserIterator iterator)
+	{
+		iterator.MoveSpacesAndRN();
+		if (iterator.RightChar != '{')
+		{
+			return;
+		}
+		int depth = 0;
+		while (!iterator.IsEnd)
+		{
+			char c = iterator.RightChar;
+			if (c == '{')
 			{
-				if (c == '\\')
+				++depth;
+			}
+			else if (c == '}')
+			{
+				--depth;
+				if (depth <= 0)
 				{
 					iterator.MoveRight();
-				}
-				else if (c == '\'')
-				{
-					state = NORMAL;
+					break;
 				}
 			}
 			iterator.MoveRight();
 		}
-		return ((List<Node>)root["childs"]).Count == 1 ? ((List<Node>)root["childs"])[0] : root;
+	}
+	
+	private void ParseType(ParserIterator iterator, StringBuilder builder)
+	{
+		while (!iterator.IsEnd)
+		{
+			char c = iterator.RightChar;
+			if (char.IsWhiteSpace(c))
+			{
+				break;
+			}
+			builder.Append(c);
+			iterator.MoveRight();
+		}
+	}
+	
+	private void ParseParameters(ParserIterator iterator, StringBuilder builder)
+	{
+		if (iterator.RightChar == '(')
+		{
+			while (!iterator.IsEnd)
+			{
+				char c = iterator.RightChar;
+				if (c == ')')
+				{
+					builder.Append(')');
+					iterator.MoveRight();
+					break;
+				}
+				builder.Append(c);
+				iterator.MoveRight();
+			}
+		}
 	}
 }

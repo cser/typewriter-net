@@ -10,8 +10,7 @@ namespace TextNodesListTest
 	[TestFixture]
 	public class TextNodesListTest
 	{
-		/*
-		[Test]
+		/*[Test]
 		public void SimpleIntegration()
 		{
 			Buffer buffer = new Buffer("Directory/Test.cs", "Test.cs", SettingsMode.Normal);
@@ -37,7 +36,7 @@ namespace TextNodesListTest
 				"\t+ void Method0() (3)\n" +
 				"\t+ void Method1() (7)",
 				list.Controller.Lines.GetText());
-		}
+		}*/
 		
 		private void AssertParse(string expected, string text)
 		{
@@ -69,7 +68,7 @@ namespace TextNodesListTest
 			return text;
 		}
 		
-		[Test]
+		/*[Test]
 		public void Simple()
 		{
 			AssertParse(
@@ -180,7 +179,74 @@ namespace TextNodesListTest
 						get { return -1; }
 					}
 				}");
+		}*/
+		
+		[Test]
+		public void EmptyNestedClasses()
+		{
+			AssertParse(
+				"'class Test' 1 ['class Nested1' 3 [], 'class Nested2' 7 []]",
+				@"public class Test
+				{
+					public class Nested1
+					{
+					}
+					
+					public class Nested2
+					{
+					}
+				}");
 		}
-		*/
+		
+		[Test]
+		public void SimpleMethods()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ int Method1()' 3 [], '+ void Method2(int index, string[] items)' 7 []]",
+				@"public class Test
+				{
+					int Method1()
+					{
+					}
+					
+					public void Method2(int index, string[] items)
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void SimpleProperties()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ int Property1' 3 [], '+ string[] Property2' 9 []]",
+				@"public class Test
+				{
+					int Property1
+					{
+						get { return -1; }
+						set { ; }
+					}
+					
+					public string[] Property2 { get; private set; }
+				}");
+		}
+		
+		[Test]
+		public void MastIgnoreFields()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 9 []]",
+				@"public class Test
+				{
+					int Method()
+					{
+					}
+					
+					private int property;
+					
+					public string[] Property { get { return property; } }
+				}");
+		}
 	}
 }

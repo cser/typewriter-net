@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace MulticaretEditor
 {
 	public class ParserIterator
@@ -154,6 +156,39 @@ namespace MulticaretEditor
 				}
 			}
 			return true;
+		}
+		
+		public void MoveSpacesAndRN()
+		{
+			while (true)
+			{
+				char c = RightChar;
+				if (!char.IsWhiteSpace(c) && c != '\r' && c != '\n')
+				{
+					break;
+				}
+				MoveRight();
+			}
+		}
+		
+		public void MoveIdent(StringBuilder builder)
+		{
+			char c = RightChar;
+			if (char.IsLetter(c) || c == '_')
+			{
+				builder.Append(c);
+				MoveRight();
+				while (true)
+				{
+					c = RightChar;
+					if (!char.IsLetterOrDigit(c) && c != '_')
+					{
+						break;
+					}
+					builder.Append(c);
+					MoveRight();
+				}
+			}
 		}
 	}
 }

@@ -3,3 +3,4 @@
 - fix ,g with subclasses inheritance showing (need :)
 - selection mast works with find
 - tag text object
+- copy to default register with named register
