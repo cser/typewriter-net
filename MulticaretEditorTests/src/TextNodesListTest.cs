@@ -248,5 +248,28 @@ namespace TextNodesListTest
 					public string[] Property { get { return property; } }
 				}");
 		}
+		
+		//[Test]
+		//public void IndexedProperty()
+		//{
+		//	AssertParse(
+		//		"'class Test' 1 ['+ string this[int index]' 3 [], '~ string[] this[int i, int j]' 11 []]",
+		//		@"public class Test
+		//		{
+		//			public string this[int index]
+		//			{
+		//				get { return property; }
+		//				set { ; }
+		//			}
+		//			
+		//			private int property;
+		//			
+		//			string[] this[int i, int j]
+		//			{
+		//				get { return null; }
+		//				set { ; }
+		//			}
+		//		}");
+		//}
 	}
 }
