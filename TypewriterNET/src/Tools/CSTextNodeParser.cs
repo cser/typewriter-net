@@ -10,18 +10,12 @@ public class CSTextNodeParser : TextNodeParser
 	{
 	}
 	
-	public enum TokenType
+	public struct Token
 	{
-		Word,
-		Punctuation,
-		Text
-	}
-	
-	public class Token
-	{
-		TokenType type;
-		string text;
-		Place place;
+		public bool isString;
+		public string text;
+		public char c;
+		public Place place;
 	}
 	
 	private StringBuilder builder = new StringBuilder();
@@ -38,6 +32,104 @@ public class CSTextNodeParser : TextNodeParser
 		ParseRoot(iterator, nodes);
 		builder.Length = 0;
 		return nodes.Count == 1 ? nodes[0] : root;
+	}
+	
+	private const int Normal = 0;
+	private const int MultilineString = 1;
+	private const int MultilineComment = 2;
+	
+	public static List<Token> ParseTokens(LineArray lines)
+	{
+		List<Token> tokens = new List<Token>();
+		StringBuilder builder = new StringBuilder();
+		int state = Normal;
+		for (int iBlock = 0; iBlock < lines.blocksCount; ++iBlock)
+		{
+			LineBlock block = lines.blocks[iBlock];
+			for (int iLine = 0; iLine < block.count; ++iLine)
+			{
+				Line line = block.array[iLine];
+				for (int i = 0; i < line.charsCount;)
+				{
+					char c = line.chars[iBlock].c;
+					if (state == Normal)
+					{
+						if (char.IsWhiteSpace(c))
+						{
+							++i;
+							continue;
+						}
+						if (char.IsLetterOrDigit(c) || c == '_')
+						{
+							Token token = new Token();
+							builder.Length = 0;
+							builder.Append(c);
+							for (++i; i < line.charsCount; ++i)
+							{
+								c = line.chars[iBlock].c;
+								if (!char.IsLetterOrDigit(c) && c != '_')
+								{
+									break;
+								}
+								builder.Append(c);
+							}
+							token.text = builder.ToString();
+							token.place = new Place(i, block.offset + iLine);
+							tokens.Add(token);
+							continue;
+						}
+						if (c == '/')
+						{
+							++i;
+							if (i < line.charsCount)
+							{
+								c = line.chars[iBlock].c;
+								if (c == '/')
+								{
+									i = line.charsCount;
+								}
+								else if (c == '*')
+								{
+									++i;
+									state = MultilineComment;
+								}
+								else
+								{
+									Token token = new Token();
+									token.c = '/';
+									token.place = new Place(i, block.offset + iLine);
+									tokens.Add(token);
+								}
+							}
+						}
+						else
+						{
+							if (char.IsPunctuation(c))
+							{
+								Token token = new Token();
+								token.c = c;
+								token.place = new Place(i, block.offset + iLine);
+								tokens.Add(token);
+							}
+							++i;
+						}
+					}
+					else if (state == MultilineComment)
+					{
+						if (c == '*' && i + 1 < line.charsCount && line.chars[i + 1].c == '/')
+						{
+							i += 2;
+							state = Normal;
+						}
+					}
+					else if (state == MultilineString)
+					{
+						// TODO
+					}
+				}
+			}
+		}
+		return tokens;
 	}
 	
 	private void ParseRoot(ParserIterator iterator, List<Node> nodes)
