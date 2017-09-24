@@ -324,6 +324,20 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void Text_Simple()
+		{
+			AssertParse("'class A' 1 ['+ A(C c)' 3 [], '+ void C()' 4 []]",
+				@"public class A {
+					private B b;
+					public A(C c) { string x = ""}""; }
+					public void C() {
+						string y = @""{{
+						{{"";
+					}
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -381,11 +395,31 @@ namespace TextNodesListTest
 				"<<public>>, <<void>>, <<Method1>>, '(', ')', '{', '}', '}'" +
 			"]", ListUtil.ToString(iterator.tokens));
 		}
+		
+		[Test]
+		public void TokenIteratorTest4()
+		{
+			LineArray lines = new LineArray();
+			lines.SetText(@"public class Test
+			{
+				private string text = ""ab\""c"";
+				private string text2 = @""ab""""c"";
+				private string text3 = @""ab\nc"";
+			}");
+			CSTokenIterator iterator = new CSTokenIterator(lines);
+			Assert.AreEqual("[" +
+				"<<public>>, <<class>>, <<Test>>, '{', " +
+				"<<private>>, <<string>>, <<text>>, <<:>>, ';', " +
+				"<<private>>, <<string>>, <<text2>>, <<:>>, ';', " +
+				"<<private>>, <<string>>, <<text3>>, <<:>>, ';', '}'" +
+			"]", ListUtil.ToString(iterator.tokens));
+		}
 	}
 	/**
 	@TODO
 	where
 	extends
 	public Dictionary<int, string> property;
+	default string parameters
 	*/
 }

@@ -104,6 +104,31 @@ public class CSTokenIterator
 								}
 							}
 						}
+						else if (c == '"')
+						{
+							for (++i; i < line.charsCount; ++i)
+							{
+								c = line.chars[i].c;
+								if (c == '\\')
+								{
+									++i;
+								}
+								else if (c == '"')
+								{
+									++i;
+									break;
+								}
+							}
+							CSToken token = new CSToken();
+							token.text = ":";
+							token.place = new Place(i, block.offset + iLine);
+							tokens.Add(token);
+						}
+						else if (c == '@' && i + 1 < line.charsCount && line.chars[i + 1].c == '"')
+						{
+							i += 2;
+							state = MultilineString;
+						}
 						else
 						{
 							if (char.IsPunctuation(c))
@@ -127,8 +152,26 @@ public class CSTokenIterator
 					}
 					else if (state == MultilineString)
 					{
-						// TODO
-						++i;
+						if (c == '"')
+						{
+							++i;
+							if (i < line.charsCount && line.chars[i].c == '"')
+							{
+								++i;
+							}
+							else
+							{
+								CSToken token = new CSToken();
+								token.text = ":";
+								token.place = new Place(i, block.offset + iLine);
+								tokens.Add(token);
+								state = Normal;
+							}
+						}
+						else
+						{
+							++i;
+						}
 					}
 				}
 			}
