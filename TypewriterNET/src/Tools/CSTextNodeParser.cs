@@ -60,7 +60,29 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.MoveNext();
 				return;
 			}
+			while (iterator.current.c == '[')
+			{
+				int depth = 0;
+				while (!iterator.isEnd)
+				{
+					if (iterator.current.c == '[')
+					{
+						++depth;
+					}
+					else if (iterator.current.c == ']')
+					{
+						--depth;
+						if (depth <= 0)
+						{
+							iterator.MoveNext();
+							break;
+						}
+					}
+					iterator.MoveNext();
+				}
+			}
 			string modifiers = "";
+			bool isExtern = false;
 			while (true)
 			{
 				if (iterator.current.text == "private")
@@ -100,6 +122,12 @@ public class CSTextNodeParser : TextNodeParser
 				}
 				if (iterator.current.text == "override")
 				{
+					iterator.MoveNext();
+					continue;
+				}
+				if (iterator.current.text == "extern")
+				{
+					isExtern = true;
 					iterator.MoveNext();
 					continue;
 				}
@@ -148,11 +176,14 @@ public class CSTextNodeParser : TextNodeParser
 			iterator.builder.Length = 0;
 			ParseType(iterator, iterator.builder);
 			type = iterator.builder.ToString();
-			ident = iterator.current.text;
+			iterator.builder.Length = 0;
+			iterator.builder.Append(iterator.current.text);
 			if (iterator.current.IsIdent)
 			{
 				iterator.MoveNext();
+				ParseGeneric(iterator, iterator.builder);
 			}
+			ident = iterator.builder.ToString();
 			if (iterator.current.c == '(')
 			{
 				Node node = (Node)(new Dictionary<string, Node>());
@@ -161,9 +192,21 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.builder.Length = 0;
 				ParseParameters(iterator, iterator.builder);
 				string parameters = iterator.builder.ToString();
-				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+				node["name"] = (isExtern ? "@" : "") +
+					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
 				nodes.Add(node);
-				MoveBrackets(iterator);
+				while (!iterator.isEnd)
+				{
+					if (iterator.current.c == '{' || iterator.current.c == ';')
+					{
+						break;
+					}
+					iterator.MoveNext();
+				}
+				if (iterator.current.c == '{')
+				{
+					MoveBrackets(iterator);
+				}
 				continue;
 			}
 			if (iterator.current.c == '{')
@@ -171,7 +214,8 @@ public class CSTextNodeParser : TextNodeParser
 				Node node = (Node)(new Dictionary<string, Node>());
 				node["line"] = place.iLine + 1;
 				node["childs"] = new List<Node>();
-				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident;
+				node["name"] = (isExtern ? "[]" : "") +
+					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident;
 				nodes.Add(node);
 				MoveBrackets(iterator);
 				continue;
@@ -184,7 +228,8 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.builder.Length = 0;
 				ParseQuadParameters(iterator, iterator.builder);
 				string parameters = iterator.builder.ToString();
-				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+				node["name"] = (isExtern ? "[]" : "") +
+					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
 				nodes.Add(node);
 				MoveBrackets(iterator);
 				continue;
@@ -204,22 +249,26 @@ public class CSTextNodeParser : TextNodeParser
 	private Node ParseClass(CSTokenIterator iterator)
 	{
 		iterator.MoveNext();
-		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "class " + iterator.current.text;
-		node["line"] = iterator.current.place.iLine + 1;
-		List<Node> nodes = new List<Node>();
-		node["childs"] = nodes;
+		iterator.builder.Length = 0;
+		Place place = iterator.current.place;
 		if (iterator.current.IsIdent)
 		{
+			iterator.builder.Append(iterator.current.text);
 			iterator.MoveNext();
-			while (!iterator.isEnd)
+		}
+		ParseGeneric(iterator, iterator.builder);
+		Node node = (Node)(new Dictionary<string, Node>());
+		node["name"] = "class " + iterator.builder.ToString();
+		node["line"] = place.iLine + 1;
+		List<Node> nodes = new List<Node>();
+		node["childs"] = nodes;
+		while (!iterator.isEnd)
+		{
+			if (iterator.current.c == '{')
 			{
-				if (iterator.current.c == '{')
-				{
-					break;
-				}
-				iterator.MoveNext();
+				break;
 			}
+			iterator.MoveNext();
 		}
 		ParseContent(iterator, nodes);
 		return node;
@@ -293,6 +342,17 @@ public class CSTextNodeParser : TextNodeParser
 		{
 			builder.Append(iterator.current.text);
 			iterator.MoveNext();
+			while (iterator.current.c == '.')
+			{
+				builder.Append('.');
+				iterator.MoveNext();
+				if (!iterator.current.IsIdent)
+				{
+					break;
+				}
+				builder.Append(iterator.current.text);
+				iterator.MoveNext();
+			}
 			if (iterator.current.c == '<')
 			{
 				int depth = 0;
@@ -430,6 +490,45 @@ public class CSTextNodeParser : TextNodeParser
 				{
 					iterator.builder.Append(iterator.current.c);
 					needSpace = false;
+				}
+				iterator.MoveNext();
+			}
+		}
+	}
+	
+	private void ParseGeneric(CSTokenIterator iterator, StringBuilder builder)
+	{
+		if (iterator.current.c == '<')
+		{
+			int depth = 0;
+			while (!iterator.isEnd)
+			{
+				if (iterator.current.c == '<')
+				{
+					iterator.builder.Append('<');
+					++depth;
+				}
+				else if (iterator.current.c == '>')
+				{
+					iterator.builder.Append('>');
+					--depth;
+					if (depth <= 0)
+					{
+						iterator.MoveNext();
+						break;
+					}
+				}
+				else if (iterator.current.c == ',')
+				{
+					iterator.builder.Append(", ");
+				}
+				else if (iterator.current.text != null)
+				{
+					iterator.builder.Append(iterator.current.text);
+				}
+				else
+				{
+					iterator.builder.Append(iterator.current.c);
 				}
 				iterator.MoveNext();
 			}

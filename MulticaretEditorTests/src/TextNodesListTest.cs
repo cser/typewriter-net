@@ -378,6 +378,128 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void ClassGenerics()
+		{
+			AssertParse("'class A<K, List<T>>' 1 ['+ void B()' 3 []]",
+				@"public class A<K, List<T>>
+				{
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void ClassGenericsWhere()
+		{
+			AssertParse("'class A<K, List<T>>' 1 ['+ void B()' 3 []]",
+				@"public class A<K, List<T>> where T : int
+				{
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void MethodGenerics()
+		{
+			AssertParse("'class A' 1 ['+ void B()' 3 [], '+ void Method<T, List<T>>()' 7 [], '+ void C()' 11 []]",
+				@"public class A
+				{
+					public void B()
+					{
+					}
+					
+					public void Method<T, List<T>>()
+					{
+					}
+					
+					public void C()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void MethodGenericsWhere()
+		{
+			AssertParse("'class A' 1 ['+ void B()' 3 [], '+ void Method<T, List<T>>()' 7 [], '+ void C()' 11 []]",
+				@"public class A
+				{
+					public void B()
+					{
+					}
+					
+					public void Method<T, List<T>>() where T : List<Dictionary<string[], int>>
+					{
+					}
+					
+					public void C()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Attributes()
+		{
+			AssertParse("'class Test' 1 ['+ void A()' 5 [], '+ int Property' 10 [], '+ void B()' 14 []]",
+				@"public class Test
+				{
+					[A4] private int _field;
+					[A1(string[] {""cdef""})]
+					public void A()
+					{
+					}
+					
+					[A4]
+					public int Property { get; set; }
+					
+					[A2]
+					[A3]
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedTypes()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ Type.Subtype A()' 3 [], '+ Type.Subtype Property' 7 [], '+ void B()' 9 []]",
+				@"public class Test
+				{
+					public Type.Subtype A()
+					{
+					}
+					
+					public Type.Subtype Property { get; set; }
+					
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Extern()
+		{
+			AssertParse(
+				"'class Test' 1 ['@|+ bool ShowWindow(IntPtr hWnd, Int32 nCmdShow)' 4 [], '+ void B()' 6 []]",
+				@"public class Test
+				{
+					[DllImport(""user32.dll"")]
+					public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
+					
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -457,7 +579,9 @@ namespace TextNodesListTest
 	}
 	/**
 	@TODO
-	where
 	extends
+	struct
+	enum
+	several classes
 	*/
 }
