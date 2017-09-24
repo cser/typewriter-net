@@ -273,7 +273,7 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
-		public void Comment1()
+		public void Comments1()
 		{
 			AssertParse(
 				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 15 []]",
@@ -291,6 +291,24 @@ namespace TextNodesListTest
 					private int property;
 					
 					//public string[] Property2 { get { return property; } }
+					public string[] Property { get { return property; } }
+				}");
+		}
+		
+		[Ignore]
+		[Test]
+		public void Comments2()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 15 []]",
+				@"public class Test// comment
+				{
+					int Method()
+					{/*}*/
+					}
+					
+					private int property;
+					
 					public string[] Property { get { return property; } }
 				}");
 		}

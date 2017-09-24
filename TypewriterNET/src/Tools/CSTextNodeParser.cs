@@ -10,6 +10,20 @@ public class CSTextNodeParser : TextNodeParser
 	{
 	}
 	
+	public enum TokenType
+	{
+		Word,
+		Punctuation,
+		Text
+	}
+	
+	public class Token
+	{
+		TokenType type;
+		string text;
+		Place place;
+	}
+	
 	private StringBuilder builder = new StringBuilder();
 	
 	public override Node Parse(LineArray lines)
