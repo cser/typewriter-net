@@ -89,7 +89,7 @@ namespace TextNodesListTest
 		public void NestedClass()
 		{
 			AssertParse(
-				"'class Test' 1 ['class Nested' 3 ['+ void NestedMethod()' 5 []], '+ void Method()' 10 []]",
+				"'class Test' 1 ['class Nested' 3 ['+ void NestedMethod()' 5 []], '+ void NotNestedMethod()' 10 []]",
 				@"public class Test
 				{
 					public class Nested
@@ -99,7 +99,7 @@ namespace TextNodesListTest
 						}
 					}
 					
-					public void Method()
+					public void NotNestedMethod()
 					{
 					}
 				}");
@@ -295,12 +295,11 @@ namespace TextNodesListTest
 				}");
 		}
 		
-		[Ignore]
 		[Test]
 		public void Comments2()
 		{
 			AssertParse(
-				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 15 []]",
+				"'class Test' 1 ['~ int Method()' 3 [], '+ string[] Property' 9 []]",
 				@"public class Test// comment
 				{
 					int Method()
@@ -312,7 +311,7 @@ namespace TextNodesListTest
 					public string[] Property { get { return property; } }
 				}");
 		}
-		
+	
 		[Test]
 		public void Constructor()
 		{
@@ -322,6 +321,65 @@ namespace TextNodesListTest
 					public A(C c) { }
 					public void C() { }
 				}");
+		}
+		
+		[Test]
+		public void TokenIteratorTest()
+		{
+			LineArray lines = new LineArray();
+			lines.SetText(@"public class A {
+				private B b;
+				public void C() { }
+			}");
+			CSTokenIterator iterator = new CSTokenIterator(lines);
+			Assert.AreEqual("[" +
+				"<<public>>, <<class>>, <<A>>, '{', <<private>>, <<B>>, <<b>>, ';', " +
+				"<<public>>, <<void>>, <<C>>, '(', ')', '{', '}', '}'" +
+			"]", ListUtil.ToString(iterator.tokens));
+		}
+		
+		[Test]
+		public void TokenIteratorTest2()
+		{
+			LineArray lines = new LineArray();
+			lines.SetText(@"public class Test
+			{
+				public void Method0()
+				{
+				}
+				
+				public void Method1()
+				{
+				}
+			}");
+			CSTokenIterator iterator = new CSTokenIterator(lines);
+			Assert.AreEqual("[" +
+				"<<public>>, <<class>>, <<Test>>, '{', " +
+				"<<public>>, <<void>>, <<Method0>>, '(', ')', '{', '}', " +
+				"<<public>>, <<void>>, <<Method1>>, '(', ')', '{', '}', '}'" +
+			"]", ListUtil.ToString(iterator.tokens));
+		}
+		
+		[Test]
+		public void TokenIteratorTest3()
+		{
+			LineArray lines = new LineArray();
+			lines.SetText(@"public class Test
+			{
+				/*public */void Method0()
+				{
+				}
+				
+				public void Method1()//}
+				{
+				}
+			}");
+			CSTokenIterator iterator = new CSTokenIterator(lines);
+			Assert.AreEqual("[" +
+				"<<public>>, <<class>>, <<Test>>, '{', " +
+				"<<void>>, <<Method0>>, '(', ')', '{', '}', " +
+				"<<public>>, <<void>>, <<Method1>>, '(', ')', '{', '}', '}'" +
+			"]", ListUtil.ToString(iterator.tokens));
 		}
 	}
 	/**

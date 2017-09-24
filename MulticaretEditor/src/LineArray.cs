@@ -760,15 +760,6 @@ namespace MulticaretEditor
 				blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
 		}
 		
-		public ParserIterator GetParserIterator(int position)
-		{
-			int blockI;
-			int blockIChar;
-			Place place = PlaceOf(position, out blockI, out blockIChar);
-			return new ParserIterator(
-				blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
-		}
-
 		public int IndexOf(string text, int startIndex)
 		{
 			return IndexOf(text, startIndex, charsCount - startIndex);
