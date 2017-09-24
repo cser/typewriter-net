@@ -294,6 +294,17 @@ namespace TextNodesListTest
 					public string[] Property { get { return property; } }
 				}");
 		}
+		
+		[Test]
+		public void Constructor()
+		{
+			AssertParse("'class A' 1 ['+ A(C c)' 3 [], '+ void C()' 4 []]",
+				@"public class A {
+					private B b;
+					public A(C c) { }
+					public void C() { }
+				}");
+		}
 	}
 	/**
 	@TODO

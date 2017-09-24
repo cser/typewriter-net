@@ -187,5 +187,41 @@ namespace MulticaretEditor
 				}
 			}
 		}
+		
+		public char FirstUnemptyAfterIdent()
+		{
+			LineBlock block = blocks[blockI];
+			Line line = block.array[blockILine];
+			int i = iChar;
+			if (i < line.charsCount)
+			{
+				char c = line.chars[i].c;
+				if (char.IsLetter(c) || c == '_')
+				{
+					++i;
+					for (; i < line.charsCount; ++i)
+					{
+						c = line.chars[i].c;
+						if (!char.IsLetterOrDigit(c) || c == '_')
+						{
+							break;
+						}
+					}
+					for (; i < line.charsCount; ++i)
+					{
+						c = line.chars[i].c;
+						if (!char.IsWhiteSpace(c))
+						{
+							break;
+						}
+					}
+					if (i < line.charsCount)
+					{
+						return line.chars[i].c;
+					}
+				}
+			}
+			return '\0';
+		}
 	}
 }

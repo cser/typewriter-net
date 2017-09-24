@@ -153,14 +153,35 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.MoveSpacesAndRN();
 				continue;
 			}
+			Place place = iterator.Place;
+			string ident;
+			string type;
+			if (iterator.FirstUnemptyAfterIdent() == '(')
+			{
+				builder.Length = 0;
+				iterator.MoveIdent(builder);
+				ident = builder.ToString();
+				iterator.MoveSpacesAndRN();
+				type = "";
+				Node node = (Node)(new Dictionary<string, Node>());
+				node["line"] = place.iLine + 1;
+				node["childs"] = new List<Node>();
+				builder.Length = 0;
+				ParseParameters(iterator, builder);
+				string parameters = builder.ToString();
+				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + ident + parameters;
+				nodes.Add(node);
+				MoveBrackets(iterator);
+				iterator.MoveSpacesAndRN();
+				continue;
+			}
 			builder.Length = 0;
 			ParseType(iterator, builder);
-			string type = builder.ToString();
+			type = builder.ToString();
 			iterator.MoveSpacesAndRN();
-			Place place = iterator.Place;
 			builder.Length = 0;
 			iterator.MoveIdent(builder);
-			string ident = builder.ToString();
+			ident = builder.ToString();
 			iterator.MoveSpacesAndRN();
 			if (iterator.RightChar == '(')
 			{
