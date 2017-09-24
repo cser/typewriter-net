@@ -273,6 +273,34 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void IndexedProperty2()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ string[] this[int[] i, int j]' 3 []]",
+				@"public class Test
+				{
+					string[] this[int[] i, int j]
+					{
+						get { return null; }
+						set { ; }
+					}
+				}");
+		}
+		
+		[Test]
+		public void ComplexType()
+		{
+			AssertParse(
+				"'class Test' 1 ['~ Dictionary<string[], List<int[]>>[] Method(int index)' 3 []]",
+				@"public class Test
+				{
+					Dictionary<string[], List<int[]>>[] Method(int index)
+					{
+					}
+				}");
+		}
+		
+		[Test]
 		public void Comments1()
 		{
 			AssertParse(
@@ -333,6 +361,18 @@ namespace TextNodesListTest
 					public void C() {
 						string y = @""{{
 						{{"";
+					}
+				}");
+		}
+		
+		[Test]
+		public void DefaultParameters()
+		{
+			AssertParse("'class A' 1 ['+ A(string c = \"default\")' 3 [], '+ void C(int[] index = null)' 4 []]",
+				@"public class A {
+					private B b;
+					public A(string c = ""default"") {}
+					public void C(int[] index = null) {
 					}
 				}");
 		}
@@ -402,16 +442,16 @@ namespace TextNodesListTest
 			LineArray lines = new LineArray();
 			lines.SetText(@"public class Test
 			{
-				private string text = ""ab\""c"";
+				private string text = ""ab\""c\n"";
 				private string text2 = @""ab""""c"";
-				private string text3 = @""ab\nc"";
+				private string text3 = @""ab" + "\n" + @"c"";
 			}");
 			CSTokenIterator iterator = new CSTokenIterator(lines);
 			Assert.AreEqual("[" +
 				"<<public>>, <<class>>, <<Test>>, '{', " +
-				"<<private>>, <<string>>, <<text>>, <<:>>, ';', " +
-				"<<private>>, <<string>>, <<text2>>, <<:>>, ';', " +
-				"<<private>>, <<string>>, <<text3>>, <<:>>, ';', '}'" +
+				"<<private>>, <<string>>, <<text>>, '=', <<\"ab\\\"c\\n\">>, ';', " +
+				"<<private>>, <<string>>, <<text2>>, '=', <<@\"ab\"\"c\">>, ';', " +
+				"<<private>>, <<string>>, <<text3>>, '=', <<@\"ab\nc\">>, ';', '}'" +
 			"]", ListUtil.ToString(iterator.tokens));
 		}
 	}
@@ -419,7 +459,5 @@ namespace TextNodesListTest
 	@TODO
 	where
 	extends
-	public Dictionary<int, string> property;
-	default string parameters
 	*/
 }

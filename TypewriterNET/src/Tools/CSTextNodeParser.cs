@@ -293,6 +293,41 @@ public class CSTextNodeParser : TextNodeParser
 		{
 			builder.Append(iterator.current.text);
 			iterator.MoveNext();
+			if (iterator.current.c == '<')
+			{
+				int depth = 0;
+				while (!iterator.isEnd)
+				{
+					if (iterator.current.c == '<')
+					{
+						iterator.builder.Append('<');
+						++depth;
+					}
+					else if (iterator.current.c == '>')
+					{
+						iterator.builder.Append('>');
+						--depth;
+						if (depth <= 0)
+						{
+							iterator.MoveNext();
+							break;
+						}
+					}
+					else if (iterator.current.c == ',')
+					{
+						iterator.builder.Append(", ");
+					}
+					else if (iterator.current.text != null)
+					{
+						iterator.builder.Append(iterator.current.text);
+					}
+					else
+					{
+						iterator.builder.Append(iterator.current.c);
+					}
+					iterator.MoveNext();
+				}
+			}
 			if (iterator.current.c == '[')
 			{
 				builder.Append('[');
@@ -326,6 +361,11 @@ public class CSTextNodeParser : TextNodeParser
 					iterator.builder.Append(iterator.current.c);
 					needSpace = true;
 				}
+				else if (iterator.current.c == '=')
+				{
+					iterator.builder.Append(" = ");
+					needSpace = false;
+				}
 				else if (iterator.current.text != null)
 				{
 					if (needSpace)
@@ -349,18 +389,30 @@ public class CSTextNodeParser : TextNodeParser
 	{
 		if (iterator.current.c == '[')
 		{
-			builder.Append('[');
-			iterator.MoveNext();
+			int depth = 0;
 			bool needSpace = false;
 			while (!iterator.isEnd)
 			{
 				if (iterator.current.c == ']')
 				{
-					iterator.builder.Append(']');
-					iterator.MoveNext();
-					break;
+					--depth;
+					if (depth <= 0)
+					{
+						iterator.builder.Append(']');
+						iterator.MoveNext();
+						break;
+					}
+					else
+					{
+						iterator.builder.Append(']');
+					}
 				}
-				if (iterator.current.c == ',')
+				else if (iterator.current.c == '[')
+				{
+					++depth;
+					iterator.builder.Append('[');
+				}
+				else if (iterator.current.c == ',')
 				{
 					iterator.builder.Append(iterator.current.c);
 					needSpace = true;
