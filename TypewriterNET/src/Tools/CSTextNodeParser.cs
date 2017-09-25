@@ -30,19 +30,22 @@ public class CSTextNodeParser : TextNodeParser
 			{
 				nodes.Add(ParseClass(iterator));
 			}
-			if (iterator.current.text == "namespace")
+			else if (iterator.current.text == "namespace")
 			{
 				nodes.Add(ParseNamespace(iterator));
 			}
-			if (iterator.current.text == "struct")
+			else if (iterator.current.text == "struct")
 			{
 				nodes.Add(ParseStruct(iterator));
 			}
-			if (iterator.current.text == "enum")
+			else if (iterator.current.text == "enum")
 			{
 				nodes.Add(ParseEnum(iterator));
 			}
-			iterator.MoveNext();
+			else
+			{
+				iterator.MoveNext();
+			}
 		}
 	}
 	
@@ -140,14 +143,12 @@ public class CSTextNodeParser : TextNodeParser
 			}
 			if (iterator.current.text == "struct")
 			{
-				nodes.Add(ParseEnum(iterator));
-				iterator.MoveNext();
+				nodes.Add(ParseStruct(iterator));
 				continue;
 			}
 			if (iterator.current.text == "enum")
 			{
 				nodes.Add(ParseEnum(iterator));
-				iterator.MoveNext();
 				continue;
 			}
 			Place place = iterator.current.place;
@@ -289,12 +290,27 @@ public class CSTextNodeParser : TextNodeParser
 	private Node ParseStruct(CSTokenIterator iterator)
 	{
 		iterator.MoveNext();
+		iterator.builder.Length = 0;
+		Place place = iterator.current.place;
+		if (iterator.current.IsIdent)
+		{
+			iterator.builder.Append(iterator.current.text);
+			iterator.MoveNext();
+		}
+		ParseGeneric(iterator, iterator.builder);
 		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "struct " + iterator.current.text;
-		node["line"] = iterator.current.place.iLine + 1;
+		node["name"] = "struct " + iterator.builder.ToString();
+		node["line"] = place.iLine + 1;
 		List<Node> nodes = new List<Node>();
 		node["childs"] = nodes;
-		iterator.MoveNext();
+		while (!iterator.isEnd)
+		{
+			if (iterator.current.c == '{')
+			{
+				break;
+			}
+			iterator.MoveNext();
+		}
 		ParseContent(iterator, nodes);
 		return node;
 	}
@@ -302,9 +318,16 @@ public class CSTextNodeParser : TextNodeParser
 	private Node ParseEnum(CSTokenIterator iterator)
 	{
 		iterator.MoveNext();
+		Place place = iterator.current.place;
+		string name = iterator.current.text;
+		if (iterator.current.IsIdent)
+		{
+			iterator.builder.Append(iterator.current.text);
+			iterator.MoveNext();
+		}
 		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "enum " + iterator.current.text;
-		node["line"] = iterator.current.place.iLine + 1;
+		node["name"] = "enum " + name;
+		node["line"] = place.iLine + 1;
 		node["childs"] = new List<Node>();
 		MoveBrackets(iterator);
 		return node;

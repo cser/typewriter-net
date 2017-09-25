@@ -500,6 +500,86 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void Struct()
+		{
+			AssertParse(
+				"'struct P' 1 ['+ int X' 4 [], '+ int Y' 7 [], '+ P(int x, int y)' 9 [], '+ void SetX(int x)' 15 []]",
+				@"public struct P
+				{
+					private int x;
+					public int X { get { return x; } }
+					
+					private int y;
+					public int Y { get { return y; } }
+					
+					public P(int x, int y)
+					{
+						this.x = x;
+						this.y = y;
+					}
+					
+					public void SetX(int x)
+					{
+						this.x = x;
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedGenericStruct()
+		{
+			AssertParse(
+				"'class Test' 1 ['struct P<T>' 3 ['+ int X' 5 [], '+ int Y' 6 []], '+ void B()' 9 []]",
+				@"public class Test
+				{
+					public struct P<T>
+					{
+						public int X { get; set; }
+						public int Y { get; set; }
+					}
+					
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Enum()
+		{
+			AssertParse(
+				"'enum Mode' 1 []",
+				@"public enum Mode
+				{
+					None,
+					Some
+				}");
+		}
+		
+		[Test]
+		public void NestedEnum()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ Subtype A()' 3 [], 'enum Mode' 7 [], '+ void B()' 13 []]",
+				@"public class Test
+				{
+					public Subtype A()
+					{
+					}
+					
+					public enum Mode
+					{
+						None,
+						Some
+					}
+					
+					public void B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -580,8 +660,8 @@ namespace TextNodesListTest
 	/**
 	@TODO
 	extends
-	struct
 	enum
 	several classes
+	interface
 	*/
 }
