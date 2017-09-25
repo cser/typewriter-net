@@ -580,6 +580,18 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void Interface()
+		{
+			AssertParse(
+				"'interface ITest' 1 ['+ void A()' 3 [], '+ void B(int x, int y)' 4 []]",
+				@"public interface ITest
+				{
+					void A();
+					void B(int x, int y);
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -660,8 +672,6 @@ namespace TextNodesListTest
 	/**
 	@TODO
 	extends
-	enum
 	several classes
-	interface
 	*/
 }

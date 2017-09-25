@@ -28,7 +28,11 @@ public class CSTextNodeParser : TextNodeParser
 		{
 			if (iterator.current.text == "class")
 			{
-				nodes.Add(ParseClass(iterator));
+				nodes.Add(ParseClass(iterator, "class"));
+			}
+			else if (iterator.current.text == "interface")
+			{
+				nodes.Add(ParseClass(iterator, "interface"));
 			}
 			else if (iterator.current.text == "namespace")
 			{
@@ -49,7 +53,7 @@ public class CSTextNodeParser : TextNodeParser
 		}
 	}
 	
-	private void ParseContent(CSTokenIterator iterator, List<Node> nodes)
+	private void ParseContent(CSTokenIterator iterator, List<Node> nodes, char defaultModifier)
 	{
 		if (iterator.current.c != '{')
 		{
@@ -136,9 +140,19 @@ public class CSTextNodeParser : TextNodeParser
 				}
 				break;
 			}
+			if (modifiers.IndexOf('-') == -1 && modifiers.IndexOf('+') == -1 && modifiers.IndexOf('~') == -1 &&
+				modifiers.IndexOf('#') == -1)
+			{
+				modifiers = modifiers + defaultModifier;
+			}
 			if (iterator.current.text == "class")
 			{
-				nodes.Add(ParseClass(iterator));
+				nodes.Add(ParseClass(iterator, "class"));
+				continue;
+			}
+			if (iterator.current.text == "interface")
+			{
+				nodes.Add(ParseClass(iterator, "interface"));
 				continue;
 			}
 			if (iterator.current.text == "struct")
@@ -247,7 +261,7 @@ public class CSTextNodeParser : TextNodeParser
 		}
 	}
 	
-	private Node ParseClass(CSTokenIterator iterator)
+	private Node ParseClass(CSTokenIterator iterator, string keyword)
 	{
 		iterator.MoveNext();
 		iterator.builder.Length = 0;
@@ -259,7 +273,7 @@ public class CSTextNodeParser : TextNodeParser
 		}
 		ParseGeneric(iterator, iterator.builder);
 		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "class " + iterator.builder.ToString();
+		node["name"] = keyword + " " + iterator.builder.ToString();
 		node["line"] = place.iLine + 1;
 		List<Node> nodes = new List<Node>();
 		node["childs"] = nodes;
@@ -271,7 +285,7 @@ public class CSTextNodeParser : TextNodeParser
 			}
 			iterator.MoveNext();
 		}
-		ParseContent(iterator, nodes);
+		ParseContent(iterator, nodes, keyword == "class" ? '~' : '+');
 		return node;
 	}
 	
@@ -311,7 +325,7 @@ public class CSTextNodeParser : TextNodeParser
 			}
 			iterator.MoveNext();
 		}
-		ParseContent(iterator, nodes);
+		ParseContent(iterator, nodes, '~');
 		return node;
 	}
 	
