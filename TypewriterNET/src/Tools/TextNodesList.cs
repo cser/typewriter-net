@@ -97,7 +97,7 @@ public class TextNodesList : Buffer
 		lines.ClearAllUnsafely();
 		places = new List<Place>();
 		AddLine(buffer.Name, new Place(-1, -1), true);
-		AppendNode(node, "");
+		AppendNodeOrNodesList(node);
 		if (lines.LinesCount == 0)
 		{
 			lines.AddLineUnsafely(new Line(32));
@@ -137,6 +137,27 @@ public class TextNodesList : Buffer
 			KeyAction action = new KeyAction("&View\\Nodes list\\Jump to node", DoJumpTo, null, false);
 			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
+	}
+	
+	private void AppendNodeOrNodesList(Node node)
+	{
+		if (!node["name"].IsString() && !node["line"].IsInt())
+		{
+			Node childs = node["childs"];
+			if (childs != null && childs.IsArray())
+			{
+				List<Node> nodes = (List<Node>)childs;
+				if (nodes != null && nodes.Count > 0)
+				{
+					foreach (Node nodeI in nodes)
+					{
+						AppendNode(nodeI, "");
+					}
+					return;
+				}
+			}
+		}
+		AppendNode(node, "");
 	}
 	
 	private void AddText(Line line, string text, Ds ds)

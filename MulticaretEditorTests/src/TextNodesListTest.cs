@@ -38,6 +38,43 @@ namespace TextNodesListTest
 				list.Controller.Lines.GetText());
 		}
 		
+		[Test]
+		public void SeveralClassesIntegration()
+		{
+			Buffer buffer = new Buffer("Directory/Test.cs", "Test.cs", SettingsMode.Normal);
+			buffer.Controller.InitText(@"public class Test
+			{
+				public void Method0()
+				{
+				}
+				
+				public void Method1()
+				{
+				}
+			}
+			
+			public class Test2
+			{
+				public void Method2()
+				{
+				}
+			}");
+			TextNodesList list = new TextNodesList(buffer, new Settings(null));
+			string error;
+			string shellError;
+			Properties.CommandInfo commandInfo = new Properties.CommandInfo();
+			commandInfo.command = "buildin-cs:c#";
+			list.Build(commandInfo, Encoding.UTF8, out error, out shellError);
+			Assert.AreEqual(
+				"Test.cs\n" +
+				"class Test (1)\n" +
+				"\t+ void Method0() (3)\n" +
+				"\t+ void Method1() (7)\n" +
+				"class Test2 (12)\n" +
+				"\t+ void Method2() (14)",
+				list.Controller.Lines.GetText());
+		}
+		
 		private void AssertParse(string expected, string text)
 		{
 			LineArray lines = new LineArray();
@@ -50,8 +87,8 @@ namespace TextNodesListTest
 		private string StringOfNode(Node node)
 		{
 			string text = "";
-			text += "'" + node["name"] + "'";
-			text += " " + (int)node["line"];
+			text += "'" + (node["name"].IsString() ? (string)node["name"] : "")  + "'";
+			text += " " + (node["line"].IsInt() ? (int)node["line"] : -1);
 			text += " [";
 			List<Node> nodes = (List<Node>)node["childs"];
 			bool first = true;
@@ -592,6 +629,133 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void SeveralClasses()
+		{
+			AssertParse(
+				"'' -1 [" +
+				"'class A' 1 ['+ A()' 3 [], '+ void Method()' 7 []], " +
+				"'class B' 12 ['+ B()' 14 []]" +
+				"]",
+				@"public class A
+				{
+					public A()
+					{
+					}
+					
+					public void Method()
+					{
+					}
+				}
+				
+				public class B
+				{
+					public B()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Namespace()
+		{
+			AssertParse(
+				"'namespace Name' 1 [" +
+				"'class A' 3 ['+ void Method()' 5 []]" +
+				"]",
+				@"namespace Name
+				{
+					public class A
+					{
+						public void Method()
+						{
+						}
+					}
+				}");
+		}
+		
+		[Test]
+		public void ComplexNamespace()
+		{
+			AssertParse(
+				"'namespace Name.Subname' 1 [" +
+				"'class A' 3 ['+ void Method()' 5 []]" +
+				"]",
+				@"namespace Name.Subname
+				{
+					public class A
+					{
+						public void Method()
+						{
+						}
+					}
+				}");
+		}
+		
+		[Test]
+		public void NamespaceSeveralClasses()
+		{
+			AssertParse(
+				"'namespace Name' 1 [" +
+				"'class A' 3 ['+ void Method()' 5 []], " +
+				"'class B' 10 []" +
+				"]",
+				@"namespace Name
+				{
+					public class A
+					{
+						public void Method()
+						{
+						}
+					}
+					
+					public class B
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void IgnoreUsings()
+		{
+			AssertParse(
+				"'class A' 3 ['+ void Method()' 5 []]",
+				@"using System;
+				using System.Action;
+				public class A
+				{
+					public void Method()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Extends()
+		{
+			AssertParse(
+				"'class A : B' 1 ['+ void Method()' 3 []]",
+				@"public class A : B
+				{
+					public void Method()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void ExtendsGeneric()
+		{
+			AssertParse(
+				"'class A : B<Dictionary<string[], int>>' 1 ['+ void Method()' 3 []]",
+				@"public class A : B<Dictionary<string[], int>>
+				{
+					public void Method()
+					{
+					}
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -671,7 +835,6 @@ namespace TextNodesListTest
 	}
 	/**
 	@TODO
-	extends
-	several classes
+	event
 	*/
 }

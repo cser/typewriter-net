@@ -15,34 +15,38 @@ public class CSTextNodeParser : TextNodeParser
 		CSTokenIterator iterator = new CSTokenIterator(lines);
 		List<Node> nodes = new List<Node>();
 		Node root = (Node)(new Dictionary<string, Node>());
-		root["name"] = "FILE";
-		root["line"] = -1;
 		root["childs"] = nodes;
 		ParseRoot(iterator, nodes);
 		return nodes.Count == 1 ? nodes[0] : root;
 	}
 	
+	private const string Class = "class";
+	private const string Interface = "interface";
+	private const string Namespace = "namespace";
+	private const string Struct = "struct";
+	private const string Enum = "enum";
+	
 	private void ParseRoot(CSTokenIterator iterator, List<Node> nodes)
 	{
 		while (!iterator.isEnd)
 		{
-			if (iterator.current.text == "class")
+			if (iterator.current.text == Class)
 			{
-				nodes.Add(ParseClass(iterator, "class"));
+				nodes.Add(ParseClass(iterator, Class, '~'));
 			}
-			else if (iterator.current.text == "interface")
+			else if (iterator.current.text == Interface)
 			{
-				nodes.Add(ParseClass(iterator, "interface"));
+				nodes.Add(ParseClass(iterator, Interface, '+'));
 			}
-			else if (iterator.current.text == "namespace")
+			else if (iterator.current.text == Namespace)
 			{
 				nodes.Add(ParseNamespace(iterator));
 			}
-			else if (iterator.current.text == "struct")
+			else if (iterator.current.text == Struct)
 			{
-				nodes.Add(ParseStruct(iterator));
+				nodes.Add(ParseClass(iterator, Struct, '~'));
 			}
-			else if (iterator.current.text == "enum")
+			else if (iterator.current.text == Enum)
 			{
 				nodes.Add(ParseEnum(iterator));
 			}
@@ -145,22 +149,22 @@ public class CSTextNodeParser : TextNodeParser
 			{
 				modifiers = modifiers + defaultModifier;
 			}
-			if (iterator.current.text == "class")
+			if (iterator.current.text == Class)
 			{
-				nodes.Add(ParseClass(iterator, "class"));
+				nodes.Add(ParseClass(iterator, Class, '~'));
 				continue;
 			}
-			if (iterator.current.text == "interface")
+			if (iterator.current.text == Interface)
 			{
-				nodes.Add(ParseClass(iterator, "interface"));
+				nodes.Add(ParseClass(iterator, Interface, '+'));
 				continue;
 			}
-			if (iterator.current.text == "struct")
+			if (iterator.current.text == Struct)
 			{
-				nodes.Add(ParseStruct(iterator));
+				nodes.Add(ParseClass(iterator, Struct, '~'));
 				continue;
 			}
-			if (iterator.current.text == "enum")
+			if (iterator.current.text == Enum)
 			{
 				nodes.Add(ParseEnum(iterator));
 				continue;
@@ -261,7 +265,7 @@ public class CSTextNodeParser : TextNodeParser
 		}
 	}
 	
-	private Node ParseClass(CSTokenIterator iterator, string keyword)
+	private Node ParseClass(CSTokenIterator iterator, string keyword, char defaultIdentifier)
 	{
 		iterator.MoveNext();
 		iterator.builder.Length = 0;
@@ -272,6 +276,17 @@ public class CSTextNodeParser : TextNodeParser
 			iterator.MoveNext();
 		}
 		ParseGeneric(iterator, iterator.builder);
+		if (iterator.current.c == ':')
+		{
+			iterator.builder.Append(" : ");
+			iterator.MoveNext();
+			if (iterator.current.IsIdent)
+			{
+				iterator.builder.Append(iterator.current.text);
+				iterator.MoveNext();
+				ParseGeneric(iterator, iterator.builder);
+			}
+		}
 		Node node = (Node)(new Dictionary<string, Node>());
 		node["name"] = keyword + " " + iterator.builder.ToString();
 		node["line"] = place.iLine + 1;
@@ -285,35 +300,28 @@ public class CSTextNodeParser : TextNodeParser
 			}
 			iterator.MoveNext();
 		}
-		ParseContent(iterator, nodes, keyword == "class" ? '~' : '+');
+		ParseContent(iterator, nodes, defaultIdentifier);
 		return node;
 	}
 	
 	private Node ParseNamespace(CSTokenIterator iterator)
 	{
 		iterator.MoveNext();
-		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "namespace " + iterator.current.text;
-		node["line"] = iterator.current.place.iLine + 1;
-		node["childs"] = new List<Node>();
-		iterator.MoveNext();
-		MoveBrackets(iterator);
-		return node;
-	}
-	
-	private Node ParseStruct(CSTokenIterator iterator)
-	{
-		iterator.MoveNext();
 		iterator.builder.Length = 0;
 		Place place = iterator.current.place;
-		if (iterator.current.IsIdent)
+		while (iterator.current.IsIdent)
 		{
 			iterator.builder.Append(iterator.current.text);
 			iterator.MoveNext();
+			if (iterator.current.c != '.')
+			{
+				break;
+			}
+			iterator.builder.Append('.');
+			iterator.MoveNext();
 		}
-		ParseGeneric(iterator, iterator.builder);
 		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "struct " + iterator.builder.ToString();
+		node["name"] = "namespace " + iterator.builder.ToString();
 		node["line"] = place.iLine + 1;
 		List<Node> nodes = new List<Node>();
 		node["childs"] = nodes;
@@ -321,11 +329,43 @@ public class CSTextNodeParser : TextNodeParser
 		{
 			if (iterator.current.c == '{')
 			{
+				iterator.MoveNext();
 				break;
 			}
 			iterator.MoveNext();
 		}
-		ParseContent(iterator, nodes, '~');
+		while (!iterator.isEnd)
+		{
+			if (iterator.current.text == Class)
+			{
+				nodes.Add(ParseClass(iterator, Class, '~'));
+			}
+			else if (iterator.current.text == Interface)
+			{
+				nodes.Add(ParseClass(iterator, Interface, '+'));
+			}
+			else if (iterator.current.text == Namespace)
+			{
+				nodes.Add(ParseNamespace(iterator));
+			}
+			else if (iterator.current.text == Struct)
+			{
+				nodes.Add(ParseClass(iterator, Struct, '~'));
+			}
+			else if (iterator.current.text == Enum)
+			{
+				nodes.Add(ParseEnum(iterator));
+			}
+			else if (iterator.current.c == '}')
+			{
+				iterator.MoveNext();
+				break;
+			}
+			else
+			{
+				iterator.MoveNext();
+			}
+		}
 		return node;
 	}
 	
