@@ -28,8 +28,15 @@ public class CSTextNodeParser : TextNodeParser
 	
 	private void ParseRoot(CSTokenIterator iterator, List<Node> nodes)
 	{
+		int depth = 1;
 		while (!iterator.isEnd)
 		{
+			bool isExtern;
+			string modifiers = ParseModifiers(iterator, out isExtern);
+			if (modifiers.IndexOf('*') != -1)
+			{
+				ParseNamespaceEvent(iterator, nodes, modifiers, isExtern);
+			}
 			if (iterator.current.text == Class)
 			{
 				nodes.Add(ParseClass(iterator, Class, '~'));
@@ -49,6 +56,20 @@ public class CSTextNodeParser : TextNodeParser
 			else if (iterator.current.text == Enum)
 			{
 				nodes.Add(ParseEnum(iterator));
+			}
+			else if (iterator.current.c == '{')
+			{
+				++depth;
+				iterator.MoveNext();
+			}
+			else if (iterator.current.c == '}')
+			{
+				iterator.MoveNext();
+				--depth;
+				if (depth <= 0)
+				{
+					break;
+				}
 			}
 			else
 			{
@@ -92,58 +113,8 @@ public class CSTextNodeParser : TextNodeParser
 					iterator.MoveNext();
 				}
 			}
-			string modifiers = "";
-			bool isExtern = false;
-			while (true)
-			{
-				if (iterator.current.text == "private")
-				{
-					iterator.MoveNext();
-					modifiers += "-";
-					continue;
-				}
-				if (iterator.current.text == "public")
-				{
-					iterator.MoveNext();
-					modifiers += "+";
-					continue;
-				}
-				if (iterator.current.text == "protected")
-				{
-					iterator.MoveNext();
-					modifiers += "#";
-					continue;
-				}
-				if (iterator.current.text == "internal")
-				{
-					iterator.MoveNext();
-					modifiers += "~";
-					continue;
-				}
-				if (iterator.current.text == "static")
-				{
-					iterator.MoveNext();
-					modifiers = "|" + modifiers;
-					continue;
-				}
-				if (iterator.current.text == "virtual")
-				{
-					iterator.MoveNext();
-					continue;
-				}
-				if (iterator.current.text == "override")
-				{
-					iterator.MoveNext();
-					continue;
-				}
-				if (iterator.current.text == "extern")
-				{
-					isExtern = true;
-					iterator.MoveNext();
-					continue;
-				}
-				break;
-			}
+			bool isExtern;
+			string modifiers = ParseModifiers(iterator, out isExtern);
 			if (modifiers.IndexOf('-') == -1 && modifiers.IndexOf('+') == -1 && modifiers.IndexOf('~') == -1 &&
 				modifiers.IndexOf('#') == -1)
 			{
@@ -170,17 +141,14 @@ public class CSTextNodeParser : TextNodeParser
 				continue;
 			}
 			Place place = iterator.current.place;
-			string ident;
-			string type;
 			if (iterator.Next.c == '(')
 			{
-				ident = iterator.current.text;
+				string ident = iterator.current.text;
 				iterator.MoveNext();
 				if (iterator.current.IsIdent)
 				{
 					iterator.MoveNext();
 				}
-				type = "";
 				Node node = (Node)(new Dictionary<string, Node>());
 				node["line"] = place.iLine + 1;
 				node["childs"] = new List<Node>();
@@ -192,66 +160,68 @@ public class CSTextNodeParser : TextNodeParser
 				MoveBrackets(iterator);
 				continue;
 			}
-			iterator.builder.Length = 0;
-			ParseType(iterator, iterator.builder);
-			type = iterator.builder.ToString();
-			iterator.builder.Length = 0;
-			iterator.builder.Append(iterator.current.text);
-			if (iterator.current.IsIdent)
 			{
-				iterator.MoveNext();
-				ParseGeneric(iterator, iterator.builder);
-			}
-			ident = iterator.builder.ToString();
-			if (iterator.current.c == '(')
-			{
-				Node node = (Node)(new Dictionary<string, Node>());
-				node["line"] = place.iLine + 1;
-				node["childs"] = new List<Node>();
 				iterator.builder.Length = 0;
-				ParseParameters(iterator, iterator.builder);
-				string parameters = iterator.builder.ToString();
-				node["name"] = (isExtern ? "@" : "") +
-					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
-				nodes.Add(node);
-				while (!iterator.isEnd)
+				ParseType(iterator, iterator.builder);
+				string type = iterator.builder.ToString();
+				iterator.builder.Length = 0;
+				iterator.builder.Append(iterator.current.text);
+				if (iterator.current.IsIdent)
 				{
-					if (iterator.current.c == '{' || iterator.current.c == ';')
-					{
-						break;
-					}
 					iterator.MoveNext();
+					ParseGeneric(iterator, iterator.builder);
+				}
+				string ident = iterator.builder.ToString();
+				if (iterator.current.c == '(')
+				{
+					Node node = (Node)(new Dictionary<string, Node>());
+					node["line"] = place.iLine + 1;
+					node["childs"] = new List<Node>();
+					iterator.builder.Length = 0;
+					ParseParameters(iterator, iterator.builder);
+					string parameters = iterator.builder.ToString();
+					node["name"] = (isExtern ? "@" : "") +
+						(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+					nodes.Add(node);
+					while (!iterator.isEnd)
+					{
+						if (iterator.current.c == '{' || iterator.current.c == ';')
+						{
+							break;
+						}
+						iterator.MoveNext();
+					}
+					if (iterator.current.c == '{')
+					{
+						MoveBrackets(iterator);
+					}
+					continue;
 				}
 				if (iterator.current.c == '{')
 				{
+					Node node = (Node)(new Dictionary<string, Node>());
+					node["line"] = place.iLine + 1;
+					node["childs"] = new List<Node>();
+					node["name"] = (isExtern ? "[]" : "") +
+						(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident;
+					nodes.Add(node);
 					MoveBrackets(iterator);
+					continue;
 				}
-				continue;
-			}
-			if (iterator.current.c == '{')
-			{
-				Node node = (Node)(new Dictionary<string, Node>());
-				node["line"] = place.iLine + 1;
-				node["childs"] = new List<Node>();
-				node["name"] = (isExtern ? "[]" : "") +
-					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident;
-				nodes.Add(node);
-				MoveBrackets(iterator);
-				continue;
-			}
-			if (iterator.current.c == '[')
-			{
-				Node node = (Node)(new Dictionary<string, Node>());
-				node["line"] = place.iLine + 1;
-				node["childs"] = new List<Node>();
-				iterator.builder.Length = 0;
-				ParseQuadParameters(iterator, iterator.builder);
-				string parameters = iterator.builder.ToString();
-				node["name"] = (isExtern ? "[]" : "") +
-					(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
-				nodes.Add(node);
-				MoveBrackets(iterator);
-				continue;
+				if (iterator.current.c == '[')
+				{
+					Node node = (Node)(new Dictionary<string, Node>());
+					node["line"] = place.iLine + 1;
+					node["childs"] = new List<Node>();
+					iterator.builder.Length = 0;
+					ParseQuadParameters(iterator, iterator.builder);
+					string parameters = iterator.builder.ToString();
+					node["name"] = (isExtern ? "[]" : "") +
+						(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+					nodes.Add(node);
+					MoveBrackets(iterator);
+					continue;
+				}
 			}
 			while (!iterator.isEnd)
 			{
@@ -334,38 +304,7 @@ public class CSTextNodeParser : TextNodeParser
 			}
 			iterator.MoveNext();
 		}
-		while (!iterator.isEnd)
-		{
-			if (iterator.current.text == Class)
-			{
-				nodes.Add(ParseClass(iterator, Class, '~'));
-			}
-			else if (iterator.current.text == Interface)
-			{
-				nodes.Add(ParseClass(iterator, Interface, '+'));
-			}
-			else if (iterator.current.text == Namespace)
-			{
-				nodes.Add(ParseNamespace(iterator));
-			}
-			else if (iterator.current.text == Struct)
-			{
-				nodes.Add(ParseClass(iterator, Struct, '~'));
-			}
-			else if (iterator.current.text == Enum)
-			{
-				nodes.Add(ParseEnum(iterator));
-			}
-			else if (iterator.current.c == '}')
-			{
-				iterator.MoveNext();
-				break;
-			}
-			else
-			{
-				iterator.MoveNext();
-			}
-		}
+		ParseRoot(iterator, nodes);
 		return node;
 	}
 	
@@ -373,14 +312,25 @@ public class CSTextNodeParser : TextNodeParser
 	{
 		iterator.MoveNext();
 		Place place = iterator.current.place;
-		string name = iterator.current.text;
+		iterator.builder.Length = 0;
 		if (iterator.current.IsIdent)
 		{
 			iterator.builder.Append(iterator.current.text);
 			iterator.MoveNext();
+			if (iterator.current.c == ':')
+			{
+				iterator.builder.Append(" : ");
+				iterator.MoveNext();
+				if (iterator.current.IsIdent)
+				{
+					iterator.builder.Append(iterator.current.text);
+					iterator.MoveNext();
+					ParseGeneric(iterator, iterator.builder);
+				}
+			}
 		}
 		Node node = (Node)(new Dictionary<string, Node>());
-		node["name"] = "enum " + name;
+		node["name"] = "enum " + iterator.builder.ToString();
 		node["line"] = place.iLine + 1;
 		node["childs"] = new List<Node>();
 		MoveBrackets(iterator);
@@ -606,6 +556,105 @@ public class CSTextNodeParser : TextNodeParser
 				else
 				{
 					iterator.builder.Append(iterator.current.c);
+				}
+				iterator.MoveNext();
+			}
+		}
+	}
+	
+	private string ParseModifiers(CSTokenIterator iterator, out bool isExtern)
+	{
+		string modifiers = "";
+		isExtern = false;
+		while (true)
+		{
+			if (iterator.current.text == "private")
+			{
+				iterator.MoveNext();
+				modifiers += "-";
+				continue;
+			}
+			if (iterator.current.text == "public")
+			{
+				iterator.MoveNext();
+				modifiers += "+";
+				continue;
+			}
+			if (iterator.current.text == "protected")
+			{
+				iterator.MoveNext();
+				modifiers += "#";
+				continue;
+			}
+			if (iterator.current.text == "internal")
+			{
+				iterator.MoveNext();
+				modifiers += "~";
+				continue;
+			}
+			if (iterator.current.text == "static")
+			{
+				iterator.MoveNext();
+				modifiers = "|" + modifiers;
+				continue;
+			}
+			if (iterator.current.text == "virtual")
+			{
+				iterator.MoveNext();
+				continue;
+			}
+			if (iterator.current.text == "override")
+			{
+				iterator.MoveNext();
+				continue;
+			}
+			if (iterator.current.text == "extern")
+			{
+				isExtern = true;
+				iterator.MoveNext();
+				continue;
+			}
+			if (iterator.current.text == "delegate")
+			{
+				modifiers += "*";
+				iterator.MoveNext();
+				continue;
+			}
+			break;
+		}
+		return modifiers;
+	}
+	
+	private void ParseNamespaceEvent(CSTokenIterator iterator, List<Node> nodes, string modifiers, bool isExtern)
+	{
+		Place place = iterator.current.place;
+		iterator.builder.Length = 0;
+		ParseType(iterator, iterator.builder);
+		string type = iterator.builder.ToString();
+		iterator.builder.Length = 0;
+		iterator.builder.Append(iterator.current.text);
+		if (iterator.current.IsIdent)
+		{
+			iterator.MoveNext();
+			ParseGeneric(iterator, iterator.builder);
+		}
+		string ident = iterator.builder.ToString();
+		if (iterator.current.c == '(')
+		{
+			iterator.builder.Length = 0;
+			ParseParameters(iterator, iterator.builder);
+			string parameters = iterator.builder.ToString();
+			Node node = (Node)(new Dictionary<string, Node>());
+			node["line"] = place.iLine + 1;
+			node["childs"] = new List<Node>();
+			node["name"] = (isExtern ? "@" : "") +
+				(modifiers.Length > 0 ? modifiers + " " : "~ ") + type + " " + ident + parameters;
+			nodes.Add(node);
+			while (!iterator.isEnd)
+			{
+				if (iterator.current.c == '{' || iterator.current.c == ';')
+				{
+					break;
 				}
 				iterator.MoveNext();
 			}

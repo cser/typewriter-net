@@ -617,6 +617,56 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void EnumExtended()
+		{
+			AssertParse(
+				"'class Test' 1 ['enum A : int' 1 [], '+ void B()' 1 []]",
+				@"class Test { enum A : int { Value0, Value1 } public void B() { } }");
+		}
+		
+		[Test]
+		public void Delegate_InClass()
+		{
+			AssertParse(
+				"'namespace Name' 1 ['class Test' 2 ['+* void EventData()' 3 [], '+ void B()' 4 []]]",
+				@"namespace Name {
+					class Test {
+						public delegate void EventData();
+						public void B() { }
+					}
+				}");
+		}
+		
+		[Test]
+		public void Delegate_InNamespace()
+		{
+			AssertParse(
+				"'namespace Name' 1 ['+* void EventData()' 2 [], 'class Test' 3 ['+ void B()' 4 []]]",
+				@"namespace Name {
+					public delegate void EventData();
+					class Test {
+						public void B() { }
+					}
+				}");
+		}
+		
+		[Test]
+		public void Delegate_InNamespaceGeneric()
+		{
+			AssertParse(
+				"'namespace Name' 1 [" +
+				"'+* void EventData<T0, T1>(T0 value0, T1 value1)' 2 [], " +
+				"'class Test' 3 ['+ void B()' 4 []]" + 
+				"]",
+				@"namespace Name {
+					public delegate void EventData<T0, T1>(T0 value0, T1 value1);
+					class Test {
+						public void B() { }
+					}
+				}");
+		}
+		
+		[Test]
 		public void Interface()
 		{
 			AssertParse(
@@ -730,6 +780,68 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void IgnoreUsingsInsideNamespaces()
+		{
+			AssertParse(
+				"'namespace Namespace' 1 ['class A' 5 ['+ void Method()' 7 []]]",
+				@"namespace Namespace
+				{
+					using System;
+					using System.Action;
+					public class A
+					{
+						public void Method()
+						{
+						}
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedNamespaces()
+		{
+			AssertParse(
+				"'namespace Namespace' 1 ['namespace Subnamespace' 5 [" +
+				"'class A' 9 ['+ void Method()' 11 []]" +
+				"]]",
+				@"namespace Namespace
+				{
+					using System;
+					using System.Action;
+					namespace Subnamespace
+					{
+						using System;
+						using System.Action;
+						public class A
+						{
+							public void Method()
+							{
+							}
+						}
+					}
+				}");
+		}
+		
+		[Test]
+		public void NestedNamespacesEmptyBrackets()
+		{
+			AssertParse(
+				"'namespace Namespace' 1 ['class A' 6 ['+ void Method()' 8 []]]",
+				@"namespace Namespace
+				{
+					{
+					}
+					
+					public class A
+					{
+						public void Method()
+						{
+						}
+					}
+				}");
+		}
+		
+		[Test]
 		public void Extends()
 		{
 			AssertParse(
@@ -833,8 +945,4 @@ namespace TextNodesListTest
 			"]", ListUtil.ToString(iterator.tokens));
 		}
 	}
-	/**
-	@TODO
-	event
-	*/
 }
