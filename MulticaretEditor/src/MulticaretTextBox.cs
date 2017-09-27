@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 using System.Text;
 using System.Diagnostics;
@@ -613,6 +614,7 @@ namespace MulticaretEditor
 			}
 
 			Graphics g = e.Graphics;
+			g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			g.SmoothingMode = SmoothingMode.None;
 			g.Clear(scheme.bgColor);
 			
