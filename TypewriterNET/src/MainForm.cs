@@ -883,6 +883,13 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null,
 			new KeyAction("&Edit\\Paste in output (for stack traces)", DoPasteInOutput, null, false)));
 
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("&View\\Show line breaks", DoToggleShowLineBreaks, null, false)
+			.SetGetText(GetShowLineBreaks)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("&View\\Show space characters", DoToggleShowSpaceCharacters, null, false)
+			.SetGetText(GetShowSpaceCharacters)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D1, null,
 			new KeyAction("&View\\Open/close log", DoOpenCloseLog, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D2, null,
@@ -1523,7 +1530,21 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.FindParams);
 		return true;
 	}
-	
+
+	private bool DoToggleShowLineBreaks(Controller controller)
+	{
+		settings.ShowLineBreaks = !settings.ShowLineBreaks;
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
+		return true;
+	}
+
+	private bool DoToggleShowSpaceCharacters(Controller controller)
+	{
+		settings.ShowSpaceCharacters = !settings.ShowSpaceCharacters;
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
+		return true;
+	}
+
 	private string GetFindRegex()
 	{
 		return tempSettings.FindParams.regex ? " (on)" : " (off)";
@@ -1537,6 +1558,16 @@ public class MainForm : Form
 	private string GetFindEscape()
 	{
 		return tempSettings.FindParams.escape ? " (on)" : " (off)";
+	}
+
+	private string GetShowLineBreaks()
+	{
+		return settings.ShowLineBreaks? " (on)" : " (off)";
+	}
+
+	private string GetShowSpaceCharacters()
+	{
+		return settings.ShowSpaceCharacters ? " (on)" : " (off)";
 	}
 
 	private bool DoOpenCloseLog(Controller controller)

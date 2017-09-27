@@ -9,8 +9,6 @@ public class Settings
 {
 	public readonly Properties.Bool wordWrap = new Properties.Bool("wordWrap", false);
 	public readonly Properties.Bool showLineNumbers = new Properties.Bool("showLineNumbers", true);
-	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
-	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
 	public readonly Properties.String lineBreak = new Properties.String("lineBreak", "\r\n", true, "").SetVariants("\r\n", "\n", "\r");
 	public readonly Properties.IntList tabSize = new Properties.IntList("tabSize", 4).SetMinMax(0, 128);
@@ -113,8 +111,6 @@ public class Settings
 		this.onChange = onChange;
 		Add(wordWrap);
 		Add(showLineNumbers);
-		Add(showLineBreaks);
-		Add(showSpaceCharacters);
 		Add(highlightCurrentLine);
 		Add(lineBreak);
 		Add(tabSize);
@@ -268,12 +264,26 @@ public class Settings
 		set { parsedScheme = value; }
 	}
 
+	private bool showLineBreaks;
+	public bool ShowLineBreaks
+	{
+		get { return showLineBreaks; }
+		set { showLineBreaks = value; }
+	}
+
+	private bool showSpaceCharacters;
+	public bool ShowSpaceCharacters
+	{
+		get { return showSpaceCharacters; }
+		set { showSpaceCharacters = value; }
+	}
+
 	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value && settingsMode != SettingsMode.FileTree;
-		textBox.ShowLineBreaks = showLineBreaks.Value;
-		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
+		textBox.ShowLineBreaks = showLineBreaks;
+		textBox.ShowSpaceCharacters = showSpaceCharacters;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
@@ -302,8 +312,8 @@ public class Settings
 	{
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
-		textBox.ShowLineBreaks = showLineBreaks.Value;
-		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
+		textBox.ShowLineBreaks = showLineBreaks;
+		textBox.ShowSpaceCharacters = showSpaceCharacters;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);

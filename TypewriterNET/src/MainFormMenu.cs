@@ -152,8 +152,8 @@ public class MainFormMenu : MainMenu
 			if (keys != null && keys.Count > 0)
 			{
 				string shortcutText = GetShortcutText(action, keys, keysConverter);
-				if (!string.IsNullOrEmpty(shortcutText))
-					itemName += (action.getText != null ? action.getText() : "") + "\t" + shortcutText;
+				itemName += (action.getText != null ? action.getText() : "");
+				itemName += (!string.IsNullOrEmpty(shortcutText) ? "\t" + shortcutText : "");
 			}
 			bool filtered;
 			if (isOther)

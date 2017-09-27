@@ -115,8 +115,10 @@ public class TempSettings
 		scheme = state["scheme"].String;
 		if (string.IsNullOrEmpty(scheme))
 			scheme = "npp";
+		settings.ShowLineBreaks = state["showLineBreaks"].Bool;
+		settings.ShowSpaceCharacters = state["showSpaceCharacters"].Bool;
 	}
-	
+
 	public void MarkLoaded(Buffer buffer)
 	{
 		if (buffer.FullPath != null)
@@ -267,6 +269,8 @@ public class TempSettings
 		state["helpPosition"] = SValue.NewInt(helpPosition);
 		state["viHelpPosition"] = SValue.NewInt(viHelpPosition);
 		state["scheme"] = SValue.NewString(scheme);
+		state["showLineBreaks"] = SValue.NewBool(settings.ShowLineBreaks);
+		state["showSpaceCharacters"] = SValue.NewBool(settings.ShowSpaceCharacters);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 
