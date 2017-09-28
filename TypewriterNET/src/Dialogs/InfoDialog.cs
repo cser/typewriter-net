@@ -38,6 +38,7 @@ public class InfoDialog : ADialog
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
 		textBox.FocusedChange += OnTextBoxFocusedChange;
 		textBox.Controller.isReadonly = true;
+		textBox.ViShortcut += OnViShortcut;
 		SetTextBoxParameters();
 		Controls.Add(textBox);
 
@@ -134,5 +135,14 @@ public class InfoDialog : ADialog
 		textBox.Controller.InitText(text);
 		Nest.size = tabBar.Height + textBox.CharHeight * (textBox.Controller != null ? textBox.GetScrollSizeY() : 1);
 		SetNeedResize();
+	}
+	
+	private void OnViShortcut(string shortcut)
+	{
+		if (shortcut == ":")
+		{
+			MainForm.Dialogs.ShowInputCommand(null);
+			DispatchNeedClose();
+		}
 	}
 }
