@@ -15,7 +15,7 @@ public class Settings
 	public readonly Properties.BoolList spacesInsteadTabs = new Properties.BoolList("spacesInsteadTabs", false);
 	public readonly Properties.BoolList autoindent = new Properties.BoolList("autoindent", false);
 	public readonly Properties.Int maxTabsCount = new Properties.Int("maxTabsCount", 10).SetMinMax(1, int.MaxValue);
-	public readonly Properties.Float lineNumberFontSize = new Properties.Float("lineNumberFontSize", 10.25f).SetMinMax(0, 100).SetPrecision(2);
+	public readonly Properties.Float lineNumberFontSize = new Properties.Float("lineNumberFontSize", 0).SetMinMax(0, 100).SetPrecision(2);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
 	public readonly Properties.String scheme = new Properties.String("scheme", "", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
