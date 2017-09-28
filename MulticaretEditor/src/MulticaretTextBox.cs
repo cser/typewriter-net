@@ -358,6 +358,7 @@ namespace MulticaretEditor
 		}
 
 		private Font font;
+		private Font lineNumberFont;
 		private Font[] fonts = new Font[16];
 
 		private int charWidth;
@@ -400,6 +401,8 @@ namespace MulticaretEditor
 				new Font(family, emSize, FontStyle.Italic | FontStyle.Bold | FontStyle.Underline | FontStyle.Strikeout);
 
 			font = fonts[TextStyle.NoneMask];
+			if (lineNumberFont == null)
+				lineNumberFont = font;
 
 			SizeF size = GetCharSize(fonts[0], 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
@@ -439,6 +442,16 @@ namespace MulticaretEditor
 				scrollingIndent = value;
 				if (lines != null)
 					lines.scroller.scrollingIndent = scrollingIndent;
+			}
+		}
+
+		public float LineNumberFontSize
+		{
+			get { return lineNumberFont.Size; }
+			set
+			{
+				if (lineNumberFont.Size != value || lineNumberFont.FontFamily != fontFamily)
+					lineNumberFont = new Font(fontFamily, value);
 			}
 		}
 
@@ -627,11 +640,12 @@ namespace MulticaretEditor
 			g.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
 			if (showLineNumbers)
 			{
+				int y_offset = Convert.ToInt32(font.Size - LineNumberFontSize);
 				for (int i = 0; i < lineNumberInfos.count; i++)
 				{
 					LineNumberInfo info = lineNumberInfos.buffer[i];
 					g.DrawString(
-						(info.iLine + 1) + "", font, scheme.lineNumberForeground, new RectangleF(0, info.y, leftIndent, charHeight), rightAlignFormat);
+						(info.iLine + 1) + "", lineNumberFont, scheme.lineNumberForeground, new RectangleF(0, info.y+y_offset, leftIndent, charHeight), rightAlignFormat);
 				}
 			}
 

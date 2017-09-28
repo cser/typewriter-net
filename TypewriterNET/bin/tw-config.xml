@@ -8,6 +8,7 @@
 	<item name="spacesInsteadTabs" value="false"/>
 	<item name="lineBreak" value="\r\n"/>
 	<item name="maxTabsCount" value="20"/>
+	<item name="lineNumberFontSize" value="10.25"/>
 	<item name="fontSize" value="10.25"/>
 	<item name="font" value="Consolas"/>
 	<item name="scrollingIndent" value="2"/>
