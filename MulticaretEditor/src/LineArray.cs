@@ -759,7 +759,7 @@ namespace MulticaretEditor
 			return new PlaceIterator(
 				blocks, blocksCount, charsCount, blockI, place.iLine - blocks[blockI].offset, place.iChar, position);
 		}
-
+		
 		public int IndexOf(string text, int startIndex)
 		{
 			return IndexOf(text, startIndex, charsCount - startIndex);

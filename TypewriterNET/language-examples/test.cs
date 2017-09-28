@@ -24,6 +24,17 @@ namespace MulticaretEditor
 		//! \var Test::TEnum Test::Val1
 		protected TBlock[] blocks;
 		
+		public class Subclass : SubclassBase
+		{
+			public Subclass()
+			{
+			}
+			
+			public void SomeMethod()
+			{
+			}
+		}
+		
 		public FSBArray(int blockSize)
 		{
 			this.blockSize = blockSize;

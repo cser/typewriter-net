@@ -9,6 +9,7 @@ using CustomScrollBar;
 
 public class AutocompleteMenu : ToolStripDropDown
 {
+	private const int BorderWidth = 2;
 	private readonly AutocompleteMode.Handler handler;
 	private readonly StringFormat stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
 	private readonly Scheme scheme;
@@ -68,7 +69,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		charWidth = (int)Math.Round(size.Width * 1f) - 1;
 		charHeight = (int)Math.Round(size.Height * 1f) + 1;
 		
-		maxLinesCount = Math.Max(10, Screen.PrimaryScreen.Bounds.Height / (2 * charHeight) - 2);
+		maxLinesCount = Math.Max(10, (Screen.PrimaryScreen.Bounds.Height - 40) / (2 * charHeight) - 1);
 		
 		AutoClose = false;
 		AutoSize = false;
@@ -169,8 +170,9 @@ public class AutocompleteMenu : ToolStripDropDown
 		bool scrollBarVisible = visibleLinesCount < this.variants.Count;
 		int width = maxLength * charWidth + (scrollBarVisible ? control.scrollBarWidth : 0);
 		int height = visibleLinesCount * charHeight;
-		Size = new Size(width, height);
-		host.Size = new Size(width, height);
+		bool hasSize = width > 0 || height > 0;
+		Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
+		host.Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
 		Invalidate();
 		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
 		control.Invalidate();
@@ -181,13 +183,13 @@ public class AutocompleteMenu : ToolStripDropDown
 	{
 		int height = visibleLinesCount * charHeight;
 		Left = screenPoint.X;
-		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y - 30)
+		if (height < Screen.PrimaryScreen.Bounds.Height - screenPoint.Y - 40)
 		{
 			Top = screenPoint.Y;
 		}
 		else
 		{
-			Top = screenPoint.Y - height - charHeight;
+			Top = screenPoint.Y - height - charHeight - BorderWidth * 2;
 		}
 	}
 	
@@ -242,9 +244,10 @@ public class AutocompleteMenu : ToolStripDropDown
 		{
 			this.width = width;
 			this.height = height;
-			Size = new Size(width, height);
+			Size = new Size(width + BorderWidth * 2, height + BorderWidth * 2);
 			vScrollBar.Visible = scrollBarVisible;
-			vScrollBar.Left = width - scrollBarWidth;
+			vScrollBar.Top = BorderWidth;
+			vScrollBar.Left = width - scrollBarWidth + BorderWidth;
 			vScrollBar.Height = height;
 			vScrollBar.Maximum = menu.variants.Count;
 			vScrollBar.LargeChange = menu.visibleLinesCount;
@@ -332,7 +335,10 @@ public class AutocompleteMenu : ToolStripDropDown
 			
 			AutocompleteMode.Mode mode = menu.handler.Mode;
 			Graphics g = e.Graphics;
-			g.FillRectangle(menu.scheme.lineBgBrush, new Rectangle(0, 0, width, height));
+			g.FillRectangle(menu.scheme.selectionBrush,
+				new Rectangle(0, 0, width + BorderWidth * 2, height + BorderWidth * 2));
+			g.FillRectangle(menu.scheme.lineBgBrush,
+				new Rectangle(1, 1, width + BorderWidth * 2 - 2, height + BorderWidth * 2 - 2));
 			int offset = vScrollBar.Value;
 			for (int i = variants.Count; i-- > 0;)
 			{
@@ -342,7 +348,11 @@ public class AutocompleteMenu : ToolStripDropDown
 					{
 						g.FillRectangle(
 							menu.scheme.selectionBrush,
-							new Rectangle(0, (i - offset) * menu.charHeight, width, menu.charHeight));
+							new Rectangle(
+								BorderWidth,
+								(i - offset) * menu.charHeight + BorderWidth,
+								width,
+								menu.charHeight));
 					}
 					string text = variants[i].DisplayText;
 					string text0 = "";
@@ -395,8 +405,8 @@ public class AutocompleteMenu : ToolStripDropDown
 		private void DrawLineChars(Graphics g, Point position, TextStyle style, string text)
 		{
 			int count = text.Length;
-			float y = position.Y;
-			float x = position.X - menu.charWidth / 3;
+			float y = position.Y + BorderWidth;
+			float x = position.X - menu.charWidth / 3 + BorderWidth;
 			for (int i = 0; i < count; i++)
 			{
 				g.DrawString(

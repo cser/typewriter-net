@@ -1757,7 +1757,7 @@ public class MainForm : Form
 				{
 					textNodesList.CloseSilent();
 				}
-				textNodesList = new TextNodesList(buffer, this);
+				textNodesList = new TextNodesList(buffer, settings);
 				string error;
 				string shellError;
 				textNodesList.Build(commandInfo, settings.shellEncoding.Value.encoding, out error, out shellError);

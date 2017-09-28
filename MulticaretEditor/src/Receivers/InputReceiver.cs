@@ -17,17 +17,6 @@ namespace MulticaretEditor
 			this.alwaysInputMode = alwaysInputMode;
 		}
 		
-		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
-		{
-			viShortcut = null;
-			ProcessInputChar(code);
-			scrollToCursor = true;
-			if (viData != null)
-			{
-				viData.inputChars.Add(code);
-			}
-		}
-		
 		public override bool DoKeyDown(Keys keysData, out string viShortcut, out bool scrollToCursor)
 		{
 			viShortcut = null;
@@ -42,6 +31,17 @@ namespace MulticaretEditor
 				return true;
 			}
 			return false;
+		}
+		
+		public override void DoKeyPress(char code, out string viShortcut, out bool scrollToCursor)
+		{
+			viShortcut = null;
+			ProcessInputChar(code);
+			scrollToCursor = true;
+			if (viData != null)
+			{
+				viData.inputChars.Add(code);
+			}
 		}
 		
 		public override void ResetViInput()

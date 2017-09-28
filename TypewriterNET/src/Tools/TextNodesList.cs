@@ -12,15 +12,15 @@ public class TextNodesList : Buffer
 	});
 	
 	private readonly Buffer buffer;
-	private readonly MainForm mainForm;
+	private readonly Settings settings;
 	private LineArray lines;
 	private List<Place> places;
 	private int tabSize;
 	
-	public TextNodesList(Buffer buffer, MainForm mainForm) : base(null, "Nodes list", SettingsMode.TabList)
+	public TextNodesList(Buffer buffer, Settings settings) : base(null, "Nodes list", SettingsMode.TabList)
 	{
 		this.buffer = buffer;
-		this.mainForm = mainForm;
+		this.settings = settings;
 	}
 	
 	public void Build(Properties.CommandInfo commandInfo, Encoding encoding, out string error, out string shellError)
@@ -80,7 +80,7 @@ public class TextNodesList : Buffer
 				catch (System.Exception e)
 				{
 					error = "Parsing error: " + e.Message +
-						"\nSee \"" + mainForm.Settings.getTextNodes.name + "\" for more info";
+						"\nSee \"" + settings.getTextNodes.name + "\" for more info";
 				}
 			}
 		}
@@ -88,16 +88,16 @@ public class TextNodesList : Buffer
 		{
 			if (error == null)
 			{
-				error = "Empty output\nSee \"" + mainForm.Settings.getTextNodes.name + "\" for more info";
+				error = "Empty output\nSee \"" + settings.getTextNodes.name + "\" for more info";
 			}
 			return;
 		}
-		tabSize = mainForm.Settings.tabSize.GetValue(null);
+		tabSize = settings.tabSize.GetValue(null);
 		lines = Controller.Lines;
 		lines.ClearAllUnsafely();
 		places = new List<Place>();
 		AddLine(buffer.Name, new Place(-1, -1), true);
-		AppendNode(node, "");
+		AppendNodeOrNodesList(node);
 		if (lines.LinesCount == 0)
 		{
 			lines.AddLineUnsafely(new Line(32));
@@ -137,6 +137,27 @@ public class TextNodesList : Buffer
 			KeyAction action = new KeyAction("&View\\Nodes list\\Jump to node", DoJumpTo, null, false);
 			additionKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 		}
+	}
+	
+	private void AppendNodeOrNodesList(Node node)
+	{
+		if (!node["name"].IsString() && !node["line"].IsInt())
+		{
+			Node childs = node["childs"];
+			if (childs != null && childs.IsArray())
+			{
+				List<Node> nodes = (List<Node>)childs;
+				if (nodes != null && nodes.Count > 0)
+				{
+					foreach (Node nodeI in nodes)
+					{
+						AppendNode(nodeI, "");
+					}
+					return;
+				}
+			}
+		}
+		AppendNode(node, "");
 	}
 	
 	private void AddText(Line line, string text, Ds ds)
