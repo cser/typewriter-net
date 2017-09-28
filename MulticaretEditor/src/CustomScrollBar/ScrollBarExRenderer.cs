@@ -34,14 +34,14 @@
 			}
 		}
 		
-		public static void DrawArrowButton(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool arrowUp, bool isHorizontal)
+		public static void DrawArrowButton(Graphics g, Scheme scheme, Rectangle rect, ScrollBarState state, bool arrowUp, bool isVertical)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{
 				return;
 			}
 			offset = state == ScrollBarState.Pressed ? 1 : 0;
-			if (isHorizontal)
+			if (isVertical)
 			{
 				if (arrowUp)
 				{
