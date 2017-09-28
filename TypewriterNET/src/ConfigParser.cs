@@ -23,6 +23,7 @@ public class ConfigParser
 	
 	public void Parse(XmlDocument document, StringBuilder errors)
 	{
+		bool wasUnknownName = false;
 		XmlNode root = null;
 		foreach (XmlNode node in document.ChildNodes)
 		{
@@ -54,10 +55,15 @@ public class ConfigParser
 						else
 						{
 							errors.AppendLine("Unknown name=" + keyName);
+							wasUnknownName = true;
 						}
 					}
 				}
 			}
+		}
+		if (wasUnknownName)
+		{
+			errors.AppendLine("If no errors before upgrade, please, remove this names from config (F2/Ctrl+F2)");
 		}
 	}
 }

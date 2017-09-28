@@ -71,7 +71,7 @@ namespace MulticaretEditor
 			highlightingTimer.Interval = 50;
 			highlightingTimer.Tick += OnHighlightingTick;
 
-			SetFont(FontFamily.GenericMonospace, 10.25f);
+			SetFont(FontFamily.GenericMonospace, 10.25f, 0);
 			cursorTimer.Start();
 			keyTimer.Start();
 			highlightingTimer.Start();
@@ -359,6 +359,7 @@ namespace MulticaretEditor
 
 		private Font font;
 		private Font lineNumberFont;
+		private float fictiveNumberFontSize;
 		private Font[] fonts = new Font[16];
 
 		private int charWidth;
@@ -367,10 +368,12 @@ namespace MulticaretEditor
 		private int charHeight;
 		public int CharHeight { get { return charHeight; } }
 
-		private void SetFont(FontFamily family, float emSize)
+		private void SetFont(FontFamily family, float emSize, float emNumberSize)
 		{
 			fontFamily = family;
 			fontSize = emSize;
+			numberFontSize = emNumberSize;
+			fictiveNumberFontSize = emNumberSize > .1f ? emNumberSize : emSize;
 
 			fonts[TextStyle.NoneMask] = new Font(family, emSize);
 
@@ -401,8 +404,7 @@ namespace MulticaretEditor
 				new Font(family, emSize, FontStyle.Italic | FontStyle.Bold | FontStyle.Underline | FontStyle.Strikeout);
 
 			font = fonts[TextStyle.NoneMask];
-			if (lineNumberFont == null)
-				lineNumberFont = font;
+			lineNumberFont = new Font(family, fictiveNumberFontSize);
 
 			SizeF size = GetCharSize(fonts[0], 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
@@ -412,13 +414,16 @@ namespace MulticaretEditor
 		}
 
 		private float fontSize;
-		public float FontSize
+		private float numberFontSize;
+		
+		public float FontSize { get { return fontSize; } }
+		public float LineNumberFontSize { get { return numberFontSize; } }
+		
+		public void SetFontSize(float fontSize, float numberFontSize)
 		{
-			get { return fontSize; }
-			set
+			if (this.fontSize != fontSize || this.numberFontSize != numberFontSize)
 			{
-				if (fontSize != value)
-					SetFont(fontFamily, value);
+				SetFont(fontFamily, fontSize, numberFontSize);
 			}
 		}
 
@@ -429,7 +434,9 @@ namespace MulticaretEditor
 			set
 			{
 				if (fontFamily != value)
-					SetFont(value, fontSize);
+				{
+					SetFont(value, fontSize, numberFontSize);
+				}
 			}
 		}
 
@@ -442,16 +449,6 @@ namespace MulticaretEditor
 				scrollingIndent = value;
 				if (lines != null)
 					lines.scroller.scrollingIndent = scrollingIndent;
-			}
-		}
-
-		public float LineNumberFontSize
-		{
-			get { return lineNumberFont.Size; }
-			set
-			{
-				if (lineNumberFont.Size != value || lineNumberFont.FontFamily != fontFamily)
-					lineNumberFont = new Font(fontFamily, value);
 			}
 		}
 
@@ -640,7 +637,7 @@ namespace MulticaretEditor
 			g.FillRectangle(scheme.lineNumberBackground, 0, 0, leftIndent, clientHeight);
 			if (showLineNumbers)
 			{
-				int y_offset = Convert.ToInt32(font.Size - LineNumberFontSize);
+				int y_offset = Convert.ToInt32(font.Size - fictiveNumberFontSize);
 				for (int i = 0; i < lineNumberInfos.count; i++)
 				{
 					LineNumberInfo info = lineNumberInfos.buffer[i];

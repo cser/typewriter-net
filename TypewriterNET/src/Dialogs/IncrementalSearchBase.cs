@@ -134,7 +134,7 @@ public class IncrementalSearchBase : ADialog
 			}
 			filterTextBox = new MulticaretTextBox(true);
 			filterTextBox.FontFamily = FontFamily.GenericMonospace;
-			filterTextBox.FontSize = 10.25f;
+			filterTextBox.SetFontSize(10.25f, 0);
 			filterTextBox.ShowLineNumbers = false;
 			filterTextBox.HighlightCurrentLine = false;
 			filterTextBox.KeyMap.AddAfter(KeyMap);
