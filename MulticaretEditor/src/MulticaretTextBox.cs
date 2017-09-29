@@ -135,6 +135,7 @@ namespace MulticaretEditor
 						lines.SetTabSize(tabSize);
 						lines.spacesInsteadTabs = spacesInsteadTabs;
 						lines.autoindent = autoindent;
+						lines.scrollingStep = scrollingStep;
 						lines.scroller.scrollingIndent = scrollingIndent;
 						InitScrollByLines();
 					}
@@ -243,6 +244,18 @@ namespace MulticaretEditor
 				spacesInsteadTabs = value;
 				if (lines != null)
 					lines.spacesInsteadTabs = spacesInsteadTabs;
+			}
+		}
+		
+		private int scrollingStep = 1;
+		public int ScrollingStep
+		{
+			get { return scrollingStep; }
+			set
+			{
+				scrollingStep = value;
+				if (lines != null)
+					lines.scrollingStep = scrollingStep;
 			}
 		}
 		

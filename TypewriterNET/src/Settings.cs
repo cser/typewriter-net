@@ -20,6 +20,7 @@ public class Settings
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
 	public readonly Properties.String scheme = new Properties.String("scheme", "", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
+	public readonly Properties.Int scrollingStep = new Properties.Int("scrollingStep", 3).SetMinMax(1, int.MaxValue);
 	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false, "Chars to input with right Alt");
 	public readonly Properties.String altCharsResult = new Properties.String("altCharsResult", "", false, "Output chars with right Alt");
 	public readonly Properties.Bool showColorAtCursor = new Properties.Bool("showColorAtCursor", false);
@@ -123,6 +124,7 @@ public class Settings
 		Add(font);
 		Add(scheme);
 		Add(scrollingIndent);
+		Add(scrollingStep);
 		Add(altCharsSource);
 		Add(altCharsResult);
 		Add(showColorAtCursor);
@@ -294,6 +296,7 @@ public class Settings
 		textBox.FontFamily = font.Value;
 		textBox.SetFontSize(fontSize.Value, lineNumberFontSize.Value);
 		textBox.ScrollingIndent = scrollingIndent.Value;
+		textBox.ScrollingStep = scrollingStep.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
 		textBox.SetViMap(viMapSource.Value, viMapResult.Value);
@@ -327,6 +330,7 @@ public class Settings
 			textBox.SetFontSize(fontSize.Value, lineNumberFontSize.Value);
 		}
 		textBox.ScrollingIndent = scrollingIndent.Value;
+		textBox.ScrollingStep = scrollingStep.Value;
 		textBox.ShowColorAtCursor = showColorAtCursor.Value;
 		textBox.KeyMap.main.SetAltChars(altCharsSource.Value, altCharsResult.Value);
 	}

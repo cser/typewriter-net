@@ -12,6 +12,7 @@
 	<item name="lineNumberFontSize" value="0"/>
 	<item name="font" value="Consolas"/>
 	<item name="scrollingIndent" value="2"/>
+	<item name="scrollingStep" value="3"/>
 	<item name="showColorAtCursor" value="true"/>
 	<item name="rememberOpenedFiles" value="true"/>
 	<item name="alwaysOnTop" value="false"/>

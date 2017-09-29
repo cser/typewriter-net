@@ -364,14 +364,14 @@ namespace MulticaretEditor
 		public static readonly KeyAction ScrollUp = Add("&Edit\\Selection\\Scroll up", DoScrollUp, null, false);
 		private static bool DoScrollUp(Controller controller)
 		{
-			controller.ScrollRelative(0, -1);
+			controller.ScrollRelative(0, -controller.Lines.scrollingStep);
 			return true;
 		}
 
 		public static readonly KeyAction ScrollDown = Add("&Edit\\Selection\\Scroll down", DoScrollDown, null, false);
 		private static bool DoScrollDown(Controller controller)
 		{
-			controller.ScrollRelative(0, 1);
+			controller.ScrollRelative(0, controller.Lines.scrollingStep);
 			return true;
 		}
 

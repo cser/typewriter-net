@@ -588,17 +588,11 @@ namespace MulticaretEditor
 						forceLastCommand = true;
 						break;
 					case 'j' + ViChar.ControlIndex:
-						for (int i = 0; i < count; i++)
-						{
-							controller.ScrollRelative(0, 1);
-						}
+						controller.ScrollRelative(0, count > 1 ? count : lines.scrollingStep);
 						scrollToCursor = false;
 						break;
 					case 'k' + ViChar.ControlIndex:
-						for (int i = 0; i < count; i++)
-						{
-							controller.ScrollRelative(0, -1);
-						}
+						controller.ScrollRelative(0, count > 1 ? -count : -lines.scrollingStep);
 						scrollToCursor = false;
 						break;
 					case 'v':
