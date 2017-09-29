@@ -227,6 +227,7 @@ namespace MulticaretEditor
 					case '+':
 					case '-':
 					case '*':
+					case '|':
 						builder.Append('\\');
 						builder.Append(c);
 						break;
