@@ -17,13 +17,15 @@ public class TempSettings
 	}
 
 	private MainForm mainForm;
-	private Settings settings;
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
 	private RecentlyStorage recently = new RecentlyStorage();
 	private RecentlyStorage recentlyDirs = new RecentlyStorage();
 	
+	public readonly Dictionary<string, SValue> settingsData = new Dictionary<string, SValue>();
+	
 	public int helpPosition;
 	public int viHelpPosition;
+	public string NullableCurrentDir;
 	
 	public List<string> GetRecentlyFiles()
 	{
@@ -35,24 +37,19 @@ public class TempSettings
 		return recentlyDirs.GetFiles();
 	}
 
-	public TempSettings(MainForm mainForm, Settings settings)
+	public TempSettings(MainForm mainForm)
 	{
 		this.mainForm = mainForm;
-		this.settings = settings;
 	}
 
-	public void Load(string postfix)
+	public void Load(string postfix, bool rememberOpenedFiles)
 	{
 		SValue state = SValue.None;
 		string file = GetTempSettingsPath(postfix, AppPath.StartupDir);
 		if (File.Exists(file))
 			state = SValue.Unserialize(File.ReadAllBytes(file));
 
-		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(state["currentDir"].String))
-		{
-			string error;
-			mainForm.SetCurrentDirectory(state["currentDir"].String, out error);
-		}
+		NullableCurrentDir = state["currentDir"].String;
 		int width = Math.Max(50, state["width"].GetInt(700));
 		int height = Math.Max(30, state["height"].GetInt(480));
 		int x = Math.Max(0, state["x"].Int);
@@ -64,7 +61,7 @@ public class TempSettings
 		recently.Unserialize(state["recently"]);
 		recentlyDirs.Unserialize(state["recentlyDirs"]);
 		DecodeGlobalBookmarks(state["bm"]);
-		if (settings.rememberOpenedFiles.Value)
+		if (rememberOpenedFiles)
 		{
 			{
 				foreach (SValue valueI in state["openedTabs"].List)
@@ -112,11 +109,7 @@ public class TempSettings
 		}
 		helpPosition = state["helpPosition"].Int;
 		viHelpPosition = state["viHelpPosition"].Int;
-		scheme = state["scheme"].String;
-		if (string.IsNullOrEmpty(scheme))
-			scheme = "npp";
-		settings.ShowLineBreaks = state["showLineBreaks"].Bool;
-		settings.ShowSpaceCharacters = state["showSpaceCharacters"].Bool;
+		UnserializeSettings(state);
 	}
 
 	public void MarkLoaded(Buffer buffer)
@@ -205,7 +198,7 @@ public class TempSettings
         return defaultPair;
     }
 
-	public void Save(string postfix)
+	public void Save(string postfix, bool rememberOpenedFiles)
 	{
 		SValue state = SValue.NewHash();
 		if (mainForm.WindowState == FormWindowState.Maximized)
@@ -223,7 +216,7 @@ public class TempSettings
 			state["y"] = SValue.NewInt(mainForm.Location.Y);
 		}
 		state["maximized"] = SValue.NewBool(mainForm.WindowState == FormWindowState.Maximized);
-		if (settings.rememberOpenedFiles.Value)
+		if (rememberOpenedFiles)
 		{
 			{
 				SValue openedTabs = state.SetNewList("openedTabs");
@@ -262,15 +255,13 @@ public class TempSettings
 		state["replaceHistory"] = replaceHistory.Serialize();
 		state["goToLineHistory"] = goToLineHistory.Serialize();
 		state["findParams"] = findParams.Serialize();
-		if (settings.rememberCurrentDir.Value)
-			state["currentDir"] = SValue.NewString(Directory.GetCurrentDirectory());
+		if (!string.IsNullOrEmpty(NullableCurrentDir))
+			state["currentDir"] = SValue.NewString(NullableCurrentDir);
 		state["showFileTree"] = SValue.NewBool(mainForm.FileTreeOpened);
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		state["helpPosition"] = SValue.NewInt(helpPosition);
 		state["viHelpPosition"] = SValue.NewInt(viHelpPosition);
-		state["scheme"] = SValue.NewString(scheme);
-		state["showLineBreaks"] = SValue.NewBool(settings.ShowLineBreaks);
-		state["showSpaceCharacters"] = SValue.NewBool(settings.ShowSpaceCharacters);
+		SerializeSettings(state);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 
@@ -442,5 +433,31 @@ public class TempSettings
 			}
 		}
 		return data;
+	}
+	
+	private void UnserializeSettings(SValue state)
+	{
+		scheme = state["scheme"].String;
+		if (string.IsNullOrEmpty(scheme))
+			scheme = "npp";
+		settingsData.Clear();
+		Dictionary<string, SValue> dict = state["settings"].AsDictionary;
+		if (dict != null)
+		{
+			foreach (KeyValuePair<string, SValue> pair in dict)
+			{
+				settingsData[pair.Key] = pair.Value;
+			}
+		}
+	}
+	
+	private void SerializeSettings(SValue state)
+	{
+		state["scheme"] = SValue.NewString(scheme);
+		SValue hash = state.SetNewHash("settings");
+		foreach (KeyValuePair<string, SValue> pair in settingsData)
+		{
+			hash[pair.Key] = pair.Value;
+		}
 	}
 }

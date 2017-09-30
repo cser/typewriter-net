@@ -305,7 +305,7 @@ public class MainForm : Form
 
 		BuildMenu();
 
-		tempSettings = new TempSettings(this, settings);
+		tempSettings = new TempSettings(this);
 		commander.Init(this, settings, tempSettings);
 		dialogs = new DialogManager(this, tempSettings);
 
@@ -349,7 +349,13 @@ public class MainForm : Form
 		ReloadConfig();
 		fileDragger = new FileDragger(this);
 
-		tempSettings.Load(tempFilePostfix);
+		tempSettings.Load(tempFilePostfix, settings.rememberOpenedFiles.Value);
+		settings.GetParametersFromTemp(tempSettings.settingsData);
+		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(tempSettings.NullableCurrentDir))
+		{
+			string error;
+			SetCurrentDirectory(tempSettings.NullableCurrentDir, out error);
+		}
 		InitStartSettings();
 		allowApply = true;
 		ApplySettings();
@@ -682,7 +688,12 @@ public class MainForm : Form
 		if (_helpBuffer != null && _helpBuffer.onRemove != null)
 			_helpBuffer.onRemove(_helpBuffer);
 		if (!forbidTempSaving)
-			tempSettings.Save(tempFilePostfix);
+		{
+			tempSettings.NullableCurrentDir = settings.rememberCurrentDir.Value ?
+				Directory.GetCurrentDirectory() : null; 
+			settings.SetParametersToTemp(tempSettings.settingsData);
+			tempSettings.Save(tempFilePostfix, settings.rememberOpenedFiles.Value);
+		}
 		if (sharpManager != null)
 			sharpManager.Close();
 	}
@@ -1533,14 +1544,14 @@ public class MainForm : Form
 
 	private bool DoToggleShowLineBreaks(Controller controller)
 	{
-		settings.ShowLineBreaks = !settings.ShowLineBreaks;
+		settings.showLineBreaks = !settings.showLineBreaks;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		return true;
 	}
 
 	private bool DoToggleShowSpaceCharacters(Controller controller)
 	{
-		settings.ShowSpaceCharacters = !settings.ShowSpaceCharacters;
+		settings.showSpaceCharacters = !settings.showSpaceCharacters;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		return true;
 	}
@@ -1562,12 +1573,12 @@ public class MainForm : Form
 
 	private string GetShowLineBreaks()
 	{
-		return settings.ShowLineBreaks? " (on)" : " (off)";
+		return settings.showLineBreaks? " (on)" : " (off)";
 	}
 
 	private string GetShowSpaceCharacters()
 	{
-		return settings.ShowSpaceCharacters ? " (on)" : " (off)";
+		return settings.showSpaceCharacters ? " (on)" : " (off)";
 	}
 
 	private bool DoOpenCloseLog(Controller controller)
@@ -2325,7 +2336,7 @@ public class MainForm : Form
 			{
 				XmlDocument xml = xmlLoader.Load(path, false);
 				if (xml != null)
-					configParser.Parse(xml, builder);
+					configParser.Parse(xml, builder, false);
 			}
 		}
 		{
@@ -2335,7 +2346,7 @@ public class MainForm : Form
 				XmlDocument xml = xmlLoader.Load(path, false);
 				if (xml != null)
 				{
-					configParser.Parse(xml, builder);
+					configParser.Parse(xml, builder, true);
 					hasCurrentConfig = true;
 				}
 			}

@@ -21,7 +21,7 @@ public class ConfigParser
 		settings.Reset();
 	}
 	
-	public void Parse(XmlDocument document, StringBuilder errors)
+	public void Parse(XmlDocument document, StringBuilder errors, bool isLocal)
 	{
 		bool wasUnknownName = false;
 		XmlNode root = null;
@@ -46,11 +46,19 @@ public class ConfigParser
 						string value = element.GetAttribute("value");
 						string name = element.GetAttribute("name");
 						string keyName = Properties.NameOfName(name);
-						if (settings[keyName] != null)
+						Properties.Property property = settings[keyName];
+						if (property != null)
 						{
-							string error = settings[keyName].SetText(value, Properties.SubvalueOfName(name));
-							if (!string.IsNullOrEmpty(error))
-								errors.AppendLine(error);
+							if (isLocal && (property.constraints & Properties.Constraints.NotForLocal) != 0)
+							{
+								errors.Append("Disallowed in local config: name=" + keyName + " (to prevent unexpected behaviour on directory switching)");
+							}
+							else
+							{
+								string error = property.SetText(value, Properties.SubvalueOfName(name));
+								if (!string.IsNullOrEmpty(error))
+									errors.AppendLine(error);
+							}
 						}
 						else
 						{
@@ -63,7 +71,7 @@ public class ConfigParser
 		}
 		if (wasUnknownName)
 		{
-			errors.AppendLine("If no errors before upgrade, please, remove this names from config (F2/Ctrl+F2)");
+			errors.AppendLine("(if no errors before upgrade, please, remove this names from configs by F2 and Ctrl+F2)");
 		}
 	}
 }

@@ -36,14 +36,24 @@ public class Properties
 		}
 		return null;
 	}
+	
+	[Flags]
+	public enum Constraints
+	{
+		None = 0x00,
+		NotForLocal = 0x01,
+		Multiple = 0x02
+	}
 
 	public abstract class Property
 	{
 		public readonly string name;
+		public readonly Constraints constraints;
 
-		public Property(string name)
+		public Property(string name, Constraints constraints)
 		{
 			this.name = name;
+			this.constraints = constraints;
 		}
 		
 		abstract public string Type { get; }
@@ -89,7 +99,7 @@ public class Properties
 	{
 		private float defaultValue;
 
-		public Float(string name, float value) : base(name)
+		public Float(string name, float value) : base(name, Constraints.None)
 		{
 			defaultValue = value;
 			this.value = value;
@@ -160,7 +170,7 @@ public class Properties
 	{
 		private int defaultValue;
 
-		public Int(string name, int value) : base(name)
+		public Int(string name, int value) : base(name, Constraints.None)
 		{
 			defaultValue = value;
 			this.value = value;
@@ -212,7 +222,7 @@ public class Properties
 		private bool convertEscape;
 		private string help;
 
-		public String(string name, string value, bool convertEscape, string help) : base(name)
+		public String(string name, string value, bool convertEscape, string help) : base(name, Constraints.Multiple)
 		{
 			defaultValue = value;
 			this.value = value ?? "";
@@ -347,7 +357,7 @@ public class Properties
 	
 	public class Command : Property
 	{
-		public Command(string name) : base(name)
+		public Command(string name) : base(name, Constraints.Multiple)
 		{
 		}
 		
@@ -412,7 +422,7 @@ public class Properties
 
 	public class RegexList : Property
 	{
-		public RegexList(string name) : base(name)
+		public RegexList(string name) : base(name, Constraints.Multiple)
 		{
 		}
 
@@ -465,7 +475,7 @@ public class Properties
 	
 	public class CommandList : Property
 	{
-		public CommandList(string name) : base(name)
+		public CommandList(string name) : base(name, Constraints.Multiple)
 		{
 		}
 
@@ -562,7 +572,7 @@ public class Properties
 	{
 		private EncodingPair defaultValue;
 
-		public EncodingProperty(string name, EncodingPair defaultValue) : base(name)
+		public EncodingProperty(string name, EncodingPair defaultValue) : base(name, Constraints.None)
 		{
 			this.defaultValue = defaultValue;
 		}
@@ -618,7 +628,13 @@ public class Properties
 	{
 		private bool defaultValue;
 
-		public Bool(string name, bool value) : base(name)
+		public Bool(string name, bool value) : base(name, Constraints.None)
+		{
+			defaultValue = value;
+			this.value = value;
+		}
+		
+		public Bool(string name, bool value, Constraints constraints) : base(name, constraints)
 		{
 			defaultValue = value;
 			this.value = value;
@@ -700,7 +716,7 @@ public class Properties
 	{
 		private bool defaultValue;
 		
-		public BoolList(string name, bool value) : base(name)
+		public BoolList(string name, bool value) : base(name, Constraints.Multiple)
 		{
 			defaultValue = value;
 			this.value.Add(new BoolInfo(defaultValue, null));
@@ -814,7 +830,7 @@ public class Properties
 	{
 		private int defaultValue;
 		
-		public IntList(string name, int value) : base(name)
+		public IntList(string name, int value) : base(name, Constraints.Multiple)
 		{
 			defaultValue = value;
 			this.value.Add(new IntInfo(defaultValue, null));
@@ -929,7 +945,7 @@ public class Properties
 	{
 		private FontFamily defaultValue;
 
-		public Font(string name, FontFamily value) : base(name)
+		public Font(string name, FontFamily value) : base(name, Constraints.None)
 		{
 			defaultValue = value;
 			this.value = value;
@@ -1000,7 +1016,7 @@ public class Properties
 		private readonly string defaultValue;
 		private readonly string help;
 		
-		public PathProperty(string name, string defaultValue, string help) : base(name)
+		public PathProperty(string name, string defaultValue, string help) : base(name, Constraints.None)
 		{
 			this.defaultValue = defaultValue;
 			this.help = help;

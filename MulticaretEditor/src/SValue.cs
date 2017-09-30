@@ -153,6 +153,8 @@ namespace MulticaretEditor
 		private static SList emptyList = new SList();
 		public IRList<SValue> List { get { return (value as SList) ?? emptyList; } }
 		
+		public Dictionary<string, SValue> AsDictionary { get { return this.value as Dictionary<string, SValue>; } }
+		
 		public SValue this[string key]
 		{
 			get

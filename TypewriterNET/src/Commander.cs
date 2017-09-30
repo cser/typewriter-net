@@ -786,13 +786,13 @@ public class Commander
 	
 	private void DoShowLineBreaks(string text)
 	{
-		mainForm.Settings.ShowLineBreaks = SwitchOrSetValue(mainForm.Settings.ShowLineBreaks, text);
+		mainForm.Settings.showLineBreaks = SwitchOrSetValue(mainForm.Settings.showLineBreaks, text);
 		mainForm.frames.UpdateSettings(mainForm.Settings, UpdatePhase.Raw);
 	}
 	
 	private void DoShowSpaceCharacters(string text)
 	{
-		mainForm.Settings.ShowSpaceCharacters = SwitchOrSetValue(mainForm.Settings.ShowSpaceCharacters, text);
+		mainForm.Settings.showSpaceCharacters = SwitchOrSetValue(mainForm.Settings.showSpaceCharacters, text);
 		mainForm.frames.UpdateSettings(mainForm.Settings, UpdatePhase.Raw);
 	}
 	

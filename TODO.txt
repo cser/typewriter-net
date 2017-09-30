@@ -6,3 +6,4 @@
 - W text object
 - empty register
 - js parser with (line, char)
+- fix cs parser for Properties

@@ -246,5 +246,25 @@ namespace UnitTests
 			}));
 			Assert.AreEqual(SValue.None, SValue.Unserialize(null));
 		}
+		
+		[Test]
+		public void AsDictionary()
+		{
+			byte[] bytes;
+			{
+				SValue value = SValue.NewHash();
+				value["x"] = SValue.NewInt(10);
+				Assert.NotNull(value.AsDictionary, "before serialize");
+				Assert.AreEqual(1, value.AsDictionary.Count, "before serialize");
+				Assert.AreEqual(10, value.AsDictionary["x"].Int, "before serialize");
+				bytes = SValue.Serialize(value);
+			}
+			{
+				SValue value = SValue.Unserialize(bytes);
+				Assert.NotNull(value.AsDictionary, "after serialize");
+				Assert.AreEqual(1, value.AsDictionary.Count, "after serialize");
+				Assert.AreEqual(10, value.AsDictionary["x"].Int, "after serialize");
+			}
+		}
 	}
 }

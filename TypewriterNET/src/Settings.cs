@@ -35,7 +35,7 @@ public class Settings
 	public readonly Properties.Int printMarginSize = new Properties.Int("printMarginSize", 80).SetMinMax(1, int.MaxValue);
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
-	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false);
+	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false, Properties.Constraints.NotForLocal);
 	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "");
 	public readonly Properties.String findInFilesIgnoreDir = new Properties.String("findInFilesIgnoreDir", "", false, "");
 	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
@@ -78,6 +78,8 @@ public class Settings
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
+	public bool showLineBreaks;
+	public bool showSpaceCharacters;
 	
 	private static string GetBuildinParsers()
 	{
@@ -268,20 +270,6 @@ public class Settings
 		set { parsedScheme = value; }
 	}
 
-	private bool showLineBreaks;
-	public bool ShowLineBreaks
-	{
-		get { return showLineBreaks; }
-		set { showLineBreaks = value; }
-	}
-
-	private bool showSpaceCharacters;
-	public bool ShowSpaceCharacters
-	{
-		get { return showSpaceCharacters; }
-		set { showSpaceCharacters = value; }
-	}
-
 	public void ApplyParameters(MulticaretTextBox textBox, SettingsMode settingsMode, Buffer buffer)
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
@@ -351,5 +339,21 @@ public class Settings
 	{
 		label.BackColor = parsedScheme.tabsBg.color;
 		label.TextColor = parsedScheme.tabsFg.color;
+	}
+	
+	public void GetParametersFromTemp(Dictionary<string, SValue> settingsData)
+	{
+		SValue value;
+		settingsData.TryGetValue("showLineBreaks", out value);
+		showLineBreaks = value.Bool;
+		settingsData.TryGetValue("showSpaceCharacters", out value);
+		showSpaceCharacters = value.Bool;
+	}
+	
+	public void SetParametersToTemp(Dictionary<string, SValue> settingsData)
+	{
+		settingsData.Clear();
+		settingsData["showLineBreaks"] = SValue.NewBool(showLineBreaks);
+		settingsData["showSpaceCharacters"] = SValue.NewBool(showSpaceCharacters);
 	}
 }
