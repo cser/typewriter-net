@@ -154,6 +154,20 @@ public class CSTextNodeParser : TextNodeParser
 				node["childs"] = new List<Node>();
 				iterator.builder.Length = 0;
 				ParseParameters(iterator, iterator.builder);
+				if (iterator.current.c == ':')
+				{
+					iterator.builder.Append(" : ");
+					iterator.MoveNext();
+					if (iterator.current.IsIdent)
+					{
+						iterator.builder.Append(iterator.current.text);
+						iterator.MoveNext();
+						if (iterator.current.c == '(')
+						{
+							ParseParameters(iterator, iterator.builder);
+						}
+					}
+				}
 				string parameters = iterator.builder.ToString();
 				node["name"] = (modifiers.Length > 0 ? modifiers + " " : "~ ") + ident + parameters;
 				nodes.Add(node);
@@ -598,12 +612,9 @@ public class CSTextNodeParser : TextNodeParser
 				modifiers = "|" + modifiers;
 				continue;
 			}
-			if (iterator.current.text == "virtual")
-			{
-				iterator.MoveNext();
-				continue;
-			}
-			if (iterator.current.text == "override")
+			if (iterator.current.text == "abstract" ||
+				iterator.current.text == "override" ||
+				iterator.current.text == "virtual")
 			{
 				iterator.MoveNext();
 				continue;

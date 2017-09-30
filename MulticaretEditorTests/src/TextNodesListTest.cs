@@ -868,6 +868,55 @@ namespace TextNodesListTest
 		}
 		
 		[Test]
+		public void Virtual()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ void Method()' 3 [], '+ int Value' 7 []]",
+				@"public class Test
+				{
+					virtual public void Method()
+					{
+					}
+					
+					virtual public int Value { get; set; }
+				}");
+		}
+		
+		[Test]
+		public void Abstract()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ void Method0()' 3 [], '+ void Method1()' 7 []]",
+				@"abstract class Test
+				{
+					abstract public void Method0()
+					{
+					}
+					
+					public void Method1()
+					{
+					}
+				}");
+		}
+		
+		[Test]
+		public void Base()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ Test(int index) : base(index, 10)' 3 [], '+ void Method()' 7 []]",
+				@"abstract class Test
+				{
+					public Test(int index) : base(index, 10)
+					{
+					}
+					
+					public void Method()
+					{
+					}
+				}");
+		}
+		
+		[Test]
 		public void TokenIteratorTest()
 		{
 			LineArray lines = new LineArray();
@@ -943,6 +992,35 @@ namespace TextNodesListTest
 				"<<private>>, <<string>>, <<text2>>, '=', <<@\"ab\"\"c\">>, ';', " +
 				"<<private>>, <<string>>, <<text3>>, '=', <<@\"ab\nc\">>, ';', '}'" +
 			"]", ListUtil.ToString(iterator.tokens));
+		}
+		
+		[Test]
+		public void TokenIteratorTest5()
+		{
+			LineArray lines = new LineArray();
+			lines.SetText(@"public class A {
+				private char a = '}';
+				private char b = '""';
+				private char c = '\'';
+				private char d = '\n';
+				
+				public void Method0(char c = 'c')
+				{
+				}
+				
+				public void Method1()
+				{
+				}
+			}");
+			CSTokenIterator iterator = new CSTokenIterator(lines);
+			Assert.AreEqual("[<<public>>, <<class>>, <<A>>, '{', " +
+				"<<private>>, <<char>>, <<a>>, '=', <<'}'>>, ';', " +
+				"<<private>>, <<char>>, <<b>>, '=', <<'\"'>>, ';', " +
+				"<<private>>, <<char>>, <<c>>, '=', <<'\\''>>, ';', " +
+				"<<private>>, <<char>>, <<d>>, '=', <<'\\n'>>, ';', " +
+				"<<public>>, <<void>>, <<Method0>>, '(', <<char>>, <<c>>, '=', <<'c'>>, ')', '{', '}', " +
+				"<<public>>, <<void>>, <<Method1>>, '(', ')', '{', '}', " +
+			"'}']", ListUtil.ToString(iterator.tokens));
 		}
 	}
 }

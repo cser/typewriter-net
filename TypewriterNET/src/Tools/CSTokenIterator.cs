@@ -133,6 +133,35 @@ public class CSTokenIterator
 							token.place = new Place(i, block.offset + iLine);
 							tokens.Add(token);
 						}
+						else if (c == '\'')
+						{
+							builder.Length = 0;
+							builder.Append('\'');
+							for (++i; i < line.charsCount; ++i)
+							{
+								c = line.chars[i].c;
+								if (c == '\\')
+								{
+									++i;
+									builder.Append('\\');
+									builder.Append(line.chars[i].c);
+								}
+								else if (c == '\'')
+								{
+									++i;
+									builder.Append('\'');
+									break;
+								}
+								else
+								{
+									builder.Append(c);
+								}
+							}
+							CSToken token = new CSToken();
+							token.text = builder.ToString();
+							token.place = new Place(i, block.offset + iLine);
+							tokens.Add(token);
+						}
 						else if (c == '@' && i + 1 < line.charsCount && line.chars[i + 1].c == '"')
 						{
 							i += 2;
