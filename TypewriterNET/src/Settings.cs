@@ -78,8 +78,8 @@ public class Settings
 	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
-	public bool showLineBreaks;
-	public bool showSpaceCharacters;
+	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
+	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
 	
 	private static string GetBuildinParsers()
 	{
@@ -183,6 +183,8 @@ public class Settings
 		Add(ignoreSnippets);
 		Add(forcedSnippets);
 		Add(command);
+		Add(showLineBreaks);
+		Add(showSpaceCharacters);
 		Add(getTextNodes);
 		Add(snipsAuthor);
 		Add(opacity);
@@ -253,6 +255,7 @@ public class Settings
 		foreach (Properties.Property property in properties)
 		{
 			property.Reset();
+			property.initedByConfig = false;
 		}
 	}
 
@@ -274,8 +277,8 @@ public class Settings
 	{
 		textBox.WordWrap = settingsMode != SettingsMode.FileTree && settingsMode != SettingsMode.Help && wordWrap.Value;
 		textBox.ShowLineNumbers = showLineNumbers.Value && settingsMode != SettingsMode.FileTree;
-		textBox.ShowLineBreaks = showLineBreaks;
-		textBox.ShowSpaceCharacters = showSpaceCharacters;
+		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = highlightCurrentLine.Value;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
@@ -305,8 +308,8 @@ public class Settings
 	{
 		textBox.WordWrap = wordWrap.Value;
 		textBox.ShowLineNumbers = false;
-		textBox.ShowLineBreaks = showLineBreaks;
-		textBox.ShowSpaceCharacters = showSpaceCharacters;
+		textBox.ShowLineBreaks = showLineBreaks.Value;
+		textBox.ShowSpaceCharacters = showSpaceCharacters.Value;
 		textBox.HighlightCurrentLine = false;
 		textBox.TabSize = tabSize.GetValue(buffer);
 		textBox.SpacesInsteadTabs = spacesInsteadTabs.GetValue(buffer);
@@ -341,19 +344,32 @@ public class Settings
 		label.TextColor = parsedScheme.tabsFg.color;
 	}
 	
-	public void GetParametersFromTemp(Dictionary<string, SValue> settingsData)
+	public void ParametersFromTemp(Dictionary<string, SValue> settingsData)
 	{
-		SValue value;
-		settingsData.TryGetValue("showLineBreaks", out value);
-		showLineBreaks = value.Bool;
-		settingsData.TryGetValue("showSpaceCharacters", out value);
-		showSpaceCharacters = value.Bool;
+		foreach (KeyValuePair<string, SValue> pair in settingsData)
+		{
+		}
+		for (int i = 0; i < properties.Count; i++)
+		{
+			Properties.Property property = properties[i];
+			if ((property.constraints & Properties.Constraints.Multiple) == 0 && !property.initedByConfig)
+			{
+				SValue value = settingsData.ContainsKey(property.name) ? settingsData[property.name] : SValue.None;
+				property.SetTemp(value);
+			}
+		}
 	}
 	
-	public void SetParametersToTemp(Dictionary<string, SValue> settingsData)
+	public void ParametersToTemp(Dictionary<string, SValue> settingsData)
 	{
 		settingsData.Clear();
-		settingsData["showLineBreaks"] = SValue.NewBool(showLineBreaks);
-		settingsData["showSpaceCharacters"] = SValue.NewBool(showSpaceCharacters);
+		for (int i = 0; i < properties.Count; i++)
+		{
+			Properties.Property property = properties[i];
+			if ((property.constraints & Properties.Constraints.Multiple) == 0 && !property.initedByConfig)
+			{
+				settingsData[property.name] = property.GetTemp();
+			}
+		}
 	}
 }

@@ -621,8 +621,6 @@ public class Commander
 		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
-		commands.Add(new Command("showLineBreaks", "[value]", "Switch showing if no parameter", DoShowLineBreaks));
-		commands.Add(new Command("showSpaceCharacters", "[value]", "Switch showing if no parameter", DoShowSpaceCharacters));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
@@ -782,18 +780,6 @@ public class Commander
 	private void DoShortcut(string text)
 	{
 		mainForm.Dialogs.ShowInputCommand(text);
-	}
-	
-	private void DoShowLineBreaks(string text)
-	{
-		mainForm.Settings.showLineBreaks = SwitchOrSetValue(mainForm.Settings.showLineBreaks, text);
-		mainForm.frames.UpdateSettings(mainForm.Settings, UpdatePhase.Raw);
-	}
-	
-	private void DoShowSpaceCharacters(string text)
-	{
-		mainForm.Settings.showSpaceCharacters = SwitchOrSetValue(mainForm.Settings.showSpaceCharacters, text);
-		mainForm.frames.UpdateSettings(mainForm.Settings, UpdatePhase.Raw);
 	}
 	
 	private static bool SwitchOrSetValue(bool value, string text)

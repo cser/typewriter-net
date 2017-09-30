@@ -346,11 +346,11 @@ public class MainForm : Form
 
 		//was ApplySettings();
 		
-		ReloadConfig();
 		fileDragger = new FileDragger(this);
-
+		
+		ReloadConfigOnly();
 		tempSettings.Load(tempFilePostfix, settings.rememberOpenedFiles.Value);
-		settings.GetParametersFromTemp(tempSettings.settingsData);
+		settings.ParametersFromTemp(tempSettings.settingsData);
 		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(tempSettings.NullableCurrentDir))
 		{
 			string error;
@@ -691,7 +691,7 @@ public class MainForm : Form
 		{
 			tempSettings.NullableCurrentDir = settings.rememberCurrentDir.Value ?
 				Directory.GetCurrentDirectory() : null; 
-			settings.SetParametersToTemp(tempSettings.settingsData);
+			settings.ParametersToTemp(tempSettings.settingsData);
 			tempSettings.Save(tempFilePostfix, settings.rememberOpenedFiles.Value);
 		}
 		if (sharpManager != null)
@@ -1544,14 +1544,14 @@ public class MainForm : Form
 
 	private bool DoToggleShowLineBreaks(Controller controller)
 	{
-		settings.showLineBreaks = !settings.showLineBreaks;
+		settings.showLineBreaks.Value = !settings.showLineBreaks.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		return true;
 	}
 
 	private bool DoToggleShowSpaceCharacters(Controller controller)
 	{
-		settings.showSpaceCharacters = !settings.showSpaceCharacters;
+		settings.showSpaceCharacters.Value = !settings.showSpaceCharacters.Value;
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		return true;
 	}
@@ -1573,12 +1573,14 @@ public class MainForm : Form
 
 	private string GetShowLineBreaks()
 	{
-		return settings.showLineBreaks? " (on)" : " (off)";
+		return (settings.showLineBreaks.Value ? " (on)" : " (off)") +
+			(settings.showLineBreaks.initedByConfig ? " - need configure to save" : "");
 	}
 
 	private string GetShowSpaceCharacters()
 	{
-		return settings.showSpaceCharacters ? " (on)" : " (off)";
+		return settings.showSpaceCharacters.Value ? " (on)" : " (off)" +
+			(settings.showSpaceCharacters.initedByConfig ? " - need configure to save" : "");
 	}
 
 	private bool DoOpenCloseLog(Controller controller)
@@ -2324,8 +2326,8 @@ public class MainForm : Form
 	}
 
 	private bool hasCurrentConfig = false;
-
-	private void ReloadConfig()
+	
+	private void ReloadConfigOnly()
 	{
 		hasCurrentConfig = false;
 		configParser.Reset();
@@ -2356,6 +2358,12 @@ public class MainForm : Form
 			Log.WriteError("Config", builder.ToString());
 			Log.Open();
 		}
+	}
+
+	private void ReloadConfig()
+	{
+		ReloadConfigOnly();
+		settings.ParametersFromTemp(tempSettings.settingsData);
 		settings.DispatchChange();
 	}
 

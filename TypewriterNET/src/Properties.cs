@@ -49,6 +49,7 @@ public class Properties
 	{
 		public readonly string name;
 		public readonly Constraints constraints;
+		public bool initedByConfig;
 
 		public Property(string name, Constraints constraints)
 		{
@@ -92,6 +93,15 @@ public class Properties
 		virtual public List<Variant> GetAutocompleteVariants()
 		{
 			return null;
+		}
+		
+		virtual public SValue GetTemp()
+		{
+			return SValue.None;
+		}
+		
+		virtual public void SetTemp(SValue sValue)
+		{
 		}
 	}
 
@@ -164,6 +174,19 @@ public class Properties
 				return value.ToString("F" + precision, CultureInfo.InvariantCulture);
 			return text;
 		}
+		
+		override public SValue GetTemp()
+		{
+			return SValue.NewFloat(value);
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsFloat)
+			{
+				Value = sValue.Float;
+			}
+		}
 	}
 
 	public class Int : Property
@@ -213,6 +236,19 @@ public class Properties
 		public override void Reset()
 		{
 			value = defaultValue;
+		}
+		
+		override public SValue GetTemp()
+		{
+			return SValue.NewInt(value);
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsInt)
+			{
+				Value = sValue.Int;
+			}
 		}
 	}
 
@@ -622,6 +658,24 @@ public class Properties
 		{
 			value = defaultValue;
 		}
+		
+		override public SValue GetTemp()
+		{
+			return !value.IsNull ? SValue.NewString(value.ToString()) : SValue.None;
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsString)
+			{
+				string error;
+				EncodingPair newValue = EncodingPair.ParseEncoding(sValue.String, out error);
+				if (!newValue.IsNull)
+				{
+					value = newValue;
+				}
+			}
+		}
 	}
 
 	public class Bool : Property
@@ -675,6 +729,19 @@ public class Properties
 		public override void Reset()
 		{
 			value = defaultValue;
+		}
+		
+		override public SValue GetTemp()
+		{
+			return SValue.NewBool(value);
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsBool)
+			{
+				value = sValue.Bool;
+			}
 		}
 	}
 	
@@ -1009,6 +1076,19 @@ public class Properties
 		{
 			value = defaultValue;
 		}
+		
+		override public SValue GetTemp()
+		{
+			return value != null ? SValue.NewString(value.Name) : SValue.None;
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsString)
+			{
+				SetText(sValue.String, "");
+			}
+		}
 	}
 	
 	public class PathProperty : Property
@@ -1054,6 +1134,19 @@ public class Properties
 		public override void Reset()
 		{
 			value = defaultValue;
+		}
+		
+		override public SValue GetTemp()
+		{
+			return !string.IsNullOrEmpty(value) ? SValue.NewString(value) : SValue.None;
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsString && !string.IsNullOrEmpty(sValue.String))
+			{
+				SetText(sValue.String, "");
+			}
 		}
 	}
 }
