@@ -339,15 +339,11 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.HighlighterChange);
 		
 		fileTree = new FileTree(this);
-
 		leftNest.buffers = new BufferList();
 
 		SetFocus(null, new KeyMapNode(keyMap, 0), null);
 
-		//was ApplySettings();
-		
 		fileDragger = new FileDragger(this);
-		
 		ReloadConfigOnly();
 		tempSettings.Load(tempFilePostfix, settings.rememberOpenedFiles.Value);
 		settings.ParametersFromTemp(tempSettings.settingsData);
@@ -747,17 +743,7 @@ public class MainForm : Form
 		{
 			return;
 		}
-		string scheme = "";
-		if (!string.IsNullOrEmpty(settings.scheme.Value))
-		{
-			scheme = settings.scheme.Value ?? "";
-		}
-		else if (!string.IsNullOrEmpty(tempSettings.Scheme))
-		{
-			scheme = tempSettings.Scheme ?? "";
-		}
-		tempSettings.Scheme = scheme;
-		settings.ParsedScheme = schemeManager.LoadScheme(scheme);
+		settings.ParsedScheme = schemeManager.LoadScheme(settings.scheme.Value);
 		settings.Parsed = true;
 		
 		BackColor = settings.ParsedScheme.bgColor;
@@ -1456,7 +1442,7 @@ public class MainForm : Form
 		{
 			ReloadConfig();
 		}
-		else if (schemeManager.IsActiveSchemePath(GetCurrentScheme(), buffer.FullPath))
+		else if (schemeManager.IsActiveSchemePath(settings.scheme.Value, buffer.FullPath))
 		{
 			ApplySettings();
 		}
@@ -1507,14 +1493,6 @@ public class MainForm : Form
 		}
 	}
 	
-	private string GetCurrentScheme()
-	{
-		string scheme = settings.scheme.Value;
-		if (string.IsNullOrEmpty(scheme))
-			scheme = tempSettings.Scheme;
-		return scheme;
-	}
-
 	private bool DoExit(Controller controller)
 	{
 		Close();
@@ -1899,7 +1877,7 @@ public class MainForm : Form
 	private bool DoEditCurrentScheme(Controller controller)
 	{
 		CreateAppDataFolders();
-		List<AppPath> paths = schemeManager.GetSchemePaths(GetCurrentScheme());
+		List<AppPath> paths = schemeManager.GetSchemePaths(settings.scheme.Value);
 		if (paths.Count > 0)
 		{
 			foreach (AppPath path in paths)
@@ -2362,6 +2340,7 @@ public class MainForm : Form
 
 	private void ReloadConfig()
 	{
+		settings.ParametersToTemp(tempSettings.settingsData);
 		ReloadConfigOnly();
 		settings.ParametersFromTemp(tempSettings.settingsData);
 		settings.DispatchChange();

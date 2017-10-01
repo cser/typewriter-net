@@ -18,7 +18,7 @@ public class SchemeIncrementalSearch : IncrementalSearchBase
 
 	override protected bool Prebuild()
 	{
-		currentItem = tempSettings.Scheme;
+		currentItem = MainForm.Settings.scheme.Value;
 		items.Clear();
 		foreach (string item in MainForm.Settings.scheme.GetVariants())
 		{

@@ -12,4 +12,5 @@
 	<item name="omnisharpSln" value="."/>
 	<item name="shellRegex" value="/Errors\: 0\, Failures: 0/"/>
 	<item name="showLineBreaks"/>
+	<item name="scheme" value="npp"/>
 </config>

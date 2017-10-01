@@ -346,9 +346,6 @@ public class Settings
 	
 	public void ParametersFromTemp(Dictionary<string, SValue> settingsData)
 	{
-		foreach (KeyValuePair<string, SValue> pair in settingsData)
-		{
-		}
 		for (int i = 0; i < properties.Count; i++)
 		{
 			Properties.Property property = properties[i];
@@ -366,7 +363,7 @@ public class Settings
 		for (int i = 0; i < properties.Count; i++)
 		{
 			Properties.Property property = properties[i];
-			if ((property.constraints & Properties.Constraints.Multiple) == 0 && !property.initedByConfig)
+			if ((property.constraints & Properties.Constraints.Multiple) == 0)
 			{
 				settingsData[property.name] = property.GetTemp();
 			}

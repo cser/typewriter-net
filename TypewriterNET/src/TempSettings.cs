@@ -357,13 +357,6 @@ public class TempSettings
 	private FindParams findParams = new FindParams();
 	public FindParams FindParams { get { return findParams; } }
 	
-	private string scheme;
-	public string Scheme
-	{
-		get { return scheme; }
-		set { scheme = value; }
-	}
-	
 	private byte[] EncodeBookmarks(Controller controller)
 	{
 		int count = Math.Min(controller.bookmarks.Count, controller.bookmarkNames.Count);
@@ -437,9 +430,6 @@ public class TempSettings
 	
 	private void UnserializeSettings(SValue state)
 	{
-		scheme = state["scheme"].String;
-		if (string.IsNullOrEmpty(scheme))
-			scheme = "npp";
 		settingsData.Clear();
 		Dictionary<string, SValue> dict = state["settings"].AsDictionary;
 		if (dict != null)
@@ -448,16 +438,19 @@ public class TempSettings
 			{
 				settingsData[pair.Key] = pair.Value;
 			}
+			string scheme = state["scheme"].String;
+			settingsData["scheme"] = SValue.NewString(!string.IsNullOrEmpty(scheme) ? scheme : "npp");
 		}
 	}
 	
 	private void SerializeSettings(SValue state)
 	{
-		state["scheme"] = SValue.NewString(scheme);
 		SValue hash = state.SetNewHash("settings");
 		foreach (KeyValuePair<string, SValue> pair in settingsData)
 		{
 			hash[pair.Key] = pair.Value;
 		}
+		string scheme = hash["scheme"].String;
+		state["scheme"] = !string.IsNullOrEmpty(scheme) ? SValue.NewString(scheme) : SValue.None;
 	}
 }

@@ -258,7 +258,7 @@ public class Properties
 		private bool convertEscape;
 		private string help;
 
-		public String(string name, string value, bool convertEscape, string help) : base(name, Constraints.Multiple)
+		public String(string name, string value, bool convertEscape, string help) : base(name, Constraints.None)
 		{
 			defaultValue = value;
 			this.value = value ?? "";
@@ -376,6 +376,19 @@ public class Properties
 		public override void Reset()
 		{
 			value = defaultValue;
+		}
+		
+		override public SValue GetTemp()
+		{
+			return !string.IsNullOrEmpty(value) ? SValue.NewString(value) : SValue.None;
+		}
+		
+		override public void SetTemp(SValue sValue)
+		{
+			if (sValue.IsString)
+			{
+				Value = sValue.String;
+			}
 		}
 	}
 	
