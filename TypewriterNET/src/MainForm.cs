@@ -1005,9 +1005,12 @@ public class MainForm : Form
 
 		keyMap.AddItem(new KeyItem(Keys.F1, null, new KeyAction("&?\\Help", DoHelp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Shift | Keys.F1, null, new KeyAction("&?\\Vi mode help", DoViHelp, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Home…", DoOpenHomeUrl, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Home wiki…", DoOpenHomeWikiUrl, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Last stable build page…", DoOpenLastStableBuildUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\-", null, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Visit home page…", DoOpenHomeUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Visit wiki page…", DoOpenHomeWikiUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Visit issues page to report a bug…", DoOpenBugreportUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Visit last stable build page…", DoOpenLastStableBuildUrl, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\-", null, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Ctags help…", DoOpenCtagsHelp, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&?\\Kate syntax highlighting help…", DoOpenSyntaxHelp, null, false)));
 	}
@@ -2090,6 +2093,12 @@ public class MainForm : Form
 	private bool DoOpenHomeWikiUrl(Controller controller)
 	{
 		OpenDocument(Help.HomeWikiUrl);
+		return true;
+	}
+	
+	private bool DoOpenBugreportUrl(Controller controller)
+	{
+		OpenDocument(Help.BugreportUrl);
 		return true;
 	}
 	

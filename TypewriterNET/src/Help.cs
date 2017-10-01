@@ -7,6 +7,7 @@ public static class Help
 {
 	public const string HomeUrl = "https://github.com/cser/typewriter-net";
 	public const string HomeWikiUrl = "https://github.com/cser/typewriter-net/wiki";
+	public const string BugreportUrl = "https://github.com/cser/typewriter-net/issues";
 	public const string LastStableUrl  = "https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts";
 	
 	public static Buffer NewHelpBuffer(Settings settings, Commander commander)
