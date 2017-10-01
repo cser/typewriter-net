@@ -111,24 +111,28 @@ namespace MulticaretEditor
 							controller.PutCursor(GetPlace(position), false);
 							controller.ViAddHistoryPosition(true);
 							context.SetState(new ViReceiver(null, false));
+							scrollToCursor = true;
 						}
 						else if (mode == Mode.Selection)
 						{
 							controller.PutCursor(GetPlace(position), true);
 							controller.ViAddHistoryPosition(true);
 							context.SetState(new ViReceiverVisual(false));
+							scrollToCursor = true;
 						}
 						else if (mode == Mode.LinesSelection)
 						{
 							controller.PutCursor(GetPlace(position), true);
 							controller.ViAddHistoryPosition(true);
 							context.SetState(new ViReceiverVisual(true));
+							scrollToCursor = true;
 						}
 						else if (mode == Mode.New)
 						{
 							controller.PutNewCursor(GetPlace(position));
 							controller.ViAddHistoryPosition(true);
 							context.SetState(new ViReceiver(null, false));
+							scrollToCursor = true;
 						}
 						hasStartsWith = true;
 						break;

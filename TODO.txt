@@ -6,6 +6,5 @@
 - W text object
 - empty register
 - js parser with (line, char)
-- jump with cursor out of screen
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing

@@ -385,6 +385,7 @@ namespace MulticaretEditor
 						break;
 					case ' ':
 						context.SetState(new ViJumpReceiver(parser.moveChar.c, ViJumpReceiver.Mode.Single));
+						scrollToCursor = false;
 						break;
 					case ',':
 						if (parser.move.IsChar(' '))
