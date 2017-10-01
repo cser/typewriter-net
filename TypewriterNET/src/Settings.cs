@@ -226,11 +226,11 @@ public class Settings
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Settings properties");
 		builder.AppendLine();
-		builder.AppendLine("- First col legend: C - loads from config on start, T - from temp settings,   - _only_ from config");
+		builder.AppendLine("- First col legend: C - loads from config on start, T - from temp settings, [EMPTY] - only from config");
 		builder.AppendLine("- Store here in config:           xml: <item name=\"name\" value=\"value\"/>");
 		builder.AppendLine("- Make it store in temp settings: xml: <item name=\"name\"/>");
 		builder.AppendLine("- [:<filter>] using example:      xml: <item name=\"name:*.cs;*.txt\" value=\"value for cs/txt file\"/>");
-		builder.AppendLine("- Set property by command dialog: name value[ENTER] (autocomplete supported by Tab or Ctrl+Space)");
+		builder.AppendLine("- Set property by command dialog: name value (autocomplete supported by `Tab` or `Ctrl+Space`)");
 		builder.AppendLine();
 		TextTable table = new TextTable().SetMaxColWidth(33);
 		Properties.AddHeadTo(table);

@@ -6,6 +6,7 @@ using MulticaretEditor;
 public static class Help
 {
 	public const string HomeUrl = "https://github.com/cser/typewriter-net";
+	public const string HomeWikiUrl = "https://github.com/cser/typewriter-net/wiki";
 	public const string LastStableUrl  = "https://ci.appveyor.com/project/cser/typewriter-net/branch/master/artifacts";
 	
 	public static Buffer NewHelpBuffer(Settings settings, Commander commander)
@@ -19,7 +20,10 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("# Actions");
 		builder.AppendLine();
-		builder.AppendLine("- All not-vi actions are represented in menu.");
+		builder.AppendLine("┌──────────────────────────────────────────────────────────────────────────────────────────┐");
+		builder.AppendLine("│ IF YOU DON'T KNOW \"HOW TO DO IT\" PRESS `Ctrl+Shift+P` AT FIRST - IT'S SUPERIOR KNOWLEDGE │");
+		builder.AppendLine("└──────────────────────────────────────────────────────────────────────────────────────────┘");
+		builder.AppendLine("- All not-vi actions are represented in menu (use this `Ctrl+Shift+P` to search menu item)");
 		builder.AppendLine("- Menu subitems are depended on frame with cursor");
 		builder.AppendLine("- [] in menu item denotes complex shortcut, i.e. for `Ctrl+Tab`:");
 		builder.AppendLine("    Ctrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");
@@ -196,6 +200,7 @@ public static class Help
 			table.AddLine();
 			table.Add(" <action>i<object>").Add("Apply action to text object").NewRow();
 			table.Add(" w").Add("Word").NewRow();
+			table.Add(" W").Add("Word with punctuation").NewRow();
 			table.Add(" {, }, (, ), [, ]").Add("Text inside brackets").NewRow();
 			table.Add(" \"").Add("Text inside quotes").NewRow();
 			table.Add(" '").Add("Text inside single quotes").NewRow();

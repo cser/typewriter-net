@@ -16,6 +16,7 @@
 			<Int attribute="Decimal" context="#stay"/>
 			<Detect2Chars attribute="Title" context="Meta 2" char="[" char1="["/>
 			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()[]{}_-+=\|/?" attribute="Operator"/>
+			<AnyChar String="─│┼┌┐└┘" attribute="Operator"/>
 		</context>
 		<context attribute="Normal Text" lineEndContext="#pop" name="XMLStart">
 			<StringDetect attribute="Comment" context="XML" String="xml:"/>
@@ -50,6 +51,7 @@
 		<context attribute="String" lineEndContext="#stay" name="String">
 			<LineContinue attribute="String" context="#pop"/>
 			<HlCStringChar attribute="Char" context="#stay"/>
+			<DetectChar attribute="Operator" context="#stay" char="│"/>
 			<DetectChar attribute="String" context="#pop" char="&quot;"/>
 		</context>
 		<context attribute="String2" lineEndContext="#stay" name="String2">

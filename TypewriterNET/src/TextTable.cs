@@ -139,7 +139,7 @@ public class TextTable
 								}
 								else
 								{
-									builder.Append(" | ");
+									builder.Append(" │ ");
 								}
 							}
 							Splitted splitted = SplitSubline(part, colSizes[j]);
@@ -151,7 +151,7 @@ public class TextTable
 						{
 							if (needLine)
 							{
-								builder.Append(" | ");
+								builder.Append(" │ ");
 							}
 							builder.Append(new string(' ', colSizes[j]));
 						}
@@ -166,9 +166,9 @@ public class TextTable
 				for (int j = 0; j < colsCount; j++)
 				{
 					if (j > 0)
-						builder.Append("-+-");
+						builder.Append("─┼─");
 					int colSize = colSizes[j];
-					builder.Append(new string('-', colSize));
+					builder.Append(new string('─', colSize));
 				}
 				builder.AppendLine();
 			}
