@@ -941,6 +941,25 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void MoveBracketPair_NoPair()
+		{
+			lines.SetText("\tvoid Method()\n" +
+			"\t{\n" +
+				"\t\tstring specials = @\".$^{}[](|)*+?\\\";");
+			Put(1, 1).Press("%").AssertSelection().Both(1, 1);
+		}
+		
+		[Test]
+		public void MoveBracketPair_Bug()
+		{
+			lines.SetText("\tvoid Method()\n" +
+			"\t{\n" +
+				"\t\tstring specials = @\".$^{}[](|)*+?\\\";\n" +
+			"\t}");
+			Put(1, 1).Press("%").AssertSelection().Both(1, 3);
+		}
+		
+		[Test]
 		public void diString()
 		{
 			lines.SetText("One \"two three\" four \"five\"");

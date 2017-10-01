@@ -548,12 +548,15 @@ namespace MulticaretEditor
 				if (c == bra)
 				{
 					_iterator.MoveRight();
-					Vi_BracketEnd(bra, ket);
-					if (shift)
+					if (Vi_BracketEnd(bra, ket))
 					{
-						_iterator.MoveRight();
+						if (shift)
+						{
+							_iterator.MoveRight();
+						}
+						return true;
 					}
-					return true;
+					return false;
 				}
 				if (c == ket)
 				{
