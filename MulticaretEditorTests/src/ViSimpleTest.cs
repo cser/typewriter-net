@@ -846,6 +846,26 @@ namespace UnitTests
 			AssertSelection().Both(4, 0);
 		}
 		
+		[Test]
+		public void iW()
+		{
+			lines.SetText("One two.three; four");
+			Put(5, 0).Press("diW").AssertText("One  four");
+			AssertSelection().Both(4, 0);
+		}
+		
+		[Test]
+		public void iWSpace()
+		{
+			lines.SetText("One  two.three; four");
+			Put(4, 0).Press("diW").AssertText("Onetwo.three; four");
+			AssertSelection().Both(3, 0);
+			
+			lines.SetText("One  two.three; four");
+			Put(15, 0).Press("diW").AssertText("One  two.three;four");
+			AssertSelection().Both(15, 0);
+		}
+		
 		[TestCase("di{")]
 		[TestCase("di}")]
 		public void diBracket(string command)

@@ -307,6 +307,36 @@ namespace MulticaretEditor
 				_iterator.MoveLeftWithRN());
 		}
 		
+		public void Vi_BigWordStart()
+		{
+			CharType type = GetCharType(_iterator.RightChar);
+			if (type == CharType.Identifier || type == CharType.Punctuation)
+			{
+				while (true)
+				{
+					CharType typeI = GetCharType(_iterator.LeftChar);
+					if (typeI != CharType.Identifier && type != CharType.Punctuation)
+					{
+						break;
+					}
+					if (!_iterator.MoveLeft())
+					{
+						break;
+					}
+				}
+			}
+			else if (type == CharType.Space)
+			{
+				while (GetCharType(_iterator.LeftChar) == CharType.Space)
+				{
+					if (!_iterator.MoveLeft())
+					{
+						break;
+					}
+				}
+			}
+		}
+		
 		public bool Vi_BracketStart(char bra, char ket, int count)
 		{
 			int position = _iterator.Position;

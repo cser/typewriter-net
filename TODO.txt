@@ -3,7 +3,6 @@
 - selection mast works with find
 - tag text object
 - copy to default register with named register- tag text object
-- W text object
 - empty register
 - js parser with (line, char)
 - prevent fail on highlighting regex parsing

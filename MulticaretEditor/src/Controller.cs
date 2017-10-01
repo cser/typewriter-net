@@ -1503,6 +1503,19 @@ namespace MulticaretEditor
 			}
 		}
 		
+		public void ViMoveInBigWord(bool shift, bool inside)
+		{
+			foreach (Selection selection in lines.selections)
+			{
+				Moves moves = new Moves(lines, selection.caret);
+				moves.Vi_BigWordStart();
+				selection.caret = moves.Position;
+				selection.SetEmpty();
+				moves.Vi_W(inside);
+				moves.Apply(selection, true);
+			}
+		}
+		
 		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket, int count)
 		{
 			foreach (Selection selection in lines.selections)
