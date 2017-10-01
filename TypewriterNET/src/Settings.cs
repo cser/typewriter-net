@@ -18,7 +18,7 @@ public class Settings
 	public readonly Properties.Float lineNumberFontSize = new Properties.Float("lineNumberFontSize", 0).SetMinMax(0, 100).SetPrecision(2);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
-	public readonly Properties.String scheme = new Properties.String("scheme", "", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
+	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
 	public readonly Properties.Int scrollingStep = new Properties.Int("scrollingStep", 3).SetMinMax(1, int.MaxValue);
 	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false, "Chars to input with right Alt");
@@ -226,6 +226,12 @@ public class Settings
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Settings properties");
 		builder.AppendLine();
+		builder.AppendLine("- First col legend: C - loads from config on start, T - from temp settings,   - _only_ from config");
+		builder.AppendLine("- Store here in config:           xml: <item name=\"name\" value=\"value\"/>");
+		builder.AppendLine("- Make it store in temp settings: xml: <item name=\"name\"/>");
+		builder.AppendLine("- [:<filter>] using example:      xml: <item name=\"name:*.cs;*.txt\" value=\"value for cs/txt file\"/>");
+		builder.AppendLine("- Set property by command dialog: name value[ENTER] (autocomplete supported by Tab or Ctrl+Space)");
+		builder.AppendLine();
 		TextTable table = new TextTable().SetMaxColWidth(33);
 		Properties.AddHeadTo(table);
 		table.AddLine();
@@ -349,7 +355,7 @@ public class Settings
 		for (int i = 0; i < properties.Count; i++)
 		{
 			Properties.Property property = properties[i];
-			if ((property.constraints & Properties.Constraints.Multiple) == 0 && !property.initedByConfig)
+			if (property.AllowTemp && !property.initedByConfig)
 			{
 				SValue value = settingsData.ContainsKey(property.name) ? settingsData[property.name] : SValue.None;
 				property.SetTemp(value);
@@ -363,7 +369,7 @@ public class Settings
 		for (int i = 0; i < properties.Count; i++)
 		{
 			Properties.Property property = properties[i];
-			if ((property.constraints & Properties.Constraints.Multiple) == 0)
+			if (property.AllowTemp)
 			{
 				settingsData[property.name] = property.GetTemp();
 			}

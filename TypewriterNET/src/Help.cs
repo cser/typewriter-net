@@ -19,7 +19,7 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("# Actions");
 		builder.AppendLine();
-		builder.AppendLine("- All actions are represented in menu.");
+		builder.AppendLine("- All not-vi actions are represented in menu.");
 		builder.AppendLine("- Menu subitems are depended on frame with cursor");
 		builder.AppendLine("- [] in menu item denotes complex shortcut, i.e. for `Ctrl+Tab`:");
 		builder.AppendLine("    Ctrl↓, Tab↓↑, Ctrl↑ - switch back / forward between 2 tabs");

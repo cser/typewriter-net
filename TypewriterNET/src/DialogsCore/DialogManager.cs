@@ -411,7 +411,7 @@ public class DialogManager
 	private bool DoSchemeIncrementalSearch(Controller controller)
 	{
 		if (schemeIncrementalSearch.SwitchOpen())
-			schemeIncrementalSearch.Open(new SchemeIncrementalSearch(tempSettings), false);
+			schemeIncrementalSearch.Open(new SchemeIncrementalSearch(tempSettings, mainForm.Settings), false);
 		return true;
 	}
 

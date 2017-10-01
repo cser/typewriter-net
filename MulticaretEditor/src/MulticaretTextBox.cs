@@ -1474,9 +1474,12 @@ namespace MulticaretEditor
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showSpaceCharacters && c.c == ' ')
+					else if (c.c == ' ')
 					{
-						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						if (showSpaceCharacters)
+						{
+							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						}
 					}
 					else
 					{
@@ -1633,9 +1636,12 @@ namespace MulticaretEditor
 						g.DrawString("▇", font, scheme.fgBrush, x + charWidth * pos, y, stringFormat);
 						g.DrawString("n", font, scheme.bgBrush, x + charWidth * pos, y, stringFormat);
 					}
-					else if (showSpaceCharacters && c.c == ' ')
+					else if (c.c == ' ')
 					{
-						g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						if (showSpaceCharacters)
+						{
+							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						}
 					}
 					else
 					{

@@ -12,7 +12,7 @@ public class Properties
 {
 	public static void AddHeadTo(TextTable table)
 	{
-		table.Add("Name").Add("Type").Add("Default value").Add("Possible/current values");
+		table.Add("").Add("Name").Add("Type").Add("Default value").Add("Possible/current values");
 	}
 	
 	public static string NameOfName(string name)
@@ -59,6 +59,8 @@ public class Properties
 		
 		abstract public string Type { get; }
 		virtual public string TypeHelp { get { return null; } }
+		
+		public bool AllowTemp { get { return (constraints & Constraints.Multiple) == 0; } }
 
 		virtual public string Text { get { return ""; } }
 		virtual public string ShowedName { get { return name; } }
@@ -73,14 +75,19 @@ public class Properties
 
 		public void GetHelpText(Settings settings, TextTable table)
 		{
-			table.Add(ShowedName).Add(Type).Add(DefaultValue).Add(PossibleValues);
+			string temp = "";
+			if (AllowTemp)
+			{
+				temp = initedByConfig ? "C" : "T";
+			}
+			table.Add(temp).Add(ShowedName).Add(Type).Add(DefaultValue).Add(PossibleValues);
 		}
 		
 		public bool GetHelpTypeText(TextTable table)
 		{
 			if (TypeHelp != null)
 			{
-				table.Add("").Add("").Add("").Add(TypeHelp);
+				table.Add("").Add("").Add("").Add("").Add(TypeHelp);
 				return true;
 			}
 			return false;

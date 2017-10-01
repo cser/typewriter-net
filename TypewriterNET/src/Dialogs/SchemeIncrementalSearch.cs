@@ -6,8 +6,11 @@ using MulticaretEditor;
 
 public class SchemeIncrementalSearch : IncrementalSearchBase
 {
-	public SchemeIncrementalSearch(TempSettings tempSettings)
-		: base(tempSettings, "Preview color scheme", "Preview color scheme", null)
+	public SchemeIncrementalSearch(TempSettings tempSettings, Settings settings) : base(
+		tempSettings,
+		"Preview color scheme" + (settings.scheme.initedByConfig ? " - need configure to save" : ""),
+		"Preview color scheme",
+		null)
 	{
 	}
 

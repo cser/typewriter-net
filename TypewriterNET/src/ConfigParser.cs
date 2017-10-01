@@ -64,7 +64,7 @@ public class ConfigParser
 						{
 							if (property != null)
 							{
-								if ((property.constraints & Properties.Constraints.Multiple) == 0)
+								if (property.AllowTemp)
 								{
 									property.initedByConfig = false;
 								}
