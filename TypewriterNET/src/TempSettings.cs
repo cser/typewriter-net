@@ -443,9 +443,9 @@ public class TempSettings
 				}
 				settingsData[pair.Key] = pair.Value;
 			}
-			string scheme = state[Scheme].String;
-			settingsData[Scheme] = SValue.NewString(!string.IsNullOrEmpty(scheme) ? scheme : Settings.DefaultScheme);
 		}
+		string scheme = state[Scheme].String;
+		settingsData[Scheme] = SValue.NewString(!string.IsNullOrEmpty(scheme) ? scheme : Settings.DefaultScheme);
 	}
 	
 	private void SerializeSettings(ref SValue state)
