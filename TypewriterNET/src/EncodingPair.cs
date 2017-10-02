@@ -87,17 +87,18 @@ public struct EncodingPair
 		builder.AppendLine();
 		TextTable table = new TextTable().SetMaxColWidth(35);
 		int index = 0;
+		int cols = 4;
 		foreach (EncodingInfo info in Encoding.GetEncodings())
 		{
 			table.Add(info.Name);
 			index++;
-			if (index % 3 == 0)
+			if (index % cols == 0)
 				table.NewRow();
 			if (info.GetEncoding().GetPreamble().Length > 0)
 			{
 				table.Add(info.Name + " bom");
 				index++;
-				if (index % 3 == 0)
+				if (index % cols == 0)
 					table.NewRow();
 			}
 		}
