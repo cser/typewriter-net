@@ -427,47 +427,84 @@ namespace MulticaretEditor
 			int depth = 0;
 			while (true)
 			{
-				for (int i = 0; i < 2; ++i)
+				char c = _iterator.RightChar;
+				if (c == '"')
 				{
-					char quotes = i == 0 ? '"' : '\'';
-					while (_iterator.RightChar == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
+					while (_iterator.MoveRight())
 					{
-						while (true)
+						if (_iterator.RightChar == '"')
 						{
-							if (!_iterator.MoveRight())
+							_iterator.MoveRight();
+							break;
+						}
+						if (_iterator.RightChar == '\\')
+						{
+							_iterator.MoveRight();
+						}
+					}
+				}
+				else if (c == '\'')
+				{
+					while (_iterator.MoveRight())
+					{
+						if (_iterator.RightChar == '\'')
+						{
+							_iterator.MoveRight();
+							break;
+						}
+						if (_iterator.RightChar == '\\')
+						{
+							_iterator.MoveRight();
+						}
+					}
+				}
+				else if (c == '\\')
+				{
+					_iterator.MoveRight();
+					if (!_iterator.MoveRight())
+					{
+						return false;
+					}
+				}
+				else if (c == '@')
+				{
+					_iterator.MoveRight();
+					if (_iterator.RightChar == '"')
+					{
+						while (_iterator.MoveRight())
+						{
+							if (_iterator.RightChar == '"')
 							{
-								return false;
-							}
-							char rightC = _iterator.RightChar;
-							if (rightC == quotes && _iterator.GetLeftCharsCount('\\') % 2 == 0)
-							{
-								if (!_iterator.MoveRight())
+								_iterator.MoveRight();
+								if (_iterator.RightChar != '"')
 								{
-									return false;
+									break;
 								}
-								break;
-							}
-							if (rightC == '\r' || rightC == '\n')
-							{
-								return false;
 							}
 						}
 					}
 				}
-				char c = _iterator.RightChar;
-				if (c == bra)
+				else if (c == bra)
 				{
 					++depth;
+					if (!_iterator.MoveRight())
+					{
+						return false;
+					}
 				}
-				if (c == ket)
+				else if (c == ket)
 				{
 					if (depth <= 0)
 					{
 						return true;
 					}
 					--depth;
+					if (!_iterator.MoveRight())
+					{
+						return false;
+					}
 				}
-				if (!_iterator.MoveRight())
+				else if (!_iterator.MoveRight())
 				{
 					return false;
 				}

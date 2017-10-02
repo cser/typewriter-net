@@ -2018,8 +2018,10 @@ namespace UnitTests
 		[Test]
 		public void BracketsInsideString()
 		{
+			//             a{b{"c{"d}e}
 			lines.SetText("a{b{\"c{\"d}e}");
 			Put(8, 0).Press("yi{");
+			//               "c{"d
 			Assert.AreEqual("\"c{\"d", ClipboardExecutor.GetFromRegister(lines, '\0'));
 			
 			lines.SetText("a{b{'c{'d}e}");
@@ -2042,6 +2044,7 @@ namespace UnitTests
 		[Test]
 		public void BracketsInsideString_EscapeComplex()
 		{
+			//             a{b{@"c{"""d}e}
 			lines.SetText("a{b{@\"c{\"\"\"d}e}");
 			Put(10, 0).Press("yi{");
 			Assert.AreEqual("@\"c{\"\"\"d", ClipboardExecutor.GetFromRegister(lines, '\0'));
@@ -2050,6 +2053,7 @@ namespace UnitTests
 		[Test]
 		public void BracketsInsideString_EscapeComplex2()
 		{
+			//             "a{b{@\"c{\"\"\"d}e}"}
 			lines.SetText("\"a{b{@\\\"c{\\\"\\\"\\\"d}e}\"}");
 			Put(6, 0).Press("yi{");
 			Assert.AreEqual("@\\\"c{\\\"\\\"\\\"d}e", ClipboardExecutor.GetFromRegister(lines, '\0'));
