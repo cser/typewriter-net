@@ -1480,6 +1480,10 @@ namespace MulticaretEditor
 						{
 							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
 						}
+						if (jumpMap != null)
+						{
+							receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
+						}
 					}
 					else
 					{
@@ -1641,6 +1645,10 @@ namespace MulticaretEditor
 						if (showSpaceCharacters)
 						{
 							g.DrawString("·", font, scheme.lineNumberForeground, x + charWidth * pos, y, stringFormat);
+						}
+						if (jumpMap != null)
+						{
+							receiver.Jump.FillChar(c.c, position.X + charWidth * pos, y);
 						}
 					}
 					else
