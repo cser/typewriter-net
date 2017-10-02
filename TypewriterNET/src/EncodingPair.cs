@@ -85,24 +85,51 @@ public struct EncodingPair
 		StringBuilder builder = new StringBuilder();
 		builder.AppendLine("# Awailable encodings");
 		builder.AppendLine();
-		TextTable table = new TextTable().SetMaxColWidth(35);
-		int index = 0;
+		
+		EncodingInfo[] infos = Encoding.GetEncodings();
 		int cols = 4;
-		foreach (EncodingInfo info in Encoding.GetEncodings())
+		int rows = Math.Max(1, (infos.Length + cols - 1) / cols);
+		EncodingInfo[,] grid = new EncodingInfo[cols, rows];
+		for (int i = 0; i < infos.Length; ++i)
 		{
-			table.Add(info.Name);
-			index++;
-			if (index % cols == 0)
-				table.NewRow();
-			if (info.GetEncoding().GetPreamble().Length > 0)
+			EncodingInfo info = infos[i];
+			grid[i / rows, i % rows] = info;
+		}
+		int[] maxSizes = new int[cols];
+		for (int col = 0; col < cols; ++col)
+		{
+			for (int row = 0; row < rows; ++row)
 			{
-				table.Add(info.Name + " bom");
-				index++;
-				if (index % cols == 0)
-					table.NewRow();
+				EncodingInfo info = grid[col, row];
+				string name = info.Name + " bom";
+				if (info != null && maxSizes[col] < name.Length)
+				{
+					maxSizes[col] = name.Length;
+				}
 			}
 		}
-		builder.Append(table.ToString());
+		for (int row = 0; row < rows; ++row)
+		{
+			for (int col = 0; col < cols; ++col)
+			{
+				EncodingInfo info = grid[col, row];
+				if (info != null)
+				{
+					string name = info.Name + " bom";
+					builder.Append(name);
+					builder.Append(new string(' ', maxSizes[col] - name.Length));
+				}
+				else
+				{
+					builder.Append(new string(' ', maxSizes[col]));
+				}
+				if (col != cols - 1)
+				{
+					builder.Append(" │ ");
+				}
+			}
+			builder.AppendLine();
+		}
 		return builder.ToString();
 	}
 

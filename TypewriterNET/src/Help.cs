@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -67,10 +68,49 @@ public static class Help
 		builder.AppendLine();
 		builder.AppendLine("# Syntax highlighting styles");
 		builder.AppendLine();
-		foreach (Ds ds in Ds.all)
 		{
-			ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
-			builder.AppendLine(ds.name);
+			int cols = 5;
+			int rows = Math.Max(1, (Ds.all.Count + cols - 1) / cols);
+			Ds[,] grid = new Ds[cols, rows];
+			for (int i = 0; i < Ds.all.Count; ++i)
+			{
+				Ds ds = Ds.all[i];
+				grid[i / rows, i % rows] = ds;
+			}
+			int[] maxSizes = new int[cols];
+			for (int col = 0; col < cols; ++col)
+			{
+				for (int row = 0; row < rows; ++row)
+				{
+					Ds ds = grid[col, row];
+					if (ds != null && maxSizes[col] < ds.name.Length)
+					{
+						maxSizes[col] = ds.name.Length;
+					}
+				}
+			}
+			for (int row = 0; row < rows; ++row)
+			{
+				for (int col = 0; col < cols; ++col)
+				{
+					Ds ds = grid[col, row];
+					if (ds != null)
+					{
+						ranges.Add(new StyleRange(builder.Length, ds.name.Length, ds.index));
+						builder.Append(ds.name);
+						builder.Append(new string(' ', maxSizes[col] - ds.name.Length));
+					}
+					else
+					{
+						builder.Append(new string(' ', maxSizes[col]));
+					}
+					if (col != cols - 1)
+					{
+						builder.Append(" │ ");
+					}
+				}
+				builder.AppendLine();
+			}
 		}
 		builder.AppendLine();
 		builder.AppendLine("Learn more about syntax.xml files in \"?\\Kate syntax highlighting help…\" menu item");
