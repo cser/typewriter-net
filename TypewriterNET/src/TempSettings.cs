@@ -53,8 +53,8 @@ public class TempSettings
 		NullableCurrentDir = state["currentDir"].String;
 		int width = Math.Max(50, state["width"].GetInt(700));
 		int height = Math.Max(30, state["height"].GetInt(480));
-		int x = Math.Max(0, state["x"].Int);
-		int y = Math.Max(0, state["y"].Int);
+		int x = state["x"].Int;
+		int y = state["y"].Int;
 		mainForm.Size = new Size(width, height);
 		mainForm.Location = new Point(x, y);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
