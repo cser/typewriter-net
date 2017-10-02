@@ -941,6 +941,13 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void v2i()
+		{
+			lines.SetText("{One {two {three} four} five}");
+			Put(14, 0).Press("v2i{").AssertSelection().Anchor(6, 0).Caret(22, 0);
+		}
+		
+		[Test]
 		public void MoveBracketPair_NoPair()
 		{
 			lines.SetText("\tvoid Method()\n" +
