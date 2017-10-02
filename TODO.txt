@@ -1,5 +1,5 @@
-- fix {} jumping with complex strings
-- fix ,g with subclasses inheritance showing (need :)
+- fix fail on incorrect scheme name
+- fix {} jumping depth
 - selection mast works with find
 - tag text object
 - copy to default register with named register- tag text object

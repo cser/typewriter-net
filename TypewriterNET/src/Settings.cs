@@ -7,6 +7,8 @@ using MulticaretEditor;
 
 public class Settings
 {
+	public const string DefaultScheme = "npp";
+	
 	public readonly Properties.Bool wordWrap = new Properties.Bool("wordWrap", false);
 	public readonly Properties.Bool showLineNumbers = new Properties.Bool("showLineNumbers", true);
 	public readonly Properties.Bool highlightCurrentLine = new Properties.Bool("highlightCurrentLine", true);
@@ -18,7 +20,7 @@ public class Settings
 	public readonly Properties.Float lineNumberFontSize = new Properties.Float("lineNumberFontSize", 0).SetMinMax(0, 100).SetPrecision(2);
 	public readonly Properties.Float fontSize = new Properties.Float("fontSize", 10.25f).SetMinMax(4, 100).SetPrecision(2);
 	public readonly Properties.Font font = new Properties.Font("font", FontFamily.GenericMonospace);
-	public readonly Properties.String scheme = new Properties.String("scheme", "npp", false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
+	public readonly Properties.String scheme = new Properties.String("scheme", DefaultScheme, false, "").SetLoadVariants(SchemeManager.GetAllSchemeNames);
 	public readonly Properties.Int scrollingIndent = new Properties.Int("scrollingIndent", 3).SetMinMax(0, int.MaxValue);
 	public readonly Properties.Int scrollingStep = new Properties.Int("scrollingStep", 3).SetMinMax(1, int.MaxValue);
 	public readonly Properties.String altCharsSource = new Properties.String("altCharsSource", "", false, "Chars to input with right Alt");

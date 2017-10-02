@@ -20,6 +20,7 @@ public class TempSettings
 	private FileQualitiesStorage storage = new FileQualitiesStorage();
 	private RecentlyStorage recently = new RecentlyStorage();
 	private RecentlyStorage recentlyDirs = new RecentlyStorage();
+	private const string Scheme = "scheme";
 	
 	public readonly Dictionary<string, SValue> settingsData = new Dictionary<string, SValue>();
 	
@@ -109,7 +110,7 @@ public class TempSettings
 		}
 		helpPosition = state["helpPosition"].Int;
 		viHelpPosition = state["viHelpPosition"].Int;
-		UnserializeSettings(state);
+		UnserializeSettings(ref state);
 	}
 
 	public void MarkLoaded(Buffer buffer)
@@ -261,7 +262,7 @@ public class TempSettings
 		state["fileTreeExpanded"] = mainForm.FileTree.GetExpandedTemp();
 		state["helpPosition"] = SValue.NewInt(helpPosition);
 		state["viHelpPosition"] = SValue.NewInt(viHelpPosition);
-		SerializeSettings(state);
+		SerializeSettings(ref state);
 		File.WriteAllBytes(GetTempSettingsPath(postfix, AppPath.StartupDir), SValue.Serialize(state));
 	}
 
@@ -428,7 +429,7 @@ public class TempSettings
 		return data;
 	}
 	
-	private void UnserializeSettings(SValue state)
+	private void UnserializeSettings(ref SValue state)
 	{
 		settingsData.Clear();
 		Dictionary<string, SValue> dict = state["settings"].AsDictionary;
@@ -436,21 +437,29 @@ public class TempSettings
 		{
 			foreach (KeyValuePair<string, SValue> pair in dict)
 			{
+				if (pair.Key == Scheme)
+				{
+					continue;
+				}
 				settingsData[pair.Key] = pair.Value;
 			}
-			string scheme = state["scheme"].String;
-			settingsData["scheme"] = SValue.NewString(!string.IsNullOrEmpty(scheme) ? scheme : "npp");
+			string scheme = state[Scheme].String;
+			settingsData[Scheme] = SValue.NewString(!string.IsNullOrEmpty(scheme) ? scheme : Settings.DefaultScheme);
 		}
 	}
 	
-	private void SerializeSettings(SValue state)
+	private void SerializeSettings(ref SValue state)
 	{
 		SValue hash = state.SetNewHash("settings");
 		foreach (KeyValuePair<string, SValue> pair in settingsData)
 		{
+			if (pair.Key == Scheme)
+			{
+				continue;
+			}
 			hash[pair.Key] = pair.Value;
 		}
-		string scheme = hash["scheme"].String;
-		state["scheme"] = !string.IsNullOrEmpty(scheme) ? SValue.NewString(scheme) : SValue.None;
+		string scheme = settingsData.ContainsKey(Scheme) ? settingsData[Scheme].String : null;
+		state[Scheme] = !string.IsNullOrEmpty(scheme) ? SValue.NewString(scheme) : SValue.None;
 	}
 }
