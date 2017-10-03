@@ -28,6 +28,7 @@
 			<Detect2Chars attribute="Operator" context="#pop" char=" " char1="|"/>
 			<Int attribute="Decimal" context="#stay"/>
 			<AnyChar String=".,;:~!@#$%^&amp;&lt;&gt;*()[]{}_-+=\|/?" attribute="Operator"/>
+			<DetectChar attribute="Operator" context="#stay" char="│"/>
 		</context>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Common">
 			<Detect2Chars attribute="Strikeout" context="Strikeout" char="\" char1="\"/>
