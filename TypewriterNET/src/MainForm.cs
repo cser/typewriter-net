@@ -1775,6 +1775,18 @@ public class MainForm : Form
 		return true;
 	}
 	
+	public void OpenRepl(string command)
+	{
+		Frame frame = GetMainNest().Frame;
+		if (frame != null && settings != null)
+		{
+			Buffer buffer = new Repl(command);
+			frame.AddBuffer(buffer);
+			frame.Focus();
+			frame.TextBox.MoveToCaret();
+		}
+	}
+	
 	private void ShowTabList()
 	{
 		if (tabList != null && tabList.Controller == FocusedController)

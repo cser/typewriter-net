@@ -640,6 +640,7 @@ public class Commander
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
+		commands.Add(new Command("repl", "[command]", "open REPL tab", DoRepl));
 	}
 	
 	private void DoViSaveFile(string args)
@@ -1534,5 +1535,15 @@ public class Commander
 		}
 		if (mainForm.LastFrame.AsFrame != null)
 			mainForm.LastFrame.AsFrame.ShowAutocomplete(variants, word);
+	}
+	
+	private void DoRepl(string text)
+	{
+		if (string.IsNullOrEmpty(text) || text.Trim() == "")
+		{
+			mainForm.Dialogs.ShowInfo("Error", "Expected shell command as parameter");
+			return;
+		}
+		mainForm.OpenRepl(text);
 	}
 }
