@@ -26,7 +26,25 @@ public class Repl : Buffer
 	
 	private void OnAdd(Buffer buffer)
 	{
-		int index = rawCommand.IndexOf(' ');
+		int index = -1;
+		for (int i = 0; i < rawCommand.Length; ++i)
+		{
+			if (rawCommand[i] == '"')
+			{
+				for (++i; i < rawCommand.Length; ++i)
+				{
+					if (rawCommand[i] == '"')
+					{
+						break;
+					}
+				}
+			}
+			else if (rawCommand[i] == ' ')
+			{
+				index = i;
+				break;
+			}
+		}
 		string arguments = index != -1 ? rawCommand.Substring(index + 1) : "";
 		string command = index != -1 ? rawCommand.Substring(0, index) : rawCommand;
 		process = new Process();
@@ -70,6 +88,7 @@ public class Repl : Buffer
 	private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
 	{
 		Controller.InsertText(e.Data);
+		Controller.InsertText("\n");
 		Controller.NeedScrollToCaret();
 	}
 	
