@@ -52,6 +52,8 @@ public class Repl : Buffer
 	
 	private void OnAdd(Buffer buffer)
 	{
+		Controller.InsertText(">> ");
+		Controller.DocumentEnd(false);
 		process = new Process();
 		process.StartInfo.StandardOutputEncoding = encodingPair.encoding;
 		process.StartInfo.StandardErrorEncoding = encodingPair.encoding;
@@ -94,15 +96,21 @@ public class Repl : Buffer
 	
 	private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
 	{
-		Controller.InsertText(e.Data);
-		Controller.InsertText("\n");
-		Controller.NeedScrollToCaret();
+		InsertOutputLine(e.Data);
 	}
 	
 	private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
 	{
-		Controller.InsertText(e.Data);
+		InsertOutputLine(e.Data);
+	}
+	
+	private void InsertOutputLine(string text)
+	{
+		Controller.DocumentEnd(false);
+		Controller.ViMoveHome(false, false);
+		Controller.InsertText(text);
 		Controller.InsertText("\n");
+		Controller.DocumentEnd(false);
 		Controller.NeedScrollToCaret();
 	}
 	
@@ -114,10 +122,19 @@ public class Repl : Buffer
 			Controller.DocumentEnd(false);
 			Controller.ViMoveHome(true, false);
 			string command = Controller.GetSelectedText();
+			if (command.StartsWith(">>"))
+			{
+				command = command.Substring(2);
+				if (command.StartsWith(" "))
+				{
+					command = command.Substring(1);
+				}
+			}
 			Controller.EraseSelection();
 			Controller.NeedScrollToCaret();
 			Controller.InsertText(">> " + command + "\n");
-			process.StandardInput.WriteLine(command);
+			Controller.InsertText(">> ");
+			process.StandardInput.Write(command + "\n");
 			return true;
 		}
 		return false;
