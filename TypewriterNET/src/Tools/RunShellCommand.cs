@@ -107,6 +107,22 @@ public class RunShellCommand
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}
 	
+	public static string TryGetSyntax(string parameters)
+	{
+		if (parameters != null)
+		{
+			int index = parameters.IndexOf("s:");
+			if (index != -1)
+			{
+				int index2 = parameters.IndexOf(";", index);
+				return index2 != -1 ?
+					parameters.Substring(index + 2, index2 - index - 2) :
+					parameters.Substring(index + 2);
+			}
+		}
+		return null;
+	}
+	
 	public static string CutParametersFromLeft(ref string commandText)
 	{
 		commandText = commandText.Trim();
@@ -228,13 +244,10 @@ public class RunShellCommand
 		buffer.Controller.NeedScrollToCaret();
 		if (!string.IsNullOrEmpty(parameters))
 		{
-			int index = parameters.IndexOf("s:");
-			if (index != -1)
+			string syntax = TryGetSyntax(parameters);
+			if (syntax != null)
 			{
-				int index2 = parameters.IndexOf(";", index);
-				buffer.customSyntax = index2 != -1 ?
-					parameters.Substring(index + 2, index2 - index - 2) :
-					parameters.Substring(index + 2);
+				buffer.customSyntax = syntax;
 			}
 		}
 		mainForm.Ctags.SetGoToPositions(positions);

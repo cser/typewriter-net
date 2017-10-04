@@ -4,5 +4,6 @@ public enum SettingsMode
 	Normal,
 	FileTree,
 	Help,
-	TabList	
+	TabList,
+	EditableNotFile
 }

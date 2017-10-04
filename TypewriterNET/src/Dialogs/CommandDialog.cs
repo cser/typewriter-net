@@ -212,7 +212,8 @@ public class CommandDialog : ADialog
 		{
 			text = text.Substring(0, place.iChar);
 		}
-		if (!text.StartsWith("!") && !text.StartsWith("<") && !text.StartsWith(">"))
+		if (!text.StartsWith("!") && !text.StartsWith("<") && !text.StartsWith(">") &&
+			!StartsWithReplBra(text))
 		{
 			if (text.IndexOf(' ') == -1 && text.IndexOf('\t') == -1)
 			{
@@ -263,8 +264,12 @@ public class CommandDialog : ADialog
 		}
 		else
 		{
-			if ((text.StartsWith("!{") || text.StartsWith("!^{") ||
-				text.StartsWith("<{") || text.StartsWith(">{") || text.StartsWith("<>{")) &&
+			if ((text.StartsWith("!{") ||
+				text.StartsWith("!^{") ||
+				text.StartsWith("<{") ||
+				text.StartsWith(">{") ||
+				text.StartsWith("<>{") ||
+				StartsWithReplBra(text)) &&
 				!text.Contains("}"))
 			{
 				int prefixIndex;
@@ -345,6 +350,29 @@ public class CommandDialog : ADialog
 		}
 		AutocompletePath(path);
 		return true;
+	}
+	
+	private bool StartsWithReplBra(string text)
+	{
+		if (text.StartsWith("repl"))
+		{
+			bool wasSpace = false;
+			int i = 4;
+			for (; i < text.Length; ++i)
+			{
+				char c = text[i];
+				if (c != ' ' && c != '\t')
+				{
+					wasSpace = true;
+					break;
+				}
+			}
+			if (wasSpace && i < text.Length && text[i] == '{')
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void AutocompleteCommand(string text)

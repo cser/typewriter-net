@@ -35,7 +35,7 @@ public class Buffer
 		get
 		{
 			string name = Name;
-			if (Changed)
+			if (Changed && settingsMode != SettingsMode.EditableNotFile)
 			{
 				name += "*";
 			}

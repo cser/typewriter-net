@@ -1780,10 +1780,11 @@ public class MainForm : Form
 		Frame frame = GetMainNest().Frame;
 		if (frame != null && settings != null)
 		{
-			Buffer buffer = new Repl(command);
+			Buffer buffer = new Repl(command, this);
 			frame.AddBuffer(buffer);
 			frame.Focus();
 			frame.TextBox.MoveToCaret();
+			frame.TextBox.SetViMode(false);
 		}
 	}
 	

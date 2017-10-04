@@ -8,24 +8,22 @@ using TinyJSON;
 
 public class Repl : Buffer
 {
+	private readonly string arguments;
+	private readonly string command;
 	private Process process;
-	private string rawCommand;
 	
-	public Repl(string rawCommand) : base(
+	public Repl(string rawCommand, MainForm mainForm) : base(
 		null,
 		"REPL: " + (rawCommand.Length <= 10 ? rawCommand : rawCommand.Substring(0, 10) + "…"),
-		SettingsMode.TabList)
+		SettingsMode.EditableNotFile)
 	{
-		this.rawCommand = rawCommand;
 		onAdd = OnAdd;
 		onRemove = OnRemove;
 		additionKeyMap = new KeyMap();
 		additionKeyMap.AddItem(new KeyItem(Keys.Enter, null,
 			new KeyAction("&Edit\\Enter command", OnEnter, null, false)));
-	}
-	
-	private void OnAdd(Buffer buffer)
-	{
+			
+		string parameters = RunShellCommand.CutParametersFromLeft(ref rawCommand);
 		int index = -1;
 		for (int i = 0; i < rawCommand.Length; ++i)
 		{
@@ -45,9 +43,18 @@ public class Repl : Buffer
 				break;
 			}
 		}
-		string arguments = index != -1 ? rawCommand.Substring(index + 1) : "";
-		string command = index != -1 ? rawCommand.Substring(0, index) : rawCommand;
+		arguments = index != -1 ? rawCommand.Substring(index + 1) : "";
+		command = index != -1 ? rawCommand.Substring(0, index) : rawCommand;
+		Encoding encoding = RunShellCommand.GetEncoding(mainForm, parameters);
+		encodingPair = new EncodingPair(encoding, false);
+		customSyntax = RunShellCommand.TryGetSyntax(parameters);
+	}
+	
+	private void OnAdd(Buffer buffer)
+	{
 		process = new Process();
+		process.StartInfo.StandardOutputEncoding = encodingPair.encoding;
+		process.StartInfo.StandardErrorEncoding = encodingPair.encoding;
 		process.StartInfo.UseShellExecute = false;
 		process.StartInfo.FileName = command;
 		process.StartInfo.Arguments = arguments;

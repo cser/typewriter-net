@@ -620,7 +620,7 @@ public class Commander
 		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
-			"shortcut", "text", "Just reopen dialog with text - for config shorcuts", DoShortcut));
+			"shortcut", "text", "Just reopen dialog with text -\n  for config shorcuts", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
@@ -640,7 +640,7 @@ public class Commander
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
-		commands.Add(new Command("repl", "[command]", "open REPL tab", DoRepl));
+		commands.Add(new Command("repl", "[{s:,e:}][command]", "open REPL tab, examples:\n  repl {s:python;e:utf-8}python -i\n  repl {e:cp866}cmd", DoRepl));
 	}
 	
 	private void DoViSaveFile(string args)
