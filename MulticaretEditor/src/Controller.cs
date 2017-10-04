@@ -572,6 +572,11 @@ namespace MulticaretEditor
 		{
 			processor.Execute(new DeleteCommand());
 		}
+		
+		public void InsertTexts(string[] tests)
+		{
+			processor.Execute(new InsertTextCommand(null, tests, true));
+		}
 
 		public void InsertText(string text)
 		{

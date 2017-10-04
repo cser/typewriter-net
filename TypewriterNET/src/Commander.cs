@@ -640,6 +640,7 @@ public class Commander
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
+		commands.Add(new Command("enum", "[start][step]", "insert number in every selection", DoEnum));
 		commands.Add(new Command("repl", "[{s:,e:}][command]", "open REPL tab, examples:\n  repl {s:python;e:utf-8}python -i\n  repl {e:cp866}cmd", DoRepl));
 	}
 	
@@ -1545,5 +1546,49 @@ public class Commander
 			return;
 		}
 		mainForm.OpenRepl(text);
+	}
+	
+	private void DoEnum(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for replace selections");
+			return;
+		}
+		int number = 1;
+		int step = 1;
+		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		{
+			int index = text.IndexOf(' ');
+			string rawNumber = null;
+			string rawStep = null;
+			if (index != -1)
+			{
+				rawNumber = text.Substring(0, index).Trim();
+				rawStep = text.Substring(index + 1).Trim();
+			}
+			else
+			{
+				rawNumber = text.Trim();
+			}
+			if (rawNumber != null && !int.TryParse(rawNumber, out number))
+			{
+				mainForm.Dialogs.ShowInfo("Error", "Number mast be number");
+				return;
+			}
+			if (rawStep != null && !int.TryParse(rawStep, out step))
+			{
+				mainForm.Dialogs.ShowInfo("Error", "Step mast be number");
+				return;
+			}
+		}
+		List<string> texts = new List<string>();
+		foreach (Selection selection in lastBuffer.Controller.Selections)
+		{
+			texts.Add(number + "");
+			number += step;
+		}
+		lastBuffer.Controller.InsertTexts(texts.ToArray());
 	}
 }
