@@ -640,7 +640,7 @@ public class Commander
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
-		commands.Add(new Command("enum", "[start][step]", "insert number in every selection", DoEnum));
+		commands.Add(new Command("enum", "[start] [step]", "insert number in every selection", DoEnum));
 		commands.Add(new Command("repl", "[{s:,e:}][command]", "open REPL tab, examples:\n  repl {s:python;e:utf-8}python -i\n  repl {e:cp866}cmd", DoRepl));
 	}
 	

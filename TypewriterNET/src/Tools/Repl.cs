@@ -180,8 +180,9 @@ public class Repl : Buffer
 				}
 			}
 			Controller.EraseSelection();
-			Controller.NeedScrollToCaret();
+			Controller.InsertText(">> " + command + "\n");
 			Controller.InsertText(">> ");
+			Controller.NeedScrollToCaret();
 			process.StandardInput.Write(command + "\n");
 			return true;
 		}
