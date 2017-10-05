@@ -1369,29 +1369,30 @@ namespace MulticaretEditor
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				Line line = lines[place.iLine];
-				bool needAfterMove = at;
+				bool breaked = false;
+				int iChar = place.iChar;
 				for (int i = 0; i < count; i++)
 				{
-					int iChar = line.IndexOfChar(charToFind, place.iChar + 1);
-					if (iChar != -1)
+					++iChar;
+					iChar = line.IndexOfChar(charToFind, iChar);
+					if (iChar == -1)
 					{
-						if (shift)
-						{
-							iChar++;
-						}
-						place.iChar = iChar;
-						selection.caret = lines.IndexOf(place);
-						lines.SetPreferredPos(selection, place);
-						needAfterMove &= true;
-					}
-					else
-					{
+						breaked = true;
 						break;
 					}
 				}
-				if (needAfterMove)
+				if (!breaked)
 				{
-					selection.caret--;
+					if (shift)
+					{
+						iChar++;
+					}
+					if (at)
+					{
+						--iChar;
+					}
+					place.iChar = iChar;
+					selection.caret = lines.IndexOf(place);
 					lines.SetPreferredPos(selection, place);
 				}
 				selection.SetEmptyIfNotShift(shift);

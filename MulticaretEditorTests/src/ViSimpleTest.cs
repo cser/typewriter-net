@@ -2127,5 +2127,12 @@ namespace UnitTests
 			Assert.AreEqual(ViMode.Normal, receiver.ViMode);
 			Press("l").AssertSelection("#2").Both(4, 0).NoNext();
 		}
+		
+		[Test]
+		public void d2fBug()
+		{
+			lines.SetText("a(b(c)))d");
+			Put(2, 0).Press("d2f)").AssertText("a()d");
+		}
 	}
 }
