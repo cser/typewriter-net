@@ -1562,39 +1562,12 @@ public class Commander
 			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for replace selections");
 			return;
 		}
-		int number = 1;
-		int step = 1;
-		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
+		EnumGenerator generator = new EnumGenerator(text, lastBuffer.Controller.SelectionsCount);
+		if (!string.IsNullOrEmpty(generator.error))
 		{
-			int index = text.IndexOf(' ');
-			string rawNumber = null;
-			string rawStep = null;
-			if (index != -1)
-			{
-				rawNumber = text.Substring(0, index).Trim();
-				rawStep = text.Substring(index + 1).Trim();
-			}
-			else
-			{
-				rawNumber = text.Trim();
-			}
-			if (rawNumber != null && !int.TryParse(rawNumber, out number))
-			{
-				mainForm.Dialogs.ShowInfo("Error", "Number mast be number");
-				return;
-			}
-			if (rawStep != null && !int.TryParse(rawStep, out step))
-			{
-				mainForm.Dialogs.ShowInfo("Error", "Step mast be number");
-				return;
-			}
+			mainForm.Dialogs.ShowInfo("Error", generator.error);
+			return;
 		}
-		List<string> texts = new List<string>();
-		foreach (Selection selection in lastBuffer.Controller.Selections)
-		{
-			texts.Add(number + "");
-			number += step;
-		}
-		lastBuffer.Controller.InsertTexts(texts.ToArray());
+		lastBuffer.Controller.InsertTexts(generator.texts.ToArray());
 	}
 }
