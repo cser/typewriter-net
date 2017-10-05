@@ -77,8 +77,8 @@ public class Settings
 	public readonly Properties.Bool startWithViMode = new Properties.Bool("startWithViMode", false);
 	public readonly Properties.Bool viEsc = new Properties.Bool("viEsc", false);
 	public readonly Properties.Bool viAltOem = new Properties.Bool("viAlt[", false);
-	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension, separated by ';'");
-	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension, separated by ';'");
+	public readonly Properties.String ignoreSnippets = new Properties.String("ignoreSnippets", "", false, "names without extension,\n  separated by ';'");
+	public readonly Properties.String forcedSnippets = new Properties.String("forcedSnippets", "", false, "names without extension,\n  separated by ';'");
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
 	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
 	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);

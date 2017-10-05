@@ -645,6 +645,8 @@ public class Commander
 			"open REPL, {s:syntax;e:encoding;i:invitation}\n" +
 			"example:\n" +
 			"  repl {s:python;i:>>>}\"C:\\Python27\\python\" -i\n" +
+			"  (if need to make shortcut for this - look at\n" +
+			"  \"f<N>Command\"/\"command\" properties below)\n" +
 			"REPL is poor, so please use !!cmd for other", DoRepl));
 	}
 	
