@@ -83,36 +83,42 @@ public class RunShellCommand
 	
 	public static Encoding GetEncoding(MainForm mainForm, string parameters)
 	{
-		if (!string.IsNullOrEmpty(parameters))
+		string rawEncoding = TryGetParameter(parameters, 'e');
+		string error;
+		EncodingPair newValue = EncodingPair.ParseEncoding(rawEncoding, out error);
+		if (!newValue.IsNull)
 		{
-			int index = parameters.IndexOf("e:");
-			if (index != -1)
-			{
-				int index2 = parameters.IndexOf(";", index);
-				string rawEncoding = index2 != -1 ?
-					parameters.Substring(index + 2, index2 - index - 2) :
-					parameters.Substring(index + 2);
-				string error;
-				EncodingPair newValue = EncodingPair.ParseEncoding(rawEncoding, out error);
-				if (!newValue.IsNull)
-				{
-					return newValue.encoding;
-				}
-				if (mainForm.Dialogs != null)
-				{
-					mainForm.Dialogs.ShowInfo("Shell encoding", error);
-				}
-			}
+			return newValue.encoding;
+		}
+		if (mainForm.Dialogs != null)
+		{
+			mainForm.Dialogs.ShowInfo("Shell encoding", error + "");
 		}
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
+	}
+	
+	public static string TryGetSyntax(string parameters)
+	{
+		return TryGetParameter(parameters, 's');
 	}
 	
 	public static string TryGetParameter(string parameters, char symbol)
 	{
 		if (parameters != null)
 		{
-			int index = parameters.IndexOf(symbol + ":");
-			if (index != -1 && (index == 0 || !char.IsLetterOrDigit(parameters[index - 1])))
+			int index = -1;
+			int sublength = parameters.Length - 1;
+			for (int i = 0; i < sublength; i++)
+			{
+				if (parameters[i] == symbol &&
+					parameters[i + 1] == ':' &&
+					(i == 0 || !char.IsLetterOrDigit(parameters[i - 1])))
+				{
+					index = i;
+					break;
+				}
+			}
+			if (index != -1)
 			{
 				int index2 = parameters.IndexOf(";", index);
 				return index2 != -1 ?
@@ -121,11 +127,6 @@ public class RunShellCommand
 			}
 		}
 		return null;
-	}
-	
-	public static string TryGetSyntax(string parameters)
-	{
-		return TryGetParameter(parameters, 's');
 	}
 	
 	public static string CutParametersFromLeft(ref string commandText)
