@@ -11,6 +11,7 @@ public class Repl : Buffer
 {
 	private readonly string arguments;
 	private readonly string command;
+	private readonly string invitation;
 	private Process process;
 	
 	public Repl(string rawCommand, MainForm mainForm) :
@@ -54,6 +55,16 @@ public class Repl : Buffer
 		Encoding encoding = RunShellCommand.GetEncoding(mainForm, parameters);
 		encodingPair = new EncodingPair(encoding, false);
 		customSyntax = RunShellCommand.TryGetSyntax(parameters);
+		string invitation = RunShellCommand.TryGetParameter(parameters, 'i');
+		if (invitation == null)
+		{
+			invitation = "$";
+		}
+		if (invitation != "")
+		{
+			invitation += " ";
+		}
+		this.invitation = invitation;
 	}
 	
 	private static string GetShortName(string rawCommand)
@@ -72,7 +83,7 @@ public class Repl : Buffer
 	
 	private void OnAdd(Buffer buffer)
 	{
-		Controller.InsertText(">> ");
+		Controller.InsertText(invitation);
 		Controller.DocumentEnd(false);
 		process = new Process();
 		process.StartInfo.StandardOutputEncoding = encodingPair.encoding;
@@ -171,17 +182,16 @@ public class Repl : Buffer
 			Controller.DocumentEnd(false);
 			Controller.ViMoveHome(true, false);
 			string command = Controller.GetSelectedText();
-			if (command.StartsWith(">>"))
+			if (command.StartsWith(invitation))
 			{
-				command = command.Substring(2);
-				if (command.StartsWith(" "))
-				{
-					command = command.Substring(1);
-				}
+				command = command.Substring(invitation.Length);
 			}
 			Controller.EraseSelection();
-			Controller.InsertText(">> " + command + "\n");
-			Controller.InsertText(">> ");
+			if (invitation != "")
+			{
+				Controller.InsertText(invitation + command + "\n");
+				Controller.InsertText(invitation);
+			}
 			Controller.NeedScrollToCaret();
 			process.StandardInput.Write(command + "\n");
 			return true;
@@ -194,7 +204,7 @@ public class Repl : Buffer
 		if (Controller.SelectionsCount == 1 && Controller.AllSelectionsEmpty)
 		{
 			Place place = Controller.Lines.PlaceOf(Controller.LastSelection.caret);
-			if (place.iChar == 3 && place.iLine == Controller.Lines.LinesCount - 1)
+			if (place.iChar == invitation.Length && place.iLine == Controller.Lines.LinesCount - 1)
 			{
 				return true;
 			}
@@ -218,9 +228,11 @@ public class Repl : Buffer
 		{
 			Place place = Controller.Lines.PlaceOf(Controller.LastSelection.caret);
 			Place anchor = Controller.Lines.PlaceOf(Controller.LastSelection.anchor);
-			if (place.iChar > 3 && anchor.iChar > 3 && place.iLine == Controller.Lines.LinesCount - 1)
+			if (place.iChar > invitation.Length &&
+				anchor.iChar > invitation.Length &&
+				place.iLine == Controller.Lines.LinesCount - 1)
 			{
-				place.iChar = 3;
+				place.iChar = invitation.Length;
 				Controller.LastSelection.caret = Controller.Lines.IndexOf(place);
 				Controller.LastSelection.SetEmptyIfNotShift(shift);
 				return true;

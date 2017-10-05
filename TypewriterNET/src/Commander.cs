@@ -551,17 +551,17 @@ public class Commander
 		builder.AppendLine("# Commands");
 		builder.AppendLine();
 
-		TextTable table = new TextTable().SetMaxColWidth(40);
+		TextTable table = new TextTable().SetMaxColWidth(46);
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
 		table.Add("!command").Add("*").Add("Run shell command").NewRow();
 		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
 		table.Add("!^command").Add("*").Add("Run shell command, stay output up").NewRow();
 		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
-		table.Add("!?command").Add("*").Add("Run and show only non-empty output\n" + 
-			"  Usable for syntax checkers\n" +
-			"  For example, if you have jshint,\n" +
-			"  write line in config (open by F2):\n" +
+		table.Add("!?command").Add("*").Add(
+			"Run and show only non-empty output, usable for\n" + 
+			"  syntax checkers, for example, if you have\n" +
+			"  jshint, write line in config (open by F2):\n" +
 			"    <item name=\"afterSaveCommand:*.js\"\n" +
 			"          value=\"!?jshint %f%\"/>").NewRow();
 		table.Add("<command").Add("*").Add("Shell command output into document").NewRow();
@@ -620,7 +620,7 @@ public class Commander
 		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
-			"shortcut", "text", "Just reopen dialog with text -\n  for config shorcuts", DoShortcut));
+			"shortcut", "text", "Open command dialog with text - to assign keys", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
@@ -632,7 +632,7 @@ public class Commander
 		commands.Add(new Command("omnisharp-buildcommand", "", "build", DoOmnisharpBuildcommand));
 		commands.Add(new Command("omnisharp-updatebuffer", "", "update buffer", DoOmnisharpUpdateBuffer));
 		
-		commands.Add(new Command("ctags", "[parameters]", "rebuild tags, default parameters -R *\n(See more in \"?\\Ctags help…\" menu item)", DoCtagsRebuild));
+		commands.Add(new Command("ctags", "[parameters]", "rebuild tags, default parameters -R *\n(to learn more open \"?\\Ctags help…\" in menu)", DoCtagsRebuild));
 		commands.Add(new Command("ctags-goToDefinition", "", "jump to tag definition", DoCtagsGoToDefinition));
 		commands.Add(new Command("ctags-showAllDefinitions", "[name]", "show all tag definitions", DoShowAllTagDefinitions));
 		commands.Add(new Command("ctags-autocomplete", "", "autocomplete by ctags", DoCtagsAutocomplete));
@@ -641,7 +641,11 @@ public class Commander
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
 		commands.Add(new Command("enum", "[start] [step]", "insert number in every selection", DoEnum));
-		commands.Add(new Command("repl", "[{s:,e:}][command]", "open REPL tab, examples:\n  repl {s:python;e:utf-8}python -i\n  repl {e:cp866}cmd", DoRepl));
+		commands.Add(new Command("repl", "[{…}][command]",
+			"open REPL, {s:syntax;e:encoding;i:invitation}\n" +
+			"example:\n" +
+			"  repl {s:python;i:>>>}\"C:\\Python27\\python\" -i\n" +
+			"REPL is poor, so please use !!cmd for other", DoRepl));
 	}
 	
 	private void DoViSaveFile(string args)

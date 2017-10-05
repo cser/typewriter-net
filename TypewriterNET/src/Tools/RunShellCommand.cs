@@ -107,12 +107,12 @@ public class RunShellCommand
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}
 	
-	public static string TryGetSyntax(string parameters)
+	public static string TryGetParameter(string parameters, char symbol)
 	{
 		if (parameters != null)
 		{
-			int index = parameters.IndexOf("s:");
-			if (index != -1)
+			int index = parameters.IndexOf(symbol + ":");
+			if (index != -1 && (index == 0 || !char.IsLetterOrDigit(parameters[index - 1])))
 			{
 				int index2 = parameters.IndexOf(";", index);
 				return index2 != -1 ?
@@ -121,6 +121,11 @@ public class RunShellCommand
 			}
 		}
 		return null;
+	}
+	
+	public static string TryGetSyntax(string parameters)
+	{
+		return TryGetParameter(parameters, 's');
 	}
 	
 	public static string CutParametersFromLeft(ref string commandText)
