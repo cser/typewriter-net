@@ -2134,5 +2134,21 @@ namespace UnitTests
 			lines.SetText("a(b(c)))d");
 			Put(2, 0).Press("d2f)").AssertText("a()d");
 		}
+		
+		[Test]
+		public void df_DoNothingIfNotMatch()
+		{
+			lines.SetText("bcde");
+			Put(1, 0).Press("dfa").AssertText("bcde").AssertSelection().Both(1, 0);
+			Put(1, 0).Press("dfd").AssertText("be");
+		}
+		
+		[Test]
+		public void df_DoNothingIfNotMatch_Repetition()
+		{
+			lines.SetText("a(b(c)))d");
+			Put(2, 0).Press("d4f)").AssertText("a(b(c)))d").AssertSelection().Both(2, 0);
+			Put(2, 0).Press("d3f)").AssertText("a(d");
+		}
 	}
 }
