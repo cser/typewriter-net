@@ -6,4 +6,8 @@
 - js parser with (line, char)
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
-- enumeration
+- enum with count
+- enum with chars
+- enumr
+- command dialog without history
+- REPL
