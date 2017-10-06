@@ -84,15 +84,18 @@ public class RunShellCommand
 	public static Encoding GetEncoding(MainForm mainForm, string parameters)
 	{
 		string rawEncoding = TryGetParameter(parameters, 'e');
-		string error;
-		EncodingPair newValue = EncodingPair.ParseEncoding(rawEncoding, out error);
-		if (!newValue.IsNull)
+		if (!string.IsNullOrEmpty(rawEncoding))
 		{
-			return newValue.encoding;
-		}
-		if (mainForm.Dialogs != null)
-		{
-			mainForm.Dialogs.ShowInfo("Shell encoding", error + "");
+			string error;
+			EncodingPair newValue = EncodingPair.ParseEncoding(rawEncoding, out error);
+			if (!newValue.IsNull)
+			{
+				return newValue.encoding;
+			}
+			if (mainForm.Dialogs != null)
+			{
+				mainForm.Dialogs.ShowInfo("Shell encoding", error + "");
+			}
 		}
 		return mainForm.Settings.shellEncoding.Value.encoding ?? Encoding.UTF8;
 	}

@@ -787,7 +787,7 @@ public class Commander
 	
 	private void DoShortcut(string text)
 	{
-		mainForm.Dialogs.ShowInputCommand(text);
+		mainForm.Dialogs.ShowInputCommand(text, false);
 	}
 	
 	private static bool SwitchOrSetValue(bool value, string text)

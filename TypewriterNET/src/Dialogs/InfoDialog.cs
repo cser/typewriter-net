@@ -141,7 +141,7 @@ public class InfoDialog : ADialog
 	{
 		if (shortcut == ":")
 		{
-			MainForm.Dialogs.ShowInputCommand(null);
+			MainForm.Dialogs.ShowInputCommand(null, false);
 			DispatchNeedClose();
 		}
 	}

@@ -131,6 +131,8 @@ public class DialogManager
 		KeyMap keyMap = mainForm.KeyMap;
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemSemicolon, null,
 			new KeyAction("&View\\Open/close command dialog", DoInputCommand, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.OemSemicolon, null,
+			new KeyAction("&View\\Open/close command dialog (no history)", DoInputCommandNoHistory, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
 			new KeyAction("&View\\Set syntax…", DoSetSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemplus, null,
@@ -206,13 +208,20 @@ public class DialogManager
 	private bool DoInputCommand(Controller controller)
 	{
 		if (command.SwitchOpen())
-			ShowInputCommand(null);
+			ShowInputCommand(null, false);
 		return true;
 	}
 	
-	public void ShowInputCommand(string text)
+	private bool DoInputCommandNoHistory(Controller controller)
 	{
-		command.Open(new CommandDialog(commandData, "Command", text), true);
+		if (command.SwitchOpen())
+			ShowInputCommand(null, true);
+		return true;
+	}
+	
+	public void ShowInputCommand(string text, bool ignoreHistory)
+	{
+		command.Open(new CommandDialog(commandData, "Command", text, ignoreHistory), true);
 	}
 
 	private bool DoFind(Controller controller)

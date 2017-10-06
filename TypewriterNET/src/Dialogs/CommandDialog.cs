@@ -23,12 +23,14 @@ public class CommandDialog : ADialog
 	private MulticaretTextBox textBox;
 	private Data data;
 	private string text;
+	private bool ignoreHistory;
 
-	public CommandDialog(Data data, string name, string text)
+	public CommandDialog(Data data, string name, string text, bool ignoreHistory)
 	{
 		this.data = data;
 		Name = name;
 		this.text = text;
+		this.ignoreHistory = ignoreHistory;
 	}
 
 	override protected void DoCreate()
@@ -106,7 +108,10 @@ public class CommandDialog : ADialog
 
 	override protected void DoDestroy()
 	{
-		data.oldText = textBox.Text;
+		if (!ignoreHistory)
+		{
+			data.oldText = textBox.Text;
+		}
 	}
 
 	override public Size MinSize { get { return new Size(tabBar.Height * 3, tabBar.Height + textBox.CharHeight); } }
@@ -172,7 +177,8 @@ public class CommandDialog : ADialog
 	{
 		ClipboardExecutor.viLastCommand = textBox.Text;
 		Commander commander = MainForm.commander;
-		commander.Execute(textBox.Text, false, false, GetAltCommandText, new OnceCallback(DispatchNeedClose));
+		commander.Execute(
+			textBox.Text, ignoreHistory, false, GetAltCommandText, new OnceCallback(DispatchNeedClose));
 		return true;
 	}
 	

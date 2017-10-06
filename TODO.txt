@@ -9,5 +9,5 @@
 - enum with count
 - enum with chars
 - enumr
-- command dialog without history
-- REPL
+- fix REPL fail on cls
+- Ctrl+Shift notation in command
