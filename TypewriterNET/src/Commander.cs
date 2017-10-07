@@ -645,6 +645,7 @@ public class Commander
 			"  or several numbers at selection if count > 1\n" +
 			"  n0 - first number or char", DoEnum));
 		commands.Add(new Command("enum0", "[n0] [step] [count]", "enum with '0' padding left formating", DoEnum0));
+		commands.Add(new Command("enumr", "[n0] [step] [count]", "enum for roman numerals", DoEnumr));
 		commands.Add(new Command("repl", "[{…}]command",
 			"open REPL, {s:syntax;e:encoding;i:invitation}\n" +
 			"example:\n" +
@@ -1566,6 +1567,11 @@ public class Commander
 	private void DoEnum0(string text)
 	{
 		ProcessEnum(text, EnumGenerator.Mode.ZeroBeforeNumber);
+	}
+	
+	private void DoEnumr(string text)
+	{
+		ProcessEnum(text, EnumGenerator.Mode.Roman);
 	}
 	
 	private void ProcessEnum(string text, EnumGenerator.Mode mode)

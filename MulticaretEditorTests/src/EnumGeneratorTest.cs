@@ -22,6 +22,13 @@ namespace UnitTests
 			CollectionAssert.AreEqual(expected, generator.texts);
 		}
 		
+		private void AssertRoman(string[] expected, string args, int count)
+		{
+			EnumGenerator generator = new EnumGenerator(args, count, EnumGenerator.Mode.Roman);
+			Assert.IsNull(generator.error, "Error must be null");
+			CollectionAssert.AreEqual(expected, generator.texts);
+		}
+		
 		private void AssertError(string expected, string args, int count, EnumGenerator.Mode mode)
 		{
 			EnumGenerator generator = new EnumGenerator(args, count, mode);
@@ -108,14 +115,41 @@ namespace UnitTests
 			AssertZeroBeforeNumber(new string[] { "!", " ", " " }, "! -1", 3);
 		}
 		
-		[Test]
-		public void Errors_Simple()
+		[TestCase(EnumGenerator.Mode.Number)]
+		[TestCase(EnumGenerator.Mode.ZeroBeforeNumber)]
+		public void Errors_Simple(EnumGenerator.Mode mode)
 		{
-			AssertError("Step mast be number", "2 a", 3, EnumGenerator.Mode.Number);
-			AssertError("Count mast be number", "2 1 b", 3, EnumGenerator.Mode.Number);
-			AssertError("Expected number or one char", "XX", 3, EnumGenerator.Mode.Number);
-			AssertError("Expected number or one char", "XX 2 2", 3, EnumGenerator.Mode.Number);
-			AssertError("Expected number or one char", "XX a 2", 3, EnumGenerator.Mode.Number);
+			AssertError("Step must be number", "2 a", 3, mode);
+			AssertError("Count must be number", "2 1 b", 3, mode);
+			AssertError("Expected number or one char", "XX", 3, mode);
+			AssertError("Expected number or one char", "XX 2 2", 3, mode);
+			AssertError("Expected number or one char", "XX a 2", 3, mode);
+		}
+		
+		[Test]
+		public void SimpleRomans_RomanParameters()
+		{
+			AssertRoman(new string[] { "I", "II", "III" }, "", 3);
+			AssertRoman(new string[] { "II", "III", "IV" }, "II", 3);
+			AssertRoman(new string[] { "II", "VII", "XII" }, "II V", 3);
+			AssertRoman(new string[] { "II IV VI", "VIII X XII", "XIV XVI XVIII" }, "II II III", 3);
+		}
+		
+		[Test]
+		public void SimpleRomans_Digit()
+		{
+			AssertRoman(new string[] { "I", "II", "III" }, "", 3);
+			AssertRoman(new string[] { "II", "III", "IV" }, "2", 3);
+			AssertRoman(new string[] { "II", "VII", "XII" }, "2 5", 3);
+			AssertRoman(new string[] { "II IV VI", "VIII X XII", "XIV XVI XVIII" }, "2 2 3", 3);
+		}
+		
+		[Test]
+		public void Errors_Roman()
+		{
+			AssertError("Expected number or roman", "a", 3, EnumGenerator.Mode.Roman);
+			AssertError("Step must be number", "X a", 3, EnumGenerator.Mode.Roman);
+			AssertError("Count must be number", "X 2 a", 3, EnumGenerator.Mode.Roman);
 		}
 	}
 }

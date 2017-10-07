@@ -96,5 +96,128 @@ namespace MulticaretEditor
 			}
 			return count;
 		}
+		
+        private static int RomanNumberOfChar(char c)
+        {
+	        switch (c)
+	        {
+				case 'I': return 1;
+				case 'V': return 5;
+				case 'X': return 10;
+				case 'L': return 50;
+				case 'C': return 100;
+				case 'D': return 500;
+				case 'M': return 1000;
+			}
+			return 0;
+        }
+
+		// https://stackoverflow.com/questions/7040289/converting-integers-to-roman-numerals
+		public static string RomanOf(int number)
+		{
+			if (number <= 0 || number > 3999)
+			{
+				return number + "";
+			}
+			StringBuilder builder = new StringBuilder();
+			while (number > 0)
+			{
+				if (number >= 1000)
+				{
+					builder.Append("M");
+					number -= 1000;
+				}
+				else if (number >= 900)
+				{
+					builder.Append("CM");
+					number -= 900;
+				}
+				else if (number >= 500)
+				{
+					builder.Append("D");
+					number -= 500;
+				}
+				else if (number >= 400)
+				{
+					builder.Append("CD");
+					number -= 400;
+				}
+				else if (number >= 100)
+				{
+					builder.Append("C");
+					number -= 100;
+				}
+				else if (number >= 90)
+				{
+					builder.Append("XC");
+					number -= 90;
+				}
+				else if (number >= 50)
+				{
+					builder.Append("L");
+					number -= 50;
+				}
+				else if (number >= 40)
+				{
+					builder.Append("XL");
+					number -= 40;
+				}
+				else if (number >= 10)
+				{
+					builder.Append("X");
+					number -= 10;
+				}
+				else if (number >= 9)
+				{
+					builder.Append("IX");
+					number -= 9;
+				}
+				else if (number >= 5)
+				{
+					builder.Append("V");
+					number -= 5;
+				}
+				else if (number >= 4)
+				{
+					builder.Append("IV");
+					number -= 4;
+				}
+				else if (number >= 1)
+				{
+					builder.Append("I");
+					number -= 1;
+				}
+			}
+			return builder.ToString();
+		}
+	
+		public static int OfRoman(string roman)
+		{
+			int total = 0;
+			int current = 0;
+			int previous = 0;
+			char currentRoman, previousRoman = '\0';
+			for (int i = 0; i < roman.Length; i++)
+			{
+				currentRoman = roman[i];
+				previous = previousRoman != '\0' ? RomanNumberOfChar(previousRoman) : '\0';
+				current = RomanNumberOfChar(currentRoman);
+				if (current == 0)
+				{
+					int.TryParse(roman, out total);
+					return total;
+				}
+				if (previous != 0 && current > previous)
+				{
+					total = total - (2 * previous) + current;
+				}
+				else
+				{
+					total += current;
+				}
+				previousRoman = currentRoman;
+			}
+			return total;
+		}
 	}
 }

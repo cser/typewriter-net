@@ -1,3 +1,4 @@
+using MulticaretEditor;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,8 @@ public class EnumGenerator
 	public enum Mode
 	{
 		Number,
-		ZeroBeforeNumber
+		ZeroBeforeNumber,
+		Roman
 	}
 	
 	public readonly List<string> texts = new List<string>();
@@ -24,8 +26,15 @@ public class EnumGenerator
 	private void Execute(string text, int selectionsCount)
 	{
 		int number = 1;
+		char numberC = '\0';
+		bool numberExists = false;
+		bool numberCorrect = false;
 		int step = 1;
+		bool stepExists = false;
+		bool stepCorrect = false;
 		int count = 1;
+		bool countExists = false;
+		bool countCorrect = false;
 		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
 		{
 			string[] raw = text.Split(new char[] { ' ', '\t' });
@@ -38,30 +47,75 @@ public class EnumGenerator
 					trimmed.Add(trimmedI);
 				}
 			}
-			bool hasFirst = trimmed.Count > 0 && !int.TryParse(trimmed[0], out number);
-			if (hasFirst)
+			if (trimmed.Count > 0)
 			{
-				if (trimmed[0].Length != 1)
+				numberExists = true;
+				if (int.TryParse(trimmed[0], out number))
 				{
-					error = "Expected number or one char";
-					return;
+					numberCorrect = true;
+				}
+				else if (mode == Mode.Roman)
+				{
+					number = CommonHelper.OfRoman(trimmed[0]);
+					numberCorrect = number != 0;
+				}
+				else if (trimmed[0].Length == 1)
+				{
+					numberCorrect = true;
+					numberC = trimmed[0][0];
 				}
 			}
-			if (trimmed.Count > 1 && !int.TryParse(trimmed[1], out step))
+			if (trimmed.Count > 1)
 			{
-				error = "Step mast be number";
+				stepExists = true;
+				if (int.TryParse(trimmed[1], out step))
+				{
+					stepCorrect = true;
+				}
+				else if (mode == Mode.Roman)
+				{
+					step = CommonHelper.OfRoman(trimmed[1]);
+					stepCorrect = step != 0;
+				}
+			}
+			if (trimmed.Count > 2)
+			{
+				countExists = true;
+				if (int.TryParse(trimmed[2], out count))
+				{
+					countCorrect = true;
+				}
+				else if (mode == Mode.Roman)
+				{
+					count = CommonHelper.OfRoman(trimmed[2]);
+					countCorrect = count != 0;
+				}
+			}
+			if (numberExists && !numberCorrect)
+			{
+				error = mode != Mode.Roman ? "Expected number or one char" : "Expected number or roman";
 				return;
 			}
-			if (trimmed.Count > 2 && !int.TryParse(trimmed[2], out count))
+			if (stepExists && !stepCorrect)
 			{
-				error = "Count mast be number";
+				error = "Step must be number";
 				return;
 			}
-			if (hasFirst)
+			if (countExists && !countCorrect)
 			{
-				AddChars(trimmed[0][0], step, count, selectionsCount);
+				error = "Count must be number";
 				return;
 			}
+			if (numberC != '\0')
+			{
+				AddChars(numberC, step, count, selectionsCount);
+				return;
+			}
+		}
+		if (mode == Mode.Roman)
+		{
+			AddRomans(number, step, count, selectionsCount);
+			return;
 		}
 		AddNumbers(number, step, count, selectionsCount);
 	}
@@ -131,6 +185,26 @@ public class EnumGenerator
 					nextC = 0xffff;
 				}
 				c = (char)nextC;
+			}
+			texts.Add(builder.ToString());
+		}
+	}
+	
+	private void AddRomans(int n0, int step, int count, int selectionsCount)
+	{
+		int number = n0;
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < selectionsCount; i++)
+		{
+			builder.Length = 0;
+			for (int j = 0; j < count; j++)
+			{
+				if (j > 0)
+				{
+					builder.Append(' ');
+				}
+				builder.Append(CommonHelper.RomanOf(number));
+				number += step;
 			}
 			texts.Add(builder.ToString());
 		}
