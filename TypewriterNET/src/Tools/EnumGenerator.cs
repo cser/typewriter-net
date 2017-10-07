@@ -38,6 +38,15 @@ public class EnumGenerator
 					trimmed.Add(trimmedI);
 				}
 			}
+			bool hasFirst = trimmed.Count > 0 && !int.TryParse(trimmed[0], out number);
+			if (hasFirst)
+			{
+				if (trimmed[0].Length != 1)
+				{
+					error = "Expected number or one char";
+					return;
+				}
+			}
 			if (trimmed.Count > 1 && !int.TryParse(trimmed[1], out step))
 			{
 				error = "Step mast be number";
@@ -48,13 +57,8 @@ public class EnumGenerator
 				error = "Count mast be number";
 				return;
 			}
-			if (trimmed.Count > 0 && !int.TryParse(trimmed[0], out number))
+			if (hasFirst)
 			{
-				if (trimmed[0].Length != 1)
-				{
-					error = "Number mast be number";
-					return;
-				}
 				AddChars(trimmed[0][0], step, count, selectionsCount);
 				return;
 			}
@@ -117,7 +121,16 @@ public class EnumGenerator
 					builder.Append(' ');
 				}
 				builder.Append(c);
-				c += (char)step;
+				int nextC = c + step;
+				if (nextC < 32)
+				{
+					nextC = 32;
+				}
+				else if (nextC > 0xffff)
+				{
+					nextC = 0xffff;
+				}
+				c = (char)nextC;
 			}
 			texts.Add(builder.ToString());
 		}

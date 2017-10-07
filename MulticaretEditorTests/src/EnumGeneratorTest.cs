@@ -10,14 +10,23 @@ namespace UnitTests
 	{
 		private void AssertNumber(string[] expected, string args, int count)
 		{
-			CollectionAssert.AreEqual(
-				expected, new EnumGenerator(args, count, EnumGenerator.Mode.Number).texts);
+			EnumGenerator generator = new EnumGenerator(args, count, EnumGenerator.Mode.Number);
+			Assert.IsNull(generator.error, "Error must be null");
+			CollectionAssert.AreEqual(expected, generator.texts);
 		}
 		
 		private void AssertZeroBeforeNumber(string[] expected, string args, int count)
 		{
-			CollectionAssert.AreEqual(
-				expected, new EnumGenerator(args, count, EnumGenerator.Mode.ZeroBeforeNumber).texts);
+			EnumGenerator generator = new EnumGenerator(args, count, EnumGenerator.Mode.ZeroBeforeNumber);
+			Assert.IsNull(generator.error, "Error must be null");
+			CollectionAssert.AreEqual(expected, generator.texts);
+		}
+		
+		private void AssertError(string expected, string args, int count, EnumGenerator.Mode mode)
+		{
+			EnumGenerator generator = new EnumGenerator(args, count, mode);
+			Assert.AreEqual(expected, generator.error);
+			Assert.AreEqual(0, generator.texts.Count, "Expected no texts when error");
 		}
 		
 		[Test]
@@ -91,9 +100,22 @@ namespace UnitTests
 			AssertZeroBeforeNumber(new string[] { "a", "c", "e" }, "a 2", 3);
 			AssertZeroBeforeNumber(new string[] { "a c e", "g i k", "m o q" }, "a 2 3", 3);
 		}
+		
+		[Test]
+		public void CharsOverflow()
+		{
+			AssertZeroBeforeNumber(new string[] { "\ufffe", "\uffff", "\uffff" }, "\ufffe", 3);
+			AssertZeroBeforeNumber(new string[] { "!", " ", " " }, "! -1", 3);
+		}
+		
+		[Test]
+		public void Errors_Simple()
+		{
+			AssertError("Step mast be number", "2 a", 3, EnumGenerator.Mode.Number);
+			AssertError("Count mast be number", "2 1 b", 3, EnumGenerator.Mode.Number);
+			AssertError("Expected number or one char", "XX", 3, EnumGenerator.Mode.Number);
+			AssertError("Expected number or one char", "XX 2 2", 3, EnumGenerator.Mode.Number);
+			AssertError("Expected number or one char", "XX a 2", 3, EnumGenerator.Mode.Number);
+		}
 	}
 }
-/*
-TODO
-- Errors
-*/
