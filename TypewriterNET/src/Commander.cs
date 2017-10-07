@@ -604,21 +604,21 @@ public class Commander
 		this.tempSettings = tempSettings;
 
 		history = tempSettings.CommandHistory;
-		commands.Add(new Command("help", "", "Open/close tab with help text", DoHelp));
-		commands.Add(new Command("h", "", "Open/close tab with help text", DoHelp));
-		commands.Add(new Command("vh", "", "Open/close tab with vi-help text", DoViHelp));
-		commands.Add(new Command("cd", "path", "Change/show current directory", DoChangeCurrentDirectory));
-		commands.Add(new Command("md", "directory", "Create directory", DoCreateDirectory));
-		commands.Add(new Command("exit", "", "Close window", DoExit));
-		commands.Add(new Command("q", "", "Close window", DoExit));
-		commands.Add(new Command("lclear", "", "Clear editor log", DoClearLog));
-		commands.Add(new Command("reset", "name", "Reset property", DoResetProperty));
+		commands.Add(new Command("help", "", "open/close tab with help text", DoHelp));
+		commands.Add(new Command("h", "", "open/close tab with help text", DoHelp));
+		commands.Add(new Command("vh", "", "open/close tab with vi-help text", DoViHelp));
+		commands.Add(new Command("cd", "path", "change/show current directory", DoChangeCurrentDirectory));
+		commands.Add(new Command("md", "directory", "create directory", DoCreateDirectory));
+		commands.Add(new Command("exit", "", "close window", DoExit));
+		commands.Add(new Command("q", "", "close window", DoExit));
+		commands.Add(new Command("lclear", "", "clear editor log", DoClearLog));
+		commands.Add(new Command("reset", "name", "reset property", DoResetProperty));
 		commands.Add(new Command("edit", "file", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("e", "", "Edit file/new file", DoEditFile));
 		commands.Add(new Command("open", "file", "Open file", DoOpenFile));
 		commands.Add(new Command("w", "", "Save file", DoViSaveFile));
-		commands.Add(new Command("explorer", "[file]", "Open in explorer", DoOpenInExplorer));
-		commands.Add(new Command("ex", "[file]", "Open in explorer", DoOpenInExplorer));
+		commands.Add(new Command("explorer", "[file]", "open in explorer", DoOpenInExplorer));
+		commands.Add(new Command("ex", "[file]", "open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Open command dialog with text - to assign keys", DoShortcut));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
@@ -640,8 +640,12 @@ public class Commander
 		commands.Add(new Command("tn", "", "jump to next tag definition", DoCtagsGoToNext));
 		commands.Add(new Command("tp", "", "jump to next tag definition", DoCtagsGoToPrev));
 		commands.Add(new Command("ts", "[name]", "show all tag definitions", DoCtagsShowAllDefinitions));
-		commands.Add(new Command("enum", "[start] [step]", "insert number in every selection", DoEnum));
-		commands.Add(new Command("repl", "[{…}][command]",
+		commands.Add(new Command("enum", "[n0] [step] [count]",
+			"insert number in every selection\n" +
+			"  or several numbers at selection if count > 1\n" +
+			"  n0 - first number or char", DoEnum));
+		commands.Add(new Command("enum0", "[n0] [step] [count]", "enum with '0' padding left formating", DoEnum0));
+		commands.Add(new Command("repl", "[{…}]command",
 			"open REPL, {s:syntax;e:encoding;i:invitation}\n" +
 			"example:\n" +
 			"  repl {s:python;i:>>>}\"C:\\Python27\\python\" -i\n" +
@@ -1556,13 +1560,23 @@ public class Commander
 	
 	private void DoEnum(string text)
 	{
+		ProcessEnum(text, EnumGenerator.Mode.Number);
+	}
+	
+	private void DoEnum0(string text)
+	{
+		ProcessEnum(text, EnumGenerator.Mode.ZeroBeforeNumber);
+	}
+	
+	private void ProcessEnum(string text, EnumGenerator.Mode mode)
+	{
 		Buffer lastBuffer = mainForm.LastBuffer;
 		if (lastBuffer == null)
 		{
 			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for replace selections");
 			return;
 		}
-		EnumGenerator generator = new EnumGenerator(text, lastBuffer.Controller.SelectionsCount);
+		EnumGenerator generator = new EnumGenerator(text, lastBuffer.Controller.SelectionsCount, mode);
 		if (!string.IsNullOrEmpty(generator.error))
 		{
 			mainForm.Dialogs.ShowInfo("Error", generator.error);
