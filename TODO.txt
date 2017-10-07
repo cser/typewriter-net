@@ -6,6 +6,5 @@
 - js parser with (line, char)
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
-- enum with chars
-- enumr
 - fix REPL fail on cls
+- space at last for history down

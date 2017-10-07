@@ -9,6 +9,9 @@ using TinyJSON;
 
 public class Repl : Buffer
 {
+	private const int HistorySize = 50;
+	
+	private readonly List<string> history = new List<string>();
 	private readonly string arguments;
 	private readonly string command;
 	private readonly string invitation;
@@ -29,6 +32,18 @@ public class Repl : Buffer
 			new KeyAction("&Edit\\REPL\\Home", OnHome, null, false)));
 		additionBeforeKeyMap.AddItem(new KeyItem(Keys.Shift | Keys.Home, null,
 			new KeyAction("&Edit\\REPL\\Home with selection", OnHomeWithSelection, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false);
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Up, null, action));
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, action));
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false);
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Down, null, action));
+			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, action));
+		}
 			
 		string parameters = RunShellCommand.CutParametersFromLeft(ref rawCommand);
 		int index = -1;
@@ -156,10 +171,9 @@ public class Repl : Buffer
 		if (text.Length == 1 && (int)text[0] == 12)
 		{
 			Controller.ClearMinorSelections();
-			Controller.DocumentStart(false);
-			Controller.DocumentEnd(true);
-			Controller.ViMoveHome(true, false);
-			Controller.EraseSelection();
+			Controller.LastSelection.anchor = 0;
+			Controller.LastSelection.caret = 0;
+			Controller.InitText(invitation);
 			Controller.DocumentEnd(false);
 		}
 		else
@@ -167,8 +181,7 @@ public class Repl : Buffer
 			Controller.ClearMinorSelections();
 			Controller.DocumentEnd(false);
 			Controller.ViMoveHome(false, false);
-			Controller.InsertText(text);
-			Controller.InsertText("\n");
+			Controller.InsertText(text + "\n");
 			Controller.DocumentEnd(false);
 			Controller.NeedScrollToCaret();
 		}
@@ -178,21 +191,15 @@ public class Repl : Buffer
 	{
 		if (process != null && Controller.LastSelection.caret >= Controller.Lines.charsCount)
 		{
-			Controller.ClearMinorSelections();
-			Controller.DocumentEnd(false);
-			Controller.ViMoveHome(true, false);
+			SelectCurrentLine();
 			string command = Controller.GetSelectedText();
 			if (command.StartsWith(invitation))
 			{
 				command = command.Substring(invitation.Length);
 			}
-			Controller.EraseSelection();
-			if (invitation != "")
-			{
-				Controller.InsertText(invitation + command + "\n");
-				Controller.InsertText(invitation);
-			}
+			Controller.InsertText(invitation != "" ? invitation + command + "\n" + invitation : "");
 			Controller.NeedScrollToCaret();
+			AddHistory(command);
 			process.StandardInput.Write(command + "\n");
 			return true;
 		}
@@ -239,5 +246,88 @@ public class Repl : Buffer
 			}
 		}
 		return false;
+	}
+	
+	private void AddHistory(string text)
+	{
+		if (text != "")
+		{
+			history.Remove(text);
+			history.Add(text);
+			if (history.Count > HistorySize)
+			{
+				history.RemoveRange(0, history.Count - HistorySize);
+			}
+		}
+	}
+	
+	private bool DoMoveUp(Controller controller)
+	{
+		return ProcessMove(controller, true);
+	}
+	
+	private bool DoMoveDown(Controller controller)
+	{
+		return ProcessMove(controller, false);
+	}
+	
+	private void SelectCurrentLine()
+	{
+		LineArray lines = Controller.Lines;
+		Controller.ClearMinorSelections();
+		Controller.LastSelection.anchor = lines.IndexOf(new Place(0, lines.LinesCount - 1));
+		Controller.LastSelection.caret = lines.charsCount;
+	}
+	
+	private string GetCurrentLine()
+	{
+		LineArray lines = Controller.Lines;
+		string command = lines[lines.LinesCount - 1].Text;
+		return command.StartsWith(invitation) ? command.Substring(invitation.Length) : command;
+	}
+	
+	private void SetCurrentLine(string text)
+	{
+		SelectCurrentLine();
+		Controller.InsertText(invitation + text);
+		Controller.NeedScrollToCaret();
+	}
+	
+	private bool ProcessMove(Controller controller, bool isUp)
+	{
+		if (Controller.LastSelection.caret < Controller.Lines.charsCount)
+		{
+			return false;
+		}
+		AddHistory(GetCurrentLine());
+		if (history.Count > 0)
+		{
+			string current = GetCurrentLine();
+			int index = history.IndexOf(current);
+			if (current == null || index == -1)
+			{
+				if (isUp)
+				{
+					SetCurrentLine(history[history.Count - 1]);
+				}
+				else
+				{
+					SetCurrentLine("");
+				}
+				return true;
+			}
+			index += isUp ? -1 : 1;
+			if (index >= history.Count)
+			{
+				SetCurrentLine("");
+				return true;
+			}
+			if (index < 0)
+			{
+				index = 0;
+			}
+			SetCurrentLine(history[index]);
+		}
+		return true;
 	}
 }
