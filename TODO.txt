@@ -10,4 +10,3 @@
 - enum with chars
 - enumr
 - fix REPL fail on cls
-- Ctrl+Shift notation in command

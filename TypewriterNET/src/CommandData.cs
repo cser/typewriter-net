@@ -18,69 +18,53 @@ public struct CommandData
 	public List<MacrosExecutor.Action> GetActions(StringBuilder errors)
 	{
 		List<MacrosExecutor.Action> actions = new List<MacrosExecutor.Action>();
-		int state = 0;
-		string specialText = "";
-		foreach (char c in sequence)
+		int length = sequence.Length;
+		for (int i = 0; i < length;)
 		{
-			if (state == 0)
+			char c = sequence[i];
+			if (c == '[')
 			{
-				if (c == '[')
+				string specialText = "";
+				++i;
+				if (i < length)
 				{
-					state = 1;
-				}
-				else
-				{
-					actions.Add(new MacrosExecutor.Action(c));
-				}
-			}
-			else if (state == 1)
-			{
-				if (c == 'C')
-				{
-					state = 2;
-					specialText += c;
-				}
-				else if (c == ']')
-				{
-					state = 0;
+					c = sequence[i];
+					if ((c == 'C' || c == 'S') && i + 1 < length && sequence[i + 1] == '-')
+					{
+						i += 2;
+						specialText += c + "-";
+						if (i + 1 < length &&
+							sequence[i] == (c == 'C' ? 'S' : 'C') &&
+							sequence[i + 1] == '-')
+						{
+							specialText += (c == 'C' ? 'S' : 'C') + "-";
+							i += 2;
+						}
+						if (i < length)
+						{
+							specialText += sequence[i];
+						}
+					}
+					else
+					{
+						specialText += c;
+					}
+					for (++i; i < length; ++i)
+					{
+						if (sequence[i] == ']')
+						{
+							++i;
+							break;
+						}
+						specialText += sequence[i];
+					}
 					actions.Add(GetSpecial(specialText, errors));
-					specialText = "";
-				}
-				else
-				{
-					specialText += c;
 				}
 			}
-			else if (state == 2)
+			else
 			{
-				if (c == '-')
-				{
-					state = 3;
-					specialText += c;
-				}
-				else
-				{
-					state = 4;
-					specialText += c;
-				}
-			}
-			else if (state == 3)
-			{
-				specialText += c;
-				state = 4;
-			}
-			else if (state == 4)
-			{
-				if (c == ']')
-				{
-					state = 0;
-					actions.Add(GetSpecial(specialText, errors));
-					specialText = "";
-				}
-				else
-				{
-					specialText += c;
-				}
+				actions.Add(new MacrosExecutor.Action(c));
+				++i;
 			}
 		}
 		if (errors.Length > 0)
@@ -103,6 +87,17 @@ public struct CommandData
 			specials["bs"] = new MacrosExecutor.Action(Keys.Back);
 			specials["del"] = new MacrosExecutor.Action(Keys.Delete);
 			specials["tab"] = new MacrosExecutor.Action(Keys.Tab);
+			specials["f1"] = new MacrosExecutor.Action(Keys.F1);
+			specials["f2"] = new MacrosExecutor.Action(Keys.F2);
+			specials["f3"] = new MacrosExecutor.Action(Keys.F3);
+			specials["f4"] = new MacrosExecutor.Action(Keys.F4);
+			specials["f5"] = new MacrosExecutor.Action(Keys.F5);
+			specials["f6"] = new MacrosExecutor.Action(Keys.F6);
+			specials["f7"] = new MacrosExecutor.Action(Keys.F7);
+			specials["f8"] = new MacrosExecutor.Action(Keys.F8);
+			specials["f9"] = new MacrosExecutor.Action(Keys.F9);
+			specials["f11"] = new MacrosExecutor.Action(Keys.F11);
+			specials["f12"] = new MacrosExecutor.Action(Keys.F12);
 			specials["leader"] = new MacrosExecutor.Action('\\');
 			specials["lt"] = new MacrosExecutor.Action('<');
 			specials["gt"] = new MacrosExecutor.Action('>');
@@ -120,21 +115,58 @@ public struct CommandData
 		{
 			return action;
 		}
-		if (lowerText.StartsWith("c-") && specialText.Length == 3)
+		if ((lowerText.StartsWith("c-s-") || lowerText.StartsWith("s-c-")) && specialText.Length >= 5)
 		{
 			action = new MacrosExecutor.Action();
-			action.keys = Keys.Control;
-			char c = specialText[2];
-			Keys charKey = GetKey(c);
-			if (charKey != Keys.None)
+			action.keys = Keys.Control | Keys.Shift;
+			if (specialText.Length == 5)
 			{
-				action.keys |= charKey;
+				char c = specialText[4];
+				Keys charKey = GetKey(c);
+				if (charKey != Keys.None)
+				{
+					action.keys |= charKey;
+				}
+				else
+				{
+					if (GetSpecials().TryGetValue(lowerText.Substring(4), out action))
+					{
+						action.keys |= Keys.Control | Keys.Shift;
+						return action;
+					}
+					errors.Append("Unsupported control: " + c);
+				}
+				return action;
 			}
-			else
+			if (GetSpecials().TryGetValue(lowerText.Substring(4), out action))
 			{
-				errors.Append("Unsupported control: " + c);
+				action.keys |= Keys.Control | Keys.Shift;
+				return action;
 			}
-			return action;
+		}
+		if ((lowerText.StartsWith("c-") || lowerText.StartsWith("s-")) && specialText.Length >= 3)
+		{
+			action = new MacrosExecutor.Action();
+			action.keys = lowerText[0] == 'c' ? Keys.Control : Keys.Shift;
+			if (specialText.Length == 3)
+			{
+				char c = specialText[2];
+				Keys charKey = GetKey(c);
+				if (charKey != Keys.None)
+				{
+					action.keys |= charKey;
+				}
+				else
+				{
+					errors.Append("Unsupported control: " + c);
+				}
+				return action;
+			}
+			if (GetSpecials().TryGetValue(lowerText.Substring(2), out action))
+			{
+				action.keys |= lowerText[0] == 'c' ? Keys.Control : Keys.Shift;
+				return action;
+			}
 		}
 		errors.Append("Unexpected: [" + specialText + "]");
 		return new MacrosExecutor.Action();
@@ -146,7 +178,8 @@ public struct CommandData
 		{
 			case ']': return Keys.OemCloseBrackets;
 			case '[': return Keys.OemOpenBrackets;
-			case ':': return Keys.OemSemicolon;
+			case ';': return Keys.OemSemicolon;
+			case ':': return Keys.OemSemicolon | Keys.Shift;
 			case 'a': return Keys.A;
 			case 'A': return Keys.A | Keys.Shift;
 			case 'b': return Keys.B;

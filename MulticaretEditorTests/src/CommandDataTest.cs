@@ -44,11 +44,84 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void ControlComplex()
+		{
+			CommandData data = new CommandData("name", "a[C-A]bc [C-b]d");
+			AssertActions("[a, (A, Shift, Control), b, c,  , (B, Control), d]", data);
+		}
+		
+		[Test]
 		public void ControlBra()
 		{
 			CommandData data = new CommandData("name", "[C-[]");
 			List<MacrosExecutor.Action> actions = data.GetActions(new StringBuilder());
 			Assert.AreEqual(Keys.Control | Keys.OemOpenBrackets, actions[0].keys);
+		}
+		
+		[Test]
+		public void ControlKet()
+		{
+			CommandData data = new CommandData("name", "[C-]]");
+			List<MacrosExecutor.Action> actions = data.GetActions(new StringBuilder());
+			Assert.AreEqual(Keys.Control | Keys.OemCloseBrackets, actions[0].keys);
+		}
+		
+		[Test]
+		public void ControlShift_CommandDialog()
+		{
+			CommandData data = new CommandData("name", "[C-S-;]");
+			List<MacrosExecutor.Action> actions = data.GetActions(new StringBuilder());
+			Assert.AreEqual(Keys.Control | Keys.Shift | Keys.OemSemicolon, actions[0].keys);
+		}
+		
+		[Test]
+		public void ControlShift_CommandDialog_Alternative()
+		{
+			CommandData data = new CommandData("name", "[C-:]");
+			List<MacrosExecutor.Action> actions = data.GetActions(new StringBuilder());
+			Assert.AreEqual(Keys.Control | Keys.Shift | Keys.OemSemicolon, actions[0].keys);
+		}
+		
+		[Test]
+		public void Control_Alternative()
+		{
+			CommandData data = new CommandData("name", "[C-S-a]");
+			AssertActions("[(A, Shift, Control)]", data);
+		}
+		
+		[Test]
+		public void Control_Alternative2()
+		{
+			CommandData data = new CommandData("name", "[S-C-a]");
+			AssertActions("[(A, Shift, Control)]", data);
+		}
+		
+		[Test]
+		public void Shift_Alternative()
+		{
+			CommandData data = new CommandData("name", "[S-a]");
+			AssertActions("[(A, Shift)]", data);
+		}
+		
+		[Test]
+		public void BraKet()
+		{
+			CommandData data = new CommandData("name", "[bra][ket]");
+			AssertActions("[[, ]]", data);
+		}
+		
+		[Test]
+		public void F1_12()
+		{
+			CommandData data = new CommandData("name", "[F1][C-F2][S-F11][C-S-F12]");
+			AssertActions("[(F1), (F2, Control), (F11, Shift), (F12, Shift, Control)]", data);
+		}
+		
+		[Test]
+		public void CtrlBra()
+		{
+			CommandData data = new CommandData("name", "[C-bra]");
+			AssertActions("[[(Control)]", data);
 		}
 	}
 }
