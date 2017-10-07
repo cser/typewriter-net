@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 public class EnumGenerator
 {
@@ -10,39 +11,53 @@ public class EnumGenerator
 		Execute(text, count);
 	}
 	
-	private void Execute(string text, int count)
+	private void Execute(string text, int selectionsCount)
 	{
 		int number = 1;
 		int step = 1;
+		int count = 1;
 		if (!string.IsNullOrEmpty(text) && text.Trim() != "")
 		{
-			int index = text.IndexOf(' ');
-			string rawNumber = null;
-			string rawStep = null;
-			if (index != -1)
+			string[] raw = text.Split(new char[] { ' ', '\t' });
+			List<string> trimmed = new List<string>();
+			for (int i = 0; i < raw.Length; i++)
 			{
-				rawNumber = text.Substring(0, index).Trim();
-				rawStep = text.Substring(index + 1).Trim();
+				string trimmedI = raw[i].Trim();
+				if (trimmedI != "")
+				{
+					trimmed.Add(trimmedI);
+				}
 			}
-			else
-			{
-				rawNumber = text.Trim();
-			}
-			if (rawNumber != null && !int.TryParse(rawNumber, out number))
+			if (trimmed.Count > 0 && !int.TryParse(trimmed[0], out number))
 			{
 				error = "Number mast be number";
 				return;
 			}
-			if (rawStep != null && !int.TryParse(rawStep, out step))
+			if (trimmed.Count > 1 && !int.TryParse(trimmed[1], out step))
 			{
 				error = "Step mast be number";
 				return;
 			}
+			if (trimmed.Count > 2 && !int.TryParse(trimmed[2], out count))
+			{
+				error = "Count mast be number";
+				return;
+			}
 		}
-		for (int i = 0; i < count; i++)
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < selectionsCount; i++)
 		{
-			texts.Add(number + "");
-			number += step;
+			builder.Length = 0;
+			for (int j = 0; j < count; j++)
+			{
+				if (j > 0)
+				{
+					builder.Append(' ');
+				}
+				builder.Append(number + "");
+				number += step;
+			}
+			texts.Add(builder.ToString());
 		}
 	}
 }
