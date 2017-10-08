@@ -261,7 +261,7 @@ namespace MulticaretEditor
 				text2Of(list.Selected) :
 				text2 = this.text2;
 			rightIndent = charHeight * 5 / 4 + (text2 != null ? text2.Length * charWidth : 0);
-			if (x > width - leftIndent - rightIndent)
+			if (x > width - leftIndent - rightIndent && list.Count > 1)
 			{
 				rightIndent += charHeight * 5 / 4;
 				leftRect = new Rectangle(width - rightIndent, 0, charWidth * 3 / 2, charHeight);
