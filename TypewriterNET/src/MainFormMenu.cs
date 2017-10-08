@@ -195,7 +195,34 @@ public class MainFormMenu : MainMenu
 			bool hasPrev = false;
 			if (keyItem.keys != Keys.None)
 			{
-				text += keyItem.keys == Keys.Alt ? "Alt" : keysConverter.ConvertToString(keyItem.keys);
+				if (keyItem.keys == Keys.Alt)
+				{
+					text += "Alt";
+				}
+				if (keyItem.keys == (Keys.Control | Keys.OemSemicolon))
+				{
+					text += "Ctrl+;";
+				}
+				else if (keyItem.keys == (Keys.Control | Keys.Shift | Keys.OemSemicolon))
+				{
+					text += "Ctrl+Shift+;";
+				}
+				else if (keyItem.keys == (Keys.Control | Keys.OemOpenBrackets))
+				{
+					text += "Ctrl+[";
+				}
+				else if (keyItem.keys == (Keys.Control | Keys.OemCloseBrackets))
+				{
+					text += "Ctrl+]";
+				}
+				else if (keyItem.keys == (Keys.Control | Keys.OemPipe))
+				{
+					text += "Ctrl+\\";
+				}
+				else
+				{
+					text += keysConverter.ConvertToString(keyItem.keys);
+				}
 				hasPrev = true;
 			}
 			if (keyItem.doubleClick)

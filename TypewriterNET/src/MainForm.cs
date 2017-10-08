@@ -920,9 +920,9 @@ public class MainForm : Form
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
-			new KeyAction("&View\\File tree\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
+			new KeyAction("&View\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null,
-			new KeyAction("&View\\File tree\\Show text nodes", DoShowTextNodes, null, false)));
+			new KeyAction("&View\\Show text nodes", DoShowTextNodes, null, false)));
 
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.F2, null,
 			new KeyAction("Prefere&nces\\Edit/create current config", DoEditCreateCurrentConfig, null, false)));
