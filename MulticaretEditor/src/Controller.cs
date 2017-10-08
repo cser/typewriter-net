@@ -23,6 +23,7 @@ namespace MulticaretEditor
 		public bool isReadonly;
 		public MacrosExecutor macrosExecutor;
 		public Receiver receiver;
+		public Setter onBeforePaint;
 
 		public LineArray Lines { get { return lines; } }
 

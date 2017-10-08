@@ -603,6 +603,10 @@ namespace MulticaretEditor
             if (lines == null)
 				return;
 
+			if (controller != null && controller.onBeforePaint != null)
+			{
+				controller.onBeforePaint();
+			}
             UpdateScrollOnPaint();
 			controller.MarkWordOnPaint(markWord);
 			controller.MarkBracketOnPaint(markBracket);

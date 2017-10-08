@@ -11,6 +11,7 @@ public class Repl : Buffer
 {
 	private const int HistorySize = 50;
 	
+	private readonly Queue<string> textsToOutput = new Queue<string>();
 	private readonly List<string> history = new List<string>();
 	private readonly string arguments;
 	private readonly string command;
@@ -80,6 +81,7 @@ public class Repl : Buffer
 			invitation += " ";
 		}
 		this.invitation = invitation;
+		Controller.onBeforePaint = OnBeforePaint;
 	}
 	
 	private static string GetShortName(string rawCommand)
@@ -168,22 +170,31 @@ public class Repl : Buffer
 		{
 			return;
 		}
-		if (text.Length == 1 && (int)text[0] == 12)
+		textsToOutput.Enqueue(text);
+	}
+	
+	private void OnBeforePaint()
+	{
+		while (textsToOutput.Count > 0)
 		{
-			Controller.ClearMinorSelections();
-			Controller.LastSelection.anchor = 0;
-			Controller.LastSelection.caret = 0;
-			Controller.InitText(invitation);
-			Controller.DocumentEnd(false);
-		}
-		else
-		{
-			Controller.ClearMinorSelections();
-			Controller.DocumentEnd(false);
-			Controller.ViMoveHome(false, false);
-			Controller.InsertText(text + "\n");
-			Controller.DocumentEnd(false);
-			Controller.NeedScrollToCaret();
+			string text = textsToOutput.Dequeue();
+			if (text.Length == 1 && (int)text[0] == 12)
+			{
+				Controller.ClearMinorSelections();
+				Controller.LastSelection.anchor = 0;
+				Controller.LastSelection.caret = 0;
+				Controller.InitText(invitation);
+				Controller.DocumentEnd(false);
+			}
+			else
+			{
+				Controller.ClearMinorSelections();
+				Controller.DocumentEnd(false);
+				Controller.ViMoveHome(false, false);
+				Controller.InsertText(text + "\n");
+				Controller.DocumentEnd(false);
+				Controller.NeedScrollToCaret();
+			}
 		}
 	}
 	
