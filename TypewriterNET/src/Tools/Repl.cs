@@ -21,6 +21,7 @@ public class Repl : Buffer
 	public Repl(string rawCommand, MainForm mainForm) :
 		base(null, "REPL: " + GetShortName(rawCommand), SettingsMode.EditableNotFile)
 	{
+		tags = BufferTag.NeedCorrectRemoving;
 		onAdd = OnAdd;
 		onRemove = OnRemove;
 		additionKeyMap = new KeyMap();

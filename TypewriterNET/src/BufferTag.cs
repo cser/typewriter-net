@@ -7,5 +7,6 @@ public enum BufferTag
 	File = 0x01,
 	Console = 0x02,
 	Other = 0x04,
-	Placeholder = 0x08
+	Placeholder = 0x08,
+	NeedCorrectRemoving = 0x10
 }

@@ -681,6 +681,13 @@ public class MainForm : Form
 				break;
 			}
 		}
+		foreach (Buffer buffer in frames.GetBuffers(BufferTag.NeedCorrectRemoving))
+		{
+			if (buffer.onRemove != null && !buffer.onRemove(buffer))
+			{
+				e.Cancel = true;
+			}
+		}
 		if (_helpBuffer != null && _helpBuffer.onRemove != null)
 			_helpBuffer.onRemove(_helpBuffer);
 		if (!forbidTempSaving)
