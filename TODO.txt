@@ -8,3 +8,5 @@
 - optimize space characters drawing
 - fix REPL fail on cls
 - space at last for history down
+- fix jump from { to } where ' in comment
+- show repl full command in header and tab list
