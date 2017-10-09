@@ -316,26 +316,13 @@ public class ReplaceDialog : ADialog
 
 	private bool GetHistoryPattern(Controller controller, bool isPrev)
 	{
-		string text;
-		string newText;
-		MulticaretTextBox currentTextBox;
 		if (controller == textBox.Controller)
 		{
-			currentTextBox = textBox;
-			text = currentTextBox.Text;
-			newText = data.history.Get(text, isPrev);
+			data.history.Switch(textBox, isPrev);
 		}
 		else
 		{
-			currentTextBox = replaceTextBox;
-			text = currentTextBox.Text;
-			newText = data.replaceHistory.Get(text, isPrev);
-		}
-		if (newText != text)
-		{
-			currentTextBox.Text = newText;
-			currentTextBox.Controller.ClearMinorSelections();
-			currentTextBox.Controller.LastSelection.anchor = currentTextBox.Controller.LastSelection.caret = newText.Length;
+			data.replaceHistory.Switch(replaceTextBox, isPrev);
 		}
 		return true;
 	}

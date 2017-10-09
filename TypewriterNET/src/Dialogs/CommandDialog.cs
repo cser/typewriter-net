@@ -199,14 +199,7 @@ public class CommandDialog : ADialog
 
 	private bool GetHistoryCommand(bool isPrev)
 	{
-		string text = textBox.Text;
-		string newText = MainForm.commander.History.Get(text, isPrev);
-		if (newText != text)
-		{
-			textBox.Text = newText;
-			textBox.Controller.ClearMinorSelections();
-			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-		}
+		MainForm.commander.History.Switch(textBox, isPrev);
 		return true;
 	}
 	

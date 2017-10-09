@@ -214,14 +214,7 @@ public class FindDialog : ADialog
 
 	private bool GetHistoryPattern(bool isPrev)
 	{
-		string text = textBox.Text;
-		string newText = data.history.Get(text, isPrev);
-		if (newText != text)
-		{
-			textBox.Text = newText;
-			textBox.Controller.ClearMinorSelections();
-			textBox.Controller.LastSelection.anchor = textBox.Controller.LastSelection.caret = newText.Length;
-		}
+		data.history.Switch(textBox, isPrev);
 		return true;
 	}
 	

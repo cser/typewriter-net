@@ -33,12 +33,27 @@ public class StringList
 	{
 		if (list.Count == 0)
 		{
+<<<<<<< HEAD
 			current = last ?? current;
 		}
 		else if (changed)
 		{
 			current = list[list.Count - 1];
 			if (current == last && list.Count > 1)
+=======
+			changed = false;
+			list.Remove(current);
+			if (current != "")
+			{
+				list.Remove("");
+			}
+			list.Add(current);
+			if (list.Count > maxCount)
+			{
+				list.RemoveRange(0, list.Count - maxCount);
+			}
+			if (isPrev && list.Count > 1)
+>>>>>>> 69115a6... history: save last unapplied input
 			{
 				current = list[list.Count - 2];
 			}

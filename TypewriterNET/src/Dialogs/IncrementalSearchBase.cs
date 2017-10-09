@@ -521,13 +521,8 @@ public class IncrementalSearchBase : ADialog
 	
 	private bool GetFilterHistoryPattern(bool isPrev)
 	{
-		string text = filterTextBox.Text;
-		string newText = findInFilesData.filterHistory.GetOrEmpty(text, isPrev);
-		if (newText != text)
+		if (findInFilesData.filterHistory.Switch(filterTextBox, isPrev))
 		{
-			filterTextBox.Text = newText;
-			filterTextBox.Controller.ClearMinorSelections();
-			filterTextBox.Controller.LastSelection.anchor = filterTextBox.Controller.LastSelection.caret = newText.Length;
 			UpdateFilterText();
 		}
 		return true;
