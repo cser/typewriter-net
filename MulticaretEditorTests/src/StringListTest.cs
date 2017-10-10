@@ -148,7 +148,22 @@ namespace SnippetTest
 			SwitchNext().AssertCurrent("b").SetCurrent("b");
 			SwitchNext().AssertCurrent("c").SetCurrent("c");
 			SwitchNext().AssertCurrent("").SetCurrent("");
-			SwitchNext().AssertCurrent("").SetCurrent("");
+			SwitchNext().AssertCurrent("");
+		}
+		
+		[Test]
+		public void Simple2()
+		{
+			Add("a").Add("$").Add("c").AssertCurrent("").SetCurrent("$");
+			SwitchPrev().AssertCurrent("c").SetCurrent("c");
+			SwitchNext().AssertCurrent("$").SetCurrent("$");
+			SwitchPrev().AssertCurrent("c").SetCurrent("c");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchNext().AssertCurrent("c").SetCurrent("c");
+			SwitchNext().AssertCurrent("$").SetCurrent("$");
+			SwitchNext().AssertCurrent("$").SetCurrent("$");
+			SwitchPrev().AssertCurrent("c");
 		}
 	}
 }

@@ -46,7 +46,7 @@ public class StringList
 		else
 		{
 			int index = list.IndexOf(current);
-			if (index == -1)
+			if (index == -1 || current == last)
 			{
 				if (isPrev)
 				{
