@@ -6,7 +6,7 @@
 - js parser with (line, char)
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
-- fix REPL fail on cls
 - space at last for history down
-- fix jump from { to } where ' in comment
 - show repl full command in header and tab list
+- fix jump from { to } where ' in comment
+- fix can't scroll history up bug
