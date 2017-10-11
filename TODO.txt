@@ -9,4 +9,4 @@
 - space at last for history down
 - show repl full command in header and tab list
 - fix jump from { to } where ' in comment
-- fix can't scroll history up bug
+- open repl bottom

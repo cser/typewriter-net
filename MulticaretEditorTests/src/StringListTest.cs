@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using MulticaretEditor;
 using NUnit.Framework;
 
-namespace SnippetTest
+namespace UnitTests
 {
 	[TestFixture]
 	public class StringListTest
@@ -164,6 +164,16 @@ namespace SnippetTest
 			SwitchNext().AssertCurrent("$").SetCurrent("$");
 			SwitchNext().AssertCurrent("$").SetCurrent("$");
 			SwitchPrev().AssertCurrent("c");
+		}
+		
+		[Test]
+		public void Simple3()
+		{
+			//ab$
+			Add("a").Add("b").Add("$").AssertCurrent("").SetCurrent("$");
+			SwitchPrev().AssertCurrent("b").SetCurrent("b");
+			SwitchNext().AssertCurrent("$").SetCurrent("$");
+			SwitchPrev().AssertCurrent("b").SetCurrent("b");
 		}
 	}
 }

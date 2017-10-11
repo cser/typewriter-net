@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using MulticaretEditor;
 using NUnit.Framework;
 
-namespace SnippetTest
+namespace UnitTests
 {
 	[TestFixture]
-	public class SwitchListTest
+	public class SnippetTest
 	{
 		public class ExtendedSnippet : Snippet
 		{

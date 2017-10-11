@@ -46,37 +46,30 @@ public class StringList
 		else
 		{
 			int index = list.IndexOf(current);
-			if (index == -1 || current == last)
+			if (isPrev)
 			{
-				if (isPrev)
+				if (index == -1 || current == last)
 				{
-					current = list[list.Count - 1];
+					index = list.Count - 1;
 				}
-			}
-			else if (isPrev)
-			{
-				for (int i = 0; i < 2; ++i)
+				else
 				{
 					--index;
-					if (index >= 0 && last != list[index])
-					{
-						current = list[index];
-						break;
-					}
 				}
+				if (index > 0 && last == list[index])
+				{
+					--index;
+				}
+				current = index >= 0 ? list[index] : list[0];
 			}
-			else
+			else if (index != -1 && current != last)
 			{
-				for (int i = 0; i < 2; ++i)
+				++index;
+				if (index < list.Count && last == list[index])
 				{
 					++index;
-					if (index < list.Count && last == list[index])
-					{
-						continue;
-					}
-					current = (index < list.Count ? list[index] : last);
-					break;
 				}
+				current = index < list.Count ? list[index] : last;
 			}
 		}
 		changed = false;
