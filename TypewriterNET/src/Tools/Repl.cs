@@ -18,8 +18,28 @@ public class Repl : Buffer
 	private readonly string invitation;
 	private Process process;
 	
+	private static string RemoveParameters(string rawCommand)
+	{
+		string command = rawCommand.Trim();
+		if (command.StartsWith("{"))
+		{
+			int index = command.IndexOf('}');
+			if (index != -1)
+			{
+				command = command.Substring(index + 1);
+			}
+		}
+		return command;
+	}
+	
+	private static string GetShortName(string rawCommand)
+	{
+		string command = RemoveParameters(rawCommand);
+		return command.Length <= 10 ? command : command.Substring(0, 10) + "…";
+	}
+	
 	public Repl(string rawCommand, MainForm mainForm) :
-		base(null, "REPL: " + GetShortName(rawCommand), SettingsMode.EditableNotFile)
+		base(RemoveParameters(rawCommand), "REPL: " + GetShortName(rawCommand), SettingsMode.EditableNotFile)
 	{
 		tags = BufferTag.NeedCorrectRemoving;
 		onAdd = OnAdd;
@@ -85,19 +105,7 @@ public class Repl : Buffer
 		Controller.onBeforePaint = OnBeforePaint;
 	}
 	
-	private static string GetShortName(string rawCommand)
-	{
-		string command = rawCommand.Trim();
-		if (command.StartsWith("{"))
-		{
-			int index = command.IndexOf('}');
-			if (index != -1)
-			{
-				command = command.Substring(index + 1);
-			}
-		}
-		return command.Length <= 10 ? command : command.Substring(0, 10) + "…";
-	}
+	public override string ListShowingName { get { return FullPath; } }
 	
 	private void OnAdd(Buffer buffer)
 	{

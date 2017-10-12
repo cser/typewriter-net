@@ -123,7 +123,7 @@ public class TabList : Buffer
 				{
 					builder.Append("\n");
 				}
-				builder.Append(bufferI.ShowingName);
+				builder.Append(bufferI.ListShowingName);
 				buffers.Add(bufferI);
 			}
 		}

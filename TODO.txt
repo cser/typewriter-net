@@ -7,6 +7,5 @@
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
 - space at last for history down
-- show repl full command in header and tab list
 - fix jump from { to } where ' in comment
 - open repl bottom

@@ -47,6 +47,8 @@ public class Buffer
 		}
 	}
 	
+	public virtual string ListShowingName { get { return ShowingName; } }
+	
 	public bool unsaved;
 
 	private string fullPath;
