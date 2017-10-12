@@ -6,6 +6,5 @@
 - js parser with (line, char)
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
-- space at last for history down
 - fix jump from { to } where ' in comment
 - open repl bottom

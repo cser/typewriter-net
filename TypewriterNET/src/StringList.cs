@@ -60,6 +60,10 @@ public class StringList
 				{
 					--index;
 				}
+				else if (index == 0 && last == list[index] && list.Count > 1)
+				{
+					index++;
+				}
 				current = index >= 0 ? list[index] : list[0];
 			}
 			else if (index != -1 && current != last)

@@ -12,7 +12,7 @@ public class Repl : Buffer
 	private const int HistorySize = 50;
 	
 	private readonly Queue<string> textsToOutput = new Queue<string>();
-	private readonly List<string> history = new List<string>();
+	private readonly StringList history = new StringList();
 	private readonly string arguments;
 	private readonly string command;
 	private readonly string invitation;
@@ -219,7 +219,7 @@ public class Repl : Buffer
 			}
 			Controller.InsertText(invitation != "" ? invitation + command + "\n" + invitation : "");
 			Controller.NeedScrollToCaret();
-			AddHistory(command);
+			history.Add(command);
 			process.StandardInput.Write(command + "\n");
 			return true;
 		}
@@ -268,19 +268,6 @@ public class Repl : Buffer
 		return false;
 	}
 	
-	private void AddHistory(string text)
-	{
-		if (text != "")
-		{
-			history.Remove(text);
-			history.Add(text);
-			if (history.Count > HistorySize)
-			{
-				history.RemoveRange(0, history.Count - HistorySize);
-			}
-		}
-	}
-	
 	private bool DoMoveUp(Controller controller)
 	{
 		return ProcessMove(controller, true);
@@ -319,34 +306,12 @@ public class Repl : Buffer
 		{
 			return false;
 		}
-		AddHistory(GetCurrentLine());
-		if (history.Count > 0)
+		string command = GetCurrentLine();
+		history.SetCurrent(command);
+		history.Switch(isUp);
+		if (history.Current != command)
 		{
-			string current = GetCurrentLine();
-			int index = history.IndexOf(current);
-			if (current == null || index == -1)
-			{
-				if (isUp)
-				{
-					SetCurrentLine(history[history.Count - 1]);
-				}
-				else
-				{
-					SetCurrentLine("");
-				}
-				return true;
-			}
-			index += isUp ? -1 : 1;
-			if (index >= history.Count)
-			{
-				SetCurrentLine("");
-				return true;
-			}
-			if (index < 0)
-			{
-				index = 0;
-			}
-			SetCurrentLine(history[index]);
+			SetCurrentLine(history.Current);
 		}
 		return true;
 	}

@@ -175,5 +175,45 @@ namespace UnitTests
 			SwitchNext().AssertCurrent("$").SetCurrent("$");
 			SwitchPrev().AssertCurrent("b").SetCurrent("b");
 		}
+		
+		[Test]
+		public void RepeatBug()
+		{
+			//abc[a]
+			Add("a").Add("b").Add("c").AssertCurrent("").SetCurrent("a");
+			SwitchPrev().AssertCurrent("c").SetCurrent("c");
+			SwitchPrev().AssertCurrent("b").SetCurrent("b");
+			SwitchPrev().AssertCurrent("b").SetCurrent("b");
+		}
+		
+		[Test]
+		public void Single()
+		{
+			Add("a").AssertCurrent("").SetCurrent("");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchNext().AssertCurrent("").SetCurrent("");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+		}
+		
+		[Test]
+		public void SingleRepeat()
+		{
+			Add("a").AssertCurrent("").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchNext().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+		}
+		
+		[Test]
+		public void Empty()
+		{
+			AssertCurrent("").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+			SwitchNext().AssertCurrent("a").SetCurrent("a");
+			SwitchPrev().AssertCurrent("a").SetCurrent("a");
+		}
 	}
 }
