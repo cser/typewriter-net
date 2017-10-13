@@ -900,8 +900,11 @@ public class MainForm : Form
 			new KeyAction("&View\\Open/close find results", DoOpenCloseFindResults, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D3, null,
 			new KeyAction("&View\\Open/close shell command results", DoOpenCloseShellResults, null, false)));
-		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null,
-			new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false)));
+		{
+			KeyAction action = new KeyAction("&View\\Open/close console panel", DoOpenCloseConsolePanel, null, false);
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemtilde, null, action));
+			keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.Oemtilde, null, action));
+		}
 		keyMap.AddItem(new KeyItem(Keys.None, null, new KeyAction("&View\\-", null, null, false)));
 		{
 			KeyAction action = new KeyAction("&View\\Close console panel", DoCloseConsolePanel, null, false);
@@ -1782,9 +1785,21 @@ public class MainForm : Form
 		return true;
 	}
 	
-	public void OpenRepl(string command)
+	public void OpenRepl(string command, bool bottom)
 	{
-		Frame frame = GetMainNest().Frame;
+		Frame frame;
+		if (bottom)
+		{
+			if (consoleNest.Frame == null)
+			{
+				new Frame().Create(consoleNest);
+			}
+			frame = consoleNest.Frame;
+		}
+		else
+		{
+			frame = GetMainNest().Frame;
+		}
 		if (frame != null && settings != null)
 		{
 			Buffer buffer = new Repl(command, this);

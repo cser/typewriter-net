@@ -653,6 +653,7 @@ public class Commander
 			"  (if need to make shortcut for this - look at\n" +
 			"  \"f<N>Command\"/\"command\" properties below)\n" +
 			"REPL is poor, so please use !!cmd for other", DoRepl));
+		commands.Add(new Command("replb", "[{…}]command", "open REPL bottom", DoReplBottom));
 	}
 	
 	private void DoViSaveFile(string args)
@@ -1551,12 +1552,22 @@ public class Commander
 	
 	private void DoRepl(string text)
 	{
+		OpenRepl(text, false);
+	}
+	
+	private void DoReplBottom(string text)
+	{
+		OpenRepl(text, true);
+	}
+	
+	private void OpenRepl(string text, bool bottom)
+	{
 		if (string.IsNullOrEmpty(text) || text.Trim() == "")
 		{
 			mainForm.Dialogs.ShowInfo("Error", "Expected shell command as parameter");
 			return;
 		}
-		mainForm.OpenRepl(text);
+		mainForm.OpenRepl(text, bottom);
 	}
 	
 	private void DoEnum(string text)
