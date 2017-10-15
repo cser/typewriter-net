@@ -439,6 +439,11 @@ public class Properties
 
 		public override string SetText(string value, string subvalue)
 		{
+			if (value == "")
+			{
+				this.value.Clear();
+				return null;
+			}
 			for (int i = this.value.Count; i-- > 0;)
 			{
 				if (this.value[i].pattern == subvalue)
@@ -512,6 +517,11 @@ public class Properties
 
 		public override string SetText(string value, string subvalue)
 		{
+			if (value == "")
+			{
+				this.value.Clear();
+				return null;
+			}
 			string errors;
 			RegexData data = RegexData.Parse(value, out errors);
 			if (!string.IsNullOrEmpty(errors))
@@ -567,6 +577,11 @@ public class Properties
 
 		public override string SetText(string value, string subvalue)
 		{
+			if (value == "")
+			{
+				this.value.Clear();
+				return null;
+			}
 			string errors;
 			CommandData data = CommandData.Parse(value, out errors);
 			if (!string.IsNullOrEmpty(errors))
@@ -903,6 +918,11 @@ public class Properties
 
 		public override string SetText(string value, string subvalue)
 		{
+			if (value == "")
+			{
+				this.value.Clear();
+				return null;
+			}
 			for (int i = this.value.Count; i-- > 0;)
 			{
 				if (this.value[i].pattern == subvalue)
@@ -1004,6 +1024,11 @@ public class Properties
 
 		public override string SetText(string value, string subvalue)
 		{
+			if (value == "")
+			{
+				this.value.Clear();
+				return null;
+			}
 			for (int i = this.value.Count; i-- > 0;)
 			{
 				if (this.value[i].pattern == subvalue)

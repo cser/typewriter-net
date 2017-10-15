@@ -236,6 +236,7 @@ public class Settings
 		builder.AppendLine("- Make it store in temp settings: xml: <item name=\"name\"/>");
 		builder.AppendLine("- [:<filter>] using example:      xml: <item name=\"name:*.cs;*.txt\" value=\"value for cs/txt file\"/>");
 		builder.AppendLine("- Set property by command dialog: name value (autocomplete supported by `Tab` or `Ctrl+Space`)");
+		builder.AppendLine("- Clear if several nodes allowed: xml: <item name=\"name\" value=\"\"/>");
 		builder.AppendLine();
 		TextTable table = new TextTable().SetMaxColWidth(33);
 		Properties.AddHeadTo(table);
