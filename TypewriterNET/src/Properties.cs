@@ -464,8 +464,16 @@ public class Properties
 			this.desc = desc;
 			return this;
 		}
+		
+		private string customType;
+		
+		public Command SetCustomType(string customType)
+		{
+			this.customType = customType;
+			return this;
+		}
 
-		public override string Type { get { return "command"; } }		
+		public override string Type { get { return customType != null ? customType : "command"; } }		
 		public override string ShowedName { get { return name + "[:<filter>]"; } }
 		public override string TypeHelp { get { return "filter example: *.txt;*.md\ntab names allowed too: File tree"; } }
 		public override string PossibleValues { get { return desc ?? "(several nodes allowed)"; } }

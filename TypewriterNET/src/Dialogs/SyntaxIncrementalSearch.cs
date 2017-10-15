@@ -84,7 +84,7 @@ public class SyntaxIncrementalSearch : IncrementalSearchBase
 		MulticaretTextBox textBox = MainForm.LastFrame.TextBox;
 		if (textBox == null)
 			return;
-		textBox.Controller.Lines.ResetHighlighting();
+		//textBox.Controller.Lines.ResetHighlighting();
 		buffer.customSyntax = lineText != Reset ? lineText : null;
 		MainForm.UpdateHighlighter(textBox, buffer.Name, buffer);
 		DispatchNeedClose();

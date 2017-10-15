@@ -20,6 +20,8 @@ public class Buffer
 	
 	public BufferList owner;
 	public bool softRemove;
+	public bool isQualitiesApplied;
+	public string currentSyntax;
 
 	public Frame Frame { get { return owner != null ? owner.frame : null; } }
 

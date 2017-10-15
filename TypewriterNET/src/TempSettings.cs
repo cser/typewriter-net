@@ -69,7 +69,9 @@ public class TempSettings
 				{
 					string fullPath = valueI["fullPath"].String;
 					if (fullPath != "" && File.Exists(fullPath))
+					{
 						mainForm.LoadFile(fullPath);
+					}
 				}
 				Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
 				if (selectedTab != null)
@@ -170,6 +172,11 @@ public class TempSettings
 
     public void ApplyQualitiesBeforeLoading(Buffer buffer)
     {
+	    if (buffer.isQualitiesApplied)
+	    {
+		    return;
+		}
+		buffer.isQualitiesApplied = true;
         SValue value = storage.Get(buffer.FullPath);
         string rawEncoding = value["encoding"].String;
         if (!string.IsNullOrEmpty(rawEncoding))

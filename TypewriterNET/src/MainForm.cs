@@ -30,6 +30,7 @@ public class MainForm : Form
 	private FormWindowState windowState;
 	private bool needUpdateBorderStyle;
 	private bool ignoreBorderStyleChanging;
+	private bool started;
 
 	public readonly FrameList frames;
 	public readonly Commander commander;
@@ -383,6 +384,7 @@ public class MainForm : Form
 			focusedTextBox.Controller.ViAddHistoryPosition(false);
 		}
         InitMessageReceiving();
+        started = true;
 	}
 	
 	private void InitStartSettings()
@@ -808,6 +810,13 @@ public class MainForm : Form
 		}
 		MulticaretTextBox.initMacrosExecutor.viAltOem = settings.viAltOem.Value;
 		MulticaretTextBox.initMacrosExecutor.viEsc = settings.viEsc.Value;
+		if (started)
+		{
+			if (mainNest != null && mainNest.Frame != null)
+				mainNest.Frame.UpdateHighlighter();
+			if (mainNest2 != null && mainNest2.Frame != null)
+				mainNest2.Frame.UpdateHighlighter();
+		}
 	}
 	
 	protected override void OnClientSizeChanged(EventArgs e)
@@ -1160,6 +1169,7 @@ public class MainForm : Form
 		buffer.SetFile(fullPath, name);
 		if (nest == null)
 			nest = buffer.Frame != null ? buffer.Frame.Nest : GetMainNest();
+		tempSettings.ApplyQualitiesBeforeLoading(buffer);
 		ShowBuffer(nest, buffer);
 		if (needLoad && !ReloadFile(buffer))
 		{
@@ -2420,6 +2430,15 @@ public class MainForm : Form
 				syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
 			}
 			highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
+		}
+		if (buffer != null && !string.IsNullOrEmpty(buffer.currentSyntax) &&
+			highlighter != null && buffer.currentSyntax != highlighter.type)
+		{
+			buffer.Controller.Lines.ResetHighlighting();
+		}
+		if (buffer != null)
+		{
+			buffer.currentSyntax = highlighter != null ? highlighter.type : null;
 		}
 		if (textBox.Highlighter != highlighter)
 		{
