@@ -1352,7 +1352,7 @@ public class MainForm : Form
 		}
 		return true;
 	}
-
+	
 	private bool DoSaveAs(Controller controller)
 	{
 		Buffer buffer = frames.GetSelectedBuffer(BufferTag.File);

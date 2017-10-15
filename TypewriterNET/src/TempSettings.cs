@@ -145,6 +145,11 @@ public class TempSettings
 			value.With("bm", SValue.NewBytes(EncodeBookmarks(buffer.Controller)));
 		}
 	}
+	
+	public void ResetSyntax(Buffer buffer)
+	{
+		buffer.customSyntax = null;
+	}
 
 	public void ResetQualitiesEncoding(Buffer buffer)
 	{

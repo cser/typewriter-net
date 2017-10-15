@@ -25,9 +25,9 @@ if test_file != None:
 			lines = f.readlines()
 			for i, line in enumerate(lines):
 				line = line.strip()
-				if line.startswith("namespace "):
+				if namespace == None and line.startswith("namespace "):
 					namespace = line[len("namespace "):]
-				if line.startswith("public class "):
+				elif classname == None and line.startswith("public class "):
 					classname = line[len("public class "):]
 					if " " in classname:
 						classname = classname[:classname.index(" ")]

@@ -135,6 +135,8 @@ public class DialogManager
 			new KeyAction("&View\\Open/close command dialog (no history)", DoInputCommandNoHistory, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemMinus, null,
 			new KeyAction("&View\\Set syntax…", DoSetSyntax, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.OemMinus, null,
+			new KeyAction("&View\\Reset syntax", DoResetSyntax, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Oemplus, null,
 			new KeyAction("&View\\Set save encoding…", DoSetSaveEncoding, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.OemPipe, null,
@@ -442,6 +444,20 @@ public class DialogManager
 	{
 		if (loadEncodingIncrementalSearch.Dialog == null)
 			loadEncodingIncrementalSearch.Open(new EncodingIncrementalSearch(tempSettings, false), false);
+		return true;
+	}
+	
+	private bool DoResetSyntax(Controller controller)
+	{
+		Buffer buffer = mainForm.frames.GetSelectedBuffer(BufferTag.File);
+		if (buffer != null)
+		{
+			tempSettings.ResetSyntax(buffer);
+			if (buffer.Frame != null)
+			{
+				buffer.Frame.UpdateHighlighter();
+			}
+		}
 		return true;
 	}
 
