@@ -12,4 +12,5 @@
 	<item name="f8Command" value='!!"C:\Program Files\Git\bin\sh.exe" --login -i'/>
 	<item name="omnisharpSln" value="."/>
 	<item name="shellRegex" value="/Errors\: 0\, Failures: 0/"/>
+	<item name="syntax:*.cs" value="c#-old"/>
 </config>

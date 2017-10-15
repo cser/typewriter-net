@@ -82,6 +82,8 @@ public class Settings
 	public readonly Properties.CommandList command = new Properties.CommandList("command");
 	public readonly Properties.Bool showLineBreaks = new Properties.Bool("showLineBreaks", false);
 	public readonly Properties.Bool showSpaceCharacters = new Properties.Bool("showSpaceCharacters", false);
+	public readonly Properties.Command syntax = new Properties.Command("syntax")
+		.SetDesc("override syntax by filters");
 	
 	private static string GetBuildinParsers()
 	{
@@ -190,6 +192,7 @@ public class Settings
 		Add(getTextNodes);
 		Add(snipsAuthor);
 		Add(opacity);
+		Add(syntax);
 	}
 
 	public void DispatchChange()

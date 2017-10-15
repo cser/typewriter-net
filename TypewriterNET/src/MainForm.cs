@@ -2404,7 +2404,21 @@ public class MainForm : Form
 			highlighter = highlightingSet.GetHighlighter(buffer.customSyntax);
 		if (highlighter == null && fileName != null)
 		{
-			string syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
+			string syntax = null;
+			IRList<Properties.CommandInfo> infos = settings.syntax.Value;
+			for (int i = infos.Count; i-- > 0;)
+			{
+				Properties.CommandInfo info = infos[i];
+				if (info.filter != null && info.filter.Match(fileName))
+				{
+					syntax = info.command;
+					break;
+				}
+			}
+			if (syntax == null)
+			{
+				syntax = syntaxFilesScanner.GetSyntaxByFile(fileName);
+			}
 			highlighter = syntax != null ? highlightingSet.GetHighlighter(syntax) : null;
 		}
 		if (textBox.Highlighter != highlighter)

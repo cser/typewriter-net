@@ -7,3 +7,5 @@
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
+- clear list by empty value
+- reset temp file settings
