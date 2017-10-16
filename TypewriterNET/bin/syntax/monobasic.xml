@@ -100,105 +100,118 @@
 	</list>
 	
 	<contexts>
-	<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
-		<keyword attribute="Keyword" context="#stay" String="keywords"/>
-		<keyword attribute="Type" context="#stay" String="types"/>
-		<DetectChar attribute="String" context="String" char="&quot;"/>
-		<DetectChar attribute="Comment" context="Comment" char="'" />
+		<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="new"/>
+			<WordDetect attribute="Keyword" insensitive="true" context="AfterAs" String="as"/>
+			<keyword attribute="Keyword" context="#stay" String="keywords"/>
+			<keyword attribute="Type" context="#stay" String="types"/>
+			<DetectChar attribute="String" context="String" char="&quot;"/>
+			<DetectChar attribute="Comment" context="Comment" char="'" />
+			
+			<!-- Namespace -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Namespace)([\s]|$)"  insensitive="true" beginRegion="Namespace1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Namespace.*$" insensitive="true" endRegion="Namespace1"/>
+			
+			<!-- Module -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Module)([\s]|$)"  insensitive="true" beginRegion="Module1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Module.*$" insensitive="true" endRegion="Module1"/>
+			
+			<!-- Class -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Class)([\s]|$)"  insensitive="true" beginRegion="Class1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Class.*$" insensitive="true" endRegion="Class1"/>
+			
+			<!-- Interface -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Interface)([\s]|$)"  insensitive="true" beginRegion="Interface1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Interface.*$" insensitive="true" endRegion="Interface1"/>
+			
+			<!-- Structure -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Structure)([\s]|$)"  insensitive="true" beginRegion="Structure1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Structure.*$" insensitive="true" endRegion="Structure1"/>
+			
+			<!-- Enum -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Enum)([\s]|$)"  insensitive="true" beginRegion="Enum1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Enum.*$" insensitive="true" endRegion="Enum1"/>
+			
+			<!-- Property -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Property)([\s]|$)"  insensitive="true" beginRegion="Property1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Property.*$" insensitive="true" endRegion="Property1"/>
+			
+			<!-- Get -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Get)([\s]|$)"  insensitive="true" beginRegion="Get1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Get.*$" insensitive="true" endRegion="Get1"/>
+			
+			<!-- Set -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Set)([\s]|$)"  insensitive="true" beginRegion="Set1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Set.*$" insensitive="true" endRegion="Set1"/>
+			
+			<!-- Sub -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Sub)([.\s]|$)"  insensitive="true" beginRegion="Sub1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Sub.*$" insensitive="true" endRegion="Sub1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="Exit.Sub.*$" insensitive="true"/>
+			
+			<!-- Function -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Function)([\s]|$)"  insensitive="true" beginRegion="Function1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Function.*$" insensitive="true" endRegion="Function1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="Exit.Function.*$" insensitive="true"/>
+			
+			<!-- Try -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Try)([\s]|$)"  insensitive="true" beginRegion="Try1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Try.*$" insensitive="true" endRegion="Try1"/>
+			
+			<!-- If -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(If)([\s]|$)"  insensitive="true" beginRegion="If1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.If.*$" insensitive="true" endRegion="If1"/>
+			
+			<!-- Select case -->
+			<RegExpr attribute="Keyword" context="#stay" String="Select.Case.*$"  insensitive="true" beginRegion="SelectCase1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.Select.*$" insensitive="true" endRegion="SelectCase1"/>
+			
+			<!-- For -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(For)([\s]|$)"  insensitive="true" beginRegion="For1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Next)([\s]|$)" insensitive="true" endRegion="For1"/>
+			
+			<!-- Do Loop -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Do)([\s]|$)"  insensitive="true" beginRegion="DoLoop1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="\b(Loop)([\s]|$)" insensitive="true" endRegion="DoLoop1"/>
+			
+			<!-- While -->
+			<RegExpr attribute="Keyword" context="#stay" String="\b(While)([\s]|$)"  insensitive="true" beginRegion="While1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="End.While.*$" insensitive="true" endRegion="While1"/>
+			<RegExpr attribute="Keyword" context="#stay" String="Exit.While.*$" insensitive="true"/>
+			
+			<!-- #Region -->
+			<RegExpr attribute="Preprocessor" context="#stay" String="#Region.*$"  insensitive="true" beginRegion="Region1"/>
+			<RegExpr attribute="Preprocessor" context="#stay" String="#End.Region.*$" insensitive="true" endRegion="Region1"/>
+			
+			<!-- #If -->
+			<RegExpr attribute="Preprocessor" context="#stay" String="#If.*$"  insensitive="true" beginRegion="PreprocessorIf1"/>
+			<RegExpr attribute="Preprocessor" context="#stay" String="#End.If.*$" insensitive="true" endRegion="PreprocessorIf1"/>
+		</context>
 		
-		<!-- Namespace -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Namespace)([\s]|$)"  insensitive="true" beginRegion="Namespace1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Namespace.*$" insensitive="true" endRegion="Namespace1"/>
+		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
+			<keyword attribute="Data Type" context="#pop" String="types"/>
+			<DetectIdentifier attribute="Data Type2" context="#pop" insensitive="true"/>
+		</context>
 		
-		<!-- Module -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Module)([\s]|$)"  insensitive="true" beginRegion="Module1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Module.*$" insensitive="true" endRegion="Module1"/>
+		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterAs">
+			<WordDetect attribute="Keyword" insensitive="true" context="#stay" String="new"/>
+			<DetectIdentifier attribute="Data Type2" context="#pop" insensitive="true"/>
+		</context>
 		
-		<!-- Class -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Class)([\s]|$)"  insensitive="true" beginRegion="Class1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Class.*$" insensitive="true" endRegion="Class1"/>
+		<context attribute="String" lineEndContext="#pop" name="String">
+			<LineContinue attribute="String" context="#pop"/>
+			<HlCStringChar attribute="String Char" context="#stay"/>
+			<DetectChar attribute="String" context="#pop" char="&quot;"/>
+		</context>
 		
-		<!-- Interface -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Interface)([\s]|$)"  insensitive="true" beginRegion="Interface1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Interface.*$" insensitive="true" endRegion="Interface1"/>
-		
-		<!-- Structure -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Structure)([\s]|$)"  insensitive="true" beginRegion="Structure1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Structure.*$" insensitive="true" endRegion="Structure1"/>
-		
-		<!-- Enum -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Enum)([\s]|$)"  insensitive="true" beginRegion="Enum1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Enum.*$" insensitive="true" endRegion="Enum1"/>
-		
-		<!-- Property -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Property)([\s]|$)"  insensitive="true" beginRegion="Property1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Property.*$" insensitive="true" endRegion="Property1"/>
-		
-		<!-- Get -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Get)([\s]|$)"  insensitive="true" beginRegion="Get1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Get.*$" insensitive="true" endRegion="Get1"/>
-		
-		<!-- Set -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Set)([\s]|$)"  insensitive="true" beginRegion="Set1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Set.*$" insensitive="true" endRegion="Set1"/>
-		
-		<!-- Sub -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Sub)([.\s]|$)"  insensitive="true" beginRegion="Sub1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Sub.*$" insensitive="true" endRegion="Sub1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="Exit.Sub.*$" insensitive="true"/>
-		
-		<!-- Function -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Function)([\s]|$)"  insensitive="true" beginRegion="Function1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Function.*$" insensitive="true" endRegion="Function1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="Exit.Function.*$" insensitive="true"/>
-		
-		<!-- Try -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Try)([\s]|$)"  insensitive="true" beginRegion="Try1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Try.*$" insensitive="true" endRegion="Try1"/>
-		
-		<!-- If -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(If)([\s]|$)"  insensitive="true" beginRegion="If1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.If.*$" insensitive="true" endRegion="If1"/>
-		
-		<!-- Select case -->
-		<RegExpr attribute="Keyword" context="#stay" String="Select.Case.*$"  insensitive="true" beginRegion="SelectCase1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.Select.*$" insensitive="true" endRegion="SelectCase1"/>
-		
-		<!-- For -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(For)([\s]|$)"  insensitive="true" beginRegion="For1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Next)([\s]|$)" insensitive="true" endRegion="For1"/>
-		
-		<!-- Do Loop -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Do)([\s]|$)"  insensitive="true" beginRegion="DoLoop1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="\b(Loop)([\s]|$)" insensitive="true" endRegion="DoLoop1"/>
-		
-		<!-- While -->
-		<RegExpr attribute="Keyword" context="#stay" String="\b(While)([\s]|$)"  insensitive="true" beginRegion="While1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="End.While.*$" insensitive="true" endRegion="While1"/>
-		<RegExpr attribute="Keyword" context="#stay" String="Exit.While.*$" insensitive="true"/>
-		
-		<!-- #Region -->
-		<RegExpr attribute="Preprocessor" context="#stay" String="#Region.*$"  insensitive="true" beginRegion="Region1"/>
-		<RegExpr attribute="Preprocessor" context="#stay" String="#End.Region.*$" insensitive="true" endRegion="Region1"/>
-		
-		<!-- #If -->
-		<RegExpr attribute="Preprocessor" context="#stay" String="#If.*$"  insensitive="true" beginRegion="PreprocessorIf1"/>
-		<RegExpr attribute="Preprocessor" context="#stay" String="#End.If.*$" insensitive="true" endRegion="PreprocessorIf1"/>
-	</context>
-	
-	<context attribute="String" lineEndContext="#pop" name="String">
-		<LineContinue attribute="String" context="#pop"/>
-		<HlCStringChar attribute="String Char" context="#stay"/>
-		<DetectChar attribute="String" context="#pop" char="&quot;"/>
-	</context>
-	
-	<context name="Comment" attribute="Comment" lineEndContext="#pop"/>
+		<context name="Comment" attribute="Comment" lineEndContext="#pop"/>
 	</contexts>
 	
 	<itemDatas>
 		<itemData name="Normal Text" defStyleNum="dsNormal"/>
 		<itemData name="Keyword" defStyleNum="dsKeyword"/>
-		<itemData name="Type" defStyleNum="dsDataType"/>
+		<itemData name="Data Type" defStyleNum="dsDataTyper2"/>
+		<itemData name="Data Type2" defStyleNum="dsDataType"/>
 		<itemData name="String" defStyleNum="dsString"/>
 		<itemData name="Preprocessor" defStyleNum="dsOthers"/>
 		<itemData name="Comment" defStyleNum="dsComment"/>
