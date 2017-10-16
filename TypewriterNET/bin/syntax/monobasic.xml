@@ -74,6 +74,9 @@
 		<item> On </item>
 		<item> Error </item>
 		<item> Resume </item>
+		<item> Is </item>
+		<item> IsNot </item>
+		<item> Handles </item>
 	</list>
 	
 	<list name="types">
@@ -102,6 +105,8 @@
 	<contexts>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="new"/>
+			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="is"/>
+			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="isnot"/>
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterAs" String="as"/>
 			<keyword attribute="Keyword" context="#stay" String="keywords"/>
 			<keyword attribute="Type" context="#stay" String="types"/>
@@ -186,6 +191,24 @@
 			<!-- #If -->
 			<RegExpr attribute="Preprocessor" context="#stay" String="#If.*$"  insensitive="true" beginRegion="PreprocessorIf1"/>
 			<RegExpr attribute="Preprocessor" context="#stay" String="#End.If.*$" insensitive="true" endRegion="PreprocessorIf1"/>
+			
+			<Float attribute="Float" context="#stay">
+				<AnyChar String="fF" attribute="Float" context="#stay"/>
+			</Float>
+			<HlCOct attribute="Octal" context="#stay"/>
+			<HlCHex attribute="Hex" context="#stay"/>
+			<Int attribute="Decimal" context="#stay">
+				<StringDetect attribute="Decimal" context="#stay" String="F" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="ULL" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="LUL" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="LLU" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="UL" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="LU" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="LL" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="U" insensitive="TRUE"/>
+				<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="TRUE"/>
+			</Int>
+			<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;{}"/>
 		</context>
 		
 		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
@@ -195,6 +218,7 @@
 		
 		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterAs">
 			<WordDetect attribute="Keyword" insensitive="true" context="#stay" String="new"/>
+			<keyword attribute="Data Type" context="#pop" String="types"/>
 			<DetectIdentifier attribute="Data Type2" context="#pop" insensitive="true"/>
 		</context>
 		
@@ -210,11 +234,16 @@
 	<itemDatas>
 		<itemData name="Normal Text" defStyleNum="dsNormal"/>
 		<itemData name="Keyword" defStyleNum="dsKeyword"/>
-		<itemData name="Data Type" defStyleNum="dsDataTyper2"/>
+		<itemData name="Data Type" defStyleNum="dsDataType2"/>
 		<itemData name="Data Type2" defStyleNum="dsDataType"/>
 		<itemData name="String" defStyleNum="dsString"/>
+		<itemData name="Decimal" defStyleNum="dsDecVal"/>
+		<itemData name="Octal" defStyleNum="dsDecVal"/>
+		<itemData name="Hex" defStyleNum="dsDecVal"/>
+		<itemData name="Float" defStyleNum="dsFloat"/>
 		<itemData name="Preprocessor" defStyleNum="dsOthers"/>
 		<itemData name="Comment" defStyleNum="dsComment"/>
+		<itemData name="Symbol" defStyleNum="dsOperator"/>
 	</itemDatas>
 	
 </highlighting>
