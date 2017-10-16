@@ -104,9 +104,13 @@
 	
 	<contexts>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+			<DetectChar attribute="Symbol" char="." context="#stay">
+				<DetectIdentifier attribute="Normal Text" context="#pop"/>
+			</DetectChar>
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="new"/>
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="is"/>
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="isnot"/>
+			<WordDetect attribute="Keyword" insensitive="true" context="AfterNew" String="of"/>
 			<WordDetect attribute="Keyword" insensitive="true" context="AfterAs" String="as"/>
 			<keyword attribute="Keyword" context="#stay" String="keywords"/>
 			<keyword attribute="Type" context="#stay" String="types"/>
@@ -208,12 +212,12 @@
 				<StringDetect attribute="Decimal" context="#stay" String="U" insensitive="TRUE"/>
 				<StringDetect attribute="Decimal" context="#stay" String="L" insensitive="TRUE"/>
 			</Int>
-			<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;{}"/>
+			<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/*&lt;=&gt;?[]|~^&#59;{}"/>
 		</context>
 		
 		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterNew">
 			<keyword attribute="Data Type" context="#pop" String="types"/>
-			<DetectIdentifier attribute="Data Type2" context="#pop" insensitive="true"/>
+			<DetectIdentifier attribute="Data Type2" context="#pop"/>
 		</context>
 		
 		<context attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop" name="AfterAs">
