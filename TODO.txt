@@ -7,3 +7,4 @@
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
+- command: fix autocomplete after {}

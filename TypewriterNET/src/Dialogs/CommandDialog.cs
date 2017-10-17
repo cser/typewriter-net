@@ -356,7 +356,7 @@ public class CommandDialog : ADialog
 		if (text.StartsWith("repl"))
 		{
 			bool wasSpace = false;
-			int i = 4;
+			int i = text.StartsWith("replb") ? 5 : 4;
 			for (; i < text.Length; ++i)
 			{
 				char c = text[i];
