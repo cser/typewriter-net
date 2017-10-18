@@ -7,4 +7,5 @@
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
-- command: fix autocomplete after {}
+- repl: path autocomplete
+- highlighting: fix keywords with spaces

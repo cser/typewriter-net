@@ -318,6 +318,14 @@ public class CommandDialog : ADialog
 			text = text.Substring(2);
 		else if (text.StartsWith("<") || text.StartsWith(">"))
 			text = text.Substring(1);
+		if (text.StartsWith("{"))
+		{
+			int ketIndex = text.IndexOf("}");
+			if (ketIndex != -1)
+			{
+				text = text.Substring(ketIndex + 1);
+			}
+		}
 		int quotesCount = 0;
 		int quotesIndex = 0;
 		while (true)
