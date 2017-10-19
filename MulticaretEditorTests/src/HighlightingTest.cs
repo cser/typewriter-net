@@ -1464,6 +1464,42 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Keywords_NotBug()
+		{
+			Rules.Keyword rule = NewRulesKeyword(new string[] {"ab", "ab_cde", "ab_cd"}, true, "", "");
+			int nextPosition = 0;
+			Assert.AreEqual(true, rule.Match("ab", 0, out nextPosition), "#1");
+			Assert.AreEqual(2, nextPosition);
+			Assert.AreEqual(true, rule.Match("ab_cde", 0, out nextPosition), "#2");
+			Assert.AreEqual(6, nextPosition);
+			Assert.AreEqual(false, rule.Match("ab_cdd", 0, out nextPosition), "#3");
+			Assert.AreEqual(0, nextPosition);
+			Assert.AreEqual(true, rule.Match("ab_cd", 0, out nextPosition), "#4");
+			Assert.AreEqual(5, nextPosition);
+			
+			Assert.AreEqual(true, rule.Match("ab ", 0, out nextPosition), "#5");
+			Assert.AreEqual(2, nextPosition);
+		}
+		
+		[Test]
+		public void Keywords_Bug()
+		{
+			Rules.Keyword rule = NewRulesKeyword(new string[] {"ab", "ab cde", "ab cd"}, true, "", "");
+			int nextPosition = 0;
+			Assert.AreEqual(true, rule.Match("ab", 0, out nextPosition), "#1");
+			Assert.AreEqual(2, nextPosition);
+			Assert.AreEqual(true, rule.Match("ab cde", 0, out nextPosition), "#2");
+			Assert.AreEqual(6, nextPosition);
+			Assert.AreEqual(false, rule.Match("ab cdd", 0, out nextPosition), "#3");
+			Assert.AreEqual(0, nextPosition);
+			Assert.AreEqual(true, rule.Match("ab cd", 0, out nextPosition), "#4");
+			Assert.AreEqual(5, nextPosition);
+			
+			Assert.AreEqual(true, rule.Match("ab ", 0, out nextPosition), "#5");
+			Assert.AreEqual(2, nextPosition);
+		}
+		
+		[Test]
 		public void Keywords_IgnoreCaseInvariantOptimization()
 		{
 			Rules.Keyword rule = NewRulesKeyword(new string[] {"2200fC", "2b23", "2456"}, false, "", "");

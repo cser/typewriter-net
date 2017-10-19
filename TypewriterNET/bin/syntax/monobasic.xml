@@ -50,6 +50,7 @@
 		<item> Step </item>
 		<item> Then </item>
 		<item> Else </item>
+		<item> ElseIf </item>
 		<item> True </item>
 		<item> False </item>
 		<item> Nothing </item>
