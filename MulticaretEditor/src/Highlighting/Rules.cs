@@ -228,6 +228,7 @@ namespace MulticaretEditor
 			{
 				if (position == 0 || deliminators.IndexOf(text[position - 1]) != -1)
 				{
+					nextPosition = position;
 					int count = text.Length;
 					int i = position;
 					int iNode = 1;
@@ -241,11 +242,14 @@ namespace MulticaretEditor
 								nextPosition = i;
 								return true;
 							}
-							nextPosition = position;
-							return false;
+							return nextPosition > position;
 						}
 						if (i < count && text[i] == node.c)
 						{
+							if (node.c == ' ')
+							{
+								nextPosition = i;
+							}
 							++i;
 							iNode = node.next;
 						}

@@ -1490,8 +1490,8 @@ namespace UnitTests
 			Assert.AreEqual(2, nextPosition);
 			Assert.AreEqual(true, rule.Match("ab cde", 0, out nextPosition), "#2");
 			Assert.AreEqual(6, nextPosition);
-			Assert.AreEqual(false, rule.Match("ab cdd", 0, out nextPosition), "#3");
-			Assert.AreEqual(0, nextPosition);
+			Assert.AreEqual(true, rule.Match("ab cdd", 0, out nextPosition), "#3");
+			Assert.AreEqual(2, nextPosition);
 			Assert.AreEqual(true, rule.Match("ab cd", 0, out nextPosition), "#4");
 			Assert.AreEqual(5, nextPosition);
 			
