@@ -8,4 +8,3 @@
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
 - repl: path autocomplete
-- highlighting: fix keywords with spaces
