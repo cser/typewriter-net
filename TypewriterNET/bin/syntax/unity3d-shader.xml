@@ -24,10 +24,15 @@
 		<item>ColorMask</item>
 		<item>Lighting</item>
 		<item>ZWrite</item>
+		<item>ZTest</item>
 		<item>BindChannels</item>
-		<item>Pass</item>
 		<item>return</item>
 		<item>Stencil</item>
+		<item>Ref</item>
+		<item>Comp</item>
+		<item>Pass</item>
+		<item>ReadMask</item>
+		<item>WriteMask</item>
 	</list>
 	<list name="ckeywords">
 		<item>break</item>
@@ -78,6 +83,8 @@
 	<list name="cpragmas">
 		<item>#pragma</item>
 		<item>#include</item>
+		<item>#ifdef</item>
+		<item>#endif</item>
 	</list>
 	<contexts>
 		<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
