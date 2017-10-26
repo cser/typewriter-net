@@ -38,6 +38,12 @@ Section "install"
 	;# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
 	SetOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
+	Delete "$INSTDIR\ctags\*.*"
+	Delete "$INSTDIR\schemes\*.*"
+	Delete "$INSTDIR\syntax\*.*"
+	Delete "$INSTDIR\templates\*.*"
+	Delete "$INSTDIR\snippets\*.*"
+	Delete "$INSTDIR\omnisharp_server\*.*"
 	File "bin\TypewriterNET.exe"
 	File "bin\MulticaretEditor.dll"
 	File "bin\*.xml"
