@@ -355,7 +355,7 @@ public class CommandDialog : ADialog
 				break;
 			}
 		}
-		AutocompletePath(path);
+		AutocompletePath(textBox, path, GetFile);
 		return true;
 	}
 	
@@ -464,7 +464,7 @@ public class CommandDialog : ADialog
 		return lastBuffer.FullPath;
 	}
 	
-	private void AutocompletePath(string path)
+	public static void AutocompletePath(MulticaretTextBox textBox, string path, Getter<string> getFile)
 	{
 		if (path == null)
 			return;
@@ -477,17 +477,20 @@ public class CommandDialog : ADialog
 			dir = path.Substring(0, index + 1);
 			name = path.Substring(index + 1);
 		}
-		if (dir.Contains(RunShellCommand.FileDirVar))
+		if (getFile != null)
 		{
-			string file = GetFile();
-			if (file != null)
+			if (dir.Contains(RunShellCommand.FileDirVar))
 			{
-				dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
+				string file = getFile();
+				if (file != null)
+				{
+					dir = dir.Replace(RunShellCommand.FileDirVar, Path.GetDirectoryName(file));
+				}
 			}
-		}
-		if (dir.Contains(RunShellCommand.AppDataDirVar))
-		{
-			dir = dir.Replace(RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+			if (dir.Contains(RunShellCommand.AppDataDirVar))
+			{
+				dir = dir.Replace(RunShellCommand.AppDataDirVar, AppPath.AppDataDir);
+			}
 		}
 		string[] dirs = null;
 		string[] files = null;

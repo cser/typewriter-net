@@ -55,16 +55,21 @@ public class Repl : Buffer
 		additionBeforeKeyMap.AddItem(new KeyItem(Keys.Shift | Keys.Home, null,
 			new KeyAction("&Edit\\REPL\\Home with selection", OnHomeWithSelection, null, false)));
 		{
-			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveUp", DoMoveUp, null, false);
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Up, null, action));
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, action));
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, action));
+			KeyAction action = new KeyAction("&Edit\\REPL\\Prev command", DoMoveUp, null, false);
+			additionKeyMap.AddItem(new KeyItem(Keys.Up, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.P, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.K, null, action));
 		}
 		{
-			KeyAction action = new KeyAction("&View\\Autocomplete\\MoveDown", DoMoveDown, null, false);
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Down, null, action));
-			additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, action));
+			KeyAction action = new KeyAction("&Edit\\REPL\\Next command", DoMoveDown, null, false);
+			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.N, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Down, null, action));
+			additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.J, null, action));
+		}
+		{
+		    KeyAction action = new KeyAction("&Edit\\REPL\\Autocomplete path", DoAutocomplete, null, false);
+            additionKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
+            additionKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
 		}
 			
 		string parameters = RunShellCommand.CutParametersFromLeft(ref rawCommand);
@@ -313,6 +318,42 @@ public class Repl : Buffer
 		{
 			SetCurrentLine(history.Current);
 		}
+		return true;
+	}
+	
+	private bool DoAutocomplete(Controller controller)
+	{
+		string text = GetCurrentLine();
+		int quotesCount = 0;
+		int quotesIndex = 0;
+		while (true)
+		{
+			quotesIndex = text.IndexOf('"', quotesIndex);
+			if (quotesIndex == -1)
+				break;
+			quotesIndex++;
+			if (quotesIndex >= text.Length)
+				break;
+			quotesCount++;
+		}
+		string path = "";
+		int index = text.Length;
+		while (true)
+		{
+			if (index <= 0)
+			{
+				path = text;
+				break;
+			}
+			index--;
+			if (quotesCount % 2 == 0 && (text[index] == ' ' || text[index] == '\t' || text[index] == '"') ||
+				quotesCount % 2 == 1 && text[index] == '"')
+			{
+				path = text.Substring(index + 1);
+				break;
+			}
+		}
+		CommandDialog.AutocompletePath(Frame.TextBox, path, null);
 		return true;
 	}
 }
