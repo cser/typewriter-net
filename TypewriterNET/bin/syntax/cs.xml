@@ -140,12 +140,16 @@
 				<RegExpr attribute="Keyword" context="#stay" String="\bglobal(?=\s*::\s*\w+)"/>
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#region" beginRegion="Region1"/>
 				<RegExpr attribute="Region" context="NormalToLineEnd" String="#endregion" endRegion="Region1"/>
+				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
 				<RegExpr attribute="Symbol" context="#stay" String="\(\s*">
 					<keyword attribute="Data Type" context="#stay" String="types"/>
 					<RegExpr attribute="Data Type2" context="AfterType" String="[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]|)(?=\)\s*(?!as\b)(?!is\b)[_\w\(])"/>
 				</RegExpr>
 				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
 				<RegExpr attribute="Data Type2" context="AfterType" String="\b[_\w][_\w\d]*\s*(?:&lt;[\w\,\s]+&gt;|)(?:\[\]\s+|\s+)(?!in\s)(?!as\s)(?!is\s)(?=[_\w])"/>
+			</context>
+			<context attribute="Normal Text" lineEndContext="#pop" name="Member" fallthrough="true" fallthroughContext="#pop">
+				<RegExpr attribute="Function" context="#pop" String="\b[_\w][_\w\d]*(?=[\s]*)" />
 			</context>
 			<context attribute="Normal Text" lineEndContext="#pop" name="AfterType">
 				<RegExpr attribute="Function" context="#pop" String="[_\w][_\w\d]*(?=\s*\()"/>
