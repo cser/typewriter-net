@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using MulticaretEditor;
 using System.Threading;
+using System.Collections.Specialized;
 
 public class FileTree
 {
@@ -108,6 +109,22 @@ public class FileTree
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Rename item", DoRenameItem, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Rename item", DoRenameItem, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.R, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Copy item to clipboard", DoCopyToClipboard, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.C, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Cut item to clipboard", DoCutToClipboard, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.X, null, action));
+		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Paste from clipboard", DoPasteFromClipboard, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null, action));
 		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
@@ -578,6 +595,13 @@ public class FileTree
 			result.Add(pair.Key);
 		}
 		return result;
+	}
+	
+	private Node GetOneFileOrDir(Controller controller)
+	{
+		Selection selection = controller.LastSelection;
+		Place place = controller.Lines.PlaceOf(selection.anchor);
+		return place.iLine >= 0 && place.iLine < nodes.Count ? nodes[place.iLine] : null;
 	}
 	
 	private List<Node> GetFilesAndDirsHard(Controller controller)
@@ -1182,5 +1206,240 @@ public class FileTree
 			}
 		}
 		return false;
+	}
+	
+	private bool DoCopyToClipboard(Controller controller)
+	{
+		CopyToClipboard(controller, false);
+		return true;
+	}
+	
+	private bool DoCutToClipboard(Controller controller)
+	{
+		CopyToClipboard(controller, true);
+		return true;
+	}
+	
+	private bool DoPasteFromClipboard(Controller controller)
+	{
+		IDataObject data = Clipboard.GetDataObject();
+		if (!data.GetDataPresent(DataFormats.FileDrop))
+		{
+			return false;
+		}
+		string[] paths = (string[])data.GetData(DataFormats.FileDrop);
+		MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
+		int flag = stream.ReadByte();
+		if (flag != 2 && flag != 5)
+		{
+			return false;
+		}
+		Node node = GetOneFileOrDir(controller);
+		string targetDir = null;
+		if (node != null && node.type == NodeType.File)
+		{
+			targetDir = Path.GetDirectoryName(node.fullPath);
+		}
+		else if (node != null && node.type == NodeType.Directory)
+		{
+			targetDir = node.fullPath;
+		}
+		if (targetDir == null)
+		{
+			mainForm.Dialogs.ShowInfo("Paste error", "No target directory under cursor");
+			return true;
+		}
+		if (!Directory.Exists(targetDir))
+		{
+			mainForm.Log.WriteError("Paste error", "Missing target directory: " + targetDir);
+			mainForm.Log.Open();
+			return true;
+		}
+		bool cutMode = flag == 2;
+		PasteFromClipboard(paths, targetDir, cutMode);
+		if (cutMode)
+		{
+			Clipboard.Clear();
+		}
+		return true;
+	}
+	
+	private void CopyToClipboard(Controller controller, bool cutMode)
+	{
+		List<Node> nodes = GetFilesAndDirs(controller);
+		StringCollection paths = new StringCollection();
+		PathSet nodePaths = new PathSet();
+		foreach (Node node in nodes)
+		{
+			if (node.type == NodeType.File || node.type == NodeType.Directory)
+			{
+				nodePaths.Add(node.fullPath);
+			}
+		}
+		foreach (Node node in nodes)
+		{
+			if (node.type == NodeType.File || node.type == NodeType.Directory)
+			{
+				paths.Add(node.fullPath);
+				if (!string.IsNullOrEmpty(renamePostfixed))
+				{
+					string postfixed = node.fullPath + renamePostfixed;
+					if (!nodePaths.Contains(postfixed) && File.Exists(postfixed))
+					{
+						paths.Add(postfixed);
+					}
+				}
+			}
+		}
+		if (paths.Count == 0)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No files/directories to copy");
+			return;
+		}
+        MemoryStream stream = new MemoryStream(4);
+        byte[] bytes = new byte[]{(byte)(cutMode ? 2 : 5), 0, 0, 0};
+        stream.Write(bytes, 0, bytes.Length);
+		DataObject data = new DataObject();
+		data.SetFileDropList(paths);
+        data.SetData("Preferred DropEffect", stream);
+        Clipboard.Clear();
+        Clipboard.SetDataObject(data);
+	}
+	
+	public class FileMoveInfo
+	{
+		public string prevNorm;
+		public string next;
+		public bool hasPostfixed;
+	}
+	
+	private void PasteFromClipboard(string[] files, string targetDir, bool cutMode)
+	{
+		List<FileMoveInfo> moves = new List<FileMoveInfo>();
+		{
+			Dictionary<string, FileMoveInfo> prevNormPaths = new Dictionary<string, FileMoveInfo>();
+			for (int i = 0; i < files.Length; i++)
+			{
+				string file = files[i];
+				FileMoveInfo move = new FileMoveInfo();
+				move.prevNorm = PathSet.GetNorm(file);
+				move.next = Path.Combine(targetDir, Path.GetFileName(file));
+				moves.Add(move);
+				prevNormPaths[move.prevNorm] = move;
+			}
+			if (!string.IsNullOrEmpty(renamePostfixed))
+			{
+				string lowerPostfix = renamePostfixed.ToLowerInvariant();
+				for (int i = moves.Count; i-- > 0;)
+				{
+					FileMoveInfo move = moves[i];
+					if (move.prevNorm.EndsWith(lowerPostfix))
+					{
+						string prev = move.prevNorm.Substring(0, move.prevNorm.Length - lowerPostfix.Length);
+						if (!prev.EndsWith(lowerPostfix) && prevNormPaths.ContainsKey(prev))
+						{
+							prevNormPaths[PathSet.GetNorm(prev)].hasPostfixed = true;
+							moves.RemoveAt(i);
+						}
+					}
+				}
+			}
+			if (cutMode)
+			{
+				for (int i = moves.Count; i-- > 0;)
+				{
+					FileMoveInfo move = moves[i];
+					if (move.prevNorm == PathSet.GetNorm(move.next))
+					{
+						moves.RemoveAt(i);
+					}
+				}
+			}
+		}
+		PathSet newFullPaths = new PathSet();
+		bool hasErrors = false;
+		foreach (FileMoveInfo info in moves)
+		{
+			bool isDir = Directory.Exists(info.prevNorm);
+			if (!isDir && !File.Exists(info.prevNorm))
+			{
+				continue;
+			}
+			int index = 1;
+			string next = info.next;
+			string nextPostfixed = info.hasPostfixed ? info.next + renamePostfixed : null;
+			bool renamed = false;
+			{
+				string nextExtension;
+				string nextBase;
+				if (Path.GetFileNameWithoutExtension(info.next) == "")
+				{
+					nextExtension = "";
+					nextBase = info.next;
+				}
+				else
+				{
+					nextExtension = Path.GetExtension(info.next);
+					nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
+				}
+				while (Directory.Exists(next) || File.Exists(next) ||
+					nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
+				{
+					renamed = true;
+					string suffix = index == 1 ? "-copy" : "-copy" + index;
+					next = nextBase + suffix + nextExtension;
+					if (nextPostfixed != null)
+					{
+						nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
+					}
+					++index;
+				}
+			}
+			try
+			{
+				if (isDir)
+				{
+					CopyDirectoryRecursive(info.prevNorm, next);
+				}
+				else
+				{
+					File.Copy(info.prevNorm, next);
+				}
+				if (nextPostfixed != null && !renamed)
+				{
+					File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+				}
+			}
+			catch (Exception e)
+			{
+				hasErrors = true;
+				mainForm.Log.WriteError("Paste error", e.Message + "\n" +
+					"  " + info.prevNorm + " ->\n" +
+					"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+			}
+			newFullPaths.Add(next);
+		}
+		Reload();
+		PutCursors(newFullPaths);
+		if (hasErrors)
+		{
+			mainForm.Log.Open();
+		}
+	}
+	
+	private void CopyDirectoryRecursive(string prev, string targetFolder)
+	{
+		if (!Directory.Exists(targetFolder))
+		{
+			Directory.CreateDirectory(targetFolder);
+		}
+		foreach (string dir in Directory.GetDirectories(prev))
+		{
+			CopyDirectoryRecursive(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+		}
+		foreach (string file in Directory.GetFiles(prev))
+		{
+			File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+		}
 	}
 }

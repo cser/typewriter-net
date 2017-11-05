@@ -32,7 +32,6 @@ Sources
 Editor uses **Kate** highlighting files (because there are already 200 languages for free)
 
 3. Encoding detection
-
 	TextFileEncodingDetector.cs got without changes from<br/>
 	https://gist.github.com/TaoK/945127
 
@@ -56,6 +55,9 @@ Editor uses **Kate** highlighting files (because there are already 200 languages
 
 10. Snippets (supported particulary)
 	https://github.com/honza/vim-snippets
+
+11. How cut/copy and paste files
+	https://www.codeproject.com/Articles/14059/Drag-and-drop-cut-copy-and-paste-files-with-Window
 
 Installation without building
 -----------------------------
