@@ -1234,6 +1234,7 @@ public class FileTree
 		{
 			return false;
 		}
+		bool cutMode = flag == 2;
 		Node node = GetOneFileOrDir(controller);
 		string targetDir = null;
 		if (node != null && node.type == NodeType.File)
@@ -1242,6 +1243,17 @@ public class FileTree
 		}
 		else if (node != null && node.type == NodeType.Directory)
 		{
+			if (cutMode)
+			{
+				for (int i = 0; i < paths.Length; i++)
+				{
+					if (PathSet.GetNorm(node.fullPath) == PathSet.GetNorm(paths[i]))
+					{
+						mainForm.Dialogs.ShowInfo("Paste error", "Try move into self: " + node.fullPath);
+						return true;
+					}
+				}
+			}
 			targetDir = node.fullPath;
 		}
 		if (targetDir == null)
@@ -1255,7 +1267,6 @@ public class FileTree
 			mainForm.Log.Open();
 			return true;
 		}
-		bool cutMode = flag == 2;
 		PasteFromClipboard(paths, targetDir, cutMode);
 		if (cutMode)
 		{
@@ -1399,15 +1410,36 @@ public class FileTree
 			{
 				if (isDir)
 				{
-					CopyDirectoryRecursive(info.prevNorm, next);
+					if (cutMode)
+					{
+						Directory.Move(info.prevNorm, next);
+					}
+					else
+					{
+						CopyDirectoryRecursive(info.prevNorm, next);
+					}
 				}
 				else
 				{
-					File.Copy(info.prevNorm, next);
+					if (cutMode)
+					{
+						File.Move(info.prevNorm, next);
+					}
+					else
+					{
+						File.Copy(info.prevNorm, next);
+					}
 				}
 				if (nextPostfixed != null && !renamed)
 				{
-					File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+					if (cutMode)
+					{
+						File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
+					}
+					else
+					{
+						File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+					}
 				}
 			}
 			catch (Exception e)
