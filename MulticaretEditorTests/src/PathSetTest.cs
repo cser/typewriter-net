@@ -16,11 +16,11 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void GetNormalized()
+		public void GetNorm()
 		{
-			Assert.AreEqual("c:\\a\\b", PathSet.GetNormalized("c:\\a\\b"));
-			Assert.AreEqual("c:\\a\\b", PathSet.GetNormalized("c:\\a\\b\\"));
-			Assert.AreEqual("c:\\a\\b", PathSet.GetNormalized("C:\\A\\b\\"));
+			Assert.AreEqual("c:\\a\\b", PathSet.GetNorm("c:\\a\\b"));
+			Assert.AreEqual("c:\\a\\b", PathSet.GetNorm("c:\\a\\b\\"));
+			Assert.AreEqual("c:\\a\\b", PathSet.GetNorm("C:\\A\\b\\"));
 		}
 		
 		[Test]
