@@ -1113,11 +1113,13 @@ public class FileTree
 	
 	private bool wasReloaded;
 	private string renamePostfixed;
+	private bool copyPostfixed;
 	private string hideInFileTree;
 	
 	private void ResetReload()
 	{
 	    renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	    copyPostfixed = mainForm.Settings.copyPostfixed.Value;
 	    hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
 	}
 	
@@ -1125,10 +1127,12 @@ public class FileTree
 	{
 	    if (wasReloaded && (
 	        renamePostfixed != mainForm.Settings.renamePostfixed.Value + "" ||
+	        copyPostfixed != mainForm.Settings.copyPostfixed.Value ||
 	        hideInFileTree != mainForm.Settings.hideInFileTree.Value + ""
 	    ))
         {
             renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
+	        copyPostfixed = mainForm.Settings.copyPostfixed.Value;
 	        hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
             Reload();
         }
@@ -1379,7 +1383,6 @@ public class FileTree
 			int index = 1;
 			string next = info.next;
 			string nextPostfixed = info.hasPostfixed ? info.next + renamePostfixed : null;
-			bool renamed = false;
 			{
 				string nextExtension;
 				string nextBase;
@@ -1396,7 +1399,6 @@ public class FileTree
 				while (Directory.Exists(next) || File.Exists(next) ||
 					nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
 				{
-					renamed = true;
 					string suffix = index == 1 ? "-copy" : "-copy" + index;
 					next = nextBase + suffix + nextExtension;
 					if (nextPostfixed != null)
@@ -1430,13 +1432,13 @@ public class FileTree
 						File.Copy(info.prevNorm, next);
 					}
 				}
-				if (nextPostfixed != null && !renamed)
+				if (nextPostfixed != null)
 				{
 					if (cutMode)
 					{
 						File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
-					else
+					else if (copyPostfixed)
 					{
 						File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
@@ -1471,6 +1473,11 @@ public class FileTree
 		}
 		foreach (string file in Directory.GetFiles(prev))
 		{
+			if (!copyPostfixed && !string.IsNullOrEmpty(renamePostfixed) &&
+				file.ToLowerInvariant().EndsWith(renamePostfixed))
+			{
+				continue;
+			}
 			File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
 		}
 	}
