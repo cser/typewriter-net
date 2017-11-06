@@ -489,7 +489,7 @@ public class FileTree
 
 			builder.AppendLine();
 
-			Node currentDirectoryNode = new Node(NodeType.Directory, node.name, "");
+			Node currentDirectoryNode = new Node(NodeType.Directory, node.name, node.fullPath);
 			currentDirectoryNode.line = nodes.Count;
 			nodes.Add(currentDirectoryNode);
 			ranges.Add(new StyleRange(builder.Length, currentDirectory.Length, Ds.Constructor.index));
@@ -603,7 +603,7 @@ public class FileTree
 	private Node GetOneFileOrDir(Controller controller)
 	{
 		Selection selection = controller.LastSelection;
-		Place place = controller.Lines.PlaceOf(selection.anchor);
+		Place place = controller.Lines.PlaceOf(selection.caret);
 		return place.iLine >= 0 && place.iLine < nodes.Count ? nodes[place.iLine] : null;
 	}
 	
