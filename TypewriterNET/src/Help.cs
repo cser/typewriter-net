@@ -114,6 +114,20 @@ public static class Help
 		}
 		builder.AppendLine();
 		builder.AppendLine("Learn more about syntax.xml files in \"?\\Kate syntax highlighting help…\" menu item");
+		builder.AppendLine();
+		builder.AppendLine("# Using with Unity 3d");
+		builder.AppendLine();
+		builder.AppendLine("- add to config: xml: <item name=\"omnisharpSln\" value=\"Path\\To\\Unity-generated.sln\"/>");
+		builder.AppendLine("    it's need for omnisharp commands working (see omnisharp- commands above)");
+		builder.AppendLine("    if autocomplete stopped working properly try to run omnisharp-reloadsolution by `F9`");
+		builder.AppendLine("- recommended to use local config (`Ctrl+F2` when current dir is project dir) and relative sln path");
+		builder.AppendLine("- open Edit/Unity Preferences/External Tools in Unity 3d and then:");
+		builder.AppendLine("    add TypewriterNET.exe to editor list");
+		builder.AppendLine("    write in External Script Editor Args: -line=$(Line) \"$(File)\"");
+		builder.AppendLine("    now you can jump to error by double click");
+		builder.AppendLine("- if you want to navitate on Unity Console stack trace output:");
+		builder.AppendLine("    copy it to clipboard");
+		builder.AppendLine("    paste it in Typewriter.NET shell output by special shortcut `Ctrl+Shift+V`");
 		Buffer buffer = new Buffer(null, "Help.twh", SettingsMode.Help);
 		buffer.tags = BufferTag.Other;
 		buffer.Controller.isReadonly = true;
