@@ -128,6 +128,11 @@ public static class Help
 		builder.AppendLine("- if you want to navitate on Unity Console stack trace output:");
 		builder.AppendLine("    copy it to clipboard");
 		builder.AppendLine("    paste it in Typewriter.NET shell output by special shortcut `Ctrl+Shift+V`");
+		builder.AppendLine("- when paste files in File tree by `Ctrl+Shift+V` after copy by `Ctrl+Shift+C`:");
+		builder.AppendLine("    postfixed files (.meta by default) will not be inserted to prevent uids duplication");
+		builder.AppendLine("    they will be insterted only after cut by `Ctrl+Shift+X`");
+		builder.AppendLine("    if you want to insert this files change property pastePostfixedAfterCopy by Command dialog");
+		builder.AppendLine("    or change line in config to: xml: <item name=\"pastePostfixedAfterCopy\" value=\"true\"/>");
 		Buffer buffer = new Buffer(null, "Help.twh", SettingsMode.Help);
 		buffer.tags = BufferTag.Other;
 		buffer.Controller.isReadonly = true;

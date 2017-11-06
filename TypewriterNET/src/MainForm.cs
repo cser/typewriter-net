@@ -932,6 +932,9 @@ public class MainForm : Form
 			new KeyAction("&View\\File tree\\Open/close file tree", DoOpenCloseFileTree, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.D0, null,
 			new KeyAction("&View\\File tree\\Find file in tree", DoFindFileInTree, null, false)));
+		keyMap.AddItem(new KeyItem(Keys.None, null,
+			new KeyAction("&View\\File tree\\Paste postfixed after copy", DoTogglePastePostfixedAfterCopy, null, false)
+			.SetGetText(GetPastePostfixedAfterCopy)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.Enter, null,
 			new KeyAction("&View\\Switch maximized/minimized mode", DoSwitchWindowMode, null, false)));
 		keyMap.AddItem(new KeyItem(Keys.Control | Keys.L, null,
@@ -1558,6 +1561,13 @@ public class MainForm : Form
 		frames.UpdateSettings(settings, UpdatePhase.Raw);
 		return true;
 	}
+	
+	private bool DoTogglePastePostfixedAfterCopy(Controller controller)
+	{
+		settings.pastePostfixedAfterCopy.Value = !settings.pastePostfixedAfterCopy.Value;
+		frames.UpdateSettings(settings, UpdatePhase.Raw);
+		return true;
+	}
 
 	private string GetFindRegex()
 	{
@@ -1582,8 +1592,14 @@ public class MainForm : Form
 
 	private string GetShowSpaceCharacters()
 	{
-		return settings.showSpaceCharacters.Value ? " (on)" : " (off)" +
+		return (settings.showSpaceCharacters.Value ? " (on)" : " (off)") +
 			(settings.showSpaceCharacters.initedByConfig ? " - need configure to save" : "");
+	}
+	
+	private string GetPastePostfixedAfterCopy()
+	{
+		return (settings.pastePostfixedAfterCopy.Value ? " (on)" : " (off)") +
+			(settings.pastePostfixedAfterCopy.initedByConfig ? " - need configure to save" : "");
 	}
 
 	private bool DoOpenCloseLog(Controller controller)
