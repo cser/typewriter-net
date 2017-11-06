@@ -1105,5 +1105,28 @@ namespace MulticaretEditor
 			text += "] expected:" + block.charsCount + ", was:" + charsCount;
 			return text;
 		}
+		
+		public List<int> GetSelectionIndices()
+		{
+			Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
+			foreach (Selection selection in selections)
+			{
+				Place place0 = PlaceOf(selection.anchor);
+				Place place1 = PlaceOf(selection.caret);
+				int i0 = Math.Min(place0.iLine, place1.iLine);
+				int i1 = Math.Max(place0.iLine, place1.iLine);
+				for (int i = i0; i <= i1; i++)
+				{
+					indexHash[i] = true;
+				}
+			}
+			List<int> indices = new List<int>();
+			foreach (KeyValuePair<int, bool> pair in indexHash)
+			{
+				indices.Add(pair.Key);
+			}
+			indices.Sort();
+			return indices;
+		}
 	}
 }

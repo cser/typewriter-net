@@ -24,6 +24,7 @@ namespace MulticaretEditor
 		public MacrosExecutor macrosExecutor;
 		public Receiver receiver;
 		public Setter onBeforePaint;
+		public bool lastSelectionFree;
 
 		public LineArray Lines { get { return lines; } }
 
@@ -51,11 +52,22 @@ namespace MulticaretEditor
 			DoAfterMove();
 			return result;
 		}
+		
+		private List<Selection> GetFictiveSelections()
+		{
+			if (lastSelectionFree)
+			{
+				List<Selection> selections = new List<Selection>();
+				selections.Add(LastSelection);
+				return selections;
+			}
+			return lines.selections;
+		}
 
 		private bool PrivateMoveRight(LineArray lines, bool shift)
 		{
 			bool result = false;
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				if (!shift && !selection.Empty)
 				{
@@ -92,7 +104,7 @@ namespace MulticaretEditor
 		private bool PrivateMoveLeft(LineArray lines, bool shift)
 		{
 			bool result = false;
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				if (!shift && !selection.Empty)
 				{
@@ -156,7 +168,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				foreach (Selection selection in selections)
+				foreach (Selection selection in GetFictiveSelections())
 				{
 					Place place = lines.PlaceOf(selection.caret);
 					if (place.iLine > 0)
@@ -180,7 +192,7 @@ namespace MulticaretEditor
 		public bool ViLogicMoveUp(bool shift)
 		{
 			bool result = false;
-			foreach (Selection selection in selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				if (place.iLine > 0)
@@ -241,7 +253,7 @@ namespace MulticaretEditor
 			}
 			else
 			{
-				foreach (Selection selection in selections)
+				foreach (Selection selection in GetFictiveSelections())
 				{
 					Place place = lines.PlaceOf(selection.caret);
 					if (place.iLine < lines.LinesCount - 1)
@@ -430,6 +442,7 @@ namespace MulticaretEditor
 
 		private void PrivateMoveWordRight(bool shift, bool shiftMove)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -440,6 +453,7 @@ namespace MulticaretEditor
 
 		private void PrivateMoveWordLeft(bool shift)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -525,9 +539,16 @@ namespace MulticaretEditor
 			}
 			PutCursor(place, false);
 		}
+		
+		public void PutNewCursorForcedly(Place place)
+		{
+			lines.selections.Add(new Selection());
+			PutCursor(place, false);
+		}
 
 		public bool ClearMinorSelections()
 		{
+			lastSelectionFree = false;
 			if (lines.selections.Count > 1)
 			{
 				lines.selections.RemoveRange(1, lines.selections.Count - 1);
@@ -538,6 +559,7 @@ namespace MulticaretEditor
 
 		public bool ClearFirstMinorSelections()
 		{
+			lastSelectionFree = false;
 			if (lines.selections.Count > 1)
 			{
 				lines.selections.RemoveRange(0, lines.selections.Count - 1);
@@ -1332,6 +1354,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveToCharLeft(char charToFind, bool shift, int count, bool at)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
@@ -1366,6 +1389,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveToCharRight(char charToFind, bool shift, int count, bool at)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
@@ -1402,6 +1426,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveTo(int position, bool shift)
 		{
+			lastSelectionFree = false;
 			if (position < 0)
 			{
 				position = 0;
@@ -1418,6 +1443,7 @@ namespace MulticaretEditor
 		
 		public void ViCollapseSelections()
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in selections)
 			{
 				selection.caret = selection.anchor;
@@ -1427,6 +1453,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_w(bool shift, bool change, bool allowNewLine)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1437,6 +1464,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_b(bool shift, bool change)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1447,6 +1475,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_W(bool shift, bool change)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1457,6 +1486,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_B(bool shift, bool change)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1467,6 +1497,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_e(bool shift)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1477,6 +1508,7 @@ namespace MulticaretEditor
 		
 		public void ViMove_E(bool shift)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1487,6 +1519,7 @@ namespace MulticaretEditor
 		
 		public void ViPairBracket(bool shift)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1499,6 +1532,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveInWord(bool shift, bool inside)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1512,6 +1546,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveInBigWord(bool shift, bool inside)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1525,6 +1560,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket, int count)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1543,6 +1579,7 @@ namespace MulticaretEditor
 		
 		public bool ViTryConvertToLines(char bra, char ket, bool inside)
 		{
+			lastSelectionFree = false;
 			bool isLine = true;
 			if (inside)
 			{
@@ -1611,6 +1648,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveInQuotes(bool shift, bool inside, char quote)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Moves moves = new Moves(lines, selection.caret);
@@ -1629,6 +1667,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveHome(bool shift, bool indented)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in selections)
 			{
 				Place caret = lines.PlaceOf(selection.caret);
@@ -1659,6 +1698,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveEnd(bool shift, int count)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in selections)
 			{
 				Place caret = lines.PlaceOf(selection.caret);
@@ -1679,7 +1719,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveLeft(bool shift)
 		{
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				if (place.iChar > 0)
@@ -1693,7 +1733,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveRight(bool shift)
 		{
-			foreach (Selection selection in lines.selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				Line line = lines[place.iLine];
@@ -1709,7 +1749,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveUp(bool shift)
 		{
-			foreach (Selection selection in selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				if (place.iLine > 0)
@@ -1725,7 +1765,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveDown(bool shift)
 		{
-			foreach (Selection selection in selections)
+			foreach (Selection selection in GetFictiveSelections())
 			{
 				Place place = lines.PlaceOf(selection.caret);
 				if (place.iLine < lines.LinesCount - 1)
@@ -1764,6 +1804,7 @@ namespace MulticaretEditor
 		
 		public void ViNormal_FixCaret(bool setPreferredPos)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
@@ -1783,6 +1824,7 @@ namespace MulticaretEditor
 		
 		public void ViSelectRight(int count)
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
@@ -1801,6 +1843,7 @@ namespace MulticaretEditor
 		
 		public void ViMoveRightFromCursor()
 		{
+			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
 			{
 				Place place = lines.PlaceOf(selection.caret);
@@ -1820,6 +1863,7 @@ namespace MulticaretEditor
 		
 		public void ViReplaceChar(char c, int count)
 		{
+			lastSelectionFree = false;
 			bool allEmpty = true;
 			foreach (Selection selection in selections)
 			{
@@ -1996,6 +2040,7 @@ namespace MulticaretEditor
 		
 		public void ViPaste(char register, Direction direction, int count)
 		{
+			lastSelectionFree = false;
 			processor.BeginBatch();
 			if (direction == Direction.Right)
 			{

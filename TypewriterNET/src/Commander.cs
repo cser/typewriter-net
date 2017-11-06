@@ -621,6 +621,7 @@ public class Commander
 		commands.Add(new Command("ex", "[file]", "open in explorer", DoOpenInExplorer));
 		commands.Add(new Command(
 			"shortcut", "text", "Open command dialog with text - to assign keys", DoShortcut));
+		commands.Add(new Command("select-line", "", "select line and next cursor", DoSelectLine));
 		commands.Add(new Command("omnisharp-autocomplete", "", "autocomplete by omnisharp server", DoOmnisharpAutocomplete));
 		commands.Add(new Command("omnisharp-getoverridetargets", "", "get override targets", DoOmnisharpGetOverrideTargets));
 		commands.Add(new Command("omnisharp-findUsages", "", "find usages by omnisharp server", DoOmnisharpFindUsages));
@@ -794,6 +795,68 @@ public class Commander
 	private void DoShortcut(string text)
 	{
 		mainForm.Dialogs.ShowInputCommand(text, false);
+	}
+	
+	private void DoSelectLine(string text)
+	{
+		Buffer lastBuffer = mainForm.LastBuffer;
+		if (lastBuffer == null)
+		{
+			mainForm.Dialogs.ShowInfo("Error", "No last selected buffer for omnisharp autocomplete");
+			return;
+		}
+		Selection selection = lastBuffer.Controller.LastSelection;
+		Controller controller = lastBuffer.Controller;
+		Place place = controller.Lines.PlaceOf(selection.caret);
+		List<int> indices = controller.Lines.GetSelectionIndices();
+		int lastIndexOfIndex = -1;
+		for (int i = indices.Count; i-- > 0;)
+		{
+			if (indices[i] == place.iLine && selection.Empty)
+			{
+				lastIndexOfIndex = i;
+				break;
+			}
+		}
+		if (lastIndexOfIndex != -1)
+		{
+			foreach (Selection selectionI in controller.Selections)
+			{
+				if (selectionI != selection && selectionI.Left <= selection.Right && selectionI.Right >= selection.Left)
+				{
+					indices.RemoveAt(lastIndexOfIndex);
+					break;
+				}
+			}
+		}
+		indices.Add(place.iLine + 1 < controller.Lines.LinesCount ? place.iLine + 1 : place.iLine);
+		controller.lastSelectionFree = false;
+		controller.ClearMinorSelections();
+		for (int i = 0; i < indices.Count; ++i)
+		{
+			int iLine = indices[i];
+			Selection selectionI;
+			if (i == 0)
+			{
+				selectionI = controller.LastSelection;
+				controller.PutCursor(new Place(0, iLine), false);
+				controller.PutCursor(new Place(controller.Lines[iLine].NormalCount, iLine), true);
+			}
+			else if (i == indices.Count - 1)
+			{
+				controller.PutNewCursorForcedly(new Place(0, iLine));
+			}
+			else
+			{
+				controller.PutNewCursorForcedly(new Place(0, iLine));
+				controller.PutCursor(new Place(controller.Lines[iLine].NormalCount, iLine), true);
+			}
+		}
+		if (controller.SelectionsCount > 0)
+		{
+			controller.lastSelectionFree = true;
+		}
+		controller.NeedScrollToCaret();
 	}
 	
 	private static bool SwitchOrSetValue(bool value, string text)

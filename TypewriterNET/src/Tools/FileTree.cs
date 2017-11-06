@@ -552,32 +552,9 @@ public class FileTree
 		}
 	}
 
-	private List<int> GetSelectionIndices(Controller controller)
-	{
-		Dictionary<int, bool> indexHash = new Dictionary<int, bool>();
-		foreach (Selection selection in controller.Selections)
-		{
-			Place place0 = controller.Lines.PlaceOf(selection.anchor);
-			Place place1 = controller.Lines.PlaceOf(selection.caret);
-			int i0 = Math.Min(place0.iLine, place1.iLine);
-			int i1 = Math.Max(place0.iLine, place1.iLine);
-			for (int i = i0; i <= i1; i++)
-			{
-				indexHash[i] = true;
-			}
-		}
-		List<int> indices = new List<int>();
-		foreach (KeyValuePair<int, bool> pair in indexHash)
-		{
-			indices.Add(pair.Key);
-		}
-		indices.Sort();
-		return indices;
-	}
-
 	private List<Node> GetFilesAndDirs(Controller controller)
 	{
-		List<int> indices = GetSelectionIndices(controller);
+		List<int> indices = controller.Lines.GetSelectionIndices();
 		Dictionary<Node, bool> nodesHash = new Dictionary<Node, bool>();
 		List<Node> nodesToRemove = new List<Node>();
 		foreach (int index in indices)
@@ -610,7 +587,7 @@ public class FileTree
 	private List<Node> GetFilesAndDirsHard(Controller controller)
 	{
 		List<Node> result = new List<Node>();
-		foreach (int index in GetSelectionIndices(controller))
+		foreach (int index in controller.Lines.GetSelectionIndices())
 		{
 			result.Add(nodes[index]);
 		}
@@ -693,7 +670,7 @@ public class FileTree
 			mainForm.Dialogs.ShowInfo("Error", "Slashes unsupported");
 			return true;
 		}
-		List<int> indices = GetSelectionIndices(this.buffer.Controller);
+		List<int> indices = this.buffer.Controller.Lines.GetSelectionIndices();
 		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
 		List<string> fullPaths = new List<string>();
 		Dictionary<string, bool> fullPathsSet = new Dictionary<string, bool>();
@@ -775,7 +752,7 @@ public class FileTree
 		if (string.IsNullOrEmpty(fileName))
 			return true;
 		mainForm.Dialogs.CloseInput();
-		List<int> indices = GetSelectionIndices(this.buffer.Controller);
+		List<int> indices = this.buffer.Controller.Lines.GetSelectionIndices();
 		Dictionary<string, bool> dirsSet = new Dictionary<string, bool>();
 		List<string> fullPaths = new List<string>();
 		Dictionary<string, bool> fullPathsSet = new Dictionary<string, bool>();
@@ -919,7 +896,7 @@ public class FileTree
 	
 	private bool DoRenameItem(Controller controller)
 	{
-		List<int> indices = GetSelectionIndices(controller);
+		List<int> indices = controller.Lines.GetSelectionIndices();
 		List<Node> nodes = new List<Node>();
 		StringBuilder builder = new StringBuilder();
 		List<bool> isDirectory = new List<bool>();
