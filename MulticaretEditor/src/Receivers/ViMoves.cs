@@ -406,7 +406,10 @@ namespace MulticaretEditor
 			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				controller.ClearMinorSelections();
+				if (!controller.lastSelectionFree)
+				{
+					controller.ClearMinorSelections();
+				}
 				controller.LastSelection.caret = 0;
 				controller.ViMoveHome(shift, true);
 			}
@@ -418,7 +421,10 @@ namespace MulticaretEditor
 			
 			public void Move(Controller controller, bool shift, MoveMode mode)
 			{
-				controller.ClearMinorSelections();
+				if (!controller.lastSelectionFree)
+				{
+					controller.ClearMinorSelections();
+				}
 				controller.LastSelection.caret = controller.Lines.charsCount;
 				controller.ViMoveHome(shift, true);
 			}

@@ -44,7 +44,6 @@
 	<item name="shellRegex" value="/^(.*)\((\d+),\s?(\d+)\):.*$/"/><!-- c# -->
 	<item name="shellRegex" value='/^\s*File \"(.*)\", line (\d+).*$/'/><!-- python -->
 	<item name="shellRegex" value='/\(at\s(.*):(\d+)\)$/'/><!-- Unity3d -->
-	<item name="ctrlSpaceCommand:File tree" value="select-line"/>
 	<item name="ctrlSpaceCommand:*.cs" value="omnisharp-autocomplete"/>
 	<item name="ctrlShiftSpaceCommand:*.cs" value="omnisharp-getoverridetargets"/>
 	<item name="shiftF5Command:*.cs;*.proj" value="omnisharp-buildcommand"/>

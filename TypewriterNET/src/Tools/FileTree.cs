@@ -126,6 +126,10 @@ public class FileTree
 			KeyAction action = new KeyAction("&View\\File tree\\Paste from clipboard", DoPasteFromClipboard, null, false);
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null, action));
 		}
+		{
+			KeyAction action = new KeyAction("&View\\File tree\\Select item", DoSelectItem, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Tab, null, action));
+		}
 		buffer.onSelected = OnBufferSelected;
 		buffer.onUpdateSettings = OnBufferUpdateSettings;
 	}
@@ -1460,5 +1464,61 @@ public class FileTree
 			}
 			File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
 		}
+	}
+	
+	private bool DoSelectItem(Controller controller)
+	{
+		Selection selection = controller.LastSelection;
+		Place place = controller.Lines.PlaceOf(selection.caret);
+		List<int> indices = controller.Lines.GetSelectionIndices();
+		int lastIndexOfIndex = -1;
+		for (int i = indices.Count; i-- > 0;)
+		{
+			if (indices[i] == place.iLine && selection.Empty)
+			{
+				lastIndexOfIndex = i;
+				break;
+			}
+		}
+		if (lastIndexOfIndex != -1)
+		{
+			foreach (Selection selectionI in controller.Selections)
+			{
+				if (selectionI != selection && selectionI.Left <= selection.Right && selectionI.Right >= selection.Left)
+				{
+					indices.RemoveAt(lastIndexOfIndex);
+					break;
+				}
+			}
+		}
+		indices.Add(place.iLine + 1 < controller.Lines.LinesCount ? place.iLine + 1 : place.iLine);
+		controller.lastSelectionFree = false;
+		controller.ClearMinorSelections();
+		for (int i = 0; i < indices.Count; ++i)
+		{
+			int iLine = indices[i];
+			Selection selectionI;
+			if (i == 0)
+			{
+				selectionI = controller.LastSelection;
+				controller.PutCursor(new Place(0, iLine), false);
+				controller.PutCursor(new Place(controller.Lines[iLine].NormalCount, iLine), true);
+			}
+			else if (i == indices.Count - 1)
+			{
+				controller.PutNewCursorForcedly(new Place(0, iLine));
+			}
+			else
+			{
+				controller.PutNewCursorForcedly(new Place(0, iLine));
+				controller.PutCursor(new Place(controller.Lines[iLine].NormalCount, iLine), true);
+			}
+		}
+		if (controller.SelectionsCount > 0)
+		{
+			controller.lastSelectionFree = true;
+		}
+		controller.NeedScrollToCaret();
+		return true;
 	}
 }
