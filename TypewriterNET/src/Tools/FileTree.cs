@@ -1113,13 +1113,13 @@ public class FileTree
 	
 	private bool wasReloaded;
 	private string renamePostfixed;
-	private bool copyPostfixed;
+	private bool pastePostfixedAfterCopy;
 	private string hideInFileTree;
 	
 	private void ResetReload()
 	{
 	    renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
-	    copyPostfixed = mainForm.Settings.copyPostfixed.Value;
+	    pastePostfixedAfterCopy = mainForm.Settings.pastePostfixedAfterCopy.Value;
 	    hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
 	}
 	
@@ -1127,12 +1127,12 @@ public class FileTree
 	{
 	    if (wasReloaded && (
 	        renamePostfixed != mainForm.Settings.renamePostfixed.Value + "" ||
-	        copyPostfixed != mainForm.Settings.copyPostfixed.Value ||
+	        pastePostfixedAfterCopy != mainForm.Settings.pastePostfixedAfterCopy.Value ||
 	        hideInFileTree != mainForm.Settings.hideInFileTree.Value + ""
 	    ))
         {
             renamePostfixed = mainForm.Settings.renamePostfixed.Value + "";
-	        copyPostfixed = mainForm.Settings.copyPostfixed.Value;
+	        pastePostfixedAfterCopy = mainForm.Settings.pastePostfixedAfterCopy.Value;
 	        hideInFileTree = mainForm.Settings.hideInFileTree.Value + "";
             Reload();
         }
@@ -1438,7 +1438,7 @@ public class FileTree
 					{
 						File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
-					else if (copyPostfixed)
+					else if (pastePostfixedAfterCopy)
 					{
 						File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
@@ -1473,7 +1473,7 @@ public class FileTree
 		}
 		foreach (string file in Directory.GetFiles(prev))
 		{
-			if (!copyPostfixed && !string.IsNullOrEmpty(renamePostfixed) &&
+			if (!pastePostfixedAfterCopy && !string.IsNullOrEmpty(renamePostfixed) &&
 				file.ToLowerInvariant().EndsWith(renamePostfixed))
 			{
 				continue;

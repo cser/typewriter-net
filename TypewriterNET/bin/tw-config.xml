@@ -32,7 +32,7 @@
 	<item name="showEncoding" value="true"/>
 	<item name="hideInFileTree" value="*.meta"/>
 	<item name="renamePostfixed" value=".meta"/>
-	<item name="copyPostfixed"/>
+	<item name="pastePostfixedAfterCopy"/>
 	<item name="checkContentBeforeReloading" value="true"/>
 	<item name="fileIncrementalSearchTimeout" value="8"/>
 	<item name="altCharsSource" value="1234567890-=\qwertyuiop[]asdl;'zcnm,/!$+QWERTYUIOPASDL:ZCN&lt;&quot;"/>
