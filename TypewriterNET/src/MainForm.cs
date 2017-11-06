@@ -357,6 +357,7 @@ public class MainForm : Form
 		allowApply = true;
 		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
+		tempSettings.InitFileTreeAfterLoad();
 
         openFileLine = lineNumber;
 		foreach (FileArg fileArg in filesToLoad)

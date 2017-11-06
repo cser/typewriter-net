@@ -103,16 +103,26 @@ public class TempSettings
 		replaceHistory.Unserialize(state["replaceHistory"]);
 		goToLineHistory.Unserialize(state["goToLineHistory"]);
 		findParams.Unserialize(state["findParams"]);
-		mainForm.FileTree.SetExpandedTemp(state["fileTreeExpanded"]);
-		if (state["showFileTree"].Bool)
+		fileTreeExpanded = state["fileTreeExpanded"];
+		showFileTree = state["showFileTree"].Bool;
+		helpPosition = state["helpPosition"].Int;
+		viHelpPosition = state["viHelpPosition"].Int;
+		UnserializeSettings(ref state);
+	}
+	
+	private SValue fileTreeExpanded;
+	private bool showFileTree;
+	
+	public void InitFileTreeAfterLoad()
+	{
+		mainForm.FileTree.SetExpandedTemp(fileTreeExpanded);
+		fileTreeExpanded = SValue.None;
+		if (showFileTree)
 		{
 			mainForm.OpenFileTree();
 			if (mainForm.MainNest.Frame != null)
 				mainForm.MainNest.Frame.Focus();
 		}
-		helpPosition = state["helpPosition"].Int;
-		viHelpPosition = state["viHelpPosition"].Int;
-		UnserializeSettings(ref state);
 	}
 
 	public void MarkLoaded(Buffer buffer)

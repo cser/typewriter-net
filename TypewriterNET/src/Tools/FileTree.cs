@@ -285,11 +285,14 @@ public class FileTree
 		string root = currentDirectory;
 		node = new Node(NodeType.Directory, Path.GetFileName(root), Path.GetFullPath(root));
 		Expand(node);
-		Rebuild();
-		if (!expandedTemp.Equals(SValue.None))
+		if (!expandedTemp.IsNone)
 		{
 			SetExpandedTemp(expandedTemp);
 			expandedTemp = SValue.None;
+		}
+		else
+		{
+			Rebuild();
 		}
 	}
 
@@ -535,17 +538,17 @@ public class FileTree
 		{
 			expanded[valueI.Int] = true;
 		}
-		ExpandCollection(node, expanded);
+		ExpandCollection(node, expanded, "");
 		Rebuild();
 	}
 
-	private void ExpandCollection(Node node, Dictionary<int, bool> expanded)
+	private void ExpandCollection(Node node, Dictionary<int, bool> expanded, string indent)
 	{
 		if ((!node.expanded) && expanded.ContainsKey(node.hash))
 			Expand(node);
 		foreach (Node nodeI in node.childs)
 		{
-			ExpandCollection(nodeI, expanded);
+			ExpandCollection(nodeI, expanded, indent + "  ");
 		}
 	}
 
