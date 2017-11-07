@@ -1211,18 +1211,26 @@ public class FileTree
 	private bool DoPasteFromClipboard(Controller controller)
 	{
 		IDataObject data = Clipboard.GetDataObject();
-		if (!data.GetDataPresent(DataFormats.FileDrop))
+		if (data == null || !data.GetDataPresent(DataFormats.FileDrop))
 		{
 			return false;
 		}
 		string[] paths = (string[])data.GetData(DataFormats.FileDrop);
-		MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
-		int flag = stream.ReadByte();
-		if (flag != 2 && flag != 5)
+		if (paths == null)
 		{
 			return false;
 		}
-		bool cutMode = flag == 2;
+		bool cutMode = false;
+		MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
+		if (stream != null)
+		{
+			int flag = stream.ReadByte();
+			if (flag != 2 && flag != 5)
+			{
+				return false;
+			}
+			cutMode = flag == 2;
+		}
 		Node node = GetOneFileOrDir(controller);
 		string targetDir = null;
 		if (node != null && node.type == NodeType.File)
