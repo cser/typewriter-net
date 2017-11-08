@@ -7,4 +7,7 @@
 - prevent fail on highlighting regex parsing
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
-- repl: path autocomplete
+
+- Ctrl+K in visual mode
+- input path in Ctrl+Shift+G
+- copy to new name only if copy to self
