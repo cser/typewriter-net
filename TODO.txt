@@ -9,5 +9,4 @@
 - fix jump from { to } where ' in comment
 
 - Ctrl+K in visual mode
-- input path in Ctrl+Shift+G
 - copy to new name only if copy to self

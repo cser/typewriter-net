@@ -555,4 +555,9 @@ public class IncrementalSearchBase : ADialog
 		textBox.Focus();
 		return true;
 	}
+	
+	protected string GetInputText()
+	{
+		return textBox.Text;
+	}
 }

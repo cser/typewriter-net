@@ -71,10 +71,19 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 
 	override protected void Execute(int line, string lineText)
 	{
+		string currentDir = null;
 		if (!string.IsNullOrEmpty(lineText) && lineText != Dots)
 		{
+			currentDir = lineText;
+		}
+		else if (lineText != Dots && !string.IsNullOrEmpty(GetInputText()))
+		{
+			currentDir = GetInputText();
+		}
+		if (currentDir != null)
+		{
 			string error;
-			MainForm.SetCurrentDirectory(lineText, out error);
+			MainForm.SetCurrentDirectory(currentDir, out error);
 			if (error != null)
 			{
 				MainForm.Dialogs.ShowInfo("Error", error);
