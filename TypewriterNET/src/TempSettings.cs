@@ -43,7 +43,7 @@ public class TempSettings
 		this.mainForm = mainForm;
 	}
 
-	public void Load(string postfix, bool rememberOpenedFiles)
+	public void Load(string postfix)
 	{
 		SValue state = SValue.None;
 		string file = GetTempSettingsPath(postfix, AppPath.StartupDir);
@@ -58,40 +58,14 @@ public class TempSettings
 		mainForm.Size = new Size(width, height);
 		mainForm.Location = new Point(x, y);
 		mainForm.WindowState = state["maximized"].GetBool(false) ? FormWindowState.Maximized : FormWindowState.Normal;
+		openedTabs = state["openedTabs"];
+		openedTabs2 = state["openedTabs2"];
+		selectedTab = state["selectedTab"]["fullPath"].String;
+		selectedTab2 = state["selectedTab2"]["fullPath"].String;
 		storage.Unserialize(state["storage"]);
 		recently.Unserialize(state["recently"]);
 		recentlyDirs.Unserialize(state["recentlyDirs"]);
 		DecodeGlobalBookmarks(state["bm"]);
-		if (rememberOpenedFiles)
-		{
-			{
-				foreach (SValue valueI in state["openedTabs"].List)
-				{
-					string fullPath = valueI["fullPath"].String;
-					if (fullPath != "" && File.Exists(fullPath))
-					{
-						mainForm.LoadFile(fullPath);
-					}
-				}
-				Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab"]["fullPath"].String);
-				if (selectedTab != null)
-					mainForm.MainNest.buffers.list.Selected = selectedTab;
-			}
-			{
-				foreach (SValue valueI in state["openedTabs2"].List)
-				{
-					string fullPath = valueI["fullPath"].String;
-					if (fullPath != "" && File.Exists(fullPath))
-						mainForm.LoadFile(fullPath, null, mainForm.MainNest2);
-				}
-				if (mainForm.MainNest2 != null)
-				{
-					Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, state["selectedTab2"]["fullPath"].String);
-					if (selectedTab != null)
-						mainForm.MainNest.buffers.list.Selected = selectedTab;
-				}
-			}
-		}
 		ValuesUnserialize(state);
 		commandHistory.Unserialize(state["commandHistory"]);
 		findHistory.Unserialize(state["findHistory"]);
@@ -108,6 +82,51 @@ public class TempSettings
 		helpPosition = state["helpPosition"].Int;
 		viHelpPosition = state["viHelpPosition"].Int;
 		UnserializeSettings(ref state);
+	}
+	
+	private SValue openedTabs;
+	private String selectedTab;
+	private SValue openedTabs2;
+	private String selectedTab2;
+	
+	public void InitFilesAfterLoad(bool rememberOpenedFiles)
+	{
+		if (rememberOpenedFiles)
+		{
+			{
+				foreach (SValue valueI in this.openedTabs.List)
+				{
+					string fullPath = valueI["fullPath"].String;
+					if (fullPath != "" && File.Exists(fullPath))
+					{
+						mainForm.LoadFile(fullPath);
+					}
+				}
+				Buffer selectedTab = mainForm.MainNest.buffers.GetByFullPath(BufferTag.File, this.selectedTab);
+				if (selectedTab != null)
+					mainForm.MainNest.buffers.list.Selected = selectedTab;
+			}
+			{
+				foreach (SValue valueI in this.openedTabs2.List)
+				{
+					string fullPath = valueI["fullPath"].String;
+					if (fullPath != "" && File.Exists(fullPath))
+						mainForm.LoadFile(fullPath, null, mainForm.MainNest2);
+				}
+				if (mainForm.MainNest2 != null)
+				{
+					Buffer selectedTab = mainForm.MainNest2.buffers.GetByFullPath(BufferTag.File, this.selectedTab2);
+					if (selectedTab != null)
+					{
+						mainForm.MainNest2.buffers.list.Selected = selectedTab;
+					}
+				}
+			}
+		}
+		this.openedTabs = SValue.None;
+		this.openedTabs2 = SValue.None;
+		this.selectedTab = null;
+		this.selectedTab2 = null;
 	}
 	
 	private SValue fileTreeExpanded;
@@ -259,7 +278,9 @@ public class TempSettings
 					SValue valueI = SValue.NewHash().With("fullPath", SValue.NewString(buffer.FullPath));
 					openedTabs.Add(valueI);
 					if (buffer == mainForm.MainNest2.buffers.list.Selected)
+					{
 						state["selectedTab2"] = valueI;
+					}
 				}
 			}
 		}

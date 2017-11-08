@@ -346,7 +346,7 @@ public class MainForm : Form
 
 		fileDragger = new FileDragger(this);
 		ReloadConfigOnly();
-		tempSettings.Load(tempFilePostfix, settings.rememberOpenedFiles.Value);
+		tempSettings.Load(tempFilePostfix);
 		settings.ParametersFromTemp(tempSettings.settingsData);
 		if (settings.rememberCurrentDir.Value && !string.IsNullOrEmpty(tempSettings.NullableCurrentDir))
 		{
@@ -357,6 +357,7 @@ public class MainForm : Form
 		allowApply = true;
 		ApplySettings();
 		frames.UpdateSettings(settings, UpdatePhase.TempSettingsLoaded);
+		tempSettings.InitFilesAfterLoad(settings.rememberOpenedFiles.Value);
 		tempSettings.InitFileTreeAfterLoad();
 
         openFileLine = lineNumber;
