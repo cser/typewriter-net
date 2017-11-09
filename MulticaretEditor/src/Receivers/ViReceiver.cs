@@ -320,6 +320,13 @@ namespace MulticaretEditor
 						viShortcut = "" + parser.move.c + parser.moveChar.c;
 						return;
 					}
+					else if (parser.moveChar.IsChar('K'))
+					{
+						for (int i = 0; i < count; ++i)
+						{
+							controller.UnselectPrevText();
+						}
+					}
 					count = 1;
 					break;
 				case 'i':

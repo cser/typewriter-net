@@ -8,5 +8,4 @@
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
 
-- Ctrl+K in visual mode
 - copy to new name only if copy to self

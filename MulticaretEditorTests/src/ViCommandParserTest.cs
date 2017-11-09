@@ -959,5 +959,23 @@ namespace UnitTests
 			Add(',').AddLast('f');
 			Assert.AreEqual("\\f", parser.shortcut);
 		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void UnselectPrevText(bool lineMode)
+		{
+			Init(lineMode);
+			Add('g').AddLast('K');
+			AssertParsed("1:action:\\0;move:g;moveChar:K");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void UnselectPrevText_Repeat(bool lineMode)
+		{
+			Init(lineMode);
+			Add('2').Add('g').AddLast('K');
+			AssertParsed("2:action:\\0;move:g;moveChar:K");
+		}
 	}
 }

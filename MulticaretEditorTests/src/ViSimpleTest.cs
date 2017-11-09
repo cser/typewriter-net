@@ -2150,5 +2150,75 @@ namespace UnitTests
 			Put(2, 0).Press("d4f)").AssertText("a(b(c)))d").AssertSelection().Both(2, 0);
 			Put(2, 0).Press("d3f)").AssertText("a(d");
 		}
+		
+		[Test]
+		public void gK()
+		{
+			lines.SetText("item\nA item\nAA item");
+			Put(2, 0).Press(Keys.Control | Keys.D).Press(Keys.Control | Keys.D).Press(Keys.Control | Keys.D);
+			AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(2, 1).Caret(6, 1).Next()
+				.Anchor(3, 2).Caret(7, 2).NoNext();
+			Press("gK").AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(3, 2).Caret(7, 2).NoNext();
+			Press("gK").AssertSelection()
+				.Anchor(3, 2).Caret(7, 2).NoNext();
+			Press("gK").AssertSelection()
+				.Anchor(3, 2).Caret(7, 2).NoNext();
+		}
+		
+		[Test]
+		public void gK_EmptySelections()
+		{
+			lines.SetText("line0\nline1\nline2");
+			Put(2, 0)
+				.Press(Keys.Control | Keys.Shift | Keys.J)
+				.Press(Keys.Control | Keys.Shift | Keys.J)
+				.Press(Keys.Control | Keys.Shift | Keys.J);
+			AssertSelection().Both(2, 0).Next().Both(2, 1).Next().Both(2, 2).NoNext();
+			Press("gK").AssertSelection().Both(2, 0).Next().Both(2, 2).NoNext();
+			Press("gK").AssertSelection().Both(2, 2).NoNext();
+			Press("gK").AssertSelection().Both(2, 2).NoNext();
+		}
+		
+		[Test]
+		public void gK_Repeat()
+		{
+			lines.SetText("item\nA item\nAA item\nAAA item");
+			Put(2, 0)
+				.Press(Keys.Control | Keys.D)
+				.Press(Keys.Control | Keys.D)
+				.Press(Keys.Control | Keys.D)
+				.Press(Keys.Control | Keys.D);
+			AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(2, 1).Caret(6, 1).Next()
+				.Anchor(3, 2).Caret(7, 2).Next()
+				.Anchor(4, 3).Caret(8, 3).NoNext();
+			Press("2gK").AssertSelection()
+				.Anchor(0, 0).Caret(4, 0).Next()
+				.Anchor(4, 3).Caret(8, 3).NoNext();
+			Press("2gK").AssertSelection()
+				.Anchor(4, 3).Caret(8, 3).NoNext();
+			Press("2gK").AssertSelection()
+				.Anchor(4, 3).Caret(8, 3).NoNext();
+		}
+		
+		[Test]
+		public void gK_EmptySelections_Repeat()
+		{
+			lines.SetText("line0\nline1\nline2\nline3");
+			Put(2, 0)
+				.Press(Keys.Control | Keys.Shift | Keys.J)
+				.Press(Keys.Control | Keys.Shift | Keys.J)
+				.Press(Keys.Control | Keys.Shift | Keys.J)
+				.Press(Keys.Control | Keys.Shift | Keys.J);
+			AssertSelection().Both(2, 0).Next().Both(2, 1).Next().Both(2, 2).Next().Both(2, 3).NoNext();
+			Press("2gK").AssertSelection().Both(2, 0).Next().Both(2, 3).NoNext();
+			Press("2gK").AssertSelection().Both(2, 3).NoNext();
+			Press("2gK").AssertSelection().Both(2, 3).NoNext();
+		}
 	}
 }

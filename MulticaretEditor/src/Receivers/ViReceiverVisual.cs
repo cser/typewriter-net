@@ -192,6 +192,14 @@ namespace MulticaretEditor
 						move = new ViMoves.DocumentStart();
 						count = 1;
 					}
+					else if (parser.moveChar.IsChar('K'))
+					{
+						for (int i = 0; i < count; ++i)
+						{
+							controller.UnselectPrevText();
+						}
+						count = 1;
+					}
 					break;
 				case 'i':
 				case 'a':
