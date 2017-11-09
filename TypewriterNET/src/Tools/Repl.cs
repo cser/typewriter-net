@@ -353,7 +353,7 @@ public class Repl : Buffer
 				break;
 			}
 		}
-		CommandDialog.AutocompletePath(Frame.TextBox, path, null);
+		CommandDialog.AutocompletePath(Frame.TextBox, path, null, false);
 		return true;
 	}
 }

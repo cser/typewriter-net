@@ -355,7 +355,7 @@ public class CommandDialog : ADialog
 				break;
 			}
 		}
-		AutocompletePath(textBox, path, GetFile);
+		AutocompletePath(textBox, path, GetFile, false);
 		return true;
 	}
 	
@@ -464,7 +464,7 @@ public class CommandDialog : ADialog
 		return lastBuffer.FullPath;
 	}
 	
-	public static void AutocompletePath(MulticaretTextBox textBox, string path, Getter<string> getFile)
+	public static void AutocompletePath(MulticaretTextBox textBox, string path, Getter<string> getFile, bool dirsOnly)
 	{
 		if (path == null)
 			return;
@@ -501,12 +501,15 @@ public class CommandDialog : ADialog
 		catch
 		{
 		}
-		try
+		if (!dirsOnly)
 		{
-			files = Directory.GetFiles(dir, "*", SearchOption.TopDirectoryOnly);
-		}
-		catch
-		{
+			try
+			{
+				files = Directory.GetFiles(dir, "*", SearchOption.TopDirectoryOnly);
+			}
+			catch
+			{
+			}
 		}
 		if ((files == null || files.Length == 0) && (dirs == null || dirs.Length == 0))
 			return;

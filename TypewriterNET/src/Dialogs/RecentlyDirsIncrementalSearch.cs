@@ -76,9 +76,9 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 		{
 			currentDir = lineText;
 		}
-		else if (lineText != Dots && !string.IsNullOrEmpty(GetInputText()))
+		else if (lineText != Dots && !string.IsNullOrEmpty(InputTextBox.Text))
 		{
-			currentDir = GetInputText();
+			currentDir = InputTextBox.Text;
 		}
 		if (currentDir != null)
 		{
@@ -91,5 +91,16 @@ public class RecentlyDirsIncrementalSearch : IncrementalSearchBase
 			}
 			DispatchNeedClose();
 		}
+	}
+	
+	protected override bool GetAllowAutocomplete()
+	{
+		return true;
+	}
+	
+	protected override bool DoAutocomplete(Controller controller)
+	{
+		CommandDialog.AutocompletePath(InputTextBox, InputTextBox.Text, null, true);
+		return true;
 	}
 }

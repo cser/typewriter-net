@@ -87,6 +87,11 @@ public class IncrementalSearchBase : ADialog
 			variantsKeyMap.AddItem(new KeyItem(Keys.Enter, null, action));
 			variantsKeyMap.AddItem(new KeyItem(Keys.None, null, action).SetDoubleClick(true));
 		}
+		if (GetAllowAutocomplete())
+		{
+		    KeyAction action = new KeyAction("F&ind\\" + submenu + "\\Autocomplete", DoAutocomplete, null, false);
+            textKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Space, null, action));
+		}
 		
 		variantsTextBox = new MulticaretTextBox();
 		variantsTextBox.KeyMap.AddAfter(KeyMap);
@@ -556,8 +561,15 @@ public class IncrementalSearchBase : ADialog
 		return true;
 	}
 	
-	protected string GetInputText()
+	protected MulticaretTextBox InputTextBox { get { return textBox; } }
+	
+	protected virtual bool GetAllowAutocomplete()
 	{
-		return textBox.Text;
+		return false;
+	}
+	
+	protected virtual bool DoAutocomplete(Controller controller)
+	{
+		return false;
 	}
 }
