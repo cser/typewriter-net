@@ -26,6 +26,7 @@ public class PasteFromClipboardAction
 	public void Execute(string[] files, string targetDir, bool cutMode)
 	{
 		List<FileMoveInfo> moves = new List<FileMoveInfo>();
+		bool renameMode = false;
 		{
 			Dictionary<string, FileMoveInfo> prevNormPaths = new Dictionary<string, FileMoveInfo>();
 			for (int i = 0; i < files.Length; i++)
@@ -65,87 +66,132 @@ public class PasteFromClipboardAction
 					}
 				}
 			}
+			else
+			{
+				foreach (FileMoveInfo move in moves)
+				{
+					if (move.prevNorm == PathSet.GetNorm(move.next))
+					{
+						renameMode = true;
+					}
+				}
+			}
 		}
-		bool hasErrors = false;
-		foreach (FileMoveInfo info in moves)
+		foreach (FileMoveInfo move in moves)
 		{
-			bool isDir = Directory.Exists(info.prevNorm);
-			if (!isDir && !File.Exists(info.prevNorm))
+			bool isDir = Directory.Exists(move.prevNorm);
+			if (!isDir && !File.Exists(move.prevNorm))
 			{
 				continue;
 			}
-			int index = 1;
-			string next = info.next;
-			string nextPostfixed = info.hasPostfixed ? info.next + renamePostfixed : null;
+			string next = move.next;
+			string nextPostfixed = move.hasPostfixed ? move.next + renamePostfixed : null;
+			if (renameMode)
 			{
-				string nextExtension;
-				string nextBase;
-				if (Path.GetFileNameWithoutExtension(info.next) == "")
-				{
-					nextExtension = "";
-					nextBase = info.next;
-				}
-				else
-				{
-					nextExtension = Path.GetExtension(info.next);
-					nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
-				}
-				while (Directory.Exists(next) || File.Exists(next) ||
-					nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
-				{
-					string suffix = index == 1 ? "-copy" : "-copy" + index;
-					next = nextBase + suffix + nextExtension;
-					if (nextPostfixed != null)
-					{
-						nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
-					}
-					++index;
-				}
+				ProcessMove_RenameMode(move, isDir, ref next, ref nextPostfixed);
 			}
-			try
+			else
 			{
-				if (isDir)
-				{
-					if (cutMode)
-					{
-						Directory.Move(info.prevNorm, next);
-					}
-					else
-					{
-						CopyDirectoryRecursive(info.prevNorm, next);
-					}
-				}
-				else
-				{
-					if (cutMode)
-					{
-						File.Move(info.prevNorm, next);
-					}
-					else
-					{
-						File.Copy(info.prevNorm, next);
-					}
-				}
-				if (nextPostfixed != null)
-				{
-					if (cutMode)
-					{
-						File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
-					}
-					else if (pastePostfixedAfterCopy)
-					{
-						File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				hasErrors = true;
-				Errors.Add(e.Message + "\n" +
-					"  " + info.prevNorm + " ->\n" +
-					"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+				ProcessMove(move, isDir, ref next, ref nextPostfixed, cutMode);
 			}
 			NewFullPaths.Add(next);
+		}
+	}
+	
+	private void ProcessMove_RenameMode(FileMoveInfo info, bool isDir, ref string next, ref string nextPostfixed)
+	{
+		{
+			string nextExtension;
+			string nextBase;
+			if (Path.GetFileNameWithoutExtension(info.next) == "")
+			{
+				nextExtension = "";
+				nextBase = info.next;
+			}
+			else
+			{
+				nextExtension = Path.GetExtension(info.next);
+				nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
+			}
+			int index = 1;
+			while (Directory.Exists(next) || File.Exists(next) ||
+				nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
+			{
+				string suffix = index == 1 ? "-copy" : "-copy" + index;
+				next = nextBase + suffix + nextExtension;
+				if (nextPostfixed != null)
+				{
+					nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
+				}
+				++index;
+			}
+		}
+		try
+		{
+			if (isDir)
+			{
+				CopyDirectoryRecursive(info.prevNorm, next);
+			}
+			else
+			{
+				File.Copy(info.prevNorm, next);
+			}
+			if (nextPostfixed != null && pastePostfixedAfterCopy)
+			{
+				File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+			}
+		}
+		catch (Exception e)
+		{
+			Errors.Add(e.Message + "\n" +
+				"  " + info.prevNorm + " ->\n" +
+				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+		}
+	}
+	
+	private void ProcessMove(FileMoveInfo info, bool isDir, ref string next, ref string nextPostfixed, bool cutMode)
+	{
+		try
+		{
+			if (isDir)
+			{
+				if (cutMode)
+				{
+					Directory.Move(info.prevNorm, next);
+				}
+				else
+				{
+					CopyDirectoryRecursive(info.prevNorm, next);
+				}
+			}
+			else
+			{
+				if (cutMode)
+				{
+					File.Move(info.prevNorm, next);
+				}
+				else
+				{
+					File.Copy(info.prevNorm, next);
+				}
+			}
+			if (nextPostfixed != null)
+			{
+				if (cutMode)
+				{
+					File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
+				}
+				else if (pastePostfixedAfterCopy)
+				{
+					File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Errors.Add(e.Message + "\n" +
+				"  " + info.prevNorm + " ->\n" +
+				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
 		}
 	}
 	
