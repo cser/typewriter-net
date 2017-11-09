@@ -255,6 +255,7 @@ public static class Help
 			table.Add(" <space><symbol><showed_symbols>").Add("Jump where you look:\n  <symbol> - symbol, what you look,\n  <showed_symbols> - symbols,  \nshowed after <symbol> entered").NewRow();
 			table.Add(" ,<space><symbol><showed_symbols>").Add("Jump with new cursor").NewRow();
 			table.Add(" Gv").Add("Recover last selection").NewRow();
+			table.Add(" gK").Add("Remove prev selection (ersatz of Ctrl+K)").NewRow();
 			table.AddLine();
 			table.Add(" Text objects").NewRow();
 			table.AddLine();
