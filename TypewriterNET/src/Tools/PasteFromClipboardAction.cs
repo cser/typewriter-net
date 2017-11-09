@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 public class PasteFromClipboardAction
 {
-	public readonly PathSet NewFullPaths = new PathSet();
-	public readonly List<string> Errors = new List<string>();
-	
 	public class FileMoveInfo
 	{
 		public string prevNorm;
@@ -14,18 +10,26 @@ public class PasteFromClipboardAction
 		public bool hasPostfixed;
 	}
 	
+	public readonly PathSet NewFullPaths = new PathSet();
+	public readonly List<string> Errors = new List<string>();
+	public readonly List<string> Overwrites = new List<string>();
+	
 	private readonly string renamePostfixed;
 	private readonly bool pastePostfixedAfterCopy;
+	private readonly IFSProxy fs;
 	
-	public PasteFromClipboardAction(string renamePostfixed, bool pastePostfixedAfterCopy)
+	public PasteFromClipboardAction(IFSProxy fs, string renamePostfixed, bool pastePostfixedAfterCopy)
 	{
+		this.fs = fs;
 		this.renamePostfixed = renamePostfixed;
 		this.pastePostfixedAfterCopy = pastePostfixedAfterCopy;
 	}
 	
-	public void Execute(string[] files, string targetDir, bool cutMode)
+	public void Execute(string[] files, string targetDir, PasteMode mode)
 	{
+		NewFullPaths.Clear();
 		List<FileMoveInfo> moves = new List<FileMoveInfo>();
+		bool renameMode = false;
 		{
 			Dictionary<string, FileMoveInfo> prevNormPaths = new Dictionary<string, FileMoveInfo>();
 			for (int i = 0; i < files.Length; i++)
@@ -33,7 +37,7 @@ public class PasteFromClipboardAction
 				string file = files[i];
 				FileMoveInfo move = new FileMoveInfo();
 				move.prevNorm = PathSet.GetNorm(file);
-				move.next = Path.Combine(targetDir, Path.GetFileName(file));
+				move.next = targetDir + fs.Separator + fs.GetFileName(file);
 				moves.Add(move);
 				prevNormPaths[move.prevNorm] = move;
 			}
@@ -54,7 +58,7 @@ public class PasteFromClipboardAction
 					}
 				}
 			}
-			if (cutMode)
+			if (mode.IsCut)
 			{
 				for (int i = moves.Count; i-- > 0;)
 				{
@@ -65,108 +69,284 @@ public class PasteFromClipboardAction
 					}
 				}
 			}
+			else
+			{
+				foreach (FileMoveInfo move in moves)
+				{
+					if (move.prevNorm == PathSet.GetNorm(move.next))
+					{
+						renameMode = true;
+					}
+				}
+			}
 		}
-		bool hasErrors = false;
-		foreach (FileMoveInfo info in moves)
+		Overwrites.Clear();
+		if (!renameMode && !mode.IsOverwrite)
 		{
-			bool isDir = Directory.Exists(info.prevNorm);
-			if (!isDir && !File.Exists(info.prevNorm))
+			for (int i = moves.Count; i-- > 0;)
+			{
+				FileMoveInfo move = moves[i];
+				bool isDir = fs.Directory_Exists(move.prevNorm);
+				if (!isDir && !fs.File_Exists(move.prevNorm))
+				{
+					moves.RemoveAt(i);
+					continue;
+				}
+				string next = move.next;
+				if (fs.File_Exists(next) || fs.Directory_Exists(next))
+				{
+					Overwrites.Add(next);
+				}
+				string nextPostfixed = move.hasPostfixed ? move.next + renamePostfixed : null;
+				if (nextPostfixed != null && (fs.File_Exists(nextPostfixed) || fs.Directory_Exists(nextPostfixed)))
+				{
+					Overwrites.Add(nextPostfixed);
+				}
+			}
+		}
+		if (Overwrites.Count > 0)
+		{
+			return;
+		}
+		foreach (FileMoveInfo move in moves)
+		{
+			bool isDir = fs.Directory_Exists(move.prevNorm);
+			if (!isDir && !fs.File_Exists(move.prevNorm))
 			{
 				continue;
 			}
-			int index = 1;
-			string next = info.next;
-			string nextPostfixed = info.hasPostfixed ? info.next + renamePostfixed : null;
+			string next = move.next;
+			string nextPostfixed = move.hasPostfixed ? move.next + renamePostfixed : null;
+			if (renameMode)
 			{
-				string nextExtension;
-				string nextBase;
-				if (Path.GetFileNameWithoutExtension(info.next) == "")
-				{
-					nextExtension = "";
-					nextBase = info.next;
-				}
-				else
-				{
-					nextExtension = Path.GetExtension(info.next);
-					nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
-				}
-				while (Directory.Exists(next) || File.Exists(next) ||
-					nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
-				{
-					string suffix = index == 1 ? "-copy" : "-copy" + index;
-					next = nextBase + suffix + nextExtension;
-					if (nextPostfixed != null)
-					{
-						nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
-					}
-					++index;
-				}
+				CopyWithRename(move, isDir, ref next, ref nextPostfixed);
 			}
-			try
+			else if (mode.IsOverwrite)
 			{
-				if (isDir)
-				{
-					if (cutMode)
-					{
-						Directory.Move(info.prevNorm, next);
-					}
-					else
-					{
-						CopyDirectoryRecursive(info.prevNorm, next);
-					}
-				}
-				else
-				{
-					if (cutMode)
-					{
-						File.Move(info.prevNorm, next);
-					}
-					else
-					{
-						File.Copy(info.prevNorm, next);
-					}
-				}
-				if (nextPostfixed != null)
-				{
-					if (cutMode)
-					{
-						File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
-					}
-					else if (pastePostfixedAfterCopy)
-					{
-						File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
-					}
-				}
+				CopyOrMoveOverwrite(move, isDir, next, nextPostfixed, mode.IsCut);
 			}
-			catch (Exception e)
+			else
 			{
-				hasErrors = true;
-				Errors.Add(e.Message + "\n" +
-					"  " + info.prevNorm + " ->\n" +
-					"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+				CopyOrMove(move, isDir, next, nextPostfixed, mode.IsCut);
 			}
 			NewFullPaths.Add(next);
 		}
 	}
 	
-	private void CopyDirectoryRecursive(string prev, string targetFolder)
+	private void CopyWithRename(FileMoveInfo info, bool isDir, ref string next, ref string nextPostfixed)
 	{
-		if (!Directory.Exists(targetFolder))
 		{
-			Directory.CreateDirectory(targetFolder);
+			string nextExtension;
+			string nextBase;
+			if (fs.GetFileNameWithoutExtension(info.next) == "")
+			{
+				nextExtension = "";
+				nextBase = info.next;
+			}
+			else
+			{
+				nextExtension = fs.GetExtension(info.next);
+				nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
+			}
+			int index = 1;
+			while (fs.Directory_Exists(next) || fs.File_Exists(next) ||
+				nextPostfixed != null && (fs.Directory_Exists(nextPostfixed) || fs.File_Exists(nextPostfixed)))
+			{
+				string suffix = index == 1 ? "-copy" : "-copy" + index;
+				next = nextBase + suffix + nextExtension;
+				if (nextPostfixed != null)
+				{
+					nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
+				}
+				++index;
+			}
 		}
-		foreach (string dir in Directory.GetDirectories(prev))
+		try
 		{
-			CopyDirectoryRecursive(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+			if (isDir)
+			{
+				CopyDirectoryRecursive(info.prevNorm, next, false);
+			}
+			else
+			{
+				fs.File_Copy(info.prevNorm, next);
+			}
+			if (nextPostfixed != null && pastePostfixedAfterCopy)
+			{
+				fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+			}
 		}
-		foreach (string file in Directory.GetFiles(prev))
+		catch (Exception e)
+		{
+			Errors.Add(e.Message + "\n" +
+				"  " + info.prevNorm + " ->\n" +
+				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+		}
+	}
+	
+	private void CopyOrMove(FileMoveInfo info, bool isDir, string next, string nextPostfixed, bool move)
+	{
+		try
+		{
+			if (isDir)
+			{
+				if (move)
+				{
+					fs.Directory_Move(info.prevNorm, next);
+				}
+				else
+				{
+					CopyDirectoryRecursive(info.prevNorm, next, false);
+				}
+			}
+			else
+			{
+				if (move)
+				{
+					fs.File_Move(info.prevNorm, next);
+				}
+				else
+				{
+					fs.File_Copy(info.prevNorm, next);
+				}
+			}
+			if (nextPostfixed != null)
+			{
+				if (move)
+				{
+					fs.File_Move(info.prevNorm + renamePostfixed, nextPostfixed);
+				}
+				else
+				{
+					if (pastePostfixedAfterCopy)
+					{
+						fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Errors.Add(e.Message + "\n" +
+				"  " + info.prevNorm + " ->\n" +
+				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+		}
+	}
+	
+	private void CopyOrMoveOverwrite(FileMoveInfo info, bool isDir, string next, string nextPostfixed, bool move)
+	{
+		try
+		{
+			if (isDir)
+			{
+				if (move)
+				{
+					if (!fs.Directory_Exists(next))
+					{
+						if (fs.File_Exists(next))
+						{
+							fs.File_Delete(next);
+						}
+						fs.Directory_Move(info.prevNorm, next);
+					}
+					else
+					{
+						CopyDirectoryRecursive(info.prevNorm, next, true);
+						fs.Directory_DeleteRecursive(info.prevNorm);
+					}
+				}
+				else
+				{
+					CopyDirectoryRecursive(info.prevNorm, next, true);
+				}
+			}
+			else
+			{
+				if (fs.File_Exists(next))
+				{
+					fs.File_Delete(next);
+				}
+				else if (fs.Directory_Exists(next))
+				{
+					fs.Directory_DeleteRecursive(next);
+				}
+				if (move)
+				{
+					fs.File_Move(info.prevNorm, next);
+				}
+				else
+				{
+					fs.File_Copy(info.prevNorm, next);
+				}
+			}
+			if (nextPostfixed != null)
+			{
+				if (move)
+				{
+					if (fs.File_Exists(nextPostfixed))
+					{
+						fs.File_Delete(nextPostfixed);
+					}
+					else if (fs.Directory_Exists(nextPostfixed))
+					{
+						fs.Directory_DeleteRecursive(nextPostfixed);
+					}
+					fs.File_Move(info.prevNorm + renamePostfixed, nextPostfixed);
+				}
+				else
+				{
+					if (pastePostfixedAfterCopy)
+					{
+						if (fs.File_Exists(nextPostfixed))
+						{
+							fs.File_Delete(nextPostfixed);
+						}
+						else if (fs.Directory_Exists(nextPostfixed))
+						{
+							fs.Directory_DeleteRecursive(nextPostfixed);
+						}
+						fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Errors.Add(e.Message + "\n" +
+				"  " + info.prevNorm + " ->\n" +
+				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
+		}
+	}
+	
+	private void CopyDirectoryRecursive(string prev, string targetFolder, bool overwrite)
+	{
+		string[] dirs = fs.Directory_GetDirectories(prev);
+		string[] files = fs.Directory_GetFiles(prev);
+		if (!fs.Directory_Exists(targetFolder))
+		{
+			if (overwrite && fs.File_Exists(targetFolder))
+			{
+				fs.File_Delete(targetFolder);
+			}
+			fs.Directory_CreateDirectory(targetFolder);
+		}
+		foreach (string dir in dirs)
+		{
+			CopyDirectoryRecursive(dir, targetFolder + fs.Separator + fs.GetFileName(dir), overwrite);
+		}
+		foreach (string file in files)
 		{
 			if (!pastePostfixedAfterCopy && !string.IsNullOrEmpty(renamePostfixed) &&
 				file.ToLowerInvariant().EndsWith(renamePostfixed))
 			{
 				continue;
 			}
-			File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+			string target = targetFolder + fs.Separator + fs.GetFileName(file);
+			if (overwrite && fs.File_Exists(target))
+			{
+				fs.File_Delete(target);
+			}	
+			fs.File_Copy(file, target);
 		}
 	}
 }

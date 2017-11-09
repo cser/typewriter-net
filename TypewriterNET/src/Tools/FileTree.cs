@@ -1263,8 +1263,29 @@ public class FileTree
 			mainForm.Log.Open();
 			return true;
 		}
-		PasteFromClipboardAction action = new PasteFromClipboardAction(renamePostfixed, pastePostfixedAfterCopy);
-		action.Execute(paths, targetDir, cutMode);
+		PasteFromClipboardAction action = new PasteFromClipboardAction(new FSProxy(), renamePostfixed, pastePostfixedAfterCopy);
+		action.Execute(paths, targetDir, cutMode ? PasteMode.Cut : PasteMode.Copy);
+		if (action.Errors.Count == 0 && action.Overwrites.Count > 0)
+		{
+			int count = 0;
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("Overwrite " + (action.Overwrites.Count > 1 ? "items" : "item") + "?");
+			foreach (string overwrite in action.Overwrites)
+			{
+				count++;
+				if (count > 10)
+				{
+					builder.AppendLine("…");
+					break;
+				}
+				builder.AppendLine(overwrite);
+			}
+			DialogResult result = MessageBox.Show(builder.ToString(), mainForm.Name, MessageBoxButtons.YesNo);
+			if (result == DialogResult.Yes)
+			{
+				action.Execute(paths, targetDir, cutMode ? PasteMode.CutOverwrite : PasteMode.CopyOverwrite);
+			}
+		}
 		Reload();
 		PutCursors(action.NewFullPaths);
 		if (action.Errors.Count > 0)
