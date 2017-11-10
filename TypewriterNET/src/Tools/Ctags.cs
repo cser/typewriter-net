@@ -217,7 +217,8 @@ public class Ctags
 	public void GoToTag(RunShellCommand.Position position)
 	{
 		lastCommandPosition = position;
-		if (string.IsNullOrEmpty(position.fileName) || position.fileName.Trim() == "")
+		string fileName = position.fileName.Trim();
+		if (string.IsNullOrEmpty(fileName))
 		{
 			mainForm.NavigateTo(position.place, position.place);
 			return;
@@ -225,11 +226,11 @@ public class Ctags
 		string fullPath = null;
 		try
 		{
-			fullPath = Path.GetFullPath(position.fileName);
+			fullPath = Path.GetFullPath(fileName);
 		}
 		catch
 		{
-			mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + position.fileName);
+			mainForm.Dialogs.ShowInfo("Error", "Incorrect path: " + fileName);
 			return;
 		}
 		mainForm.NavigateTo(fullPath, position.place, position.place);
