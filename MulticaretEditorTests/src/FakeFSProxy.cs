@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 namespace UnitTests
@@ -103,6 +104,26 @@ namespace UnitTests
 		public string Combine(string path1, string path2)
 		{
 			return Path.Combine(path1, path2);
+		}
+		
+		public override string ToString()
+		{
+			List<string> lines = new List<string>();
+			ToString(lines, dirs, "");
+			return string.Join("\n", lines.ToArray());
+		}
+		
+		private void ToString(List<string> lines, List<FakeDir> dirs, string indent)
+		{
+			foreach (FakeDir dir in dirs)
+			{
+				lines.Add(indent + dir.name);
+				ToString(lines, dir.dirs, indent + "-");
+				foreach (FakeFile file in dir.files)
+				{
+					lines.Add(indent + "-" + file.name + "{" + file.content + "}");
+				}
+			}
 		}
 	}
 }
