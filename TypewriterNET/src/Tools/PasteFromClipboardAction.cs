@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 public class PasteFromClipboardAction
 {
@@ -16,9 +15,11 @@ public class PasteFromClipboardAction
 	
 	private readonly string renamePostfixed;
 	private readonly bool pastePostfixedAfterCopy;
+	private readonly IFSProxy fs;
 	
-	public PasteFromClipboardAction(string renamePostfixed, bool pastePostfixedAfterCopy)
+	public PasteFromClipboardAction(IFSProxy fs, string renamePostfixed, bool pastePostfixedAfterCopy)
 	{
+		this.fs = fs;
 		this.renamePostfixed = renamePostfixed;
 		this.pastePostfixedAfterCopy = pastePostfixedAfterCopy;
 	}
@@ -34,7 +35,7 @@ public class PasteFromClipboardAction
 				string file = files[i];
 				FileMoveInfo move = new FileMoveInfo();
 				move.prevNorm = PathSet.GetNorm(file);
-				move.next = Path.Combine(targetDir, Path.GetFileName(file));
+				move.next = fs.Combine(targetDir, fs.GetFileName(file));
 				moves.Add(move);
 				prevNormPaths[move.prevNorm] = move;
 			}
@@ -79,8 +80,8 @@ public class PasteFromClipboardAction
 		}
 		foreach (FileMoveInfo move in moves)
 		{
-			bool isDir = Directory.Exists(move.prevNorm);
-			if (!isDir && !File.Exists(move.prevNorm))
+			bool isDir = fs.Directory_Exists(move.prevNorm);
+			if (!isDir && !fs.File_Exists(move.prevNorm))
 			{
 				continue;
 			}
@@ -103,19 +104,19 @@ public class PasteFromClipboardAction
 		{
 			string nextExtension;
 			string nextBase;
-			if (Path.GetFileNameWithoutExtension(info.next) == "")
+			if (fs.GetFileNameWithoutExtension(info.next) == "")
 			{
 				nextExtension = "";
 				nextBase = info.next;
 			}
 			else
 			{
-				nextExtension = Path.GetExtension(info.next);
+				nextExtension = fs.GetExtension(info.next);
 				nextBase = info.next.Substring(0, info.next.Length - nextExtension.Length);
 			}
 			int index = 1;
-			while (Directory.Exists(next) || File.Exists(next) ||
-				nextPostfixed != null && (Directory.Exists(nextPostfixed) || File.Exists(nextPostfixed)))
+			while (fs.Directory_Exists(next) || fs.File_Exists(next) ||
+				nextPostfixed != null && (fs.Directory_Exists(nextPostfixed) || fs.File_Exists(nextPostfixed)))
 			{
 				string suffix = index == 1 ? "-copy" : "-copy" + index;
 				next = nextBase + suffix + nextExtension;
@@ -134,11 +135,11 @@ public class PasteFromClipboardAction
 			}
 			else
 			{
-				File.Copy(info.prevNorm, next);
+				fs.File_Copy(info.prevNorm, next);
 			}
 			if (nextPostfixed != null && pastePostfixedAfterCopy)
 			{
-				File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+				fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 			}
 		}
 		catch (Exception e)
@@ -157,7 +158,7 @@ public class PasteFromClipboardAction
 			{
 				if (cutMode)
 				{
-					Directory.Move(info.prevNorm, next);
+					fs.Directory_Move(info.prevNorm, next);
 				}
 				else
 				{
@@ -168,22 +169,22 @@ public class PasteFromClipboardAction
 			{
 				if (cutMode)
 				{
-					File.Move(info.prevNorm, next);
+					fs.File_Move(info.prevNorm, next);
 				}
 				else
 				{
-					File.Copy(info.prevNorm, next);
+					fs.File_Copy(info.prevNorm, next);
 				}
 			}
 			if (nextPostfixed != null)
 			{
 				if (cutMode)
 				{
-					File.Move(info.prevNorm + renamePostfixed, nextPostfixed);
+					fs.File_Move(info.prevNorm + renamePostfixed, nextPostfixed);
 				}
 				else if (pastePostfixedAfterCopy)
 				{
-					File.Copy(info.prevNorm + renamePostfixed, nextPostfixed);
+					fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 				}
 			}
 		}
@@ -197,22 +198,22 @@ public class PasteFromClipboardAction
 	
 	private void CopyDirectoryRecursive(string prev, string targetFolder)
 	{
-		if (!Directory.Exists(targetFolder))
+		if (!fs.Directory_Exists(targetFolder))
 		{
-			Directory.CreateDirectory(targetFolder);
+			fs.Directory_CreateDirectory(targetFolder);
 		}
-		foreach (string dir in Directory.GetDirectories(prev))
+		foreach (string dir in fs.Directory_GetDirectories(prev))
 		{
-			CopyDirectoryRecursive(dir, Path.Combine(targetFolder, Path.GetFileName(dir)));
+			CopyDirectoryRecursive(dir, fs.Combine(targetFolder, fs.GetFileName(dir)));
 		}
-		foreach (string file in Directory.GetFiles(prev))
+		foreach (string file in fs.Directory_GetFiles(prev))
 		{
 			if (!pastePostfixedAfterCopy && !string.IsNullOrEmpty(renamePostfixed) &&
 				file.ToLowerInvariant().EndsWith(renamePostfixed))
 			{
 				continue;
 			}
-			File.Copy(file, Path.Combine(targetFolder, Path.GetFileName(file)));
+			fs.File_Copy(file, fs.Combine(targetFolder, fs.GetFileName(file)));
 		}
 	}
 }

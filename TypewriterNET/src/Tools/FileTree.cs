@@ -1263,7 +1263,7 @@ public class FileTree
 			mainForm.Log.Open();
 			return true;
 		}
-		PasteFromClipboardAction action = new PasteFromClipboardAction(renamePostfixed, pastePostfixedAfterCopy);
+		PasteFromClipboardAction action = new PasteFromClipboardAction(new FSProxy(), renamePostfixed, pastePostfixedAfterCopy);
 		action.Execute(paths, targetDir, cutMode);
 		Reload();
 		PutCursors(action.NewFullPaths);
