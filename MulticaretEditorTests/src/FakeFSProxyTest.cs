@@ -123,5 +123,28 @@ namespace UnitTests
 				--File4.cs{4}
 			");
 		}
+		
+		[Test]
+		public void Exists()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir1"));
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir2"));
+			Assert.AreEqual(false, fs.Directory_Exists("c:\\dir3"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\dir1\\File1.cs"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\dir1\\File2.cs"));
+			Assert.AreEqual(false, fs.File_Exists("c:\\dir1\\File3.cs"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\dir2\\File3.cs"));
+			Assert.AreEqual(false, fs.File_Exists("c:\\dir2\\File5.cs"));
+		}
 	}
 }

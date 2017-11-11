@@ -180,6 +180,13 @@ namespace UnitTests
 		
 		public bool File_Exists(string path)
 		{
+			try
+			{
+				return GetItem(Node.Of(path)).AsFile != null;
+			}
+			catch
+			{
+			}
 			return false;
 		}
 		
@@ -204,6 +211,13 @@ namespace UnitTests
 		
 		public bool Directory_Exists(string path)
 		{
+			try
+			{
+				return GetItem(Node.Of(path)).AsDir != null;
+			}
+			catch
+			{
+			}
 			return false;
 		}
 		
