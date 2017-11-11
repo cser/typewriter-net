@@ -139,19 +139,34 @@ namespace UnitTests
 		private FakeItem GetItem(Node node, FakeDir dir, Node originNode)
 		{
 			FakeItem item = dir.GetItem(node.name);
-			if (item == null)
-			{
-				throw new Exception("item == null: path=" + originNode + ", name=" + node.name);
-			}
-			if (node.next == null)
+			if (node != null && node.next == null)
 			{
 				return item;
 			}
-			if (item.AsDir == null)
+			if (item != null && item.AsDir != null)
 			{
-				throw new Exception("item isn't dir: path=" + originNode + ", name=" + node.name);
+				return GetItem(node.next, item.AsDir, originNode);
 			}
-			return GetItem(node.next, item.AsDir, originNode);
+			throw new Exception("Incorrect path: " + originNode + ", name=" + node.name);
+		}
+		
+		private Node GetRealNames(Node node)
+		{
+			return GetRealNames(node, root, node);
+		}
+		
+		private Node GetRealNames(Node node, FakeDir dir, Node originNode)
+		{
+			FakeItem item = dir.GetItem(node.name);
+			if (node != null && node.next == null)
+			{
+				return new Node(item.name, null);
+			}
+			if (item != null && item.AsDir != null)
+			{
+				return new Node(item.name, GetRealNames(node.next, item.AsDir, originNode));
+			}
+			throw new Exception("Incorrect path: " + originNode + ", name=" + node.name);
 		}
 		
 		public class FakeFile : FakeItem
@@ -193,20 +208,20 @@ namespace UnitTests
 		public void File_Copy(string source, string target)
 		{
 			FakeFile sourceFile = GetItem(Node.Of(source)).File;
-			FakeDir sourceDir = GetItem(Node.CutEnd(Node.Of(source))).Dir;
-			FakeDir targetDir = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
+			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
 			sourceFile.name = Node.EndName(Node.Of(target));
-			targetDir.Add(sourceFile.Clone());
+			targetOwner.Add(sourceFile.Clone());
 		}
 		
 		public void File_Move(string source, string target)
 		{
 			FakeFile sourceFile = GetItem(Node.Of(source)).File;
-			FakeDir sourceDir = GetItem(Node.CutEnd(Node.Of(source))).Dir;
-			FakeDir targetDir = GetItem(Node.CutEnd(Node.Of(target))).Dir;
-			sourceDir.Remove(sourceFile);
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
+			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			sourceOwner.Remove(sourceFile);
 			sourceFile.name = Node.EndName(Node.Of(target));
-			targetDir.Add(sourceFile);
+			targetOwner.Add(sourceFile);
 		}
 		
 		public bool Directory_Exists(string path)
@@ -223,20 +238,49 @@ namespace UnitTests
 		
 		public void Directory_Move(string source, string target)
 		{
+			FakeDir sourceDir = GetItem(Node.Of(source)).Dir;
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
+			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			sourceOwner.Remove(sourceDir);
+			sourceDir.name = Node.EndName(Node.Of(target));
+			targetOwner.Add(sourceDir);
 		}
 		
 		public void Directory_CreateDirectory(string path)
 		{
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(path))).Dir;
+			string name = Node.EndName(Node.Of(path));
+			sourceOwner.Add(new FakeDir(name));
 		}
 		
 		public string[] Directory_GetFiles(string path)
 		{
-			return null;
+			List<string> paths = new List<string>();
+			FakeDir sourceOwner = GetItem(Node.Of(path)).Dir;
+			Node dir = GetRealNames(Node.Of(path));
+			foreach (FakeItem item in sourceOwner.items)
+			{
+				if (item.AsFile != null)
+				{
+					paths.Add(dir + "\\" + item.name);
+				}
+			}
+			return paths.ToArray();
 		}
 		
 		public string[] Directory_GetDirectories(string path)
 		{
-			return null;
+			List<string> paths = new List<string>();
+			FakeDir sourceOwner = GetItem(Node.Of(path)).Dir;
+			Node dir = GetRealNames(Node.Of(path));
+			foreach (FakeItem item in sourceOwner.items)
+			{
+				if (item.AsDir != null)
+				{
+					paths.Add(dir + "\\" + item.name);
+				}
+			}
+			return paths.ToArray();
 		}
 		
 		public string GetFileName(string path)

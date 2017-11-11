@@ -67,7 +67,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Move()
+		public void File_Move()
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -100,7 +100,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Copy()
+		public void File_Copy()
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -125,6 +125,30 @@ namespace UnitTests
 		}
 		
 		[Test]
+		public void Directory_Move()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			fs.Directory_Move("c:\\dir1", "c:\\dir3");
+			AssertFS(@"c:
+				-dir2
+				--File3.cs{3}
+				--File4.cs{4}
+				-dir3
+				--File1.cs{1}
+				--File2.cs{2}
+			");
+		}
+		
+		[Test]
 		public void Exists()
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
@@ -145,6 +169,54 @@ namespace UnitTests
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir1\\File3.cs"));
 			Assert.AreEqual(true, fs.File_Exists("c:\\dir2\\File3.cs"));
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir2\\File5.cs"));
+		}
+		
+		[Test]
+		public void CreateDirectory()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			fs.Directory_CreateDirectory("c:\\dir1\\dir3");
+			fs.Directory_CreateDirectory("c:\\dir4");
+			AssertFS(@"c:
+				-dir1
+				--dir3
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+				--File4.cs{4}
+				-dir4
+			");
+		}
+		
+		[Test]
+		public void GetFilesAndDirectories()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			CollectionAssert.AreEqual(
+				new string[] { "c:\\dir1\\File1.cs", "c:\\dir1\\File2.cs" },
+				fs.Directory_GetFiles("c:\\dir1"));
+			CollectionAssert.AreEqual(
+				new string[] { "c:\\dir1", "c:\\dir2" },
+				fs.Directory_GetDirectories("c:"));
 		}
 	}
 }
