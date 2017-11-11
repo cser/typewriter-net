@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using NUnit.Framework;
 using MulticaretEditor;
 
@@ -157,18 +158,23 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
 				)
 				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir3"))
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
 				)
+				.Add(new FakeFSProxy.FakeFile("File5.cs", 5))
 			);
 			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir1"));
 			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir2"));
 			Assert.AreEqual(false, fs.Directory_Exists("c:\\dir3"));
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir2\\dir3"));
 			Assert.AreEqual(true, fs.File_Exists("c:\\dir1\\File1.cs"));
 			Assert.AreEqual(true, fs.File_Exists("c:\\dir1\\File2.cs"));
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir1\\File3.cs"));
 			Assert.AreEqual(true, fs.File_Exists("c:\\dir2\\File3.cs"));
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir2\\File5.cs"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\File5.cs"));
+			Assert.AreEqual(false, fs.File_Exists("c:\\dir3\\dir4\\File5.cs"));
 		}
 		
 		[Test]
@@ -217,6 +223,228 @@ namespace UnitTests
 			CollectionAssert.AreEqual(
 				new string[] { "c:\\dir1", "c:\\dir2" },
 				fs.Directory_GetDirectories("c:"));
+		}
+		
+		[Test]
+		public void CreateDir_WithParents()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			fs.Directory_CreateDirectory("c:\\dir2\\dir3");
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				-dir2
+				--dir3
+			");
+		}
+		
+		[Test]
+		public void CreateDir_AlreadyExists()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir3"))
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2"))
+			);
+			fs.Directory_CreateDirectory("c:\\dir1\\dir3");
+			AssertFS(@"c:
+				-dir1
+				--dir3
+				--File1.cs{1}
+				-dir2
+			");
+		}
+		
+		[Test]
+		public void Directory_MoveMissing()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.Directory_Move("c:\\dir3", "c:\\dir4");
+				Assert.Fail("Exception expected");
+			}
+			catch (DirectoryNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing directory:"));
+			}
+			try
+			{
+				fs.Directory_Move("c:\\dir1", "c:\\dir3\\dir4");
+				Assert.Fail("Exception expected");
+			}
+			catch (DirectoryNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
+		}
+		
+		[Test]
+		public void File_MoveMissing()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.File_Move("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (FileNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing file:"));
+			}
+			try
+			{
+				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (DirectoryNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
+		}
+		
+		[Test]
+		public void File_CopyMissing()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.File_Copy("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (FileNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing file:"));
+			}
+			try
+			{
+				fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (DirectoryNotFoundException e)
+			{
+				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
+		}
+		
+		[Test]
+		public void File_CopyToExists()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir2\\File3.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException e)
+			{
+				Assert.IsTrue(e.Message.Contains("File already exists:"));
+			}
+			try
+			{
+				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir2\\File3.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException e)
+			{
+				Assert.IsTrue(e.Message.Contains("File already exists:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
+		}
+		
+		[Test]
+		public void Directory_MoveToExists()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.Directory_Move("c:\\dir1", "c:\\dir2");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException e)
+			{
+				Assert.IsTrue(e.Message.Contains("File already exists:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
 		}
 	}
 }

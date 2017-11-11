@@ -13,30 +13,6 @@ namespace UnitTests
 			public virtual FakeDir AsDir { get { return null; } }
 			public virtual FakeFile AsFile { get { return null; } }
 			
-			public FakeFile File
-			{
-				get
-				{
-					if (AsFile == null)
-					{
-						throw new Exception("Isn't file: " + name);
-					}
-					return AsFile;
-				}
-			}
-			
-			public FakeDir Dir
-			{
-				get
-				{
-					if (AsDir == null)
-					{
-						throw new Exception("Isn't dir: " + name);
-					}
-					return AsDir;
-				}
-			}
-			
 			public FakeItem(string name)
 			{
 				this.name = name;
@@ -147,7 +123,7 @@ namespace UnitTests
 			{
 				return GetItem(node.next, item.AsDir, originNode);
 			}
-			throw new Exception("Incorrect path: " + originNode + ", name=" + node.name);
+			return null;
 		}
 		
 		private Node GetRealNames(Node node)
@@ -166,7 +142,7 @@ namespace UnitTests
 			{
 				return new Node(item.name, GetRealNames(node.next, item.AsDir, originNode));
 			}
-			throw new Exception("Incorrect path: " + originNode + ", name=" + node.name);
+			return null;
 		}
 		
 		public class FakeFile : FakeItem
@@ -195,68 +171,119 @@ namespace UnitTests
 		
 		public bool File_Exists(string path)
 		{
-			try
-			{
-				return GetItem(Node.Of(path)).AsFile != null;
-			}
-			catch
-			{
-			}
-			return false;
+			FakeItem item = GetItem(Node.Of(path));
+			return item != null && item.AsFile != null;
 		}
 		
 		public void File_Copy(string source, string target)
 		{
-			FakeFile sourceFile = GetItem(Node.Of(source)).File;
-			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
-			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
-			sourceFile.name = Node.EndName(Node.Of(target));
+			FakeItem sourceItem = GetItem(Node.Of(source));
+			FakeFile sourceFile = sourceItem != null ? sourceItem.AsFile : null;
+			if (sourceFile == null)
+			{
+				throw new FileNotFoundException("Missing file: " + source);
+			}
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).AsDir;
+			FakeItem targetItem = GetItem(Node.CutEnd(Node.Of(target)));
+			FakeDir targetOwner = targetItem != null ? targetItem.AsDir : null;
+			if (targetOwner == null)
+			{
+				throw new DirectoryNotFoundException("Missing target path part: " + source);
+			}
+			string name = Node.EndName(Node.Of(target));
+			if (targetOwner.GetItem(name) != null)
+			{
+				throw new IOException("File already exists: " + source);
+			}
+			sourceFile.name = name;
 			targetOwner.Add(sourceFile.Clone());
 		}
 		
 		public void File_Move(string source, string target)
 		{
-			FakeFile sourceFile = GetItem(Node.Of(source)).File;
-			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
-			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			FakeItem sourceItem = GetItem(Node.Of(source));
+			FakeFile sourceFile = sourceItem != null ? sourceItem.AsFile : null;
+			if (sourceFile == null)
+			{
+				throw new FileNotFoundException("Missing file: " + source);
+			}
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).AsDir;
+			FakeItem targetItem = GetItem(Node.CutEnd(Node.Of(target)));
+			FakeDir targetOwner = targetItem != null ? targetItem.AsDir : null;
+			if (targetOwner == null)
+			{
+				throw new DirectoryNotFoundException("Missing target path part: " + source);
+			}
+			string name = Node.EndName(Node.Of(target));
+			if (targetOwner.GetItem(name) != null)
+			{
+				throw new IOException("File already exists: " + source);
+			}
 			sourceOwner.Remove(sourceFile);
-			sourceFile.name = Node.EndName(Node.Of(target));
+			sourceFile.name = name;
 			targetOwner.Add(sourceFile);
 		}
 		
 		public bool Directory_Exists(string path)
 		{
-			try
-			{
-				return GetItem(Node.Of(path)).AsDir != null;
-			}
-			catch
-			{
-			}
-			return false;
+			FakeItem item = GetItem(Node.Of(path));
+			return item != null && item.AsDir != null;
 		}
 		
 		public void Directory_Move(string source, string target)
 		{
-			FakeDir sourceDir = GetItem(Node.Of(source)).Dir;
-			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).Dir;
-			FakeDir targetOwner = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			FakeItem sourceItem = GetItem(Node.Of(source));
+			FakeDir sourceDir = sourceItem != null ? sourceItem.AsDir : null;
+			if (sourceDir == null)
+			{
+				throw new DirectoryNotFoundException("Missing directory: " + source);
+			}
+			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(source))).AsDir;
+			FakeItem targetItem = GetItem(Node.CutEnd(Node.Of(target)));
+			FakeDir targetOwner = targetItem != null ? targetItem.AsDir : null;
+			if (targetOwner == null)
+			{
+				throw new DirectoryNotFoundException("Missing target path part: " + source);
+			}
+			string name = Node.EndName(Node.Of(target));
+			if (sourceOwner.GetItem(name) != null)
+			{
+				throw new IOException("File already exists: " + source);
+			}
 			sourceOwner.Remove(sourceDir);
-			sourceDir.name = Node.EndName(Node.Of(target));
+			sourceDir.name = name;
 			targetOwner.Add(sourceDir);
 		}
 		
 		public void Directory_CreateDirectory(string path)
 		{
-			FakeDir sourceOwner = GetItem(Node.CutEnd(Node.Of(path))).Dir;
-			string name = Node.EndName(Node.Of(path));
-			sourceOwner.Add(new FakeDir(name));
+			Node nodes = Node.Of(path);
+			Directory_CreateDirectory(nodes, root);
+		}
+		
+		private void Directory_CreateDirectory(Node node, FakeDir dir)
+		{
+			if (node == null)
+			{
+				return;
+			}
+			FakeItem item = dir.GetItem(node.name);
+			if (item == null)
+			{
+				item = new FakeDir(node.name);
+				dir.Add(item);
+			}
+			if (node.next == null)
+			{
+				return;
+			}
+			Directory_CreateDirectory(node.next, item.AsDir);
 		}
 		
 		public string[] Directory_GetFiles(string path)
 		{
 			List<string> paths = new List<string>();
-			FakeDir sourceOwner = GetItem(Node.Of(path)).Dir;
+			FakeDir sourceOwner = GetItem(Node.Of(path)).AsDir;
 			Node dir = GetRealNames(Node.Of(path));
 			foreach (FakeItem item in sourceOwner.items)
 			{
@@ -271,7 +298,7 @@ namespace UnitTests
 		public string[] Directory_GetDirectories(string path)
 		{
 			List<string> paths = new List<string>();
-			FakeDir sourceOwner = GetItem(Node.Of(path)).Dir;
+			FakeDir sourceOwner = GetItem(Node.Of(path)).AsDir;
 			Node dir = GetRealNames(Node.Of(path));
 			foreach (FakeItem item in sourceOwner.items)
 			{
