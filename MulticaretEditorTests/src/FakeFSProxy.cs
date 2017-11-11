@@ -163,6 +163,11 @@ namespace UnitTests
 			{
 				this.content = content;
 			}
+			
+			public FakeFile Clone()
+			{
+				return new FakeFile(name, content);
+			}
 		}
 		
 		private readonly FakeDir root = new FakeDir("");
@@ -180,6 +185,11 @@ namespace UnitTests
 		
 		public void File_Copy(string source, string target)
 		{
+			FakeFile sourceFile = GetItem(Node.Of(source)).File;
+			FakeDir sourceDir = GetItem(Node.CutEnd(Node.Of(source))).Dir;
+			FakeDir targetDir = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			sourceFile.name = Node.EndName(Node.Of(target));
+			targetDir.Add(sourceFile.Clone());
 		}
 		
 		public void File_Move(string source, string target)

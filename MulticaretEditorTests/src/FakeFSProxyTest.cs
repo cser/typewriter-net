@@ -67,7 +67,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void Copy()
+		public void Move()
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -96,6 +96,31 @@ namespace UnitTests
 				--File1.cs{1}
 				--File4.cs{4}
 				-File5.cs{3}
+			");
+		}
+		
+		[Test]
+		public void Copy()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir2\\File1.cs");
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File1.cs{1}
+				--File3.cs{3}
+				--File4.cs{4}
 			");
 		}
 	}
