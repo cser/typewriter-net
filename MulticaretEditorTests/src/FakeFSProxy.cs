@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
@@ -6,47 +7,169 @@ namespace UnitTests
 {
 	public class FakeFSProxy : IFSProxy
 	{
-		public class FakeDir
+		public class FakeItem
 		{
 			public string name;
-			public readonly List<FakeDir> dirs = new List<FakeDir>();
-			public readonly List<FakeFile> files = new List<FakeFile>();
+			public virtual FakeDir AsDir { get { return null; } }
+			public virtual FakeFile AsFile { get { return null; } }
 			
-			public FakeDir(string name)
+			public FakeFile File
+			{
+				get
+				{
+					if (AsFile == null)
+					{
+						throw new Exception("Isn't file: " + name);
+					}
+					return AsFile;
+				}
+			}
+			
+			public FakeDir Dir
+			{
+				get
+				{
+					if (AsDir == null)
+					{
+						throw new Exception("Isn't dir: " + name);
+					}
+					return AsDir;
+				}
+			}
+			
+			public FakeItem(string name)
 			{
 				this.name = name;
-			}
-			
-			public FakeDir Add(FakeDir dir)
-			{
-				dirs.Add(dir);
-				return this;
-			}
-			
-			public FakeDir Add(FakeFile file)
-			{
-				files.Add(file);
-				return this;
 			}
 		}
 		
-		public class FakeFile
+		public struct Pair
 		{
-			public string name;
-			public int content;
+			public readonly FakeDir parent;
+			public readonly FakeItem item;
 			
-			public FakeFile(string name, int content)
+			public Pair(FakeDir parent, FakeItem item)
+			{
+				this.parent = parent;
+				this.item = item;
+			}
+		}
+		
+		public class FakeDir : FakeItem
+		{
+			public readonly List<FakeItem> items = new List<FakeItem>();
+			public override FakeDir AsDir { get { return this; } }
+			
+			public FakeDir(string name) : base(name)
+			{
+			}
+			
+			public FakeDir Add(FakeItem item)
+			{
+				items.Add(item);
+				return this;
+			}
+			
+			public void Remove(FakeItem item)
+			{
+				items.Remove(item);
+			}
+			
+			public FakeItem GetItem(string name)
+			{
+				foreach (FakeItem item in items)
+				{
+					if (item.name == name)
+					{
+						return item;
+					}
+				}
+				return null;
+			}
+		}
+		
+		public class Node
+		{
+			public readonly string name;
+			public readonly Node next;
+			
+			public Node(string name, Node next)
 			{
 				this.name = name;
+				this.next = next;
+			}
+			
+			public override string ToString()
+			{
+				return name + (next != null ? "\\" + next : "");
+			}
+			
+			public static Node Of(string path)
+			{
+				int index = path.IndexOf('\\');
+				return new Node(
+					index != -1 ? path.Substring(0, index) : path,
+					index != -1 ? Of(path.Substring(index + 1)) : null);
+			}
+			
+			public static Node CutEnd(Node node)
+			{
+				return node != null && node.next != null ? new Node(node.name, CutEnd(node.next)) : null;
+			}
+			
+			public static string EndName(Node node)
+			{
+				if (node == null)
+				{
+					return null;
+				}
+				if (node.next == null)
+				{
+					return node.name;
+				}
+				return EndName(node.next);
+			}
+		}
+		
+		private FakeItem GetItem(Node node)
+		{
+			return GetItem(node, root, node);
+		}
+		
+		private FakeItem GetItem(Node node, FakeDir dir, Node originNode)
+		{
+			FakeItem item = dir.GetItem(node.name);
+			if (item == null)
+			{
+				throw new Exception("item == null: path=" + originNode + ", name=" + node.name);
+			}
+			if (node.next == null)
+			{
+				return item;
+			}
+			if (item.AsDir == null)
+			{
+				throw new Exception("item isn't dir: path=" + originNode + ", name=" + node.name);
+			}
+			return GetItem(node.next, item.AsDir, originNode);
+		}
+		
+		public class FakeFile : FakeItem
+		{
+			public int content;
+			public override FakeFile AsFile { get { return this; } }
+			
+			public FakeFile(string name, int content) : base(name)
+			{
 				this.content = content;
 			}
 		}
 		
-		private readonly List<FakeDir> dirs = new List<FakeDir>();
+		private readonly FakeDir root = new FakeDir("");
 		
 		public FakeFSProxy Add(FakeDir dir)
 		{
-			dirs.Add(dir);
+			root.Add(dir);
 			return this;
 		}
 		
@@ -61,6 +184,12 @@ namespace UnitTests
 		
 		public void File_Move(string source, string target)
 		{
+			FakeFile sourceFile = GetItem(Node.Of(source)).File;
+			FakeDir sourceDir = GetItem(Node.CutEnd(Node.Of(source))).Dir;
+			FakeDir targetDir = GetItem(Node.CutEnd(Node.Of(target))).Dir;
+			sourceDir.Remove(sourceFile);
+			sourceFile.name = Node.EndName(Node.Of(target));
+			targetDir.Add(sourceFile);
 		}
 		
 		public bool Directory_Exists(string path)
@@ -109,21 +238,34 @@ namespace UnitTests
 		public override string ToString()
 		{
 			List<string> lines = new List<string>();
-			ToString(lines, dirs, "");
+			ToString(lines, root, "");
 			return string.Join("\n", lines.ToArray());
 		}
 		
-		private void ToString(List<string> lines, List<FakeDir> dirs, string indent)
+		private void ToString(List<string> lines, FakeDir dir, string indent)
 		{
-			foreach (FakeDir dir in dirs)
+			List<FakeItem> sorted = new List<FakeItem>(dir.items);
+			sorted.Sort(CompareItems);
+			foreach (FakeItem item in sorted)
 			{
-				lines.Add(indent + dir.name);
-				ToString(lines, dir.dirs, indent + "-");
-				foreach (FakeFile file in dir.files)
+				if (item.AsDir != null)
 				{
-					lines.Add(indent + "-" + file.name + "{" + file.content + "}");
+					lines.Add(indent + item.name);
+					ToString(lines, item.AsDir, indent + "-");
 				}
 			}
+			foreach (FakeItem item in sorted)
+			{
+				if (item.AsFile != null)
+				{
+					lines.Add(indent + item.name + "{" + item.AsFile.content + "}");
+				}
+			}
+		}
+		
+		private int CompareItems(FakeItem item0, FakeItem item1)
+		{
+			return string.Compare(item0.name, item1.name);
 		}
 	}
 }
