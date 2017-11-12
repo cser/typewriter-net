@@ -101,7 +101,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void File_Copy()
+		public void File_Move_IgnoreCase()
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -113,7 +113,33 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
 				)
 			);
-			fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir2\\File1.cs");
+			fs.File_Move("C:\\Dir1\\file1.cs", "c:\\dir2\\File1.cs");
+			AssertFS(@"c:
+				-dir1
+				--File2.cs{2}
+				-dir2
+				--File1.cs{1}
+				--File3.cs{3}
+				--File4.cs{4}
+			");
+		}
+		
+		[TestCase("c:\\dir1\\File1.cs", "c:\\dir2\\File1.cs")]
+		[TestCase("c:\\Dir1\\File1.cs", "c:\\dir2\\File1.cs")]
+		[TestCase("C:\\dir1\\file1.cs", "c:\\dir2\\File1.cs")]
+		public void File_Copy(string path1, string path2)
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+			);
+			fs.File_Copy(path1, path2);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -125,8 +151,10 @@ namespace UnitTests
 			");
 		}
 		
-		[Test]
-		public void Directory_Move()
+		[TestCase("c:\\dir1", "c:\\dir3")]
+		[TestCase("c:\\Dir1", "c:\\dir3")]
+		[TestCase("C:\\dir1", "c:\\dir3")]
+		public void Directory_Move(string path1, string path2)
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -138,7 +166,7 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
 				)
 			);
-			fs.Directory_Move("c:\\dir1", "c:\\dir3");
+			fs.Directory_Move(path1, path2);
 			AssertFS(@"c:
 				-dir2
 				--File3.cs{3}
@@ -175,6 +203,49 @@ namespace UnitTests
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir2\\File5.cs"));
 			Assert.AreEqual(true, fs.File_Exists("c:\\File5.cs"));
 			Assert.AreEqual(false, fs.File_Exists("c:\\dir3\\dir4\\File5.cs"));
+		}
+		
+		[Test]
+		public void Exists_MastIgnoreCase()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("Dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir3"))
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+				)
+				.Add(new FakeFSProxy.FakeFile("File5.cs", 5))
+			);
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\dir1"));
+			Assert.AreEqual(false, fs.Directory_Exists("c:\\dir1missing"));
+			Assert.AreEqual(true, fs.Directory_Exists("C:\\Dir2"));
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\Dir2\\dir3"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\dir1\\file1.cs"));
+			Assert.AreEqual(false, fs.File_Exists("c:\\dir1\\file1missing.cs"));
+			Assert.AreEqual(true, fs.File_Exists("C:\\Dir1\\File2.cs"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\Dir2\\file3.cs"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\file5.cs"));
+		}
+		
+		[Test(Description="It's deviation from real file system behaviour - I'm just not sure that it's needed")]
+		public void Exists_Slashed_MORE_STRICT_THEN_REAL()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("C:")
+				.Add(new FakeFSProxy.FakeDir("Dir1")
+					.Add(new FakeFSProxy.FakeDir("Dir2"))
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\Dir1"));
+			Assert.AreEqual(false, fs.Directory_Exists("c:\\Dir1\\"));
+			Assert.AreEqual(true, fs.Directory_Exists("c:\\Dir1\\Dir2"));
+			Assert.AreEqual(false, fs.Directory_Exists("c:\\Dir1\\Dir2\\"));
+			Assert.AreEqual(true, fs.File_Exists("c:\\Dir1\\File1.cs"));
+			Assert.AreEqual(false, fs.File_Exists("c:\\Dir1\\File1.cs\\"));
 		}
 		
 		[Test]
@@ -233,17 +304,19 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
 				)
 			);
-			fs.Directory_CreateDirectory("c:\\dir2\\dir3");
+			fs.Directory_CreateDirectory("c:\\dir2\\Dir3");
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
 				-dir2
-				--dir3
+				--Dir3
 			");
 		}
 		
-		[Test]
-		public void CreateDir_AlreadyExists()
+		[TestCase("c:\\dir1\\dir3")]
+		[TestCase("C:\\dir1\\dir3")]
+		[TestCase("C:\\Dir1\\dir3")]
+		public void CreateDir_AlreadyExists(string dir)
 		{
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
@@ -252,7 +325,7 @@ namespace UnitTests
 				)
 				.Add(new FakeFSProxy.FakeDir("dir2"))
 			);
-			fs.Directory_CreateDirectory("c:\\dir1\\dir3");
+			fs.Directory_CreateDirectory(dir);
 			AssertFS(@"c:
 				-dir1
 				--dir3
@@ -437,6 +510,51 @@ namespace UnitTests
 			catch (IOException e)
 			{
 				Assert.IsTrue(e.Message.Contains("File already exists:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}
+			");
+		}
+		
+		[Test]
+		public void MoveMissing_IgnoreCase()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			try
+			{
+				fs.Directory_Move("c:\\dir1", "c:\\Dir2");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException)
+			{
+			}
+			try
+			{
+				fs.File_Move("c:\\dir1\\File1.cs", "c:\\Dir2\\File3.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException)
+			{
+			}
+			try
+			{
+				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir2\\file3.cs");
+				Assert.Fail("Exception expected");
+			}
+			catch (IOException)
+			{
 			}
 			AssertFS(@"c:
 				-dir1

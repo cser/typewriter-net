@@ -55,7 +55,7 @@ namespace UnitTests
 			{
 				foreach (FakeItem item in items)
 				{
-					if (item.name == name)
+					if (string.Compare(item.name, name, true) == 0)
 					{
 						return item;
 					}

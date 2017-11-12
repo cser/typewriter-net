@@ -29,7 +29,7 @@ namespace UnitTests
 		[Test]
 		public void Simple()
 		{
-			Init(".meta", true);
+			Init(".meta", false);
 			fs.Add(new FakeFSProxy.FakeDir("c:")
 				.Add(new FakeFSProxy.FakeDir("dir1")
 					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
