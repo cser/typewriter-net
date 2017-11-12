@@ -15,6 +15,10 @@ public interface IFSProxy
 	string[] Directory_GetFiles(string path);
 		
 	string[] Directory_GetDirectories(string path);
+	
+	void File_Delete(string path);
+	
+	void Directory_DeleteRecursive(string path);
 		
 	string GetFileName(string path);
 		

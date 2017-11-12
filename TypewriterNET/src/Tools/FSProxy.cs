@@ -42,6 +42,16 @@ public class FSProxy : IFSProxy
 		return Directory.GetDirectories(path);
 	}
 	
+	public void File_Delete(string path)
+	{
+		File.Delete(path);
+	}
+	
+	public void Directory_DeleteRecursive(string path)
+	{
+		Directory.Delete(path, true);
+	}
+	
 	public string GetFileName(string path)
 	{
 		return Path.GetFileName(path);

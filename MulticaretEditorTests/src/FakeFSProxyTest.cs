@@ -564,5 +564,48 @@ namespace UnitTests
 				--File3.cs{3}
 			");
 		}
+		
+		[Test]
+		public void File_Copy_Rename()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			fs.File_Copy("c:\\dir1\\file1.cs", "c:\\dir1\\File1-copy.cs");
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File1-copy.cs{1}
+			");
+		}
+		
+		[Test]
+		public void File_Delete()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			fs.File_Delete("c:\\dir1\\File1.cs");
+			AssertFS(@"c:
+				-dir1
+			");
+		}
+		
+		[Test]
+		public void Directory_Delete()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			fs.Directory_DeleteRecursive("c:\\dir1");
+			AssertFS(@"c:
+			");
+		}
 	}
 }

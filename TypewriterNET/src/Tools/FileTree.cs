@@ -1264,7 +1264,31 @@ public class FileTree
 			return true;
 		}
 		PasteFromClipboardAction action = new PasteFromClipboardAction(new FSProxy(), renamePostfixed, pastePostfixedAfterCopy);
-		action.Execute(paths, targetDir, cutMode);
+		action.Execute(paths, targetDir, cutMode ? PasteFromClipboardAction.Cut : PasteFromClipboardAction.Copy);
+		if (action.Errors.Count == 0 && action.Overwrites.Count > 0)
+		{
+			int count = 0;
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("Overwrite " + (action.Overwrites.Count > 1 ? "items" : "item") + "?");
+			foreach (string overwrite in action.Overwrites)
+			{
+				count++;
+				if (count > 10)
+				{
+					builder.AppendLine("…");
+					break;
+				}
+				builder.AppendLine(overwrite);
+			}
+			DialogResult result = MessageBox.Show(builder.ToString(), mainForm.Name, MessageBoxButtons.YesNo);
+			if (result == DialogResult.Yes)
+			{
+				action.Execute(
+					paths,
+					targetDir,
+					cutMode ? PasteFromClipboardAction.CutOverride : PasteFromClipboardAction.CopyOverride);
+			}
+		}
 		Reload();
 		PutCursors(action.NewFullPaths);
 		if (action.Errors.Count > 0)

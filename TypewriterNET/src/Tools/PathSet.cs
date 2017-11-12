@@ -9,7 +9,7 @@ public class PathSet
 		return fullPath.ToLower();
 	}
 	
-	public Dictionary<string, bool> _set = new Dictionary<string, bool>();
+	private Dictionary<string, bool> _set = new Dictionary<string, bool>();
 	
 	public IEnumerable<string> NormalizedPaths { get { return _set.Keys; } }
 	public int Count { get { return _set.Count; } }
@@ -71,5 +71,10 @@ public class PathSet
 		if (fullPath.EndsWith("\\"))
 			fullPath = fullPath.Substring(0, fullPath.Length - 1);
 		return _set.ContainsKey(fullPath.ToLower());
+	}
+	
+	public void Clear()
+	{
+		_set.Clear();
 	}
 }

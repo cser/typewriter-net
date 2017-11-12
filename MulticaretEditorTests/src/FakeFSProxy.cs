@@ -155,7 +155,7 @@ namespace UnitTests
 				this.content = content;
 			}
 			
-			public FakeFile Clone()
+			public FakeFile Clone(string name)
 			{
 				return new FakeFile(name, content);
 			}
@@ -195,8 +195,7 @@ namespace UnitTests
 			{
 				throw new IOException("File already exists: " + source);
 			}
-			sourceFile.name = name;
-			targetOwner.Add(sourceFile.Clone());
+			targetOwner.Add(sourceFile.Clone(name));
 		}
 		
 		public void File_Move(string source, string target)
@@ -308,6 +307,20 @@ namespace UnitTests
 				}
 			}
 			return paths.ToArray();
+		}
+		
+		public void File_Delete(string path)
+		{
+			FakeDir owner = GetItem(Node.CutEnd(Node.Of(path))).AsDir;
+			FakeFile item = GetItem(Node.Of(path)).AsFile;
+			owner.Remove(item);
+		}
+		
+		public void Directory_DeleteRecursive(string path)
+		{
+			FakeDir owner = GetItem(Node.CutEnd(Node.Of(path))).AsDir;
+			FakeDir item = GetItem(Node.Of(path)).AsDir;
+			owner.Remove(item);
 		}
 		
 		public string GetFileName(string path)
