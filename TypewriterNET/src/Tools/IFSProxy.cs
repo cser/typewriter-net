@@ -27,4 +27,6 @@ public interface IFSProxy
 	string GetExtension(string path);
 		
 	string Combine(string path1, string path2);
+	
+	char Separator { get; }
 }

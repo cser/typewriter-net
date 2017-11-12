@@ -71,4 +71,6 @@ public class FSProxy : IFSProxy
 	{
 		return Path.Combine(path1, path2);
 	}
+	
+	public char Separator { get { return Path.DirectorySeparatorChar; } }
 }

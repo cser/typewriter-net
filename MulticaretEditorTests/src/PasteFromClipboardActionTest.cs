@@ -128,12 +128,78 @@ namespace UnitTests
 				-dir2
 				--File1.cs{3}");
 			action.Execute(new string[] { "c:\\dir2\\File1.cs" }, "c:\\dir1", PasteFromClipboardAction.CopyOverride);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{3}
 				--File2.cs{2}
 				-dir2
 				--File1.cs{3}");
+		}
+		
+		[Test]
+		public void AfterCopy_DirOverride()
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir1")
+						.Add(new FakeFSProxy.FakeFile("File1.cs", 3))
+					)
+				)
+			);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.Copy);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\dir1" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--dir1
+				---File1.cs{3}");
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.CopyOverride);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{3}
+				--File2.cs{2}
+				-dir2
+				--dir1
+				---File1.cs{3}");
+		}
+		
+		[Test]
+		public void AfterCopy_NoInsertSelfLoop()
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir1")
+						.Add(new FakeFSProxy.FakeFile("File1.cs", 3))
+					)
+				)
+			);
+			ExecuteNoErrors(new string[] { "c:\\dir2" }, "c:\\dir2", PasteFromClipboardAction.Copy);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--dir1
+				---File1.cs{3}
+				--dir2
+				---dir1
+				----File1.cs{3}
+			");
 		}
 	}
 }

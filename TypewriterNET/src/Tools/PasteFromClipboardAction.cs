@@ -61,7 +61,7 @@ public class PasteFromClipboardAction
 				string file = files[i];
 				FileMoveInfo move = new FileMoveInfo();
 				move.prevNorm = PathSet.GetNorm(file);
-				move.next = fs.Combine(targetDir, fs.GetFileName(file));
+				move.next = targetDir + fs.Separator + fs.GetFileName(file);
 				moves.Add(move);
 				prevNormPaths[move.prevNorm] = move;
 			}
@@ -183,7 +183,7 @@ public class PasteFromClipboardAction
 		{
 			if (isDir)
 			{
-				CopyDirectoryRecursive(info.prevNorm, next);
+				CopyDirectoryRecursive(info.prevNorm, next, false);
 			}
 			else
 			{
@@ -214,7 +214,7 @@ public class PasteFromClipboardAction
 				}
 				else
 				{
-					CopyDirectoryRecursive(info.prevNorm, next);
+					CopyDirectoryRecursive(info.prevNorm, next, false);
 				}
 			}
 			else
@@ -263,7 +263,7 @@ public class PasteFromClipboardAction
 				}
 				else
 				{
-					CopyDirectoryRecursive(info.prevNorm, next);
+					CopyDirectoryRecursive(info.prevNorm, next, true);
 				}
 			}
 			else
@@ -324,24 +324,35 @@ public class PasteFromClipboardAction
 		}
 	}
 	
-	private void CopyDirectoryRecursive(string prev, string targetFolder)
+	private void CopyDirectoryRecursive(string prev, string targetFolder, bool overwrite)
 	{
+		string[] dirs = fs.Directory_GetDirectories(prev);
+		string[] files = fs.Directory_GetFiles(prev);
 		if (!fs.Directory_Exists(targetFolder))
 		{
+			if (overwrite && fs.File_Exists(targetFolder))
+			{
+				fs.File_Delete(targetFolder);
+			}
 			fs.Directory_CreateDirectory(targetFolder);
 		}
-		foreach (string dir in fs.Directory_GetDirectories(prev))
+		foreach (string dir in dirs)
 		{
-			CopyDirectoryRecursive(dir, fs.Combine(targetFolder, fs.GetFileName(dir)));
+			CopyDirectoryRecursive(dir, targetFolder + fs.Separator + fs.GetFileName(dir), overwrite);
 		}
-		foreach (string file in fs.Directory_GetFiles(prev))
+		foreach (string file in files)
 		{
 			if (!pastePostfixedAfterCopy && !string.IsNullOrEmpty(renamePostfixed) &&
 				file.ToLowerInvariant().EndsWith(renamePostfixed))
 			{
 				continue;
 			}
-			fs.File_Copy(file, fs.Combine(targetFolder, fs.GetFileName(file)));
+			string target = targetFolder + fs.Separator + fs.GetFileName(file);
+			if (overwrite && fs.File_Exists(target))
+			{
+				fs.File_Delete(target);
+			}	
+			fs.File_Copy(file, target);
 		}
 	}
 }

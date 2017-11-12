@@ -343,6 +343,8 @@ namespace UnitTests
 			return Path.Combine(path1, path2);
 		}
 		
+		public char Separator { get { return Path.DirectorySeparatorChar; } }
+		
 		public override string ToString()
 		{
 			List<string> lines = new List<string>();
