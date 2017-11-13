@@ -311,16 +311,35 @@ namespace UnitTests
 		
 		public void File_Delete(string path)
 		{
-			FakeDir owner = GetItem(Node.CutEnd(Node.Of(path))).AsDir;
-			FakeFile item = GetItem(Node.Of(path)).AsFile;
-			owner.Remove(item);
+			FakeItem ownerItem = GetItem(Node.CutEnd(Node.Of(path)));
+			FakeDir owner = ownerItem != null ? ownerItem.AsDir : null;
+			FakeItem fileItem = GetItem(Node.Of(path));
+			FakeFile file = fileItem != null ? fileItem.AsFile : null;
+			if (fileItem != null && fileItem.AsDir != null)
+			{
+				throw new UnauthorizedAccessException("Disallow access to: " + path);
+			}
+			if (owner != null && file != null)
+			{
+				owner.Remove(file);
+			}
 		}
 		
 		public void Directory_DeleteRecursive(string path)
 		{
-			FakeDir owner = GetItem(Node.CutEnd(Node.Of(path))).AsDir;
-			FakeDir item = GetItem(Node.Of(path)).AsDir;
-			owner.Remove(item);
+			FakeItem ownerItem = GetItem(Node.CutEnd(Node.Of(path)));
+			FakeDir owner = ownerItem != null ? ownerItem.AsDir : null;
+			FakeItem dirItem = GetItem(Node.Of(path));
+			if (dirItem == null)
+			{
+				throw new DirectoryNotFoundException("Missing target path part: " + path);
+			}
+			FakeDir dir = dirItem.AsDir;
+			if (dir == null)
+			{
+				throw new IOException("Incorrect directory name: " + path);
+			}
+			owner.Remove(dir);
 		}
 		
 		public string GetFileName(string path)

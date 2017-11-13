@@ -346,23 +346,17 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
 			{
-				fs.Directory_Move("c:\\dir3", "c:\\dir4");
-				Assert.Fail("Exception expected");
+				string message = Assert.Throws<DirectoryNotFoundException>(delegate {
+					fs.Directory_Move("c:\\dir3", "c:\\dir4");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing directory:"));
 			}
-			catch (DirectoryNotFoundException e)
 			{
-				Assert.IsTrue(e.Message.Contains("Missing directory:"));
-			}
-			try
-			{
-				fs.Directory_Move("c:\\dir1", "c:\\dir3\\dir4");
-				Assert.Fail("Exception expected");
-			}
-			catch (DirectoryNotFoundException e)
-			{
-				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+				string message = Assert.Throws<DirectoryNotFoundException>(delegate {
+					fs.Directory_Move("c:\\dir1", "c:\\dir3\\dir4");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing target path part:"));
 			}
 			AssertFS(@"c:
 				-dir1
@@ -385,23 +379,17 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
 			{
-				fs.File_Move("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
-				Assert.Fail("Exception expected");
+				string message = Assert.Throws<FileNotFoundException>(delegate {
+					fs.File_Move("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing file:"));
 			}
-			catch (FileNotFoundException e)
 			{
-				Assert.IsTrue(e.Message.Contains("Missing file:"));
-			}
-			try
-			{
-				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (DirectoryNotFoundException e)
-			{
-				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+				string message = Assert.Throws<DirectoryNotFoundException>(delegate {
+					fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing target path part:"));
 			}
 			AssertFS(@"c:
 				-dir1
@@ -424,23 +412,17 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
 			{
-				fs.File_Copy("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
-				Assert.Fail("Exception expected");
+				string message = Assert.Throws<FileNotFoundException>(delegate {
+					fs.File_Copy("c:\\dir1\\File4.cs", "c:\\dir2\\File4.cs");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing file:"));
 			}
-			catch (FileNotFoundException e)
 			{
-				Assert.IsTrue(e.Message.Contains("Missing file:"));
-			}
-			try
-			{
-				fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (DirectoryNotFoundException e)
-			{
-				Assert.IsTrue(e.Message.Contains("Missing target path part:"));
+				string message = Assert.Throws<DirectoryNotFoundException>(delegate {
+					fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir3\\File1.cs");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing target path part:"));
 			}
 			AssertFS(@"c:
 				-dir1
@@ -463,24 +445,10 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
-			{
+			string message = Assert.Throws<IOException>(delegate {
 				fs.File_Copy("c:\\dir1\\File1.cs", "c:\\dir2\\File3.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException e)
-			{
-				Assert.IsTrue(e.Message.Contains("File already exists:"));
-			}
-			try
-			{
-				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir2\\File3.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException e)
-			{
-				Assert.IsTrue(e.Message.Contains("File already exists:"));
-			}
+			}).Message;
+			Assert.IsTrue(message.Contains("File already exists:"));
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -502,15 +470,10 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
-			{
+			string message = Assert.Throws<IOException>(delegate {
 				fs.Directory_Move("c:\\dir1", "c:\\dir2");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException e)
-			{
-				Assert.IsTrue(e.Message.Contains("File already exists:"));
-			}
+			}).Message;
+			Assert.IsTrue(message.Contains("File already exists:"));
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -532,30 +495,15 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			try
-			{
+			Assert.Throws<IOException>(delegate {
 				fs.Directory_Move("c:\\dir1", "c:\\Dir2");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException)
-			{
-			}
-			try
-			{
+			});
+			Assert.Throws<IOException>(delegate {
 				fs.File_Move("c:\\dir1\\File1.cs", "c:\\Dir2\\File3.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException)
-			{
-			}
-			try
-			{
+			});
+			Assert.Throws<IOException>(delegate {
 				fs.File_Move("c:\\dir1\\File1.cs", "c:\\dir2\\file3.cs");
-				Assert.Fail("Exception expected");
-			}
-			catch (IOException)
-			{
-			}
+			});
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -605,6 +553,39 @@ namespace UnitTests
 			);
 			fs.Directory_DeleteRecursive("c:\\dir1");
 			AssertFS(@"c:
+			");
+		}
+		
+		[Test]
+		public void Delete_Missing()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+			);
+			fs.File_Delete("c:\\dir1\\File2.cs");
+			{
+				string message = Assert.Throws<UnauthorizedAccessException>(delegate {
+					fs.File_Delete("c:\\dir1");
+				}).Message;
+				Assert.IsTrue(message.Contains("Disallow access to:"));
+			}
+			{
+				string message = Assert.Throws<DirectoryNotFoundException>(delegate {
+					fs.Directory_DeleteRecursive("c:\\dir2");
+				}).Message;
+				Assert.IsTrue(message.Contains("Missing target path part:"));
+			}
+			{
+				string message = Assert.Throws<IOException>(delegate {
+					fs.Directory_DeleteRecursive("c:\\dir1\\File1.cs");
+				}).Message;
+				Assert.IsTrue(message.Contains("Incorrect directory name:"));
+			}
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
 			");
 		}
 	}
