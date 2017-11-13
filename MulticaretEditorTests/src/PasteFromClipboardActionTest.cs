@@ -138,7 +138,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void AfterCopy_DirOverride()
+		public void AfterCopy_DirOverwrite()
 		{
 			Init(null, false);
 			fs.Add(new FakeFSProxy.FakeDir("c:")
@@ -200,6 +200,65 @@ namespace UnitTests
 				---dir1
 				----File1.cs{3}
 			");
+		}
+		
+		[Test]
+		public void AfterCut_DirOverwrite()
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir1")
+						.Add(new FakeFSProxy.FakeFile("File1.cs", 3))
+					)
+				)
+			);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\dir1" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--dir1
+				---File1.cs{3}");
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.CutOverride);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{3}
+				--File2.cs{2}
+				-dir2");
+		}
+		
+		[Test]
+		public void AfterCut_ToItself()
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir1")
+						.Add(new FakeFSProxy.FakeFile("File1.cs", 3))
+					)
+				)
+			);
+			ExecuteNoErrors(new string[] { "c:\\dir2\\dir1" }, "c:\\dir2", PasteFromClipboardAction.Cut);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--dir1
+				---File1.cs{3}");
 		}
 	}
 }

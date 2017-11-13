@@ -259,7 +259,15 @@ public class PasteFromClipboardAction
 			{
 				if (move)
 				{
-					fs.Directory_Move(info.prevNorm, next);
+					if (!fs.Directory_Exists(next))
+					{
+						fs.Directory_Move(info.prevNorm, next);
+					}
+					else
+					{
+						CopyDirectoryRecursive(info.prevNorm, next, true);
+						fs.Directory_DeleteRecursive(info.prevNorm);
+					}
 				}
 				else
 				{
