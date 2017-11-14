@@ -9,7 +9,7 @@ public class PasteFromClipboardAction
 		{
 			get
 			{
-				return this == PasteFromClipboardAction.Cut || this == PasteFromClipboardAction.CutOverride;
+				return this == PasteFromClipboardAction.Cut || this == PasteFromClipboardAction.CutOverwrite;
 			}
 		}
 		
@@ -17,7 +17,7 @@ public class PasteFromClipboardAction
 		{
 			get
 			{
-				return this == PasteFromClipboardAction.CopyOverride || this == PasteFromClipboardAction.CutOverride;
+				return this == PasteFromClipboardAction.CopyOverwrite || this == PasteFromClipboardAction.CutOverwrite;
 			}
 		}
 	}
@@ -35,8 +35,8 @@ public class PasteFromClipboardAction
 	
 	public static readonly Mode Copy = new Mode();
 	public static readonly Mode Cut = new Mode();
-	public static readonly Mode CutOverride = new Mode();
-	public static readonly Mode CopyOverride = new Mode();
+	public static readonly Mode CutOverwrite = new Mode();
+	public static readonly Mode CopyOverwrite = new Mode();
 	
 	private readonly string renamePostfixed;
 	private readonly bool pastePostfixedAfterCopy;

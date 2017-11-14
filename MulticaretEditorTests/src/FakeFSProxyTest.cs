@@ -588,5 +588,25 @@ namespace UnitTests
 				--File1.cs{1}
 			");
 		}
+		
+		[Test]
+		public void Directory_Move_Bug()
+		{
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+			);
+			fs.Directory_Move("c:\\dir2", "c:\\dir1\\dir2");
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---File2.cs{2}
+				--File1.cs{1}
+			");
+		}
 	}
 }

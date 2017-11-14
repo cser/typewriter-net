@@ -245,9 +245,9 @@ namespace UnitTests
 				throw new DirectoryNotFoundException("Missing target path part: " + source);
 			}
 			string name = Node.EndName(Node.Of(target));
-			if (sourceOwner.GetItem(name) != null)
+			if (targetOwner.GetItem(name) != null)
 			{
-				throw new IOException("File already exists: " + source);
+				throw new IOException("File already exists: " + target);
 			}
 			sourceOwner.Remove(sourceDir);
 			sourceDir.name = name;

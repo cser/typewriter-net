@@ -1286,7 +1286,7 @@ public class FileTree
 				action.Execute(
 					paths,
 					targetDir,
-					cutMode ? PasteFromClipboardAction.CutOverride : PasteFromClipboardAction.CopyOverride);
+					cutMode ? PasteFromClipboardAction.CutOverwrite : PasteFromClipboardAction.CopyOverwrite);
 			}
 		}
 		Reload();
