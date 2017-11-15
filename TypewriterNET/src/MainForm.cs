@@ -2840,6 +2840,10 @@ public class MainForm : Form
                         Place place = new Place(0, openFileLine - 1);
                         buffer.Controller.PutCursor(place, false);
                         buffer.Controller.NeedScrollToCaret();
+                        if (buffer.Frame != null && !buffer.Frame.Focused)
+                        {
+	                        buffer.Frame.Focus();
+	                    }
                     }
                 }
                 openFileLine = 0;
