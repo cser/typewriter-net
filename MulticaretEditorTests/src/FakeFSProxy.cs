@@ -36,6 +36,9 @@ namespace UnitTests
 			public readonly List<FakeItem> items = new List<FakeItem>();
 			public override FakeDir AsDir { get { return this; } }
 			
+			private bool unauthorized;
+			public bool Unauthorized { get { return unauthorized; } }
+			
 			public FakeDir(string name) : base(name)
 			{
 			}
@@ -58,6 +61,12 @@ namespace UnitTests
 			public void Remove(FakeItem item)
 			{
 				items.Remove(item);
+			}
+			
+			public FakeDir SetUnauthorized()
+			{
+				unauthorized = true;
+				return this;
 			}
 			
 			public FakeItem GetItem(string name)
@@ -204,6 +213,10 @@ namespace UnitTests
 			{
 				throw new DirectoryNotFoundException("Missing target path part: " + source);
 			}
+			if (targetOwner.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + target);
+			}
 			string name = Node.EndName(Node.Of(target));
 			if (targetOwner.GetItem(name) != null)
 			{
@@ -226,6 +239,10 @@ namespace UnitTests
 			if (targetOwner == null)
 			{
 				throw new DirectoryNotFoundException("Missing target path part: " + source);
+			}
+			if (targetOwner.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + target);
 			}
 			string name = Node.EndName(Node.Of(target));
 			if (targetOwner.GetItem(name) != null)
@@ -258,6 +275,10 @@ namespace UnitTests
 			{
 				throw new DirectoryNotFoundException("Missing target path part: " + source);
 			}
+			if (targetOwner.Unauthorized)
+			{
+				throw new IOException("Unable access to: " + target);
+			}
 			string name = Node.EndName(Node.Of(target));
 			if (targetOwner.GetItem(name) != null)
 			{
@@ -271,14 +292,18 @@ namespace UnitTests
 		public void Directory_CreateDirectory(string path)
 		{
 			Node nodes = Node.Of(path);
-			Directory_CreateDirectory(nodes, root);
+			Directory_CreateDirectory(nodes, root, path);
 		}
 		
-		private void Directory_CreateDirectory(Node node, FakeDir dir)
+		private void Directory_CreateDirectory(Node node, FakeDir dir, string path)
 		{
 			if (node == null)
 			{
 				return;
+			}
+			if (dir.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + path);
 			}
 			FakeItem item = dir.GetItem(node.name);
 			if (item == null)
@@ -290,13 +315,26 @@ namespace UnitTests
 			{
 				return;
 			}
-			Directory_CreateDirectory(node.next, item.AsDir);
+			Directory_CreateDirectory(node.next, item.AsDir, path);
 		}
 		
 		public string[] Directory_GetFiles(string path)
 		{
 			List<string> paths = new List<string>();
-			FakeDir sourceOwner = GetItem(Node.Of(path)).AsDir;
+			FakeItem sourceItem = GetItem(Node.Of(path));
+			if (sourceItem != null && sourceItem.AsFile != null)
+			{
+				throw new IOException("Incorrect directory: " + path);
+			}
+			FakeDir sourceOwner = sourceItem != null ? sourceItem.AsDir : null;
+			if (sourceOwner == null)
+			{
+				throw new DirectoryNotFoundException("Missing directory: " + path);
+			}
+			if (sourceOwner.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + path);
+			}
 			Node dir = GetRealNames(Node.Of(path));
 			foreach (FakeItem item in sourceOwner.items)
 			{
@@ -311,8 +349,21 @@ namespace UnitTests
 		public string[] Directory_GetDirectories(string path)
 		{
 			List<string> paths = new List<string>();
-			FakeDir sourceOwner = GetItem(Node.Of(path)).AsDir;
+			FakeItem sourceItem = GetItem(Node.Of(path));
+			if (sourceItem != null && sourceItem.AsFile != null)
+			{
+				throw new IOException("Incorrect directory: " + path);
+			}
+			FakeDir sourceOwner = sourceItem != null ? sourceItem.AsDir : null;
+			if (sourceOwner == null)
+			{
+				throw new DirectoryNotFoundException("Missing directory: " + path);
+			}
 			Node dir = GetRealNames(Node.Of(path));
+			if (sourceOwner.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + path);
+			}
 			foreach (FakeItem item in sourceOwner.items)
 			{
 				if (item.AsDir != null)
@@ -335,6 +386,10 @@ namespace UnitTests
 			}
 			if (owner != null && file != null)
 			{
+				if (owner.Unauthorized)
+				{
+					return;
+				}
 				owner.Remove(file);
 			}
 		}
@@ -343,6 +398,10 @@ namespace UnitTests
 		{
 			FakeItem ownerItem = GetItem(Node.CutEnd(Node.Of(path)));
 			FakeDir owner = ownerItem != null ? ownerItem.AsDir : null;
+			if (owner != null && owner.Unauthorized)
+			{
+				throw new DirectoryNotFoundException("Missing directory: " + path);
+			}
 			FakeItem dirItem = GetItem(Node.Of(path));
 			if (dirItem == null)
 			{
@@ -352,6 +411,10 @@ namespace UnitTests
 			if (dir == null)
 			{
 				throw new IOException("Incorrect directory name: " + path);
+			}
+			if (dir.Unauthorized)
+			{
+				throw new UnauthorizedAccessException("Unauthorized access to: " + path);
 			}
 			owner.Remove(dir);
 		}

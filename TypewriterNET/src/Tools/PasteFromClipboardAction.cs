@@ -178,7 +178,6 @@ public class PasteFromClipboardAction
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine("#9");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
@@ -228,7 +227,6 @@ public class PasteFromClipboardAction
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine("#17");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
@@ -314,7 +312,6 @@ public class PasteFromClipboardAction
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine("#32");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));

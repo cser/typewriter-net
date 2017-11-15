@@ -713,5 +713,86 @@ namespace UnitTests
 				10,
 				fs.GetItem("c:").AsDir.GetItem("dir1").AsDir.GetItem("dir2").AsDir.GetItem("File1.cs").AsFile.content);
 		}
+		
+		[Test]
+		public void UnauthorizedException()
+		{
+			fs.ApplyString(@"c:
+				-dir1
+				--dir2
+				---dir3
+				---File1.cs{1}
+				-dir3
+				-File2.cs{2}
+			");
+			fs.GetItem("c:").AsDir.GetItem("dir1").AsDir.GetItem("dir2").AsDir.SetUnauthorized();
+			fs.Directory_GetFiles("c:\\dir1");
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.Directory_GetFiles("c:\\dir1\\dir2");
+			});
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.Directory_GetFiles("c:\\dir1\\dir2");
+			});
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.File_Copy("c:\\File2.cs", "c:\\dir1\\dir2\\File2.cs");
+			});
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.File_Move("c:\\File2.cs", "c:\\dir1\\dir2\\File2.cs");
+			});
+			Assert.Throws<IOException>(delegate {
+				fs.Directory_Move("c:\\dir3", "c:\\dir1\\dir2\\dir3");
+			});
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.Directory_CreateDirectory("c:\\dir1\\dir2\\dir3");
+			});
+			Assert.Throws<DirectoryNotFoundException>(delegate {
+				fs.Directory_DeleteRecursive("c:\\dir1\\dir2\\dir3");
+			});
+			Assert.Throws<UnauthorizedAccessException>(delegate {
+				fs.Directory_DeleteRecursive("c:\\dir1\\dir2");
+			});
+			fs.File_Delete("c:\\dir1\\dir2\\File1.cs");
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---dir3
+				---File1.cs{1}
+				-dir3
+				-File2.cs{2}
+			");
+		}
+		
+		[Test]
+		public void Missing()
+		{
+			fs.ApplyString(@"c:
+				-dir1
+				--dir2
+				---File1.cs{10}
+			");
+			Assert.Throws<DirectoryNotFoundException>(delegate {
+				fs.Directory_GetFiles("c:\\dir1\\missing");
+			});
+			Assert.Throws<DirectoryNotFoundException>(delegate {
+				fs.Directory_GetDirectories("c:\\missing\\dir2");
+			});
+			{
+				string message = Assert.Throws<IOException>(delegate {
+					fs.Directory_GetFiles("c:\\dir1\\dir2\\File1.cs");
+				}).Message;
+				Assert.AreEqual("Incorrect directory: c:\\dir1\\dir2\\File1.cs", message);
+			}
+			{
+				string message = Assert.Throws<IOException>(delegate {
+					fs.Directory_GetDirectories("c:\\dir1\\dir2\\File1.cs");
+				}).Message;
+				Assert.AreEqual("Incorrect directory: c:\\dir1\\dir2\\File1.cs", message);
+			}
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---File1.cs{10}
+			");
+		}
 	}
 }

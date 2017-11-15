@@ -756,5 +756,88 @@ namespace UnitTests
 				-f2{11}
 				-f2.meta{12}");
 		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterCopy_UnauthorizedError(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1").SetUnauthorized()
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+				)
+			);
+			action.Execute(new string[] { "c:\\dir2\\File3.cs" }, "c:\\dir1", PasteMode.Copy);
+			Assert.AreEqual(1, action.Errors.Count);
+			Assert.IsTrue(action.Errors[0].Contains("Unauthorized access to: c:\\dir1\\File3.cs"));
+			CollectionAssert.AreEqual(new string[] {}, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File3.cs{3}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterCopy_OneFileDuplication_UnauthorizedError(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1").SetUnauthorized()
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+			);
+			action.Execute(new string[] { "c:\\dir1\\File1.cs" }, "c:\\dir1", PasteMode.Copy);
+			Assert.AreEqual(1, action.Errors.Count);
+			Assert.IsTrue(action.Errors[0].Contains("Unauthorized access to:"));
+			CollectionAssert.AreEqual(new string[] {}, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterCopy_Overwrite_UnauthorizedError(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 3))
+				)
+			);
+			action.Execute(new string[] { "c:\\dir2\\File2.cs" }, "c:\\dir1", PasteMode.Copy);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\dir1\\File2.cs" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File2.cs{3}");
+			fs.GetItem("c:").AsDir.GetItem("dir1").AsDir.SetUnauthorized();
+			action.Execute(new string[] { "c:\\dir2\\File2.cs" }, "c:\\dir1", PasteMode.CopyOverwrite);
+			Assert.AreEqual(1, action.Errors.Count);
+			Assert.IsTrue(action.Errors[0].Contains("Unauthorized access to: c:\\dir1\\File2.cs"));
+			CollectionAssert.AreEqual(new string[] {}, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				--File2.cs{3}");
+		}
 	}
 }
