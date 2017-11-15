@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace UnitTests
 {
 	[TestFixture]
-	public class PasteFromClipboardActionTest
+	public class PasteModeTest
 	{
 		private FakeFSProxy fs;
 		private PasteFromClipboardAction action;
@@ -39,7 +39,7 @@ namespace UnitTests
 			);
 		}
 		
-		private void ExecuteNoErrors(string[] files, string targetDir, PasteFromClipboardAction.Mode mode)
+		private void ExecuteNoErrors(string[] files, string targetDir, PasteMode mode)
 		{
 			action.Execute(files, targetDir, mode);
 			CollectionAssert.AreEqual(new string[]{}, action.Errors, "Expected no errors");
@@ -55,7 +55,7 @@ namespace UnitTests
 			ExecuteNoErrors(
 				new string[] { "c:\\dir1\\File1.cs", "c:\\dir1\\File2.cs" },
 				"c:\\dir2",
-				PasteFromClipboardAction.Cut);
+				PasteMode.Cut);
 			AssertFS(@"c:
 				-dir1
 				-dir2
@@ -73,7 +73,7 @@ namespace UnitTests
 			ExecuteNoErrors(
 				new string[] { "c:\\dir1\\File1.cs", "c:\\dir1\\File2.cs" },
 				"c:\\dir2",
-				PasteFromClipboardAction.Copy);
+				PasteMode.Copy);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -98,7 +98,7 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
 				)
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir1\\File1.cs" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			ExecuteNoErrors(new string[] { "c:\\dir1\\File1.cs" }, "c:\\dir1", PasteMode.Copy);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -106,6 +106,38 @@ namespace UnitTests
 				--File2.cs{2}
 				-dir2
 				--File3.cs{3}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterCopy_SeveralFilesDuplication(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir3")
+						.Add(new FakeFSProxy.FakeFile("File3", 3))
+					)
+					.Add(new FakeFSProxy.FakeFile(".gitignore", 10))
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+			);
+			ExecuteNoErrors(
+				new string[] { "c:\\dir1\\File1.cs", "c:\\dir1\\.gitignore", "c:\\dir1\\dir3" },
+				"c:\\dir1",
+				PasteMode.Copy);
+			AssertFS(@"c:
+				-dir1
+				--dir3
+				---File3{3}
+				--dir3-copy
+				---File3{3}
+				--.gitignore{10}
+				--.gitignore-copy{10}
+				--File1.cs{1}
+				--File1-copy.cs{1}
+				--File2.cs{2}");
 		}
 		
 		[TestCase(null)]
@@ -122,7 +154,7 @@ namespace UnitTests
 					.Add(new FakeFSProxy.FakeFile("File1.cs", 3))
 				)
 			);
-			action.Execute(new string[] { "c:\\dir2\\File1.cs" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			action.Execute(new string[] { "c:\\dir2\\File1.cs" }, "c:\\dir1", PasteMode.Copy);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			CollectionAssert.AreEqual(new string[] { "c:\\dir1\\File1.cs" }, action.Overwrites);
 			AssertFS(@"c:
@@ -131,7 +163,7 @@ namespace UnitTests
 				--File2.cs{2}
 				-dir2
 				--File1.cs{3}");
-			action.Execute(new string[] { "c:\\dir2\\File1.cs" }, "c:\\dir1", PasteFromClipboardAction.CopyOverwrite);
+			action.Execute(new string[] { "c:\\dir2\\File1.cs" }, "c:\\dir1", PasteMode.CopyOverwrite);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			AssertFS(@"c:
 				-dir1
@@ -157,7 +189,7 @@ namespace UnitTests
 					)
 				)
 			);
-			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.Copy);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteMode.Copy);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			CollectionAssert.AreEqual(new string[] { "c:\\dir1" }, action.Overwrites);
 			AssertFS(@"c:
@@ -167,7 +199,7 @@ namespace UnitTests
 				-dir2
 				--dir1
 				---File1.cs{3}");
-			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.CopyOverwrite);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteMode.CopyOverwrite);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			AssertFS(@"c:
 				-dir1
@@ -194,7 +226,7 @@ namespace UnitTests
 					)
 				)
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir2" }, "c:\\dir2", PasteFromClipboardAction.Copy);
+			ExecuteNoErrors(new string[] { "c:\\dir2" }, "c:\\dir2", PasteMode.Copy);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -224,7 +256,7 @@ namespace UnitTests
 					)
 				)
 			);
-			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.Cut);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteMode.Cut);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			CollectionAssert.AreEqual(new string[] { "c:\\dir1" }, action.Overwrites);
 			AssertFS(@"c:
@@ -234,7 +266,7 @@ namespace UnitTests
 				-dir2
 				--dir1
 				---File1.cs{3}");
-			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteFromClipboardAction.CutOverwrite);
+			action.Execute(new string[] { "c:\\dir2\\dir1" }, "c:", PasteMode.CutOverwrite);
 			CollectionAssert.AreEqual(new string[] {}, action.Errors);
 			AssertFS(@"c:
 				-dir1
@@ -259,7 +291,7 @@ namespace UnitTests
 					)
 				)
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir2\\dir1" }, "c:\\dir2", PasteFromClipboardAction.Cut);
+			ExecuteNoErrors(new string[] { "c:\\dir2\\dir1" }, "c:\\dir2", PasteMode.Cut);
 			AssertFS(@"c:
 				-dir1
 				--File1.cs{1}
@@ -290,7 +322,7 @@ namespace UnitTests
 				)
 				.Add(new FakeFSProxy.FakeFile("dir2.meta", 21))
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteFromClipboardAction.Cut);
+			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteMode.Cut);
 			AssertFS(@"c:
 				-dir1
 				--dir2
@@ -327,7 +359,7 @@ namespace UnitTests
 				)
 				.Add(new FakeFSProxy.FakeFile("dir2.meta", 21))
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteMode.Copy);
 			AssertFS(@"c:
 				-dir1
 				--dir2
@@ -368,7 +400,7 @@ namespace UnitTests
 				)
 				.Add(new FakeFSProxy.FakeFile("dir2.meta", 21))
 			);
-			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteMode.Copy);
 			AssertFS(@"c:
 				-dir1
 				--dir2
@@ -389,6 +421,34 @@ namespace UnitTests
 				-dir1.meta{11}
 				-dir2.meta{21}
 			");
+		}
+		
+		[TestCase(null, false)]
+		[TestCase(null, true)]
+		[TestCase(".meta", false)]
+		[TestCase(".meta", true)]
+		public void AfterCut_DirAlreadyMissing(string meta, bool pastePostfixedAfterCopy)
+		{
+			Init(meta, pastePostfixedAfterCopy);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir3")
+						.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+					)
+				)
+			);
+			ExecuteNoErrors(new string[] { "c:\\dir2\\dir3", "c:\\dir2\\dir4" }, "c:", PasteMode.Cut);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				--File2.cs{2}
+				-dir2
+				-dir3
+				--File3.cs{3}");
 		}
 	}
 }
