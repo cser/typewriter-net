@@ -305,5 +305,90 @@ namespace UnitTests
 				--File2.cs.meta{20}
 				-dir1.meta{11}");
 		}
+		
+		[Test]
+		public void MetaCopy_DontCopyMeta()
+		{
+			Init(".meta", false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File1.cs.meta", 10))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+					.Add(new FakeFSProxy.FakeFile("File2.cs.meta", 20))
+				)
+				.Add(new FakeFSProxy.FakeFile("dir1.meta", 11))
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir3")
+						.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+						.Add(new FakeFSProxy.FakeFile("File3.cs.meta", 30))
+					)
+					.Add(new FakeFSProxy.FakeFile("dir3.meta", 31))
+				)
+				.Add(new FakeFSProxy.FakeFile("dir2.meta", 21))
+			);
+			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---dir3
+				----File3.cs{3}
+				--File1.cs{1}
+				--File1.cs.meta{10}
+				--File2.cs{2}
+				--File2.cs.meta{20}
+				-dir2
+				--dir3
+				---File3.cs{3}
+				---File3.cs.meta{30}
+				--dir3.meta{31}
+				-dir1.meta{11}
+				-dir2.meta{21}
+			");
+		}
+		
+		[Test]
+		public void MetaCopy_CopyMeta()
+		{
+			Init(".meta", true);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("File1.cs.meta", 10))
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+					.Add(new FakeFSProxy.FakeFile("File2.cs.meta", 20))
+				)
+				.Add(new FakeFSProxy.FakeFile("dir1.meta", 11))
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("dir3")
+						.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+						.Add(new FakeFSProxy.FakeFile("File3.cs.meta", 30))
+					)
+					.Add(new FakeFSProxy.FakeFile("dir3.meta", 31))
+				)
+				.Add(new FakeFSProxy.FakeFile("dir2.meta", 21))
+			);
+			ExecuteNoErrors(new string[] { "c:\\dir2", "c:\\dir2.meta" }, "c:\\dir1", PasteFromClipboardAction.Copy);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---dir3
+				----File3.cs{3}
+				----File3.cs.meta{30}
+				---dir3.meta{31}
+				--dir2.meta{21}
+				--File1.cs{1}
+				--File1.cs.meta{10}
+				--File2.cs{2}
+				--File2.cs.meta{20}
+				-dir2
+				--dir3
+				---File3.cs{3}
+				---File3.cs.meta{30}
+				--dir3.meta{31}
+				-dir1.meta{11}
+				-dir2.meta{21}
+			");
+		}
 	}
 }
