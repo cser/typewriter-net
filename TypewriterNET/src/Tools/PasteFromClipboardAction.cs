@@ -93,10 +93,14 @@ public class PasteFromClipboardAction
 					continue;
 				}
 				string next = move.next;
-				string nextPostfixed = move.hasPostfixed ? move.next + renamePostfixed : null;
 				if (fs.File_Exists(next) || fs.Directory_Exists(next))
 				{
 					Overwrites.Add(next);
+				}
+				string nextPostfixed = move.hasPostfixed ? move.next + renamePostfixed : null;
+				if (nextPostfixed != null && (fs.File_Exists(nextPostfixed) || fs.Directory_Exists(nextPostfixed)))
+				{
+					Overwrites.Add(nextPostfixed);
 				}
 			}
 		}
@@ -152,7 +156,6 @@ public class PasteFromClipboardAction
 				next = nextBase + suffix + nextExtension;
 				if (nextPostfixed != null)
 				{
-					Console.WriteLine("#5");
 					nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
 				}
 				++index;
@@ -170,7 +173,6 @@ public class PasteFromClipboardAction
 			}
 			if (nextPostfixed != null && pastePostfixedAfterCopy)
 			{
-				Console.WriteLine("#8");
 				fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 			}
 		}
@@ -285,17 +287,11 @@ public class PasteFromClipboardAction
 				{
 					if (fs.File_Exists(nextPostfixed))
 					{
-						Console.WriteLine("#26");
 						fs.File_Delete(nextPostfixed);
 					}
 					else if (fs.Directory_Exists(nextPostfixed))
 					{
-						Console.WriteLine("#27");
 						fs.Directory_DeleteRecursive(nextPostfixed);
-					}
-					else
-					{
-						Console.WriteLine("#28");
 					}
 					fs.File_Move(info.prevNorm + renamePostfixed, nextPostfixed);
 				}
@@ -305,17 +301,11 @@ public class PasteFromClipboardAction
 					{
 						if (fs.File_Exists(nextPostfixed))
 						{
-							Console.WriteLine("#29");
 							fs.File_Delete(nextPostfixed);
 						}
 						else if (fs.Directory_Exists(nextPostfixed))
 						{
-							Console.WriteLine("#30");
 							fs.Directory_DeleteRecursive(nextPostfixed);
-						}
-						else
-						{
-							Console.WriteLine("#31");
 						}
 						fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
@@ -339,7 +329,6 @@ public class PasteFromClipboardAction
 		{
 			if (overwrite && fs.File_Exists(targetFolder))
 			{
-				Console.WriteLine("#33");
 				fs.File_Delete(targetFolder);
 			}
 			fs.Directory_CreateDirectory(targetFolder);

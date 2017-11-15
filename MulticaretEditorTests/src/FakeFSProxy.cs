@@ -40,6 +40,11 @@ namespace UnitTests
 			{
 			}
 			
+			public void Clear()
+			{
+				items.Clear();
+			}
+			
 			public FakeDir Add(FakeItem item)
 			{
 				if (GetItem(item.name) != null)
@@ -171,6 +176,11 @@ namespace UnitTests
 		{
 			root.Add(dir);
 			return this;
+		}
+		
+		public FakeItem GetItem(string name)
+		{
+			return root.GetItem(name);
 		}
 		
 		public bool File_Exists(string path)
@@ -399,6 +409,82 @@ namespace UnitTests
 		private int CompareItems(FakeItem item0, FakeItem item1)
 		{
 			return string.Compare(item0.name, item1.name);
+		}
+		
+		public static string NormalizeString(string text)
+		{
+			string[] lines = text.Trim().Replace("\r\n", "\n").Split('\n');
+			for (int i = 0; i < lines.Length; i++)
+			{
+				lines[i] = lines[i].Trim();
+			}
+			return string.Join("\n", lines);
+		}
+		
+		public void ApplyString(string text)
+		{
+			text = NormalizeString(text);
+			List<string> lines = new List<string>(text.Trim().Split('\n'));
+			if (lines.Count > 0)
+			{
+				root.Clear();
+				if (lines[0].StartsWith("-"))
+				{
+					throw new ArgumentException("Unexpected \"-\" at start");
+				}
+				ApplyString(root, lines);
+			}
+		}
+		
+		private void ApplyString(FakeDir dir, List<string> lines)
+		{
+			string lastFile = null;
+			FakeDir subdir = null;
+			List<string> sublines = null;
+			foreach (string line in lines)
+			{
+				if (!line.StartsWith("-"))
+				{
+					if (subdir != null && sublines != null)
+					{
+						ApplyString(subdir, sublines);
+						subdir = null;
+						sublines = null;
+					}
+					if (line.EndsWith("}") && line.Contains("{"))
+					{
+						int index = line.LastIndexOf("{");
+						string name = line.Substring(0, index);
+						string rawContent = line.Substring(index + 1, line.Length - index - 2);
+						int content;
+						int.TryParse(rawContent, out content);
+						dir.Add(new FakeFile(name, content));
+						lastFile = line;
+					}
+					else
+					{
+						subdir = new FakeDir(line);
+						sublines = new List<string>();
+						dir.Add(subdir);
+					}
+					continue;
+				}
+				if (sublines == null && lastFile != null)
+				{
+					throw new ArgumentException("Insertion into file: " + lastFile);
+				}
+				if (sublines == null)
+				{
+					throw new ArgumentException("Incorrect depth");
+				}
+				sublines.Add(line.Substring(1));
+			}
+			if (subdir != null && sublines != null)
+			{
+				ApplyString(subdir, sublines);
+				subdir = null;
+				sublines = null;
+			}
 		}
 	}
 }

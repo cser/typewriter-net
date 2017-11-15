@@ -12,12 +12,7 @@ namespace UnitTests
 		
 		private void AssertFS(string expected)
 		{
-			string[] lines = expected.Trim().Replace("\r\n", "\n").Split('\n');
-			for (int i = 0; i < lines.Length; i++)
-			{
-				lines[i] = lines[i].Trim();
-			}
-			Assert.AreEqual(string.Join("\n", lines), fs.ToString());
+			Assert.AreEqual(FakeFSProxy.NormalizeString(expected), fs.ToString());
 		}
 		
 		private void Init(string renamePostfixed, bool pastePostfixedAfterCopy)
@@ -339,7 +334,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void MetaCopy_DontCopyMeta()
+		public void MetaCopy_Disabled()
 		{
 			Init(".meta", false);
 			fs.Add(new FakeFSProxy.FakeDir("c:")
@@ -380,7 +375,7 @@ namespace UnitTests
 		}
 		
 		[Test]
-		public void MetaCopy_CopyMeta()
+		public void MetaCopy_Enabled()
 		{
 			Init(".meta", true);
 			fs.Add(new FakeFSProxy.FakeDir("c:")
@@ -553,6 +548,213 @@ namespace UnitTests
 				--dir2
 				--File1.cs{1}
 				-overwrite{11}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterMove_OverrdieDirectoryContent(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir2")
+						.Add(new FakeFSProxy.FakeFile("DIR3", 1))
+					)
+					.Add(new FakeFSProxy.FakeFile("File2.cs", 2))
+				)
+				.Add(new FakeFSProxy.FakeDir("dir2")
+					.Add(new FakeFSProxy.FakeDir("DIR3")
+						.Add(new FakeFSProxy.FakeFile("File3.cs", 3))
+						.Add(new FakeFSProxy.FakeFile("File4.cs", 4))
+					)
+					.Add(new FakeFSProxy.FakeFile("File5.cs", 5))
+				)
+			);
+			action.Execute(new string[] { "c:\\dir2" }, "c:\\dir1", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\dir1\\dir2" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---DIR3{1}
+				--File2.cs{2}
+				-dir2
+				--DIR3
+				---File3.cs{3}
+				---File4.cs{4}
+				--File5.cs{5}");
+			action.Execute(new string[] { "c:\\dir2" }, "c:\\dir1", PasteMode.CutOverwrite);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---DIR3
+				----File3.cs{3}
+				----File4.cs{4}
+				---File5.cs{5}
+				--File2.cs{2}");
+		}
+		
+		[TestCase(false)]
+		[TestCase(true)]
+		public void MetaCopy_MetaDontLockPasting(bool pastePostfixedAfterCopy)
+		{
+			Init(".meta", pastePostfixedAfterCopy);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2.meta{0}
+				-f2{1}");
+			ExecuteNoErrors(new string[] { "c:\\f2" }, "c:\\dir1", PasteMode.Copy);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{1}
+				--f2.meta{0}
+				-f2{1}");
+		}
+		
+		[Test]
+		public void MetaCopy_RenameWithMeta()
+		{
+			Init(".meta", true);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2{1}
+				--f2.meta{10}");
+			ExecuteNoErrors(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:\\dir1", PasteMode.Copy);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{1}
+				--f2.meta{10}
+				--f2-copy{1}
+				--f2-copy.meta{10}");
+		}
+		
+		[Test]
+		public void MetaCopy_Rewrite()
+		{
+			Init(".meta", true);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{21}
+				-f2.meta{22}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.Copy);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\f2", "c:\\f2.meta" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{21}
+				-f2.meta{22}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.CopyOverwrite);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{11}
+				-f2.meta{12}");
+		}
+		
+		[Test]
+		public void MetaCopy_RewriteDir()
+		{
+			Init(".meta", true);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2.meta
+				--file{0}
+				-f2{21}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.Copy);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\f2", "c:\\f2.meta" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2.meta
+				--file{0}
+				-f2{21}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.CopyOverwrite);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{11}
+				-f2.meta{12}");
+		}
+		
+		[Test]
+		public void MetaCut_Rewrite()
+		{
+			Init(".meta", true);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{21}
+				-f2.meta{22}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\f2", "c:\\f2.meta" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2{21}
+				-f2.meta{22}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.CutOverwrite);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				-f2{11}
+				-f2.meta{12}");
+		}
+		
+		[Test]
+		public void MetaCut_RewriteDir()
+		{
+			Init(".meta", true);
+			fs.ApplyString(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2.meta
+				--file{0}
+				-f2{21}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\f2", "c:\\f2.meta" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				--f2{11}
+				--f2.meta{12}
+				-f2.meta
+				--file{0}
+				-f2{21}");
+			action.Execute(new string[] { "c:\\dir1\\f2", "c:\\dir1\\f2.meta" }, "c:", PasteMode.CutOverwrite);
+			AssertFS(@"c:
+				-dir1
+				--f1{0}
+				-f2{11}
+				-f2.meta{12}");
 		}
 	}
 }

@@ -631,5 +631,87 @@ namespace UnitTests
 				--File2.cs{2}
 			");
 		}
+		
+		[Test]
+		public void ApplyString1()
+		{
+			fs.ApplyString(@"c:
+				-dir1
+				--File1.cs{1}
+				-dir2
+				--File2.cs{2}
+			");
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				-dir2
+				--File2.cs{2}
+			");
+		}
+		
+		[Test]
+		public void ApplyString2()
+		{
+			fs.ApplyString(@"c:
+				-dir1
+				--dir3
+				---File1.cs{1}
+				---File3.cs{3}
+				--dir4
+				-dir2
+				--File2.cs{2}
+			");
+			AssertFS(@"c:
+				-dir1
+				--dir3
+				---File1.cs{1}
+				---File3.cs{3}
+				--dir4
+				-dir2
+				--File2.cs{2}
+			");
+		}
+		
+		[Test]
+		public void ApplyString_DontAllowNestIntoFiles()
+		{
+			string message = Assert.Throws<ArgumentException>(delegate {
+				fs.ApplyString(@"c:
+					-dir1
+					--dir3{4}
+					---File1.cs{1}
+					--dir4
+					-dir2{5}
+					--dir3
+				");
+			}).Message;
+			Assert.AreEqual("Insertion into file: dir3{4}", message);
+		}
+		
+		[Test]
+		public void ApplyString_IncorrectDepth()
+		{
+			string message = Assert.Throws<ArgumentException>(delegate {
+				fs.ApplyString(@"c:
+					-dir1
+					---dir2
+					----File1.cs{1}
+				");
+			}).Message;
+			Assert.AreEqual("Incorrect depth", message);
+		}
+		
+		[Test]
+		public void GetItem()
+		{
+			fs.ApplyString(@"c:
+				-dir1
+				--dir2
+				---File1.cs{10}
+			");
+			Assert.AreEqual(
+				10,
+				fs.GetItem("c:").AsDir.GetItem("dir1").AsDir.GetItem("dir2").AsDir.GetItem("File1.cs").AsFile.content);
+		}
 	}
 }
