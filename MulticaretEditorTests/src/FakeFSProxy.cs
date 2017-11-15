@@ -42,6 +42,10 @@ namespace UnitTests
 			
 			public FakeDir Add(FakeItem item)
 			{
+				if (GetItem(item.name) != null)
+				{
+					throw new ArgumentException("Name \"" + item.name + "\" already exists in \"" + name + "\"");
+				}
 				items.Add(item);
 				return this;
 			}

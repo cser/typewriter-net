@@ -119,11 +119,11 @@ public class PasteFromClipboardAction
 			}
 			else if (mode.IsOverwrite)
 			{
-				CopyOrMoveOverwrite(move, isDir, ref next, ref nextPostfixed, mode.IsCut);
+				CopyOrMoveOverwrite(move, isDir, next, nextPostfixed, mode.IsCut);
 			}
 			else
 			{
-				CopyOrMove(move, isDir, ref next, ref nextPostfixed, mode.IsCut);
+				CopyOrMove(move, isDir, next, nextPostfixed, mode.IsCut);
 			}
 			NewFullPaths.Add(next);
 		}
@@ -152,7 +152,7 @@ public class PasteFromClipboardAction
 				next = nextBase + suffix + nextExtension;
 				if (nextPostfixed != null)
 				{
-					//Console.WriteLine("#5");
+					Console.WriteLine("#5");
 					nextPostfixed = nextBase + suffix + nextExtension + renamePostfixed;
 				}
 				++index;
@@ -170,20 +170,20 @@ public class PasteFromClipboardAction
 			}
 			if (nextPostfixed != null && pastePostfixedAfterCopy)
 			{
-				//Console.WriteLine("#8");
+				Console.WriteLine("#8");
 				fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 			}
 		}
 		catch (Exception e)
 		{
-			//Console.WriteLine("#9");
+			Console.WriteLine("#9");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
 		}
 	}
 	
-	private void CopyOrMove(FileMoveInfo info, bool isDir, ref string next, ref string nextPostfixed, bool move)
+	private void CopyOrMove(FileMoveInfo info, bool isDir, string next, string nextPostfixed, bool move)
 	{
 		try
 		{
@@ -226,14 +226,14 @@ public class PasteFromClipboardAction
 		}
 		catch (Exception e)
 		{
-			//Console.WriteLine("#17");
+			Console.WriteLine("#17");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
 		}
 	}
 	
-	private void CopyOrMoveOverwrite(FileMoveInfo info, bool isDir, ref string next, ref string nextPostfixed, bool move)
+	private void CopyOrMoveOverwrite(FileMoveInfo info, bool isDir, string next, string nextPostfixed, bool move)
 	{
 		try
 		{
@@ -243,7 +243,10 @@ public class PasteFromClipboardAction
 				{
 					if (!fs.Directory_Exists(next))
 					{
-						//Console.WriteLine("#19");
+						if (fs.File_Exists(next))
+						{
+							fs.File_Delete(next);
+						}
 						fs.Directory_Move(info.prevNorm, next);
 					}
 					else
@@ -265,12 +268,10 @@ public class PasteFromClipboardAction
 				}
 				else if (fs.Directory_Exists(next))
 				{
-					//Console.WriteLine("#23");
 					fs.Directory_DeleteRecursive(next);
 				}
 				if (move)
 				{
-					//Console.WriteLine("#24");
 					fs.File_Move(info.prevNorm, next);
 				}
 				else
@@ -284,17 +285,17 @@ public class PasteFromClipboardAction
 				{
 					if (fs.File_Exists(nextPostfixed))
 					{
-						//Console.WriteLine("#26");
+						Console.WriteLine("#26");
 						fs.File_Delete(nextPostfixed);
 					}
 					else if (fs.Directory_Exists(nextPostfixed))
 					{
-						//Console.WriteLine("#27");
+						Console.WriteLine("#27");
 						fs.Directory_DeleteRecursive(nextPostfixed);
 					}
 					else
 					{
-						//Console.WriteLine("#28");
+						Console.WriteLine("#28");
 					}
 					fs.File_Move(info.prevNorm + renamePostfixed, nextPostfixed);
 				}
@@ -304,17 +305,17 @@ public class PasteFromClipboardAction
 					{
 						if (fs.File_Exists(nextPostfixed))
 						{
-							//Console.WriteLine("#29");
+							Console.WriteLine("#29");
 							fs.File_Delete(nextPostfixed);
 						}
 						else if (fs.Directory_Exists(nextPostfixed))
 						{
-							//Console.WriteLine("#30");
+							Console.WriteLine("#30");
 							fs.Directory_DeleteRecursive(nextPostfixed);
 						}
 						else
 						{
-							//Console.WriteLine("#31");
+							Console.WriteLine("#31");
 						}
 						fs.File_Copy(info.prevNorm + renamePostfixed, nextPostfixed);
 					}
@@ -323,7 +324,7 @@ public class PasteFromClipboardAction
 		}
 		catch (Exception e)
 		{
-			//Console.WriteLine("#32");
+			Console.WriteLine("#32");
 			Errors.Add(e.Message + "\n" +
 				"  " + info.prevNorm + " ->\n" +
 				"  " + next + (nextPostfixed != null ? "(" + renamePostfixed + ")" : ""));
@@ -338,7 +339,7 @@ public class PasteFromClipboardAction
 		{
 			if (overwrite && fs.File_Exists(targetFolder))
 			{
-				//Console.WriteLine("#33");
+				Console.WriteLine("#33");
 				fs.File_Delete(targetFolder);
 			}
 			fs.Directory_CreateDirectory(targetFolder);

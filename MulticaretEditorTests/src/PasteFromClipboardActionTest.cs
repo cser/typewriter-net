@@ -450,5 +450,109 @@ namespace UnitTests
 				-dir3
 				--File3.cs{3}");
 		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterMove_SimpleDirMoving_IfOtherOverrwrite(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir2")
+						.Add(new FakeFSProxy.FakeFile("File2", 2))
+					)
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("overwrite", 11))
+				)
+				.Add(new FakeFSProxy.FakeFile("overwrite", 10))
+			);
+			action.Execute(new string[] { "c:\\dir1\\dir2", "c:\\dir1\\overwrite" }, "c:", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\overwrite" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				---File2{2}
+				--File1.cs{1}
+				--overwrite{11}
+				-overwrite{10}");
+			action.Execute(new string[] { "c:\\dir1\\dir2", "c:\\dir1\\overwrite" }, "c:", PasteMode.CutOverwrite);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--File1.cs{1}
+				-dir2
+				--File2{2}
+				-overwrite{11}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterMove_FileOverwriteByDirectory(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir2"))
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("overwrite", 11))
+				)
+				.Add(new FakeFSProxy.FakeDir("overwrite")
+					.Add(new FakeFSProxy.FakeFile("File2", 2))
+				)
+			);
+			action.Execute(new string[] { "c:\\overwrite" }, "c:\\dir1", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\dir1\\overwrite" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				--File1.cs{1}
+				--overwrite{11}
+				-overwrite
+				--File2{2}");
+			action.Execute(new string[] { "c:\\overwrite" }, "c:\\dir1", PasteMode.CutOverwrite);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				--overwrite
+				---File2{2}
+				--File1.cs{1}");
+		}
+		
+		[TestCase(null)]
+		[TestCase(".meta")]
+		public void AfterMove_DirectoryOverwriteByFile(string meta)
+		{
+			Init(null, false);
+			fs.Add(new FakeFSProxy.FakeDir("c:")
+				.Add(new FakeFSProxy.FakeDir("dir1")
+					.Add(new FakeFSProxy.FakeDir("dir2"))
+					.Add(new FakeFSProxy.FakeFile("File1.cs", 1))
+					.Add(new FakeFSProxy.FakeFile("overwrite", 11))
+				)
+				.Add(new FakeFSProxy.FakeDir("overwrite")
+					.Add(new FakeFSProxy.FakeFile("File2", 2))
+				)
+			);
+			action.Execute(new string[] { "c:\\dir1\\overwrite" }, "c:", PasteMode.Cut);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			CollectionAssert.AreEqual(new string[] { "c:\\overwrite" }, action.Overwrites);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				--File1.cs{1}
+				--overwrite{11}
+				-overwrite
+				--File2{2}");
+			action.Execute(new string[] { "c:\\dir1\\overwrite" }, "c:", PasteMode.CutOverwrite);
+			CollectionAssert.AreEqual(new string[] {}, action.Errors);
+			AssertFS(@"c:
+				-dir1
+				--dir2
+				--File1.cs{1}
+				-overwrite{11}");
+		}
 	}
 }
