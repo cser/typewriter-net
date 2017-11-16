@@ -8,4 +8,5 @@
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
 
-- copy to new name only if copy to self
+- nodes list: ignore regions marks
+- command variables
