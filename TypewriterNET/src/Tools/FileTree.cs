@@ -120,10 +120,12 @@ public class FileTree
 		}
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Cut item to clipboard", DoCutToClipboard, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.X, null, action));
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.X, null, action));
 		}
 		{
 			KeyAction action = new KeyAction("&View\\File tree\\Paste from clipboard", DoPasteFromClipboard, null, false);
+			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.V, null, action));
 			buffer.additionBeforeKeyMap.AddItem(new KeyItem(Keys.Control | Keys.Shift | Keys.V, null, action));
 		}
 		{
