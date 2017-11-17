@@ -6,7 +6,11 @@ test_file = sys.argv[1] if len(sys.argv) > 1 else None
 line_number = int(sys.argv[2]) if len(sys.argv) > 2 else None
 
 if test_file != None:
-	proc = subprocess.Popen(["c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe", "/target:build-tests", "/verbosity:m"], shell=True, stdout=subprocess.PIPE)
+	proc = subprocess.Popen([
+		"c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe",
+		"/p:Configuration=Debug",
+		"/target:build-tests",
+		"/verbosity:m"], shell=True, stdout=subprocess.PIPE)
 	out = proc.stdout.read()
 	
 	has_errors = False
@@ -66,7 +70,11 @@ if test_file != None:
 		lines.append(line)
 	print str.join("\n", lines).strip()
 else:
-	proc = subprocess.Popen(["c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe", "/target:run-tests", "/verbosity:m"], shell=True, stdout=subprocess.PIPE)
+	proc = subprocess.Popen([
+		"c:\\Windows\\Microsoft.NET\\Framework\\v2.0.50727\\MSBuild.exe",
+		"/target:run-tests",
+		"/p:Configuration=Debug",
+		"/verbosity:m"], shell=True, stdout=subprocess.PIPE)
 	out = proc.stdout.read()
 	
 	if "<<<" in out:

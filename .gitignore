@@ -12,3 +12,4 @@ ManualTests/bin/*.pdb
 tags
 nunit.framework.dll
 .dllsforautocomplete
+*.pdb
