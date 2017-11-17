@@ -8,5 +8,4 @@
 - optimize space characters drawing
 - fix jump from { to } where ' in comment
 
-- nodes list: ignore regions marks
 - command variables

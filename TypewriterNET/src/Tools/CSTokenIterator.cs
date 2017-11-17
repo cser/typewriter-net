@@ -51,6 +51,7 @@ public class CSTokenIterator
 			for (int iLine = 0; iLine < block.count; ++iLine)
 			{
 				Line line = block.array[iLine];
+				bool wasNotSpace = false;
 				for (int i = 0; i < line.charsCount;)
 				{
 					char c = line.chars[i].c;
@@ -61,6 +62,12 @@ public class CSTokenIterator
 							++i;
 							continue;
 						}
+						if (c == '#' && !wasNotSpace)
+						{
+							i = line.charsCount;
+							continue;
+						}
+						wasNotSpace = true;
 						if (char.IsLetterOrDigit(c) || c == '_')
 						{
 							CSToken token = new CSToken();

@@ -1022,5 +1022,27 @@ namespace TextNodesListTest
 				"<<public>>, <<void>>, <<Method1>>, '(', ')', '{', '}', " +
 			"'}']", ListUtil.ToString(iterator.tokens));
 		}
+		
+		[Test]
+		public void RegionMarksMastBeIgnored()
+		{
+			AssertParse(
+				"'class Test' 1 ['+ void Method0()' 3 [], '+ void Method1()' 7 [], '+ void Method2()' 12 []]",
+				@"partial class Test
+				{
+					public void Method0()
+					{
+					}
+					#region Region
+					public void Method1()
+					{
+					}
+					#endregion
+					
+					public void Method2()
+					{
+					}
+				}");
+		}
 	}
 }
