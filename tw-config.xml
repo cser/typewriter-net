@@ -4,11 +4,11 @@
 	<item name="findInFilesFilter" value="*.cs;*.txt;*.md;*.xml;*.py"/>
 	<item name="findInFilesIgnoreDir" value=".git;.dllsforautocomplete"/>
 	<item name="findInFilesDir" value=""/>
-	<item name="f5Command" value="!c:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release /target:tw"/>
+	<item name="f5Command" value="!c:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /verbosity:m /p:Configuration=Release /target:tw"/>
 	<item name="shiftF5Command:*Test.cs" value="!python run_tests.py %f% %l%"/>
 	<item name="f6Command" value="shortcut !C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release /target:"/>
 	<item name="shiftF6Command" value="!^python run_tests.py"/>
-	<item name="f7Command" value="!!C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /p:Configuration=Release /target:run-installer"/>
+	<item name="f7Command" value="!!C:\Windows\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe /verbosity:m /p:Configuration=Release /target:run-installer"/>
 	<item name="f8Command" value='!!"C:\Program Files\Git\bin\sh.exe" --login -i'/>
 	<item name="omnisharpSln" value="."/>
 	<item name="shellRegex" value="/Errors\: 0\, Failures: 0/"/>
