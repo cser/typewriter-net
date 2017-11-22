@@ -29,12 +29,12 @@ This file was writen for launching with MSBuild
 	</Target>
 	<Target Name="build-tests" DependsOnTargets="build-tw">
 		<MakeDir Directories="MulticaretEditor\bin\"/>
-		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="MulticaretEditorTests\bin"/>
-		<Copy SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="."/>
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.pdb" DestinationFolder="MulticaretEditorTests\bin"/>
-		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
-		<Copy SourceFiles="TypewriterNET\bin\TypewriterNET.pdb" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="NUnit\nunit.framework.dll" DestinationFolder="."/>
+		<Copy ContinueOnError="true" SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="MulticaretEditor\bin\MulticaretEditor.pdb" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="TypewriterNET\bin\TypewriterNET.exe" DestinationFolder="MulticaretEditorTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="TypewriterNET\bin\TypewriterNET.pdb" DestinationFolder="MulticaretEditorTests\bin"/>
 		<CSC Sources="MulticaretEditorTests\src\*.cs"
 			References="NUnit\nunit.framework.dll; MulticaretEditorTests\bin\MulticaretEditor.dll; TypewriterNET\bin\TypewriterNET.exe"
 			TargetType="library"
@@ -57,7 +57,7 @@ This file was writen for launching with MSBuild
 		<Exec Command="ResourceBuilder\bin\ResourceBuilder.exe"/>
 	</Target>
 	<Target Name="build-tw" DependsOnTargets="me; resources">
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="TypewriterNET\bin"/>
 		<Delete Files="TypewriterNET\bin\TypewriterNET.pdb"/>
 		<CSC Sources="@(TypewriterNETSrc)"
 			References="TypewriterNET\bin\MulticaretEditor.dll"
@@ -75,7 +75,7 @@ This file was writen for launching with MSBuild
 	</Target>
 	<Target Name="mt">
 		<MakeDir Directories="ManualTests\bin\"/>
-		<Copy SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin"/>
+		<Copy ContinueOnError="true" SourceFiles="MulticaretEditor\bin\MulticaretEditor.dll" DestinationFolder="ManualTests\bin"/>
 		<Delete Files="ManualTests\bin\ManualTests.pdb"/>
 		<CSC Sources="ManualTests\src\*.cs"
 			References="ManualTests\bin\MulticaretEditor.dll"
