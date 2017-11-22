@@ -7,7 +7,7 @@ public class ResourceBuilder
 {
 	public static void Main(string[] args)
 	{
-		ResourceWriter writer = new ResourceWriter("TypewriterNET.resources");
+		ResourceWriter writer = new ResourceWriter("TypewriterNET\\TypewriterNET.resources");
 		writer.AddResource("icon", new Icon("TypewriterNET\\TypewriterNET.ico"));
 		writer.Close();
 	}
