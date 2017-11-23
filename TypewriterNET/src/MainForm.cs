@@ -2832,19 +2832,23 @@ public class MainForm : Form
                 openFileLine = 0;
                 if (supportedArgs[0].StartsWith("-line="))
                     int.TryParse(supportedArgs[0].Substring("-line=".Length), out openFileLine);
+                Buffer lastBuffer = null;
                 foreach (string file in files)
                 {
-                    Buffer buffer = LoadFile(file);
+                    lastBuffer = LoadFile(file);
+                }
+                if (lastBuffer != null)
+                {
                     if (openFileLine != 0)
                     {
                         Place place = new Place(0, openFileLine - 1);
-                        buffer.Controller.PutCursor(place, false);
-                        buffer.Controller.NeedScrollToCaret();
-                        if (buffer.Frame != null && !buffer.Frame.Focused)
-                        {
-	                        buffer.Frame.Focus();
-	                    }
+                        lastBuffer.Controller.PutCursor(place, false);
+                        lastBuffer.Controller.NeedScrollToCaret();
                     }
+					if (lastBuffer.Frame != null && !lastBuffer.Frame.Focused)
+					{
+						lastBuffer.Frame.Focus();
+					}
                 }
                 openFileLine = 0;
             }
