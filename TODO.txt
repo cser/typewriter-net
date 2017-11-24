@@ -1,11 +1,10 @@
-- fix fail on incorrect scheme name
 - selection mast works with find
-- tag text object
+- xml tag text object
+- prevent fail on highlighting regex parsing
+- fix jump from { to } where ' in comment
+
 - copy to default register with named register- tag text object
 - empty register
 - js parser with (line, char)
-- prevent fail on highlighting regex parsing
-- optimize space characters drawing
-- fix jump from { to } where ' in comment
-
-- command variables
+- python parser
+- Ctrl+D in vi-find
