@@ -568,6 +568,14 @@ namespace MulticaretEditor
 				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
 			}
 		}
+		
+		public void SetViSelection()
+		{
+			if (receiver != null)
+			{
+				receiver.SetViMode(ViMode.Visual);
+			}
+		}
 
 		protected override void OnGotFocus(EventArgs e)
 		{
