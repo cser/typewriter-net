@@ -949,10 +949,14 @@ namespace MulticaretEditor
 		{
 			get
 			{
-				foreach (Selection selection in selections)
+				int count = selections.Count;
+				for (int i = 0; i < count; ++i)
 				{
-					if (!selection.Empty)
+					Selection selection = selections[i];
+					if (selection.anchor != selection.caret)
+					{
 						return false;
+					}
 				}
 				return true;
 			}

@@ -569,17 +569,13 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void SetViSelection()
-		{
-			if (receiver != null)
-			{
-				receiver.SetViMode(ViMode.Visual);
-			}
-		}
-
 		protected override void OnGotFocus(EventArgs e)
 		{
 			ViMode viMode = alwaysInputMode ? ViMode.Insert : macrosExecutor.viMode;
+			if (viMode == ViMode.Normal && controller != null && !controller.AllSelectionsEmpty)
+			{
+				viMode = ViMode.Visual;
+			}
 			if (receiver.ViMode != viMode)
 			{
 				receiver.SetViMode(viMode);

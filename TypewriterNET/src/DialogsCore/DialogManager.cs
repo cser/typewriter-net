@@ -580,7 +580,6 @@ public class DialogManager
 	{
 		if (mainForm.LastFrame != null)
 		{
-			mainForm.LastFrame.TextBox.SetViSelection();
 			Controller lastController = mainForm.LastFrame.Controller;
 			bool result = lastController.DialogsExtension.SelectAllFound(
 				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
@@ -594,7 +593,6 @@ public class DialogManager
 	{
 		if (mainForm.LastFrame != null)
 		{
-			mainForm.LastFrame.TextBox.SetViSelection();
 			Controller lastController = mainForm.LastFrame.Controller;
 			lastController.DialogsExtension.SelectNextFound(
 				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
@@ -607,7 +605,6 @@ public class DialogManager
 	{
 		if (mainForm.LastFrame != null)
 		{
-			mainForm.LastFrame.TextBox.SetViSelection();
 			Controller lastController = mainForm.LastFrame.Controller;
 			if (lastController != null)
 			{
