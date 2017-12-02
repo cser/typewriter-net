@@ -261,6 +261,7 @@ public class Frame : AFrame
 	private void OnChangedChange()
 	{
 		tabBar.Invalidate();
+		Nest.MainForm.UpdateTitle();
 	}
 
 	private KeyMap additionKeyMap;

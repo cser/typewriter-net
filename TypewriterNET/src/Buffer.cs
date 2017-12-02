@@ -49,6 +49,23 @@ public class Buffer
 		}
 	}
 	
+	public string ShowingFullPath
+	{
+		get
+		{
+			string path = FullPath;
+			if (Changed && settingsMode != SettingsMode.EditableNotFile)
+			{
+				path += "*";
+			}
+			else if (unsaved)
+			{
+				path += "\"";
+			}
+			return path;
+		}
+	}
+	
 	public virtual string ListShowingName { get { return ShowingName; } }
 	
 	public bool unsaved;
