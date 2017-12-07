@@ -90,7 +90,7 @@ public class MainForm : Form
 	public void UpdateTitle()
 	{
 		Buffer buffer = LastBuffer;
-		string name = buffer != null ? buffer.FullPath : null;
+		string name = buffer != null ? buffer.ShowingFullPath : null;
 		Text = Application.ProductName + (string.IsNullOrEmpty(name) ? "" : " - " + name);
 	}
 	

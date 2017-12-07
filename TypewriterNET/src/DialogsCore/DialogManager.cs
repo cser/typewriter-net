@@ -576,19 +576,78 @@ public class DialogManager
 		return true;
 	}
 	
+	private bool ViDoSelectAllFound(string text)
+	{
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			bool result = lastController.DialogsExtension.SelectAllFound(
+				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
+			return result;
+		}
+		return true;
+	}
+	
+	private bool ViDoSelectNextFound(string text)
+	{
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			lastController.DialogsExtension.SelectNextFound(
+				text, tempSettings.FindParams.regex, tempSettings.FindParams.ignoreCase);
+			ProcessAfterControllerExtension(lastController.DialogsExtension);
+		}
+		return true;
+	}
+	
+	private bool ViDoUnselectPrevText()
+	{
+		if (mainForm.LastFrame != null)
+		{
+			Controller lastController = mainForm.LastFrame.Controller;
+			if (lastController != null)
+			{
+				lastController.UnselectPrevText();
+				mainForm.LastFrame.TextBox.MoveToCaret();
+			}
+		}
+		return true;
+	}
+	
 	public bool DoOnViShortcut(Controller controller, string shortcut)
 	{
-		if (shortcut == "/" || shortcut == "?")
 		{
-			if (viFind.SwitchOpen())
-				viFind.Open(new ViFindDialog(findData, tempSettings.FindParams, ViDoFindText, shortcut == "?"), true);
-			return true;
-		}
-		if (shortcut == "C/" || shortcut == "C?")
-		{
-			if (viFind.SwitchOpen())
-				viFind.Open(new ViFindDialog(findData, new FindParams(), ViDoFindText, shortcut == "C?"), true);
-			return true;
+			bool needFind = false;
+			FindParams findParams = null;
+			bool isBackward = false;
+			if (shortcut == "/" || shortcut == "?")
+			{
+				needFind = true;
+				findParams = tempSettings.FindParams;
+				isBackward = shortcut == "?";
+			}
+			else if (shortcut == "C/" || shortcut == "C?")
+			{
+				needFind = true;
+				findParams = new FindParams();
+				isBackward = shortcut == "C?";
+			}
+			if (needFind)
+			{
+				if (viFind.SwitchOpen())
+				{
+					viFind.Open(new ViFindDialog(
+						findData,
+						findParams,
+						ViDoFindText,
+						ViDoSelectAllFound,
+						ViDoSelectNextFound,
+						ViDoUnselectPrevText,
+						isBackward), true);
+				}
+				return true;
+			}
 		}
 		if (shortcut == ":")
 		{

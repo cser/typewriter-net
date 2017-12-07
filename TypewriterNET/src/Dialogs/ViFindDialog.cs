@@ -15,16 +15,28 @@ public class ViFindDialog : ADialog
 	private FindDialog.Data data;
 	private FindParams findParams;
 	private Getter<string, Pattern, bool, bool> doFind;
+	private readonly Getter<string, bool> doSelectAllFound;
+	private readonly Getter<string, bool> doSelectNextFound;
+	private readonly Getter<bool> doUnselectPrevText;
 	private TabBar<NamedAction> tabBar;
 	private MulticaretTextBox textBox;
 	private readonly bool isBackward;
 
 	public ViFindDialog(
-		FindDialog.Data data, FindParams findParams, Getter<string, Pattern, bool, bool> doFind, bool isBackward)
+		FindDialog.Data data,
+		FindParams findParams,
+		Getter<string, Pattern, bool, bool> doFind,
+		Getter<string, bool> doSelectAllFound,
+		Getter<string, bool> doSelectNextFound,
+		Getter<bool> doUnselectPrevText,
+		bool isBackward)
 	{
 		this.data = data;
 		this.findParams = findParams;
 		this.doFind = doFind;
+		this.doSelectAllFound = doSelectAllFound;
+		this.doSelectNextFound = doSelectNextFound;
+		this.doUnselectPrevText = doUnselectPrevText;
 		this.isBackward = isBackward;
 		Name = "Find";
 	}
@@ -58,9 +70,19 @@ public class ViFindDialog : ADialog
 			new KeyAction("F&ind\\Switch ignore case", DoSwitchIgnoreCase, null, false)
 			.SetGetText(GetFindIgnoreCase)));
 		
-		KeyMap beforeKeyMap = new KeyMap();
+		KeyMapBuilder beforeKeyMap = new KeyMapBuilder(new KeyMap(), list);
+		if (doSelectAllFound != null)
+		{
+			beforeKeyMap.AddInList(Keys.Control | Keys.D, null,
+				new KeyAction("F&ind\\Select next found", DoSelectNextFound, null, false));
+			beforeKeyMap.AddInList(Keys.Control | Keys.Shift | Keys.D, null,
+				new KeyAction("F&ind\\Select all found", DoSelectAllFound, null, false));
+			beforeKeyMap.Add(Keys.Control | Keys.K, null,
+				new KeyAction("F&ind\\Unselect prev text", DoUnselectPrevText, null, false));
+		}
+		
 		textBox = new MulticaretTextBox(true);
-		textBox.KeyMap.AddBefore(beforeKeyMap);
+		textBox.KeyMap.AddBefore(beforeKeyMap.map);
 		textBox.KeyMap.AddAfter(KeyMap);
 		textBox.KeyMap.AddAfter(frameKeyMap, 1);
 		textBox.KeyMap.AddAfter(DoNothingKeyMap, -1);
@@ -232,5 +254,30 @@ public class ViFindDialog : ADialog
 	private string GetFindIgnoreCase()
 	{
 		return findParams.ignoreCase ? " (on)" : " (off)";
+	}
+	
+	private bool DoSelectAllFound(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		if (doSelectAllFound(text))
+			DispatchNeedClose();
+		return true;
+	}
+	
+	private bool DoSelectNextFound(Controller controller)
+	{
+		string text = textBox.Text;
+		if (data.history != null)
+			data.history.Add(text);
+		doSelectNextFound(text);
+		return true;
+	}
+	
+	private bool DoUnselectPrevText(Controller controller)
+	{
+		doUnselectPrevText();
+		return true;
 	}
 }
