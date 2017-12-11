@@ -554,7 +554,7 @@ public class Commander
 		TextTable table = new TextTable().SetMaxColWidth(46);
 		table.Add("Command").Add("Arguments").Add("Description");
 		table.AddLine();
-		table.Add("!command").Add("*").Add("Run shell command").NewRow();
+		table.Add("!command").Add("*").Add("Run shell command (use \"\" if path has spaces)").NewRow();
 		table.Add("!{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
 		table.Add("!^command").Add("*").Add("Run shell command, stay output up").NewRow();
 		table.Add("!^{s:syntax;e:encoding}command").Add("*").Add("Run with custom syntax/encoding").NewRow();
