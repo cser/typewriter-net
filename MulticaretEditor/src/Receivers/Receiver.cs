@@ -29,24 +29,24 @@ namespace MulticaretEditor
 			this.alwaysInputMode = alwaysInputMode;
 			
 			context = new Context(this);
-			ProcessSetViMode(viMode);
+			ProcessSetViMode(viMode, false);
 		}
 		
 		public bool IsIdle { get { return state == null || state.IsIdle; } }
 		
-		public void SetViMode(ViMode value)
+		public void SetViMode(ViMode value, bool allowSelection)
 		{
 			if (viMode != value)
 			{
-				ProcessSetViMode(value);
+				ProcessSetViMode(value, allowSelection);
 			}
 		}
 		
-		private void ProcessSetViMode(ViMode value)
+		private void ProcessSetViMode(ViMode value, bool allowSelection)
 		{
 			if (value == ViMode.Normal)
 			{
-				context.SetState(new ViReceiver(null, false));
+				context.SetState(new ViReceiver(null, false, allowSelection));
 			}
 			else if (value == ViMode.Visual)
 			{

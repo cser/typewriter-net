@@ -11,11 +11,13 @@ namespace MulticaretEditor
 		
 		private ViReceiverData startData;
 		private bool offsetOnStart;
+		private bool allowSelection;
 		
-		public ViReceiver(ViReceiverData startData, bool offsetOnStart)
+		public ViReceiver(ViReceiverData startData, bool offsetOnStart, bool allowSelection)
 		{
 			this.startData = startData;
 			this.offsetOnStart = offsetOnStart;
+			this.allowSelection = allowSelection;
 		}
 		
 		public override bool AltMode { get { return true; } }
@@ -30,9 +32,12 @@ namespace MulticaretEditor
 			{
 				controller.macrosExecutor.lastCommand.startData = startData;
 			}
-			foreach (Selection selection in controller.Selections)
+			if (!allowSelection)
 			{
-				selection.SetEmpty();
+				foreach (Selection selection in controller.Selections)
+				{
+					selection.SetEmpty();
+				}
 			}
 			if (startData != null)
 			{
@@ -511,7 +516,7 @@ namespace MulticaretEditor
 										if (lastCommand.startData != null)
 										{
 											lastCommand.startData.forcedInput = true;
-											context.SetState(new ViReceiver(lastCommand.startData, true));
+											context.SetState(new ViReceiver(lastCommand.startData, true, false));
 										}
 									}
 								}

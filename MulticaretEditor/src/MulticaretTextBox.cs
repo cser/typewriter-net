@@ -565,20 +565,16 @@ namespace MulticaretEditor
 		{
 			if (receiver != null)
 			{
-				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
+				receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert, false);
 			}
 		}
 		
 		protected override void OnGotFocus(EventArgs e)
 		{
 			ViMode viMode = alwaysInputMode ? ViMode.Insert : macrosExecutor.viMode;
-			if (viMode == ViMode.Normal && controller != null && !controller.AllSelectionsEmpty)
-			{
-				viMode = ViMode.Visual;
-			}
 			if (receiver.ViMode != viMode)
 			{
-				receiver.SetViMode(viMode);
+				receiver.SetViMode(viMode, true);
 			}
 			UnblinkCursor();
 			base.OnGotFocus(e);
@@ -2316,7 +2312,7 @@ namespace MulticaretEditor
 					}
 					if (!controller.AllSelectionsEmpty)
 					{
-						receiver.SetViMode(ViMode.Visual);
+						receiver.SetViMode(ViMode.Visual, false);
 					}
 					return;
 				}
@@ -2324,7 +2320,7 @@ namespace MulticaretEditor
 				{
 					if (controller.SelectionsCount == 1 && !moving)
 					{
-						receiver.SetViMode(ViMode.Normal);
+						receiver.SetViMode(ViMode.Normal, false);
 						controller.PutCursor(place, moving);
 						controller.ViFixPositions(true);
 						return;
@@ -2332,7 +2328,7 @@ namespace MulticaretEditor
 					controller.PutCursor(place, moving);
 					if (controller.AllSelectionsEmpty)
 					{
-						receiver.SetViMode(ViMode.Normal);
+						receiver.SetViMode(ViMode.Normal, false);
 						return;
 					}
 				}
@@ -2347,7 +2343,7 @@ namespace MulticaretEditor
 			{
 				if (receiver.ViMode == ViMode.Normal && !controller.AllSelectionsEmpty)
 				{
-					receiver.SetViMode(ViMode.Visual);
+					receiver.SetViMode(ViMode.Visual, false);
 				}
 			}
 		}

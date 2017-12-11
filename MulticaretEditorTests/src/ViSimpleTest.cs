@@ -12,7 +12,7 @@ namespace UnitTests
 		
 		private void SetViMode(bool viMode)
 		{
-			receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert);
+			receiver.SetViMode(viMode ? ViMode.Normal : ViMode.Insert, false);
 			Assert.AreEqual(viMode ? ViMode.Normal : ViMode.Insert, receiver.ViMode);
 		}
 		

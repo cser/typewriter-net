@@ -110,7 +110,7 @@ namespace MulticaretEditor
 						{
 							controller.PutCursor(GetPlace(position), false);
 							controller.ViAddHistoryPosition(true);
-							context.SetState(new ViReceiver(null, false));
+							context.SetState(new ViReceiver(null, false, false));
 							scrollToCursor = true;
 						}
 						else if (mode == Mode.Selection)
@@ -131,7 +131,7 @@ namespace MulticaretEditor
 						{
 							controller.PutNewCursor(GetPlace(position));
 							controller.ViAddHistoryPosition(true);
-							context.SetState(new ViReceiver(null, false));
+							context.SetState(new ViReceiver(null, false, false));
 							scrollToCursor = true;
 						}
 						hasStartsWith = true;
@@ -144,7 +144,7 @@ namespace MulticaretEditor
 				}
 				if (!hasStartsWith)
 				{
-					context.SetState(new ViReceiver(null, false));
+					context.SetState(new ViReceiver(null, false, false));
 				}
 			}
 		}

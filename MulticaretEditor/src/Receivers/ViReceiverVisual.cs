@@ -248,14 +248,14 @@ namespace MulticaretEditor
 						controller.ViStoreSelections();
 						controller.ChangeCase(false);
 						controller.MoveLeft(false);
-						context.SetState(new ViReceiver(null, false));
+						context.SetState(new ViReceiver(null, false, false));
 						count = 1;
 						break;
 					case 'U':
 						controller.ViStoreSelections();
 						controller.ChangeCase(true);
 						controller.MoveLeft(false);
-						context.SetState(new ViReceiver(null, false));
+						context.SetState(new ViReceiver(null, false, false));
 						count = 1;
 						break;
 					case 'r':
@@ -507,7 +507,7 @@ namespace MulticaretEditor
 					selection.SetEmpty();
 				}
 			}
-			context.SetState(new ViReceiver(null, false));
+			context.SetState(new ViReceiver(null, false, false));
 		}
 		
 		public override bool DoFind(Pattern pattern, bool isBackward)

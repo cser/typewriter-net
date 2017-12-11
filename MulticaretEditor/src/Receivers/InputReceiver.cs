@@ -27,7 +27,7 @@ namespace MulticaretEditor
 			{
 				ViReceiverData viData = this.viData;
 				this.viData = null;
-				context.SetState(new ViReceiver(viData, true));
+				context.SetState(new ViReceiver(viData, true, false));
 				return true;
 			}
 			return false;
