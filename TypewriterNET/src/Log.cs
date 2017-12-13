@@ -4,9 +4,9 @@ public class Log
 {
 	public static Log DebugLogger;
 	
-	private MainForm mainForm;
-	private Buffer buffer;
-	private Nest consoleNest;
+	private readonly MainForm mainForm;
+	private readonly Buffer buffer;
+	private readonly Nest consoleNest;
 
 	public Log(MainForm mainForm, Nest consoleNest)
 	{

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
 using System.Text;
-using System.Diagnostics;
 using Microsoft.Win32;
 using CustomScrollBar;
 
@@ -816,19 +813,19 @@ namespace MulticaretEditor
 					count = 1;
 				}
 				lines.UpdateHighlight(start, count);
-				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				DrawSelections_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, symbolic);
 				if (!symbolic)
 				{
-					DrawMatches_WordWrap(leftIndent, start, end, g, lineMin, lineMax, offsetX, offsetY, clientWidth, clientHeight);
+					DrawMatches_WordWrap(start, end, g, lineMin, lineMax, offsetX, offsetY);
 				}
 			}
 			else
 			{
 				lines.UpdateHighlight(start, end - start);
-				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight, symbolic);
+				DrawSelections_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, symbolic);
 				if (!symbolic)
 				{
-					DrawMatches_Fixed(leftIndent, start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY, clientWidth, clientHeight);
+					DrawMatches_Fixed(start, end, g, lineMin.iLine, lineMax.iLine, offsetX, offsetY);
 				}
 			}
 			if (lines.markedBracket)
@@ -1024,7 +1021,7 @@ namespace MulticaretEditor
 		private void DrawSelections_Fixed(
 			int leftIndent,
 			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY,
-			int clientWidth, int clientHeight, bool symbolic)
+			int clientWidth, bool symbolic)
 		{
 			if (!symbolic &&
 				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
@@ -1107,7 +1104,7 @@ namespace MulticaretEditor
 
 		private void DrawSelections_WordWrap(
 			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight, bool symbolic)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, bool symbolic)
 		{
 			if (!symbolic &&
 				lines.LastSelection.caret >= start && lines.LastSelection.caret <= end && highlightCurrentLine)
@@ -1256,8 +1253,7 @@ namespace MulticaretEditor
 		private MatchesRenderer matchesRenderer;
 		
 		private void DrawMatches_WordWrap(
-			int leftIndent,
-			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY, int clientWidth, int clientHeight)
+			int start, int end, Graphics g, LineIndex iLineMin, LineIndex iLineMax, int offsetX, int offsetY)
 		{
 			if (lines.matches.Count == 0)
 			{
@@ -1357,9 +1353,7 @@ namespace MulticaretEditor
 		}
 		
 		private void DrawMatches_Fixed(
-			int leftIndent,
-			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY,
-			int clientWidth, int clientHeight)
+			int start, int end, Graphics g, int iLineMin, int iLineMax, int offsetX, int offsetY)
 		{
 			if (lines.matches.Count == 0)
 			{

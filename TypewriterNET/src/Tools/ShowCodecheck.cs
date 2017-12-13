@@ -1,8 +1,6 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MulticaretEditor;
@@ -32,7 +30,7 @@ public class ShowCodecheck
 		this.name = name;
 	}
 
-	public string Execute(List<Codecheck> codechecks, string word)
+	public string Execute(List<Codecheck> codechecks)
 	{
 		positions = new List<Position>();
 		StringBuilder builder = new StringBuilder();

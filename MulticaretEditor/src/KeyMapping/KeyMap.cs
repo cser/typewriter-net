@@ -51,7 +51,9 @@ namespace MulticaretEditor
 				else
 				{
 					KeyItem lastItem = prevItem;
-					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next);
+					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next)
+					{
+					}
 					if (lastItem != null)
 						lastItem.next = item;
 					else
@@ -79,7 +81,9 @@ namespace MulticaretEditor
 				else
 				{
 					KeyItem lastItem = doubleClickItem;
-					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next);
+					for (; lastItem != null && lastItem.next != null; lastItem = lastItem.next)
+					{
+					}
 					if (lastItem != null)
 						lastItem.next = item;
 					else

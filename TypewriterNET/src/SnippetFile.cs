@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-using System.Diagnostics;
 using MulticaretEditor;
 
 public class SnippetFile
@@ -70,6 +66,6 @@ public class SnippetFile
 		}
 	}
 	
-	private List<SnippetAtom> _atoms = new List<SnippetAtom>();
+	private readonly List<SnippetAtom> _atoms = new List<SnippetAtom>();
 	public IEnumerable<SnippetAtom> Atoms { get { return _atoms; } }
 }

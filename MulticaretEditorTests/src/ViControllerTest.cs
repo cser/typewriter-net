@@ -62,35 +62,35 @@ namespace UnitTests
 				"abcd  ,.;.;.asdf234234");
 			
 			controller.PutCursor(new Place(8, 2), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(3, 2);
 			
 			controller.PutCursor(new Place(9, 2), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(8, 2);
 			
 			controller.PutCursor(new Place(10, 3), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(4, 3);
 
 			controller.PutCursor(new Place(6, 3), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(4, 3);
 			
 			controller.PutCursor(new Place(6, 5), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(0, 5);
 			
 			controller.PutCursor(new Place(5, 5), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(0, 5);
 			
 			controller.PutCursor(new Place(5, 11), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(0, 5);
 			
 			controller.PutCursor(new Place(12, 4), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(11, 4);
 		}
 		
@@ -121,11 +121,11 @@ namespace UnitTests
 			AssertSelection().Both(0, 1);
 			
 			controller.PutCursor(new Place(0, 1), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(7, 0);
 			
 			controller.PutCursor(new Place(0, 2), false);
-			controller.ViMove_b(false, false);
+			controller.ViMove_b(false);
 			AssertSelection().Both(8, 1);
 		}
 	}

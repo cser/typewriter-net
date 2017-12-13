@@ -141,7 +141,7 @@ public static class Help
 		return buffer;
 	}
 	
-	public static Buffer NewViHelpBuffer(Settings settings, Commander commander)
+	public static Buffer NewViHelpBuffer(Settings settings)
 	{
 		List<StyleRange> ranges = new List<StyleRange>();
 		StringBuilder builder = new StringBuilder();

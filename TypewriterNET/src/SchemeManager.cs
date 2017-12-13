@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
-using System.Diagnostics;
 using MulticaretEditor;
 
 public class SchemeManager
@@ -36,7 +34,7 @@ public class SchemeManager
 		return schemes.ToArray();
 	}
 
-	private XmlLoader xmlLoader;
+	private readonly XmlLoader xmlLoader;
 
 	public SchemeManager(XmlLoader xmlLoader)
 	{

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Diagnostics;
 using MulticaretEditor;
 
 public class SyntaxIncrementalSearch : IncrementalSearchBase

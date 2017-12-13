@@ -15,7 +15,7 @@ namespace MulticaretEditor
 		{
 			try
 			{
-				if (text != null && text != "")
+				if (!string.IsNullOrEmpty(text))
 					Clipboard.SetText(text);
 			}
 			catch (ExternalException)
@@ -30,12 +30,12 @@ namespace MulticaretEditor
 		}
 		
 		private const int RegistersCount = 28;
-		private static bool useFake = false;
+		private static bool useFake;
 		private static string fakeText = "";
 		private static string[] registers = new string[RegistersCount];
 		
 		public static string viLastCommand = "";
-		public static bool fakeLayout = false;
+		public static bool fakeLayout;
 		public static bool fakeEnLayout = true;
 		public static List<char> viLastInputChars;
 		
@@ -108,7 +108,7 @@ namespace MulticaretEditor
 					}
 					try
 					{
-						System.TimeSpan span = new System.TimeSpan(0, 0, 0, 0, 200);
+						TimeSpan span = new TimeSpan(0, 0, 0, 0, 200);
 						CharsRegularExpressions.RegexOptions options = CharsRegularExpressions.RegexOptions.None;
 						if (text.Length < 50)
 						{

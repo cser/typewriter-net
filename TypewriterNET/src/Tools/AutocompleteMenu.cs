@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using MulticaretEditor;
 using Microsoft.Win32;
@@ -140,7 +139,7 @@ public class AutocompleteMenu : ToolStripDropDown
 	
 	private static SizeF GetCharSize(Font font, char c)
 	{
-		Size sz2 = TextRenderer.MeasureText("<" + c.ToString() + ">", font);
+		Size sz2 = TextRenderer.MeasureText("<" + c + ">", font);
 		Size sz3 = TextRenderer.MeasureText("<>", font);
 		return new SizeF(sz2.Width - sz3.Width + 1, font.Height);
 	}
@@ -174,7 +173,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
 		host.Size = hasSize ? new Size(width + BorderWidth * 2, height + BorderWidth * 2) : Size.Empty;
 		Invalidate();
-		control.SetLogicSize(maxLength, visibleLinesCount, width, height, scrollBarVisible);
+		control.SetLogicSize(width, height, scrollBarVisible);
 		control.Invalidate();
 		UpdateScreenPosition();
 	}
@@ -240,7 +239,7 @@ public class AutocompleteMenu : ToolStripDropDown
 		private int width;
 		private int height;
 		
-		public void SetLogicSize(int columns, int lines, int width, int height, bool scrollBarVisible)
+		public void SetLogicSize(int width, int height, bool scrollBarVisible)
 		{
 			this.width = width;
 			this.height = height;

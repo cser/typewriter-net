@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Text;
 
 public class ConfigParser
 {
-	private Settings settings;
+	private readonly Settings settings;
 
 	public ConfigParser(Settings settings)
 	{

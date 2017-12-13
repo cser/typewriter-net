@@ -1,15 +1,13 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MulticaretEditor;
 
 public class ShowUsages
 {
-	private MainForm mainForm;
+	private readonly MainForm mainForm;
 	private List<Position> positions;
 	private Buffer buffer;
 

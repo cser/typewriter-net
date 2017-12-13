@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using MulticaretEditor;
 
-public partial class AlertForm : Form
+public class AlertForm : Form
 {
 	private Getter<bool> onCanceled;
 	private MainForm mainForm;

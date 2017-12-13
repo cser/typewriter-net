@@ -1,8 +1,3 @@
-using System;
-using System.Windows.Forms;
-using System.Collections.Generic;
-using MulticaretEditor;
-
 namespace MulticaretEditor
 {
 	public static class ViMoves
@@ -87,7 +82,7 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMove_b(shift, mode == MoveMode.Change);
+						controller.ViMove_b(shift);
 						if (mode != MoveMode.Change)
 						{
 							controller.ViFixPositions(true);
@@ -120,7 +115,7 @@ namespace MulticaretEditor
 				switch (direction)
 				{
 					case Direction.Left:
-						controller.ViMove_B(shift, mode == MoveMode.Change);
+						controller.ViMove_B(shift);
 						break;
 					case Direction.Right:
 						controller.ViMove_W(shift, mode == MoveMode.Change);
@@ -134,9 +129,9 @@ namespace MulticaretEditor
 			private bool isLines;
 			public bool IsDCLines { get { return isLines; } }
 			
-			private char o;
-			private bool inside;
-			private int count;
+			private readonly char o;
+			private readonly bool inside;
+			private readonly int count;
 			
 			public MoveObject(char o, bool inside, int count)
 			{
@@ -150,34 +145,34 @@ namespace MulticaretEditor
 				switch (o)
 				{
 					case 'w':
-						controller.ViMoveInWord(shift, inside);
+						controller.ViMoveInWord(inside);
 						break;
 					case 'W':
-						controller.ViMoveInBigWord(shift, inside);
+						controller.ViMoveInBigWord(inside);
 						break;
 					case '{':
 					case '}':
-						controller.ViMoveInBrackets(shift, inside, '{', '}', count);
-						isLines |= controller.ViTryConvertToLines('{', '}', inside);
+						controller.ViMoveInBrackets(inside, '{', '}', count);
+						isLines |= controller.ViTryConvertToLines(inside);
 						break;
 					case '(':
 					case ')':
-						controller.ViMoveInBrackets(shift, inside, '(', ')', count);
-						isLines |= controller.ViTryConvertToLines('(', ')', inside);
+						controller.ViMoveInBrackets(inside, '(', ')', count);
+						isLines |= controller.ViTryConvertToLines(inside);
 						break;
 					case '[':
 					case ']':
-						controller.ViMoveInBrackets(shift, inside, '[', ']', count);
-						isLines |= controller.ViTryConvertToLines('[', ']', inside);
+						controller.ViMoveInBrackets(inside, '[', ']', count);
+						isLines |= controller.ViTryConvertToLines(inside);
 						break;
 					case '<':
 					case '>':
-						controller.ViMoveInBrackets(shift, inside, '<', '>', count);
-						isLines |= controller.ViTryConvertToLines('<', '>', inside);
+						controller.ViMoveInBrackets(inside, '<', '>', count);
+						isLines |= controller.ViTryConvertToLines(inside);
 						break;
 					case '"':
 					case '\'':
-						controller.ViMoveInQuotes(shift, inside, o);
+						controller.ViMoveInQuotes(inside, o);
 						break;
 				}
 			}
@@ -231,9 +226,9 @@ namespace MulticaretEditor
 		{
 			public bool IsDCLines { get { return false; } }
 			
-			private char type;
-			private char charToFind;
-			private int count;
+			private readonly char type;
+			private readonly char charToFind;
+			private readonly int count;
 			
 			public Find(char type, char charToFind, int count)
 			{
@@ -290,8 +285,8 @@ namespace MulticaretEditor
 				return controller.GetBookmark(charToJump);
 			}
 			
-			private char type;
-			private char charToJump;
+			private readonly char type;
+			private readonly char charToJump;
 			
 			public JumpBookmark(char type, char charToJump)
 			{
@@ -369,7 +364,7 @@ namespace MulticaretEditor
 		{
 			public bool IsDCLines { get { return false; } }
 			
-			private bool indented;
+			private readonly bool indented;
 			
 			public Home(bool indented)
 			{
@@ -387,7 +382,7 @@ namespace MulticaretEditor
 		{
 			public bool IsDCLines { get { return false; } }
 			
-			private int count;
+			private readonly int count;
 			
 			public End(int count)
 			{
@@ -434,7 +429,7 @@ namespace MulticaretEditor
 		{
 			public bool IsDCLines { get { return false; } }
 			
-			private int count;
+			private readonly int count;
 			
 			public GoToLine(int count)
 			{
@@ -451,7 +446,7 @@ namespace MulticaretEditor
 		{
 			public bool IsDCLines { get { return false; } }
 			
-			private bool isUp;
+			private readonly bool isUp;
 			
 			public PageUpDown(bool isUp)
 			{

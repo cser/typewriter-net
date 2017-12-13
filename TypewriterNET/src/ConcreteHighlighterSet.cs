@@ -1,14 +1,11 @@
 using System;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
 using System.Xml;
 using MulticaretEditor;
 
 public class ConcreteHighlighterSet : HighlighterSet
 {
-	private MainForm mainForm;
-	private XmlLoader xmlLoader;
+	private readonly MainForm mainForm;
+	private readonly XmlLoader xmlLoader;
 	private Log log;
 	private SyntaxFilesScanner scanner;
 	

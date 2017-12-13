@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Globalization;
 using MulticaretEditor;
 
-public class Properties
+public static class Properties
 {
 	public static void AddHeadTo(TextTable table)
 	{
@@ -73,7 +72,7 @@ public class Properties
 			return null;
 		}
 
-		public void GetHelpText(Settings settings, TextTable table)
+		public void GetHelpText(TextTable table)
 		{
 			string temp = "";
 			if (AllowTemp)

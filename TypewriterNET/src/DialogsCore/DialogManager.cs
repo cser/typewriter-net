@@ -1,16 +1,7 @@
 using System;
-using System.Globalization;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Drawing;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.IO;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Resources;
-using System.Xml;
 using MulticaretEditor;
 
 public class DialogManager
@@ -89,9 +80,9 @@ public class DialogManager
 		}
 	}
 
-	private MainForm mainForm;
-	private TempSettings tempSettings;
-	private FrameList frames;
+	private readonly MainForm mainForm;
+	private readonly TempSettings tempSettings;
+	private readonly FrameList frames;
 	private List<Getter<bool, bool>> closeMethods;
 
 	private DialogOwner<InfoDialog> info;
@@ -107,8 +98,8 @@ public class DialogManager
 	private DialogOwner<CommandDialog> command;
 	private CommandDialog.Data commandData = new CommandDialog.Data();
 	private DialogOwner<FindDialog> find;
-	private DialogOwner<ViFindDialog> viFind;
-	private FindDialog.Data findData;
+	private readonly DialogOwner<ViFindDialog> viFind;
+	private readonly FindDialog.Data findData;
 	private DialogOwner<FindInFilesDialog> findInFiles;
 	private FindInFilesDialog.Data findInFilesData;
 	private DialogOwner<ReplaceDialog> replace;

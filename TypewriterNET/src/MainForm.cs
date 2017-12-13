@@ -1,13 +1,10 @@
 using System;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Resources;
 using System.Xml;
@@ -408,7 +405,7 @@ public class MainForm : Form
         }
     }
 
-	private int openFileLine = 0;
+	private int openFileLine;
 
 	private void ApplyArgs(string[] args, out List<FileArg> filesToLoad, out int lineNumber, out string tempFilePostfix, out string configFilePostfix)
 	{
@@ -520,7 +517,7 @@ public class MainForm : Form
 		return true;
 	}
 
-	private bool activationInProcess = false;
+	private bool activationInProcess;
 
 	private void OnActivated(object sender, EventArgs e)
 	{
@@ -673,7 +670,7 @@ public class MainForm : Form
 		CloseOldBuffers();
 	}
 
-	private bool forbidTempSaving = false;
+	private bool forbidTempSaving;
 
 	private void OnFormClosing(object sender, FormClosingEventArgs e)
 	{
@@ -723,7 +720,6 @@ public class MainForm : Form
 	public void SetFocus(MulticaretTextBox textBox, KeyMapNode node, Frame frame)
 	{
 		focusedTextBox = textBox;
-		string currentFile = null;
 		menu.node = node;
 		if (frame != null)
 		{
@@ -731,10 +727,6 @@ public class MainForm : Form
 			if (frame.SelectedBuffer != null && (frame.SelectedBuffer.tags & BufferTag.File) != 0)
 			{
 				lastFileBuffer = frame.SelectedBuffer;
-				if (lastFileBuffer != null)
-				{
-					currentFile = lastFileBuffer.FullPath;
-				}
 			}
 		}
 		UpdateTitle();
@@ -746,7 +738,7 @@ public class MainForm : Form
 	private Ctags ctags;
 	public Ctags Ctags { get { return ctags; } }
 	
-	private bool allowApply = false;
+	private bool allowApply;
 	
 	private void ApplySettings()
 	{
@@ -1760,14 +1752,7 @@ public class MainForm : Form
 	
 	private bool DoSwitchWindowMode(Controller controller)
 	{
-		if (WindowState == FormWindowState.Normal)
-		{
-			WindowState = FormWindowState.Maximized;
-		}
-		else
-		{
-			WindowState = FormWindowState.Normal;
-		}
+		WindowState = WindowState == FormWindowState.Normal ? FormWindowState.Maximized : FormWindowState.Normal;
 		return true;
 	}
 	
@@ -1982,7 +1967,7 @@ public class MainForm : Form
 	private bool DoOpenAppDataFolder(Controller controller)
 	{
 		CreateAppDataFolders();
-		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		Process process = new Process();
 		process.StartInfo.FileName = AppPath.AppDataDir;
 		process.Start();
 		return true;
@@ -1990,7 +1975,7 @@ public class MainForm : Form
 
 	private bool DoOpenStartupFolder(Controller controller)
 	{
-		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		Process process = new Process();
 		process.StartInfo.FileName = AppPath.StartupDir;
 		process.Start();
 		return true;
@@ -1998,7 +1983,7 @@ public class MainForm : Form
 
 	private bool DoOpenCurrentFolder(Controller controller)
 	{
-		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		Process process = new Process();
 		process.StartInfo.FileName = Directory.GetCurrentDirectory();
 		process.Start();
 		return true;
@@ -2229,7 +2214,7 @@ public class MainForm : Form
 	{
 		if (_viHelpBuffer == null || _viHelpBuffer.Frame == null)
 		{
-			_viHelpBuffer = Help.NewViHelpBuffer(settings, commander);
+			_viHelpBuffer = Help.NewViHelpBuffer(settings);
 			_viHelpBuffer.onRemove = OnViHelpBufferRemove;
 			if (tempSettings.viHelpPosition < 0)
 				tempSettings.viHelpPosition = 0;
@@ -2382,7 +2367,7 @@ public class MainForm : Form
 		}
 	}
 
-	private bool hasCurrentConfig = false;
+	private bool hasCurrentConfig;
 	
 	private void ReloadConfigOnly()
 	{

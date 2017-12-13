@@ -1,22 +1,17 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Text;
-using System.Diagnostics;
-using Microsoft.Win32;
 using MulticaretEditor;
 
 public class RenameDialog : ADialog
 {
-	private Getter<string, bool> doInput;
-	private List<bool> isDirectory;
+	private readonly Getter<string, bool> doInput;
+	private readonly List<bool> isDirectory;
+	private readonly string text;
+	
 	private TabBar<string> tabBar;
 	private MulticaretTextBox textBox;
-	private string text;
 	private bool startViMode;
 
 	public RenameDialog(Getter<string, bool> doInput, string name, string text, List<bool> isDirectory)

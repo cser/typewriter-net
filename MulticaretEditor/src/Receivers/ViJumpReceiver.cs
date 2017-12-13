@@ -1,7 +1,5 @@
 using System;
 using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using MulticaretEditor;
@@ -137,7 +135,7 @@ namespace MulticaretEditor
 						hasStartsWith = true;
 						break;
 					}
-					else if (position.text.StartsWith(text))
+					if (position.text.StartsWith(text))
 					{
 						hasStartsWith = true;
 					}

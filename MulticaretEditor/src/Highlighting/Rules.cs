@@ -334,9 +334,9 @@ namespace MulticaretEditor
 		
 		public class WordDetect : Rule
 		{
-			private bool insensitive;
-			private string pattern;
-			private string upperPattern;
+			private readonly bool insensitive;
+			private readonly string pattern;
+			private readonly string upperPattern;
 			
 			public WordDetect(string pattern, bool insensitive)
 			{

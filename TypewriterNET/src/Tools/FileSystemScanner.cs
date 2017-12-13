@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MulticaretEditor;
-using System.Threading;
 
 public class FileSystemScanner
 {

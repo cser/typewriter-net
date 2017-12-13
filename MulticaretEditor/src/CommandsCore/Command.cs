@@ -25,7 +25,7 @@ namespace MulticaretEditor
 		abstract public void Undo();
 		
 		public CommandTag tag;
-		public bool marked = false;
+		public bool marked;
 		
 		protected SelectionMemento[] GetSelectionMementos()
 		{

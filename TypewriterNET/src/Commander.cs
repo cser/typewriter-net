@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Text;
 using System.Threading;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
-using System.Windows.Forms;
 using MulticaretEditor;
 using TinyJSON;
 
@@ -1086,15 +1083,15 @@ public class Commander
 	
 	public void DoCodeckeck(string text)
 	{
-		ProcessCodeckeck(text, "Code check results", "/codecheck", "QuickFixes");
+		ProcessCodeckeck("Code check results", "/codecheck", "QuickFixes");
 	}
 	
 	public void DoSyntaxErrors(string text)
 	{
-		ProcessCodeckeck(text, "Syntax errors", "/syntaxerrors", "Errors");
+		ProcessCodeckeck("Syntax errors", "/syntaxerrors", "Errors");
 	}
 	
-	public void ProcessCodeckeck(string text, string name, string uri, string fieldName)
+	public void ProcessCodeckeck(string name, string uri, string fieldName)
 	{
 		if (!mainForm.SharpManager.Started)
 		{
@@ -1169,12 +1166,12 @@ public class Commander
 				mainForm.Dialogs.ShowInfo(name, "No tips");
 				return;
 			}
-			else if (uri == "/syntaxerrors" && node.Count == 0)
+			if (uri == "/syntaxerrors" && node.Count == 0)
 			{
 				mainForm.Dialogs.ShowInfo(name, "No errors");
 				return;
 			}
-			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks, word);
+			string errors = new ShowCodecheck(mainForm, name).Execute(codechecks);
 			if (errors != null)
 				mainForm.Dialogs.ShowInfo(name, errors);
 		}

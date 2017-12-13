@@ -4,7 +4,7 @@ using System.Text;
 
 public class TextTable
 {
-	private List<List<string>> rows = new List<List<string>>();
+	private readonly List<List<string>> rows = new List<List<string>>();
 
 	public TextTable()
 	{

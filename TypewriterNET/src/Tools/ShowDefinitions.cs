@@ -1,6 +1,4 @@
 using System;
-using System.Globalization;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using MulticaretEditor;
 
 public class ShowDefinitions
 {
-	private MainForm mainForm;
+	private readonly MainForm mainForm;
 	private List<Ctags.Node> positions;
 	private Buffer buffer;
 

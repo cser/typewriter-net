@@ -488,8 +488,7 @@ namespace MulticaretEditor
 					case '.':
 						if (controller.macrosExecutor != null && controller.macrosExecutor.lastCommand != null)
 						{	
-							ViCommandParser.LastCommand lastCommand = null;
-							lastCommand = controller.macrosExecutor.lastCommand;
+							ViCommandParser.LastCommand lastCommand = controller.macrosExecutor.lastCommand;
 							controller.macrosExecutor.lastCommand = null;
 							try
 							{

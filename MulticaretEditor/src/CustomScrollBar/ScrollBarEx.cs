@@ -1,9 +1,7 @@
 ﻿namespace CustomScrollBar
 {
 	using System;
-	using System.ComponentModel;
 	using System.Drawing;
-	using System.Runtime.InteropServices;
 	using System.Windows.Forms;
 	using MulticaretEditor;
 
@@ -143,7 +141,7 @@
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-			ScrollBarExRenderer.DrawBackground(e.Graphics, scheme, ClientRectangle, isVertical);
+			ScrollBarExRenderer.DrawBackground(e.Graphics, scheme, ClientRectangle);
 			ScrollBarExRenderer.DrawThumb(e.Graphics, scheme, thumbRectangle, thumbState, isVertical);
 			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, topArrowRectangle, topButtonState, true, isVertical);
 			ScrollBarExRenderer.DrawArrowButton(e.Graphics, scheme, bottomArrowRectangle, bottomButtonState, false, isVertical);

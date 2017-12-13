@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using MulticaretEditor;
-using System.Threading;
 using System.Collections.Specialized;
 
 public class FileTree

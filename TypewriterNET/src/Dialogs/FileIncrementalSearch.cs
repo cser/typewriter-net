@@ -1,16 +1,8 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
-using Microsoft.Win32;
-using MulticaretEditor;
 
 public class FileIncrementalSearch : IncrementalSearchBase
 {

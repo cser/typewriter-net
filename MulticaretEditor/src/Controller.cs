@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Runtime.InteropServices;
 
 namespace MulticaretEditor
 {
@@ -1463,7 +1462,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMove_b(bool shift, bool change)
+		public void ViMove_b(bool shift)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -1485,7 +1484,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMove_B(bool shift, bool change)
+		public void ViMove_B(bool shift)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -1531,7 +1530,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMoveInWord(bool shift, bool inside)
+		public void ViMoveInWord(bool inside)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -1545,7 +1544,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMoveInBigWord(bool shift, bool inside)
+		public void ViMoveInBigWord(bool inside)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -1559,7 +1558,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public void ViMoveInBrackets(bool shift, bool inside, char bra, char ket, int count)
+		public void ViMoveInBrackets(bool inside, char bra, char ket, int count)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -1578,7 +1577,7 @@ namespace MulticaretEditor
 			}
 		}
 		
-		public bool ViTryConvertToLines(char bra, char ket, bool inside)
+		public bool ViTryConvertToLines(bool inside)
 		{
 			lastSelectionFree = false;
 			bool isLine = true;
@@ -1647,7 +1646,7 @@ namespace MulticaretEditor
 			return isLine;
 		}
 		
-		public void ViMoveInQuotes(bool shift, bool inside, char quote)
+		public void ViMoveInQuotes(bool inside, char quote)
 		{
 			lastSelectionFree = false;
 			foreach (Selection selection in lines.selections)
@@ -2047,7 +2046,7 @@ namespace MulticaretEditor
 				ViMoveRightFromCursor();
 			}
 			string text = ClipboardExecutor.GetFromRegister(lines, register);
-			if (text == null || text == "")
+			if (string.IsNullOrEmpty(text))
 			{
 				processor.EndBatch();
 				return;

@@ -255,7 +255,7 @@ public class Settings
 				if (prev.GetHelpTypeText(table))
 					table.NewRow();
 			}
-			property.GetHelpText(this, table);
+			property.GetHelpText(table);
 			prev = property;
 		}
 		builder.Append(table);

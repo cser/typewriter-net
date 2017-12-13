@@ -8,7 +8,7 @@
 	
 	internal static class ScrollBarExRenderer
 	{
-		public static void DrawBackground(Graphics g, Scheme scheme, Rectangle rect, bool isHorizontal)
+		public static void DrawBackground(Graphics g, Scheme scheme, Rectangle rect)
 		{
 			if (rect.IsEmpty || g.IsVisibleClipEmpty || !g.VisibleClipBounds.IntersectsWith(rect))
 			{

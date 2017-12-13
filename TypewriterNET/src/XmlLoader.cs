@@ -4,7 +4,7 @@ using System.Xml;
 
 public class XmlLoader
 {
-	private MainForm mainForm;
+	private readonly MainForm mainForm;
 
 	public XmlLoader(MainForm mainForm)
 	{

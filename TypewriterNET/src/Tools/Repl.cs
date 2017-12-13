@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
-using System.Threading;
 using MulticaretEditor;
-using TinyJSON;
 
 public class Repl : Buffer
 {
@@ -246,15 +244,15 @@ public class Repl : Buffer
 	
 	private bool OnHome(Controller controller)
 	{
-		return ProcessHome(controller, false);
+		return ProcessHome(false);
 	}
 	
 	private bool OnHomeWithSelection(Controller controller)
 	{
-		return ProcessHome(controller, true);
+		return ProcessHome(true);
 	}
 	
-	private bool ProcessHome(Controller controller, bool shift)
+	private bool ProcessHome(bool shift)
 	{
 		if (Controller.SelectionsCount == 1)
 		{
@@ -275,12 +273,12 @@ public class Repl : Buffer
 	
 	private bool DoMoveUp(Controller controller)
 	{
-		return ProcessMove(controller, true);
+		return ProcessMove(true);
 	}
 	
 	private bool DoMoveDown(Controller controller)
 	{
-		return ProcessMove(controller, false);
+		return ProcessMove(false);
 	}
 	
 	private void SelectCurrentLine()
@@ -305,7 +303,7 @@ public class Repl : Buffer
 		Controller.NeedScrollToCaret();
 	}
 	
-	private bool ProcessMove(Controller controller, bool isUp)
+	private bool ProcessMove(bool isUp)
 	{
 		if (Controller.LastSelection.caret < Controller.Lines.charsCount)
 		{

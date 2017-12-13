@@ -13,10 +13,10 @@ public class AutocompleteMode
 		Raw
 	}
 	
-	private AutocompleteMenu dropDown;
-	private MulticaretTextBox textBox;
-	private Mode mode;
+	private readonly MulticaretTextBox textBox;
+	private readonly Mode mode;
 	
+	private AutocompleteMenu dropDown;
 	private KeyMap keyMap;
 	
 	public Setter<Controller, Variant> onDone;
@@ -64,7 +64,7 @@ public class AutocompleteMode
 	
 	public class Handler
 	{
-		private AutocompleteMode mode;
+		private readonly AutocompleteMode mode;
 		
 		public Handler(AutocompleteMode mode)
 		{
@@ -213,15 +213,15 @@ public class AutocompleteMode
 	
 	private bool DoMoveUp(Controller controller)
 	{
-		return ProcessMove(controller, true);
+		return ProcessMove(true);
 	}
 	
 	private bool DoMoveDown(Controller controller)
 	{
-		return ProcessMove(controller, false);
+		return ProcessMove(false);
 	}
 	
-	private bool ProcessMove(Controller controller, bool isUp)
+	private bool ProcessMove(bool isUp)
 	{
 		if (dropDown == null || filteredVariants.Count == 0)
 		{
@@ -239,25 +239,25 @@ public class AutocompleteMode
 	
 	private bool DoMovePageUp(Controller controller)
 	{
-		return ProcessMovePage(controller, -dropDown.maxLinesCount);
+		return ProcessMovePage(-dropDown.maxLinesCount);
 	}
 	
 	private bool DoMovePageDown(Controller controller)
 	{
-		return ProcessMovePage(controller, dropDown.maxLinesCount);
+		return ProcessMovePage(dropDown.maxLinesCount);
 	}
 	
 	private bool DoMoveToFirst(Controller controller)
 	{
-		return ProcessMovePage(controller, -filteredVariants.Count);
+		return ProcessMovePage(-filteredVariants.Count);
 	}
 	
 	private bool DoMoveToLast(Controller controller)
 	{
-		return ProcessMovePage(controller, filteredVariants.Count);
+		return ProcessMovePage(filteredVariants.Count);
 	}
 	
-	private bool ProcessMovePage(Controller controller, int offset)
+	private bool ProcessMovePage(int offset)
 	{
 		if (dropDown == null || filteredVariants.Count == 0 || dropDown == null)
 		{
