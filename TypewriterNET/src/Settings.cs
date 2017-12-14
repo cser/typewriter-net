@@ -38,8 +38,8 @@ public class Settings
 	public readonly Properties.Bool markWord = new Properties.Bool("markWord", true);
 	public readonly Properties.Bool markBracket = new Properties.Bool("markBracket", true);
 	public readonly Properties.Bool rememberCurrentDir = new Properties.Bool("rememberCurrentDir", false, Properties.Constraints.NotForLocal);
-	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "");
-	public readonly Properties.String findInFilesIgnoreDir = new Properties.String("findInFilesIgnoreDir", "", false, "");
+	public readonly Properties.String findInFilesDir = new Properties.String("findInFilesDir", "", false, "paths separated by ';'");
+	public readonly Properties.String findInFilesIgnoreDir = new Properties.String("findInFilesIgnoreDir", "", false, "paths separated by ';'");
 	public readonly Properties.String findInFilesFilter = new Properties.String("findInFilesFilter", "*.*", false, "");
 	public readonly Properties.String hideInFileTree = new Properties.String("hideInFileTree", "", false, "");
 	public readonly Properties.String renamePostfixed = new Properties.String("renamePostfixed", "", false, "");
