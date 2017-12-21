@@ -7,5 +7,4 @@
 - empty register
 - js parser with (line, char)
 - python parser
-- Ctrl+D in vi-find
-- search in files normal selection
+- c# parser: fix new method
