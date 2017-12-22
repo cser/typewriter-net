@@ -158,18 +158,35 @@ public class Frame : AFrame
 	override protected void OnResize(EventArgs e)
 	{
 		base.OnResize(e);
-		int tabBarHeight = tabBar.Height;
-		tabBar.Size = new Size(Width, tabBarHeight);
-		splitLine.Location = new Point(Width - 8, tabBarHeight);
-		splitLine.Size = new Size(8, Height - tabBarHeight);
-		textBox.Location = new Point(0, tabBarHeight);
-		bool splitLineVisible = Nest.HasRight();
-		if (this.splitLineVisible != splitLineVisible)
+		UpdateSize(Width, Height, tabBar.IsActive);
+	}
+	
+	private int lastWidth;
+	private int lastHeight;
+	private bool lastIsActive;
+	
+	private void UpdateSize(int width, int height, bool isActive)
+	{
+		if (lastWidth != width || lastHeight != height || lastIsActive != isActive)
 		{
-			this.splitLineVisible = splitLineVisible;
-			splitLine.Visible = splitLineVisible;
+			lastWidth = width;
+			lastHeight = height;
+			lastIsActive = isActive;
+			
+			tabBar.IsActive = isActive;
+			int tabBarHeight = tabBar.Height;
+			tabBar.Size = new Size(width, tabBarHeight);
+			splitLine.Location = new Point(width - 8, tabBarHeight);
+			splitLine.Size = new Size(8, height - tabBarHeight);
+			textBox.Location = new Point(0, tabBarHeight);
+			bool splitLineVisible = Nest.HasRight();
+			if (this.splitLineVisible != splitLineVisible)
+			{
+				this.splitLineVisible = splitLineVisible;
+				splitLine.Visible = splitLineVisible;
+			}
+			textBox.Size = new Size(width - (splitLineVisible ? 8 : 0), height - tabBarHeight);
 		}
-		textBox.Size = new Size(Width - (splitLineVisible ? 8 : 0), Height - tabBarHeight);
 	}
 
 	private Settings settings;
@@ -185,6 +202,11 @@ public class Frame : AFrame
 		}
 		else if (phase == UpdatePhase.Parsed)
 		{
+			bool isActive = settings.hideTabs.Value;
+			if (tabBar.IsActive != (!isActive))
+			{
+				UpdateSize(Width, Height, !isActive);
+			}
 			textBox.Scheme = settings.ParsedScheme;
 			tabBar.Scheme = settings.ParsedScheme;
 			if (settings.showEncoding.Value)

@@ -50,6 +50,22 @@ namespace MulticaretEditor
 		public TabBar(SwitchList<T> list, StringOfDelegate<T> stringOf) : this(list, stringOf, null)
 		{
 		}
+		
+		private bool isActive = true;
+		
+		public bool IsActive
+		{
+			get { return isActive; }
+			set
+			{
+				if (isActive != value)
+				{
+					isActive = value;
+					Height = isActive ? charHeight : 1;
+					Invalidate();
+				}
+			}
+		}
 
 		private void OnSelectedChange()
 		{
@@ -140,7 +156,7 @@ namespace MulticaretEditor
 			SizeF size = GetCharSize(font, 'M');
 			charWidth = (int)Math.Round(size.Width * 1f) - 1;
 			charHeight = (int)Math.Round(size.Height * 1f) + 1;
-			Height = charHeight;
+			Height = isActive ? charHeight : 1;
 
 			Invalidate();
 		}
@@ -225,6 +241,13 @@ namespace MulticaretEditor
 			int indent = charWidth;
 			int yOffset = 3;
 
+			if (!isActive)
+			{
+				g.FillRectangle(scheme.tabsBg.brush, 0, 0, width, 1);
+				g.DrawString(" ", font, scheme.tabsFg.brush, 1, 1, stringFormat);
+				base.OnPaint(e);
+				return;
+			}
 			g.FillRectangle(scheme.tabsBg.brush, 0, 0, width - charWidth, charHeight);
 
 			leftIndent = charWidth;

@@ -72,6 +72,7 @@ public class Settings
 	public readonly Properties.Bool omnisharpConsole = new Properties.Bool("omnisharpConsole", false);
 	public readonly Properties.Int fileIncrementalSearchTimeout = new Properties.Int("fileIncrementalSearchTimeout", 8);
 	public readonly Properties.Bool hideMenu = new Properties.Bool("hideMenu", false);
+	public readonly Properties.Bool hideTabs = new Properties.Bool("hideTabs", false);
 	public readonly Properties.Bool fullScreenOnMaximized = new Properties.Bool("fullScreenOnMaximized", false);
 	public readonly Properties.String viMapSource = new Properties.String("viMapSource", "", false, "");
 	public readonly Properties.String viMapResult = new Properties.String("viMapResult", "", false, "");
@@ -180,6 +181,7 @@ public class Settings
 		Add(checkContentBeforeReloading);
 		Add(fileIncrementalSearchTimeout);
 		Add(hideMenu);
+		Add(hideTabs);
 		Add(fullScreenOnMaximized);
 		Add(viMapSource);
 		Add(viMapResult);
