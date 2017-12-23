@@ -1044,5 +1044,22 @@ namespace TextNodesListTest
 					}
 				}");
 		}
+		
+		[Test]
+		public void NewMethod()
+		{
+			AssertParse(
+				"'class Test' 1 ['+new void Method0()' 3 [], '+ void Method1()' 7 []]",
+				@"public class Test
+				{
+					public new void Method0()
+					{
+					}
+					
+					public void Method1()
+					{
+					}
+				}");
+		}
 	}
 }

@@ -7,4 +7,3 @@
 - empty register
 - js parser with (line, char)
 - python parser
-- c# parser: fix new method

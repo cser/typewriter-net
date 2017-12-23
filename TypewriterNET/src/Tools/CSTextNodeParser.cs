@@ -631,6 +631,12 @@ public class CSTextNodeParser : TextNodeParser
 				iterator.MoveNext();
 				continue;
 			}
+			if (iterator.current.text == "new")
+			{
+				iterator.MoveNext();
+				modifiers += "new";
+				continue;
+			}
 			break;
 		}
 		return modifiers;
