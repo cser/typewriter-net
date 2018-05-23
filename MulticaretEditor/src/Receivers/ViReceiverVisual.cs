@@ -503,6 +503,7 @@ namespace MulticaretEditor
 					if (selection.caret > selection.anchor)
 					{
 						--selection.caret;
+						--selection.preferredPos;
 					}
 					selection.SetEmpty();
 				}

@@ -2220,5 +2220,15 @@ namespace UnitTests
 			Press("2gK").AssertSelection().Both(2, 3).NoNext();
 			Press("2gK").AssertSelection().Both(2, 3).NoNext();
 		}
+		
+		[Test]
+		public void MoveDownAfterSelection()
+		{
+			lines.SetText("line0\nline1\nline2\nline3");
+			Put(3, 1).Press("vj").AssertSelection().Anchor(3, 1).Caret(3, 2);
+			EscapeNormalViMode();
+			AssertSelection().Both(2, 2);
+			Press("j").AssertSelection().Both(2, 3);
+		}
 	}
 }
